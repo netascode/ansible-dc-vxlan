@@ -3,8 +3,6 @@
   vars:
     schema_path: "{{ role_path }}/files/fabric_schema.yaml"
     rules_path: "{{ role_path }}/files/rules/"
-    # schema_path: ""
-    # rules_path: ""
     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
 
   block:
