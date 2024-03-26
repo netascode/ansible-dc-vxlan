@@ -1,0 +1,19 @@
+---
+namespace: cisco
+name: nac_dc_vxlan
+version: 0.1.0
+readme: README.md
+authors:
+  - Matt Tarkington <mtarking>
+  - Mike Wiebe <mikewiebe>
+  - Rafael Muller <rmuller>
+  - Shangxin Du <shdu>
+description: Ansible solution collection for VXLAN
+license_file: LICENSE
+tags: [cisco, ndfc, dcnm, nxos, dnac, networking, vxlan]
+dependencies:
+  "ansible.netcommon": ">=4.1.0"
+  "cisco.ios": ">=4.3.0"
+  "cisco.nxos": ">=4.0.1"
+  "cisco.dcnm": ">=2.4.0"
+repository: https://github.com/netascode/ansible-dc-vxlan

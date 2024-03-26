@@ -1,0 +1,64 @@
+---
+
+- name: Manage vPC Pairs
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage vPC Pairs Fabric {{ MD.fabric.global.name }}"
+      - "----------------------------------------------------------------"
+
+- debug: msg="{{ item.peer1 }}, {{ item.peer2 }}"
+  loop: "{{ MD.fabric.topology.vpc_peers }}"
+
+
+- name: Query Fabric {{ MD.fabric.global.name }} Peers for VPC Configuration
+  cisco.dcnm.dcnm_inventory:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: query
+    config:
+      - seed_ip: "{{ MD.fabric.topology.leaf[item.peer1].management_ipv4_address }}"
+      - seed_ip: "{{ MD.fabric.topology.leaf[item.peer2].management_ipv4_address }}"
+  register: vpc_data
+  loop: "{{ MD.fabric.topology.vpc_peers }}"
+
+- name: Check vPC Pair Status
+  cisco.nac_dc_vxlan.dtc.vpc_pair_check:
+    vpc_data: "{{ vpc_data }}"
+
+
+- meta: end_play
+
+# Use flag variable 'setup_vpc' to track if you need to setup vpc.
+# If it's already setup you can skip it
+- ansible.builtin.set_fact:
+    setup_vpc: True
+
+- ansible.builtin.set_fact:
+    setup_vpc: False
+  when: item.isVpcConfigured == true
+  loop: "{{ vpc_data.results[0].response }}"
+  loop_control:
+    label: "{{ item.isVpcConfigured }}"
+
+- debug: msg="Setup VPC IS - {{ setup_vpc }}"
+
+
+- name: Setup VPC Peer If Not Already Setup
+  block:
+    - name: Include Tasks To Create VPC Peer Between Devices
+      ansible.builtin.import_tasks: setup_vpc_peer.yml
+  when: setup_vpc
+
+# - name: Query Fabric {{ MD.fabric.global.name }} Leaf Devices Until vPC Pair Is Configured
+#   cisco.dcnm.dcnm_inventory:
+#     fabric: "{{ MD.fabric.global.name }}"
+#     state: query
+#     config:
+#       - seed_ip: "{{ MD.fabric.topology.leaf['dc1-leaf1'].management_ipv4_address }}"
+#       - seed_ip: "{{ MD.fabric.topology.leaf['dc1-leaf2'].management_ipv4_address }}"
+#   register: query_result
+#   until:
+#     - query_result.response[0].isVpcConfigured
+#     - query_result.response[1].isVpcConfigured
+#   retries: 120
+#   delay: 5

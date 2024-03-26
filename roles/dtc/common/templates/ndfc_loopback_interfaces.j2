@@ -1,0 +1,40 @@
+---
+# This NDFC loopback interface data is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% for switch in MD.fabric.topology.switches %}
+{% for interface in switch.interfaces %}
+{% if interface.mode is defined and interface.mode in ['loopback', 'mpls_loopback', 'fabric_loopback'] %}
+- name: {{ interface.name }}
+  type: lo
+  switch:
+{% if switch.management.management_ipv4_address is defined %}
+    - {{ switch.management.management_ipv4_address}}
+{% elif (switch.management.management_ipv4_address is not defined) and (switch.management.management_ipv6_address is defined)  %}
+    - {{ switch.management.management_ipv6_address}}
+{% endif %}
+  deploy: false
+  profile:
+{% if interface.mode == 'loopback' %}
+    mode: lo
+{% elif interface.mode == 'mpls_loopback' %}
+    mode: mpls
+{% elif interface.mode == 'fabric_loopback' %}
+    mode: fabric
+{% endif %}
+    int_vrf: {{ interface.vrf | default(omit) }}
+    description: {{ interface.description | default(defaults.fabric.topology.switches.interfaces.topology_switch_loopback_interface.description) }}
+    admin_state: {{ interface.enabled | default(defaults.fabric.topology.switches.interfaces.topology_switch_loopback_interface.enabled) }}
+    ipv4_addr: {{ interface.ipv4_address | default(omit) }}
+    ipv6_addr: {{ interface.ipv6_address | default(omit) }}
+{# ------------------------------------------------------ #}
+{# Todo: Need special handling for secondary ipv4 address and route_tag #}
+{#       Module only supports one secondary and tag and no ipv6 support #}
+{#       Also need to add freeform commands to the model? #}
+{# ------------------------------------------------------ #}
+    secondary_ipv4_addr: {{ interface.secondary_ipv4_addresses[0].ip_address | default(omit) }}
+    route_tag: {{ interface.secondary_ipv4_addresses[0].route_tag | default(omit) }}
+
+{% endif %}
+{% endfor %}
+{% endfor %}

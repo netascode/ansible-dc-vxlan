@@ -1,0 +1,15 @@
+---
+
+- name: Manage Devices Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage Devices Fabric {{ MD.fabric.global.name }}"
+      - "----------------------------------------------------------------"
+
+- name: Manage Devices Discovery
+  ansible.builtin.include_tasks: devices_discovery.yml
+
+# TODO: Enable This Capability
+# - name: Add Devices POAP
+#   ansible.builtin.include_tasks: devices_poap.yml

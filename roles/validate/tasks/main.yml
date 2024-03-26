@@ -1,0 +1,53 @@
+---
+- name: Validate NDFC Service Model Data
+  vars:
+    schema_path: "{{ role_path }}/files/fabric_schema.yaml"
+    rules_path: "{{ role_path }}/files/rules/"
+    # schema_path: ""
+    # rules_path: ""
+    data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+
+  block:
+    - debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
+
+    - meta: reset_connection
+
+    - debug: msg="Workflow is Direct to Device (DTD)"
+      when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.nxos.nxos"
+
+    - debug: msg="Workflow is Direct to Controller (DTC)"
+      when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
+
+    - name: "Perform Syntax and Semantic Model Validation"
+      cisco.nac_dc_vxlan.common.nac_dc_validate:
+        schema: "{{ schema_path }}"
+        mdata: "{{ data_path }}"
+        rules: "{{ rules_path }}"
+      register: model_data
+
+    - name: "Prepare Service Model"
+      cisco.nac_dc_vxlan.common.prepare_service_model:
+        inventory_hostname: "{{ inventory_hostname }}"
+        hostvars: "{{ hostvars }}"
+        model_data: "{{ model_data['data'] }}"
+      register: smd
+
+    - name: Store Golden Service Model Data
+      ansible.builtin.set_fact:
+        MD: "{{ smd['model_golden'] }}"
+
+    - name: Store Extended Service Model Data
+      ansible.builtin.set_fact:
+        MD_Extended: "{{ smd['model_extended'] }}"
+
+    - name: Copy Service Model Data to Host
+      ansible.builtin.copy:
+        content: "{{ MD | to_nice_json }}"
+        dest: "{{ role_path }}/files/service_model_golden.json"
+        force: yes
+
+    - name: Copy Extended Service Model Data to Host
+      ansible.builtin.copy:
+        content: "{{ MD_Extended | to_nice_json }}"
+        dest: "{{ role_path }}/files/service_model_extended.json"
+        force: yes

@@ -1,0 +1,59 @@
+
+---
+# - name: Query Fabric {{ MD.fabric.global.name }} Leaf1 and Leaf2 for VPC Configuration
+#   cisco.dcnm.dcnm_inventory:
+#     fabric: "{{ MD.fabric.global.name }}"
+#     state: query
+#     config:
+#       - seed_ip: "{{ MD.fabric.topology.leaf[item.peer1].management_ipv4_address }}"
+#       - seed_ip: "{{ MD.fabric.topology.leaf[item.peer2].management_ipv4_address }}"
+#   register: query_result
+#   loop: "{{ MD.fabric.topology.vpc_peers }}"
+
+- name: query leaf serial number of {{ MD.fabric.global.name }}
+  cisco.dcnm.dcnm_inventory:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: query
+    config:
+      - seed_ip: "{{ MD.fabric.topology.leaf['dc1-leaf1'].management_ipv4_address }}"
+      - seed_ip: "{{ MD.fabric.topology.leaf['dc1-leaf2'].management_ipv4_address }}"
+  register: leaf_sws
+
+- name: enable peer link on leaf switches of {{ MD.fabric.global.name }}
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: merged
+    config:
+      - name: "{{ MD.fabric.topology.leaf[leaf.peer1_peerlink_interfaces[0].name] }}"
+        type: eth
+        admin_state: true
+        switch:
+          - "{{ MD.fabric.topology.leaf[leaf.peer1].management_ipv4_address }}"
+        profile:
+          mode: trunk
+      - name: eth1/4
+        type: eth
+        admin_state: true
+        switch:
+          - "{{ MD.fabric.topology.leaf[leaf.peer2].management_ipv4_address }}"
+        profile:
+          mode: trunk
+  ignore_errors: true
+  loop_control:
+    loop_var: leaf
+  loop: "{{ MD.fabric.topology.vpc_peers }}"
+  # loop:
+  #   - ip: "{{ MD.fabric.topology.leaf[leaf.peer1].management_ipv4_address }}"
+  #   - ip: "{{ MD.fabric.topology.leaf[leaf.peer2].management_ipv4_address }}"
+
+- name: "create VPC peer on leaf {{ MD.fabric.topology.leaf['dc1-leaf1'].management_ipv4_address }}|{{ MD.fabric.topology.leaf['dc1-leaf2'].management_ipv4_address }}"
+  vars:
+    payload:
+      peerOneId: "{{leaf_sws.response[0].serialNumber}}"
+      peerTwoId: "{{leaf_sws.response[1].serialNumber}}"
+      useVirtualPeerlink: false
+  cisco.dcnm.dcnm_rest:
+    method: POST
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/vpcpair"
+    json_data: "{{ payload | to_json }}"
+  ignore_errors: true

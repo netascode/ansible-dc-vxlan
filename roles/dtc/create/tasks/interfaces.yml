@@ -1,0 +1,74 @@
+---
+- name: Manage Fabric Interfaces Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage Fabric Interfaces {{ MD.fabric.global.name }}"
+      - "----------------------------------------------------------------"
+
+# --------------------------------------------------------------------
+# Manage Interface Access Portchannel Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Access Portchannel Interface
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: replaced
+    config: "{{ interface_access_po }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.access_po.count >0
+
+# --------------------------------------------------------------------
+# Manage Interface Trunk Portchannel Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Trunk Portchannel Interface
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: replaced
+    config: "{{ interface_trunk_po }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.trunk_po.count >0
+
+# --------------------------------------------------------------------
+# Manage Interface Routed Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Routed
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: replaced
+    config: "{{ interface_routed }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.routed.count >0
+
+# --------------------------------------------------------------------
+# Manage Sub-interface Routed Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Sub-interface Routed
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: replaced
+    config: "{{ sub_interface_routed }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.routed_sub.count >0
+
+
+# --------------------------------------------------------------------
+# Manage interface Port-Channel Routed Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Port-Channel Routed
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: replaced
+    config: "{{ interface_po_routed }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.routed_po.count >0
+
+# --------------------------------------------------------------------
+# Manage interface Loopback Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage NDFC Fabric Loopback
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: replaced
+    config: "{{ int_loopback_config }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.loopback.count >0

@@ -1,0 +1,41 @@
+---
+# This NDFC inventory is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% for net in MD.fabric.overlay_services.networks %}
+- net_name: {{ net['name'] }}
+{# ------------------------------------------------------ #}
+{# Properties Section #}
+{# ------------------------------------------------------ #}
+  vrf_name: {{ net['vrf_name'] | default(omit) }}
+  is_l2only: {{ net['is_l2_only'] | default(defaults.fabric.overlay_services.networks.is_l2_only) }}
+  net_id: {{ net['net_id'] | default(omit) }}
+  vlan_id: {{ net['vlan_id'] | default(omit) }}
+  vlan_name: {{ net['vlan_name'] | default(omit) }}
+  gw_ip_subnet: {{ net['gw_ip_address'] | default(omit) }}
+  gw_ipv6_subnet: {{ net['gw_ipv6_address'] | default(omit) }}
+  arp_suppress: {{ net['arp_suppress'] | default(defaults.fabric.overlay_services.networks.arp_supress) }}
+  int_desc: {{ net['int_desc'] | default(defaults.fabric.overlay_services.networks.net_description) }}
+  l3gw_on_border: {{ net['l3gw_on_border'] | default(defaults.fabric.overlay_services.networks.l3gw_on_border) }}
+  mtu_l3intf: {{ net['mtu_l3intf'] | default(defaults.fabric.overlay_services.networks.mtu_l3intf) }}
+  multicast_group_address: {{ net['multicast_group_address'] | default(defaults.fabric.overlay_services.networks.multicast_group_address) }}
+  netflow_enable: {{ net['netflow_enable'] | default(defaults.fabric.overlay_services.networks.netflow_enable) }}
+{% if net['netflow_enable'] is defined and net['netflow_enable'] | bool %}
+  vlan_nf_monitor: {{ net['vlan_netflow_monitor'] | default(omit) }}
+{% endif %}
+  route_target_both: {{ net['route_target_both'] | default(defaults.fabric.overlay_services.networks.route_target_both) }}
+  route_tag: {{ net['route_tag'] | default(defaults.fabric.overlay_services.networks.route_tag) }}
+  trm_enable: {{ net['trm_enable'] | default(defaults.fabric.overlay_services.networks.trm_enable) }}
+{# ------------------------------------------------------ #}
+{# Attach Group Section #}
+{# ------------------------------------------------------ #}
+{% if net['attach_group'] is defined %}
+  attach:
+{% for attach in MD_Extended.fabric.overlay_services.network_attach_groups_dict[net['attach_group']] %}
+    - ip_address: {{ attach['hostname'] }}
+      ports: {{ attach['ports'] }}
+{% endfor %}
+  deploy: false
+{% endif %}
+
+{% endfor %}

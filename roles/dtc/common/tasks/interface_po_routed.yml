@@ -1,0 +1,17 @@
+---
+- name: Set interface_po_routed_file_name Var
+  ansible.builtin.set_fact:
+    interface_po_routed_file_name: "{{ MD.fabric.global.name }}_interface_po_routed.yml"
+
+- name: Build Interface Po
+  ansible.builtin.template:
+    src: interface_po_routed.j2
+    dest: "{{ role_path }}/files/{{ interface_po_routed_file_name }}"
+
+- name: Set interface_po_routed Var default
+  ansible.builtin.set_fact:
+    interface_po_routed: []
+
+- name: Set interface_po_routed Var
+  ansible.builtin.set_fact:
+    interface_po_routed: "{{ lookup('file', interface_po_routed_file_name) | from_yaml }}"

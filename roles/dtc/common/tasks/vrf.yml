@@ -1,0 +1,19 @@
+---
+
+- name: Set vrf_file_name Var
+  ansible.builtin.set_fact:
+    vrf_file_name: "{{ MD.fabric.global.name }}_attach_vrfs.yml"
+
+- name: Build VRFs Attach List From Template
+  ansible.builtin.template:
+    src: attach_vrfs.j2
+    dest: "{{ role_path }}/files/{{ vrf_file_name }}"
+
+- name: Create Empty vrf_config Var
+  ansible.builtin.set_fact:
+    vrf_config: []
+
+- name: Set vrf_config Var
+  ansible.builtin.set_fact:
+    vrf_config: "{{ lookup('file', vrf_file_name) | from_yaml }}"
+  when: MD.fabric.overlay_services.vrfs

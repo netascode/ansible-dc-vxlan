@@ -1,0 +1,10 @@
+---
+
+- name: Remove all devices from the NDFC fabric {{ fabric_name }}
+  cisco.dcnm.dcnm_inventory:
+    fabric: "{{ fabric_name }}"
+    state: deleted
+    config: "{{ lookup('file', 'ndfc_inventory.yml') | from_yaml }}"
+  vars:
+      ansible_command_timeout: 1000
+      ansible_connect_timeout: 1000

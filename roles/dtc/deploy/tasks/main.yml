@@ -1,0 +1,27 @@
+---
+- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
+      - "----------------------------------------------------------------"
+
+- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+
+- fail: msg="Service Model Not Defined.  Role cisco.csc.prepare_model Must Be Called First"
+  when: MD is undefined
+
+- name: Config-Save for Fabric {{ MD.fabric.global.name }}
+  cisco.dcnm.dcnm_rest:
+    method: POST
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.fabric.global.name }}/config-save"
+  # when: TODO: Need to add logic to only save if changes are made
+
+- name: Deploy for Fabric {{ MD.fabric.global.name }}
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.fabric.global.name }}/config-deploy?forceShowRun=false"
+    method: POST
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
+  # when: TODO: Need to add logic to only deploy if changes are made

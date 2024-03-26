@@ -1,0 +1,19 @@
+---
+
+- name: Set int_loopback_file_name Var
+  ansible.builtin.set_fact:
+    int_loopback_file_name: "{{ MD.fabric.global.name }}_loopback_interfaces.yml"
+
+- name: Build Loopback Interfaces List From Template
+  ansible.builtin.template:
+    src: ndfc_loopback_interfaces.j2
+    dest: "{{ role_path }}/files/{{ int_loopback_file_name }}"
+
+- name: Set int_loopback_config Var
+  ansible.builtin.set_fact:
+    int_loopback_config: []
+
+- name: Set int_loopback_config Var
+  ansible.builtin.set_fact:
+    int_loopback_config: "{{ lookup('file', int_loopback_file_name) | from_yaml }}"
+  when: MD.fabric.topology.switches

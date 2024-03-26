@@ -1,0 +1,34 @@
+---
+
+- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.remove]
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.remove]           +"
+      - "----------------------------------------------------------------"
+
+- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+
+- fail: msg="Service Model Not Defined.  Role cisco.csc.prepare_model Must Be Called First"
+  when: MD is undefined
+
+- debug: msg="Removing Unmanaged Fabric Loopback Interfaces. This could take several minutes..."
+- cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: overridden
+    config: "{{ int_loopback_config }}"
+  register: result
+
+- debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
+- cisco.dcnm.dcnm_network:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: overridden
+    config: "{{ net_config }}"
+  register: result
+
+- debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
+- cisco.dcnm.dcnm_vrf:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: overridden
+    config: "{{ vrf_config }}"
+  register: result
