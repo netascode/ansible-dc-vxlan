@@ -42,7 +42,6 @@ class ActionModule(ActionBase):
         # vpc_data['results'][1]['response'][0]['isVpcConfigured']
         # vpc_data['results'][1]['response'][1]['isVpcConfigured']
 
-        import epdb; epdb.set_trace()
 
         if fabric_data.get('global').get('auth_proto') is None:
             results['failed'] = True
