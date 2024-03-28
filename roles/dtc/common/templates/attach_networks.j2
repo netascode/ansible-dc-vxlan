@@ -2,7 +2,7 @@
 # This NDFC inventory is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% for net in MD.fabric.overlay_services.networks %}
+{% for net in MD_Extended.fabric.overlay_services.networks %}
 - net_name: {{ net['name'] }}
 {# ------------------------------------------------------ #}
 {# Properties Section #}
@@ -18,7 +18,6 @@
   int_desc: {{ net['int_desc'] | default(defaults.fabric.overlay_services.networks.net_description) }}
   l3gw_on_border: {{ net['l3gw_on_border'] | default(defaults.fabric.overlay_services.networks.l3gw_on_border) }}
   mtu_l3intf: {{ net['mtu_l3intf'] | default(defaults.fabric.overlay_services.networks.mtu_l3intf) }}
-  multicast_group_address: {{ net['multicast_group_address'] | default(defaults.fabric.overlay_services.networks.multicast_group_address) }}
   netflow_enable: {{ net['netflow_enable'] | default(defaults.fabric.overlay_services.networks.netflow_enable) }}
 {% if net['netflow_enable'] is defined and net['netflow_enable'] | bool %}
   vlan_nf_monitor: {{ net['vlan_netflow_monitor'] | default(omit) }}

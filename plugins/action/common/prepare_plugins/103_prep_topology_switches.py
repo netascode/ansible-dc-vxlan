@@ -22,5 +22,8 @@ class PreparePlugin:
                 model_data['fabric']['topology'][role][name][v4_key] = v4ip
                 model_data['fabric']['topology'][role][name][v6_key] = v6ip
 
+        if model_data.get(self.keys[0]).get(self.keys[1]).get(self.keys[2]) is None:
+            model_data['fabric']['topology']['switches'] = []
+
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
