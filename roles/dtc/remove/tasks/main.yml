@@ -13,7 +13,7 @@
   when: MD is undefined
 
 - debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
-- name: Add NDFC Fabric Devices {{ MD.fabric.global.name }}
+- name: Remove NDFC Fabric Devices {{ MD.fabric.global.name }}
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD.fabric.global.name }}"
     config: "{{ inv_config }}"

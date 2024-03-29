@@ -9,6 +9,7 @@ class PreparePlugin:
         if model_data.get(self.keys[0]).get(self.keys[1]).get(self.keys[2]) is not None:
             model_data['fabric']['topology']['spine'] = {}
             model_data['fabric']['topology']['leaf'] = {}
+            model_data['fabric']['topology']['border'] = {}
             sm_switches = model_data['fabric']['topology']['switches']
             for switch in sm_switches:
                 # Build list of switch IP's based on role keyed by switch name
