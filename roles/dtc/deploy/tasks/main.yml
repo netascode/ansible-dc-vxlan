@@ -15,7 +15,8 @@
   cisco.dcnm.dcnm_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.fabric.global.name }}/config-save"
-  # when: TODO: Need to add logic to only save if changes are made
+  when: MD_Extended.fabric.topology.switches | length > 0
+  # TODO: Need to add logic to only save if changes are made
 
 - name: Deploy for Fabric {{ MD.fabric.global.name }}
   cisco.dcnm.dcnm_rest:
@@ -24,4 +25,5 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-  # when: TODO: Need to add logic to only deploy if changes are made
+  when: MD_Extended.fabric.topology.switches | length > 0
+  # TODO: Need to add logic to only deploy if changes are made

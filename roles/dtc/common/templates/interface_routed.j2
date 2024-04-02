@@ -3,7 +3,7 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% for switch in MD.fabric.topology.switches %}
+{% for switch in MD_Extended.fabric.topology.switches %}
 {% for interface in switch['interfaces'] %}
 {% if interface['mode'] == 'routed' %}
 - name : {{ interface['name'] }}

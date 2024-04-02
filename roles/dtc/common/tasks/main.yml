@@ -1,4 +1,17 @@
 ---
+# --------------------------------------------------------------------
+# Remove all files from the previous run
+# --------------------------------------------------------------------
+- name: Delete content & directory
+  ansible.builtin.file:
+    state: absent
+    path: "{{ role_path }}/files/"
+
+- name: Recreate the directory
+  ansible.builtin.file:
+    path: "{{ role_path }}/files/"
+    state: directory
+    mode: '0755'
 
 # --------------------------------------------------------------------
 # Build Fabric Switch Inventory List From Template
@@ -27,7 +40,6 @@
 
 - name: Build Fabric Loopback Interfaces List From Template
   ansible.builtin.include_tasks: int_loopback.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.loopback.count >0
 
 # --------------------------------------------------------------------
 # Build Access Portchannel Interfaces List From Template
@@ -35,7 +47,6 @@
 
 - name: Build Access Portchannel Interfaces List From Template
   ansible.builtin.include_tasks: int_access_po.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.access_po.count >0
 
 # --------------------------------------------------------------------
 # Build Trunk Portchannel Interfaces List From Template
@@ -43,7 +54,6 @@
 
 - name: Build Trunk Portchannel Interfaces List From Template
   ansible.builtin.include_tasks: int_trunk_po.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.trunk_po.count >0
 
 # --------------------------------------------------------------------
 # Build Fabric Interface Routed List From Template
@@ -51,8 +61,6 @@
 
 - name: Build Fabric Interface Routed List From Template
   ansible.builtin.include_tasks: interface_routed.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.routed.count >0
-
 
 # --------------------------------------------------------------------
 # Build Fabric Sub-interface Routed List From Template
@@ -60,8 +68,6 @@
 
 - name: Build Fabric Sub-interface Routed List From Template
   ansible.builtin.include_tasks: sub_interface_routed.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.routed_sub.count >0
-
 
 # --------------------------------------------------------------------
 # Build Fabric interface Port-Channel Routed List From Template
@@ -69,4 +75,3 @@
 
 - name: Build Fabric interface Port-Channel Routed List From Template
   ansible.builtin.include_tasks: interface_po_routed.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.routed_po.count >0
