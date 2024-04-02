@@ -1,0 +1,14 @@
+---
+# tasks file for test_ndfc_deploy
+
+# - name: Render NDFC Robot Resource File 
+#   cisco.nac_dc_vxlan.template_local:
+#     src: 'ndfc_common.robot'
+#     dest: ""
+#     lstrip_blocks: yes
+
+- name: Run Tests
+  cisco.nac_dc_vxlan.nac_iac_test:
+    data_dir: "{{ playbook_dir }}/host_vars/{{ MD.fabric.global.name }}"
+    template_dir: "{{ role_path }}/templates"
+    output_dir: "{{ playbook_dir }}/tests"
