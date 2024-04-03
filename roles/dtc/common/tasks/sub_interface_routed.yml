@@ -15,3 +15,4 @@
 - name: Set sub_interface_routed Var
   ansible.builtin.set_fact:
     sub_interface_routed: "{{ lookup('file', sub_interface_routed_file_name) | from_yaml }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.routed_sub.count >0
