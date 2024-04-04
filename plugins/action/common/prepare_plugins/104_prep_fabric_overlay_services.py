@@ -21,7 +21,7 @@ class PreparePlugin:
         # a structure that is easier to use.
         if model_data.get(self.keys[0], None):
             if model_data.get(self.keys[0]).get(self.keys[1], None):
-                if model_data.get(self.keys[0]).get(self.keys[1]).get('vrf_attach_groups_dict', None):
+                if model_data.get(self.keys[0]).get(self.keys[1]).get('vrf_attach_groups', None):
                     model_data[self.keys[0]][self.keys[1]]['vrf_attach_groups_dict'] = {}
                     for grp in model_data[self.keys[0]][self.keys[1]][self.keys[3]]:
                         model_data[self.keys[0]][self.keys[1]]['vrf_attach_groups_dict'][grp['name']] = []
@@ -32,7 +32,7 @@ class PreparePlugin:
         # a structure that is easier to use.
         if model_data.get(self.keys[0], None):
             if model_data.get(self.keys[0]).get(self.keys[1], None):
-                if model_data.get(self.keys[0]).get(self.keys[1]).get('network_attach_groups_dict', None):
+                if model_data.get(self.keys[0]).get(self.keys[1]).get('network_attach_groups', None):
                     model_data[self.keys[0]][self.keys[1]]['network_attach_groups_dict'] = {}
                     for grp in model_data[self.keys[0]][self.keys[1]][self.keys[5]]:
                         model_data[self.keys[0]][self.keys[1]]['network_attach_groups_dict'][grp['name']] = []
