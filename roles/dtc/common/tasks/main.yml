@@ -77,7 +77,6 @@
 
 - name: Build Trunk Interfaces List From Template
   ansible.builtin.include_tasks: int_trunk.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.trunk.count >0
 
 # --------------------------------------------------------------------
 # Build Access Interfaces List From Template
@@ -85,4 +84,3 @@
 
 - name: Build Access Interfaces List From Template
   ansible.builtin.include_tasks: int_access.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.access.count >0
