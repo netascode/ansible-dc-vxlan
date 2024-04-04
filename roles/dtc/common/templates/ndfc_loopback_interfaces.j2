@@ -3,6 +3,7 @@
 # DO NOT EDIT MANUALLY
 #
 {% for switch in MD_Extended.fabric.topology.switches %}
+{% if switch.interfaces is defined %}
 {% for interface in switch.interfaces %}
 {% if interface.mode is defined and interface.mode in ['loopback', 'mpls_loopback', 'fabric_loopback'] %}
 - name: {{ interface.name }}
@@ -37,4 +38,5 @@
 
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endfor %}
