@@ -16,4 +16,4 @@
 - name: Set vrf_config Var
   ansible.builtin.set_fact:
     vrf_config: "{{ lookup('file', vrf_file_name) | from_yaml }}"
-  when: MD.fabric.overlay_services.vrfs
+  when: (MD_Extended.fabric.overlay_services.vrfs | default([])) | length > 0

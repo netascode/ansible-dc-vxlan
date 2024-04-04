@@ -15,3 +15,4 @@
 - name: Set interface_access_po Var
   ansible.builtin.set_fact:
     interface_access_po: "{{ lookup('file', interface_access_po_file_name) | from_yaml }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.access_po.count >0

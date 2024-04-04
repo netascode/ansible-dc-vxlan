@@ -2,7 +2,7 @@
 # This NDFC loopback interface data is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% for switch in MD.fabric.topology.switches %}
+{% for switch in MD_Extended.fabric.topology.switches %}
 {% for interface in switch.interfaces %}
 {% if interface.mode is defined and interface.mode in ['loopback', 'mpls_loopback', 'fabric_loopback'] %}
 - name: {{ interface.name }}
