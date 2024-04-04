@@ -25,6 +25,7 @@
     speed: {{ interface['speed'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_interface.speed) }}
     spanning_tree_portfast: {{ interface['spanning_tree_portfast'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_interface.spanning_tree_portfast) }}
     access_vlan: {{ interface['access_vlan'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_interface.access_vlan) }}
+    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_interface.enable_bpdu_guard) }}
 {% endif %}
 {% endif %}
 {% endfor %}
