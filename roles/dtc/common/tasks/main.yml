@@ -13,6 +13,10 @@
     state: directory
     mode: '0755'
 
+- name: Add gitkeep file back to the directory
+  ansible.builtin.file:
+    path: "{{ role_path }}/files/.gitkeep"
+    state: touch
 # --------------------------------------------------------------------
 # Build Fabric Switch Inventory List From Template
 # --------------------------------------------------------------------
