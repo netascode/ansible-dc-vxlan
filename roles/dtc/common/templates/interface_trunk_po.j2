@@ -4,6 +4,7 @@
 #
 
 {% for switch in MD_Extended.fabric.topology.switches %}
+{% if switch.interfaces is defined %}
 {% for interface in switch['interfaces'] %}
 {% set interface_name = interface['name'] | lower %}
 {% if interface_name.startswith('po') %}
@@ -33,4 +34,5 @@
 {% endif %}
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endfor %}
