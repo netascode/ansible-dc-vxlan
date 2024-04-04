@@ -8,11 +8,6 @@ class PreparePlugin:
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
-        # import epdb; epdb.set_trace()
-
-        # if model_data.get('fabric', None):
-            # if model_data.get('fabric').get('topology', None):
-                # if model_data.get('fabric').get('topology').get('switches', None):
         if has_keys(model_data, self.keys):
             model_data['fabric']['topology']['spine'] = {}
             model_data['fabric']['topology']['leaf'] = {}

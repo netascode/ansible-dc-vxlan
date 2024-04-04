@@ -21,9 +21,6 @@ class PreparePlugin:
 
         # Rebuild sm_data['fabric']['overlay_services']['vrf_attach_groups'] into
         # a structure that is easier to use.
-        # if model_data.get('fabric', None):
-        #     if model_data.get('fabric').get('overlay_services', None):
-        #         if model_data.get('fabric').get('overlay_services').get('vrf_attach_groups', None):
         if has_keys(model_data, ['fabric', 'overlay_services', 'vrf_attach_groups']):
             model_data['fabric']['overlay_services']['vrf_attach_groups_dict'] = {}
             for grp in model_data['fabric']['overlay_services']['vrf_attach_groups']:
@@ -33,9 +30,6 @@ class PreparePlugin:
 
         # Rebuild sm_data['fabric']['overlay_services']['network_attach_groups'] into
         # a structure that is easier to use.
-        # if model_data.get('fabric', None):
-        #     if model_data.get('fabric').get('overlay_services', None):
-        #         if model_data.get('fabric').get('overlay_services').get('network_attach_groups', None):
         if has_keys(model_data, ['fabric', 'overlay_services', 'network_attach_groups']):
             model_data['fabric']['overlay_services']['network_attach_groups_dict'] = {}
             for grp in model_data['fabric']['overlay_services']['network_attach_groups']:
