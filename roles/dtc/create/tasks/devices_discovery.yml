@@ -15,3 +15,10 @@
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
   when: MD_Extended.fabric.topology.switches | length > 0
+
+- name: Set NDFC Fabric Device Hostnames
+  cisco.dcnm.dcnm_policy:
+    fabric: "{{ MD.fabric.global.name }}"
+    config: "{{ hostname_policy_config }}"
+    deploy: false
+    state: merged
