@@ -27,41 +27,92 @@ class PreparePlugin:
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
     
-## Sample output
-
-# "vpc_interfaces": {
-#     "dc1-leaf1___dc1-leaf2": {
-#         "3": {
-#             "dc1-leaf1": {
-#                 "description": "topology_switch_access_po_interface",
-#                 "enabled": true,
-#                 "members": [
-#                     "eth1/16",
-#                     "eth1/17"
-#                 ],
-#                 "mode": "access",
-#                 "mtu": "jumbo",
-#                 "name": "port-channel1",
-#                 "pc_mode": "active",
-#                 "spanning_tree_portfast": true,
-#                 "speed": "auto",
-#                 "vpc_id": 3
-#             },
-#             "dc1-leaf2": {
-#                 "description": "topology_switch_access_po_interface",
-#                 "enabled": true,
-#                 "members": [
-#                     "eth1/16",
-#                     "eth1/17"
-#                 ],
-#                 "mode": "access",
-#                 "mtu": "jumbo",
-#                 "name": "port-channel1",
-#                 "pc_mode": "active",
-#                 "spanning_tree_portfast": true,
-#                 "speed": "auto",
-#                 "vpc_id": 3
+# ========================================================
+# Sample Input
+# ========================================================
+# fabric:
+#   topology:
+#     vpc_peers:
+#       - peer1: dc1-leaf1
+#         peer2: dc1-leaf2
+#         domain_id: 10
+#         vtep_vip: "10.10.88.1"
+#     switches:
+#       - name: dc1-leaf1
+#         role: leaf
+#         interfaces:
+#           - name: port-channel1
+#             mode: access
+#             description: 'topology_switch_access_po_interface'
+#             vpc_id: 3
+#             mtu: jumbo
+#             speed: auto
+#             enabled: True
+#             spanning_tree_portfast: True
+#             pc_mode: active
+#             members:
+#               - eth1/16
+#               - eth1/17
+#       - name: dc1-leaf2
+#         role: leaf
+#         interfaces:
+#           - name: port-channel1
+#             mode: access
+#             description: 'topology_switch_access_po_interface1'
+#             vpc_id: 3
+#             mtu: jumbo
+#             speed: auto
+#             enabled: True
+#             spanning_tree_portfast: True
+#             pc_mode: active
+#             members:
+#               - eth1/16
+#               - eth1/17
+# ========================================================
+# Sample Outout (MD_Extended)
+# ========================================================
+# {
+#     "fabric": {
+#         "topology": {
+#             "interfaces": {
+#                 "vpc_interfaces": {
+#                     "dc1-leaf1___dc1-leaf2": {
+#                         "3": {
+#                             "dc1-leaf1": {
+#                                 "description": "topology_switch_access_po_interface",
+#                                 "enabled": true,
+#                                 "members": [
+#                                     "eth1/16",
+#                                     "eth1/17"
+#                                 ],
+#                                 "mode": "access",
+#                                 "mtu": "jumbo",
+#                                 "name": "port-channel1",
+#                                 "pc_mode": "active",
+#                                 "spanning_tree_portfast": true,
+#                                 "speed": "auto",
+#                                 "vpc_id": 3
+#                             },
+#                             "dc1-leaf2": {
+#                                 "description": "topology_switch_access_po_interface1",
+#                                 "enabled": true,
+#                                 "members": [
+#                                     "eth1/16",
+#                                     "eth1/17"
+#                                 ],
+#                                 "mode": "access",
+#                                 "mtu": "jumbo",
+#                                 "name": "port-channel1",
+#                                 "pc_mode": "active",
+#                                 "spanning_tree_portfast": true,
+#                                 "speed": "auto",
+#                                 "vpc_id": 3
+#                             }
+#                         }
+#                     }
+#                 }
 #             }
 #         }
-#     },
+#     }
 # }
+# ========================================================
