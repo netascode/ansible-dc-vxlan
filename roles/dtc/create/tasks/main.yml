@@ -18,7 +18,7 @@
 
 - name: Manage NDFC Fabric Switches
   ansible.builtin.include_tasks: devices.yml
-  when: MD.fabric.topology is defined
+  when: MD_Extended.fabric.topology.switches | length > 0
 
 # - name: Manage VPC Peering
 #   ansible.builtin.include_tasks: vpc.yml
@@ -26,11 +26,12 @@
 
 - name: Manage NDFC Fabric Interfaces
   ansible.builtin.include_tasks: interfaces.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.all.count >0
+  when: (MD_Extended.fabric.topology.interfaces.modes.all.count >0) and (MD_Extended.fabric.topology.switches | length > 0)
+
 
 - name: Manage NDFC Fabric VRFs and Networks
   ansible.builtin.include_tasks: vrfs_networks.yml
-  when: MD.fabric.overlay_services is defined
+  when: (MD.fabric.overlay_services is defined) and (MD_Extended.fabric.topology.switches | length > 0)
 
 # - name: Manage NDFC VRF-Lite Extensions
 #   ansible.builtin.include_tasks: vrflite.yml

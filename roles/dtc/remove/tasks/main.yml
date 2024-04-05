@@ -12,23 +12,36 @@
 - fail: msg="Service Model Not Defined.  Role cisco.csc.prepare_model Must Be Called First"
   when: MD is undefined
 
+
 - debug: msg="Removing Unmanaged Fabric Loopback Interfaces. This could take several minutes..."
 - cisco.dcnm.dcnm_interface:
     fabric: "{{ MD.fabric.global.name }}"
     state: overridden
     config: "{{ int_loopback_config }}"
-  register: result
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
 
 - debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
 - cisco.dcnm.dcnm_network:
     fabric: "{{ MD.fabric.global.name }}"
     state: overridden
     config: "{{ net_config }}"
-  register: result
 
 - debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
 - cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD.fabric.global.name }}"
     state: overridden
     config: "{{ vrf_config }}"
-  register: result
+
+- debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
+- name: Remove NDFC Fabric Devices {{ MD.fabric.global.name }}
+  cisco.dcnm.dcnm_inventory:
+    fabric: "{{ MD.fabric.global.name }}"
+    config: "{{ inv_config }}"
+    deploy: true
+    save: true
+    state: overridden
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
