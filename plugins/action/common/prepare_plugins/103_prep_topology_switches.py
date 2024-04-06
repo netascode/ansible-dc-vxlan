@@ -1,4 +1,4 @@
-from ansible_collections.cisco.nac_dc_vxlan.plugins.action.helper_functions import has_keys
+from ...helper_functions import data_model_key_check
 
 
 class PreparePlugin:
@@ -8,7 +8,8 @@ class PreparePlugin:
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
-        if has_keys(model_data, self.keys):
+        dm_check = data_model_key_check(model_data, self.keys)
+        if (dm_check['keys_found'] == self.keys) and ('switches' in dm_check['keys_data']):
             model_data['fabric']['topology']['spine'] = {}
             model_data['fabric']['topology']['leaf'] = {}
             model_data['fabric']['topology']['border'] = {}

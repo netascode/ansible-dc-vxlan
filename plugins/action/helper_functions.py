@@ -8,15 +8,16 @@ def do_something():
     print('do something')
 
 
-def has_keys(tested_object, keys):
+def data_model_key_check(tested_object, keys):
+   dm_key_dict = {'keys_found': [], 'keys_not_found': [], 'keys_data': [], 'keys_no_data': []}
    for key in keys:
       if key in tested_object:
+         dm_key_dict['keys_found'].append(key)
          tested_object = tested_object[key]
+         if tested_object:
+            dm_key_dict['keys_data'].append(key)
+         else:
+            dm_key_dict['keys_no_data'].append(key)
       else:
-         return False
-   return True
-
-	# List of keys that we found
-    # List of keys we did not find
-    # List of keys we found but no data under it
-    # List of keys we found with data under it
+         dm_key_dict['keys_not_found'].append(key)
+   return dm_key_dict

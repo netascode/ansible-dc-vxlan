@@ -1,4 +1,4 @@
-from ansible_collections.cisco.nac_dc_vxlan.plugins.action.helper_functions import has_keys
+from ...helper_functions import data_model_key_check
 
 
 ## Count interfaces of different types and expose in extended service model for controls within playbooks
@@ -14,7 +14,9 @@ class PreparePlugin:
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
-        if has_keys(model_data, ['fabric', 'topology', 'switches']):
+
+        dm_check = data_model_key_check(model_data, ['fabric', 'topology', 'switches'])
+        if dm_check['keys_found'] == ['fabric', 'topology', 'switches']:
             model_data['fabric']['topology']['interfaces'] = {}
             model_data['fabric']['topology']['interfaces']['modes'] = {}
 
@@ -26,7 +28,7 @@ class PreparePlugin:
             model_data['fabric']['topology']['interfaces']['modes'][mode] = {}
             model_data['fabric']['topology']['interfaces']['modes'][mode]['count'] = 0
 
-        if has_keys(model_data, ['fabric', 'topology', 'switches']):
+        if dm_check['keys_found'] == ['fabric', 'topology', 'switches']:
             # loop through switches
             for switch in model_data.get('fabric').get('topology').get('switches'):
                 # if switch has interfaces
