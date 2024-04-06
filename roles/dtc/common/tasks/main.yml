@@ -79,3 +79,10 @@
 
 - name: Build Fabric interface Port-Channel Routed List From Template
   ansible.builtin.include_tasks: interface_po_routed.yml
+
+# --------------------------------------------------------------------
+# Build Fabric interface VPC List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric interface VPC List From Template
+  ansible.builtin.include_tasks: interface_vpc.yml
