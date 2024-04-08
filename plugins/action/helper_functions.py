@@ -11,7 +11,7 @@ def do_something():
 def data_model_key_check(tested_object, keys):
    dm_key_dict = {'keys_found': [], 'keys_not_found': [], 'keys_data': [], 'keys_no_data': []}
    for key in keys:
-      if key in tested_object:
+      if tested_object and key in tested_object:
          dm_key_dict['keys_found'].append(key)
          tested_object = tested_object[key]
          if tested_object:
