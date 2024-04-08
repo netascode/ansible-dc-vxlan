@@ -6,7 +6,7 @@
 
 - name: Build VRFs Attach List From Template
   ansible.builtin.template:
-    src: attach_vrfs.j2
+    src: ndfc_attach_vrfs.j2
     dest: "{{ role_path }}/files/{{ vrf_file_name }}"
 
 - name: Create Empty vrf_config Var
