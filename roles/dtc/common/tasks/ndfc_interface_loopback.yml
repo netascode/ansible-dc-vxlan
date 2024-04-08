@@ -2,7 +2,7 @@
 
 - name: Set int_loopback_file_name Var
   ansible.builtin.set_fact:
-    int_loopback_file_name: "{{ MD.fabric.global.name }}_loopback_interfaces.yml"
+    int_loopback_file_name: "{{ MD.fabric.global.name }}_ndfc_loopback_interfaces.yml"
 
 - name: Build Loopback Interfaces List From Template
   ansible.builtin.template:
