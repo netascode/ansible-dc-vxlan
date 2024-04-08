@@ -15,3 +15,4 @@
 - name: Set interface_trunk_po Var
   ansible.builtin.set_fact:
     interface_trunk_po: "{{ lookup('file', interface_trunk_po_file_name) | from_yaml }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.trunk_po.count >0

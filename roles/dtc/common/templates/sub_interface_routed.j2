@@ -3,7 +3,8 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% for switch in MD.fabric.topology.switches %}
+{% for switch in MD_Extended.fabric.topology.switches %}
+{% if switch.interfaces is defined %}
 {% for interface in switch['interfaces'] %}
 {% if interface['mode'] == 'routed_sub' %}
 - name : {{ interface['name'] }}
@@ -36,4 +37,5 @@
     speed: {{ interface['speed'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_routed_sub_interface.speed) }}
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endfor %}
