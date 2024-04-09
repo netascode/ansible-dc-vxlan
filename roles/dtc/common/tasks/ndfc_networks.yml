@@ -2,11 +2,11 @@
 
 - name: Set net_file_name Var
   ansible.builtin.set_fact:
-    net_file_name: "{{ MD.fabric.global.name }}_attach_networks.yml"
+    net_file_name: "{{ MD.fabric.global.name }}_ndfc_attach_networks.yml"
 
 - name: Build Networks Attach List From Template
   ansible.builtin.template:
-    src: attach_networks.j2
+    src: ndfc_attach_networks.j2
     dest: "{{ role_path }}/files/{{ net_file_name }}"
 
 - name: Set net_config Var
