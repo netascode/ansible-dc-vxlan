@@ -80,3 +80,17 @@
 
 - name: Build NDFC Fabric Routed Port-Channel Interface List From Template
   ansible.builtin.include_tasks: ndfc_interface_po_routed.yml
+
+# --------------------------------------------------------------------
+# Build Trunk Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build Trunk Interfaces List From Template
+  ansible.builtin.include_tasks: ndfc_int_trunk.yml
+
+# --------------------------------------------------------------------
+# Build Access Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build Access Interfaces List From Template
+  ansible.builtin.include_tasks: ndfc_int_access.yml
