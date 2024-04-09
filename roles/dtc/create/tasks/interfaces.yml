@@ -106,3 +106,4 @@
     state: replaced
     config: "{{ interface_vpc }}"
   when: MD_Extended.fabric.topology.interfaces.modes.access_vpc.count >0 or MD_Extended.fabric.topology.interfaces.modes.trunk_vpc.count >0
+
