@@ -96,3 +96,15 @@
     config: "{{ interface_access }}"
   when: MD_Extended.fabric.topology.interfaces.modes.access.count >0
 
+
+# --------------------------------------------------------------------
+# Manage interface VPC Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage NDFC Fabric VPCs
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD.fabric.global.name }}"
+    state: replaced
+    config: "{{ interface_vpc }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.access_vpc.count >0 or MD_Extended.fabric.topology.interfaces.modes.trunk_vpc.count >0
+
