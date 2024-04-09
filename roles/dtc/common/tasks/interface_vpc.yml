@@ -1,0 +1,18 @@
+---
+- name: Set interface_vpc_file_name Var
+  ansible.builtin.set_fact:
+    interface_vpc_file_name: "{{ MD.fabric.global.name }}_interface_vpc.yml"
+
+- name: Build VPC interface
+  ansible.builtin.template:
+    src: interface_vpc.j2
+    dest: "{{ role_path }}/files/{{ interface_vpc_file_name }}"
+
+- name: Set interface_vpc Var default
+  ansible.builtin.set_fact:
+    interface_vpc: []
+
+- name: Set interface_vpc Var
+  ansible.builtin.set_fact:
+    interface_vpc: "{{ lookup('file', interface_vpc_file_name) | from_yaml }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.access_vpc.count >0 or MD_Extended.fabric.topology.interfaces.modes.trunk_vpc.count >0
