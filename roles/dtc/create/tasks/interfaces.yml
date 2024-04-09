@@ -73,6 +73,29 @@
     config: "{{ int_loopback_config }}"
   when: MD_Extended.fabric.topology.interfaces.modes.loopback.count >0
 
+  # --------------------------------------------------------------------
+# Manage Interface Trunk Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Trunk
+  cisco.dcnm.dcnm_interface:  
+    fabric: "{{ MD.fabric.name }}"
+    state: replaced
+    config: "{{ interface_trunk }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.trunk.count >0
+
+
+# --------------------------------------------------------------------
+# Manage Interface Access Routed Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Access
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD.fabric.name }}"
+    state: replaced
+    config: "{{ interface_access }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.access.count >0
+
 # --------------------------------------------------------------------
 # Manage interface VPC Configuration on NDFC
 # --------------------------------------------------------------------
