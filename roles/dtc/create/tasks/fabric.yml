@@ -19,9 +19,9 @@
     fabric_name: "{{ MD.fabric.global.name }}"
   register: result
 
-- name: Dump Result
-  ansible.builtin.debug:
-    msg: "{{ result.exists }}"
+# - name: Dump Result
+#   ansible.builtin.debug:
+#     msg: "{{ result.exists }}"
 
 - name: Create fabric {{ MD.fabric.global.name }} in NDFC
   vars:
@@ -34,15 +34,3 @@
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.fabric.global.name }}/Easy_Fabric"
     json_data: "{{ payload | to_json }}"
   when: (not result['exists'])
-
-# - name: Create fabric {{ MD.fabric.global.name }} in NDFC
-#   cisco.dcnm.dcnm_fabric:
-#     state: merged
-#     config:
-#       - FABRIC_NAME: "netascode4"
-#         BGP_AS: 100
-#         FABRIC_TYPE: "VXLAN_EVPN"
-#         DEPLOY: True
-
-
-# - meta: end_play
