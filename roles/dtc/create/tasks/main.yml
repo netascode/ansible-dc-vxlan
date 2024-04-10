@@ -12,6 +12,8 @@
 - fail: msg="Service Model Not Defined.  Role cisco.csc.prepare_model Must Be Called First"
   when: MD is undefined
 
+- meta: end_play
+
 - name: Create NDFC Fabric
   ansible.builtin.include_tasks: fabric.yml
   when: MD.fabric.global is defined
