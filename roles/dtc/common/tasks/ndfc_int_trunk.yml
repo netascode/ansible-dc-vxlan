@@ -1,7 +1,7 @@
 ---
 - name: Set interface_trunk_file_name Var
   ansible.builtin.set_fact:
-    interface_trunk_file_name: "{{ MD.fabric.global.name }}_ndfc_interface_trunk.yml"
+    interface_trunk_file_name: "{{ MD.fabric.name }}_ndfc_interface_trunk.yml"
 
 - name: Build Interface
   ansible.builtin.template:
