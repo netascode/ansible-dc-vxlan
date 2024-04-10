@@ -7,30 +7,7 @@
       - "+     Manage Fabric {{ MD.fabric.global.name }}"
       - "----------------------------------------------------------------"
 
-- name: Query NDFC to get Fabric List
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics"
-  register: fabric_query
-
-- name: Check if fabric {{ MD.fabric.global.name }} exist in NDFC
-  cisco.nac_dc_vxlan.dtc.fabric_check:
-    fabric_data: "{{ fabric_query }}"
-    fabric_name: "{{ MD.fabric.global.name }}"
-  register: result
-
-# - name: Dump Result
-#   ansible.builtin.debug:
-#     msg: "{{ result.exists }}"
-
 - name: Create fabric {{ MD.fabric.global.name }} in NDFC
-  vars:
-    payload:
-      BGP_AS: "{{ MD.fabric.global.bgp_asn }}"
-      GRFIELD_DEBUG_FLAG: "Enable"
-      OVERLAY_MODE: "cli"
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.fabric.global.name }}/Easy_Fabric"
-    json_data: "{{ payload | to_json }}"
-  when: (not result['exists'])
+  cisco.dcnm.dcnm_fabric:
+    state: merged
+    config: "{{ fabric_config }}"

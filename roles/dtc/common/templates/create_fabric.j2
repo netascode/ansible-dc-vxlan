@@ -1,0 +1,93 @@
+---
+# This NDFC inventory is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% set fabric = MD.fabric %}
+{% set global = fabric.global %}
+{% set vpc = global.vpc %}
+{% set underlay = fabric.underlay %}
+{% set multicast = underlay.multicast %}
+{% set ipv4 = underlay.ipv4 %}
+{% set ipv6 = underlay.ipv6 %}
+{% set bfd = underlay.bfd %}
+{% set bgp = underlay.bgp %}
+{% set isis = underlay.isis %}
+{% set ospf = underlay.ospf %}
+{% set defaults = defaults.fabric %}
+- FABRIC_NAME: "{{ global.name }}"
+  BGP_AS: "{{ global.bgp_asn }}"
+  FABRIC_TYPE: "VXLAN_EVPN"
+
+{#
+  GRFIELD_DEBUG_FLAG: "Enable"
+  OVERLAY_MODE: "cli"
+  RR_COUNT: "{{ global.route_reflectors | default(defaults.global.route_reflectors) }}"
+  ANYCAST_GW_MAC: "{{ global.anycast_gateway_mac | default(omit) }}"
+  VPC_PEER_LINK_VLAN: "{{ vpc.peer_link_vlan | default(omit) }}"
+  VPC_PEER_KEEP_ALIVE_OPTION: "{{ vpc.peer_keep_alive | default(defaults.global.vpc.peer_keep_alive) }}"
+  VPC_AUTO_RECOVERY_TIME: "{{ vpc.auto_recovery_time | default(defaults.global.vpc.auto_recovery_time) }}"
+  VPC_DELAY_RESTORE_TIME: "{{ vpc.delay_restore_time | default(defaults.global.vpc.delay_restore_time) }}"
+  VPC_PEER_LINK_PO: "{{ vpc.peer_link_port_channel_id | default(defaults.global.vpc.peer_link_port_channel_id) }}"
+  VPC_DOMAIN_ID_RANGE: "{{ vpc.domain_id_range | default(defaults.global.vpc.domain_id_range) }}"
+  LINK_STATE_ROUTING: "{{ underlay.general.routing_protocol | default(defaults.underlay.general.routing_protocol) }}"
+  FABRIC_INTERFACE_TYPE: "{{ underlay.general.fabric_interface_numbering | default(defaults.underlay.general.fabric_interface_numbering) }}"
+  SUBNET_TARGET_MASK: "{{ underlay.general.subnet_mask | default(defaults.underlay.general.subnet_mask) }}"
+  MULTICAST_GROUP_SUBNET: "{{ multicast.group_subnet | default(defaults.underlay.multicast.group_subnet) }}"
+  RP_COUNT: "{{ multicast.rendezvous_points | default(defaults.underlay.multicast.rendezvous_points) }}"
+  RP_MODE: "{{ multicast.rp_mode | default(defaults.underlay.multicast.rp_mode) }}"
+  RP_LB_ID: "{{ multicast.underlay_rp_loopback_id | default(defaults.underlay.multicast.underlay_rp_loopback_id) }}"
+  VPC_DELAY_RESTORE: "{{ vpc.delay_restore_time | default(defaults.global.vpc.delay_restore_time) }}"
+  BGP_LB_ID: "{{ underlay.general.underlay_routing_loopback_id | default(defaults.underlay.general.underlay_routing_loopback_id) }}"
+  NVE_LB_ID: "{{ underlay.general.underlay_vtep_loopback_id | default(defaults.underlay.general.underlay_vtep_loopback_id) }}"
+  LINK_STATE_ROUTING_TAG: "{{ underlay.general.underlay_routing_protocol_tag | default(defaults.underlay.general.underlay_routing_protocol_tag) }}"
+  OSPF_AREA_ID: "{{ ospf.area_id | default(defaults.underlay.ospf.area_id) }}"
+  OSPF_AUTH_KEY: "{{ ospf.authentication_key | default(omit) }}"
+  ISIS_LEVEL: "{{ isis.level | default(defaults.underlay.isis.level) }}"
+  ISIS_AUTH_KEYCHAIN_NAME: "{{ isis.authentication_key | default(omit) }}"
+  BGP_AUTH_KEY_TYPE: "{{ bgp.authentication_key_type | default(omit) }}"
+  BGP_AUTH_KEY: "{{ bgp.authentication_key | default(omit) }}"
+  BFD_AUTH_KEY: "{{ bfd.authentication_key | default(omit) }}"
+  FABRIC_MTU: "{{ underlay.general.intra_fabric_interface_mtu | default(defaults.underlay.general.intra_fabric_interface_mtu) }}"
+  L2_HOST_INTF_MTU: "{{ underlay.general.layer2_host_interfacde_mtu | default(defaults.underlay.general.layer2_host_interfacde_mtu) }}"
+  LOOPBACK0_IP_RANGE: "{{ ipv4.underlay_routing_loopback_ip_range | default(defaults.underlay.ipv4.underlay_routing_loopback_ip_range) }}"
+  LOOPBACK1_IP_RANGE: "{{ ipv4.underlay_vtep_loopback_ip_range | default(defaults.underlay.ipv4.underlay_vtep_loopback_ip_range) }}"
+  ANYCAST_RP_IP_RANGE: "{{ ipv4.underlay_rp_loopback_ip_range | default(defaults.underlay.ipv4.underlay_rp_loopback_ip_range) }}"
+  SUBNET_RANGE: "{{ ipv4.underlay_subnet_ip_range | default(defaults.underlay.ipv4.underlay_subnet_ip_range) }}"
+  DNS_SERVER_IP_LIST: "{{ global.dns_servers.ip_address | default(omit) }}"
+  DNS_SERVER_VRF: "{{ global.dns_servers.vrf | default(omit) }}"
+  NTP_SERVER_IP_LIST: "{{ global.ntp_servers.ip_address | default(omit) }}"
+  NTP_SERVER_VRF: "{{ global.ntp_servers.vrf | default(omit) }}"
+  ENABLE_NETFLOW: "{{ MD.fabric.overlay_services.vrfs.neflow_enable | default(omit) }}"
+  NETFLOW_MONITOR_LIST: "{{ MD.fabric.overlay_services.vrfs.netflow_monitor | default(omit) }}"
+
+
+-- HTTP 500 Invalid JSON response: Error in validating provided name value pair --
+  BGP_AUTH_ENABLE: "{{ underlay.bgp.authentication_enable | default(defaults.underlay.bgp.authentication_enable) }}"
+  ISIS_OVERLOAD_ENABLE: "{{ underlay.isis.overload_bit | default(defaults.underlay.isis.overload_bit) }}"
+  ENABLE_TRM: "{{ underlay.multicast.trm_enable | default(defaults.underlay.multicast.trm_enable) }}"
+  BFD_IBGP_ENABLE: "{{ underlay.bfd.ibgp | default(defaults.underlay.bfd.ibgp) }}"
+  BFD_OSPF_ENABLE: "{{ underlay.bfd.ospf | default(defaults.underlay.bfd.ospf) }}"
+  ISIS_P2P_ENABLE: "{{ underlay.isis.network_point_to_point | default(defaults.underlay.isis.network_point_to_point) }}"
+  BFD_ENABLE: "{{ underlay.bfd.enable | default(defaults.underlay.bfd.enable) }}"
+  USE_LINK_LOCAL: "{{ underlay.ipv6.enable_ipv6_link_local_address | default(defaults.underlay.ipv4.enable_ipv6_link_local_address) }}"
+  BFD_PIM_ENABLE: "{{ underlay.bfd.pim | default(defaults.underlay.bfd.pim) }}"
+  ADVERTISE_PIP_ON_BORDER: "{{ global.vpc.advertise_pip_border_only | default(defaults.global.vpc.advertise_pip_border_only) }}"
+  UNDERLAY_IS_V6: "{{ underlay.general.enable_ipv6_underlay | default(defaults.underlay.general.enable_ipv6_underlay) }}"
+  ISIS_AUTH_ENABLE: "{{ underlay.isis.authentication_enable | default(defaults.underlay.isis.authentication_enable) }}"
+  V6_SUBNET_TARGET_MASK: "{{ underlay.ipv6.underlay_subnet_mask | default(defaults.underlay.ipv6.underlay_subnet_mask) }}"
+  BFD_ISIS_ENABLE: "{{ underlay.bfd.isis | default(defaults.underlay.bfd.isis) }}"
+  BFD_AUTH_KEY_ID: "{{ underlay.bfd.authentication_key_id | default(omit) }}"
+  OSPF_AUTH_ENABLE: "{{ underlay.ospf.authentication_enable | default(omit) }}"
+  BFD_AUTH_ENABLE: "{{ underlay.bfd.authentication_enable | default(defaults.underlay.bfd.authentication_enable) }}"
+  HOST_INTF_ADMIN_STATE: "{{ underlay.general.unshut_host_interfaces | default(defaults.underlay.general.unshut_host_interfaces) }}"
+  REPLICATION_MODE: "{{ underlay.general.replication_mode | default(defaults.underlay.general.replication_mode) }}"
+
+-- Invalid JSON response: Failed to create the fabric, due to invalid fields --
+  ISIS_AUTH_KEYCHAIN_KEY_ID: "{{ underlay.isis.authentication_key_id | default(omit) }}"
+  PHANTOM_RP_LB_ID1: "{{ underlay.multicast.underlay_primary_rp_loopback_id | default(defaults.underlay.multicast.underlay_primary_rp_loopback_id) }}"
+  PHANTOM_RP_LB_ID2: "{{ underlay.multicast.underlay_backup_rp_loopback_id | default(defaults.underlay.multicast.underlay_backup_rp_loopback_id) }}"
+  PHANTOM_RP_LB_ID3: "{{ underlay.multicast.underlay_second_backup_rp_loopback_id | default(defaults.underlay.multicast.underlay_second_backup_rp_loopback_id) }}"
+  PHANTOM_RP_LB_ID4: "{{ underlay.multicast.underlay_third_backup_rp_loopback_id | default(defaults.underlay.multicast.underlay_third_backup_rp_loopback_id) }}"
+  OSPF_AUTH_KEY_ID: "{{ underlay.ospf.authentication_key_id | default(omit) }}"
+  ISIS_OVERLOAD_ELAPSE_TIME: "{{ underlay.isis.overload_bit_elapsed_time | default(defaults.underlay.isis.overload_bit_elapsed_time) }}"
+#}
