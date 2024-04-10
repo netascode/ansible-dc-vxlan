@@ -96,7 +96,6 @@
     config: "{{ interface_access }}"
   when: MD_Extended.fabric.topology.interfaces.modes.access.count >0
 
-
 # --------------------------------------------------------------------
 # Manage interface VPC Configuration on NDFC
 # --------------------------------------------------------------------
