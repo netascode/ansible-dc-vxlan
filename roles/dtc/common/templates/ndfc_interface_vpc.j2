@@ -1,3 +1,4 @@
+
 {% import 'ndfc_parse_vlans.j2' as vlan_macro with context %}
 ---
 # This NDFC inventory is auto-generated
@@ -42,8 +43,29 @@
           peer2_allowed_vlans: "{{ vlan_macro.convert_vlan_ranges(peer2, switches) | trim }}"
 {% elif switches[peer1].mode == 'access' %}
           peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
+{% macro convert_vlan_ranges(peer) %}
+    {% if switches[peer].trunk_allowed_vlans is defined %}
+        {% set vlan_ranges = [] %}
+        {% for vlan_range in switches[peer].trunk_allowed_vlans %}
+            {% if vlan_range.to is not none %}
+                {% set range_str = vlan_range.from ~ ('-' ~ vlan_range.to) %}
+            {% else %}
+                {% set range_str = vlan_range.from %}
+            {% endif %}
+            {% set _ = vlan_ranges.append(range_str) %}
+        {% endfor %}
+        {{ vlan_ranges | join(', ') }}
+     {% elif switches[peer].trunk_allowed_vlans is not defined %}
+        {{ vlan_ranges | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans)}}
+    {% endif %}
+{% endmacro %}
+          peer1_allowed_vlans: "{{ convert_vlan_ranges(peer1) | trim }}"
+          peer2_allowed_vlans: "{{ convert_vlan_ranges(peer2) | trim }}"
+{% elif switches[peer1].mode == 'access' %}
+          peer1_access_vlan: {{ switches[peer1].access_vlan  | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
           peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan)  }}
 {% endif %}
 {% endfor %}
 {% endfor %}
 {% endif %}
+
