@@ -1,4 +1,4 @@
-{# VLAN Parsing template : ndfc_parse_vlans.j2 #}
+{# VLAN Parsing Macro : ndfc_parse_vlans.j2 #}
 
 {% macro convert_vlan_ranges(peer) %}
     {% if switches[peer].trunk_allowed_vlans is defined %}
