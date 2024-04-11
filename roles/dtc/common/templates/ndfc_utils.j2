@@ -1,5 +1,3 @@
-{# VLAN Parsing Macro : ndfc_parse_vlans.j2 #}
-
 {% macro convert_vlan_ranges(switch, switches) %}
     {% if switches[switch].trunk_allowed_vlans is defined %}
         {% set vlan_ranges = [] %}
