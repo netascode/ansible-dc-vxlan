@@ -18,7 +18,9 @@
   int_desc: {{ net['int_desc'] | default(defaults.fabric.overlay_services.networks.net_description) }}
   l3gw_on_border: {{ net['l3gw_on_border'] | default(defaults.fabric.overlay_services.networks.l3gw_on_border) }}
   mtu_l3intf: {{ net['mtu_l3intf'] | default(defaults.fabric.overlay_services.networks.mtu_l3intf) }}
+{% if (MD.fabric.underlay.general.replication_mode | lower) == 'multicast' %}
   multicast_group_address: {{ net['multicast_group_address'] | default(defaults.fabric.overlay_services.networks.multicast_group_address) }}
+{% endif %}
   netflow_enable: {{ net['netflow_enable'] | default(defaults.fabric.overlay_services.networks.netflow_enable) }}
 {% if net['netflow_enable'] is defined and net['netflow_enable'] | bool %}
   vlan_nf_monitor: {{ net['vlan_netflow_monitor'] | default(omit) }}
