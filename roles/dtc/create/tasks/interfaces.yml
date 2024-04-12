@@ -107,3 +107,17 @@
     config: "{{ interface_vpc }}"
   when: MD_Extended.fabric.topology.interfaces.modes.access_vpc.count >0 or MD_Extended.fabric.topology.interfaces.modes.trunk_vpc.count >0
 
+## Will discuss with team and switchover to the below code and remove the above code
+# # --------------------------------------------------------------------
+# # Manage Interface All Configuration on NDFC
+# # --------------------------------------------------------------------
+
+# - name: Manage Interface All
+#   cisco.dcnm.dcnm_interface:
+#     fabric: "{{ MD.fabric.global.name }}"
+#     state: replaced
+#     config: "{{ interface_all }}"
+#   vars:
+#       ansible_command_timeout: 3000
+#       ansible_connect_timeout: 3000
+#   when: MD_Extended.fabric.topology.interfaces.modes.all.count >0
