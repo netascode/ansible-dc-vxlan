@@ -108,4 +108,4 @@
 # --------------------------------------------------------------------
 
 - name: Build Fabric Create Parameters
-  ansible.builtin.include_tasks: fabric.yml
+  ansible.builtin.include_tasks: ndfc_fabric.yml
