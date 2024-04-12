@@ -103,3 +103,9 @@
   ansible.builtin.include_tasks: ndfc_interface_vpc.yml
 
 
+# --------------------------------------------------------------------
+# Build Create Fabric parameter List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric Create Parameters
+  ansible.builtin.include_tasks: ndfc_fabric.yml
