@@ -17,6 +17,7 @@
   BGP_AS: "{{ global.bgp_asn }}"
   FABRIC_TYPE: "VXLAN_EVPN"
   OVERLAY_MODE: "cli"
+  REPLICATION_MODE: "{{ underlay.general.replication_mode | default(defaults.fabric.underlay.general.replication_mode) | title }}"
   DEPLOY: "False"
 {#
   GRFIELD_DEBUG_FLAG: "Enable"
@@ -76,7 +77,6 @@
   OSPF_AUTH_ENABLE: "{{ underlay.ospf.authentication_enable | default(omit) }}"
   BFD_AUTH_ENABLE: "{{ underlay.bfd.authentication_enable | default(defaults.fabric.underlay.bfd.authentication_enable) }}"
   HOST_INTF_ADMIN_STATE: "{{ underlay.general.unshut_host_interfaces | default(defaults.fabric.underlay.general.unshut_host_interfaces) }}"
-  REPLICATION_MODE: "{{ underlay.general.replication_mode | default(defaults.fabric.underlay.general.replication_mode) }}"
   ISIS_AUTH_KEYCHAIN_KEY_ID: "{{ underlay.isis.authentication_key_id | default(omit) }}"
   PHANTOM_RP_LB_ID1: "{{ underlay.multicast.underlay_primary_rp_loopback_id | default(defaults.fabric.underlay.multicast.underlay_primary_rp_loopback_id) }}"
   PHANTOM_RP_LB_ID2: "{{ underlay.multicast.underlay_backup_rp_loopback_id | default(defaults.fabric.underlay.multicast.underlay_backup_rp_loopback_id) }}"
