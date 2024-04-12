@@ -1,7 +1,7 @@
-{% macro convert_vlan_ranges(switch, switches) %}
-    {% if switches[switch].trunk_allowed_vlans is defined %}
+{% macro convert_vlan_ranges(trunk_allowed_vlans) %}
+    {% if trunk_allowed_vlans is defined %}
         {% set vlan_ranges = [] %}
-        {% for vlan_range in switches[switch].trunk_allowed_vlans %}
+        {% for vlan_range in trunk_allowed_vlans %}
             {% if vlan_range.to is not none %}
                 {% set range_str = vlan_range.from ~ ('-' ~ vlan_range.to) %}
             {% else %}
@@ -10,7 +10,7 @@
             {% set _ = vlan_ranges.append(range_str) %}
         {% endfor %}
         {{ vlan_ranges | join(', ') }}
-     {% elif switches[switch].trunk_allowed_vlans is not defined %}
+    {% elif trunk_allowed_vlans is not defined %}
         {{ vlan_ranges | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans)}}
     {% endif %}
 {% endmacro %}

@@ -1,5 +1,5 @@
 {% import 'ndfc_utils.j2' as vlan_macro with context %}
----
+--
 # This NDFC inventory is auto-generated
 # DO NOT EDIT MANUALLY
 #
@@ -38,8 +38,8 @@
           peer2_description: "{{ switches[peer2].description | default(omit) }}"
           bpdu_guard: {{ switches[peer1].enable_bpdu_guard | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard)   }}
 {% if switches[peer1].mode == 'trunk' %}
-          peer1_allowed_vlans: "{{ vlan_macro.convert_vlan_ranges(peer1, switches) | trim }}"
-          peer2_allowed_vlans: "{{ vlan_macro.convert_vlan_ranges(peer2, switches) | trim }}"
+          peer1_allowed_vlans: "{{ vlan_macro.convert_vlan_ranges(switches[peer1].trunk_allowed_vlans) | trim }}"
+          peer2_allowed_vlans: "{{ vlan_macro.convert_vlan_ranges(switches[peer2].trunk_allowed_vlans) | trim }}"
 {% elif switches[peer1].mode == 'access' %}
           peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
           peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan)  }}
