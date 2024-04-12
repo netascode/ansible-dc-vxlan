@@ -24,9 +24,22 @@
     description: {{ interface['description'] | default(omit) }}
     mtu: {{ interface['mtu'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_interface.speed) }}
-    spanning_tree_portfast: {{ interface['spanning_tree_portfast'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_interface.spanning_tree_portfast) }}
-    trunk_allowed_vlans: {{ interface['trunk_allowed_vlans'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_interface.trunk_allowed_vlans) }}
+    port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_interface.spanning_tree_portfast) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_interface.enable_bpdu_guard) }}
+{% if interface['trunk_allowed_vlans'] is defined %}
+{% set trunk_allowed_vlans = [] %}
+{% for vlan in interface['trunk_allowed_vlans'] %}
+{% if vlan.to is defined %}
+{% set vlan_range = vlan.from|string + '-' + vlan.to|string %}
+{% else %}
+{% set vlan_range = vlan.from|string %}
+{% endif %}
+{{ trunk_allowed_vlans.append(vlan_range)|default("", True) }}
+{% endfor %}
+    allowed_vlans: {{ trunk_allowed_vlans|join(',') }}
+{% else %}
+    allowed_vlans: {{ defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans }}
+{% endif %}
 {% endif %}
 {% endif %}
 {% endfor %}

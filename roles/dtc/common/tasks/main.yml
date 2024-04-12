@@ -102,6 +102,12 @@
 - name: Build Fabric interface VPC List From Template
   ansible.builtin.include_tasks: ndfc_interface_vpc.yml
 
+# --------------------------------------------------------------------
+# Build Fabric interface all List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric interface All List From Template
+  ansible.builtin.include_tasks: ndfc_interface_all.yml
 
 # --------------------------------------------------------------------
 # Build Create Fabric parameter List From Template
