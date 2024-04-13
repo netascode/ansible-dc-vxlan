@@ -30,11 +30,10 @@ class ActionModule(ActionBase):
         # Generate a warning if the Schema and Rules are not provided
         if schema and not os.path.exists(schema):
             display.warning("The schema ({0}) does not appear to exist! ".format(schema))
-        # The rules directory is considered empty if it only contains the .gitkeep file
-        # if len(os.listdir(rules)) == 1 and '.gitkeep' in os.listdir(rules):
         if not os.path.exists(rules):
             display.warning("The rules directory ({0}) does not appear to exist! ".format(rules))
-        if os.path.exists(rules) and not os.listdir(rules):
+        # The rules directory is considered empty if it is an empty dir or only contains the .gitkeep file
+        if os.path.exists(rules) and (not os.listdir(rules) or (len(os.listdir(rules)) == 1 and '.gitkeep' in os.listdir(rules))):
             display.warning("The rules directory ({0}) exists but is empty! ".format(rules))
 
         # Verify That Data Sources Exists
