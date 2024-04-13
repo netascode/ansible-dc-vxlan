@@ -79,7 +79,7 @@ defaults:
       general:
         routing_protocol: ospf
         enable_ipv6_underlay: false
-        replication_mode: multicast
+        replication_mode: Multicast
         fabric_interface_numbering: p2p
         subnet_mask: 30
         underlay_routing_loopback_id: 0

@@ -7,7 +7,9 @@
       - "+     Manage Fabric {{ MD.fabric.global.name }}"
       - "----------------------------------------------------------------"
 
-- name: Create fabric {{ MD.fabric.global.name }} in NDFC
+- debug: msg="{{ fabric_config }}"
+
+- name: Manage fabric {{ MD.fabric.global.name }} in NDFC
   cisco.dcnm.dcnm_fabric:
     state: merged
     config: "{{ fabric_config }}"

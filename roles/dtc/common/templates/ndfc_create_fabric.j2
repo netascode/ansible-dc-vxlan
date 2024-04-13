@@ -13,26 +13,33 @@
 {% set bgp = underlay.bgp %}
 {% set isis = underlay.isis %}
 {% set ospf = underlay.ospf %}
-- FABRIC_NAME: "{{ global.name }}"
-  BGP_AS: "{{ global.bgp_asn }}"
-  FABRIC_TYPE: "VXLAN_EVPN"
-  OVERLAY_MODE: "cli"
-  DEPLOY: "False"
+- FABRIC_NAME: {{ global.name }}
+  BGP_AS: {{ global.bgp_asn }}
+  FABRIC_TYPE: VXLAN_EVPN
+  OVERLAY_MODE: cli
+  DEPLOY: True
+  GRFIELD_DEBUG_FLAG: Enable
+  AAA_REMOTE_IP_ENABLED: False
+  RR_COUNT: {{ global.route_reflectors | default(defaults.fabric.global.route_reflectors) }}
+  ANYCAST_GW_MAC: {{ global.anycast_gateway_mac | default(omit) }}
+  VPC_PEER_LINK_VLAN: {{ vpc.peer_link_vlan | default(omit) }}
+  VPC_PEER_LINK_VLAN: {{ vpc.peer_link_vlan | default(omit) }}
+  VPC_PEER_KEEP_ALIVE_OPTION: {{ vpc.peer_keep_alive | default(defaults.fabric.global.vpc.peer_keep_alive) }}
+  VPC_AUTO_RECOVERY_TIME: {{ vpc.auto_recovery_time | default(defaults.fabric.global.vpc.auto_recovery_time) }}
+  VPC_DELAY_RESTORE_TIME: {{ vpc.delay_restore_time | default(defaults.fabric.global.vpc.delay_restore_time) }}
+  VPC_PEER_LINK_PO: {{ vpc.peer_link_port_channel_id | default(defaults.fabric.global.vpc.peer_link_port_channel_id) }}
+  ENABLE_FABRIC_VPC_DOMAIN_ID: False
+  VPC_DOMAIN_ID_RANGE: {{ vpc.domain_id_range | default(defaults.fabric.global.vpc.domain_id_range) }}
+  LINK_STATE_ROUTING: {{ underlay.general.routing_protocol | default(defaults.fabric.underlay.general.routing_protocol) }}
+  UNDERLAY_IS_V6: False
+  FABRIC_INTERFACE_TYPE: {{ underlay.general.fabric_interface_numbering | default(defaults.fabric.underlay.general.fabric_interface_numbering) }}
+  SUBNET_TARGET_MASK: {{ underlay.general.subnet_mask | default(defaults.fabric.underlay.general.subnet_mask) }}
+  REPLICATION_MODE: {{ (underlay.general.replication_mode | capitalize) | default(defaults.fabric.underlay.general.replication_mode) }}
+{% if (underlay.general.replication_mode | capitalize) == 'Multicast' %}
+  MULTICAST_GROUP_SUBNET: {{ multicast.group_subnet | default(defaults.fabric.underlay.multicast.group_subnet) }}
+  RP_COUNT: {{ multicast.rendezvous_points | default(defaults.fabric.underlay.multicast.rendezvous_points) }}
+{% endif %}
 {#
-  GRFIELD_DEBUG_FLAG: "Enable"
-  RR_COUNT: "{{ global.route_reflectors | default(defaults.fabric.global.route_reflectors) }}"
-  ANYCAST_GW_MAC: "{{ global.anycast_gateway_mac | default(omit) }}"
-  VPC_PEER_LINK_VLAN: "{{ vpc.peer_link_vlan | default(omit) }}"
-  VPC_PEER_KEEP_ALIVE_OPTION: "{{ vpc.peer_keep_alive | default(defaults.fabric.global.vpc.peer_keep_alive) }}"
-  VPC_AUTO_RECOVERY_TIME: "{{ vpc.auto_recovery_time | default(defaults.fabric.global.vpc.auto_recovery_time) }}"
-  VPC_DELAY_RESTORE_TIME: "{{ vpc.delay_restore_time | default(defaults.fabric.global.vpc.delay_restore_time) }}"
-  VPC_PEER_LINK_PO: "{{ vpc.peer_link_port_channel_id | default(defaults.fabric.global.vpc.peer_link_port_channel_id) }}"
-  VPC_DOMAIN_ID_RANGE: "{{ vpc.domain_id_range | default(defaults.fabric.global.vpc.domain_id_range) }}"
-  LINK_STATE_ROUTING: "{{ underlay.general.routing_protocol | default(defaults.fabric.underlay.general.routing_protocol) }}"
-  FABRIC_INTERFACE_TYPE: "{{ underlay.general.fabric_interface_numbering | default(defaults.fabric.underlay.general.fabric_interface_numbering) }}"
-  SUBNET_TARGET_MASK: "{{ underlay.general.subnet_mask | default(defaults.fabric.underlay.general.subnet_mask) }}"
-  MULTICAST_GROUP_SUBNET: "{{ multicast.group_subnet | default(defaults.fabric.underlay.multicast.group_subnet) }}"
-  RP_COUNT: "{{ multicast.rendezvous_points | default(defaults.fabric.underlay.multicast.rendezvous_points) }}"
   RP_MODE: "{{ multicast.rp_mode | default(defaults.fabric.underlay.multicast.rp_mode) }}"
   RP_LB_ID: "{{ multicast.underlay_rp_loopback_id | default(defaults.fabric.underlay.multicast.underlay_rp_loopback_id) }}"
   VPC_DELAY_RESTORE: "{{ vpc.delay_restore_time | default(defaults.fabric.global.vpc.delay_restore_time) }}"
@@ -76,7 +83,6 @@
   OSPF_AUTH_ENABLE: "{{ underlay.ospf.authentication_enable | default(omit) }}"
   BFD_AUTH_ENABLE: "{{ underlay.bfd.authentication_enable | default(defaults.fabric.underlay.bfd.authentication_enable) }}"
   HOST_INTF_ADMIN_STATE: "{{ underlay.general.unshut_host_interfaces | default(defaults.fabric.underlay.general.unshut_host_interfaces) }}"
-  REPLICATION_MODE: "{{ underlay.general.replication_mode | default(defaults.fabric.underlay.general.replication_mode) }}"
   ISIS_AUTH_KEYCHAIN_KEY_ID: "{{ underlay.isis.authentication_key_id | default(omit) }}"
   PHANTOM_RP_LB_ID1: "{{ underlay.multicast.underlay_primary_rp_loopback_id | default(defaults.fabric.underlay.multicast.underlay_primary_rp_loopback_id) }}"
   PHANTOM_RP_LB_ID2: "{{ underlay.multicast.underlay_backup_rp_loopback_id | default(defaults.fabric.underlay.multicast.underlay_backup_rp_loopback_id) }}"
