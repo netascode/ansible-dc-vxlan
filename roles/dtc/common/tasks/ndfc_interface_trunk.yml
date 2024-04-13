@@ -1,0 +1,18 @@
+---
+- name: Set interface_trunk_file_name Var
+  ansible.builtin.set_fact:
+    interface_trunk_file_name: "{{ MD.fabric.global.name }}_ndfc_interface_trunk.yml"
+
+- name: Build Interface
+  ansible.builtin.template:
+    src: ndfc_interface_trunk.j2
+    dest: "{{ role_path }}/files/{{ interface_trunk_file_name }}"
+
+- name: Set interface_trunk Var
+  ansible.builtin.set_fact:
+    interface_trunk: []
+
+- name: Set interface_trunk Var
+  ansible.builtin.set_fact:
+    interface_trunk: "{{ lookup('file', interface_trunk_file_name) | from_yaml }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.trunk.count >0 

@@ -12,12 +12,11 @@
 - fail: msg="Service Model Not Defined.  Role cisco.csc.prepare_model Must Be Called First"
   when: MD is undefined
 
-
-- debug: msg="Removing Unmanaged Fabric Loopback Interfaces. This could take several minutes..."
+- debug: msg="Removing all Unmanaged Fabric Interfaces. This could take several minutes..."
 - cisco.dcnm.dcnm_interface:
     fabric: "{{ MD.fabric.global.name }}"
     state: overridden
-    config: "{{ int_loopback_config }}"
+    config: "{{ interface_all }}"
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
