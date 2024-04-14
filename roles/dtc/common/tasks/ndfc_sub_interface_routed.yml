@@ -1,11 +1,11 @@
 ---
 - name: Set sub_interface_routed_file_name Var
   ansible.builtin.set_fact:
-    sub_interface_routed_file_name: "{{ MD.fabric.global.name }}_sub_interface_routed.yml"
+    sub_interface_routed_file_name: "{{ MD.fabric.global.name }}_ndfc_sub_interface_routed.yml"
 
 - name: Build sub_interface
   ansible.builtin.template:
-    src: sub_interface_routed.j2
+    src: ndfc_sub_interface_routed.j2
     dest: "{{ role_path }}/files/{{ sub_interface_routed_file_name }}"
 
 - name: Set sub_interface_routed Var default
@@ -15,3 +15,4 @@
 - name: Set sub_interface_routed Var
   ansible.builtin.set_fact:
     sub_interface_routed: "{{ lookup('file', sub_interface_routed_file_name) | from_yaml }}"
+  when: MD_Extended.fabric.topology.interfaces.modes.routed_sub.count >0

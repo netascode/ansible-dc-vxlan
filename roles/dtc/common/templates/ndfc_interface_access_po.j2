@@ -3,7 +3,8 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% for switch in MD.fabric.topology.switches %}
+{% for switch in MD_Extended.fabric.topology.switches %}
+{% if switch.interfaces is defined %}
 {% for interface in switch['interfaces'] %}
 {% set interface_name = interface['name'] | lower %}
 {% if interface_name.startswith('po') %}
@@ -24,7 +25,7 @@
     description: {{ interface['description'] | default(omit) }}
     mtu: {{ interface['mtu'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.speed) }}
-    spanning_tree_portfast: {{ interface['spanning_tree_portfast'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.spanning_tree_portfast) }}
+    port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.spanning_tree_portfast) }}
     pc_mode: {{ interface['pc_mode'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.pc_mode) }}
     members: {{ interface['members'] | default(omit) }}
     access_vlan: {{ interface['access_vlan'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
@@ -33,4 +34,5 @@
 {% endif %}
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endfor %}

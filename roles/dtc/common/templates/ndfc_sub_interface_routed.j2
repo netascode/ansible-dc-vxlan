@@ -3,11 +3,12 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% for switch in MD.fabric.topology.switches %}
+{% for switch in MD_Extended.fabric.topology.switches %}
+{% if switch.interfaces is defined %}
 {% for interface in switch['interfaces'] %}
-{% if interface['mode'] == 'routed' %}
+{% if interface['mode'] == 'routed_sub' %}
 - name : {{ interface['name'] }}
-  type: eth
+  type: sub_int
   switch:
 {% if switch.management.management_ipv4_address is defined %}
     - {{ switch.management.management_ipv4_address}}
@@ -16,8 +17,8 @@
 {% endif %}
   deploy: false
   profile:
-    admin_state: {{ interface['enabled'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_routed_interface.enabled) }}
-    mode: 'routed'
+    admin_state: {{ interface['enabled'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_routed_sub_interface.enabled) }}
+    mode: 'subint'
 {% if interface['ipv4_address'] is defined %}
 {% set ipv4_address__mask = interface['ipv4_address'].split('/') %}
     ipv4_addr: {{ ipv4_address__mask[0] | default(omit) }}
@@ -28,11 +29,13 @@
     ipv6_addr: {{ ipv6_address__mask[0] | default(omit) }}
     ipv6_mask_len: {{ ipv6_address__mask[1] | default(omit) }}
 {% endif %}
+    vlan: {{ interface['dot1q_id'] }}
     description: {{ interface['description'] | default(omit) }}
     route_tag: {{ interface['ipv4_route_tag'] | default(omit) }}
     int_vrf: {{ interface['vrf'] | default(omit) }}
-    mtu: {{ interface['mtu'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_routed_interface.mtu) }}
-    speed: {{ interface['speed'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_routed_interface.speed) }}
+    mtu: {{ interface['mtu'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_routed_sub_interface.mtu) }}
+    speed: {{ interface['speed'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_routed_sub_interface.speed) }}
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endfor %}
