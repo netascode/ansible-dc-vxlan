@@ -21,25 +21,3 @@
   ansible.builtin.set_fact:
     inv_config: "{{ lookup('file', inv_file_name) | from_yaml }}"
   when: (MD_Extended.fabric.topology.switches | default([])) | length > 0
-
-- name: Set hostname_policy_file_name Var
-  ansible.builtin.set_fact:
-    hostname_policy_file_name: "{{ MD.fabric.global.name }}_hostname_policy.yml"
-
-- name: Set Path For Hostname File Lookup
-  ansible.builtin.set_fact:
-    hostname_policy_file_path: "{{ role_path }}/files/{{ hostname_policy_file_name }}"
-
-- name: Build Fabric Switch Hostname Policy List From Template
-  ansible.builtin.template:
-    src: ndfc_hostname_policy.j2
-    dest: "{{ hostname_policy_file_path }}"
-
-- name: Create Empty hostname_policy_config Var
-  ansible.builtin.set_fact:
-    hostname_policy_config: []
-
-- name: Set hostname_policy_config Var
-  ansible.builtin.set_fact:
-    hostname_policy_config: "{{ lookup('file', hostname_policy_file_name) | from_yaml }}"
-  when: (MD_Extended.fabric.topology.switches | default([])) | length > 0

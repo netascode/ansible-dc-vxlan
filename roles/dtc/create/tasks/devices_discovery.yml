@@ -16,9 +16,42 @@
       ansible_connect_timeout: 3000
   when: MD_Extended.fabric.topology.switches | length > 0
 
-- name: Set NDFC Fabric Device Hostnames
-  cisco.dcnm.dcnm_policy:
-    fabric: "{{ MD.fabric.global.name }}"
-    config: "{{ hostname_policy_config }}"
-    deploy: false
-    state: merged
+- name: Create List of Switch Serial Numbers from Data Model
+  ansible.builtin.set_fact:
+    serial_numbers_list: "{{ MD_Extended.fabric.topology.switches | map(attribute='serial_number') | list }}"
+
+- name: Concatenate Switch Serial Numbers
+  ansible.builtin.set_fact:
+    serial_numbers: "{{ serial_numbers_list | join('%2C') }}"
+
+- name: Get NDFC Fabric Default Switch Policies
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches?serialNumber={{ serial_numbers }}"
+  register: result
+
+- name: Default Policy Payload Variable
+  ansible.builtin.set_fact:
+    policy_payload: []
+
+- name: Build Payload for NDFC Switch Hostname Policy Update
+  ansible.builtin.include_tasks: build_hostname_policy_payload.yml
+  loop: "{{ serial_numbers_list }}"
+
+- name: Build Policy ID Query from NDFC Response
+  ansible.builtin.set_fact:
+    query: "response.DATA[?(@.templateName==`host_11_1`)].policyId"
+
+- name: Create List of Switch Hostname Policy IDs from NDFC
+  ansible.builtin.set_fact:
+    policy_id_list: "{{ result | community.general.json_query(query) }}"
+
+- name: Concatenate Switch Hostname Policy IDs
+  ansible.builtin.set_fact:
+    policy_ids: "{{ policy_id_list | join('%2C') }}"
+
+- name: Update Switch Hostname Policy in NDFC
+  cisco.dcnm.dcnm_rest:
+    method: PUT
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"
+    json_data: "{{ policy_payload | to_json }}"

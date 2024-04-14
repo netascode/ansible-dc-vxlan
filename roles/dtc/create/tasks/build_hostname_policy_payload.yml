@@ -1,0 +1,25 @@
+---
+
+- name: Build Policy ID Query using Switch Serial Number
+  ansible.builtin.set_fact:
+    query: "response.DATA[?(@.templateName==`host_11_1` && @.serialNumber=='{{ item }}')]"
+
+- name: Get Hostname Policy ID for {{ item }} from NDFC Response
+  ansible.builtin.set_fact:
+    policy: "{{ result | community.general.json_query(query) }}"
+
+- name: Build Hostname Query using Switch Serial Number
+  ansible.builtin.set_fact:
+    query: "[?(@.serial_number=='{{ item }}')].name"
+
+- name: Get Hostname for {{ item }} from Data Model
+  ansible.builtin.set_fact:
+    switch_hostname: "{{ MD.fabric.topology.switches | community.general.json_query(query) }}"
+
+- name: Update Hostname Policy for {{ item }} from NDFC Response
+  ansible.builtin.set_fact:
+    policy: "{{ policy[0] | combine({'nvPairs': {'SWITCH_NAME': switch_hostname[0]}}, recursive=True) }}"
+
+- name: Update Hostname Policy Payload List
+  ansible.builtin.set_fact:
+    policy_payload: "{{ policy_payload + [policy] }}"
