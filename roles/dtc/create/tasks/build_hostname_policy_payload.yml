@@ -4,9 +4,13 @@
   ansible.builtin.set_fact:
     query: "response.DATA[?(@.templateName==`host_11_1` && @.serialNumber=='{{ item }}')]"
 
-- name: Get Hostname Policy ID for {{ item }} from NDFC Response
+- name: Get Hostname Policy for {{ item }} from NDFC Response
   ansible.builtin.set_fact:
     policy: "{{ result | community.general.json_query(query) }}"
+
+- name: Get Current Hostname from Policy for {{ item }} from NDFC Response
+  ansible.builtin.set_fact:
+    ndfc_switch_hostname: "{{ policy[0].switchName }}"
 
 - name: Build Hostname Query using Switch Serial Number
   ansible.builtin.set_fact:
@@ -14,12 +18,14 @@
 
 - name: Get Hostname for {{ item }} from Data Model
   ansible.builtin.set_fact:
-    switch_hostname: "{{ MD.fabric.topology.switches | community.general.json_query(query) }}"
+    md_switch_hostname: "{{ MD.fabric.topology.switches | community.general.json_query(query) }}"
 
 - name: Update Hostname Policy for {{ item }} from NDFC Response
   ansible.builtin.set_fact:
-    policy: "{{ policy[0] | combine({'nvPairs': {'SWITCH_NAME': switch_hostname[0]}}, recursive=True) }}"
+    policy: "{{ policy[0] | combine({'nvPairs': {'SWITCH_NAME': md_switch_hostname[0]}}, recursive=True) }}"
+  when: ndfc_switch_hostname != md_switch_hostname[0]
 
 - name: Update Hostname Policy Payload List
   ansible.builtin.set_fact:
     policy_payload: "{{ policy_payload + [policy] }}"
+  when: ndfc_switch_hostname != md_switch_hostname[0]
