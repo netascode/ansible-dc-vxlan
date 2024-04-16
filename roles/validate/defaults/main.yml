@@ -6,7 +6,7 @@ defaults:
       auth_proto: MD5
       vpc:
         peer_link_vlan: 3600
-        peer_keep_alive:  management
+        peer_keep_alive: management
         auto_recovery_time: 360
         delay_restore_time: 150
         peer_link_port_channel_id: 500
@@ -21,7 +21,7 @@ defaults:
           topology_switch_access_interface:
             description: 'NetAsCode Access Interface'
             mtu: jumbo
-            speed: Auto
+            speed: auto
             enabled: true
             access_vlan: 1
             spanning_tree_portfast: true
@@ -29,15 +29,15 @@ defaults:
           topology_switch_trunk_interface:
             description: 'NetAsCode Trunk Interface'
             mtu: jumbo
-            speed: Auto
+            speed: auto
             enabled: true
-            trunk_allowed_vlans: none 
+            trunk_allowed_vlans: none
             spanning_tree_portfast: true
             enable_bpdu_guard: true
           topology_switch_access_po_interface:
             description: 'NetAsCode Access PO Interface'
             mtu: jumbo
-            speed: Auto
+            speed: auto
             enabled: true
             access_vlan: 1
             pc_mode: active
@@ -46,26 +46,26 @@ defaults:
           topology_switch_trunk_po_interface:
             description: 'NetAsCode Trunk PO Interface'
             mtu: jumbo            
-            speed: Auto
+            speed: auto
             enabled: true
-            trunk_allowed_vlans: none 
+            trunk_allowed_vlans: none
             pc_mode: active
             spanning_tree_portfast: true
             enable_bpdu_guard: true
           topology_switch_routed_interface:
             description: 'NetAsCode Routed Interface'
             mtu: 9216
-            speed: Auto
+            speed: auto
             enabled: true
           topology_switch_routed_sub_interface:
             description: 'NetAsCode Routed Sub Interface'
             mtu: 9216
-            speed: Auto
+            speed: auto
             enabled: true
           topology_switch_routed_po_interface:
             description: 'NetAsCode Routed PO Interface'
             mtu: 9216
-            speed: Auto
+            speed: auto
             enabled: true
             pc_mode: active
           topology_switch_loopback_interface:
@@ -82,6 +82,7 @@ defaults:
         replication_mode: multicast
         fabric_interface_numbering: p2p
         subnet_mask: 30
+        manual_underlay_allocation: false
         underlay_routing_loopback_id: 0
         underlay_vtep_loopback_id: 1
         underlay_routing_protocol_tag: UNDERLAY
@@ -152,7 +153,7 @@ defaults:
         multicast_group_address: 239.1.1.1
         netflow_enable: false
         route_target_both: false
-        route_tag: 12345 
+        route_tag: 12345
         trm_enable: false
       vrf_attach_groups:
         switches: []
