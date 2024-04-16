@@ -1,4 +1,39 @@
-{% macro convert_vlan_ranges(trunk_allowed_vlans) %}
+{# Macro: convert_vlan_ranges
+
+  This macro takes a list of VLAN ranges and converts it into a string representation.
+  Each item in the list should be a dictionary with 'from' and optionally 'to' keys.
+  If 'to' is provided, it represents a range from 'from' to 'to'.
+  If 'to' is not provided, it represents a single VLAN.
+
+  If the allowed VLANs are not defined, the macro will return value defined
+  by the 'default_vlan_range' parameter passed from the parent template.
+
+   The macro can be called from the parent template as follows:
+
+  {% import 'ndfc_utils.j2' as vlan_macro with context %}
+  ...
+  {{ ndfc_utils.convert_vlan_ranges(<trunk_allowed_vlans> variable, <default_vlan_range> parameter) }}
+
+  VLAN ranges transformation example:
+
+  Input:
+  trunk_allowed_vlans:
+    - from: 10
+      to: 20
+    - from: 50
+      to: 
+
+  Output:
+  "10-20, 50"
+
+  Input:
+  trunk_allowed_vlans: not defined
+
+  Output:
+  "none"
+#}
+
+{% macro convert_vlan_ranges(trunk_allowed_vlans, default_vlan_range) %}
     {% if trunk_allowed_vlans is defined %}
         {% set vlan_ranges = [] %}
         {% for vlan_range in trunk_allowed_vlans %}
@@ -11,6 +46,6 @@
         {% endfor %}
         {{ vlan_ranges | join(', ') }}
     {% elif trunk_allowed_vlans is not defined %}
-        {{ vlan_ranges | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans)}}
+        {{ default_vlan_range }}
     {% endif %}
 {% endmacro %}
