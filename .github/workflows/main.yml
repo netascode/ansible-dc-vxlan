@@ -24,7 +24,7 @@ jobs:
         ansible: [2.14.15, 2.15.10, 2.16.5]
     steps:
     - name: Check out code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     
     - name: Set up Python 3.10.14
       uses: actions/setup-python@v1
