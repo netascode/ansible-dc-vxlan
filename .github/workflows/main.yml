@@ -21,8 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # ansible: [2.9.26, 2.10.17, 2.11.12, 2.12.10, 2.13.8, 2.14.2]
-        ansible: [2.14.15, 2.16.5]
+        ansible: [2.14.15, 2.15.10, 2.16.5]
     steps:
     - name: Check out code
       uses: actions/checkout@v2
