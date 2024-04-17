@@ -20,3 +20,4 @@
       - "{{ playbook_dir }}/host_vars/{{ MD.fabric.global.name }}"
     templates: "{{ role_path }}/templates"
     output: "{{ playbook_dir }}/output"
+  delegate_to: localhost
