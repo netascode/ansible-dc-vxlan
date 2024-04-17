@@ -16,4 +16,3 @@
   ansible.builtin.copy:
     content: "{{ interface_all | to_nice_yaml }}"
     dest: "{{ role_path }}/files/{{ ndfc_interface_all_file_name }}"
-

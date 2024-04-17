@@ -1,4 +1,3 @@
-
 ---
 # - name: Query Fabric {{ MD.fabric.global.name }} Leaf1 and Leaf2 for VPC Configuration
 #   cisco.dcnm.dcnm_inventory:
