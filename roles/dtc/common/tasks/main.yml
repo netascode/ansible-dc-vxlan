@@ -115,3 +115,10 @@
 
 - name: Build Fabric Create Parameters
   ansible.builtin.include_tasks: ndfc_fabric.yml
+
+# --------------------------------------------------------------------
+# Build VPC Peering parameter List From Template
+# --------------------------------------------------------------------
+
+- name: Build VPC Peering Parameters
+  ansible.builtin.include_tasks: ndfc_vpc_peering.yml
