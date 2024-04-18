@@ -1,0 +1,16 @@
+# This NDFC inventory is auto-generated
+# DO NOT EDIT MANUALLY
+#
+
+{% for item in interface_not_vpc_peering %}
+{% set switch_serial_number = item.interfaces[0].serialNumber %}
+{% set query = "[?(@.serial_number==`" ~ switch_serial_number ~ "`)].name" %}
+{% set switch_hostname = (MD.fabric.topology.switches | community.general.json_query(query))[0] %}
+- name: {{ item.interfaces[0].ifName }}
+  type: eth
+  switch: 
+    - {{ switch_hostname }}
+  profile:
+    admin_state: true
+    mode: trunk
+{% endfor %}
