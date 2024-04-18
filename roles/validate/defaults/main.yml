@@ -3,6 +3,7 @@ defaults:
   fabric:
     global:
       route_reflectors: 2
+      anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
       vpc:
         peer_link_vlan: 3600
@@ -101,6 +102,7 @@ defaults:
       ospf:
         area_id: 0.0.0.0
         authentication_enable: false
+        authentication_key_id: 127
       isis:
         level: level2
         network_point_to_point: true
@@ -109,6 +111,7 @@ defaults:
         overload_bit_elapsed_time: 60
       bgp:
         authentication_enable: false
+        authentication_key_type: 3
       multicast:
         group_subnet: 239.1.1.0/25
         rendezvous_points: 2
@@ -127,6 +130,7 @@ defaults:
         pim: false
         isis: false
         authentication_enable: false
+        authentication_key_id: 100
     overlay_services:
       vrfs:
         vrf_description: "Configured by Ansible NetAsCode"
