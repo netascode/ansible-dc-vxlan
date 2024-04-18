@@ -1,5 +1,3 @@
-from ...helper_functions import data_model_key_check
-
 
 class PreparePlugin:
     def __init__(self, **kwargs):
@@ -8,7 +6,6 @@ class PreparePlugin:
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
-
 
         # Rebuild sm_data['fabric']['overlay_services']['vrf_attach_groups'] into
         # a structure that is easier to use.
@@ -19,7 +16,6 @@ class PreparePlugin:
             vrf_grp_name_list.append(grp['name'])
             for switch in grp['switches']:
                 model_data['fabric']['overlay_services']['vrf_attach_groups_dict'][grp['name']].append(switch)
-
 
         # Remove attach_group from vrf if the group_name is not defined
         for vrf in model_data['fabric']['overlay_services']['vrfs']:

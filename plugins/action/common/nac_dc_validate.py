@@ -3,17 +3,15 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible import constants as C
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-
-from ..helper_functions import do_something
 
 import iac_validate.validator
 from iac_validate.yaml import load_yaml_files
 import os
 
 display = Display()
+
 
 class ActionModule(ActionBase):
 
