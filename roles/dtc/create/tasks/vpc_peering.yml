@@ -40,3 +40,11 @@
   #   switch_interface_name: "{{ item.interfaces[0].ifName }}"
   #   switch_hostname_query: "[?(@.serial_number=='{{ item.interfaces[0].serialNumber }}')].name"
   # loop: "{{ not_int_vpc_peering }}"
+
+
+- name: "create VPC peer"
+  cisco.dcnm.dcnm_vpc_pair:
+    src_fabric: "{{ MD.fabric.global.name }}"
+    deploy: false
+    state: replaced
+    config: "{{ vpc_peering }}"
