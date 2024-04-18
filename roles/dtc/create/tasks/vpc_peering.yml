@@ -16,6 +16,7 @@
 - name: Generate Config Payload Update for Interfaces Not Associated to vPC Peering Policy
   ansible.builtin.set_fact:
     interface_vpc_peering_payload: "{{ lookup('template', 'ndfc_interface_vpc_peer_link.j2') }}"
+  when: interface_not_vpc_peering | length > 0
 
 - name: Manage Interfaces for vPC Peering
   cisco.dcnm.dcnm_interface:
@@ -34,6 +35,7 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
+  when: interface_not_vpc_peering | length > 0
   # vars:
   #   switch_interface_name: "{{ item.interfaces[0].ifName }}"
   #   switch_hostname_query: "[?(@.serial_number=='{{ item.interfaces[0].serialNumber }}')].name"
