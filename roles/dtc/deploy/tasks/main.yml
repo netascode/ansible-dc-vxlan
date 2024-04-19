@@ -8,8 +8,8 @@
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
 
-- fail: msg="Service Model Not Defined.  Role cisco.csc.prepare_model Must Be Called First"
-  when: MD is undefined
+# - fail: msg="Service Model Not Defined.  Role cisco.csc.prepare_model Must Be Called First"
+#   when: MD is undefined
 
 - name: Config-Save for Fabric {{ MD.fabric.global.name }}
   cisco.dcnm.dcnm_rest:
