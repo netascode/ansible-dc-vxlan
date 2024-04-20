@@ -21,7 +21,7 @@
   ansible.builtin.set_fact:
     vpc_peering_file_name: "{{ MD.fabric.global.name }}_ndfc_vpc_peering.yml"
 
-- name: Build VPC Peering
+- name: Build vPC Peering
   ansible.builtin.template:
     src: ndfc_vpc_peering.j2
     dest: "{{ role_path }}/files/{{ vpc_peering_file_name }}"
