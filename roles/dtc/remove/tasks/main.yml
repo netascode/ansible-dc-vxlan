@@ -9,8 +9,6 @@
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
 
-- fail: msg="Service Model Not Defined.  Role cisco.csc.prepare_model Must Be Called First"
-  when: MD is undefined
 
 - debug: msg="Removing all Unmanaged Fabric Interfaces. This could take several minutes..."
 - cisco.dcnm.dcnm_interface:
