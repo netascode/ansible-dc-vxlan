@@ -2,8 +2,6 @@
 
 [![Actions Status](https://github.com/netascode/ansible-dc-vxlan/workflows/CI_Commits/badge.svg)](https://github.com/netascode/ansible-dc-vxlan/actions)
 
-# Ansible Solution Collection:  netascode_dc_vxlan
-
 Ansible collection for configuring a VXLAN Fabric using Direct to Controller (DTC) workflows.
 
 This collection is driven by a service data model that describes the configured state of the VXLAN EVPN fabric.
@@ -17,7 +15,7 @@ to validate and push changes to the fabric.
 * Role: role: cisco.nac_dc_vxlan.dtc.deploy
 * Role: role: cisco.nac_dc_vxlan.dtc.remove
 
-
+`
 This collection is intended for use with the following release versions:
   * `NDFC Release 12.2.1` or later.
 
