@@ -1,6 +1,5 @@
-Role Name
-=========
-cisco.nac_dc_vxlan.dtc.common
+Role Name: cisco.nac_dc_vxlan.dtc.common
+========================================
 
 Infrastructure role dependency used by 
 

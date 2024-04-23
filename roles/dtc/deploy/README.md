@@ -1,6 +1,5 @@
-Role Name
-=========
-cisco.nac_dc_vxlan.dtc.deploy
+Role Name: cisco.nac_dc_vxlan.dtc.deploy
+========================================
 
 This role is used to deploy service model changes to NDFC managed devices
 
@@ -21,10 +20,12 @@ See [Galaxy File](https://github.com/netascode/ansible-dc-vxlan/blob/develop/gal
 Example Playbook
 ----------------
 
+```yaml
   - hosts: netascode_rtpfabric
 
     roles:
       - role: cisco.nac_dc_vxlan.dtc.deploy
+```
 
 License
 -------

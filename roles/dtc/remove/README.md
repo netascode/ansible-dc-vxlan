@@ -1,6 +1,5 @@
-Role Name
-=========
-cisco.nac_dc_vxlan.dtc.remove
+Role Name: cisco.nac_dc_vxlan.dtc.remove
+========================================
 
 This role is used to remove unmanaged configuration from NDFC
 
@@ -21,10 +20,12 @@ See [Galaxy File](https://github.com/netascode/ansible-dc-vxlan/blob/develop/gal
 Example Playbook
 ----------------
 
+```yaml
   - hosts: netascode_rtpfabric
 
     roles:
       - role: cisco.nac_dc_vxlan.dtc.remove
+```
 
 License
 -------

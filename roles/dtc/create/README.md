@@ -1,6 +1,5 @@
-Role Name
-=========
-cisco.nac_dc_vxlan.dtc.create
+Role Name: cisco.nac_dc_vxlan.dtc.create
+========================================
 
 This role is used to create and update NDFC state based on service model data changes.
 
@@ -21,10 +20,12 @@ See [Galaxy File](https://github.com/netascode/ansible-dc-vxlan/blob/develop/gal
 Example Playbook
 ----------------
 
+```yaml
   - hosts: netascode_rtpfabric
 
     roles:
       - role: cisco.nac_dc_vxlan.dtc.create
+```
 
 License
 -------
