@@ -1,11 +1,8 @@
 Role Name
 =========
-cisco.nac_dc_vxlan.validate
+cisco.nac_dc_vxlan.dtc.create
 
-This role is used to validate service model data against the following:
-
-* Service Model Data Schema
-* Service Model Data Integrity Rules
+This role is used to create and update NDFC state based on service model data changes.
 
 Requirements
 ------------
@@ -27,7 +24,7 @@ Example Playbook
   - hosts: netascode_rtpfabric
 
     roles:
-      - role: cisco.nac_dc_vxlan.validate
+      - role: cisco.nac_dc_vxlan.dtc.create
 
 License
 -------
