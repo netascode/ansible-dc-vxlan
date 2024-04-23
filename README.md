@@ -49,7 +49,8 @@ collections:
 ### Using roles from the Cisco netascode_dc_vxlan collection in your playbooks
 
 You can call roles by their Fully Qualified Collection Namespace (FQCN), such as `cisco.netascode_dc_vxlan.validate`.
-The following example task adds a switch to an existing fabric, using the FQCN:
+
+The following is a sample playbook that calls each role in this collection.
 
 ```yaml
 ---
