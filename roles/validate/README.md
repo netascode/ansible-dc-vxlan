@@ -1,6 +1,5 @@
-Role Name
-=========
-cisco.nac_dc_vxlan.validate
+Role Name cisco.nac_dc_vxlan.validate
+=====================================
 
 This role is used to validate service model data against the following:
 
@@ -24,10 +23,12 @@ See [Galaxy File](https://github.com/netascode/ansible-dc-vxlan/blob/develop/gal
 Example Playbook
 ----------------
 
+```yaml
   - hosts: netascode_rtpfabric
 
     roles:
       - role: cisco.nac_dc_vxlan.validate
+```
 
 License
 -------
