@@ -14,7 +14,7 @@
 {% elif (switch.management_ipv4_address is not defined) and (switch.management_ipv6_address is defined)  %}
     - {{ switch.management_ipv6_address}}
 {% endif %}
-  deploy: true
+  deploy: false
   profile:
     admin_state: True
     mode: 'trunk'
