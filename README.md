@@ -97,7 +97,7 @@ all:
 
 ## Contributing to this collection
 
-Ongoing development efforts and contributions to this collection are solely focused on enhancements to current roles and and additional new roles.
+Ongoing development efforts and contributions to this collection are focused on new roles when needed and enhancements to current roles.
 
 We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against the [Cisco netascode_dc_vxlan collection repository](https://github.com/netascode/ansible-dc-vxlan/issues).
 
