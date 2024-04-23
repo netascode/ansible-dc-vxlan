@@ -21,11 +21,25 @@
     state: touch
 
 # --------------------------------------------------------------------
+# Build Create Fabric parameter List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric Create Parameters
+  ansible.builtin.include_tasks: ndfc_fabric.yml
+
+# --------------------------------------------------------------------
 # Build NDFC Fabric Switch Inventory List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Switch Inventory List From Template
   ansible.builtin.include_tasks: ndfc_inventory.yml
+
+# --------------------------------------------------------------------
+# Build VPC Peering parameter List From Template
+# --------------------------------------------------------------------
+
+- name: Build VPC Peering Parameters
+  ansible.builtin.include_tasks: ndfc_vpc_peering.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric VRFs Attach List From Template
@@ -110,10 +124,3 @@
 
 - name: Build Fabric interface All List From Template
   ansible.builtin.include_tasks: ndfc_interface_all.yml
-
-# --------------------------------------------------------------------
-# Build Create Fabric parameter List From Template
-# --------------------------------------------------------------------
-
-- name: Build Fabric Create Parameters
-  ansible.builtin.include_tasks: ndfc_fabric.yml
