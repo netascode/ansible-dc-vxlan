@@ -15,7 +15,7 @@ to validate and push changes to the fabric.
 * Role: role: cisco.nac_dc_vxlan.dtc.deploy
 * Role: role: cisco.nac_dc_vxlan.dtc.remove
 
-`
+
 This collection is intended for use with the following release versions:
   * `NDFC Release 12.2.1` or later.
 
@@ -53,8 +53,6 @@ You can call roles by their Fully Qualified Collection Namespace (FQCN), such as
 The following is a sample playbook that calls each role in this collection.
 
 ```yaml
----
-
 # This is the main entry point playbook for calling the various roles in this collection.
 ---
 
