@@ -3,15 +3,11 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible import constants as C
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 
-from ..helper_functions import do_something
-
-from pprint import pprint
-
 display = Display()
+
 
 class ActionModule(ActionBase):
 
@@ -42,18 +38,17 @@ class ActionModule(ActionBase):
         # vpc_data['results'][1]['response'][0]['isVpcConfigured']
         # vpc_data['results'][1]['response'][1]['isVpcConfigured']
 
+        # if fabric_data.get('global').get('auth_proto') is None:
+        #     results['failed'] = True
+        #     results['msg'] = "Data model path 'fabric.global.auth_proto' must be defined!"
+        #     return results
 
-        if fabric_data.get('global').get('auth_proto') is None:
-            results['failed'] = True
-            results['msg'] = "Data model path 'fabric.global.auth_proto' must be defined!"
-            return results
-
-        if fabric_data.get('topology').get('switches') is not None:
-            for switch in fabric_data['topology']['switches']:
-                for key in ['management', 'role']:
-                    if switch.get(key) is None:
-                        results['failed'] = True
-                        results['msg'] = "Data model path 'fabric.topology.switches.{0}.{1}' must be defined!".format(switch['name'],key)
-                        return results
+        # if fabric_data.get('topology').get('switches') is not None:
+        #     for switch in fabric_data['topology']['switches']:
+        #         for key in ['management', 'role']:
+        #             if switch.get(key) is None:
+        #                 results['failed'] = True
+        #                 results['msg'] = "Data model path 'fabric.topology.switches.{0}.{1}' must be defined!".format(switch['name'], key)
+        #                 return results
 
         return results

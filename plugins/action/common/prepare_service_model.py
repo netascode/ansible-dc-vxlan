@@ -3,19 +3,16 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible import constants as C
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-
-from ..helper_functions import do_something
 
 import importlib
 import os
 import pathlib
 import copy
-from pprint import pprint
 
 display = Display()
+
 
 class ActionModule(ActionBase):
 
@@ -39,7 +36,7 @@ class ActionModule(ActionBase):
         glob_plugin_path = os.path.dirname(__file__) + "/prepare_plugins"
         plugin_prefix = "*_prep*.py"
 
-        prepare_libs = set(_.stem for _ in pathlib.Path.glob(pathlib.Path(glob_plugin_path), plugin_prefix))
+        prepare_libs = set(x.stem for x in pathlib.Path.glob(pathlib.Path(glob_plugin_path), plugin_prefix))
         dict_of_plugins = {}
         for lib in prepare_libs:
             plugin_name = f"{full_plugin_path}.{lib}"
