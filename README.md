@@ -12,8 +12,8 @@ to validate and push changes to the fabric.
 
 * Role: `cisco.nac_dc_vxlan.validate`
 * Role: `cisco.nac_dc_vxlan.dtc.create`
-* Role: `role: cisco.nac_dc_vxlan.dtc.deploy`
-* Role: `role: cisco.nac_dc_vxlan.dtc.remove`
+* Role: `cisco.nac_dc_vxlan.dtc.deploy`
+* Role: `cisco.nac_dc_vxlan.dtc.remove`
 
 
 This collection is intended for use with the following release versions:
