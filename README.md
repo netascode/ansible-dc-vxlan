@@ -63,10 +63,10 @@ The following is a sample playbook that calls each role in this collection.
   vars:
 
   roles:
-    - role: cisco.nac_dc_vxlan.validate
-    - role: cisco.nac_dc_vxlan.dtc.create
-    - role: cisco.nac_dc_vxlan.dtc.deploy
-    - role: cisco.nac_dc_vxlan.dtc.remove
+    - role: `cisco.nac_dc_vxlan.validate`
+    - role: `cisco.nac_dc_vxlan.dtc.create`
+    - role: `cisco.nac_dc_vxlan.dtc.deploy`
+    - role: `cisco.nac_dc_vxlan.dtc.remove`
 ```
 
 Sample hosts file using the dcnm httpapi connection plugin in YAML format.
