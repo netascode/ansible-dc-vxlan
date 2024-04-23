@@ -1,6 +1,6 @@
 # Ansible Solution Collection:  netascode_dc_vxlan
 
-[![Actions Status](https://github.com/netascode/ansible-dc-vxlan/workflows/CI_Commits/badge.svg)](https://github.com/netascode/ansible-dc-vxlan/actions)
+[![Actions Status](https://github.com/netascode/ansible-dc-vxlan/workflows/CI/badge.svg)](https://github.com/netascode/ansible-dc-vxlan/actions)
 
 Ansible collection for configuring a VXLAN Fabric using Direct to Controller (DTC) workflows.
 
