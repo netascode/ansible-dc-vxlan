@@ -5,40 +5,15 @@
 
 {% if MD.fabric.topology.vpc_peers is defined and MD.fabric.topology.vpc_peers is not none %}
 {% for vpc_peer in MD.fabric.topology.vpc_peers %}
-- peerOneId: {{ MD_Extended.fabric.topology.leaf[vpc_peer.peer2].management_ipv4_address }}
-  peerTwoId: {{ MD_Extended.fabric.topology.leaf[vpc_peer.peer1].management_ipv4_address }}
-  profile:
-    ADMIN_STATE: True
-    ALLOWED_VLANS: "all"
-    DOMAIN_ID: {{ vpc_peer.domain_id | default("") }}
-    FABRIC_NAME: {{ MD.fabric.global.name }}
-    KEEP_ALIVE_HOLD_TIMEOUT: 3
-    KEEP_ALIVE_VRF: management
-    PC_MODE: active
-    PEER1_DOMAIN_CONF: "fast-convergence"
-    PEER1_KEEP_ALIVE_LOCAL_IP: {{ MD_Extended.fabric.topology.leaf[vpc_peer.peer1].management_ipv4_address }}
-{% if vpc_peer.peer1_peerlink_interfaces is defined %}
-    PEER1_MEMBER_INTERFACES:
-{% for interface in vpc_peer.peer1_peerlink_interfaces %}
-        - {{ interface.name }}
-{% endfor %}
-{% endif %} 
-    PEER1_PCID: {{ MD.fabric.global.vpc.peer_link_port_channel_id }}
-    PEER1_PO_CONF: "bandwidth inherit"
-    PEER1_PO_DESC: "This is peer1 PC"
-    PEER2_DOMAIN_CONF: "fast-convergence"
-    PEER2_KEEP_ALIVE_LOCAL_IP: {{ MD_Extended.fabric.topology.leaf[vpc_peer.peer2].management_ipv4_address }}
-{% if vpc_peer.peer2_peerlink_interfaces is defined %}
-    PEER2_MEMBER_INTERFACES:
-{% for interface in vpc_peer.peer2_peerlink_interfaces %}
-        - {{ interface.name }}
-{% endfor %}
+{% if MD_Extended.fabric.topology.leaf[vpc_peer.peer1].management_ipv4_address is not none %}
+- peerOneId: {{ MD_Extended.fabric.topology.leaf[vpc_peer.peer1].management_ipv4_address }}
+{% elif MD_Extended.fabric.topology.leaf[vpc_peer.peer1].management_ipv6_address is not none %}
+- peerOneId: {{ MD_Extended.fabric.topology.leaf[vpc_peer.peer1].management_ipv6_address }}
 {% endif %}
-    PEER2_PCID: {{ MD.fabric.global.vpc.peer_link_port_channel_id }}
-    PEER2_PO_CONF: "bandwidth inherit"
-    PEER2_PO_DESC: "This is peer2 PC"
-    clear_policy: False
-    isVTEPS: False
-    isVpcPlus: False
+{% if MD_Extended.fabric.topology.leaf[vpc_peer.peer2].management_ipv4_address is not none %}
+  peerTwoId: {{ MD_Extended.fabric.topology.leaf[vpc_peer.peer2].management_ipv4_address }}
+{% elif MD_Extended.fabric.topology.leaf[vpc_peer.peer2].management_ipv6_address is not none %}
+  peerTwoId: {{ MD_Extended.fabric.topology.leaf[vpc_peer.peer2].management_ipv6_address }}
+{% endif %}
 {% endfor %}
 {% endif %}
