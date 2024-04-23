@@ -75,7 +75,6 @@ Sample hosts file using the dcnm httpapi connection plugin in YAML format.
 ```yaml
 all:
   vars:
-  vars:
     ansible_user: "ndfc_username"
     ansible_password: "ndfc_password"
     ansible_python_interpreter: python
