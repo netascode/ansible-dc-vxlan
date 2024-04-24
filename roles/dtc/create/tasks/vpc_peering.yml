@@ -29,6 +29,12 @@
       ansible_connect_timeout: 3000
   when: interface_not_vpc_policy | length > 0
 
+# tune this based on field testing. for now we are leaving at 60 seconds to allow the interfaces to come up.
+# we can also look at the interface status and wait for the interfaces to be up before proceeding.
+- name: Wait for vPC Peering Interfaces to come up
+  ansible.builtin.pause:
+    seconds: 60
+
 - name: Manage vPC Peering
   cisco.dcnm.dcnm_vpc_pair:
     src_fabric: "{{ MD.fabric.global.name }}"
