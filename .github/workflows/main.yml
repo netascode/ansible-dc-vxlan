@@ -71,14 +71,8 @@ jobs:
         name: collection
         path: .cache/collection-tarballs
 
-    # - name: Create ansible.cfg file
-    #   run: |
-    #    echo "[galaxy]" > ansible.cfg
-    #    echo "server = https://old-galaxy.ansible.com/" >> ansible.cfg
-    #    cat ansible.cfg
-
     - name: Install the collection tarball
-      run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz -vvvv
+      run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz
 
     - name: Run sanity tests
       run: ansible-test sanity --docker --python ${{matrix.python}} -v --color --truncate 0
