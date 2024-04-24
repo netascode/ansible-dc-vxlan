@@ -9,8 +9,6 @@
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
 
-- fail: msg="Service Model Not Defined.  Role cisco.csc.prepare_model Must Be Called First"
-  when: MD is undefined
 
 - debug: msg="Removing all Unmanaged Fabric Interfaces. This could take several minutes..."
 - cisco.dcnm.dcnm_interface:
@@ -44,3 +42,11 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
+
+- debug: msg="Removing all Unmanaged vPC Peering. This could take several minutes..."
+- name: Remove vPC Peering
+  cisco.dcnm.dcnm_vpc_pair:
+    src_fabric: "{{ MD.fabric.global.name }}"
+    deploy: false
+    state: overridden
+    config: "{{ vpc_peering }}"
