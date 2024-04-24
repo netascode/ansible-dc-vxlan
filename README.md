@@ -109,7 +109,7 @@ We welcome community contributions to this collection. If you find problems, ple
 
 ## Changelogs
 
-* [Changelog](https://github.com/netascode/ansible-dc-vxlan/blob/main/CHANGELOG.rst)
+* [Changelog](https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/CHANGELOG.rst)
 
 ## More information
 
