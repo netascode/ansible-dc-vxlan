@@ -1,6 +1,6 @@
-=====================================================================
-Cisco Ansible NetworkAsCode DC VXLAN Ansible Collection Release Notes
-=====================================================================
+=============================================================
+Cisco Ansible NetworkAsCode DC VXLAN Collection Release Notes
+=============================================================
 
 All notable changes to this project will be documented in this file.
 
