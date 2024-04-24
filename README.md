@@ -10,11 +10,17 @@ to validate and push changes to the fabric.
 
 ### Roles
 
-* Role: `cisco.nac_dc_vxlan.validate`
-* Role: `cisco.nac_dc_vxlan.dtc.create`
-* Role: `cisco.nac_dc_vxlan.dtc.deploy`
-* Role: `cisco.nac_dc_vxlan.dtc.remove`
+* Role: [cisco.nac_dc_vxlan.validate](https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/validate/README.md)
+* Role: [cisco.nac_dc_vxlan.dtc.create](https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/dtc/create/README.md)
+* Role: [cisco.nac_dc_vxlan.dtc.deploy](https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/dtc/deploy/README.md)
+* Role: [cisco.nac_dc_vxlan.dtc.remove](https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/dtc/remove/README.md)
 
+
+### Quick Start Guide
+
+The following quickstart repository is available to provide a step by step guide for using this collection
+
+[Quick Start Guide Repo](https://github.com/netascode/ansible-dc-vxlan-example)
 
 This collection is intended for use with the following release versions:
   * `NDFC Release 12.2.1` or later.
