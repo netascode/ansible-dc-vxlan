@@ -107,6 +107,7 @@ defaults:
         level: level2
         network_point_to_point: true
         authentication_enable: false
+        authentication_key_id: 127
         overload_bit: true
         overload_bit_elapsed_time: 60
       bgp:
