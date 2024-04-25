@@ -1,7 +1,7 @@
 # This NDFC Fabric Parameter file is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% set fabric = MD.fabric %}
+{% set fabric = MD_Extended.fabric %}
 {% set global = fabric.global %}
 {% set vpc = global.vpc %}
 {% set underlay = fabric.underlay %}
@@ -179,5 +179,5 @@
 {# ------------------------------------------------------ #}
 {# Overlay Services Parameters                            #}
 {# ------------------------------------------------------ #}
-  ENABLE_NETFLOW: {{ MD.fabric.overlay_services.vrfs.netflow_enable | default(defaults.fabric.overlay_services.vrfs.netflow_enable) }}
-  NETFLOW_MONITOR_LIST: {{ MD.fabric.overlay_services.vrfs.netflow_monitor | default(omit) }}
+  ENABLE_NETFLOW: {{ MD_Extended.fabric.overlay_services.vrfs.netflow_enable | default(defaults.fabric.overlay_services.vrfs.netflow_enable) }}
+  NETFLOW_MONITOR_LIST: {{ MD_Extended.fabric.overlay_services.vrfs.netflow_monitor | default(omit) }}
