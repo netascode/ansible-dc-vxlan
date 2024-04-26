@@ -10,10 +10,10 @@ to validate and push changes to the fabric.
 
 ### Roles
 
-* Role: [cisco.nac_dc_vxlan.validate](https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/validate/README.md)
-* Role: [cisco.nac_dc_vxlan.dtc.create](https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/dtc/create/README.md)
-* Role: [cisco.nac_dc_vxlan.dtc.deploy](https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/dtc/deploy/README.md)
-* Role: [cisco.nac_dc_vxlan.dtc.remove](https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/dtc/remove/README.md)
+* Role: [cisco.nac_dc_vxlan.validate](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/validate/README.md)
+* Role: [cisco.nac_dc_vxlan.dtc.create](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/create/README.md)
+* Role: [cisco.nac_dc_vxlan.dtc.deploy](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/deploy/README.md)
+* Role: [cisco.nac_dc_vxlan.dtc.remove](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/remove/README.md)
 
 
 ### Quick Start Guide
@@ -109,7 +109,7 @@ We welcome community contributions to this collection. If you find problems, ple
 
 ## Changelogs
 
-* [Changelog](https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/CHANGELOG.rst)
+* [Changelog](https://github.com/netascode/ansible-dc-vxlan/blob/develop/CHANGELOG.rst)
 
 ## More information
 
