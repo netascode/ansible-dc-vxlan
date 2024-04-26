@@ -44,7 +44,7 @@
             {% endif %}
             {% set _ = vlan_ranges.append(range_str) %}
         {% endfor %}
-        {{ vlan_ranges | join(', ') }}
+        {{ vlan_ranges | join(',') }}
     {% elif trunk_allowed_vlans is not defined %}
         {{ default_vlan_range }}
     {% endif %}
