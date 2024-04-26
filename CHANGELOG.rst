@@ -21,9 +21,9 @@ Added
 The following roles have been added to the collection:
 
 
-* Role: `cisco.nac_dc_vxlan.validate <https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/validate/README.md>`_
-* Role: `cisco.nac_dc_vxlan.dtc.create <https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/dtc/create/README.md>`_
-* Role: `cisco.nac_dc_vxlan.dtc.deploy <https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/dtc/deploy/README.md>`_
-* Role: `cisco.nac_dc_vxlan.dtc.remove <https://github.com/netascode/ansible-dc-vxlan/blob/galaxy_prep/roles/dtc/remove/README.md>`_
+* Role: `cisco.nac_dc_vxlan.validate <https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/validate/README.md>`_
+* Role: `cisco.nac_dc_vxlan.dtc.create <https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/create/README.md>`_
+* Role: `cisco.nac_dc_vxlan.dtc.deploy <https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/deploy/README.md>`_
+* Role: `cisco.nac_dc_vxlan.dtc.remove <https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/remove/README.md>`_
 
 .. _0.1.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.1.0...0.1.0
