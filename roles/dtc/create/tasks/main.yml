@@ -12,7 +12,7 @@
 
 - name: Create NDFC Fabric
   ansible.builtin.include_tasks: fabric.yml
-  when: MD.fabric.global is defined
+  when: MD_Extended.fabric.global is defined
 
 - name: Manage NDFC Fabric Switches
   ansible.builtin.include_tasks: devices.yml

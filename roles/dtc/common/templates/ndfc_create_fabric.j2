@@ -1,7 +1,7 @@
 # This NDFC Fabric Parameter file is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% set fabric = MD.fabric %}
+{% set fabric = MD_Extended.fabric %}
 {% set global = fabric.global %}
 {% set vpc = global.vpc %}
 {% set underlay = fabric.underlay %}
@@ -24,15 +24,43 @@
   AAA_REMOTE_IP_ENABLED: False
   ENABLE_FABRIC_VPC_DOMAIN_ID: False
   RR_COUNT: {{ global.route_reflectors | default(defaults.fabric.global.route_reflectors) }}
-  ANYCAST_GW_MAC: {{ global.anycast_gateway_mac | default(omit) }}
-  DNS_SERVER_IP_LIST: {{ global.dns_servers.ip_address | default(omit) }}
-  DNS_SERVER_VRF: {{ global.dns_servers.vrf | default(omit) }}
-  NTP_SERVER_IP_LIST: {{ global.ntp_servers.ip_address | default(omit) }}
-  NTP_SERVER_VRF: {{ global.ntp_servers.vrf | default(omit) }}
+  ANYCAST_GW_MAC: {{ global.anycast_gateway_mac | default(defaults.fabric.global.anycast_gateway_mac) }}
+{% if global.dns_servers is defined %}
+{% set dns_server_ips = [] %}
+{% set dns_server_vrfs = [] %}
+{% for dns in global.dns_servers %}
+{% if dns.ip_address is defined %}
+{% set dns_ips = dns.ip_address|string %}
+{% set dns_server_ips = dns_server_ips.append(dns_ips) %}
+{% endif %}
+{% if dns.vrf is defined %}
+{% set dns_vrfs = dns.vrf|string %}
+{% set dns_server_vrfs = dns_server_vrfs.append(dns_vrfs) %}
+{% endif %}
+{% endfor %}
+  DNS_SERVER_IP_LIST: {{ dns_server_ips|join(',') }}
+  DNS_SERVER_VRF: {{ dns_server_vrfs|join(',') }}
+{% endif %}
+{% if global.ntp_servers is defined %}
+{% set ntp_server_ips = [] %}
+{% set ntp_server_vrfs = [] %}
+{% for ntp in global.ntp_servers %}
+{% if ntp.ip_address is defined %}
+{% set ntp_ips = ntp.ip_address|string %}
+{% set ntp_server_ips = ntp_server_ips.append(ntp_ips) %}
+{% endif %}
+{% if ntp.vrf is defined %}
+{% set ntp_vrfs = ntp.vrf|string %}
+{% set ntp_server_vrfs = ntp_server_vrfs.append(ntp_vrfs) %}
+{% endif %}
+{% endfor %}
+  NTP_SERVER_IP_LIST: {{ ntp_server_ips|join(',') }}
+  NTP_SERVER_VRF: {{ ntp_server_vrfs|join(',') }}
+{% endif %}
 {# ------------------------------------------------------ #}
 {# VPC Parameters                                         #}
 {# ------------------------------------------------------ #}
-  VPC_PEER_LINK_VLAN: {{ vpc.peer_link_vlan | default(omit) }}
+  VPC_PEER_LINK_VLAN: {{ vpc.peer_link_vlan | default(defaults.fabric.global.vpc.peer_link_vlan) }}
   VPC_PEER_KEEP_ALIVE_OPTION: {{ vpc.peer_keep_alive | default(defaults.fabric.global.vpc.peer_keep_alive) }}
   VPC_AUTO_RECOVERY_TIME: {{ vpc.auto_recovery_time | default(defaults.fabric.global.vpc.auto_recovery_time) }}
   VPC_DELAY_RESTORE_TIME: {{ vpc.delay_restore_time | default(defaults.fabric.global.vpc.delay_restore_time) }}
@@ -40,7 +68,7 @@
   VPC_DOMAIN_ID_RANGE: {{ vpc.domain_id_range | default(defaults.fabric.global.vpc.domain_id_range) }}
   VPC_DELAY_RESTORE: {{ vpc.delay_restore_time | default(defaults.fabric.global.vpc.delay_restore_time) }}
   ADVERTISE_PIP_BGP: {{ (vpc.advertise_pip | default(defaults.fabric.global.vpc.advertise_pip) | title) }}
-{% if (vpc.advertise_pip | default(defaults.fabric.global.vpc.advertise_pip) | title) == 'True' %}
+{% if (vpc.advertise_pip | default(defaults.fabric.global.vpc.advertise_pip) | title) == 'False' %}
   ADVERTISE_PIP_ON_BORDER: {{ vpc.advertise_pip_border_only | default(defaults.fabric.global.vpc.advertise_pip_border_only) }}
 {% endif %}
 {# ------------------------------------------------------ #}
@@ -87,7 +115,7 @@
   ISIS_AUTH_ENABLE: {{ (isis.authentication_enable | default(defaults.fabric.underlay.isis.authentication_enable) | title) }}
 {% if (isis.authentication_enable | default(defaults.fabric.underlay.isis.authentication_enable) | title) == 'True' %}
   ISIS_AUTH_KEYCHAIN_NAME: {{ isis.authentication_keychain_name | default(omit) }}
-  ISIS_AUTH_KEYCHAIN_KEY_ID: {{ isis.authentication_key_id | default(omit) }}
+  ISIS_AUTH_KEYCHAIN_KEY_ID: {{ isis.authentication_key_id | default(defaults.fabric.underlay.isis.authentication_key_id) }}
 {% endif %}
   ISIS_OVERLOAD_ELAPSE_TIME: {{ isis.overload_bit_elapsed_time | default(defaults.fabric.underlay.isis.overload_bit_elapsed_time) }}
   ISIS_OVERLOAD_ENABLE: {{ isis.overload_bit | default(defaults.fabric.underlay.isis.overload_bit) }}
@@ -102,7 +130,7 @@
   OSPF_AREA_ID: {{ ospf.area_id | default(defaults.fabric.underlay.ospf.area_id) }}
   OSPF_AUTH_ENABLE: {{ (ospf.authentication_enable | default(defaults.fabric.underlay.ospf.authentication_enable) | title) }}
 {% if (underlay.ospf.authentication_enable | default(defaults.fabric.underlay.ospf.authentication_enable) | title) == 'True' %}
-  OSPF_AUTH_KEY_ID: {{ ospf.authentication_key_id | default(omit) }}
+  OSPF_AUTH_KEY_ID: {{ ospf.authentication_key_id | default(defaults.fabric.underlay.ospf.authentication_key_id) }}
   OSPF_AUTH_KEY: {{ ospf.authentication_key | default(omit) }}
 {% endif %}
 {% if (bfd.enable | default(defaults.fabric.underlay.bfd.enable) | title) == 'True' %}
@@ -132,7 +160,7 @@
 {# ------------------------------------------------------ #}
   BGP_AUTH_ENABLE: {{ (bgp.authentication_enable | default(defaults.fabric.underlay.bgp.authentication_enable) | title)}}
 {% if (bgp.authentication_enable | default(defaults.fabric.underlay.bgp.authentication_enable) | title) == 'True' %}
-  BGP_AUTH_KEY_TYPE: {{ bgp.authentication_key_type | default(omit) }}
+  BGP_AUTH_KEY_TYPE: {{ bgp.authentication_key_type | default(defaults.fabric.underlay.bgp.authentication_key_type) }}
   BGP_AUTH_KEY: {{ bgp.authentication_key | default(omit) }}
 {% endif %}
 {# ------------------------------------------------------ #}
@@ -145,11 +173,11 @@
   BFD_AUTH_ENABLE: {{ (bfd.authentication_enable | default(defaults.fabric.underlay.bfd.authentication_enable) | title)}}
 {% if (bfd.authentication_enable | default(defaults.fabric.underlay.bfd.authentication_enable) | title) == 'True' %}
   BFD_AUTH_KEY: {{ bfd.authentication_key | default(omit) }}
-  BFD_AUTH_KEY_ID: {{ bfd.authentication_key_id | default(omit) }}
+  BFD_AUTH_KEY_ID: {{ bfd.authentication_key_id | default(defaults.fabric.underlay.bfd.authentication_key_id) }}
 {% endif %}
 {% endif %}
 {# ------------------------------------------------------ #}
 {# Overlay Services Parameters                            #}
 {# ------------------------------------------------------ #}
-  ENABLE_NETFLOW: {{ MD.fabric.overlay_services.vrfs.neflow_enable | default(omit) }}
-  NETFLOW_MONITOR_LIST: {{ MD.fabric.overlay_services.vrfs.netflow_monitor | default(omit) }}
+  ENABLE_NETFLOW: {{ MD_Extended.fabric.overlay_services.vrfs.netflow_enable | default(defaults.fabric.overlay_services.vrfs.netflow_enable) }}
+  NETFLOW_MONITOR_LIST: {{ MD_Extended.fabric.overlay_services.vrfs.netflow_monitor | default(omit) }}

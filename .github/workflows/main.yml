@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI_Commits
+name: CI
 
 # Controls when the action will run.
 on:
@@ -70,12 +70,6 @@ jobs:
       with:
         name: collection
         path: .cache/collection-tarballs
-
-    - name: Create ansible.cfg file
-      run: |
-       echo "[galaxy]" > ansible.cfg
-       echo "server = https://old-galaxy.ansible.com/" >> ansible.cfg
-       cat ansible.cfg
 
     - name: Install the collection tarball
       run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz

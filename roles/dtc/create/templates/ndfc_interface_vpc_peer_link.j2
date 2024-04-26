@@ -2,7 +2,7 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% for item in interface_not_vpc_peering %}
+{% for item in interface_not_vpc_policy %}
 {% set switch_serial_number = item.interfaces[0].serialNumber %}
 {% set query = "[?(@.serial_number==`" ~ switch_serial_number ~ "`)].management" %}
 {% set switch_management = (MD.fabric.topology.switches | community.general.json_query(query))[0] %}
@@ -17,4 +17,5 @@
   profile:
     admin_state: true
     mode: trunk
+    bpdu_guard: false
 {% endfor %}
