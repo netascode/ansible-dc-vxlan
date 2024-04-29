@@ -1,5 +1,6 @@
+{% import 'ndfc_utils.j2' as ndfc_utils with context %}
 ---
-# This NDFC inventory is auto-generated
+# This NDFC trunk interface config is auto-generated
 # DO NOT EDIT MANUALLY
 #
 
@@ -26,20 +27,7 @@
     speed: {{ interface['speed'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_interface.speed) }}
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_interface.spanning_tree_portfast) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_interface.enable_bpdu_guard) }}
-{% if interface['trunk_allowed_vlans'] is defined %}
-{% set trunk_allowed_vlans = [] %}
-{% for vlan in interface['trunk_allowed_vlans'] %}
-{% if vlan.to is defined %}
-{% set vlan_range = vlan.from|string + '-' + vlan.to|string %}
-{% else %}
-{% set vlan_range = vlan.from|string %}
-{% endif %}
-{{ trunk_allowed_vlans.append(vlan_range)|default("", True) }}
-{% endfor %}
-    allowed_vlans: {{ trunk_allowed_vlans|join(',') }}
-{% else %}
-    allowed_vlans: {{ defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans }}
-{% endif %}
+    allowed_vlans: "{{ ndfc_utils.convert_vlan_ranges(interface['trunk_allowed_vlans'], defaults.fabric.topology.switches.interfaces.topology_switch_trunk_interface.trunk_allowed_vlans) | trim }}"
 {% endif %}
 {% endif %}
 {% endfor %}
