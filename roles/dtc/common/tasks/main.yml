@@ -35,6 +35,13 @@
   ansible.builtin.include_tasks: ndfc_inventory.yml
 
 # --------------------------------------------------------------------
+# Build Fabric intra links for vpc peering From Template
+# --------------------------------------------------------------------
+
+- name: Build intra fabric links From Template
+  ansible.builtin.include_tasks: ndfc_link_vpc_peering.yml
+
+# --------------------------------------------------------------------
 # Build VPC Peering parameter List From Template
 # --------------------------------------------------------------------
 
@@ -124,10 +131,3 @@
 
 - name: Build Fabric interface All List From Template
   ansible.builtin.include_tasks: ndfc_interface_all.yml
-
-# --------------------------------------------------------------------
-# Build Fabric intra links for vpc peering From Template
-# --------------------------------------------------------------------
-
-- name: Build intra fabric links From Template
-  ansible.builtin.include_tasks: ndfc_link_vpc_peering.yml
