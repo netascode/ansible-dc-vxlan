@@ -6,7 +6,7 @@
 
 - name: Manage Intra Fabric Links for vpc peering
   cisco.dcnm.dcnm_links:
-    state: merged
+    state: replaced
     src_fabric: "{{ MD_Extended.fabric.global.name }}"
     config: "{{ link_vpc_peering }}"
   vars:
