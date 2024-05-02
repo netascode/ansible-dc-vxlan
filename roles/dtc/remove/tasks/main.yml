@@ -31,6 +31,24 @@
     state: overridden
     config: "{{ vrf_config }}"
 
+- debug: msg="Removing all Unmanaged vPC Peering. This could take several minutes..."
+- name: Remove vPC Peering
+  cisco.dcnm.dcnm_vpc_pair:
+    src_fabric: "{{ MD.fabric.global.name }}"
+    deploy: true
+    state: overridden
+    config: "{{ vpc_peering }}"
+
+- debug: msg="Removing all Unmanaged links. This could take several minutes..."
+- name: Remove Intra Fabric Links for vpc peering
+  cisco.dcnm.dcnm_links:
+    state: replaced
+    src_fabric: "{{ MD_Extended.fabric.global.name }}"
+    config: "{{ link_vpc_peering }}"
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
+
 - debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
 - name: Remove NDFC Fabric Devices {{ MD.fabric.global.name }}
   cisco.dcnm.dcnm_inventory:
@@ -42,11 +60,3 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-
-- debug: msg="Removing all Unmanaged vPC Peering. This could take several minutes..."
-- name: Remove vPC Peering
-  cisco.dcnm.dcnm_vpc_pair:
-    src_fabric: "{{ MD.fabric.global.name }}"
-    deploy: false
-    state: overridden
-    config: "{{ vpc_peering }}"
