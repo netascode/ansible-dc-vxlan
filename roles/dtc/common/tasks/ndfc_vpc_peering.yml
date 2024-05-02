@@ -1,22 +1,4 @@
 ---
-- name: Set interface_vpc_peering_file_name Var
-  ansible.builtin.set_fact:
-    interface_vpc_peering_file_name: "{{ MD.fabric.global.name }}_ndfc_interface_vpc_peering_.yml"
-
-- name: Build Interfaces for VPC Peering
-  ansible.builtin.template:
-    src: ndfc_interface_vpc_peering.j2
-    dest: "{{ role_path }}/files/{{ interface_vpc_peering_file_name }}"
-
-- name: Set interface_vpc_peering Var default
-  ansible.builtin.set_fact:
-    interface_vpc_peering: []
-
-- name: Set interface_vpc_peering Var
-  ansible.builtin.set_fact:
-    interface_vpc_peering: "{{ lookup('file', interface_vpc_peering_file_name) | from_yaml }}"
-  when: MD_Extended.fabric.topology.vpc_peers | length > 0
-
 - name: Set vpc_peering_file_name Var
   ansible.builtin.set_fact:
     vpc_peering_file_name: "{{ MD.fabric.global.name }}_ndfc_vpc_peering.yml"
