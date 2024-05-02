@@ -65,4 +65,4 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-  when: inv_delete_mode is true
+  when: inventory_delete_mode is true
