@@ -18,18 +18,21 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
+  when: (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
 - debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
 - cisco.dcnm.dcnm_network:
     fabric: "{{ MD.fabric.global.name }}"
     state: overridden
     config: "{{ net_config }}"
+  when: (network_delete_mode is defined) and (network_delete_mode is true|bool)
 
 - debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
 - cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD.fabric.global.name }}"
     state: overridden
     config: "{{ vrf_config }}"
+  when: (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
 
 - debug: msg="Removing all Unmanaged vPC Peering. This could take several minutes..."
 - name: Remove vPC Peering
@@ -38,6 +41,7 @@
     deploy: true
     state: overridden
     config: "{{ vpc_peering }}"
+  when: (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
 
 - debug: msg="Removing all Unmanaged links. This could take several minutes..."
 - name: Remove Intra Fabric Links for vpc peering
@@ -48,6 +52,7 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
+  when: (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
 
 - debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
 - name: Remove NDFC Fabric Devices {{ MD.fabric.global.name }}
@@ -60,3 +65,4 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
+  when: (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
