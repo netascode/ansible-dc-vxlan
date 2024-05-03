@@ -25,7 +25,7 @@
     fabric: "{{ MD.fabric.global.name }}"
     state: overridden
     config: "{{ net_config }}"
-  when: (network_delete_mode is is defined) and (network_delete_mode is true|bool)
+  when: (network_delete_mode is defined) and (network_delete_mode is true|bool)
 
 - debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
 - cisco.dcnm.dcnm_vrf:
