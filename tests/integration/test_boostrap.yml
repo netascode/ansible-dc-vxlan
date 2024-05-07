@@ -8,6 +8,11 @@
 #        * tests/integration/favric_vars_example.yml to
 #        * tests/integration/fabric_vars.yml
 #
+#        and
+#
+#        * tests/integration/test_inventory_example.yml to
+#        * tests/integration/test_inventory.yml
+#
 # 2. Update the tests/integration/fabric_vars.yml file with the real data
 #
 # 3. Update the tests/integration/test_inventory.yml file with the NDFC IP address information
