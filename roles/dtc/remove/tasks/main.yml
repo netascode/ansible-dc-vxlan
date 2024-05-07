@@ -59,13 +59,13 @@
     deploy: true
     state: overridden
     config: "{{ vpc_peering }}"
-  when: (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
+  when: (vpc_peering_delete_mode is defined) and (vpc_peering_delete_mode is true|bool)
 - debug:
     msg:
       - "-------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_delete_mode flag is set to False  +"
+      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_peering_delete_mode flag is set to False  +"
       - "-------------------------------------------------------------------------------------------------------"
-  when: not ((vpc_delete_mode is defined) and (vpc_delete_mode is true|bool))
+  when: not ((vpc_peering_delete_mode is defined) and (vpc_peering_delete_mode is true|bool))
 
 - debug: msg="Removing all Unmanaged links. This could take several minutes..."
 - name: Remove Intra Fabric Links for vpc peering
@@ -76,13 +76,6 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-  when: (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
-- debug:
-    msg:
-      - "----------------------------------------------------------------------------------------------------- "
-      - "+ SKIPPING Remove Unmanaged Links task because link_vpc_delete_mode flag is set to False  +"
-      - "------------------------------------------------------------------------------------------------------"
-  when: not ((link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool))
 
 - debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
 - name: Remove NDFC Fabric Devices {{ MD.fabric.global.name }}
