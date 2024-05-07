@@ -1,6 +1,0 @@
----
-fabric:
-  overlay_services:
-    vrfs: []
-
-    vrf_attach_groups: []

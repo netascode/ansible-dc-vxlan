@@ -1,4 +1,0 @@
----
-fabric:
-  topology:
-    vpc_peers: []
