@@ -28,14 +28,13 @@
     admin_state: {{ interface.enabled | default(defaults.fabric.topology.switches.interfaces.topology_switch_loopback_interface.enabled) }}
     ipv4_addr: {{ interface.ipv4_address | default(omit) }}
     ipv6_addr: {{ interface.ipv6_address | default(omit) }}
+    route_tag: {{ interface.ipv4_route_tag | default(omit) }}
 {# ------------------------------------------------------ #}
 {# Todo: Need special handling for secondary ipv4 address and route_tag #}
 {#       Module only supports one secondary and tag and no ipv6 support #}
 {#       Also need to add freeform commands to the model? #}
 {# ------------------------------------------------------ #}
     secondary_ipv4_addr: {{ interface.secondary_ipv4_addresses[0].ip_address | default(omit) }}
-    route_tag: {{ interface.secondary_ipv4_addresses[0].route_tag | default(omit) }}
-
 {% endif %}
 {% endfor %}
 {% endif %}
