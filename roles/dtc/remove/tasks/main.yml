@@ -9,6 +9,11 @@
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
 
+- debug: msg="Query NDFC for List of Fabric Switches"
+- cisco.dcnm.dcnm_rest:
+    method: GET
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.fabric.global.name }}/inventory/switchesByFabric"
+  register: switch_list
 
 - debug: msg="Removing all Unmanaged Fabric Interfaces. This could take several minutes..."
 - cisco.dcnm.dcnm_interface:
@@ -18,7 +23,9 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-  when: (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
+  when:
+    - switch_list.response.DATA | length > 0
+    - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 - debug:
     msg:
       - "-------------------------------------------------------------------------------------------------------------------"
@@ -31,7 +38,9 @@
     fabric: "{{ MD.fabric.global.name }}"
     state: overridden
     config: "{{ net_config }}"
-  when: (network_delete_mode is defined) and (network_delete_mode is true|bool)
+  when:
+    - switch_list.response.DATA | length > 0
+    - (network_delete_mode is defined) and (network_delete_mode is true|bool)
 - debug:
     msg:
       - "---------------------------------------------------------------------------------------------------------------"
@@ -44,7 +53,9 @@
     fabric: "{{ MD.fabric.global.name }}"
     state: overridden
     config: "{{ vrf_config }}"
-  when: (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+  when:
+    - switch_list.response.DATA | length > 0
+    - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
 - debug:
     msg:
       - "--------------------------------------------------------------------------------------------------------"
@@ -59,13 +70,28 @@
     deploy: true
     state: overridden
     config: "{{ vpc_peering }}"
-  when: (vpc_peering_delete_mode is defined) and (vpc_peering_delete_mode is true|bool)
+  when:
+    - switch_list.response.DATA | length > 0
+    - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
 - debug:
     msg:
       - "-------------------------------------------------------------------------------------------------------"
       - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_peering_delete_mode flag is set to False  +"
       - "-------------------------------------------------------------------------------------------------------"
   when: not ((vpc_peering_delete_mode is defined) and (vpc_peering_delete_mode is true|bool))
+
+- debug: msg="Removing all Unmanaged links. This could take several minutes..."
+- name: Remove Intra Fabric Links for vpc peering
+  cisco.dcnm.dcnm_links:
+    state: replaced
+    src_fabric: "{{ MD_Extended.fabric.global.name }}"
+    config: "{{ link_vpc_peering }}"
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
+  when:
+    - switch_list.response.DATA | length > 0
+    - (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
 
 - debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
 - name: Remove NDFC Fabric Devices {{ MD.fabric.global.name }}
@@ -78,8 +104,8 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-  when: (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
-  register: remove_inventory
+  when:
+    - (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
 - debug:
     msg:
       - "----------------------------------------------------------------------------------------------------------"
