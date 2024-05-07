@@ -4,11 +4,15 @@
 
 # Instructions for using this playbook:
 #
-# 1. Update the tests/integration/fabric_vars.yml file with the real data
+# 1. Copy
+#        * tests/integration/favric_vars_example.yml to
+#        * tests/integration/fabric_vars.yml
 #
-# 2. Update the tests/integration/test_inventory.yml file with the NDFC IP address information
+# 2. Update the tests/integration/fabric_vars.yml file with the real data
 #
-# 3. Run the playbook with the following command:
+# 3. Update the tests/integration/test_inventory.yml file with the NDFC IP address information
+#
+# 4. Run the playbook with the following command:
 #    ansible-playbook -i tests/integration/test_inventory.yml tests/integration/test_update_model_data.yml
 #
 # This will create 3 new directories under tests/integration/host_vars:
