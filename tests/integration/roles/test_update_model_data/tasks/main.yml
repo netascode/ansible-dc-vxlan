@@ -1,6 +1,15 @@
 ---
 - debug: msg="Executing Integration Test for VXLAN {{ playbook_dir }}"
 
+- name: Check if fabric_vrs.yml file exists
+  ansible.builtin.stat: path="{{ playbook_dir }}/fabric_vars.yml"
+  register: fabric_vars_stat
+
+- name: Fail if fabric_vars.yml file does not exist
+  ansible.builtin.fail:
+    msg: "File ({{ playbook_dir }}/fabric_vars.yml does not exist). Please create the file and try again."
+  when: not fabric_vars_stat.stat.exists
+
 - name: Import Vars From fabric_vars.yml
   ansible.builtin.include_vars:
     file: "{{ playbook_dir }}/fabric_vars.yml"
