@@ -22,7 +22,7 @@
 - debug:
     msg:
       - "-------------------------------------------------------------------------------------------------------------------"
-      - "+ WARNING! Remove Unmanaged Fabric Interfaces task is skipped because interface_delete_mode flag is set to False  +"
+      - "+ SKIPPING Remove Unmanaged Fabric Interfaces task because interface_delete_mode flag is set to False  +"
       - "-------------------------------------------------------------------------------------------------------------------"
   when: not ((interface_delete_mode is defined) and (interface_delete_mode is true|bool))
 
@@ -35,7 +35,7 @@
 - debug:
     msg:
       - "---------------------------------------------------------------------------------------------------------------"
-      - "+ WARNING! Remove Unmanaged Fabric Networks task is skipped because network_delete_mode flag is set to False  +"
+      - "+ SKIPPING Remove Unmanaged Fabric Networks task because network_delete_mode flag is set to False  +"
       - "---------------------------------------------------------------------------------------------------------------"
   when: not ((network_delete_mode is defined) and (network_delete_mode is true|bool))
 
@@ -48,7 +48,7 @@
 - debug:
     msg:
       - "--------------------------------------------------------------------------------------------------------"
-      - "+ WARNING! Remove Unmanaged Fabric VRFs task is skipped because vrf_delete_mode flag is set to False   +"
+      - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False   +"
       - "--------------------------------------------------------------------------------------------------------"
   when: not ((vrf_delete_mode is defined) and (vrf_delete_mode is true|bool))
 
@@ -63,7 +63,7 @@
 - debug:
     msg:
       - "-------------------------------------------------------------------------------------------------------"
-      - "+ WARNING! Remove Unmanaged vPC Peering task is skipped because vpc_delete_mode flag is set to False  +"
+      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_delete_mode flag is set to False  +"
       - "-------------------------------------------------------------------------------------------------------"
   when: not ((vpc_delete_mode is defined) and (vpc_delete_mode is true|bool))
 
@@ -80,7 +80,7 @@
 - debug:
     msg:
       - "----------------------------------------------------------------------------------------------------- "
-      - "+ WARNING! Remove Unmanaged Links task is skipped because link_vpc_delete_mode flag is set to False  +"
+      - "+ SKIPPING Remove Unmanaged Links task because link_vpc_delete_mode flag is set to False  +"
       - "------------------------------------------------------------------------------------------------------"
   when: not ((link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool))
 
@@ -96,9 +96,10 @@
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
   when: (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
+  register: remove_inventory
 - debug:
     msg:
       - "----------------------------------------------------------------------------------------------------------"
-      - "+ WARNING! Remove NDFC Fabric Devices task is skipped because inventory_delete_mode flag is set to False +"
+      - "+ SKIPPING Remove NDFC Fabric Devices task because inventory_delete_mode flag is set to False +"
       - "----------------------------------------------------------------------------------------------------------"
   when: not ((inventory_delete_mode is defined) and (inventory_delete_mode is true|bool))
