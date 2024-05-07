@@ -41,16 +41,16 @@ fabric:
 
       - name: NetAsCodeNet_Default
         is_l2_only: False
-        vrf_name: NetAsCodeVrf1Default
+        vrf_name: NetAsCodeVrf_Default
         net_id: 130001
         vlan_id: 2301
-        vlan_name: NetAsCodeVrf1Default_vlan2301
+        vlan_name: NetAsCodeVrf_Default_vlan2301
         gw_ip_address: "192.168.12.1/24"
         arp_suppress: False
         dhcp_loopback_id: 55
         dhcp_servers:
           - ip_address: 172.55.1.1
-            vrf: NetAsCodeVrf1Default
+            vrf: NetAsCodeVrf_Default
         gw_ipv6_address: '2001::1/64'
         int_desc: "Configured by NetAsCode"
         l3gw_on_border: True
