@@ -12,3 +12,4 @@ plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no m
 plugins/action/dtd/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/helper_functions.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/nac_dc_validate.py import-3.10!skip
+plugins/action/test/inventory.py import-3.10!skip
