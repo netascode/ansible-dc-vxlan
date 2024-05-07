@@ -67,16 +67,6 @@
       - "-------------------------------------------------------------------------------------------------------"
   when: not ((vpc_peering_delete_mode is defined) and (vpc_peering_delete_mode is true|bool))
 
-- debug: msg="Removing all Unmanaged links. This could take several minutes..."
-- name: Remove Intra Fabric Links for vpc peering
-  cisco.dcnm.dcnm_links:
-    state: replaced
-    src_fabric: "{{ MD_Extended.fabric.global.name }}"
-    config: "{{ link_vpc_peering }}"
-  vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
-
 - debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
 - name: Remove NDFC Fabric Devices {{ MD.fabric.global.name }}
   cisco.dcnm.dcnm_inventory:
