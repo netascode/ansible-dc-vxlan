@@ -76,7 +76,7 @@ fabric:
           - {hostname: << border_ip >>, ports: []}
       - name: leaf1_leaf2
         switches:
-          - {hostname: << leaf1_ip >> , ports: []}
+          - {hostname: << leaf1_ip >>, ports: []}
           - {hostname: << leaf2_ip >>, ports: []}
       - name: leaf1
         switches:
