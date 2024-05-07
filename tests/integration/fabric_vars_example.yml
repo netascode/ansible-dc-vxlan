@@ -1,5 +1,4 @@
 ---
-replace_vars: true
 
 fabric_name: << fabric_name >>
 fabric_password: password
