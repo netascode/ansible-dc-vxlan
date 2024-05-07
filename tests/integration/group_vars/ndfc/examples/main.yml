@@ -5,7 +5,7 @@
 ansible_connection: ansible.netcommon.httpapi
 ansible_network_os: cisco.dcnm.dcnm
 ansible_username: admin
-ansible_password: idgeR09!
+ansible_password: password
 
 # Workflow Control Variables
 interface_delete_mode: True
