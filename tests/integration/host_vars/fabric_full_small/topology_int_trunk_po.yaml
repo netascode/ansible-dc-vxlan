@@ -1,0 +1,40 @@
+fabric:
+  topology:
+    switches:
+      - name: << spine1_hostname >>
+        serial_number: << spine1_serial >>
+        interfaces: []
+
+      - name: << spine2_hostname >>
+        serial_number: << spine2_serial >>
+        interfaces: []
+
+      - name: << leaf1_hostname >>
+        serial_number: << leaf1_serial >>
+        interfaces:
+          - name: Port-Channel56
+            mode: trunk
+            description: "NaC Trunk Port-Channel for leaf1"
+            # This is not working check with Rameez
+            # ----------
+            # vpc_id: 1
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/34
+              - Ethernet1/35
+            trunk_allowed_vlans:
+              - from: 25
+                to: 99
+              - from: 101
+                to: 155
+              - from: 158
+                to: 159
+
+      - name: << leaf2_hostname >>
+        serial_number: << leaf2_serial >>
+        interfaces: []

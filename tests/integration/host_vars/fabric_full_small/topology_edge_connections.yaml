@@ -1,0 +1,14 @@
+---
+fabric:
+  topology:
+    edge_connections:
+      - dest_fabric: "dest_fabric"
+        source_device: "source_device"
+        dest_device: "dest_device"
+        source_interface: "Ethernet1/1"
+        dest_interface: "Ethernet1/2"
+      - dest_fabric: "dest_fabric2"
+        source_device: "source_device"
+        dest_device: "dest_device"
+        source_interface: "Ethernet1/1"
+        dest_interface: "Ethernet1/2"

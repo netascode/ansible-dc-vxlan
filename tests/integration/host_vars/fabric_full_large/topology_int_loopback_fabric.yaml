@@ -1,0 +1,38 @@
+fabric:
+  topology:
+    switches:
+      - name: << spine1_hostname >>
+        serial_number: << spine1_serial >>
+        interfaces: []
+          # - name: lo0
+          #   description: 'NetAsCode Fabric Loopback Interface'
+          #   mode: fabric_loopback
+          #   ipv4_address: 10.2.0.3
+
+      - name: << spine2_hostname >>
+        serial_number: << spine2_serial >>
+        interfaces: []
+
+      - name: << leaf1_hostname >>
+        serial_number: << leaf1_serial >>
+        interfaces: []
+
+      - name: << leaf2_hostname >>
+        serial_number: << leaf2_serial >>
+        interfaces: []
+
+      - name: << leaf3_hostname >>
+        serial_number: << leaf3_serial >>
+        interfaces: []
+
+      - name: << leaf4_hostname >>
+        serial_number: << leaf4_serial >>
+        interfaces: []
+          # - name: Loopback1
+          #   description: 'NetAsCode VTEP Loopback Interface'
+          #   mode: fabric_loopback
+          #   ipv4_address: 10.3.0.5
+
+      - name: << border_hostname >>
+        serial_number: << border_serial >>
+        interfaces: []
