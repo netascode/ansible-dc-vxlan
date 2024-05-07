@@ -1,0 +1,21 @@
+---
+# Reset Fabric
+- hosts: fabric_empty
+  gather_facts: no
+
+  roles:
+    - test_remove
+
+# Create and Deploy Fabric Configuration
+- hosts: fabric_full_small
+  gather_facts: no
+
+  roles:
+    - test_create
+
+# Reset Fabric Back to Empty
+- hosts: fabric_empty
+  gather_facts: no
+
+  roles:
+    - test_remove

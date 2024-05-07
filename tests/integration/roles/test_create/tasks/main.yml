@@ -1,0 +1,6 @@
+---
+
+- debug: msg="Test Role Path - {{ role_path }}"
+
+- name: Execute Create Role Tests
+  ansible.builtin.include_tasks: tests/test.yml
