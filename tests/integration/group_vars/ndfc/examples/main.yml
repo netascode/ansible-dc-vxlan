@@ -1,0 +1,16 @@
+---
+# Connection Parameters for 'ndfc' integration test inventory group
+#
+# Controller Credentials
+ansible_connection: ansible.netcommon.httpapi
+ansible_network_os: cisco.dcnm.dcnm
+ansible_username: admin
+ansible_password: idgeR09!
+
+# Workflow Control Variables
+interface_delete_mode: True
+network_delete_mode: True
+vrf_delete_mode: True
+vpc_delete_mode: True
+link_vpc_delete_mode: True
+inventory_delete_mode: True
