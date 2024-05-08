@@ -1,5 +1,5 @@
 ---
-fabric:
+vxlan:
   global:
     name: << fabric_name >>
     bgp_asn: 787878

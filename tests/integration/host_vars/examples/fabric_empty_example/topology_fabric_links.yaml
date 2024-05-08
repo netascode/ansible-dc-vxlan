@@ -1,4 +1,4 @@
 ---
-fabric:
+vxlan:
   topology:
     fabric_links: []

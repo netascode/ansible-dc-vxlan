@@ -1,5 +1,5 @@
 ---
-fabric:
+vxlan:
   topology:
     fabric_links:
       - source_device: "source_device"

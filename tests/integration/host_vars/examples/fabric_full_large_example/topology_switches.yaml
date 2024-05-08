@@ -1,5 +1,5 @@
 ---
-fabric:
+vxlan:
   topology:
     switches:
       - name: << spine1_hostname >>

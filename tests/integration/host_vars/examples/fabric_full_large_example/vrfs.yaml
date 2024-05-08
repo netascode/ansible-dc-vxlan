@@ -1,5 +1,5 @@
 ---
-fabric:
+vxlan:
   overlay_services:
     vrfs:
       - name: NetAsCodeVrf1
@@ -36,8 +36,8 @@ fabric:
         adv_host_routes: True
         adv_default_routes: True
         static_default_route: True
-        bgp_password: cisco
-        bgp_password_encryption_type: 3
+        # bgp_password: cisco
+        # bgp_password_encryption_type: 3
         disable_rt_auto: True
         export_evpn_rt: ""
         export_mvpn_rt: ""

@@ -1,5 +1,5 @@
 ---
-fabric:
+vxlan:
   overlay_services:
     vrfs: []
 

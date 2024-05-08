@@ -2,6 +2,7 @@
 
 fabric_name: << fabric_name >>
 fabric_password: password
+fabric_device_password: password
 default_gateway_v4: << default_gateway_v4 >>
 spine1:
   hostname: << spine1_hostname >

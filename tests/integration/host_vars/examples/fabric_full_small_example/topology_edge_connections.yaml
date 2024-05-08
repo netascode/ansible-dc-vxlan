@@ -1,5 +1,5 @@
 ---
-fabric:
+vxlan:
   topology:
     edge_connections:
       - dest_fabric: "dest_fabric"

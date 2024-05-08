@@ -1,5 +1,5 @@
 ---
-fabric:
+vxlan:
   underlay:
     general:
       routing_protocol: ospf

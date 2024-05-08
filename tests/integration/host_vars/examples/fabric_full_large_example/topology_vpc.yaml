@@ -1,5 +1,5 @@
 ---
-fabric:
+vxlan:
   topology:
     vpc_peers:
       - peer1: << leaf1_hostname >>

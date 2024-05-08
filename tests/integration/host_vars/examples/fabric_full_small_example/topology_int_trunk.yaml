@@ -1,12 +1,8 @@
-fabric:
+vxlan:
   topology:
     switches:
       - name: << spine1_hostname >>
         serial_number: << spine1_serial >>
-        interfaces: []
-
-      - name: << spine2_hostname >>
-        serial_number: << spine2_serial >>
         interfaces: []
 
       - name: << leaf1_hostname >>
