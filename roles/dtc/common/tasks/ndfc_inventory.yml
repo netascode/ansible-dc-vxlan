@@ -2,7 +2,7 @@
 
 - name: Set inv_file_name Var
   ansible.builtin.set_fact:
-    inv_file_name: "{{ MD.fabric.global.name }}_ndfc_inventory.yml"
+    inv_file_name: "{{ MD.vxlan.global.name }}_ndfc_inventory.yml"
 
 - name: Set Path For Inventory File Lookup
   ansible.builtin.set_fact:
@@ -20,4 +20,4 @@
 - name: Set inv_config Var
   ansible.builtin.set_fact:
     inv_config: "{{ lookup('file', inv_file_name) | from_yaml }}"
-  when: (MD_Extended.fabric.topology.switches | default([])) | length > 0
+  when: (MD_Extended.vxlan.topology.switches | default([])) | length > 0

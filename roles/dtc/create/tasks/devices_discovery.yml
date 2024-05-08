@@ -4,21 +4,33 @@
 # and set the role for the device.  Deploy of config would happen using the
 # dtc.deploy role.
 
-- name: Add NDFC Fabric Devices {{ MD.fabric.global.name }}
+# - name: Check for ndfc_device_username and ndfc_device_password
+#   ansible.builtin.fail:
+#     msg: "ndfc_device_username and ndfc_device_password must be defined in group_vars"
+#   when: ndfc_device_username is not defined or ndfc_device_password is not defined
+
+- name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
+  cisco.nac_dc_vxlan.common.get_credentials:
+    inv_config: "{{ inv_config }}"
+  register: inv_config
+
+- name: Add NDFC Fabric Devices {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_inventory:
-    fabric: "{{ MD.fabric.global.name }}"
-    config: "{{ inv_config }}"
+    fabric: "{{ MD.vxlan.global.name }}"
+    config: "{{ inv_config['inv_config'] }}"
     deploy: false
     save: true
     state: merged
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-  when: MD_Extended.fabric.topology.switches | length > 0
+  when: MD_Extended.vxlan.topology.switches | length > 0
+
+- meta: end_play
 
 - name: Create List of Switch Serial Numbers from Data Model
   ansible.builtin.set_fact:
-    md_serial_numbers_list: "{{ MD_Extended.fabric.topology.switches | map(attribute='serial_number') | list }}"
+    md_serial_numbers_list: "{{ MD_Extended.vxlan.topology.switches | map(attribute='serial_number') | list }}"
 
 - name: Concatenate Switch Serial Numbers
   ansible.builtin.set_fact:

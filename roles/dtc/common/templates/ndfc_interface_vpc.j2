@@ -4,8 +4,8 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% if MD_Extended.fabric.topology.vpc_peers is defined %}
-{% for vpc_pair, vpc_data in MD_Extended.fabric.topology.interfaces.vpc_interfaces.items() %}
+{% if MD_Extended.vxlan.topology.vpc_peers is defined %}
+{% for vpc_pair, vpc_data in MD_Extended.vxlan.topology.interfaces.vpc_interfaces.items() %}
 {% for vpc_id, switches in vpc_data.items() %}
 {% set switch_names = vpc_pair.split('___') %}
 {% set peer1 = switch_names[0] %}
@@ -13,36 +13,36 @@
 - name: vpc{{ vpc_id }}
   type: vpc
   switch: 
-{% if MD_Extended.fabric.topology.leaf[peer1].management_ipv4_address is defined %}
-    - {{ MD_Extended.fabric.topology.leaf[peer1].management_ipv4_address }}
-{% elif MD_Extended.fabric.topology.leaf[peer1].management_ipv6_address is defined %}
-    - {{ MD_Extended.fabric.topology.leaf[peer1].management_ipv6_address }}
+{% if MD_Extended.vxlan.topology.leaf[peer1].management_ipv4_address is defined %}
+    - {{ MD_Extended.vxlan.topology.leaf[peer1].management_ipv4_address }}
+{% elif MD_Extended.vxlan.topology.leaf[peer1].management_ipv6_address is defined %}
+    - {{ MD_Extended.vxlan.topology.leaf[peer1].management_ipv6_address }}
 {% endif %}
-{% if MD_Extended.fabric.topology.leaf[peer2].management_ipv4_address is defined %}
-    - {{ MD_Extended.fabric.topology.leaf[peer2].management_ipv4_address }}
-{% elif MD_Extended.fabric.topology.leaf[peer2].management_ipv6_address is defined %}
-    - {{ MD_Extended.fabric.topology.leaf[peer2].management_ipv6_address }}
+{% if MD_Extended.vxlan.topology.leaf[peer2].management_ipv4_address is defined %}
+    - {{ MD_Extended.vxlan.topology.leaf[peer2].management_ipv4_address }}
+{% elif MD_Extended.vxlan.topology.leaf[peer2].management_ipv6_address is defined %}
+    - {{ MD_Extended.vxlan.topology.leaf[peer2].management_ipv6_address }}
 {% endif %}
   deploy: false
   profile:
-    admin_state: {{ switches[peer1].enabled | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled) }}
+    admin_state: {{ switches[peer1].enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled) }}
     mode: {{ switches[peer1].mode }}
     peer1_pcid: {{ switches[peer1].name | regex_replace('[^0-9]', '') }}
     peer2_pcid: {{ switches[peer2].name | regex_replace('[^0-9]', '') }}
-    port_type_fast: {{ switches[peer1].spanning_tree_portfast | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_portfast) }}
-    mtu: {{ switches[peer1].mtu | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.mtu) }}
-    pc_mode: {{ switches[peer1].pc_mode | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.pc_mode) }}
+    port_type_fast: {{ switches[peer1].spanning_tree_portfast | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_portfast) }}
+    mtu: {{ switches[peer1].mtu | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.mtu) }}
+    pc_mode: {{ switches[peer1].pc_mode | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.pc_mode) }}
     peer1_members: {{ switches[peer1].members | to_json }}
     peer2_members: {{ switches[peer2].members | to_json }}
     peer1_description: "{{ switches[peer1].description | default(omit) }}"
     peer2_description: "{{ switches[peer2].description | default(omit) }}"
-    bpdu_guard: {{ switches[peer1].enable_bpdu_guard | default(defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard)   }}
+    bpdu_guard: {{ switches[peer1].enable_bpdu_guard | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard)   }}
 {% if switches[peer1].mode == 'trunk' %}
-    peer1_allowed_vlans: "{{ ndfc_utils.convert_vlan_ranges(switches[peer1].trunk_allowed_vlans, defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
-    peer2_allowed_vlans: "{{ ndfc_utils.convert_vlan_ranges(switches[peer2].trunk_allowed_vlans, defaults.fabric.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
+    peer1_allowed_vlans: "{{ ndfc_utils.convert_vlan_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
+    peer2_allowed_vlans: "{{ ndfc_utils.convert_vlan_ranges(switches[peer2].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
 {% elif switches[peer1].mode == 'access' %}
-    peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
-    peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.fabric.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan)  }}
+    peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
+    peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan)  }}
 {% endif %}
 {% endfor %}
 {% endfor %}

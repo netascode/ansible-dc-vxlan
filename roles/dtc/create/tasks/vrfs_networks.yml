@@ -4,7 +4,7 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage VRFs and Networks Fabric {{ MD.fabric.global.name }}"
+      - "+     Manage VRFs and Networks Fabric {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
@@ -12,19 +12,19 @@
 # --------------------------------------------------------------------
 - name: Manage NDFC Fabric VRFs
   cisco.dcnm.dcnm_vrf:
-    fabric: "{{ MD.fabric.global.name }}"
+    fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ vrf_config }}"
   register: manage_vrf_result
-  when: MD.fabric.overlay_services.vrfs
+  when: MD.vxlan.overlay_services.vrfs
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
 # --------------------------------------------------------------------
 - name: Manage NDFC Fabric Networks
   cisco.dcnm.dcnm_network:
-    fabric: "{{ MD.fabric.global.name }}"
+    fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ net_config }}"
   register: manage_network_result
-  when: MD.fabric.overlay_services.networks
+  when: MD.vxlan.overlay_services.networks

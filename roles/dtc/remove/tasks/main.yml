@@ -12,12 +12,12 @@
 - debug: msg="Query NDFC for List of Fabric Switches"
 - cisco.dcnm.dcnm_rest:
     method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.fabric.global.name }}/inventory/switchesByFabric"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/inventory/switchesByFabric"
   register: switch_list
 
 - debug: msg="Removing all Unmanaged Fabric Interfaces. This could take several minutes..."
 - cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD.fabric.global.name }}"
+    fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
     config: "{{ interface_all }}"
   vars:
@@ -35,7 +35,7 @@
 
 - debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
 - cisco.dcnm.dcnm_network:
-    fabric: "{{ MD.fabric.global.name }}"
+    fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
     config: "{{ net_config }}"
   when:
@@ -50,7 +50,7 @@
 
 - debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
 - cisco.dcnm.dcnm_vrf:
-    fabric: "{{ MD.fabric.global.name }}"
+    fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
     config: "{{ vrf_config }}"
   when:
@@ -66,7 +66,7 @@
 - debug: msg="Removing all Unmanaged vPC Peering. This could take several minutes..."
 - name: Remove vPC Peering
   cisco.dcnm.dcnm_vpc_pair:
-    src_fabric: "{{ MD.fabric.global.name }}"
+    src_fabric: "{{ MD.vxlan.global.name }}"
     deploy: true
     state: overridden
     config: "{{ vpc_peering }}"
@@ -84,7 +84,7 @@
 - name: Remove Intra Fabric Links for vpc peering
   cisco.dcnm.dcnm_links:
     state: replaced
-    src_fabric: "{{ MD_Extended.fabric.global.name }}"
+    src_fabric: "{{ MD_Extended.vxlan.global.name }}"
     config: "{{ link_vpc_peering }}"
   vars:
       ansible_command_timeout: 3000
@@ -94,9 +94,9 @@
     - (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
 
 - debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
-- name: Remove NDFC Fabric Devices {{ MD.fabric.global.name }}
+- name: Remove NDFC Fabric Devices {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_inventory:
-    fabric: "{{ MD.fabric.global.name }}"
+    fabric: "{{ MD.vxlan.global.name }}"
     config: "{{ inv_config }}"
     deploy: true
     save: true

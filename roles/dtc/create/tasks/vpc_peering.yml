@@ -7,7 +7,7 @@
 - name: Manage Intra Fabric Links for vpc peering
   cisco.dcnm.dcnm_links:
     state: replaced
-    src_fabric: "{{ MD_Extended.fabric.global.name }}"
+    src_fabric: "{{ MD_Extended.vxlan.global.name }}"
     config: "{{ link_vpc_peering }}"
   vars:
       ansible_command_timeout: 3000
@@ -19,52 +19,7 @@
 
 - name: Manage vPC Peering
   cisco.dcnm.dcnm_vpc_pair:
-    src_fabric: "{{ MD.fabric.global.name }}"
+    src_fabric: "{{ MD.vxlan.global.name }}"
     deploy: false
     state: replaced
     config: "{{ vpc_peering }}"
-
-
-
-# - name: Query for vPC Peering Interfaces
-#   cisco.dcnm.dcnm_interface:
-#     fabric: "{{ MD.fabric.global.name }}"
-#     state: query
-#     config: "{{ interface_vpc_peering }}"
-#   register: interface_vpc_peering_query
-
-# - name: Get Interfaces Not Associated to vPC Peering Policy
-#   ansible.builtin.set_fact:
-#     interface_not_vpc_policy: "{{ interface_vpc_peering_query.response | community.general.json_query(vpc_peer_policy_query) }}"
-#   vars:
-#     vpc_peer_policy_query: "[?(@.policy!=`int_vpc_peer_link_po_member_11_1`)]"
-
-# - name: Generate Config Payload Update for Interfaces Not Associated to vPC Peering Policy
-#   ansible.builtin.set_fact:
-#     interface_vpc_peering_payload: "{{ lookup('template', 'ndfc_interface_vpc_peer_link.j2') }}"
-#   when: interface_not_vpc_policy | length > 0
-
-# - name: Manage Interfaces for vPC Peering
-#   cisco.dcnm.dcnm_interface:
-#     fabric: "{{ MD.fabric.global.name }}"
-#     state: replaced
-#     config: "{{ interface_vpc_peering_payload | from_yaml }}"
-#     deploy: true
-#   vars:
-#       ansible_command_timeout: 3000
-#       ansible_connect_timeout: 3000
-#   when: interface_not_vpc_policy | length > 0
-
-# # tune this based on field testing. for now we are leaving at 60 seconds to allow the interfaces to come up.
-# # we can also look at the interface status and wait for the interfaces to be up before proceeding.
-# - name: Wait for vPC Peering Interfaces to come up
-#   ansible.builtin.pause:
-#     seconds: 60
-#   when: interface_not_vpc_policy | length > 0
-
-# - name: Manage vPC Peering
-#   cisco.dcnm.dcnm_vpc_pair:
-#     src_fabric: "{{ MD.fabric.global.name }}"
-#     deploy: false
-#     state: replaced
-#     config: "{{ vpc_peering }}"
