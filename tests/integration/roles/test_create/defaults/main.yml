@@ -1,6 +1,6 @@
 ---
 defaults:
-  fabric:
+  vxlan:
     global:
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa

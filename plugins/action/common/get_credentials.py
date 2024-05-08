@@ -5,6 +5,7 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+import copy
 
 display = Display()
 
@@ -16,7 +17,7 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
 
-        inv_config = self._task.args['inv_config']
+        inv_list = self._task.args['inv_list']
         username = task_vars.get('ndfc_device_username')
         password = task_vars.get('ndfc_device_password')
 
@@ -27,10 +28,14 @@ class ActionModule(ActionBase):
             # TODO: Add support for environemnt variables
             return results
 
-        # Loop through inv_config and update username and password
-        for device in inv_config:
-            device['user_name'] = username
-            device['password'] = password
+        # Create a new list and deep copy each dict item to avoid modifying the original and dict items
+        updated_inv_list = []
+        for device in inv_list:
+            updated_inv_list.append(copy.deepcopy(device))
 
-        results['inv_config'] = inv_config
+        for new_device in updated_inv_list:
+            new_device['user_name'] = username
+            new_device['password'] = password
+
+        results['updated_inv_list'] = updated_inv_list
         return results

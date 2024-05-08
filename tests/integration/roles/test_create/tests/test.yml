@@ -4,10 +4,11 @@
 
 - name: Get Fabric Switches Data
   cisco.dcnm.dcnm_inventory:
-    fabric: "{{ MD_Extended.fabric.global.name }}"
+    fabric: "{{ MD_Extended.vxlan.global.name }}"
     state: query
   register: fabric_query
 
 - name: Run inventory tests
   cisco.nac_dc_vxlan.test.inventory:
     test_data: "{{ fabric_query }}"
+    model_data: "{{ MD_Extended }}"

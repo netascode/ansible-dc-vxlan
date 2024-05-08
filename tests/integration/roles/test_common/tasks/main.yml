@@ -1,12 +1,12 @@
 ---
-- ansible.builtin.include_role:
+- ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.validate
 
-- ansible.builtin.include_role:
+- ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.create
 
-- ansible.builtin.include_role:
+- ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.deploy
 
-- ansible.builtin.include_role:
+- ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.remove
