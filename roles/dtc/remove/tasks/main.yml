@@ -97,7 +97,7 @@
 - name: Remove NDFC Fabric Devices {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD.vxlan.global.name }}"
-    config: "{{ inv_config }}"
+    config: "{{ updated_inv_config['updated_inv_list'] }}"
     deploy: true
     save: true
     state: overridden

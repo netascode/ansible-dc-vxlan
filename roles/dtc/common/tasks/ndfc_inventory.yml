@@ -21,3 +21,9 @@
   ansible.builtin.set_fact:
     inv_config: "{{ lookup('file', inv_file_name) | from_yaml }}"
   when: (MD_Extended.vxlan.topology.switches | default([])) | length > 0
+
+- name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
+  cisco.nac_dc_vxlan.common.get_credentials:
+    inv_list: "{{ inv_config }}"
+  register: updated_inv_config
+  no_log: true

@@ -4,21 +4,10 @@
 # and set the role for the device.  Deploy of config would happen using the
 # dtc.deploy role.
 
-# - name: Check for ndfc_device_username and ndfc_device_password
-#   ansible.builtin.fail:
-#     msg: "ndfc_device_username and ndfc_device_password must be defined in group_vars"
-#   when: ndfc_device_username is not defined or ndfc_device_password is not defined
-
-- name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
-  cisco.nac_dc_vxlan.common.get_credentials:
-    inv_list: "{{ inv_config }}"
-  register: data
-  no_log: true
-
 - name: Add NDFC Fabric Devices {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD.vxlan.global.name }}"
-    config: "{{ data['updated_inv_list'] }}"
+    config: "{{ updated_inv_config['updated_inv_list'] }}"
     deploy: false
     save: true
     state: merged
