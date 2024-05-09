@@ -80,7 +80,7 @@
   FABRIC_MTU: {{ underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
   L2_HOST_INTF_MTU: {{ underlay.general.layer2_host_interfacde_mtu | default(defaults.vxlan.underlay.general.layer2_host_interfacde_mtu) }}
   HOST_INTF_ADMIN_STATE: {{ underlay.general.unshut_host_interfaces | default(defaults.vxlan.underlay.general.unshut_host_interfaces) }}
-  FABRIC_INTERFACE_TYPE: {{ underlay.general.fabric_interface_numbering | default(defaults.vxlan.underlay.general.vxlan_interface_numbering) }}
+  FABRIC_INTERFACE_TYPE: {{ underlay.general.fabric_interface_numbering | default(defaults.vxlan.underlay.general.fabric_interface_numbering) }}
   SUBNET_TARGET_MASK: {{ underlay.general.subnet_mask | default(defaults.vxlan.underlay.general.subnet_mask) }}
   REPLICATION_MODE: {{ underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title }}
   LINK_STATE_ROUTING: {{ underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol) }}
