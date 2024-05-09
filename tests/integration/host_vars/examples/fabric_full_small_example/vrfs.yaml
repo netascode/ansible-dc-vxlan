@@ -1,0 +1,75 @@
+---
+vxlan:
+  overlay_services:
+    vrfs:
+      - name: NetAsCodeVrf1
+        vrf_id: 150001
+        vlan_id: 2001
+        attach_group: all_leaf
+
+      - name: NetAsCodeVrf2
+        vrf_id: 150002
+        vlan_id: 2002
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeVrf3
+        vrf_id: 150003
+        vlan_id: 2003
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeVrf4
+        vrf_id: 150004
+        vlan_id: 2004
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeVrf_Default
+        vrf_id: 150020
+        vlan_id: 2020
+        vrf_vlan_name: NetAsCodeVrf_Default_vlan2020
+        vrf_intf_desc: NetAsCodeVrf_Default
+        vrf_description: NetAsCodeVrf_Default
+        vrf_int_mtu: 9216
+        loopback_route_tag: 12345
+        max_bgp_paths: 8
+        max_ibgp_paths: 8
+        ipv6_linklocal_enable: True
+        adv_host_routes: True
+        adv_default_routes: True
+        static_default_route: True
+        # bgp_password: cisco
+        # bgp_password_encryption_type: 3
+        disable_rt_auto: True
+        export_evpn_rt: ""
+        export_mvpn_rt: ""
+        export_vpn_rt: ""
+        import_evpn_rt: ""
+        import_mvpn_rt: ""
+        import_vpn_rt: ""
+        netflow_enable: False
+        netflow_monitor: ""
+        no_rp: False
+        overlay_multicast_group: ""
+        redist_direct_routemap: ""
+        rp_address: 192.168.1.1/24
+        rp_external: False
+        rp_loopback_id: 0
+        trm_enable: False
+        trm_bgw_msite: False
+        underlay_mcast_ip: "224.1.1.1/32"
+        attach_group: all_leaf
+
+    vrf_attach_groups:
+      - name: all_leaf
+        switches:
+          - {hostname: << leaf1_ip >>}
+          - {hostname: << leaf2_ip >>}
+      - name: leaf1_leaf2
+        switches:
+          - {hostname: << leaf1_ip >>}
+          - {hostname: << leaf2_ip >>}
+      - name: leaf1
+        switches:
+          - {hostname: << leaf1_ip >>}
+      - name: leaf2
+        switches:
+          - {hostname: << leaf2_ip >>}

@@ -18,7 +18,7 @@
 
 - name: Get Hostname for {{ item }} from Data Model
   ansible.builtin.set_fact:
-    md_switch_hostname: "{{ MD.fabric.topology.switches | community.general.json_query(query) }}"
+    md_switch_hostname: "{{ MD.vxlan.topology.switches | community.general.json_query(query) }}"
 
 - name: Update Hostname Policy for {{ item }} from NDFC Response
   ansible.builtin.set_fact:

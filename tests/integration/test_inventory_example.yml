@@ -1,0 +1,16 @@
+all:
+  vars:
+    ansible_user: "admin"
+    ansible_python_interpreter: "~/.pyenv/shims/python"
+    ansible_httpapi_validate_certs: False
+    ansible_httpapi_use_ssl: True
+
+  children:
+    ndfc:
+      hosts:
+        fabric_empty:
+          ansible_host: << ndfc_ip >>
+        fabric_full_small:
+          ansible_host: < ndfc_ip >>
+        fabric_full_large:
+          ansible_host: << ndfc_ip >>

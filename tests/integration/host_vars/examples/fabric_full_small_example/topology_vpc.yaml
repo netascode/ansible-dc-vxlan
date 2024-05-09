@@ -1,0 +1,17 @@
+---
+vxlan:
+  topology:
+    vpc_peers:
+      - peer1: << leaf1_hostname >>
+        peer1_peerlink_interfaces:
+          - name: Ethernet1/3
+          - name: Ethernet1/4
+        peer2: << leaf2_hostname >>
+        peer2_peerlink_interfaces:
+          - name: Ethernet1/3
+          - name: Ethernet1/4
+        fabric_peering: false
+        domain_id: 100
+        vtep_vip: "10.10.88.1"
+        vpc_interfaces:
+          - vpc_id: 30

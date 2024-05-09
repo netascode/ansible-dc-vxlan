@@ -1,0 +1,4 @@
+---
+vxlan:
+  topology:
+    edge_connections: []

@@ -40,7 +40,7 @@ class ActionModule(ActionBase):
 
         # if fabric_data.get('global').get('auth_proto') is None:
         #     results['failed'] = True
-        #     results['msg'] = "Data model path 'fabric.global.auth_proto' must be defined!"
+        #     results['msg'] = "Data model path 'vxlan.global.auth_proto' must be defined!"
         #     return results
 
         # if fabric_data.get('topology').get('switches') is not None:
@@ -48,7 +48,7 @@ class ActionModule(ActionBase):
         #         for key in ['management', 'role']:
         #             if switch.get(key) is None:
         #                 results['failed'] = True
-        #                 results['msg'] = "Data model path 'fabric.topology.switches.{0}.{1}' must be defined!".format(switch['name'], key)
+        #                 results['msg'] = "Data model path 'vxlan.topology.switches.{0}.{1}' must be defined!".format(switch['name'], key)
         #                 return results
 
         return results

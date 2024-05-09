@@ -1,0 +1,36 @@
+---
+vxlan:
+  topology:
+    switches:
+      - name: << spine1_hostname >>
+        serial_number: << spine1_serial >>
+        role: spine
+        management:
+          default_gateway_v4: << default_gateway_v4 >>
+          default_gateway_v6: 2055:55:55:55::55/64
+          management_ipv4_address: << spine1_ip >>
+          management_ipv6_address: 2055:55:55:55::55/64
+        routing_loopback_id: 0
+        vtep_loopback_id: 1
+
+      - name: << leaf1_hostname >>
+        serial_number: << leaf1_serial >>
+        role: leaf
+        management:
+          default_gateway_v4: << default_gateway_v4 >>
+          default_gateway_v6: 2055:55:55:55::55/64
+          management_ipv4_address: << leaf1_ip >>
+          management_ipv6_address: 2055:55:55:55::55/64
+        routing_loopback_id: 0
+        vtep_loopback_id: 1
+
+      - name: << leaf2_hostname >>
+        serial_number: << leaf2_serial >>
+        role: leaf
+        management:
+          default_gateway_v4: << default_gateway_v4 >>
+          default_gateway_v6: 2055:55:55:55::55/64
+          management_ipv4_address: << leaf2_ip >>
+          management_ipv6_address: 2055:55:55:55::55/64
+        routing_loopback_id: 0
+        vtep_loopback_id: 1

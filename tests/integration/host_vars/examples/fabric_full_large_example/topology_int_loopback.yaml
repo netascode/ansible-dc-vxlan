@@ -1,0 +1,134 @@
+vxlan:
+  topology:
+    switches:
+      - name: << spine1_hostname >>
+        serial_number: << spine1_serial >>
+        interfaces:
+          - name: lo55
+            mode: loopback
+            description: 'NaC Loopback Interface Spine1'
+            vrf: red
+            enabled: true
+            ipv4_address: 10.55.55.1
+            ipv4_route_tag: 12345
+            # Secondary not supported on NDFC?
+            # --------------------------------
+            # secondary_ipv4_addresses:
+            #   - ip_address: 192.10.55.1/32
+            #     route_tag: 56789
+            ipv6_address: 2055:55:55:55::1
+            ipv6_route_tag: 12345
+            # Secondary not supported on NDFC?
+            # --------------------------------
+            # secondary_ipv6_addresses:
+            #   - ip_address: 2056:55:55:55::1
+            #     route_tag: 8888
+
+      - name: << spine2_hostname >>
+        serial_number: << spine2_serial >>
+        interfaces:
+          - name: loopback55
+            mode: loopback
+            description: 'NaC Loopback Interface Spine2'
+            vrf: red
+            enabled: true
+            ipv4_address: 10.55.55.2
+            ipv4_route_tag: 12345
+
+      - name: << leaf1_hostname >>
+        serial_number: << leaf1_serial >>
+        interfaces:
+          - name: lo55
+            mode: loopback
+            description: 'NaC Loopback Interface Leaf1'
+            vrf: red
+            enabled: true
+            ipv4_address: 10.55.55.21
+            ipv4_route_tag: 12345
+            secondary_ipv4_addresses:
+              - ip_address: 192.10.55.21/32
+                route_tag: 56789
+
+      - name: << leaf2_hostname >>
+        serial_number: << leaf2_serial >>
+        interfaces:
+          - name: Loopback55
+            mode: loopback
+            description: 'NaC Loopback Interface Leaf2'
+            vrf: red
+            enabled: true
+            ipv4_address: 10.55.55.22
+            ipv4_route_tag: 12345
+            secondary_ipv4_addresses:
+              - ip_address: 192.10.55.22/32
+                route_tag: 56789
+          - name: Loopback56
+            mode: loopback
+            ipv4_address: 10.55.55.56
+          - name: Loopback57
+            mode: loopback
+            ipv4_address: 10.55.55.57
+          - name: Loopback58
+            mode: loopback
+            ipv4_address: 10.55.55.58
+          - name: Loopback59
+            mode: loopback
+            ipv4_address: 10.55.55.59
+          - name: Loopback60
+            mode: loopback
+            ipv4_address: 10.55.55.60
+          - name: Loopback61
+            mode: loopback
+            ipv4_address: 10.55.55.61
+          - name: Loopback62
+            mode: loopback
+            ipv4_address: 10.55.55.62
+          - name: Loopback63
+            mode: loopback
+            ipv4_address: 10.55.55.63
+          - name: Loopback64
+            mode: loopback
+            ipv4_address: 10.55.55.64
+          - name: Loopback65
+            mode: loopback
+            ipv4_address: 10.55.55.65
+          - name: Loopback66
+            mode: loopback
+            ipv4_address: 10.55.55.66
+          - name: Loopback67
+            mode: loopback
+            ipv4_address: 10.55.55.67
+          - name: Loopback68
+            mode: loopback
+            ipv4_address: 10.55.55.68
+          - name: Loopback69
+            mode: loopback
+            ipv4_address: 10.55.55.69
+          - name: Loopback70
+            mode: loopback
+            ipv4_address: 10.55.55.70
+          - name: Loopback71
+            mode: loopback
+            ipv4_address: 10.55.55.71
+
+      - name: << leaf3_hostname >>
+        serial_number: << leaf3_serial >>
+        interfaces: []
+
+      - name: << leaf4_hostname >>
+        serial_number: << leaf4_serial >>
+        interfaces: []
+
+      - name: << border_hostname >>
+        serial_number: << border_serial >>
+        interfaces:
+          - name: lo55
+            mode: loopback
+            description: 'NaC Loopback Interface Border'
+            vrf: blue
+            enabled: true
+            ipv4_address: 10.55.55.25
+            ipv4_route_tag: 12345
+            secondary_ipv4_addresses:
+              - ip_address: 192.10.55.25/32
+                route_tag: 56789

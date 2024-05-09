@@ -2,7 +2,7 @@
 
 - name: Set int_loopback_file_name Var
   ansible.builtin.set_fact:
-    int_loopback_file_name: "{{ MD.fabric.global.name }}_ndfc_loopback_interfaces.yml"
+    int_loopback_file_name: "{{ MD.vxlan.global.name }}_ndfc_loopback_interfaces.yml"
 
 - name: Build Loopback Interfaces List From Template
   ansible.builtin.template:
@@ -16,4 +16,4 @@
 - name: Set int_loopback_config Var
   ansible.builtin.set_fact:
     int_loopback_config: "{{ lookup('file', int_loopback_file_name) | from_yaml }}"
-  when: MD_Extended.fabric.topology.interfaces.modes.loopback.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count >0

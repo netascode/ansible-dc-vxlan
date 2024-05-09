@@ -4,12 +4,12 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD.fabric.global.name }}"
+      - "+     Manage Fabric {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
 - debug: msg="{{ fabric_config }}"
 
-- name: Manage fabric {{ MD.fabric.global.name }} in NDFC
+- name: Manage fabric {{ MD.vxlan.global.name }} in NDFC
   cisco.dcnm.dcnm_fabric:
     state: merged
     config: "{{ fabric_config }}"

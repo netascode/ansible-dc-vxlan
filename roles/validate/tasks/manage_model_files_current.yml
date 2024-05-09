@@ -4,20 +4,20 @@
 - name: Copy Service Model Data to Host
   ansible.builtin.copy:
     content: "{{ MD | to_nice_json }}"
-    dest: "{{ role_path }}/files/{{ MD.fabric.global.name }}_service_model_golden.json"
+    dest: "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_golden.json"
     force: yes
 
 # Copy the extended golden and extended service model data to the host
 - name: Copy Extended Service Model Data to Host
   ansible.builtin.copy:
     content: "{{ MD_Extended | to_nice_json }}"
-    dest: "{{ role_path }}/files/{{ MD.fabric.global.name }}_service_model_extended.json"
+    dest: "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_extended.json"
     force: yes
 
 # Read current golden service model data into a variable called 'smd_golden_current'
 - name: Read Current Service Model Data from Host
   ansible.builtin.include_vars:
-    file: "{{ role_path }}/files/{{ MD.fabric.global.name }}_service_model_golden.json"
+    file: "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_golden.json"
   register: smd_golden_current
 
 - name: Display Model File Changes

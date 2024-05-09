@@ -1,7 +1,7 @@
 ---
 - name: Set vpc_peering_file_name Var
   ansible.builtin.set_fact:
-    vpc_peering_file_name: "{{ MD.fabric.global.name }}_ndfc_vpc_peering.yml"
+    vpc_peering_file_name: "{{ MD.vxlan.global.name }}_ndfc_vpc_peering.yml"
 
 - name: Build vPC Peering
   ansible.builtin.template:
@@ -15,4 +15,4 @@
 - name: Set vpc_peering Var
   ansible.builtin.set_fact:
     vpc_peering: "{{ lookup('file', vpc_peering_file_name) | from_yaml }}"
-  when: MD_Extended.fabric.topology.vpc_peers | length > 0
+  when: MD_Extended.vxlan.topology.vpc_peers | length > 0

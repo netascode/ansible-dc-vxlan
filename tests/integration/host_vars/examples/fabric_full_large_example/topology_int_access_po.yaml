@@ -1,0 +1,58 @@
+vxlan:
+  topology:
+    switches:
+      - name: << spine1_hostname >>
+        serial_number: << spine1_serial >>
+        interfaces: []
+
+      - name: << spine2_hostname >>
+        serial_number: << spine2_serial >>
+        interfaces: []
+
+      - name: << leaf1_hostname >>
+        serial_number: << leaf1_serial >>
+        interfaces:
+          - name: Port-Channel55
+            mode: access
+            description: "NaC Access Port-Channel for vlan 55 leaf1"
+            # vpc_id: 1
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/32
+              - Ethernet1/33
+            access_vlan: 55
+
+      - name: << leaf2_hostname >>
+        serial_number: << leaf2_serial >>
+        interfaces:
+          - name: Port-Channel55
+            mode: access
+            description: "NaC Access Port-Channel for vlan 55 leaf2"
+            # vpc_id: 1
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/32
+              - Ethernet1/33
+            access_vlan: 55
+
+      - name: << leaf3_hostname >>
+        serial_number: << leaf3_serial >>
+        interfaces: []
+
+      - name: << leaf4_hostname >>
+        serial_number: << leaf4_serial >>
+        interfaces: []
+
+      - name: << border_hostname >>
+        serial_number: << border_serial >>
+        interfaces: []

@@ -1,0 +1,12 @@
+---
+vxlan:
+  topology:
+    fabric_links:
+      - source_device: "source_device"
+        source_interface: "Ethernet1/1"
+        dest_device: "dest_device"
+        dest_interface: "Ethernet1/2"
+      - source_device: "source_device2"
+        source_interface: "Ethernet1/1"
+        dest_device: "dest_device2"
+        dest_interface: "Ethernet1/2"
