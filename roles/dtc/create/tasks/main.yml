@@ -12,36 +12,36 @@
 
 - name: Create NDFC Fabric
   ansible.builtin.include_tasks: fabric.yml
-  when: MD_Extended.fabric.global is defined
+  when: MD_Extended.vxlan.global is defined
 
 - name: Manage NDFC Fabric Switches
   ansible.builtin.include_tasks: devices.yml
-  when: MD_Extended.fabric.topology.switches | length > 0
+  when: MD_Extended.vxlan.topology.switches | length > 0
 
 - name: Manage VPC Peering
   ansible.builtin.include_tasks: vpc_peering.yml
-  when: MD_Extended.fabric.topology.vpc_peers | length > 0
+  when: MD_Extended.vxlan.topology.vpc_peers | length > 0
 
 - name: Manage NDFC Fabric Interfaces
   ansible.builtin.include_tasks: interfaces.yml
-  when: (MD_Extended.fabric.topology.interfaces.modes.all.count >0) and (MD_Extended.fabric.topology.switches | length > 0)
+  when: (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
 
 
 - name: Manage NDFC Fabric VRFs and Networks
   ansible.builtin.include_tasks: vrfs_networks.yml
-  when: (MD.fabric.overlay_services is defined) and (MD_Extended.fabric.topology.switches | length > 0)
+  when: (MD.vxlan.overlay_services is defined) and (MD_Extended.vxlan.topology.switches | length > 0)
 
 # - name: Manage NDFC VRF-Lite Extensions
 #   ansible.builtin.include_tasks: vrflite.yml
-#   when: MD.fabric is defined
+#   when: MD.vxlan is defined
 
 # - name: Manage NDFC Templates
 #   ansible.builtin.include_tasks: templates.yml
-#   when: MD.fabric is defined
+#   when: MD.vxlan is defined
 
 # - name: Manage NDFC Policies
 #   ansible.builtin.include_tasks: policies.yml
-#   when: MD.fabric is defined
+#   when: MD.vxlan is defined
 
 # Other areas to enable
 # 1. Diff between git source data model files and only call stage that is needed.

@@ -1,7 +1,7 @@
 ---
 - name: Set interface_access_po_file_name Var
   ansible.builtin.set_fact:
-    interface_access_po_file_name: "{{ MD.fabric.global.name }}_ndfc_interface_access_po.yml"
+    interface_access_po_file_name: "{{ MD.vxlan.global.name }}_ndfc_interface_access_po.yml"
 
 - name: Build Interface
   ansible.builtin.template:
@@ -15,4 +15,4 @@
 - name: Set interface_access_po Var
   ansible.builtin.set_fact:
     interface_access_po: "{{ lookup('file', interface_access_po_file_name) | from_yaml }}"
-  when: MD_Extended.fabric.topology.interfaces.modes.access_po.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.access_po.count >0

@@ -1,7 +1,7 @@
 ---
 - name: Set interface_vpc_file_name Var
   ansible.builtin.set_fact:
-    interface_vpc_file_name: "{{ MD.fabric.global.name }}_ndfc_interface_vpc.yml"
+    interface_vpc_file_name: "{{ MD.vxlan.global.name }}_ndfc_interface_vpc.yml"
 
 - name: Build VPC interface
   ansible.builtin.template:
@@ -15,4 +15,4 @@
 - name: Set interface_vpc Var
   ansible.builtin.set_fact:
     interface_vpc: "{{ lookup('file', interface_vpc_file_name) | from_yaml }}"
-  when: MD_Extended.fabric.topology.interfaces.modes.access_vpc.count >0 or MD_Extended.fabric.topology.interfaces.modes.trunk_vpc.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.access_vpc.count >0 or MD_Extended.vxlan.topology.interfaces.modes.trunk_vpc.count >0

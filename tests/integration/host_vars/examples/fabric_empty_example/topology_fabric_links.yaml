@@ -1,0 +1,4 @@
+---
+vxlan:
+  topology:
+    fabric_links: []

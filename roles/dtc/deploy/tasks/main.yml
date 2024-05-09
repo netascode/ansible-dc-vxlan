@@ -9,19 +9,19 @@
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
 
 
-- name: Config-Save for Fabric {{ MD.fabric.global.name }}
+- name: Config-Save for Fabric {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_rest:
     method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.fabric.global.name }}/config-save"
-  when: MD_Extended.fabric.topology.switches | length > 0
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
+  when: MD_Extended.vxlan.topology.switches | length > 0
   # TODO: Need to add logic to only save if changes are made
 
-- name: Deploy for Fabric {{ MD.fabric.global.name }}
+- name: Deploy for Fabric {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.fabric.global.name }}/config-deploy?forceShowRun=false"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
     method: POST
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-  when: MD_Extended.fabric.topology.switches | length > 0
+  when: MD_Extended.vxlan.topology.switches | length > 0
   # TODO: Need to add logic to only deploy if changes are made

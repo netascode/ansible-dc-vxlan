@@ -4,7 +4,7 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Devices Fabric {{ MD.fabric.global.name }}"
+      - "+     Manage Devices Fabric {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
 - name: Manage Devices Discovery

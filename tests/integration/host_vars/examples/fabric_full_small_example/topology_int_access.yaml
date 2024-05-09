@@ -1,0 +1,23 @@
+vxlan:
+  topology:
+    switches:
+      - name: << spine1_hostname >>
+        serial_number: << spine1_serial >>
+        interfaces: []
+
+      - name: << leaf1_hostname >>
+        serial_number: << leaf1_serial >>
+        interfaces:
+          - name: Ethernet1/30
+            mode: access
+            description: "NaC Access for vlan55 leaf1"
+            mtu: default
+            speed: auto
+            enabled: true
+            access_vlan: 55
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+
+      - name: << leaf2_hostname >>
+        serial_number: << leaf2_serial >>
+        interfaces: []

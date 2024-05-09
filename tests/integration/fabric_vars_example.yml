@@ -1,0 +1,34 @@
+---
+
+fabric_name: << fabric_name >>
+fabric_password: password
+fabric_device_password: password
+default_gateway_v4: << default_gateway_v4 >>
+spine1:
+  hostname: << spine1_hostname >
+  serial: << spine1_serial >>
+  ip: << spine1_ip >>
+spine2:
+  hostname: << spine2_hostname >>
+  serial: << spine2_serial >>
+  ip: << spine2_ip >>
+leaf1:
+  hostname: << leaf1_hostname >>
+  serial: << leaf1_serial >>
+  ip: << leaf1_ip >>
+leaf2:
+  hostname: << leaf2_hostname >>
+  serial: << leaf2_serial >>
+  ip: << leaf2_ip >>
+leaf3:
+  hostname: << leaf3_hostname >>
+  serial: << leaf3_serial >>
+  ip: << leaf3_ip >>
+leaf4:
+  hostname: << leaf4_hostname >>
+  serial: << leaf4_serial >>
+  ip: << leaf4_ip >>
+border:
+  hostname: << border_hostname >>
+  serial: << border_serial >>
+  ip: << border_ip >>

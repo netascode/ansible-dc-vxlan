@@ -1,0 +1,18 @@
+vxlan:
+  topology:
+    switches:
+      - name: << spine1_hostname >>
+        serial_number: << spine1_serial >>
+        interfaces: []
+          # - name: lo0
+          #   description: 'NetAsCode Fabric Loopback Interface'
+          #   mode: fabric_loopback
+          #   ipv4_address: 10.2.0.3
+
+      - name: << leaf1_hostname >>
+        serial_number: << leaf1_serial >>
+        interfaces: []
+
+      - name: << leaf2_hostname >>
+        serial_number: << leaf2_serial >>
+        interfaces: []

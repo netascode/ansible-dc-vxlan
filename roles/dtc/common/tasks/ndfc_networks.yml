@@ -2,7 +2,7 @@
 
 - name: Set net_file_name Var
   ansible.builtin.set_fact:
-    net_file_name: "{{ MD.fabric.global.name }}_ndfc_attach_networks.yml"
+    net_file_name: "{{ MD.vxlan.global.name }}_ndfc_attach_networks.yml"
 
 - name: Build Networks Attach List From Template
   ansible.builtin.template:
@@ -16,4 +16,4 @@
 - name: Set net_config Var
   ansible.builtin.set_fact:
     net_config: "{{ lookup('file', net_file_name) | from_yaml }}"
-  when: (MD_Extended.fabric.overlay_services.networks | default([])) | length > 0
+  when: (MD_Extended.vxlan.overlay_services.networks | default([])) | length > 0

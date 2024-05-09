@@ -1,5 +1,5 @@
 - ansible.builtin.set_fact:
-    fabric_file_name: "{{ MD.fabric.global.name }}_ndfc_create_fabric.yml"
+    fabric_file_name: "{{ MD.vxlan.global.name }}_ndfc_create_fabric.yml"
 
 - name: Build Fabric Creation Parameters From Template
   template:
@@ -8,4 +8,4 @@
 
 - ansible.builtin.set_fact:
     fabric_config: "{{ lookup('file', fabric_file_name) | from_yaml }}"
-  when: MD.fabric.global
+  when: MD.vxlan.global
