@@ -199,7 +199,134 @@ The `host` is defined as nac-ndfc1 which references back to the inventory file. 
 
 The first role is `cisco.nac_dc_vxlan.validate` which is going to validate the data model. This is a required step to ensure that the data model is correct and that the data model is going to be able to be processed by the subsequent roles.
 
-The next roles are the `cisco.nac_dc_vxlan.dtc.create`, `cisco.nac_dc_vxlan.dtc.deploy`, and `cisco.nac_dc_vxlan.dtc.remove`. These roles are the primary roles that are going to be executed in the playbook. The `create` role is going to create all the templates and variable parameters that are required to invoke change in the NDFC controller. The `deploy` role is going to deploy those changes to the NDFC controller in the inventory. The `remove` role is going to remove the data model from the devices in the inventory.
+The next roles are the `cisco.nac_dc_vxlan.dtc.create`, `cisco.nac_dc_vxlan.dtc.deploy`, and `cisco.nac_dc_vxlan.dtc.remove`. These roles are the primary roles that will invoke change in NDFC. The `create` role is going to create all the templates and variable parameters . The `deploy` role is going to deploy those changes to the NDFC controller. The `remove` role would remove the data model from the devices in the inventory.
+
+> **Note**: For your safety, the `remove` role also requires settings some variables to true under the `group_vars` directory. This is to avoid accidental removal of configuration from NDFC that might impact the network. This will be covered in a section below.
+
 
 Since each of these roles are separte, you may configure the playbook to only execute the roles that are required. For example, as you are building your data model and getting to know the collection, you may comment out the `deploy` and `remove` roles to only execute the `validate` and `create` role. This provides a quick way to make sure that the data model is structured correctly.
 
+## Example topology
+
+In this document we are going to provide an example topology that is going to be used to demonstrate the capabilities of the collection. The example topology is a simple two spine, four leaf topology.
+
+![Example Topology](./doc_images/topology_diagram.png)
+
+When configuring the data model, a best practice is to not configure a single file with the whole model. This would create many problems when the data model is growing in size with more parameters added. Instead, the data model is going to be split into multiple files that are going to be read into memory by the collection under the prepare code that is under the `cisco.nac_dc_vxlan.validate` role.
+
+All the files located in the directory for the data model under the `host_vars` directory are read all and create a single data model in memory for execution.
+
+### Global configuration
+
+The first file we are going to create is going be called `global.yml` and is going to contain the global parameters for the VXLAN fabric. 
+
+```yaml
+---
+fabric:
+  global:
+    name: nac-nd-02
+    bgp_asn: 65001
+    route_reflectors: 2
+    anycast_gateway_mac: 12:34:56:78:90:00
+    dns_servers:
+      - ip_address: 10.0.249.16
+        vrf: management
+    ntp_servers:
+      - ip_address: 10.81.254.131
+        vrf: management
+```
+
+### Inventory configuration
+
+This file will be named `topology_switches.yaml`
+
+```yaml
+---
+fabric:
+  topology:
+    switches:
+      - name: spine1
+        role: spine
+        management:
+          default_gateway_v4: 10.15.34.1
+          management_ipv4_address: 10.15.34.11
+        routing_loopback_id: 0
+        vtep_loopback_id: 1
+      - name: spine2
+        role: spine
+        management:
+          default_gateway_v4: 10.15.34.1
+          management_ipv4_address: 10.15.34.12
+        routing_loopback_id: 0
+        vtep_loopback_id: 1
+      - name: leaf1
+        role: leaf
+        management:
+          default_gateway_v4: 10.15.34.1
+          management_ipv4_address: 10.15.34.13
+        routing_loopback_id: 0
+        vtep_loopback_id: 1
+      - name: leaf2
+        role: leaf
+        management:
+          default_gateway_v4: 10.15.34.1
+          management_ipv4_address: 10.15.34.14
+        routing_loopback_id: 0
+        vtep_loopback_id: 1
+      - name: leaf3
+        role: leaf
+        management:
+          default_gateway_v4: 10.15.34.1
+          management_ipv4_address: 10.15.34.15
+        routing_loopback_id: 0
+        vtep_loopback_id: 1
+      - name: leaf4
+        role: leaf
+        management:
+          default_gateway_v4: 10.15.34.1
+          management_ipv4_address: 10.15.34.16
+        routing_loopback_id: 0
+        vtep_loopback_id: 1
+```
+
+### Underlay configuration
+
+```yaml
+---
+fabric:
+  underlay:
+    general:
+      routing_protocol: ospf
+      enable_ipv6_underlay: false
+      replication_mode: multicast
+      fabric_interface_numbering: p2p
+      subnet_mask: 31
+      underlay_routing_loopback_id: 0
+      underlay_vtep_loopback_id: 1
+      underlay_routing_protocol_tag: UNDERLAY
+      underlay_rp_loopback_id: 250
+      intra_fabric_interface_mtu: 9216
+      layer2_host_interfacde_mtu: 9216
+      unshut_host_interfaces: true
+    ipv4:
+      underlay_routing_loopback_ip_range: 10.0.0.0/22
+      underlay_vtep_loopback_ip_range: 10.100.100.0/22
+      underlay_rp_loopback_ip_range: 10.250.250.0/24
+      underlay_subnet_ip_range: 10.1.0.0/16
+    ipv6:
+      enable_ipv6_link_local_address: false
+      # Ask Shangxin, can't find this property
+      underlay_subnet_mask: 64
+    ospf:
+      area_id: 0.0.0.0
+      authentication_enable: false
+      authentication_key_id: 0
+      authentication_key: ""
+    multicast:
+      underlay_rp_loopback_id: 250
+      underlay_primary_rp_loopback_id: 0
+```
+
+### VRF configuration
+
+### Network configuration
