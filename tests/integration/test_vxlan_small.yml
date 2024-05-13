@@ -3,7 +3,7 @@
 
 # Instructions for using this playbook:
 #
-# 1. Make sure you run the tests/integration/test_bootstrap.yml playbook first
+# 1. Make sure you run the tests/integration/test_update_model_data playbook first
 #
 # 3. Run the playbook with the following command:
 #    ansible-playbook -i tests/integration/test_inventory.yml tests/integration/test_vxlan_small.yml
