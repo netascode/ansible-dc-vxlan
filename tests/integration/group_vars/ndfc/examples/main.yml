@@ -4,7 +4,7 @@
 # Controller Credentials
 ansible_connection: ansible.netcommon.httpapi
 ansible_network_os: cisco.dcnm.dcnm
-ansible_username: admin
+ansible_user: admin
 ansible_password: password
 ndfc_device_username: admin
 ndfc_device_password: password
