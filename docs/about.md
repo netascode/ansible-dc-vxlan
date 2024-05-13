@@ -329,4 +329,88 @@ fabric:
 
 ### VRF configuration
 
+```yaml
+---
+fabric:
+  overlay_services:
+    vrfs:
+      - name: NaC-ND2-VRF01
+        vrf_id: 150001
+        vlan_id: 2001
+        attach_group: all
+      - name: NaC-ND2-VRF02
+        vrf_id: 150002
+        vlan_id: 2002
+        attach_group: leaf1
+      - name: NaC-ND2-VRF03
+        vrf_id: 150003
+        vlan_id: 2003
+        attach_group: leaf2
+    vrf_attach_groups:
+      - name: all
+        switches:
+          - { hostname: 10.15.34.13 }
+          - { hostname: 10.15.34.14 }
+          - { hostname: 10.15.34.15 }
+          - { hostname: 10.15.34.16 }
+      - name: leaf1
+        switches:
+          - { hostname: 10.15.34.13 }
+      - name: leaf2
+        switches:
+          - { hostname: 10.15.34.14 }
+      - name: leaf3
+        switches:
+          - { hostname: 10.15.34.15 }
+      - name: leaf4
+        switches:
+          - { hostname: 10.15.34.16 }
+```
+
+
 ### Network configuration
+
+```yaml
+---
+fabric:
+  overlay_services:
+    networks:
+      - name: NaC-ND2-Net01
+        vrf_name: NaC-ND2-VRF01
+        net_id: 130001
+        vlan_id: 2301
+        vlan_name: NaC-ND2-Net01_vlan2301
+        gw_ip_address: "192.168.12.1/24"
+        attach_group: all
+      - name: NaC-ND2-Net02
+        vrf_name: NaC-ND2-VRF02
+        # is_l2_only: True
+        net_id: 130002
+        vlan_id: 2302
+        vlan_name: NaC-ND2-Net02_vlan2302
+        gw_ip_address: "192.168.12.2/24"
+        attach_group: leaf1
+      - name: NaC-ND2-Net03
+        vrf_name: NaC-ND2-VRF03
+        net_id: 130003
+        vlan_id: 2303
+        vlan_name: NaC-ND2-Net03_vlan2303
+        gw_ip_address: "192.168.12.3/24"
+        gw_ipv6_address: "2001::1/64"
+        route_target_both: True
+        l3gw_on_border: True
+        mtu_l3intf: 7600
+        int_desc: "Configured by NetAsCode"
+        attach_group: leaf2
+    network_attach_groups:
+      - name: all
+        switches:
+          - { hostname: 10.15.34.13, ports: [Ethernet1/13, Ethernet1/14] }
+          - { hostname: 10.15.34.14, ports: [Ethernet1/13, Ethernet1/14] }
+      - name: leaf1
+        switches:
+          - { hostname: 10.15.34.13, ports: [] }
+      - name: leaf2
+        switches:
+          - { hostname: 10.15.34.14, ports: [] }
+```
