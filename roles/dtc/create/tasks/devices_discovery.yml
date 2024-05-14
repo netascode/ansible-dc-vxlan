@@ -1,9 +1,5 @@
 ---
 
-# TODO: Modify the dcnm_inventory module to only discover/clean the device
-# and set the role for the device.  Deploy of config would happen using the
-# dtc.deploy role.
-
 - name: Add NDFC Fabric Devices {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD.vxlan.global.name }}"
