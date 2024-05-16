@@ -4,7 +4,7 @@ Infrastructure as code (IaC) is a DevOps methodology that uses code to manage an
 
 The NetAsCode VXLAN collection provides the capability to create a declarative method of configuration of VXLAN for [Cisco Nexus](https://www.cisco.com/site/us/en/products/networking/cloud-networking-switches/index.html) datacenter solution utilizing [Cisco Nexus Dashboard](https://www.cisco.com/site/us/en/products/networking/cloud-networking/nexus-platform/index.html). This allows the separation of data from execution logic. With little to no knowledge about automation, you can instantiate a VXLAN EVPN fabric with this collection.
 
-This is achieved by creating YAML files that contain a pre-determined data schema that is translated into underlying Ansible modules and resources. The core Ansible collection is open source and available 
+This is achieved by creating YAML files that contain a pre-determined data schema that is translated into underlying Ansible modules and resources. The core Ansible collection is open source and available. The collection is designed to be used in a CI/CD pipeline, which allows you to establish a declarative method of configuration of VXLAN for Cisco Nexus datacenter solution.
 
 > **Note**: For complete support and additional capabilities, Cisco provides a profesional services capability under the Services as Code umbrella. TAC support is provided for the underlying Ansible modules.
 
@@ -27,7 +27,7 @@ This will clone the repository into the directory nac-vxlan.
 
 ### Step 2 - Create the virtual environment with pyenv
 
-In this directory you will now create the new virtual environment. For pyenv to work you have to install a version of Python that you want to utilize. At the _time of this writting_, a common version utilized is python version 3.10.13 so to install this with pyenv would be the command `pyenv install 3.10.13`. For detailed instructions please visit the [pyenv](https://github.com/pyenv/pyenv) site. 
+In this directory you will now create the new virtual environment. For pyenv to work you have to install a version of Python that you want to utilize. At the _time of this writting_, a common version utilized is python version 3.10.13 so to install this with pyenv would be the command `pyenv install 3.10.13`. For detailed instructions please visit the [pyenv](https://github.com/pyenv/pyenv) site.
 
 ```bash
 cd nac-vxlan
