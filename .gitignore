@@ -138,4 +138,7 @@ roles/dtc/create/files
 roles/dtc/deploy/files
 roles/dtc/remove/files
 roles/validate/files/*
+!roles/validate/files/enhance_rules
+!roles/validate/files/enhance_rules/.gitkeep
+!roles/validate/files/required_rules
 roles/validate/defaults/*

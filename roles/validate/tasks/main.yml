@@ -1,5 +1,4 @@
 ---
-
 - name: Role Entry Point - [cisco.nac_dc_vxlan.validate]
   ansible.builtin.debug:
     msg:
@@ -14,7 +13,7 @@
   vars:
     schema_path: "{{ role_path }}/files/schema.yaml"
     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-    rules_path: "{{ role_path }}/files/rules/"
+    rules_path: "{{ role_path }}/files/required_rules/"
 
   block:
     - debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
