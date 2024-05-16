@@ -1,5 +1,6 @@
 import re
 
+
 class Rule:
     id = "306"
     description = (
@@ -126,7 +127,8 @@ class Rule:
             # Check if vPC id is only referenced by a single switch but must be referenced by both vPC peer switches
             elif len(switch_interfaces) > 0 and len(switch_interfaces) < 2:
                 results.append(
-                    f"vpc_id : {vpc_id} is only referenced by a single switch {', '.join(switch_interfaces.keys())} but must be referenced by both vPC peer switches"
+                    f"vpc_id : {vpc_id} is only referenced by a single switch {', '.join(switch_interfaces.keys())} "
+                    "but must be referenced by both vPC peer switches"
                 )
             # Check if vPC id is only configured on vPC peers
             else:

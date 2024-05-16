@@ -38,7 +38,15 @@ class ActionModule(ActionBase):
         if not os.path.exists(required_rules):
             display.warning("The required rules directory ({0}) does not appear to exist! ".format(required_rules))
         # The required rules directory is considered empty if it is an empty dir or only contains the .gitkeep file
-        if os.path.exists(required_rules) and (not os.listdir(required_rules) or (len(os.listdir(required_rules)) == 1 and '.gitkeep' in os.listdir(required_rules))):
+        if (
+            os.path.exists(required_rules) and
+            (
+                not os.listdir(required_rules) or
+                (
+                    len(os.listdir(required_rules)) == 1 and '.gitkeep' in os.listdir(required_rules)
+                )
+            )
+        ):
             display.warning("The required rules directory ({0}) exists but is empty! ".format(required_rules))
         if not os.path.exists(enhanced_rules):
             display.warning("The enhanced rules directory ({0}) does not appear to exist! ".format(enhanced_rules))
@@ -65,7 +73,16 @@ class ActionModule(ActionBase):
         if required_rules:
             validator.validate_semantics([mdata])
         # import epdb; epdb.set_trace()
-        if (enhanced_rules and os.path.exists(enhanced_rules) and (not os.listdir(enhanced_rules) or (len(os.listdir(enhanced_rules)) > 1 and '.gitkeep' in os.listdir(enhanced_rules)))):
+        if (
+            enhanced_rules and
+            os.path.exists(enhanced_rules) and
+            (
+                not os.listdir(enhanced_rules) or
+                (
+                    len(os.listdir(enhanced_rules)) > 1 and '.gitkeep' in os.listdir(enhanced_rules)
+                )
+            )
+        ):
             enhanced_validator = iac_validate.validator.Validator(schema, enhanced_rules)
             enhanced_validator.validate_semantics([mdata])
 

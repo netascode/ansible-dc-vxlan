@@ -30,7 +30,8 @@ class Rule:
                     if interface_name in interface_names:
                         # Append error message to results
                         results.append(
-                            f"vxlan.topology.switches.{switch['name']}.interfaces.{interface_name} . This interface is defined more than once within this switch. Duplicate encountered"
+                            f"vxlan.topology.switches.{switch['name']}.interfaces.{interface_name}. "
+                            "This interface is defined more than once within this switch. Duplicate encountered"
                         )
                     # Append interface name to list of interface names if unique
                     else:
@@ -47,7 +48,8 @@ class Rule:
                             if member_interface_name in member_interface_names:
                                 # Append error message to results
                                 results.append(
-                                    f"vxlan.topology.switches.{switch['name']}.interfaces.{interface_name}.members.{member_interface_name} . This interface is defined as a member of more than one Port-channel interfaces"
+                                    f"vxlan.topology.switches.{switch['name']}.interfaces.{interface_name}.members.{member_interface_name}. "
+                                    "This interface is defined as a member of more than one Port-channel interfaces"
                                 )
                             # Append member interface name to list of member interface names if unique
                             else:
