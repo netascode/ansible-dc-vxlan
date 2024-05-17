@@ -1,4 +1,5 @@
 ---
+
 - name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
   ansible.builtin.debug:
     msg:
@@ -7,7 +8,6 @@
       - "----------------------------------------------------------------"
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
-
 
 - name: Config-Save for Fabric {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_rest:
