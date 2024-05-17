@@ -75,7 +75,7 @@ class Rule:
             for switch in network_attach_group.get("switches"):
                 if switch.get("hostname"):
                     if not any(s.get("name") == switch.get("hostname") for s in switches):
-                        if not any(s.get('management').get('management_ipv4_address') == switch.get("hostname") for s in switches): 
+                        if not any(s.get('management').get('management_ipv4_address') == switch.get("hostname") for s in switches):
                             if not any(s.get('management').get('management_ipv6_address') == switch.get("hostname") for s in switches):
                                 nag = network_attach_group.get("name")
                                 hn = switch.get("hostname")
