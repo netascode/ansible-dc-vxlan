@@ -9,7 +9,6 @@
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
 
-
 - name: Create NDFC Fabric
   ansible.builtin.include_tasks: fabric.yml
   when: MD_Extended.vxlan.global is defined
