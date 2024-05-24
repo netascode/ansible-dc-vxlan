@@ -14,7 +14,7 @@
   block:
     - ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
 
-    - debug: msg="Workflow is Direct to Device (DTD)"
+    - ansible.builtin.debug: msg="Workflow is Direct to Device (DTD)"
       when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.nxos.nxos"
 
     - ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
