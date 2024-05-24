@@ -104,7 +104,7 @@ defaults:
         authentication_enable: false
         authentication_key_id: 127
       isis:
-        level: level2
+        level: level-2
         network_point_to_point: true
         authentication_enable: false
         authentication_key_id: 127
