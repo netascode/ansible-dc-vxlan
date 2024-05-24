@@ -39,8 +39,8 @@
 {% set dns_server_vrfs = dns_server_vrfs.append(dns_vrfs) %}
 {% endif %}
 {% endfor %}
-  DNS_SERVER_IP_LIST: {{ dns_server_ips|join(',') }}
-  DNS_SERVER_VRF: {{ dns_server_vrfs|join(',') }}
+  DNS_SERVER_IP_LIST: {{ dns_server_ips|join(',') | default(omit) }}
+  DNS_SERVER_VRF: {{ dns_server_vrfs|join(',') | default(omit) }}
 {% endif %}
 {% if global.ntp_servers is defined %}
 {% set ntp_server_ips = [] %}
@@ -55,8 +55,8 @@
 {% set ntp_server_vrfs = ntp_server_vrfs.append(ntp_vrfs) %}
 {% endif %}
 {% endfor %}
-  NTP_SERVER_IP_LIST: {{ ntp_server_ips|join(',') }}
-  NTP_SERVER_VRF: {{ ntp_server_vrfs|join(',') }}
+  NTP_SERVER_IP_LIST: {{ ntp_server_ips|join(',') | default(omit) }}
+  NTP_SERVER_VRF: {{ ntp_server_vrfs|join(',') | default(omit) }}
 {% endif %}
 {# ------------------------------------------------------ #}
 {# VPC Parameters                                         #}
