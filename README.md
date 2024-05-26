@@ -2,28 +2,34 @@
 
 [![Actions Status](https://github.com/netascode/ansible-dc-vxlan/workflows/CI/badge.svg)](https://github.com/netascode/ansible-dc-vxlan/actions)
 
-Ansible collection for configuring a VXLAN Fabric using Direct to Controller (DTC) workflows.
+Ansible collection for configuring Cisco VXLAN/EVPN fabric using Cisco Nexus Dashboard Fabric Controller (NDFC). Utilizing a foundation of a data model, this collection simplifies the configuration of VXLAN fabrics by abstracting the automation and utilizing a data model that represents the desired state of the fabric. An operator utilizing this collection will only have to modify the configuration state in the data model instead of creating the modules and the associated parameters.
 
-This collection is driven by a service data model that describes the configured state of the VXLAN EVPN fabric.
-Users of this collection make changes to the service model data and then use the following roles in this collection
-to validate and push changes to the fabric.
+This approach allows for a more consistent and repeatable configuration of VXLAN fabrics and is aligned with the methodology of infrastructure as code, where the configuration of NDFC would be saved in a version control system and managed as code.
 
-### Roles
+Infrastructure as code (IaC) is a DevOps methodology that uses code to manage and provision IT infrastructure, instead of manual procedures. IaC uses a descriptive coding language to automate provisioning servers, operating systems, network devices and more. The NetAsCode VXLAN EVPN collection allows you to configure, in easy to understand YAML, data structures with the intended configuration state of a VXLAN fabric using Cisco Nexus Dashboard Fabric Controller.
+
+The NetAsCode VXLAN collection provides the capability to create a declarative method of configuration of VXLAN for [Cisco Nexus](https://www.cisco.com/site/us/en/products/networking/cloud-networking-switches/index.html) datacenter solution utilizing [Cisco Nexus Dashboard](https://www.cisco.com/site/us/en/products/networking/cloud-networking/nexus-platform/index.html). This allows the separation of data from execution logic. With little to no knowledge about automation, you can instantiate a VXLAN EVPN fabric with this collection.
+
+This is achieved by creating YAML files that contain a pre-determined data schema that is translated into underlying Ansible modules and resources. The core Ansible collection is open source and available. The collection is designed to be used in a CI/CD pipeline, which allows you to establish a declarative method of configuration of VXLAN for Cisco Nexus datacenter solution.
+
+> **Note**: For complete support and additional capabilities, Cisco provides a profesional services capability under the Services as Code portfolio of services which can provide feature creation, end to end support and more. TAC support is provided for the underlying Ansible modules.
+
+## Roles
 
 * Role: [cisco.nac_dc_vxlan.validate](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/validate/README.md)
 * Role: [cisco.nac_dc_vxlan.dtc.create](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/create/README.md)
 * Role: [cisco.nac_dc_vxlan.dtc.deploy](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/deploy/README.md)
 * Role: [cisco.nac_dc_vxlan.dtc.remove](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/remove/README.md)
 
-
-### Quick Start Guide
+## Quick Start Guide
 
 The following quickstart repository is available to provide a step by step guide for using this collection
 
 [Quick Start Guide Repo](https://github.com/netascode/ansible-dc-vxlan-example)
 
 This collection is intended for use with the following release versions:
-  * `NDFC Release 12.2.1` or later.
+
+* `NDFC Release 12.2.1` or later.
 
 <!--start requires_ansible-->
 ## Ansible version compatibility
@@ -49,8 +55,8 @@ collections:
   - name: cisco.netascode_dc_vxlan
     version: 0.1.0
 ```
-## Using this collection
 
+## Using this collection
 
 ### Using roles from the Cisco netascode_dc_vxlan collection in your playbooks
 
@@ -77,7 +83,6 @@ The following is a sample playbook that calls each role in this collection.
 
 Sample hosts file using the dcnm httpapi connection plugin in YAML format.
 
-
 ```yaml
 all:
   vars:
@@ -97,7 +102,7 @@ all:
               ansible_host: ndfc.example.com
 ```
 
-### See Also:
+### See Also
 
 * [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
 

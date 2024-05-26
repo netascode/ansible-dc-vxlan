@@ -12,7 +12,6 @@ This is achieved by creating YAML files that contain a pre-determined data schem
 
 The first procedure for execution of the collection is going to be the installation of a virtual environment to be able to install the collection and it's requirements. Recomendation is to utilize [pyenv](https://github.com/pyenv/pyenv) which provides a robust python virtual environment capability that also includes management of python versions. These instructions will be detailed around pyenv. For the pipeline execution please refer to *pipeline section* where it is documented at container level.
 
-
 ### Step 1 - Installing the example repository
 
 To simplify the usage of the collection we are providing you with an [example repository](https://github.com/netascode/ansible-dc-vxlan-example) that you can clone from github which creates the proper skeleton required, including beneficial examples for pipelines. To clone the repository requires the installation of [git client](https://git-scm.com/downloads) that is available for all platforms.
@@ -87,7 +86,7 @@ ansible [core 2.16.3]
   libyaml = True
 ```
 
-## Inventory configuration
+## Inventory host files
 
 As is standard with Ansible best practices, inventory files provide the destination targets for the automation. For this collection, the inventory file is a YAML file that contains the information about the devices that are going to be configured. The inventory files is called `inventory.yml` and is located in the root of the repository.
 
@@ -166,6 +165,38 @@ export ndfc_device_username=admin
 export ndfc_device_password=Admin_123
 ```
 
+## Understanding our Ansible roles
+
+### Validate role
+
+Role: [cisco.nac_dc_vxlan.validate](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/validate/README.md)
+
+The validate role function is to ensure that the data model is correct and that the data model is going to be able to be processed by the subsequent roles. The validate role is going to read all the files in the `host_vars` directory and create a single data model in memory for execution.
+
+As part of the VXLAN as Code service from Cisco, you will also be able to utilize the semantic validation to make sure that the data model matches the intended expected values. This is a powerful feature that allows you to ensure that the data model is correct before it is deployed to the network. Also part of the validate role is the ability to create rules that can be used to avoid operators from making specific configurations that are not allowed in the network. These can be as simple as ensuring naming convention to more complex rules for interconnectivity that would need to be avoided. These would be coded in python and can be constructed as part of the Services as Code offer. 
+
+### Create role
+
+Role: [cisco.nac_dc_vxlan.dtc.create](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/create/README.md)
+
+This role is going to create all the templates and variable parameters that are going to be used in the deployment of the VXLAN fabric. This role converts the data model into the proper templates that are required by the Ansible module to be able to communicate with the NDFC controller.
+
+### Deploy role
+
+Role: [cisco.nac_dc_vxlan.dtc.deploy](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/deploy/README.md)
+
+The deploy role is going to deploy those changes to the NDFC controller. This role is going to take the templates and variable parameters that were created in the `create` role and deploy them to the NDFC controller. This is the role that is going to make the changes in the NDFC controller.
+
+### Remove role
+
+Role: [cisco.nac_dc_vxlan.dtc.remove](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/remove/README.md)
+
+The remove role is the opposite of the deploy role and removes what is represented in the data model from the NDFC controller. For this reason this role requires the settings of some variables to true under the `group_vars` directory. This is to avoid accidental removal of configuration from NDFC that might impact the network.
+
+### Advantages of the roles in the workflow
+
+The primary advantage of the workflow is that you can insert these in different parts of the data model preparation and changes without having to worry about impacts to the network. The roles are designed to be idempotent and only make changes when there are changes in the data model. For different stages of changes in the network, you can comment out the roles that are not required to be executed. Leaving the final full execution potentially to only happen from a pipeline, yet allow for operators to validate changes before they are executed.
+
 ## Building the primary playbook
 
 The playbook for the NDFC as Code collection is the execution point of the this automation collection. In difference to other automation with collections, what is in this playbook is mostly static and not going to change. What is executed during automation is based on changes in the data model. Hence as changes happen in the data model, the playbook will call the modules and based on what has changed in the data model, is what is going to execute.
@@ -212,7 +243,7 @@ In this document we are going to provide an example topology that is going to be
 
 ![Example Topology](./doc_images/topology_diagram.png)
 
-When configuring the data model, a best practice is to not configure a single file with the whole model. This would create many problems when the data model is growing in size with more parameters added. Instead, the data model is going to be split into multiple files that are going to be read into memory by the collection under the prepare code that is under the `cisco.nac_dc_vxlan.validate` role.
+When configuring the data model, a best practice is to not configure a single file with the complete data model. This would create many problems when the data model is growing in size with more parameters added. Instead, the data model is going to be split into multiple files that are going to be read into memory by the collection under the prepare code that is under the `cisco.nac_dc_vxlan.validate` role.
 
 All the files located in the directory for the data model under the `host_vars` directory are read all and create a single data model in memory for execution.
 
@@ -236,9 +267,9 @@ fabric:
         vrf: management
 ```
 
-### Inventory configuration
+### Topology inventory configuration
 
-This file will be named `topology_switches.yaml`
+This file will be named `topology_switches.yaml`. Here you will configure the base topology inventory of the switches in the fabric. 
 
 ```yaml
 ---
