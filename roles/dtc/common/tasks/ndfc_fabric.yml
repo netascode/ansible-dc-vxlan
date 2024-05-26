@@ -1,8 +1,10 @@
+---
+
 - ansible.builtin.set_fact:
     fabric_file_name: "{{ MD.vxlan.global.name }}_ndfc_create_fabric.yml"
 
 - name: Build Fabric Creation Parameters From Template
-  template:
+  ansible.builtin.template:
     src: ndfc_create_fabric.j2
     dest: "{{ role_path }}/files/{{ fabric_file_name }}"
 

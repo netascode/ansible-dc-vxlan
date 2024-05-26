@@ -7,8 +7,9 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.validate]             +"
       - "----------------------------------------------------------------"
 
-- debug: msg="Role Path - {{ role_path }}"
-- debug: msg="Inventory Directory - {{ inventory_dir }}"
+- ansible.builtin.debug: msg="Role Path - {{ role_path }}"
+
+- ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
 
 - name: Validate NDFC Service Model Data
   vars:
@@ -17,14 +18,14 @@
     rules_path: "{{ role_path }}/files/rules/"
 
   block:
-    - debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
+    - ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
 
-    - meta: reset_connection
+    - ansible.builtin.meta: reset_connection
 
-    - debug: msg="Workflow is Direct to Device (DTD)"
+    - ansible.builtin.debug: msg="Workflow is Direct to Device (DTD)"
       when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.nxos.nxos"
 
-    - debug: msg="Workflow is Direct to Controller (DTC)"
+    - ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
       when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
 
     - name: "Perform Syntax and Semantic Model Validation"

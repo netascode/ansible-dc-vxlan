@@ -4,10 +4,10 @@
 # Controller Credentials
 ansible_connection: ansible.netcommon.httpapi
 ansible_network_os: cisco.dcnm.dcnm
-ansible_username: admin
+ansible_user: admin
 ansible_password: password
 ndfc_device_username: admin
-ndfc_device_password: password
+ndfc_device_password: super_secret_password
 
 # Workflow Control Variables
 interface_delete_mode: True
@@ -17,3 +17,23 @@ vpc_delete_mode: True
 vpc_peering_delete_mode: True
 link_vpc_delete_mode: True
 inventory_delete_mode: True
+
+# Note about using ansible-vault to encrypt sensitive data
+# --------------------------------------------------------
+# 1) Create a file named 'vault_password_file' and add the vault password in it in clear text.
+#    This is a file you control and should never be checked into source control.
+#
+# 2) Run the following command to encrypt a specific variable like 'ndfc_device_password' above:
+#    ansible-vault encrypt_string --vault-password-file ./vault_password_file 'super_secret_password' --name 'ndfc_device_password'
+#
+# 3) Copy the encrypted string and replace the original value with it.
+#
+# It will look somoething like this:
+# ndfc_device_password: !vault |
+#           $ANSIBLE_VAULT;1.1;AES256
+#           65316666643664356334643335333931656330343633383664383663316135383833633032316664
+#           6132313165613366643361383433353837336666626236340a616333376636663462663933633337
+#           66393864666137613534636231663062393838323130616338646261373633356533376338643932
+#           3130376133383030620a353866303634323133616266303631353265383166366664643033393732
+#           6537
+# Replace line 10 above with the encrypted string.
