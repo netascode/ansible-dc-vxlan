@@ -4,6 +4,8 @@ vxlan:
       - name: << spine1_hostname >>
         serial_number: << spine1_serial >>
         interfaces:
+          - name: Ethernet1/41
+            mode: routed
           - name: Ethernet1/41.1
             mode: routed_sub
             description: 'NaC Routed Sub-Interface Spine1'
@@ -17,6 +19,8 @@ vxlan:
       - name: << spine2_hostname >>
         serial_number: << spine2_serial >>
         interfaces:
+          - name: Ethernet1/41
+            mode: routed
           - name: Ethernet1/41.1
             mode: routed_sub
             description: 'NaC Routed Sub-Interface Spine2'
@@ -30,6 +34,8 @@ vxlan:
       - name: << leaf1_hostname >>
         serial_number: << leaf1_serial >>
         interfaces:
+          - name: Ethernet1/41
+            mode: routed
           - name: Ethernet1/41.1
             mode: routed_sub
             description: 'NaC Routed Sub-Interface Leaf1'
@@ -43,6 +49,8 @@ vxlan:
       - name: << leaf2_hostname >>
         serial_number: << leaf2_serial >>
         interfaces:
+          - name: Ethernet1/41
+            mode: routed
           - name: Ethernet1/41.1
             mode: routed_sub
             description: 'NaC Routed Sub-Interface Leaf2'
@@ -56,6 +64,8 @@ vxlan:
       - name: << leaf3_hostname >>
         serial_number: << leaf3_serial >>
         interfaces:
+          - name: Ethernet1/41
+            mode: routed
           - name: Ethernet1/41.1
             mode: routed_sub
             description: 'NaC Routed Sub-Interface Leaf3'
@@ -69,6 +79,8 @@ vxlan:
       - name: << leaf4_hostname >>
         serial_number: << leaf4_serial >>
         interfaces:
+          - name: Ethernet1/41
+            mode: routed
           - name: Ethernet1/41.1
             mode: routed_sub
             description: 'NaC Routed Sub-Interface Leaf4'
@@ -82,6 +94,8 @@ vxlan:
       - name: << border_hostname >>
         serial_number: << border_serial >>
         interfaces:
+          - name: Ethernet1/41
+            mode: routed
           - name: Ethernet1/41.1
             mode: routed_sub
             description: 'NaC Routed Sub-Interface Border'
