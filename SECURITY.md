@@ -9,9 +9,9 @@ This document outlines security procedures and general policies for the
 
 ## Reporting a Bug
 
-The `netascode_dc_vxlan` team and community take all security bugs in
-`netascode_dc_vxlan` seriously. Thank you for improving the security of
-`netascode_dc_vxlan`. We appreciate your efforts and responsible disclosure and
+The `ansible-dc-vxlan` team and community take all security bugs in
+`ansible-dc-vxlan` seriously. Thank you for improving the security of
+`ansible-dc-vxlan`. We appreciate your efforts and responsible disclosure and
 will make every effort to acknowledge your contributions.
 
 Report security bugs by emailing `oss-security@cisco.com`.
