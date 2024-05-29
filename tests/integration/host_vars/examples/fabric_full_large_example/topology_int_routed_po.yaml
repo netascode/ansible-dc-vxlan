@@ -3,28 +3,119 @@ vxlan:
     switches:
       - name: << spine1_hostname >>
         serial_number: << spine1_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel57
+            mode: routed_po
+            description: 'NaC Routed Port-Channel Spine1'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.75.75.1/30
+            ipv4_route_tag: 12345
+            pc_mode: active
+            members:
+              - eth1/42
+              - eth1/43
 
       - name: << spine2_hostname >>
         serial_number: << spine2_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel57
+            mode: routed_po
+            description: 'NaC Routed Port-Channel Spine2'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.75.75.5/30
+            ipv4_route_tag: 12345
+            pc_mode: active
+            members:
+              - eth1/42
+              - eth1/43
 
       - name: << leaf1_hostname >>
         serial_number: << leaf1_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel57
+            mode: routed_po
+            description: 'NaC Routed Port-Channel Leaf1'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.75.75.9/30
+            ipv4_route_tag: 12345
+            pc_mode: active
+            members:
+              - eth1/42
+              - eth1/43
 
       - name: << leaf2_hostname >>
         serial_number: << leaf2_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel57
+            mode: routed_po
+            description: 'NaC Routed Port-Channel Leaf2'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.75.75.13/30
+            ipv4_route_tag: 12345
+            pc_mode: active
+            members:
+              - eth1/42
+              - eth1/43
 
       - name: << leaf3_hostname >>
         serial_number: << leaf3_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel57
+            mode: routed_po
+            description: 'NaC Routed Port-Channel Leaf3'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.75.75.17/30
+            ipv4_route_tag: 12345
+            pc_mode: active
+            members:
+              - eth1/42
+              - eth1/43
 
       - name: << leaf4_hostname >>
         serial_number: << leaf4_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel57
+            mode: routed_po
+            description: 'NaC Routed Port-Channel Leaf4'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.75.75.21/30
+            ipv4_route_tag: 12345
+            pc_mode: active
+            members:
+              - eth1/42
+              - eth1/43
 
       - name: << border_hostname >>
         serial_number: << border_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel57
+            mode: routed_po
+            description: 'NaC Routed Port-Channel Leaf4'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.75.75.25/30
+            ipv4_route_tag: 12345
+            pc_mode: active
+            members:
+              - eth1/42
+              - eth1/43

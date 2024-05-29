@@ -20,23 +20,56 @@ vxlan:
             enabled: true
             trunk_allowed_vlans:
               - from: 10
-                to: 100
-              - from: 150
-                to: 200
+                to: 15
+              - from: 110
+                to: 120
+              - from: 1001
             spanning_tree_portfast: false
             enable_bpdu_guard: false
 
       - name: << leaf2_hostname >>
         serial_number: << leaf2_serial >>
-        interfaces: []
+        interfaces:
+          - name: Ethernet1/31
+            mode: trunk
+            description: "NaC Trunk for leaf2"
+            mtu: default
+            speed: auto
+            enabled: true
+            trunk_allowed_vlans:
+              - from: 20
+                to: 25
+              - from: 210
+                to: 220
+              - from: 1002
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
 
       - name: << leaf3_hostname >>
         serial_number: << leaf3_serial >>
-        interfaces: []
+        interfaces:
+          - name: Ethernet1/31
+            mode: trunk
+            description: "NaC Trunk for leaf3"
+            trunk_allowed_vlans:
+              - from: 30
+                to: 35
+              - from: 310
+                to: 320
+              - from: 1003
 
       - name: << leaf4_hostname >>
         serial_number: << leaf4_serial >>
-        interfaces: []
+        interfaces:
+          - name: Ethernet1/31
+            mode: trunk
+            description: "NaC Trunk for leaf4"
+            trunk_allowed_vlans:
+              - from: 40
+                to: 45
+              - from: 410
+                to: 420
+              - from: 1004
 
       - name: << border_hostname >>
         serial_number: << border_serial >>
