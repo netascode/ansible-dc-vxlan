@@ -1,5 +1,4 @@
 ---
-
 - name: Role Entry Point - [cisco.nac_dc_vxlan.validate]
   ansible.builtin.debug:
     msg:
@@ -12,15 +11,8 @@
 - ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
 
 - name: Validate NDFC Service Model Data
-  vars:
-    schema_path: "{{ role_path }}/files/schema.yaml"
-    data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-    rules_path: "{{ role_path }}/files/rules/"
-
   block:
     - ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
-
-    - ansible.builtin.meta: reset_connection
 
     - ansible.builtin.debug: msg="Workflow is Direct to Device (DTD)"
       when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.nxos.nxos"
@@ -28,12 +20,26 @@
     - ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
       when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
 
-    - name: "Perform Syntax and Semantic Model Validation"
+    - name: "Perform Required Syntax and Semantic Model Validation"
       cisco.nac_dc_vxlan.common.nac_dc_validate:
         schema: "{{ schema_path }}"
         mdata: "{{ data_path }}"
         rules: "{{ rules_path }}"
       register: model_data
+      vars:
+        schema_path: "{{ role_path }}/files/schema.yaml"
+        data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+        rules_path: "{{ role_path }}/files/rules/required_rules/"
+
+    - name: "Perform Enhanced Syntax and Semantic Model Validation"
+      cisco.nac_dc_vxlan.common.nac_dc_validate:
+        schema: "{{ schema_path }}"
+        mdata: "{{ data_path }}"
+        rules: "{{ rules_path }}"
+      vars:
+        schema_path: "{{ role_path }}/files/schema.yaml"
+        data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+        rules_path: "{{ role_path }}/files/rules/enhanced_rules/"
 
     - name: "Prepare Service Model"
       cisco.nac_dc_vxlan.common.prepare_service_model:
