@@ -42,6 +42,6 @@ and fix existing bugs. Here is what you can do:
 - Review existing pull requests, and testing patches against real existing applications that use `ansible-dc-vxlan`.
 - Write a test, or add a missing test case to an existing test.
 
-Thanks again for your interest on contributing to `netascode_dc_vxlan`!
+Thanks again for your interest on contributing to `ansible-dc-vxlan`!
 
 :heart:
