@@ -32,7 +32,7 @@ reserve breaking changes until the next major version release.
 
 ## Other Ways to Contribute
 
-We welcome anyone that wants to contribute to `netascode_dc_vxlan` to triage and reply to open issues to help troubleshoot
+We welcome anyone that wants to contribute to `ansible-dc-vxlan` to triage and reply to open issues to help troubleshoot
 and fix existing bugs. Here is what you can do:
 
 - Help ensure that existing issues follows the recommendations from the _[Reporting Issues](#reporting-issues)_ section,
