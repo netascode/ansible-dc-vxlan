@@ -1,4 +1,4 @@
-# Ansible Solution Collection:  netascode_dc_vxlan
+# Ansible Solution Collection:  nac_dc_vxlan (NetAsCode DC VXLAN)
 
 [![Actions Status](https://github.com/netascode/ansible-dc-vxlan/workflows/CI/badge.svg)](https://github.com/netascode/ansible-dc-vxlan/actions)
 
@@ -37,24 +37,24 @@ PEP440 is the schema used to describe the versions of Ansible.
 
 ## Installing this collection
 
-You can install the Cisco netascode_dc_vxlan collection with the Ansible Galaxy CLI:
+You can install the Cisco nac_dc_vxlan collection with the Ansible Galaxy CLI:
 
-    ansible-galaxy collection install cisco.netascode_dc_vxlan
+    ansible-galaxy collection install cisco.nac_dc_vxlan
 
 You can also include it in a `requirements.yml` file and install it with `ansible-galaxy collection install -r requirements.yml`, using the format:
 
 ```yaml
 ---
 collections:
-  - name: cisco.netascode_dc_vxlan
+  - name: cisco.nac_dc_vxlan
     version: 0.1.0
 ```
 ## Using this collection
 
 
-### Using roles from the Cisco netascode_dc_vxlan collection in your playbooks
+### Using roles from the Cisco nac_dc_vxlan collection in your playbooks
 
-You can call roles by their Fully Qualified Collection Namespace (FQCN), such as `cisco.netascode_dc_vxlan.validate`.
+You can call roles by their Fully Qualified Collection Namespace (FQCN), such as `cisco.nac_dc_vxlan.validate`.
 
 The following is a sample playbook that calls each role in this collection.
 
