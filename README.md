@@ -1,4 +1,4 @@
-# Ansible Solution Collection:  netascode_dc_vxlan
+# Ansible Solution Collection:  nac_dc_vxlan (NetAsCode DC VXLAN)
 
 [![Actions Status](https://github.com/netascode/ansible-dc-vxlan/workflows/CI/badge.svg)](https://github.com/netascode/ansible-dc-vxlan/actions)
 
@@ -186,9 +186,11 @@ The data model is **required** to exist under the `host_vars` directory structur
 
 The collection is **pre-built** to utilize the `group_vars` and `host_vars` matching what is already constructed in the repository. Currently this methodology is a 1:1 relationship between code repository and NDFC fabric. For more complex environments, the inventory file can be expanded to include multiple groups and hosts including the usage of multi-site fabrics, explained in a separate document.
 
+
 #### Step 1 - Update the inventory file
 
 In the provided `inventory.yml` file on the root directory, update the `ansible_host` variable to point to your NDFC controller by replacing `10.X.X.X` with the IP address of the NDFC controller.
+
 
 #### Step 2 - Configure ansible connection file
 
