@@ -46,6 +46,7 @@ class Rule:
                         results.append(" and re-run the playbook")
 
         # Cross reference VRF attach groups hostnames with inventory topology switch names
+        vrf_attach_groups = []
         if inventory.get("vxlan"):
             if inventory.get("vxlan").get("overlay_services"):
                 if inventory.get("vxlan").get("overlay_services").get("vrf_attach_groups"):
@@ -64,6 +65,7 @@ class Rule:
                                 results.append("VRF attach group {0} hostname {1} does not match any switch in the topology".format(vag, hn))
 
         # Cross reference Network attach groups hostnames with inventory topology switch names
+        network_attach_groups = []
         if inventory.get("vxlan"):
             if inventory.get("vxlan").get("overlay_services"):
                 if inventory.get("vxlan").get("overlay_services").get("network_attach_groups"):
