@@ -99,6 +99,9 @@
     deploy: true
     state: overridden
     config: "{{ vpc_peering }}"
+  vars:
+      ansible_command_timeout: 1000
+      ansible_connect_timeout: 1000  
   when:
     - switch_list.response.DATA | length > 0
     - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
