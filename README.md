@@ -274,7 +274,6 @@ The playbook is located in the root of the repository and is called `vxlan.yaml`
     # -----------------------
     # DataCenter Roles
     #   Role: cisco.netascode_dc_vxlan.dtc manages direct to controller NDFC workflows
-    #   Role: cisco.netascode_dc_vxlan.dtd manages direct to device NXOS workflows
     #
     - role: cisco.nac_dc_vxlan.dtc.create
     - role: cisco.nac_dc_vxlan.dtc.deploy
