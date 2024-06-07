@@ -11,7 +11,7 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 `0.1.0`_
 =====================
 
-**Release Date:** ``2024-05``
+**Release Date:** ``2024-06``
 
 - Initial release of the Ansible NetworkAsCode DC VXLAN collection
 
