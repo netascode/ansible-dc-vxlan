@@ -36,9 +36,6 @@ vxlan:
           - name: Port-Channel56
             mode: trunk
             description: "NaC Trunk Port-Channel for leaf1"
-            # This is not working check with Rameez
-            # ----------
-            # vpc_id: 1
             mtu: default
             speed: auto
             enabled: true
@@ -46,27 +43,140 @@ vxlan:
             enable_bpdu_guard: false
             pc_mode: passive
             members:
-              - Ethernet1/34
-              - Ethernet1/35
+              - Ethernet1/36
+              - Ethernet1/37
             trunk_allowed_vlans:
-              - from: 25
-                to: 99
-              - from: 101
-                to: 155
-              - from: 158
-                to: 159
+              - from: 100
+                to: 150
+              - from: 750
+          - name: Port-Channel156
+            mode: trunk
+            description: "NaC Trunk vpc Port-Channel for leaf1"
+            vpc_id: 156
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/38
+              - Ethernet1/39
+            trunk_allowed_vlans:
+              - from: 200
+                to: 250
+              - from: 850
 
       - name: << leaf2_hostname >>
         serial_number: << leaf2_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel56
+            mode: trunk
+            description: "NaC Trunk Port-Channel for leaf2"
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/36
+              - Ethernet1/37
+            trunk_allowed_vlans:
+              - from: 100
+                to: 150
+              - from: 750
+          - name: Port-Channel156
+            mode: trunk
+            description: "NaC Trunk vpc Port-Channel for leaf2"
+            vpc_id: 156
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/38
+              - Ethernet1/39
+            trunk_allowed_vlans:
+              - from: 200
+                to: 250
+              - from: 850
 
       - name: << leaf3_hostname >>
         serial_number: << leaf3_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel56
+            mode: trunk
+            description: "NaC Trunk Port-Channel for leaf3"
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/36
+              - Ethernet1/37
+            trunk_allowed_vlans:
+              - from: 100
+                to: 150
+              - from: 750
+          - name: Port-Channel356
+            mode: trunk
+            description: "NaC Trunk vpc Port-Channel for leaf3"
+            vpc_id: 356
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/38
+              - Ethernet1/39
+            trunk_allowed_vlans:
+              - from: 300
+                to: 350
+              - from: 950
 
       - name: << leaf4_hostname >>
         serial_number: << leaf4_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel56
+            mode: trunk
+            description: "NaC Trunk Port-Channel for leaf4"
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/36
+              - Ethernet1/37
+            trunk_allowed_vlans:
+              - from: 100
+                to: 150
+              - from: 750
+          - name: Port-Channel356
+            mode: trunk
+            description: "NaC Trunk vpc Port-Channel for leaf4"
+            vpc_id: 356
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/38
+              - Ethernet1/39
+            trunk_allowed_vlans:
+              - from: 300
+                to: 350
+              - from: 950
 
       - name: << border_hostname >>
         serial_number: << border_serial >>

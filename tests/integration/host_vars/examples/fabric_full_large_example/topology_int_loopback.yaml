@@ -38,7 +38,7 @@ vxlan:
             #   - ip_address: 192.10.55.1/32
             #     route_tag: 56789
             ipv6_address: 2055:55:55:55::1
-            ipv6_route_tag: 12345
+            # ipv6_route_tag: 12345
             # Secondary not supported on NDFC?
             # --------------------------------
             # secondary_ipv6_addresses:
@@ -55,6 +55,7 @@ vxlan:
             enabled: true
             ipv4_address: 10.55.55.2
             ipv4_route_tag: 12345
+            ipv6_address: 2021:10:1:1::2
 
       - name: << leaf1_hostname >>
         serial_number: << leaf1_serial >>
@@ -66,9 +67,6 @@ vxlan:
             enabled: true
             ipv4_address: 10.55.55.21
             ipv4_route_tag: 12345
-            secondary_ipv4_addresses:
-              - ip_address: 192.10.55.21/32
-                route_tag: 56789
 
       - name: << leaf2_hostname >>
         serial_number: << leaf2_serial >>
@@ -134,11 +132,25 @@ vxlan:
 
       - name: << leaf3_hostname >>
         serial_number: << leaf3_serial >>
-        interfaces: []
+        interfaces:
+          - name: lo55
+            mode: loopback
+            description: 'NaC Loopback Interface Leaf3'
+            vrf: red
+            enabled: true
+            ipv4_address: 10.55.55.22
+            ipv4_route_tag: 12345
 
       - name: << leaf4_hostname >>
         serial_number: << leaf4_serial >>
-        interfaces: []
+        interfaces:
+          - name: lo55
+            mode: loopback
+            description: 'NaC Loopback Interface Leaf4'
+            vrf: red
+            enabled: true
+            ipv4_address: 10.55.55.24
+            ipv4_route_tag: 12345
 
       - name: << border_hostname >>
         serial_number: << border_serial >>
@@ -150,6 +162,3 @@ vxlan:
             enabled: true
             ipv4_address: 10.55.55.25
             ipv4_route_tag: 12345
-            secondary_ipv4_addresses:
-              - ip_address: 192.10.55.25/32
-                route_tag: 56789

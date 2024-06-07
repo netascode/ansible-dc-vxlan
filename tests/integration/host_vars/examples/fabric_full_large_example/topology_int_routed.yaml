@@ -24,28 +24,91 @@ vxlan:
     switches:
       - name: << spine1_hostname >>
         serial_number: << spine1_serial >>
-        interfaces: []
+        interfaces:
+          - name: Ethernet1/40
+            mode: routed
+            description: 'NaC Routed Interface Spine1'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.55.59.1/24
+            ipv4_route_tag: 12345
 
       - name: << spine2_hostname >>
         serial_number: << spine2_serial >>
-        interfaces: []
+        interfaces:
+          - name: Ethernet1/40
+            mode: routed
+            description: 'NaC Routed Interface Spine2'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.55.60.1/24
+            ipv4_route_tag: 12345
 
       - name: << leaf1_hostname >>
         serial_number: << leaf1_serial >>
-        interfaces: []
+        interfaces:
+          - name: Ethernet1/40
+            mode: routed
+            description: 'NaC Routed Interface Leaf1'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.55.61.1/24
+            ipv4_route_tag: 12345
 
       - name: << leaf2_hostname >>
         serial_number: << leaf2_serial >>
-        interfaces: []
+        interfaces:
+          - name: Ethernet1/40
+            mode: routed
+            description: 'NaC Routed Interface Leaf2'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.55.62.1/24
+            ipv4_route_tag: 12345
 
       - name: << leaf3_hostname >>
         serial_number: << leaf3_serial >>
-        interfaces: []
+        interfaces:
+          - name: Ethernet1/40
+            mode: routed
+            description: 'NaC Routed Interface Leaf3'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.55.63.1/24
+            ipv4_route_tag: 12345
 
       - name: << leaf4_hostname >>
         serial_number: << leaf4_serial >>
-        interfaces: []
+        interfaces:
+          - name: Ethernet1/40
+            mode: routed
+            description: 'NaC Routed Interface Leaf4'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.55.64.1/24
+            ipv4_route_tag: 12345
 
       - name: << border_hostname >>
         serial_number: << border_serial >>
-        interfaces: []
+        interfaces:
+          - name: Ethernet1/40
+            mode: routed
+            description: 'NaC Routed Interface Border'
+            enabled: true
+            vrf: red
+            mtu: 1500
+            speed: auto
+            ipv4_address: 10.55.65.1/24
+            ipv4_route_tag: 12345

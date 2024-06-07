@@ -36,7 +36,6 @@ vxlan:
           - name: Port-Channel55
             mode: access
             description: "NaC Access Port-Channel for vlan 55 leaf1"
-            # vpc_id: 1
             mtu: default
             speed: auto
             enabled: true
@@ -47,6 +46,20 @@ vxlan:
               - Ethernet1/32
               - Ethernet1/33
             access_vlan: 55
+          - name: Port-Channel155
+            mode: access
+            description: "NaC Access vpc Port-Channel for vlan 155 leaf1"
+            vpc_id: 155
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/34
+              - Ethernet1/35
+            access_vlan: 155
 
       - name: << leaf2_hostname >>
         serial_number: << leaf2_serial >>
@@ -54,7 +67,6 @@ vxlan:
           - name: Port-Channel55
             mode: access
             description: "NaC Access Port-Channel for vlan 55 leaf2"
-            # vpc_id: 1
             mtu: default
             speed: auto
             enabled: true
@@ -65,14 +77,82 @@ vxlan:
               - Ethernet1/32
               - Ethernet1/33
             access_vlan: 55
+          - name: Port-Channel155
+            mode: access
+            description: "NaC Access vpc Port-Channel for vlan 155 leaf2"
+            vpc_id: 155
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/34
+              - Ethernet1/35
+            access_vlan: 155
 
       - name: << leaf3_hostname >>
         serial_number: << leaf3_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel55
+            mode: access
+            description: "NaC Access Port-Channel for vlan 55 leaf3"
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/32
+              - Ethernet1/33
+            access_vlan: 55
+          - name: Port-Channel355
+            mode: access
+            description: "NaC Access vpc Port-Channel for vlan 355 leaf3"
+            vpc_id: 355
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/34
+              - Ethernet1/35
+            access_vlan: 355
 
       - name: << leaf4_hostname >>
         serial_number: << leaf4_serial >>
-        interfaces: []
+        interfaces:
+          - name: Port-Channel55
+            mode: access
+            description: "NaC Access Port-Channel for vlan 55 leaf4"
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/32
+              - Ethernet1/33
+            access_vlan: 55
+          - name: Port-Channel355
+            mode: access
+            description: "NaC Access vpc Port-Channel for vlan 355 leaf4"
+            vpc_id: 355
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/34
+              - Ethernet1/35
+            access_vlan: 355
 
       - name: << border_hostname >>
         serial_number: << border_serial >>
