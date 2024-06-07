@@ -26,4 +26,6 @@ The following roles have been added to the collection:
 * Role: `cisco.nac_dc_vxlan.dtc.deploy <https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/deploy/README.md>`_
 * Role: `cisco.nac_dc_vxlan.dtc.remove <https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/remove/README.md>`_
 
+This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
+
 .. _0.1.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.1.0...0.1.0
