@@ -1,0 +1,107 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+---
+vxlan:
+  overlay_services:
+    networks:
+      - name: NetAsCodeNet1
+        vrf_name: NetAsCodeVrf1
+        vlan_id: 2301
+        net_id: 130001
+        vlan_name: NetAsCodeNet1_vlan2301
+        gw_ip_address: "192.168.12.1/24"
+        attach_group: all_leaf
+
+      - name: NetAsCodeNet2
+        vrf_name: NetAsCodeVrf2
+        net_id: 130002
+        vlan_id: 2302
+        vlan_name: NetAsCodeNet2_vlan2302
+        gw_ip_address: "192.168.12.2/24"
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeNet3
+        vrf_name: NetAsCodeVrf3
+        net_id: 130003
+        vlan_id: 2303
+        vlan_name: NetAsCodeNet3_vlan2303
+        gw_ip_address: "192.168.12.3/24"
+        gw_ipv6_address: '2001::1/64'
+        route_target_both: True
+        l3gw_on_border: True
+        mtu_l3intf: 7600
+        int_desc: "Configured by NetAsCode"
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeNet4
+        vrf_name: NetAsCodeVrf4
+        net_id: 130004
+        vlan_id: 2304
+        vlan_name: NetAsCodeNet4_vlan2304
+        gw_ip_address: "192.168.12.4/24"
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeNet_Default
+        is_l2_only: False
+        vrf_name: NetAsCodeVrf_Default
+        net_id: 130020
+        vlan_id: 2320
+        vlan_name: NetAsCodeVrf_Default_vlan2320
+        gw_ip_address: "192.168.12.1/24"
+        arp_suppress: False
+        dhcp_loopback_id: 55
+        dhcp_servers:
+          - ip_address: 172.55.1.1
+            vrf: NetAsCodeVrf_Default
+        gw_ipv6_address: '2001::1/64'
+        int_desc: "Configured by NetAsCode"
+        l3gw_on_border: True
+        mtu_l3intf: 7600
+        multicast_group_address: 239.1.1.1
+        netflow_enable: False
+        route_target_both: True
+        route_tag: 12345
+        secondary_ip_addresses:
+          - ip_address: 10.10.10.1
+            route_tag: 12345
+        trm_enable: False
+        vlan_netflow_monitor: vlan55
+        attach_group: all_leaf
+
+    network_attach_groups:
+      - name: all_leaf
+        switches:
+          - {hostname: << leaf1_ip >>, ports: [Ethernet1/13, Ethernet1/14]}
+          - {hostname: << leaf2_ip >>, ports: [Ethernet1/13, Ethernet1/14]}
+          - {hostname: << leaf3_ip >>, ports: [Ethernet1/13, Ethernet1/14]}
+          - {hostname: << leaf4_ip >>, ports: [Ethernet1/13, Ethernet1/14]}
+          - {hostname: << border_ip >>, ports: []}
+      - name: leaf1_leaf2
+        switches:
+          - {hostname: << leaf1_ip >>, ports: []}
+          - {hostname: << leaf2_ip >>, ports: []}
+      - name: leaf1
+        switches:
+          - {hostname: << leaf1_ip >>, ports: []}
+      - name: leaf2
+        switches:
+          - {hostname: << leaf2_ip >>, ports: []}

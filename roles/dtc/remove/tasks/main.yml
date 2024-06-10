@@ -1,3 +1,24 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
 ---
 
 - name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.remove]
@@ -9,26 +30,121 @@
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
 
-- fail: msg="Service Model Not Defined.  Role cisco.csc.prepare_model Must Be Called First"
-  when: MD is undefined
+- ansible.builtin.debug: msg="Query NDFC for List of Fabric Switches"
 
-- debug: msg="Removing Unmanaged Fabric Loopback Interfaces. This could take several minutes..."
+- cisco.dcnm.dcnm_rest:
+    method: GET
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/inventory/switchesByFabric"
+  register: switch_list
+
+- ansible.builtin.debug: msg="Removing all Unmanaged Fabric Interfaces. This could take several minutes..."
+
 - cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD.fabric.global.name }}"
+    fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
-    config: "{{ int_loopback_config }}"
-  register: result
+    config: "{{ interface_all }}"
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
+  when:
+    - switch_list.response.DATA | length > 0
+    - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
-- debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
+- ansible.builtin.debug:
+    msg:
+      - "-------------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Fabric Interfaces task because interface_delete_mode flag is set to False  +"
+      - "-------------------------------------------------------------------------------------------------------------------"
+  when: not ((interface_delete_mode is defined) and (interface_delete_mode is true|bool))
+
+- ansible.builtin.debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
+
 - cisco.dcnm.dcnm_network:
-    fabric: "{{ MD.fabric.global.name }}"
+    fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
     config: "{{ net_config }}"
-  register: result
+  when:
+    - switch_list.response.DATA | length > 0
+    - (network_delete_mode is defined) and (network_delete_mode is true|bool)
 
-- debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
+- ansible.builtin.debug:
+    msg:
+      - "---------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Fabric Networks task because network_delete_mode flag is set to False  +"
+      - "---------------------------------------------------------------------------------------------------------------"
+  when: not ((network_delete_mode is defined) and (network_delete_mode is true|bool))
+
+- ansible.builtin.debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
+
 - cisco.dcnm.dcnm_vrf:
-    fabric: "{{ MD.fabric.global.name }}"
+    fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
     config: "{{ vrf_config }}"
-  register: result
+  when:
+    - switch_list.response.DATA | length > 0
+    - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+
+- ansible.builtin.debug:
+    msg:
+      - "--------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False   +"
+      - "--------------------------------------------------------------------------------------------------------"
+  when: not ((vrf_delete_mode is defined) and (vrf_delete_mode is true|bool))
+
+- ansible.builtin.debug: msg="Removing all Unmanaged vPC Peering. This could take several minutes..."
+
+- name: Remove vPC Peering
+  cisco.dcnm.dcnm_vpc_pair:
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    deploy: true
+    state: overridden
+    config: "{{ vpc_peering }}"
+  vars:
+      ansible_command_timeout: 1000
+      ansible_connect_timeout: 1000  
+  when:
+    - switch_list.response.DATA | length > 0
+    - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
+
+- ansible.builtin.debug:
+    msg:
+      - "-------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_peering_delete_mode flag is set to False  +"
+      - "-------------------------------------------------------------------------------------------------------"
+  when: not ((vpc_peering_delete_mode is defined) and (vpc_peering_delete_mode is true|bool))
+
+- ansible.builtin.debug: msg="Removing all Unmanaged links. This could take several minutes..."
+
+- name: Remove Intra Fabric Links for vpc peering
+  cisco.dcnm.dcnm_links:
+    state: replaced
+    src_fabric: "{{ MD_Extended.vxlan.global.name }}"
+    config: "{{ link_vpc_peering }}"
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
+  when:
+    - switch_list.response.DATA | length > 0
+    - (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
+
+- ansible.builtin.debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
+
+- name: Remove NDFC Fabric Devices {{ MD.vxlan.global.name }}
+  cisco.dcnm.dcnm_inventory:
+    fabric: "{{ MD.vxlan.global.name }}"
+    config: "{{ updated_inv_config['updated_inv_list'] }}"
+    deploy: true
+    save: true
+    state: overridden
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
+  when:
+    - (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
+
+- ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove NDFC Fabric Devices task because inventory_delete_mode flag is set to False +"
+      - "----------------------------------------------------------------------------------------------------------"
+  when: not ((inventory_delete_mode is defined) and (inventory_delete_mode is true|bool))

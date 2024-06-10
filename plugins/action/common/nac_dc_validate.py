@@ -1,19 +1,38 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
 from __future__ import absolute_import, division, print_function
 
 
 __metaclass__ = type
 
-from ansible import constants as C
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-
-from ..helper_functions import do_something
 
 import iac_validate.validator
 from iac_validate.yaml import load_yaml_files
 import os
 
 display = Display()
+
 
 class ActionModule(ActionBase):
 
@@ -29,10 +48,12 @@ class ActionModule(ActionBase):
 
         # Generate a warning if the Schema and Rules are not provided
         if schema and not os.path.exists(schema):
-            display.warning("The provided schema ({0}) does not appear to exist! ".format(schema))
-        # The rules directory is considered empty if it only contains the .gitkeep file
-        if len(os.listdir(rules)) == 1 and '.gitkeep' in os.listdir(rules):
-            display.warning("The rules directory ({0}) is empty! ".format(rules))
+            display.warning("The schema ({0}) does not appear to exist! ".format(schema))
+        if not os.path.exists(rules):
+            display.warning("The rules directory ({0}) does not appear to exist! ".format(rules))
+        # The rules directory is considered empty if it is an empty dir or only contains the .gitkeep file
+        if os.path.exists(rules) and (not os.listdir(rules) or (len(os.listdir(rules)) == 1 and '.gitkeep' in os.listdir(rules))):
+            display.warning("The rules directory ({0}) exists but is empty! ".format(rules))
 
         # Verify That Data Sources Exists
         if mdata and not os.path.exists(mdata):

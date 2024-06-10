@@ -1,12 +1,34 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
 ---
 defaults:
-  fabric:
+  vxlan:
     global:
       route_reflectors: 2
+      anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
       vpc:
         peer_link_vlan: 3600
-        peer_keep_alive:  management
+        peer_keep_alive: management
         auto_recovery_time: 360
         delay_restore_time: 150
         peer_link_port_channel_id: 500
@@ -21,7 +43,7 @@ defaults:
           topology_switch_access_interface:
             description: 'NetAsCode Access Interface'
             mtu: jumbo
-            speed: Auto
+            speed: auto
             enabled: true
             access_vlan: 1
             spanning_tree_portfast: true
@@ -29,15 +51,15 @@ defaults:
           topology_switch_trunk_interface:
             description: 'NetAsCode Trunk Interface'
             mtu: jumbo
-            speed: Auto
+            speed: auto
             enabled: true
-            trunk_allowed_vlans: none 
+            trunk_allowed_vlans: none
             spanning_tree_portfast: true
             enable_bpdu_guard: true
           topology_switch_access_po_interface:
             description: 'NetAsCode Access PO Interface'
             mtu: jumbo
-            speed: Auto
+            speed: auto
             enabled: true
             access_vlan: 1
             pc_mode: active
@@ -46,26 +68,26 @@ defaults:
           topology_switch_trunk_po_interface:
             description: 'NetAsCode Trunk PO Interface'
             mtu: jumbo            
-            speed: Auto
+            speed: auto
             enabled: true
-            trunk_allowed_vlans: none 
+            trunk_allowed_vlans: none
             pc_mode: active
             spanning_tree_portfast: true
             enable_bpdu_guard: true
           topology_switch_routed_interface:
             description: 'NetAsCode Routed Interface'
             mtu: 9216
-            speed: Auto
+            speed: auto
             enabled: true
           topology_switch_routed_sub_interface:
             description: 'NetAsCode Routed Sub Interface'
             mtu: 9216
-            speed: Auto
+            speed: auto
             enabled: true
           topology_switch_routed_po_interface:
             description: 'NetAsCode Routed PO Interface'
             mtu: 9216
-            speed: Auto
+            speed: auto
             enabled: true
             pc_mode: active
           topology_switch_loopback_interface:
@@ -82,6 +104,7 @@ defaults:
         replication_mode: multicast
         fabric_interface_numbering: p2p
         subnet_mask: 30
+        manual_underlay_allocation: false
         underlay_routing_loopback_id: 0
         underlay_vtep_loopback_id: 1
         underlay_routing_protocol_tag: UNDERLAY
@@ -100,14 +123,17 @@ defaults:
       ospf:
         area_id: 0.0.0.0
         authentication_enable: false
+        authentication_key_id: 127
       isis:
-        level: level2
+        level: level-2
         network_point_to_point: true
         authentication_enable: false
+        authentication_key_id: 127
         overload_bit: true
         overload_bit_elapsed_time: 60
       bgp:
         authentication_enable: false
+        authentication_key_type: 3
       multicast:
         group_subnet: 239.1.1.0/25
         rendezvous_points: 2
@@ -126,6 +152,7 @@ defaults:
         pim: false
         isis: false
         authentication_enable: false
+        authentication_key_id: 100
     overlay_services:
       vrfs:
         vrf_description: "Configured by Ansible NetAsCode"
@@ -152,7 +179,7 @@ defaults:
         multicast_group_address: 239.1.1.1
         netflow_enable: false
         route_target_both: false
-        route_tag: 12345 
+        route_tag: 12345
         trm_enable: false
       vrf_attach_groups:
         switches: []

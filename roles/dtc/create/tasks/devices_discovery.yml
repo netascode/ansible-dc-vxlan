@@ -1,17 +1,72 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
 ---
 
-# TODO: Modify the dcnm_inventory module to only discover/clean the device
-# and set the role for the device.  Deploy of config would happen using the
-# dtc.deploy role.
-
-- name: Add NDFC Fabric Devices {{ MD.fabric.global.name }}
+- name: Add NDFC Fabric Devices {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_inventory:
-    fabric: "{{ MD.fabric.global.name }}"
-    config: "{{ inv_config }}"
+    fabric: "{{ MD.vxlan.global.name }}"
+    config: "{{ updated_inv_config['updated_inv_list'] }}"
     deploy: false
     save: true
     state: merged
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-  when: MD.fabric.topology.switches | length > 0
+  when: MD_Extended.vxlan.topology.switches | length > 0
+
+- name: Create List of Switch Serial Numbers from Data Model
+  ansible.builtin.set_fact:
+    md_serial_numbers_list: "{{ MD_Extended.vxlan.topology.switches | map(attribute='serial_number') | list }}"
+
+- name: Concatenate Switch Serial Numbers
+  ansible.builtin.set_fact:
+    md_serial_numbers: "{{ md_serial_numbers_list | join('%2C') }}"
+
+- name: Get NDFC Fabric Default Switch Policies
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches?serialNumber={{ md_serial_numbers }}"
+  register: result
+
+- name: Default Policy Payload Variable
+  ansible.builtin.set_fact:
+    policy_payload: []
+
+- name: Build Payload for NDFC Switch Hostname Policy Update
+  ansible.builtin.include_tasks: build_hostname_policy_payload.yml
+  loop: "{{ md_serial_numbers_list }}"
+
+- name: Build Policy ID Query from NDFC Response
+  ansible.builtin.set_fact:
+    query: "response.DATA[?(@.templateName==`host_11_1`)].policyId"
+
+- name: Create List of Switch Hostname Policy IDs from NDFC
+  ansible.builtin.set_fact:
+    policy_ids: "{{ policy_payload | map(attribute='policyId') | list | join('%2C') }}"
+  when: policy_payload | length > 0
+
+- name: Update Switch Hostname Policy in NDFC
+  cisco.dcnm.dcnm_rest:
+    method: PUT
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"
+    json_data: "{{ policy_payload | to_json }}"
+  when: policy_payload | length > 0

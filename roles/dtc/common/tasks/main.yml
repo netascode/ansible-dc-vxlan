@@ -1,72 +1,155 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
 ---
 
+- ansible.builtin.fail: msg="Service Model Not Defined.  Role cisco.nac_dc_vxlan.validate Must Be Called First"
+  when: MD is undefined
 # --------------------------------------------------------------------
-# Build Fabric Switch Inventory List From Template
+# Remove all files from the previous run
 # --------------------------------------------------------------------
+- name: Delete content & directory
+  ansible.builtin.file:
+    state: absent
+    path: "{{ role_path }}/files/"
 
-- name: Build Fabric Switch Inventory List From Template
-  ansible.builtin.include_tasks: inv.yml
+- name: Recreate the directory
+  ansible.builtin.file:
+    path: "{{ role_path }}/files/"
+    state: directory
+    mode: '0755'
 
-# --------------------------------------------------------------------
-# Build Fabric VRFs Attach List From Template
-# --------------------------------------------------------------------
-
-- name: Build Fabric VRFs List From Template
-  ansible.builtin.include_tasks: vrf.yml
-
-# --------------------------------------------------------------------
-# Build Fabric Networks Attach List From Template
-# --------------------------------------------------------------------
-
-- name: Build Fabric Networks List From Template
-  ansible.builtin.include_tasks: network.yml
-
-# --------------------------------------------------------------------
-# Build Fabric Loopback Interfaces List From Template
-# --------------------------------------------------------------------
-
-- name: Build Fabric Loopback Interfaces List From Template
-  ansible.builtin.include_tasks: int_loopback.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.loopback.count >0
+- name: Add gitkeep file back to the directory
+  ansible.builtin.file:
+    path: "{{ role_path }}/files/.gitkeep"
+    state: touch
 
 # --------------------------------------------------------------------
-# Build Access Portchannel Interfaces List From Template
+# Build Create Fabric parameter List From Template
 # --------------------------------------------------------------------
 
-- name: Build Access Portchannel Interfaces List From Template
-  ansible.builtin.include_tasks: int_access_po.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.access_po.count >0
+- name: Build Fabric Create Parameters
+  ansible.builtin.include_tasks: ndfc_fabric.yml
 
 # --------------------------------------------------------------------
-# Build Trunk Portchannel Interfaces List From Template
+# Build NDFC Fabric Switch Inventory List From Template
 # --------------------------------------------------------------------
 
-- name: Build Trunk Portchannel Interfaces List From Template
-  ansible.builtin.include_tasks: int_trunk_po.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.trunk_po.count >0
+- name: Build NDFC Fabric Switch Inventory List From Template
+  ansible.builtin.include_tasks: ndfc_inventory.yml
 
 # --------------------------------------------------------------------
-# Build Fabric Interface Routed List From Template
+# Build Fabric intra links for vpc peering From Template
 # --------------------------------------------------------------------
 
-- name: Build Fabric Interface Routed List From Template
-  ansible.builtin.include_tasks: interface_routed.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.routed.count >0
-
+- name: Build intra fabric links From Template
+  ansible.builtin.include_tasks: ndfc_link_vpc_peering.yml
 
 # --------------------------------------------------------------------
-# Build Fabric Sub-interface Routed List From Template
+# Build VPC Peering parameter List From Template
 # --------------------------------------------------------------------
 
-- name: Build Fabric Sub-interface Routed List From Template
-  ansible.builtin.include_tasks: sub_interface_routed.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.routed_sub.count >0
-
+- name: Build VPC Peering Parameters
+  ansible.builtin.include_tasks: ndfc_vpc_peering.yml
 
 # --------------------------------------------------------------------
-# Build Fabric interface Port-Channel Routed List From Template
+# Build NDFC Fabric VRFs Attach List From Template
 # --------------------------------------------------------------------
 
-- name: Build Fabric interface Port-Channel Routed List From Template
-  ansible.builtin.include_tasks: interface_po_routed.yml
-  when: MD_Extended.fabric.topology.interfaces.modes.routed_po.count >0
+- name: Build NDFC Fabric VRFs Attach List From Template
+  ansible.builtin.include_tasks: ndfc_vrfs.yml
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric Networks Attach List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Networks Attach List From Template
+  ansible.builtin.include_tasks: ndfc_networks.yml
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric Loopback Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Loopback Interfaces List From Template
+  ansible.builtin.include_tasks: ndfc_interface_loopback.yml
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric Access Port-Channel Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Access Port-Channel Interfaces List From Template
+  ansible.builtin.include_tasks: ndfc_interface_access_po.yml
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
+  ansible.builtin.include_tasks: ndfc_interface_trunk_po.yml
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric Interface Routed List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Interface Routed List From Template
+  ansible.builtin.include_tasks: ndfc_interface_routed.yml
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric Sub-Interface Routed List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Sub-Interface Routed List From Template
+  ansible.builtin.include_tasks: ndfc_sub_interface_routed.yml
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric Routed Port-Channel Interface List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Routed Port-Channel Interface List From Template
+  ansible.builtin.include_tasks: ndfc_interface_po_routed.yml
+
+# --------------------------------------------------------------------
+# Build Trunk Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build Trunk Interfaces List From Template
+  ansible.builtin.include_tasks: ndfc_interface_trunk.yml
+
+# --------------------------------------------------------------------
+# Build Access Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build Access Interfaces List From Template
+  ansible.builtin.include_tasks: ndfc_interface_access.yml
+
+# --------------------------------------------------------------------
+# Build Fabric interface VPC List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric interface VPC List From Template
+  ansible.builtin.include_tasks: ndfc_interface_vpc.yml
+
+# --------------------------------------------------------------------
+# Build Fabric interface all List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric interface All List From Template
+  ansible.builtin.include_tasks: ndfc_interface_all.yml
