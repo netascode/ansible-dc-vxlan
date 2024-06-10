@@ -1,0 +1,4 @@
+# This file is used to redirect to a default action plugin if needed.
+#
+#---
+requires_ansible: ">=2.14.15"
