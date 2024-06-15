@@ -41,6 +41,14 @@
     - ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
       when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
 
+    - ansible.builtin.set_fact:
+        schema_path: ''
+      when: schema_path is not defined
+
+    - ansible.builtin.set_fact:
+        enhanced_rules_path: ''
+      when: enhanced_rules_path is not defined
+
     - name: "Perform Required Syntax and Semantic Model Validation"
       cisco.nac_dc_vxlan.common.nac_dc_validate:
         schema: "{{ schema_path }}"
@@ -48,7 +56,6 @@
         rules: "{{ rules_path }}"
       register: model_data
       vars:
-        schema_path: "{{ role_path }}/files/schema.yaml"
         data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
         rules_path: "{{ role_path }}/files/rules/required_rules/"
 
@@ -56,11 +63,9 @@
       cisco.nac_dc_vxlan.common.nac_dc_validate:
         schema: "{{ schema_path }}"
         mdata: "{{ data_path }}"
-        rules: "{{ rules_path }}"
+        rules: "{{ enhanced_rules_path }}"
       vars:
-        schema_path: "{{ role_path }}/files/schema.yaml"
         data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-        rules_path: "{{ role_path }}/files/rules/enhanced_rules/"
 
     - name: "Prepare Service Model"
       cisco.nac_dc_vxlan.common.prepare_service_model:

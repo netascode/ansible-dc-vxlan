@@ -47,9 +47,9 @@ class ActionModule(ActionBase):
         mdata = self._task.args.get('mdata')
 
         # Generate a warning if the Schema and Rules are not provided
-        if schema and not os.path.exists(schema):
+        if 'schema' in locals() and (schema == "" or not os.path.exists(schema)):
             display.warning("The schema ({0}) does not appear to exist! ".format(schema))
-        if not os.path.exists(rules):
+        if 'rules' in locals() and (rules == "" or not os.path.exists(rules)):
             display.warning("The rules directory ({0}) does not appear to exist! ".format(rules))
         # The rules directory is considered empty if it is an empty dir or only contains the .gitkeep file
         if os.path.exists(rules) and (not os.listdir(rules) or (len(os.listdir(rules)) == 1 and '.gitkeep' in os.listdir(rules))):
