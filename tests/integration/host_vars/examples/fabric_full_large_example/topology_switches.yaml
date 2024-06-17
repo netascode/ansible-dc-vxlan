@@ -99,3 +99,14 @@ vxlan:
           management_ipv6_address: 2055:55:55:55::55/64
         routing_loopback_id: 0
         vtep_loopback_id: 1
+
+      - name: << border_gateway_hostname >>
+        serial_number: << border_gateway_serial >>
+        role: border_gateway
+        management:
+          default_gateway_v4: << default_gateway_v4 >>
+          default_gateway_v6: 2055:55:55:55::55/64
+          management_ipv4_address: << border_gateway_ip >>
+          management_ipv6_address: 2055:55:55:55::55/64
+        routing_loopback_id: 0
+        vtep_loopback_id: 1
