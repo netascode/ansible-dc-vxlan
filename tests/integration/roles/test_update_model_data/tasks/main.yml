@@ -256,3 +256,28 @@
     replace: "{{ border.ip }}"
   loop: "{{ files_names }}"
   delegate_to: 127.0.0.1
+
+# -- Border Gateway --
+- name: Replace << border_gateway_hostname >> in test data model files
+  ansible.builtin.replace:
+    path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname}}/{{ item}}"
+    regexp: '<< border_gateway_hostname >>'
+    replace: "{{ border_gateway.hostname }}"
+  loop: "{{ files_names }}"
+  delegate_to: 127.0.0.1
+
+- name: Replace << border_gateway_serial >> in test data model files
+  ansible.builtin.replace:
+    path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname}}/{{ item}}"
+    regexp: '<< border_gateway_serial >>'
+    replace: "{{ border_gateway.serial }}"
+  loop: "{{ files_names }}"
+  delegate_to: 127.0.0.1
+
+- name: Replace << border_gateway_ip >> in test data model files
+  ansible.builtin.replace:
+    path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname}}/{{ item}}"
+    regexp: '<< border_gateway_ip >>'
+    replace: "{{ border_gateway.ip }}"
+  loop: "{{ files_names }}"
+  delegate_to: 127.0.0.1
