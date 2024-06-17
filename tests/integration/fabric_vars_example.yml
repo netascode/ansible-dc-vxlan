@@ -53,3 +53,7 @@ border:
   hostname: << border_hostname >>
   serial: << border_serial >>
   ip: << border_ip >>
+border_gateway:
+  hostname: << border_gateway_hostname >>
+  serial: << border_gateway_serial >>
+  ip: << border_gateway_ip >>
