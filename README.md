@@ -42,7 +42,7 @@ Role: [cisco.nac_dc_vxlan.dtc.remove](https://github.com/netascode/ansible-dc-vx
 
 The remove role is the opposite of the deploy role and removes what is represented in the data model from the NDFC controller. For this reason, this role requires the settings of some variables to true under the `group_vars` directory. This is to avoid accidental removal of configuration from NDFC that might impact the network.
 
-Inside the example repository under `group_vars/ndfc` is a file called `ndfc.yml` that contains some variables that need to be set to true to allow the removal of the configuration from the NDFC controller. The variables are:
+Inside the example repository under `group_vars/ndfc` is a file called `ndfc.yaml` that contains some variables that need to be set to true to allow the removal of the configuration from the NDFC controller. The variables are:
 
 ```yaml
 # Parameters for the tasks in the 'Remove' role
@@ -182,7 +182,7 @@ graph
   nac-ndfc1-->data_model_files
 ```
 
-The data model is **required** to exist under the `host_vars` directory structure. The inventory file is organizing how the variables are read through both the group_vars and the host_vars. Under the group_vars is where you will set the `connection.yml` file that has the credentials of the NDFC controller. Under the `host_vars` is where we will place the inventory.
+The data model is **required** to exist under the `host_vars` directory structure. The inventory file is organizing how the variables are read through both the group_vars and the host_vars. Under the group_vars is where you will set the `connection.yaml` file that has the credentials of the NDFC controller. Under the `host_vars` is where we will place the inventory.
 
 The collection is **pre-built** to utilize the `group_vars` and `host_vars` matching what is already constructed in the repository. Currently this methodology is a 1:1 relationship between code repository and NDFC fabric. For more complex environments, the inventory file can be expanded to include multiple groups and hosts including the usage of multi-site fabrics, explained in a separate document.
 
