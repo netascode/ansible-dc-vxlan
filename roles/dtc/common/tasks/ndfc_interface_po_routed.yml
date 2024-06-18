@@ -24,17 +24,21 @@
 - name: Set interface_po_routed_file_name Var
   ansible.builtin.set_fact:
     interface_po_routed_file_name: "{{ MD.vxlan.global.name }}_ndfc_interface_po_routed.yml"
+  delegate_to: localhost
 
 - name: Build Interface Po
   ansible.builtin.template:
     src: ndfc_interface_po_routed.j2
     dest: "{{ role_path }}/files/{{ interface_po_routed_file_name }}"
+  delegate_to: localhost
 
 - name: Set interface_po_routed Var default
   ansible.builtin.set_fact:
     interface_po_routed: []
+  delegate_to: localhost
 
 - name: Set interface_po_routed Var
   ansible.builtin.set_fact:
     interface_po_routed: "{{ lookup('file', interface_po_routed_file_name) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.routed_po.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.routed_po.count > 0
+  delegate_to: localhost

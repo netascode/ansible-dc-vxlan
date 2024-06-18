@@ -24,17 +24,21 @@
 - name: Set sub_interface_routed_file_name Var
   ansible.builtin.set_fact:
     sub_interface_routed_file_name: "{{ MD.vxlan.global.name }}_ndfc_sub_interface_routed.yml"
+  delegate_to: localhost
 
 - name: Build sub_interface
   ansible.builtin.template:
     src: ndfc_sub_interface_routed.j2
     dest: "{{ role_path }}/files/{{ sub_interface_routed_file_name }}"
+  delegate_to: localhost
 
 - name: Set sub_interface_routed Var default
   ansible.builtin.set_fact:
     sub_interface_routed: []
+  delegate_to: localhost
 
 - name: Set sub_interface_routed Var
   ansible.builtin.set_fact:
     sub_interface_routed: "{{ lookup('file', sub_interface_routed_file_name) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.routed_sub.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.routed_sub.count > 0
+  delegate_to: localhost

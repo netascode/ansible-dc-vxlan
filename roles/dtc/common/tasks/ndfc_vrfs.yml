@@ -24,17 +24,21 @@
 - name: Set vrf_file_name Var
   ansible.builtin.set_fact:
     vrf_file_name: "{{ MD.vxlan.global.name }}_attach_vrfs.yml"
+  delegate_to: localhost
 
 - name: Build VRFs Attach List From Template
   ansible.builtin.template:
     src: ndfc_attach_vrfs.j2
     dest: "{{ role_path }}/files/{{ vrf_file_name }}"
+  delegate_to: localhost
 
 - name: Create Empty vrf_config Var
   ansible.builtin.set_fact:
     vrf_config: []
+  delegate_to: localhost
 
 - name: Set vrf_config Var
   ansible.builtin.set_fact:
     vrf_config: "{{ lookup('file', vrf_file_name) | from_yaml }}"
   when: (MD_Extended.vxlan.overlay_services.vrfs | default([])) | length > 0
+  delegate_to: localhost

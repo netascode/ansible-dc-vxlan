@@ -33,6 +33,7 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
+  delegate_to: localhost
 
 # --------------------------------------------------------------------
 # Manage vPC Peering
@@ -44,3 +45,4 @@
     deploy: false
     state: replaced
     config: "{{ vpc_peering }}"
+  delegate_to: localhost

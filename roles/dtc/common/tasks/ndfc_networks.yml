@@ -24,17 +24,21 @@
 - name: Set net_file_name Var
   ansible.builtin.set_fact:
     net_file_name: "{{ MD.vxlan.global.name }}_ndfc_attach_networks.yml"
+  delegate_to: localhost
 
 - name: Build Networks Attach List From Template
   ansible.builtin.template:
     src: ndfc_attach_networks.j2
     dest: "{{ role_path }}/files/{{ net_file_name }}"
+  delegate_to: localhost
 
 - name: Set net_config Var
   ansible.builtin.set_fact:
     net_config: []
+  delegate_to: localhost
 
 - name: Set net_config Var
   ansible.builtin.set_fact:
     net_config: "{{ lookup('file', net_file_name) | from_yaml }}"
   when: (MD_Extended.vxlan.overlay_services.networks | default([])) | length > 0
+  delegate_to: localhost

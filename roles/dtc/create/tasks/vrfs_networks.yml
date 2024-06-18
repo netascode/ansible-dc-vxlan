@@ -38,6 +38,7 @@
     config: "{{ vrf_config }}"
   register: manage_vrf_result
   when: MD.vxlan.overlay_services.vrfs
+  delegate_to: localhost
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
@@ -49,3 +50,4 @@
     config: "{{ net_config }}"
   register: manage_network_result
   when: MD.vxlan.overlay_services.networks
+  delegate_to: localhost

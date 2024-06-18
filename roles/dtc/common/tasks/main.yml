@@ -30,17 +30,20 @@
   ansible.builtin.file:
     state: absent
     path: "{{ role_path }}/files/"
+  delegate_to: localhost
 
 - name: Recreate the directory
   ansible.builtin.file:
     path: "{{ role_path }}/files/"
     state: directory
     mode: '0755'
+  delegate_to: localhost
 
 - name: Add gitkeep file back to the directory
   ansible.builtin.file:
     path: "{{ role_path }}/files/.gitkeep"
     state: touch
+  delegate_to: localhost
 
 # --------------------------------------------------------------------
 # Build Create Fabric parameter List From Template
@@ -60,14 +63,14 @@
 # Build Fabric intra links for vpc peering From Template
 # --------------------------------------------------------------------
 
-- name: Build intra fabric links From Template
+- name: Build Intra Fabric Links From Template
   ansible.builtin.include_tasks: ndfc_link_vpc_peering.yml
 
 # --------------------------------------------------------------------
-# Build VPC Peering parameter List From Template
+# Build vPC Peering parameter List From Template
 # --------------------------------------------------------------------
 
-- name: Build VPC Peering Parameters
+- name: Build vPC Peering Parameters
   ansible.builtin.include_tasks: ndfc_vpc_peering.yml
 
 # --------------------------------------------------------------------
