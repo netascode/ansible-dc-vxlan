@@ -100,20 +100,20 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-#### Step 4 - Install Ansible Galaxy Collection (default placement)
+#### Step 4 - (Option 1) - Install Ansible Galaxy Collection (default placement)
 
 The default placement of the ansible galaxy collections would be in your home directory under `.ansible/collections/ansible_collections/`. To install the collection in the default location run the following command:
 
 ```bash
-ansible-galaxy collection install -r requirements.yml
+ansible-galaxy collection install -r requirements.yaml
 ```
 
-#### Step 5 - Install Ansible Galaxy collection (non-default placement)
+#### Step 4 - (Option 2) Install Ansible Galaxy collection (non-default placement)
 
 If you wish to install the galaxy collection inside the repository you are creating with this example repository, you can run the following command:
 
 ```bash
-ansible-galaxy collection install -p collections/ansible_collections/ -r requirements.yml
+ansible-galaxy collection install -p collections/ansible_collections/ -r requirements.yaml
 ```
 
 You will need to then configure your ansible.cfg file to point to the correct location of the collection. 
@@ -126,7 +126,7 @@ collections_path = ./collections/ansible_collections/
 
 ```
 
-#### Step 6 - Change Ansible callbacks
+#### Step 5 - Change Ansible callbacks
 
 If you wish to add any ansible callbacks ( the listed below expand on displaying time execution ) you can add the following to the ansible.cfg file:
 
@@ -136,7 +136,7 @@ callbacks_enabled=ansible.posix.timer,ansible.posix.profile_tasks,ansible.posix.
 bin_ansible_callbacks = True
 ```
 
-#### Step 7 - Verify the installation
+#### Step 6 - Verify the installation
 
 Verify that the ansible configuration file is being read and all the paths are correct inside of this virtual environment. 
 
@@ -156,7 +156,7 @@ ansible [core 2.16.3]
 
 ### Inventory host files
 
-As is standard with Ansible best practices, inventory files provide the destination targets for the automation. For this collection, the inventory file is a YAML file that contains the information about the devices that are going to be configured. The inventory files is called `inventory.yml` and is located in the root of the repository.
+As is standard with Ansible best practices, inventory files provide the destination targets for the automation. For this collection, the inventory file is a YAML file that contains the information about the devices that are going to be configured. The inventory files is called `inventory.yaml` and is located in the root of the repository.
 
 The inventory file is going to contain a structure similar to this:
 
@@ -177,7 +177,7 @@ graph
   root-->group_vars
   root-->host_vars
   group_vars-->ndfc
-  ndfc-->connection.yml
+  ndfc-->connection.yaml
   host_vars-->nac-ndfc1
   nac-ndfc1-->data_model_files
 ```
@@ -189,12 +189,12 @@ The collection is **pre-built** to utilize the `group_vars` and `host_vars` matc
 
 #### Step 1 - Update the inventory file
 
-In the provided `inventory.yml` file on the root directory, update the `ansible_host` variable to point to your NDFC controller by replacing `10.X.X.X` with the IP address of the NDFC controller.
+In the provided `inventory.yaml` file on the root directory, update the `ansible_host` variable to point to your NDFC controller by replacing `10.X.X.X` with the IP address of the NDFC controller.
 
 
 #### Step 2 - Configure ansible connection file
 
-In the directory `group_vars/ndfc` is a file called `connection.yml` that contains example data as:
+In the directory `group_vars/ndfc` is a file called `connection.yaml` that contains example data as:
 
 ```yaml
 ---
