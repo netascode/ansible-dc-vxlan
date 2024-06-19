@@ -32,7 +32,7 @@
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
   when: MD_Extended.vxlan.topology.switches | length > 0
-  delegate_to: localhost
+  # delegate_to: localhost
 
 - name: Create List of Switch Serial Numbers from Data Model
   ansible.builtin.set_fact:
@@ -59,7 +59,6 @@
 - name: Build Payload for NDFC Switch Hostname Policy Update
   ansible.builtin.include_tasks: build_hostname_policy_payload.yml
   loop: "{{ md_serial_numbers_list }}"
-  delegate_to: localhost
 
 - name: Build Policy ID Query from NDFC Response
   ansible.builtin.set_fact:

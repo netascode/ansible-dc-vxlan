@@ -46,7 +46,6 @@
   ansible.builtin.include_tasks: interfaces.yml
   when: (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
 
-
 - name: Manage NDFC Fabric VRFs and Networks
   ansible.builtin.include_tasks: vrfs_networks.yml
   when: (MD.vxlan.overlay_services is defined) and (MD_Extended.vxlan.topology.switches | length > 0)
