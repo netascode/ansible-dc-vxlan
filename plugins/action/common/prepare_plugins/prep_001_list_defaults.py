@@ -79,6 +79,8 @@ class PreparePlugin:
             self.model_data['vxlan']['topology'] = {'fabric_links': []}
             self.model_data['vxlan']['topology'] = {'switches': []}
             self.model_data['vxlan']['topology'] = {'vpc_peers': []}
+        else:
+            self.model_data['vxlan']['topology'] = {}
 
         # Check vxlan.topology.fabric_links list element
         target_key = 'fabric_links'
@@ -135,6 +137,8 @@ class PreparePlugin:
             self.model_data['vxlan']['overlay_services'] = {'vrf_attach_groups': []}
             self.model_data['vxlan']['overlay_services'] = {'networks': []}
             self.model_data['vxlan']['overlay_services'] = {'network_attach_groups': []}
+        else:
+            self.model_data['vxlan']['overlay_services'] = {}
 
         # Check vxlan.overlay_services.vrfs list element
         target_key = 'vrfs'
