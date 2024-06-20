@@ -57,3 +57,7 @@ border_gateway:
   hostname: << border_gateway_hostname >>
   serial: << border_gateway_serial >>
   ip: << border_gateway_ip >>
+border_spine:
+  hostname: << border_spine_hostname >>
+  serial: << border_spine_serial >>
+  ip: << border_spine_ip >>
