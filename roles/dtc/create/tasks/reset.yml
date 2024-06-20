@@ -29,4 +29,3 @@
   vars:
       ansible_command_timeout: 1000
       ansible_connect_timeout: 1000
-  delegate_to: localhost

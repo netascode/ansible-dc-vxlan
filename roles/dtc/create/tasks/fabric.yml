@@ -32,4 +32,3 @@
   cisco.dcnm.dcnm_fabric:
     state: merged
     config: "{{ fabric_config }}"
-  # delegate_to: localhost
