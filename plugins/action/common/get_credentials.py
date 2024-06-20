@@ -37,8 +37,8 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['retrieve_failed'] = False
 
-        key_username = 'ndfc_device_username'
-        key_password = 'ndfc_device_password'
+        key_username = 'ndfc_switch_username'
+        key_password = 'ndfc_switch_password'
 
         ndfc_host_name = task_vars['inventory_hostname']
         username = task_vars['hostvars'][ndfc_host_name].get(key_username, '')
