@@ -281,3 +281,28 @@
     replace: "{{ border_gateway.ip }}"
   loop: "{{ files_names }}"
   delegate_to: 127.0.0.1
+
+# -- Border Spine --
+- name: Replace << border_spine_hostname >> in test data model files
+  ansible.builtin.replace:
+    path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname}}/{{ item}}"
+    regexp: '<< border_spine_hostname >>'
+    replace: "{{ border_spine.hostname }}"
+  loop: "{{ files_names }}"
+  delegate_to: 127.0.0.1
+
+- name: Replace << border_spine_serial >> in test data model files
+  ansible.builtin.replace:
+    path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname}}/{{ item}}"
+    regexp: '<< border_spine_serial >>'
+    replace: "{{ border_spine.serial }}"
+  loop: "{{ files_names }}"
+  delegate_to: 127.0.0.1
+
+- name: Replace << border_spine_ip >> in test data model files
+  ansible.builtin.replace:
+    path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname}}/{{ item}}"
+    regexp: '<< border_spine_ip >>'
+    replace: "{{ border_spine.ip }}"
+  loop: "{{ files_names }}"
+  delegate_to: 127.0.0.1
