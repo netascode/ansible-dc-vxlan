@@ -10,7 +10,8 @@
   vrf_id: {{ vrf['vrf_id'] | default(omit) }}
   vlan_id: {{ vrf['vlan_id'] | default(omit) }}
   vrf_vlan_name: {{ vrf['vrf_vlan_name'] | default(omit) }}
-  vrf_intf_desc: {{ vrf['vrf_intf_desc'] | default(defaults.vxlan.overlay_services.vrfs.vrf_description) }}
+  vrf_intf_desc: {{ vrf['vrf_intf_desc'] | default(defaults.vxlan.overlay_services.vrfs.vrf_intf_desc) }}
+  vrf_description: {{ vrf['vrf_description'] | default(defaults.vxlan.overlay_services.vrfs.vrf_description) }}
   vrf_int_mtu: {{ vrf['vrf_int_mtu'] | default(defaults.vxlan.overlay_services.vrfs.vrf_int_mtu) }}
   loopback_route_tag: {{ vrf['loopback_route_tag'] | default(defaults.vxlan.overlay_services.vrfs.loopback_route_tag) }}
   max_bgp_paths: {{ vrf['max_bgp_paths'] | default(defaults.vxlan.overlay_services.vrfs.max_bgp_paths) }}
