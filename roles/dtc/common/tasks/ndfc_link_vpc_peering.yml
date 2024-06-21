@@ -24,17 +24,21 @@
 - name: Set link_vpc_peering_file_name Var
   ansible.builtin.set_fact:
     link_vpc_peering_file_name: "{{ MD.vxlan.global.name }}_ndfc_link_vpc_peering_.yml"
+  delegate_to: localhost
 
 - name: Build Links for VPC Peering
   ansible.builtin.template:
     src: ndfc_links_vpc_peering.j2
     dest: "{{ role_path }}/files/{{ link_vpc_peering_file_name }}"
+  delegate_to: localhost
 
 - name: Set link_vpc_peering Var default
   ansible.builtin.set_fact:
     link_vpc_peering: []
+  delegate_to: localhost
 
 - name: Set link_vpc_peering Var
   ansible.builtin.set_fact:
     link_vpc_peering: "{{ lookup('file', link_vpc_peering_file_name) | from_yaml }}"
   when: MD_Extended.vxlan.topology.vpc_peers | length > 0
+  delegate_to: localhost

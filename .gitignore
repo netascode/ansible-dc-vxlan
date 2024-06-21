@@ -142,3 +142,5 @@ roles/validate/files/schema.yaml
 !roles/validate/files/rules/enhanced_rules/.gitkeep
 !roles/validate/files/rules/required_rules/*
 roles/validate/defaults/*
+*service_model_extended*.json
+*service_model_golden*.json

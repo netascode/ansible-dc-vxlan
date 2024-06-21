@@ -27,6 +27,7 @@
     content: "{{ MD | to_nice_json }}"
     dest: "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_golden.json"
     force: yes
+  delegate_to: localhost
 
 # Copy the extended golden and extended service model data to the host
 - name: Copy Extended Service Model Data to Host
@@ -34,15 +35,18 @@
     content: "{{ MD_Extended | to_nice_json }}"
     dest: "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_extended.json"
     force: yes
+  delegate_to: localhost
 
 # Read current golden service model data into a variable called 'smd_golden_current'
 - name: Read Current Service Model Data from Host
   ansible.builtin.include_vars:
     file: "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_golden.json"
   register: smd_golden_current
+  delegate_to: localhost
 
 - name: Display Model File Changes
   ansible.utils.fact_diff:
     before: "{{ smd_golden_previous }}"
     after: "{{ smd_golden_current }}"
   when: check_roles['save_previous']
+  delegate_to: localhost
