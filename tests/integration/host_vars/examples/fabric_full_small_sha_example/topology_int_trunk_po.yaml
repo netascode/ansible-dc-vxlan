@@ -19,21 +19,39 @@
 #
 # SPDX-License-Identifier: MIT
 
-all:
-  vars:
-    ansible_user: "admin"
-    ansible_python_interpreter: "~/.pyenv/shims/python"
-    ansible_httpapi_validate_certs: False
-    ansible_httpapi_use_ssl: True
+vxlan:
+  topology:
+    switches:
+      - name: << spine1_hostname >>
+        serial_number: << spine1_serial >>
+        interfaces: []
 
-  children:
-    ndfc:
-      hosts:
-        fabric_empty:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small:
-          ansible_host: < ndfc_ip >>
-        fabric_full_small_sha:
-          ansible_host: << ndfc_ip >> 
-        fabric_full_large:
-          ansible_host: << ndfc_ip >>
+      - name: << leaf1_hostname >>
+        serial_number: << leaf1_serial >>
+        interfaces:
+          - name: Port-Channel56
+            mode: trunk
+            description: "NaC Trunk Port-Channel for leaf1"
+            # This is not working check with Rameez
+            # ----------
+            # vpc_id: 1
+            mtu: default
+            speed: auto
+            enabled: true
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+            pc_mode: passive
+            members:
+              - Ethernet1/34
+              - Ethernet1/35
+            trunk_allowed_vlans:
+              - from: 25
+                to: 99
+              - from: 101
+                to: 155
+              - from: 158
+                to: 159
+
+      - name: << leaf2_hostname >>
+        serial_number: << leaf2_serial >>
+        interfaces: []

@@ -19,21 +19,33 @@
 #
 # SPDX-License-Identifier: MIT
 
-all:
-  vars:
-    ansible_user: "admin"
-    ansible_python_interpreter: "~/.pyenv/shims/python"
-    ansible_httpapi_validate_certs: False
-    ansible_httpapi_use_ssl: True
+---
+# This playbook Run tests agains the data under tests/integration/host_vars/fabric_full_small_sha
 
-  children:
-    ndfc:
-      hosts:
-        fabric_empty:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small:
-          ansible_host: < ndfc_ip >>
-        fabric_full_small_sha:
-          ansible_host: << ndfc_ip >> 
-        fabric_full_large:
-          ansible_host: << ndfc_ip >>
+# Instructions for using this playbook:
+#
+# 1. Make sure you run the tests/integration/test_update_model_data playbook first
+#
+# 3. Run the playbook with the following command:
+#    ansible-playbook -i tests/integration/test_inventory.yml tests/integration/test_vxlan_small_sha.yml
+
+# Reset Fabric
+- hosts: fabric_empty
+  gather_facts: no
+
+  roles:
+    - test_remove
+
+# Create and Deploy Fabric Configuration
+- hosts: fabric_full_small_sha
+  gather_facts: no
+
+  roles:
+    - test_create
+
+# Reset Fabric Back to Empty
+- hosts: fabric_empty
+  gather_facts: no
+
+  roles:
+    - test_remove
