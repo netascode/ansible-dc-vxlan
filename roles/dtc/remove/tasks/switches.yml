@@ -18,14 +18,28 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
+---
 
-galaxy_info:
-  author: Cisco
-  description: Role to remove unmanaged state from NDFC and fabric devices.
-  license: LICENSE
-  min_ansible_version: 2.14.15
+- ansible.builtin.debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
+  when:
+    - (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
 
-dependencies:
-  - cisco.nac_dc_vxlan.validate
-  - cisco.nac_dc_vxlan.common_global
-  - cisco.nac_dc_vxlan.dtc.common
+- name: Remove NDFC Fabric Devices {{ MD.vxlan.global.name }}
+  cisco.dcnm.dcnm_inventory:
+    fabric: "{{ MD.vxlan.global.name }}"
+    config: "{{ updated_inv_config['updated_inv_list'] }}"
+    deploy: true
+    save: true
+    state: overridden
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
+  when:
+    - (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
+
+- ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove NDFC Fabric Devices task because inventory_delete_mode flag is set to False +"
+      - "----------------------------------------------------------------------------------------------------------"
+  when: not ((inventory_delete_mode is defined) and (inventory_delete_mode is true|bool))

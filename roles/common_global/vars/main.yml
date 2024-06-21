@@ -21,6 +21,55 @@
 
 ---
 
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main.yml
-  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
+nac_tags:
+  # All Create and Remove Tags
+  all:
+    - cr_manage_fabric
+    - cr_manage_switches
+    - cr_manage_vpc_peers
+    - cr_manage_interfaces
+    - cr_manage_vrfs_networks
+    # -------------------------
+    - rr_manage_switches
+    - rr_manage_vpc_peers
+    - rr_manage_interfaces
+    - rr_manage_vrfs_networks
+  # All Create Tags
+  create:
+    - cr_manage_fabric
+    - cr_manage_switches
+    - cr_manage_vpc_peers
+    - cr_manage_interfaces
+    - cr_manage_vrfs_networks
+  create_fabric:
+    - cr_manage_fabric
+  create_switches:
+    - cr_manage_switches
+  create_vpc_peers:
+    - cr_manage_vpc_peers
+  create_interfaces:
+    - cr_manage_interfaces
+  create_vrfs_networks:
+    - cr_manage_vrfs_networks
+  # All Remove Tags
+  remove:
+    - rr_manage_interfaces
+    - rr_manage_networks
+    - rr_manage_vrfs
+    - rr_manage_vpc_peers
+    - rr_manage_links
+    - rr_manage_switches
+  remove_interfaces:
+    - rr_manage_interfaces
+  remove_networks:
+    - rr_manage_networks
+  remove_vrfs:
+    - rr_manage_vrfs
+  remove_vpc_peers:
+    - rr_manage_vpc_peers
+  remove_links:
+    - rr_manage_links
+  remove_switches:
+    - rr_manage_switches
+  
+  

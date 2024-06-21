@@ -18,14 +18,29 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
+---
 
-galaxy_info:
-  author: Cisco
-  description: Role to remove unmanaged state from NDFC and fabric devices.
-  license: LICENSE
-  min_ansible_version: 2.14.15
+- ansible.builtin.debug: msg="Removing all Unmanaged vPC Peering. This could take several minutes..."
+  when:
+    - switch_list.response.DATA | length > 0
+    - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
 
-dependencies:
-  - cisco.nac_dc_vxlan.validate
-  - cisco.nac_dc_vxlan.common_global
-  - cisco.nac_dc_vxlan.dtc.common
+- name: Remove vPC Peering
+  cisco.dcnm.dcnm_vpc_pair:
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    deploy: true
+    state: overridden
+    config: "{{ vpc_peering }}"
+  vars:
+      ansible_command_timeout: 1000
+      ansible_connect_timeout: 1000
+  when:
+    - switch_list.response.DATA | length > 0
+    - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
+
+- ansible.builtin.debug:
+    msg:
+      - "-------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_peering_delete_mode flag is set to False  +"
+      - "-------------------------------------------------------------------------------------------------------"
+  when: not ((vpc_peering_delete_mode is defined) and (vpc_peering_delete_mode is true|bool))

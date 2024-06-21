@@ -1,3 +1,4 @@
+
 # Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -18,14 +19,10 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
+---
 
-galaxy_info:
-  author: Cisco
-  description: Role to remove unmanaged state from NDFC and fabric devices.
-  license: LICENSE
-  min_ansible_version: 2.14.15
-
-dependencies:
-  - cisco.nac_dc_vxlan.validate
-  - cisco.nac_dc_vxlan.common_global
-  - cisco.nac_dc_vxlan.dtc.common
+- name: Verify User Tags
+  cisco.nac_dc_vxlan.dtc.verify_tags:
+    all_tags: "{{ nac_tags.all }}"
+    play_tags: "{{ ansible_run_tags }}"
+  tags: "{{ ansible_run_tags }}"

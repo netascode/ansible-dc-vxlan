@@ -21,33 +21,28 @@
 
 ---
 
-- name: Manage Fabric vPC Peers Entry Point
+- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric vPC Peers {{ MD.vxlan.global.name }}"
+      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
-# --------------------------------------------------------------------
-# Manage Intra Fabric Links Configuration on NDFC (prepare links for vpc peering)
-# --------------------------------------------------------------------
+- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
 
-- name: Manage Intra Fabric Links for vpc peering
-  cisco.dcnm.dcnm_links:
-    state: replaced
-    src_fabric: "{{ MD_Extended.vxlan.global.name }}"
-    config: "{{ link_vpc_peering }}"
+- name: Config-Save for Fabric {{ MD.vxlan.global.name }}
+  cisco.dcnm.dcnm_rest:
+    method: POST
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
+  when: MD_Extended.vxlan.topology.switches | length > 0
+  # TODO: Need to add logic to only save if changes are made
+
+- name: Deploy for Fabric {{ MD.vxlan.global.name }}
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
+    method: POST
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-
-# --------------------------------------------------------------------
-# Manage vPC Peering
-# --------------------------------------------------------------------
-
-- name: Manage vPC Peering
-  cisco.dcnm.dcnm_vpc_pair:
-    src_fabric: "{{ MD.vxlan.global.name }}"
-    deploy: false
-    state: replaced
-    config: "{{ vpc_peering }}"
+  when: MD_Extended.vxlan.topology.switches | length > 0
+  # TODO: Need to add logic to only deploy if changes are made

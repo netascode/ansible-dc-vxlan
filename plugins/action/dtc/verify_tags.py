@@ -19,13 +19,34 @@
 #
 # SPDX-License-Identifier: MIT
 
-galaxy_info:
-  author: Cisco
-  description: Role to remove unmanaged state from NDFC and fabric devices.
-  license: LICENSE
-  min_ansible_version: 2.14.15
+from __future__ import absolute_import, division, print_function
 
-dependencies:
-  - cisco.nac_dc_vxlan.validate
-  - cisco.nac_dc_vxlan.common_global
-  - cisco.nac_dc_vxlan.dtc.common
+
+__metaclass__ = type
+
+from ansible.utils.display import Display
+from ansible.plugins.action import ActionBase
+
+display = Display()
+
+
+class ActionModule(ActionBase):
+
+    def run(self, tmp=None, task_vars=None):
+        # self._supports_async = True
+        results = super(ActionModule, self).run(tmp, task_vars)
+        results['failed'] = False
+
+        all_tags = self._task.args['all_tags']
+        play_tags = self._task.args['play_tags']
+
+        if 'all' in play_tags:
+            return results
+        
+        for tag in play_tags:
+            if tag not in all_tags:
+                results['failed'] = True
+                results['msg'] = "Tag '{0}' not found in list of supported tags".format(tag)
+                results['supported_tags'] = all_tags
+
+        return results
