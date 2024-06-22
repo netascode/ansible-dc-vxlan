@@ -42,7 +42,7 @@ class ActionModule(ActionBase):
 
         if 'all' in play_tags:
             return results
-        
+
         for tag in play_tags:
             if tag not in all_tags:
                 results['failed'] = True
