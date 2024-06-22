@@ -15,39 +15,39 @@
   gw_ip_subnet: {{ net['gw_ip_address'] | default(omit) }}
 {% if net.secondary_ip_addresses is defined %}
 {% if net.secondary_ip_addresses | length == 1 %}
-  secondary_ip_gw1: net['secondary_ip_addresses'][0]
+  secondary_ip_gw1: {{ net['secondary_ip_addresses'][0]['ip_address'] }}
 {% elif net.secondary_ip_addresses | length == 2 %}
-  secondary_ip_gw1: net['secondary_ip_addresses'][0]
-  secondary_ip_gw2: net['secondary_ip_addresses'][1]
+  secondary_ip_gw1: {{ net['secondary_ip_addresses'][0]['ip_address'] }}
+  secondary_ip_gw2: {{ net['secondary_ip_addresses'][1]['ip_address'] }}
 {% elif net.secondary_ip_addresses | length == 3 %}
-  secondary_ip_gw1: net['secondary_ip_addresses'][0]
-  secondary_ip_gw2: net['secondary_ip_addresses'][1]
-  secondary_ip_gw3: net['secondary_ip_addresses'][2]
+  secondary_ip_gw1: {{ net['secondary_ip_addresses'][0]['ip_address'] }}
+  secondary_ip_gw2: {{ net['secondary_ip_addresses'][1]['ip_address'] }}
+  secondary_ip_gw3: {{ net['secondary_ip_addresses'][2]['ip_address'] }}
 {% elif net.secondary_ip_addresses | length == 4 %}
-  secondary_ip_gw1: net['secondary_ip_addresses'][0]
-  secondary_ip_gw2: net['secondary_ip_addresses'][1]
-  secondary_ip_gw3: net['secondary_ip_addresses'][2]
-  secondary_ip_gw4: net['secondary_ip_addresses'][3]
+  secondary_ip_gw1: {{ net['secondary_ip_addresses'][0]['ip_address'] }}
+  secondary_ip_gw2: {{ net['secondary_ip_addresses'][1]['ip_address'] }}
+  secondary_ip_gw3: {{ net['secondary_ip_addresses'][2]['ip_address'] }}
+  secondary_ip_gw4: {{ net['secondary_ip_addresses'][3]['ip_address'] }}
 {% endif %}
 {% endif %}
   arp_suppress: {{ net['arp_suppress'] | default(defaults.vxlan.overlay_services.networks.arp_supress) }}
   dhcp_loopback_id: {{ net['dhcp_loopback_id'] | default(omit) }}
 {% if net.dhcp_servers is defined %}
 {% if net.dhcp_servers | length == 1 %}
-  dhcp_srvr1_ip: net['dhcp_servers'][0]['ip_address']
-  dhcp_srvr1_vrf: net['dhcp_servers'][0]['vrf']
+  dhcp_srvr1_ip: {{ net['dhcp_servers'][0]['ip_address'] }}
+  dhcp_srvr1_vrf: {{ net['dhcp_servers'][0]['vrf'] }}
 {% elif net.dhcp_servers | length == 2 %}
-  dhcp_srvr1_ip: net['dhcp_servers'][0]['ip_address']
-  dhcp_srvr1_vrf: net['dhcp_servers'][0]['vrf']
-  dhcp_srvr2_ip: net['dhcp_servers'][1]['ip_address']
-  dhcp_srvr2_vrf: net['dhcp_servers'][1]['vrf']
+  dhcp_srvr1_ip: {{ net['dhcp_servers'][0]['ip_address'] }}
+  dhcp_srvr1_vrf: {{ net['dhcp_servers'][0]['vrf'] }}
+  dhcp_srvr2_ip: {{ net['dhcp_servers'][1]['ip_address'] }}
+  dhcp_srvr2_vrf: {{ net['dhcp_servers'][1]['vrf'] }}
 {% elif net.dhcp_servers | length == 3 %}
-  dhcp_srvr1_ip: net['dhcp_servers'][0]['ip_address']
-  dhcp_srvr1_vrf: net['dhcp_servers'][0]['vrf']
-  dhcp_srvr2_ip: net['dhcp_servers'][1]['ip_address']
-  dhcp_srvr2_vrf: net['dhcp_servers'][1]['vrf']
-  dhcp_srvr3_ip: net['dhcp_servers'][2]['ip_address']
-  dhcp_srvr3_vrf: net['dhcp_servers'][2]['vrf']
+  dhcp_srvr1_ip: {{ net['dhcp_servers'][0]['ip_address'] }}
+  dhcp_srvr1_vrf: {{ net['dhcp_servers'][0]['vrf'] }}
+  dhcp_srvr2_ip: {{ net['dhcp_servers'][1]['ip_address'] }}
+  dhcp_srvr2_vrf: {{ net['dhcp_servers'][1]['vrf'] }}
+  dhcp_srvr3_ip: {{ net['dhcp_servers'][2]['ip_address'] }}
+  dhcp_srvr3_vrf: {{ net['dhcp_servers'][2]['vrf'] }}
 {% endif %}
 {% endif %}
   gw_ipv6_subnet: {{ net['gw_ipv6_address'] | default(omit) }}
