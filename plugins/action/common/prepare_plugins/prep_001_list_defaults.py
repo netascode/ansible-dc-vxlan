@@ -79,8 +79,6 @@ class PreparePlugin:
             self.model_data['vxlan']['topology'] = {'fabric_links': []}
             self.model_data['vxlan']['topology'] = {'switches': []}
             self.model_data['vxlan']['topology'] = {'vpc_peers': []}
-        else:
-            self.model_data['vxlan']['topology'] = {}
 
         # Check vxlan.topology.fabric_links list element
         target_key = 'fabric_links'
