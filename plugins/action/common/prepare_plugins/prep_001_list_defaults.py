@@ -135,8 +135,6 @@ class PreparePlugin:
             self.model_data['vxlan']['overlay_services'] = {'vrf_attach_groups': []}
             self.model_data['vxlan']['overlay_services'] = {'networks': []}
             self.model_data['vxlan']['overlay_services'] = {'network_attach_groups': []}
-        else:
-            self.model_data['vxlan']['overlay_services'] = {}
 
         # Check vxlan.overlay_services.vrfs list element
         target_key = 'vrfs'
