@@ -81,7 +81,7 @@ vxlan:
         route_target_both: True
         route_tag: 12345
         secondary_ip_addresses:
-          - ip_address: 10.10.10.1
+          - ip_address: 10.10.10.1/24
             route_tag: 12345
         trm_enable: False
         vlan_netflow_monitor: vlan55
