@@ -30,10 +30,12 @@ nac_tags:
     - cr_manage_interfaces
     - cr_manage_vrfs_networks
     # -------------------------
-    - rr_manage_switches
-    - rr_manage_vpc_peers
     - rr_manage_interfaces
-    - rr_manage_vrfs_networks
+    - rr_manage_networks
+    - rr_manage_vrfs
+    - rr_manage_vpc_peers
+    - rr_manage_links
+    - rr_manage_switches
   # All Create Tags
   create:
     - cr_manage_fabric

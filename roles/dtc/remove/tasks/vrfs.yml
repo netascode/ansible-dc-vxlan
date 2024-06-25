@@ -29,6 +29,9 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
     config: "{{ vrf_config }}"
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
   when:
     - switch_list.response.DATA | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
