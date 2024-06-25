@@ -71,12 +71,12 @@ vxlan:
         no_rp: False
         overlay_multicast_group: ""
         redist_direct_routemap: ""
-        rp_address: 192.168.1.1/24
+        rp_address: 192.168.1.1
         rp_external: False
-        rp_loopback_id: 0
-        trm_enable: False
+        rp_loopback_id: 2
+        trm_enable: True
         trm_bgw_msite: False
-        underlay_mcast_ip: "224.1.1.1/32"
+        underlay_mcast_ip: "224.1.1.1"
         attach_group: all_leaf
 
     vrf_attach_groups:
