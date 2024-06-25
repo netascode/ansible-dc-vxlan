@@ -26,6 +26,9 @@
   ENABLE_FABRIC_VPC_DOMAIN_ID: False
   RR_COUNT: {{ global.route_reflectors | default(defaults.vxlan.global.route_reflectors) }}
   ANYCAST_GW_MAC: {{ global.anycast_gateway_mac | default(defaults.vxlan.global.anycast_gateway_mac) }}
+{# ------------------------------------------------------ #}
+{# Manageability Parameters                               #}
+{# ------------------------------------------------------ #}
 {% if global.dns_servers is defined %}
 {% set dns_server_ips = [] %}
 {% set dns_server_vrfs = [] %}
@@ -59,7 +62,7 @@
   NTP_SERVER_VRF: {{ ntp_server_vrfs|join(',') }}
 {% endif %}
 {# ------------------------------------------------------ #}
-{# VPC Parameters                                         #}
+{# vPC Parameters                                         #}
 {# ------------------------------------------------------ #}
   VPC_PEER_LINK_VLAN: {{ vpc.peer_link_vlan | default(defaults.vxlan.global.vpc.peer_link_vlan) }}
   VPC_PEER_KEEP_ALIVE_OPTION: {{ vpc.peer_keep_alive | default(defaults.vxlan.global.vpc.peer_keep_alive) }}
@@ -180,7 +183,10 @@
 {% endif %}
 {% endif %}
 {# ------------------------------------------------------ #}
-{# Overlay Services Parameters                            #}
+{# Flow Monitor Parameters                            #}
 {# ------------------------------------------------------ #}
   ENABLE_NETFLOW: {{ MD_Extended.vxlan.overlay_services.vrfs.netflow_enable | default(defaults.vxlan.overlay_services.vrfs.netflow_enable) }}
-  NETFLOW_MONITOR_LIST: {{ MD_Extended.vxlan.overlay_services.vrfs.netflow_monitor | default(omit) }}
+{% if global.netflow is defined %}
+  NETFLOW_EXPORTER_LIST: 
+  NETFLOW_MONITOR_LIST: 
+  NETFLOW_RECORD_LIST: 
