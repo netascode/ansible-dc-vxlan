@@ -20,7 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
-# This playbook Run tests agains the data under tests/integration/host_vars/fabric_full_small_sha
+# This playbook runs tests agains the data under tests/integration/host_vars/fabric_full_small_sha
 
 # Instructions for using this playbook:
 #
