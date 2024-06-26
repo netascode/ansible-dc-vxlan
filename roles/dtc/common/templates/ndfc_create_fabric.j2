@@ -61,7 +61,6 @@
   NTP_SERVER_IP_LIST: {{ ntp_server_ips|join(',') }}
   NTP_SERVER_VRF: {{ ntp_server_vrfs|join(',') }}
 {% endif %}
-{% set global = vxlan.global %}
 {% if global.syslog_servers is defined and global.syslog_servers %}
 {% set syslog_server_ips = [] %}
 {% set syslog_server_vrfs = [] %}
