@@ -36,6 +36,11 @@ nac_tags:
     - rr_manage_vpc_peers
     - rr_manage_links
     - rr_manage_switches
+    # -------------------------
+    - role_validate
+    - role_create
+    - role_deploy
+    - role_remove
   # All Create Tags
   create:
     - cr_manage_fabric
