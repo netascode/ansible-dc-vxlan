@@ -43,6 +43,13 @@ vxlan:
         vrf: engineering
       - ip_address: 18.3.3.3
         vrf: engineering
+    syslog_servers:
+      - ip_address: 172.16.255.251
+        vrf: management
+        severity: 3
+      - ip_address: 172.16.255.252
+        vrf: management
+        severity: 3
     vpc:
       peer_link_vlan: 3600
       peer_keep_alive: management

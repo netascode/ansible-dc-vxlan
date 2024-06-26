@@ -26,6 +26,9 @@
   ENABLE_FABRIC_VPC_DOMAIN_ID: False
   RR_COUNT: {{ global.route_reflectors | default(defaults.vxlan.global.route_reflectors) }}
   ANYCAST_GW_MAC: {{ global.anycast_gateway_mac | default(defaults.vxlan.global.anycast_gateway_mac) }}
+{# ------------------------------------------------------ #}
+{# Manageability Parameters                            #}
+{# ------------------------------------------------------ #}
 {% if global.dns_servers is defined %}
 {% set dns_server_ips = [] %}
 {% set dns_server_vrfs = [] %}
@@ -57,6 +60,31 @@
 {% endfor %}
   NTP_SERVER_IP_LIST: {{ ntp_server_ips|join(',') }}
   NTP_SERVER_VRF: {{ ntp_server_vrfs|join(',') }}
+{% endif %}
+{% set global = vxlan.global %}
+{% if global.syslog_servers is defined and global.syslog_servers %}
+{% set syslog_server_ips = [] %}
+{% set syslog_server_vrfs = [] %}
+{% set syslog_server_sevs = [] %}
+{% for syslog_server in global.syslog_servers %}
+{% if syslog_server.ip_address is defined and syslog_server.ip_address %}
+{% set syslog_server_ip = syslog_server.ip_address | string %}
+{% set syslog_server_ips = syslog_server_ips.append(syslog_server_ip) %}
+{% endif %}
+{% if syslog_server.vrf is defined and syslog_server.vrf %}
+{% set syslog_server_vrf = syslog_server.vrf | string %}
+{% set syslog_server_vrfs = syslog_server_vrfs.append(syslog_server_vrf) %}
+{% endif %}
+{% if syslog_server.severity is defined and syslog_server.severity %}
+{% set syslog_server_sev = syslog_server.severity %}
+{% set syslog_server_sevs = syslog_server_sevs.append(syslog_server_sev) %}
+{% endif %}
+{% endfor %}
+  SYSLOG_SERVER_IP_LIST: {{ syslog_server_ips | join(',') | default(omit) }}
+{% if syslog_server_ips is defined and syslog_server_ips %}
+  SYSLOG_SERVER_VRF: {{ syslog_server_vrfs | join(',') | default(omit) }}
+  SYSLOG_SEV: {{ syslog_server_sevs | join(',') | default(omit) }}
+{% endif %}
 {% endif %}
 {# ------------------------------------------------------ #}
 {# VPC Parameters                                         #}
