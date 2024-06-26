@@ -27,7 +27,7 @@
   RR_COUNT: {{ global.route_reflectors | default(defaults.vxlan.global.route_reflectors) }}
   ANYCAST_GW_MAC: {{ global.anycast_gateway_mac | default(defaults.vxlan.global.anycast_gateway_mac) }}
 {# ------------------------------------------------------ #}
-{# Manageability Parameters                            #}
+{# Manageability Parameters                               #}
 {# ------------------------------------------------------ #}
 {% if global.dns_servers is defined %}
 {% set dns_server_ips = [] %}
