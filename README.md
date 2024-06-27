@@ -2,15 +2,15 @@
 
 [![Actions Status](https://github.com/netascode/ansible-dc-vxlan/workflows/CI/badge.svg)](https://github.com/netascode/ansible-dc-vxlan/actions)
 
-Ansible collection for configuring Cisco VXLAN/EVPN fabric using Cisco Nexus Dashboard Fabric Controller (NDFC). Utilizing a foundation of a data model, this collection simplifies the configuration of VXLAN fabrics by abstracting the automation and utilizing a data model that represents the desired state of the fabric. An operator utilizing this collection will only have to modify the configuration state in the data model instead of creating the modules and the associated parameters.
+Ansible collection for configuring Cisco VXLAN/EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a data model that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
 
-This approach allows for a more consistent and repeatable configuration of VXLAN fabrics and is aligned with the methodology of infrastructure as code, where the configuration of NDFC would be saved in a version control system and managed as code.
+This approach allows for consistent and repeatable configuration of VXLAN fabrics and aligns with Infrastructure as Code (IaC) methodology, where the configuration state of NDFC is saved in a version control system and managed as code.
 
-Infrastructure as code (IaC) is a DevOps methodology that uses code to manage and provision IT infrastructure, instead of manual procedures. IaC uses a descriptive coding language to automate provisioning servers, operating systems, network devices and more. The NetAsCode VXLAN EVPN collection allows you to configure, in easy-to-understand YAML, data structures with the intended configuration state of a VXLAN fabric using Cisco Nexus Dashboard Fabric Controller.
+Infrastructure as code (IaC) is a DevOps methodology that uses code to manage and provision IT infrastructure, bypassing manual procedures. IaC uses a descriptive coding language to automate the provisioning of servers, operating systems, network devices and more. The NetAsCode VXLAN EVPN collection allows you to configure, in easy-to-understand YAML, data structures describing the configuration state of a VXLAN fabric using the Cisco Nexus Dashboard Fabric Controller.
 
 The NetAsCode VXLAN collection provides the capability to create a declarative method of configuration of VXLAN for [Cisco Nexus](https://www.cisco.com/site/us/en/products/networking/cloud-networking-switches/index.html) datacenter solution utilizing [Cisco Nexus Dashboard](https://www.cisco.com/site/us/en/products/networking/cloud-networking/nexus-platform/index.html). This allows the separation of data from execution logic. With little to no knowledge about automation, you can instantiate a VXLAN EVPN fabric with this collection.
 
-This is achieved by creating YAML files that contain a pre-determined data schema that is translated into underlying Ansible modules and resources. The core Ansible collection is open source and available. The collection is designed to be used in a CI/CD pipeline, which allows you to establish a declarative method of configuration of VXLAN for Cisco Nexus datacenter solution.
+YAML files are created that contain a pre-determined data schema which is translated into underlying Ansible modules and resources. The core Ansible collection is open source and available. This collection is designed to be used in a CI/CD pipeline in order to drive this declarative method of configuring a VXLAN fabric.
 
 > **Note**: For complete support and additional capabilities, Cisco provides a professional services capability under the Services as Code portfolio of services which can provide feature creation, end to end support and more.
 
@@ -57,19 +57,17 @@ vpc_peering_delete_mode: false
 
 ### Advantages of the Roles in the Workflow
 
-The primary advantage of the workflow is that you can insert these in different stages of the data model preparation and changes without having to worry about impacts to the network. In a SCM repository environment, pipelines can be configured to run the validate role before approvals in pull requests. 
-
-The roles are designed to be idempotent and only make changes when there are changes in the data model. For different stages of changes in the network, you can comment out the roles that are not required to be executed. You can leave the final full execution potentially to only happen from a pipeline, yet allow for operators to validate changes before they are executed.
+These roles when run in sequence (validate, create, deploy, remove) are designed to build out the entire fabric and can be executed by a pipeline.  The roles can also be run in isolation by simply commenting out the roles that are not required during testing and fabric buildout to validate incremental changes.
 
 ## Quick Start Guide
 
 ### Set Environment for the Collection
 
-The first procedure for execution of the collection is going to be the installation of a virtual environment to be able to install the collection and it's requirements. Recommendation is to utilize [pyenv](https://github.com/pyenv/pyenv) which provides a robust python virtual environment capability that also includes management of python versions. These instructions will be detailed around pyenv. For the pipeline execution please refer to *pipeline section* where it is documented at container level.
+Installation of a Python virtual environment is needed in order to install the collection and it's requirements. We recommend [pyenv](https://github.com/pyenv/pyenv) which provides a robust Python virtual environment capability that also allows for management of different Python versions. The following instructions are detailed around using pyenv. For pipeline execution please refer to the pipeline section which is documented at container level.
 
 #### Step 1 - Installing the Example Repository
 
-To simplify the usage of the collection we are providing you with an [example repository](https://github.com/netascode/ansible-dc-vxlan-example) that you can clone from GitHub which creates the proper skeleton required, including examples for pipelines. To clone the repository requires the installation of [git client](https://git-scm.com/downloads) that is available for all platforms.
+To simplify getting started with this collection we provide you with an [example repository](https://github.com/netascode/ansible-dc-vxlan-example). Simply clone this repo from GitHub to create the required skeleton, including examples for pipelines. Cloaning the repository requires the installation of [git client](https://git-scm.com/downloads) which is available for all platforms.
 
 Run the following command in the location of interest.
 
@@ -77,11 +75,12 @@ Run the following command in the location of interest.
 git clone https://github.com/netascode/ansible-dc-vxlan-example.git nac-vxlan
 ```
 
-This will clone the example repository into the directory nac-vxlan. Then you will delete the `.git` repository to remove the connection to the example repository. Which then allows you to create your own repository from this built structure.
+This will clone the example repository into the directory `nac-vxlan`. Next delete the `.git` repository to remove the connection to the example repository. Now you can create your own repository from this pre-built structure.
 
 #### Step 2 - Create the Virtual Environment with pyenv
 
-In this directory you will now create the new virtual environment. For pyenv to work you must install a version of Python that you want to utilize. At the _time of this writing_, a common version utilized is python version 3.10.13 so to install this with pyenv would be the command `pyenv install 3.10.13`. For detailed instructions please visit the [pyenv](https://github.com/pyenv/pyenv) site.
+In this directory create a new virtual environment and install a Python version of your choice. At the time of this writting, a commonly used version is Python version 3.10.13. Command pyenv install 3.10.13 will install this version. For detailed instructions please visit the [pyenv](https://github.com/pyenv/pyenv) site.
+
 
 ```bash
 cd nac-vxlan
@@ -89,7 +88,7 @@ pyenv virtualenv <python_version> nac-ndfc
 pyenv local nac-ndfc
 ```
 
-The final command is `pyenv local` which sets the environment so that whenever you enter the directory it will change into the right virtual environment.
+Executing command pyenv local nac-ndfc sets the environment so that whenever the directory is entered it will change into the right virtual environment.
 
 #### Step 3 - Install Ansible and Additional Required Tools
 
@@ -116,7 +115,7 @@ If you wish to install the galaxy collection inside the repository you are creat
 ansible-galaxy collection install -p collections/ansible_collections/ -r requirements.yaml
 ```
 
-You will need to then configure your ansible.cfg file to point to the correct location of the collection. 
+The `ansible.cfg` file needs to be configured to point to the location of the collection. 
 
 This is the path for all the python modules and libraries of the virtual environment that were created. If you look in that directory, you will find the collections package locations. Here is the base ansible.cfg, you will need to adjust the collection_path to your environment paths:
 
@@ -254,7 +253,7 @@ PEP440 is the schema used to describe the versions of Ansible.
 
 ## Building the Primary Playbook
 
-The playbook for the NDFC as Code collection is the execution point of the this automation collection. In difference to other automation with collections, what is in this playbook is mostly static and not going to change. What is executed during automation is based on changes in the data model. Hence as changes happen in the data model, the playbook will call the modules and based on what has changed in the data model, is what is going to execute.
+The following playbook for the NDFC as Code collection is the central execution point for this collection. Compared to automation in other collections, this playbook is designed to be mostly static and typically will not change. What gets executed during automation is based entirely on changes in the data model. When changes are made in the data model, the playbook will call the various roles and underlying modules to process the changes and update the NDFC managed fabric.
 
 The playbook is located in the root of the repository and is called `vxlan.yaml`. It contains the following:
 
@@ -269,7 +268,7 @@ The playbook is located in the root of the repository and is called `vxlan.yaml`
   roles:
     # Prepare service model for all subsequent roles
     #
-    # - role: cisco.nac_dc_vxlan.validate
+    - role: cisco.nac_dc_vxlan.validate
 
     # -----------------------
     # DataCenter Roles
@@ -280,16 +279,16 @@ The playbook is located in the root of the repository and is called `vxlan.yaml`
     - role: cisco.nac_dc_vxlan.dtc.remove
 ```
 
-The `host` is defined as nac-ndfc1 which references back to the inventory file. The `roles` section is where the collection is going to be called.
+The `host` is defined as nac-ndfc1 which references back to the `inventory.yaml` file. The `roles` section is where the various collection roles are called.
 
-The first role is `cisco.nac_dc_vxlan.validate` which is going to validate the data model. This is a required step to ensure that the data model is correct and that the data model is going to be able to be processed by the subsequent roles. **This role is going to execute by default even if not defined as it is required for the subsequent roles to execute.** In this example we are commenting out the role to show that it is not required to be defined in the playbook, but if you want to define a playbook that just runs the validation, you would uncomment this role.
+The first role is `cisco.nac_dc_vxlan.validate` which is going to validate the data model. This is a required step to ensure that the data model is correct and that the data model is going to be able to be processed by the subsequent roles.
 
-The next roles are the `cisco.nac_dc_vxlan.dtc.create`, `cisco.nac_dc_vxlan.dtc.deploy`, and `cisco.nac_dc_vxlan.dtc.remove`. These roles are the primary roles that will invoke change in NDFC. The `create` role will create all the templates and variable parameters. The `deploy` role will deploy those changes to the NDFC controller. The `remove` role would remove the data model from the devices in the inventory.
-
-> **Note**: For your safety, the `remove` role also requires settings some variables to true under the `group_vars` directory. This is done to avoid accidental removal of configuration from NDFC that might impact the network. This will be covered in a section below.
+The subsequent roles are the `cisco.nac_dc_vxlan.dtc.create`, `cisco.nac_dc_vxlan.dtc.deploy`, and `cisco.nac_dc_vxlan.dtc.remove` roles. These roles are the primary roles that will invoke changes in NDFC as described earlier.
 
 
-Since each of these roles are separate, you may configure the playbook to only execute the roles that are required. For example, as you are building your data model and getting to know the collection, you may comment out the `deploy` and `remove` roles to only execute the `validate` and `create` role. This provides a quick way to make sure that the data model is structured correctly.
+> **Note**: For your safety as indicated ealier, the `remove` role also requires setting some variables to `true` under the `group_vars` directory. This is to avoid accidental removal of configuration from NDFC that might impact the network. This will be covered in more detail below.
+
+The playbook can be configured to execute only the roles that are required. For example, as you are building your data model and familiarizing yourself with the collection, you may comment out the `deploy` and `remove` roles and only execute the `validate` and `create` roles. This provides a quick way to make sure that the data model is structured correctly.
 
 ### See Also
 
