@@ -27,6 +27,22 @@ Example Playbook
       - role: cisco.nac_dc_vxlan.dtc.create
 ```
 
+-------
+The following tags can be used to selectively execute stages within the `cisco.nac_dc_vxlan.create` role
+
+`cr` stands for `create_role`
+
+* cr_manage_fabric
+* cr_manage_switches
+* cr_manage_vpc_peers
+* cr_manage_interfaces
+* cr_manage_vrfs_networks
+
+```bash
+# Selectively run stage to add VRFs and Networks and skip all other stages
+ansible-playbook -i test_inventory.yml test_vxlan_large.yml --tags cr_manage_vrfs_networks
+```
+
 License
 -------
 
