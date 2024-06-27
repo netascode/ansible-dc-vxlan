@@ -269,14 +269,20 @@ The playbook is located in the root of the repository and is called `vxlan.yaml`
     # Prepare service model for all subsequent roles
     #
     - role: cisco.nac_dc_vxlan.validate
+      tags: 'role_validate'
 
     # -----------------------
     # DataCenter Roles
     #   Role: cisco.netascode_dc_vxlan.dtc manages direct to controller NDFC workflows
     #
     - role: cisco.nac_dc_vxlan.dtc.create
+      tags: 'role_create'
+
     - role: cisco.nac_dc_vxlan.dtc.deploy
+      tags: 'role_deploy'
+
     - role: cisco.nac_dc_vxlan.dtc.remove
+      tags: 'role_remove'
 ```
 
 The `host` is defined as nac-ndfc1 which references back to the `inventory.yaml` file. The `roles` section is where the various collection roles are called.
@@ -289,6 +295,24 @@ The subsequent roles are the `cisco.nac_dc_vxlan.dtc.create`, `cisco.nac_dc_vxla
 > **Note**: For your safety as indicated ealier, the `remove` role also requires setting some variables to `true` under the `group_vars` directory. This is to avoid accidental removal of configuration from NDFC that might impact the network. This will be covered in more detail below.
 
 The playbook can be configured to execute only the roles that are required. For example, as you are building your data model and familiarizing yourself with the collection, you may comment out the `deploy` and `remove` roles and only execute the `validate` and `create` roles. This provides a quick way to make sure that the data model is structured correctly.
+
+------
+**Role Level Tags:**
+
+To speed up execution when only certain roles need to be run the following role level tags are provided:
+
+ * role_validate - Select and run `cisco.nac_dc_vxlan.validate` role
+ * role_create - Select and run `cisco.nac_dc_vxlan.create` role
+ * role_deploy  - Select and run `cisco.nac_dc_vxlan.deploy` role
+ * role_remove  - Select and run `cisco.nac_dc_vxlan.remove` role
+
+The validate role will automatically run if tags `role_create, role_deploy, role_remove` are specified.
+
+Example: Selectively Run `cisco.nac_dc_vxlan.create` role alone
+
+```bash
+ansible-playbook -i test_inventory.yml test_vxlan_large.yml --tags role_create
+```
 
 ### See Also
 

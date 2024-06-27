@@ -27,6 +27,23 @@ Example Playbook
       - role: cisco.nac_dc_vxlan.dtc.remove
 ```
 
+-------
+The following tags can be used to selectively execute stages within the `cisco.nac_dc_vxlan.create` role
+
+`rr` stands for `remove_role`
+
+* rr_manage_interfaces
+* rr_manage_networks
+* rr_manage_vrfs
+* rr_manage_vpc_peers
+* rr_manage_links
+* rr_manage_switches
+
+```bash
+# Selectively run stage to remove networks and vrfs and skip all other stages
+ansible-playbook -i test_inventory.yml test_vxlan_large.yml --tags "rr_manage_networks, rr_manage_vrfs"
+```
+
 License
 -------
 
