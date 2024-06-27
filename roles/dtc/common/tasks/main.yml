@@ -47,6 +47,13 @@
     state: touch
   delegate_to: localhost
 
+- name: Query NDFC Version
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: /appcenter/cisco/ndfc/api/about/version
+  register: ndfc_version
+
+- debug: msg="{{ ndfc_version.response.DATA.version }}"
 # --------------------------------------------------------------------
 # Build Create Fabric parameter List From Template
 # --------------------------------------------------------------------

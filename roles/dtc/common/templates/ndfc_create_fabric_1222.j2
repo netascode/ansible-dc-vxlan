@@ -1,0 +1,188 @@
+---
+# This NDFC fabric config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% set vxlan = MD_Extended.vxlan %}
+{% set global = vxlan.global %}
+{% set vpc = global.vpc %}
+{% set underlay = vxlan.underlay %}
+{% set multicast = underlay.multicast %}
+{% set ipv4 = underlay.ipv4 %}
+{% set ipv6 = underlay.ipv6 %}
+{% set bfd = underlay.bfd %}
+{% set bgp = underlay.bgp %}
+{% set isis = underlay.isis %}
+{% set ospf = underlay.ospf %}
+{# ------------------------------------------------------ #}
+{# Global Parameters                                      #}
+{# ------------------------------------------------------ #}
+- FABRIC_NAME: {{ global.name }}
+  BGP_AS: {{ global.bgp_asn }}
+  FABRIC_TYPE: VXLAN_EVPN
+  OVERLAY_MODE: cli
+  DEPLOY: True
+  GRFIELD_DEBUG_FLAG: Enable
+  AAA_REMOTE_IP_ENABLED: False
+  ENABLE_FABRIC_VPC_DOMAIN_ID: False
+  RR_COUNT: {{ global.route_reflectors | default(defaults.vxlan.global.route_reflectors) }}
+  ANYCAST_GW_MAC: {{ global.anycast_gateway_mac | default(defaults.vxlan.global.anycast_gateway_mac) }}
+{% if global.dns_servers is defined %}
+{% set dns_server_ips = [] %}
+{% set dns_server_vrfs = [] %}
+{% for dns in global.dns_servers %}
+{% if dns.ip_address is defined %}
+{% set dns_ips = dns.ip_address|string %}
+{% set dns_server_ips = dns_server_ips.append(dns_ips) %}
+{% endif %}
+{% if dns.vrf is defined %}
+{% set dns_vrfs = dns.vrf|string %}
+{% set dns_server_vrfs = dns_server_vrfs.append(dns_vrfs) %}
+{% endif %}
+{% endfor %}
+  DNS_SERVER_IP_LIST: {{ dns_server_ips|join(',') }}
+  DNS_SERVER_VRF: {{ dns_server_vrfs|join(',') }}
+{% endif %}
+{% if global.ntp_servers is defined %}
+{% set ntp_server_ips = [] %}
+{% set ntp_server_vrfs = [] %}
+{% for ntp in global.ntp_servers %}
+{% if ntp.ip_address is defined %}
+{% set ntp_ips = ntp.ip_address|string %}
+{% set ntp_server_ips = ntp_server_ips.append(ntp_ips) %}
+{% endif %}
+{% if ntp.vrf is defined %}
+{% set ntp_vrfs = ntp.vrf|string %}
+{% set ntp_server_vrfs = ntp_server_vrfs.append(ntp_vrfs) %}
+{% endif %}
+{% endfor %}
+  NTP_SERVER_IP_LIST: {{ ntp_server_ips|join(',') }}
+  NTP_SERVER_VRF: {{ ntp_server_vrfs|join(',') }}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# VPC Parameters                                         #}
+{# ------------------------------------------------------ #}
+  VPC_PEER_LINK_VLAN: {{ vpc.peer_link_vlan | default(defaults.vxlan.global.vpc.peer_link_vlan) }}
+  VPC_PEER_KEEP_ALIVE_OPTION: {{ vpc.peer_keep_alive | default(defaults.vxlan.global.vpc.peer_keep_alive) }}
+  VPC_AUTO_RECOVERY_TIME: {{ vpc.auto_recovery_time | default(defaults.vxlan.global.vpc.auto_recovery_time) }}
+  VPC_DELAY_RESTORE_TIME: {{ vpc.delay_restore_time | default(defaults.vxlan.global.vpc.delay_restore_time) }}
+  VPC_PEER_LINK_PO: {{ vpc.peer_link_port_channel_id | default(defaults.vxlan.global.vpc.peer_link_port_channel_id) }}
+  VPC_DOMAIN_ID_RANGE: {{ vpc.domain_id_range | default(defaults.vxlan.global.vpc.domain_id_range) }}
+  VPC_DELAY_RESTORE: {{ vpc.delay_restore_time | default(defaults.vxlan.global.vpc.delay_restore_time) }}
+  ADVERTISE_PIP_BGP: {{ (vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) }}
+{% if (vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) == 'False' %}
+  ADVERTISE_PIP_ON_BORDER: {{ vpc.advertise_pip_border_only | default(defaults.vxlan.global.vpc.advertise_pip_border_only) }}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# Underlay General Parameters                            #}
+{# ------------------------------------------------------ #}
+  BGP_LB_ID: {{ underlay.general.underlay_routing_loopback_id | default(defaults.vxlan.underlay.general.underlay_routing_loopback_id) }}
+  NVE_LB_ID: {{ underlay.general.underlay_vtep_loopback_id | default(defaults.vxlan.underlay.general.underlay_vtep_loopback_id) }}
+  FABRIC_MTU: {{ underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
+  L2_HOST_INTF_MTU: {{ underlay.general.layer2_host_interfacde_mtu | default(defaults.vxlan.underlay.general.layer2_host_interfacde_mtu) }}
+  HOST_INTF_ADMIN_STATE: {{ underlay.general.unshut_host_interfaces | default(defaults.vxlan.underlay.general.unshut_host_interfaces) }}
+  FABRIC_INTERFACE_TYPE: {{ underlay.general.fabric_interface_numbering | default(defaults.vxlan.underlay.general.fabric_interface_numbering) }}
+  SUBNET_TARGET_MASK: {{ underlay.general.subnet_mask | default(defaults.vxlan.underlay.general.subnet_mask) }}
+  REPLICATION_MODE: {{ underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title }}
+  LINK_STATE_ROUTING: {{ underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol) }}
+  LINK_STATE_ROUTING_TAG: {{ underlay.general.underlay_routing_protocol_tag | default(defaults.vxlan.underlay.general.underlay_routing_protocol_tag) }}
+  UNDERLAY_IS_V6: {{ (underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) }}
+  STATIC_UNDERLAY_IP_ALLOC: {{ (underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title)}}
+{# ------------------------------------------------------ #}
+{# Underlay Multicast Parameters                          #}
+{# ------------------------------------------------------ #}
+{% if (underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
+  MULTICAST_GROUP_SUBNET: {{ multicast.group_subnet | default(defaults.vxlan.underlay.multicast.group_subnet) }}
+  RP_COUNT: {{ multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) }}
+  RP_MODE: {{ multicast.rp_mode | default(defaults.vxlan.underlay.multicast.rp_mode) }}
+  RP_LB_ID: {{ multicast.underlay_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_rp_loopback_id) }}
+  ENABLE_TRM: {{(multicast.trm_enable | default(defaults.vxlan.underlay.multicast.trm_enable) | title) }}
+{% if (multicast.trm_enable | default(defaults.vxlan.underlay.multicast.trm_enable) | title) == 'True' %}
+  L3VNI_MCAST_GROUP: {{ multicast.trm_default_group | default(defaults.vxlan.underlay.multicast.trm_default_group) }}
+{% endif %}
+{% if multicast.rp_mode | default(defaults.vxlan.underlay.multicast.rp_mode) == 'bidir' %}
+  PHANTOM_RP_LB_ID1: {{ multicast.underlay_primary_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_primary_rp_loopback_id) }}
+  PHANTOM_RP_LB_ID2: {{ multicast.underlay_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_backup_rp_loopback_id) }}
+{% if multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) == 4 %}
+  PHANTOM_RP_LB_ID3: {{ multicast.underlay_second_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_second_backup_rp_loopback_id) }}
+  PHANTOM_RP_LB_ID4: {{ multicast.underlay_third_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_third_backup_rp_loopback_id) }}
+{% endif %}
+{% endif %}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# Underlay ISIS Parameters                               #}
+{# ------------------------------------------------------ #}
+{% if (underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol)) == 'is-is' %}
+  ISIS_LEVEL: {{ isis.level | default(defaults.vxlan.underlay.isis.level) }}
+  ISIS_AUTH_ENABLE: {{ (isis.authentication_enable | default(defaults.vxlan.underlay.isis.authentication_enable) | title) }}
+{% if (isis.authentication_enable | default(defaults.vxlan.underlay.isis.authentication_enable) | title) == 'True' %}
+  ISIS_AUTH_KEYCHAIN_NAME: {{ isis.authentication_keychain_name | default(omit) }}
+  ISIS_AUTH_KEYCHAIN_KEY_ID: {{ isis.authentication_key_id | default(defaults.vxlan.underlay.isis.authentication_key_id) }}
+{% endif %}
+  ISIS_OVERLOAD_ENABLE: {{ isis.overload_bit | default(defaults.vxlan.underlay.isis.overload_bit) }}
+{% if (isis.overload_bit | default(defaults.vxlan.underlay.isis.overload_bit) | title) == 'True' %}
+  ISIS_OVERLOAD_ELAPSE_TIME: {{ isis.overload_bit_elapsed_time | default(defaults.vxlan.underlay.isis.overload_bit_elapsed_time) }}
+{% endif %}
+  ISIS_P2P_ENABLE: {{ isis.network_point_to_point | default(defaults.vxlan.underlay.isis.network_point_to_point) }}
+{% if (bfd.enable | default(defaults.vxlan.underlay.bfd.enable) | title) == 'True' %}
+  BFD_ISIS_ENABLE: {{ bfd.isis | default(defaults.vxlan.underlay.bfd.isis) }}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# Underlay OSPF Parameters                               #}
+{# ------------------------------------------------------ #}
+{% elif (underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol)) == 'ospf' %}
+  OSPF_AREA_ID: {{ ospf.area_id | default(defaults.vxlan.underlay.ospf.area_id) }}
+  OSPF_AUTH_ENABLE: {{ (ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title) }}
+{% if (underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title) == 'True' %}
+  OSPF_AUTH_KEY_ID: {{ ospf.authentication_key_id | default(defaults.vxlan.underlay.ospf.authentication_key_id) }}
+  OSPF_AUTH_KEY: {{ ospf.authentication_key | default(omit) }}
+{% endif %}
+{% if (bfd.enable | default(defaults.vxlan.underlay.bfd.enable) | title) == 'True' %}
+  BFD_OSPF_ENABLE: {{ bfd.ospf | default(defaults.vxlan.underlay.bfd.ospf) }}
+{% endif %}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# Underlay IPv4 Parameters                               #}
+{# ------------------------------------------------------ #}
+{% if (underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title) == 'False' %}
+  LOOPBACK0_IP_RANGE: {{ ipv4.underlay_routing_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_routing_loopback_ip_range) }}
+  LOOPBACK1_IP_RANGE: {{ ipv4.underlay_vtep_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_vtep_loopback_ip_range) }}
+  SUBNET_RANGE: {{ ipv4.underlay_subnet_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_subnet_ip_range) }}
+  ANYCAST_RP_IP_RANGE: {{ ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
+  ENABLE_SGT: False
+  ENABLE_PVLAN: False
+{% endif %}
+{# ------------------------------------------------------ #}
+{# Underlay IPv6 Parameters                               #}
+{# ------------------------------------------------------ #}
+{% if (underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'True' %}
+  USE_LINK_LOCAL: {{ ipv6.enable_ipv6_link_local_address | default(defaults.vxlan.underlay.ipv6.enable_ipv6_link_local_address | title) }}
+{% if (ipv6.enable_ipv6_link_local_address | default(defaults.vxlan.underlay.ipv6.enable_ipv6_link_local_address) | title) == 'False' %}
+  V6_SUBNET_TARGET_MASK: {{ ipv6.underlay_subnet_mask | default(defaults.vxlan.underlay.ipv6.underlay_subnet_mask) }}
+{% endif %}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# Underlay BGP Parameters                                #}
+{# ------------------------------------------------------ #}
+  BGP_AUTH_ENABLE: {{ (bgp.authentication_enable | default(defaults.vxlan.underlay.bgp.authentication_enable) | title)}}
+{% if (bgp.authentication_enable | default(defaults.vxlan.underlay.bgp.authentication_enable) | title) == 'True' %}
+  BGP_AUTH_KEY_TYPE: {{ bgp.authentication_key_type | default(defaults.vxlan.underlay.bgp.authentication_key_type) }}
+  BGP_AUTH_KEY: {{ bgp.authentication_key | default(omit) }}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# Underlay BFD Parameters                                #}
+{# ------------------------------------------------------ #}
+  BFD_ENABLE: {{ bfd.enable | default(defaults.vxlan.underlay.bfd.enable) }}
+{% if (bfd.enable | default(defaults.vxlan.underlay.bfd.enable) | title) == 'True' %}
+  BFD_IBGP_ENABLE: {{ bfd.ibgp | default(defaults.vxlan.underlay.bfd.ibgp) }}
+  BFD_PIM_ENABLE: {{ bfd.pim | default(defaults.vxlan.underlay.bfd.pim) }}
+  BFD_AUTH_ENABLE: {{ (bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | title)}}
+{% if (bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | title) == 'True' %}
+  BFD_AUTH_KEY: {{ bfd.authentication_key | default(omit) }}
+  BFD_AUTH_KEY_ID: {{ bfd.authentication_key_id | default(defaults.vxlan.underlay.bfd.authentication_key_id) }}
+{% endif %}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# Overlay Services Parameters                            #}
+{# ------------------------------------------------------ #}
+  ENABLE_NETFLOW: {{ MD_Extended.vxlan.overlay_services.vrfs.netflow_enable | default(defaults.vxlan.overlay_services.vrfs.netflow_enable) }}
+  NETFLOW_MONITOR_LIST: {{ MD_Extended.vxlan.overlay_services.vrfs.netflow_monitor | default(omit) }}
