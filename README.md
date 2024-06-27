@@ -20,32 +20,32 @@ This is achieved by creating YAML files that contain a pre-determined data schem
 
 Role: [cisco.nac_dc_vxlan.validate](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/validate/README.md)
 
-The validate role has the function to ensure that the data model is correct, and that the data model is going to be able to be processed by the subsequent roles. The validate role is going to read all the files in the `host_vars` directory that is named after the inventory group defined in your inventory file and create a single data model in memory for execution.
+The `validate` role ensures that the data model is correct and that the data model can be processed by the subsequent roles. The validate role reads all the files in the `host_vars` directory and create a single data model in memory for execution.
 
-As part of the VXLAN as Code service offer from Cisco, you will also be able to utilize the semantic validation to make sure that the data model matches the intended expected values. This is a powerful feature that allows you to ensure that the data model is correct before it is deployed to the network. Also, part of the validate role is the ability to create rules that can be used to avoid operators from making specific configurations that are not allowed in the network. These can be as simple as ensuring naming convention to more complex rules for interconnectivity that would need to be avoided. These would be coded in python and can be constructed as part of the Services as Code offer.
+As part of the VXLAN as Code service from Cisco, you will also be able to utilize the semantic validation feature to make sure that the data model matches the intended expected values. This is a powerful feature that allows you to ensure that the data model is correct before it is deployed to the network. Additonally the validate role allows creation of rules that can be used to prevent operators from making specific configurations that are not allowed in the network. These can be as simple as enforcing proper naming conventions to more complex rules for interconnectivity issues that should be avoided. These rules are coded in Python and can be constructed as part of the Services as Code offer. 
 
 ### Create role
 
 Role: [cisco.nac_dc_vxlan.dtc.create](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/create/README.md)
 
-This role is going to use a templates and variable parameters from the data model to create and stage all the configuration for your VXLAN fabric. This role uses the data model in the proper templates to render the expected data that is required by the NDFC Ansible modules.
+The `create` role builds all of the templates and variable parameters required to deploy the VXLAN fabric and creates fabric state in NDFC. The data model is converted into the proper templates required by the Ansible modules used to communicate with the NDFC controller and manage the fabric state. The `create` role has a dependency on the `validate` role.
 
 ### Deploy role
 
 Role: [cisco.nac_dc_vxlan.dtc.deploy](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/deploy/README.md)
 
-The deploy role is going to recalculate and deploy the staged changes from the `create` role to your NDFC controller.
+The `deploy` role deploys the fabric state created using the Create role to the NDFC managed devices. The `deploy` role has a dependency on the `validate` role.
 
 ### Remove role
 
 Role: [cisco.nac_dc_vxlan.dtc.remove](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/remove/README.md)
 
-The remove role is the opposite of the deploy role and removes what is represented in the data model from the NDFC controller. For this reason, this role requires the settings of some variables to true under the `group_vars` directory. This is to avoid accidental removal of configuration from NDFC that might impact the network.
+The `remove` role removes state from the NDFC controller and the devices managed by the NDFC controller. When the collection discoveres managed state in NDFC that is not defined the the data model it gets removed by this role.  For this reason this role requires the following variables to be set to `true` under the `group_vars` directory. This avoids accidental removal of configuration from NDFC that might impact the network. The `remove` role has a dependency on the `validate` role.
 
-Inside the example repository under `group_vars/ndfc` is a file called `ndfc.yaml` that contains some variables that need to be set to true to allow the removal of the configuration from the NDFC controller. The variables are:
+Inside the [example repository](https://github.com/netascode/ansible-dc-vxlan-example) under `group_vars/ndfc` is a file called `ndfc.yaml` that contains the variables:
 
 ```yaml
-# Parameters for the tasks in the 'Remove' role
+# Control Parameters for 'Remove' role tasks
 interface_delete_mode: false
 network_delete_mode: false
 vrf_delete_mode: false
@@ -53,7 +53,7 @@ inventory_delete_mode: false
 vpc_peering_delete_mode: false
 ```
 
-These variables are set to false by default to avoid accidental removal of configuration from NDFC that might impact the network. 
+**Note:** These variables are set to `false` by default to avoid accidental removal of configuration from NDFC that might impact the network.
 
 ### Advantages of the roles in the workflow
 
