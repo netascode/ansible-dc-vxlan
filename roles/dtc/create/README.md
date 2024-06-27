@@ -40,7 +40,7 @@ The following tags can be used to selectively execute stages within the `cisco.n
 
 ```bash
 # Selectively run stage to add VRFs and Networks and skip all other stages
-ansible-playbook -i test_inventory.yml test_vxlan_large.yml --tags cr_manage_vrfs_networks
+ansible-playbook -i inventory.yml vxlan.yml --tags cr_manage_vrfs_networks
 ```
 
 License

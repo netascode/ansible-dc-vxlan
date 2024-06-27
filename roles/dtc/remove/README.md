@@ -41,7 +41,7 @@ The following tags can be used to selectively execute stages within the `cisco.n
 
 ```bash
 # Selectively run stage to remove networks and vrfs and skip all other stages
-ansible-playbook -i test_inventory.yml test_vxlan_large.yml --tags "rr_manage_networks, rr_manage_vrfs"
+ansible-playbook -i inventory.yml vxlan.yml --tags "rr_manage_networks, rr_manage_vrfs"
 ```
 
 License

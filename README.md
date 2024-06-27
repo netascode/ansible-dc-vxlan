@@ -311,7 +311,7 @@ The validate role will automatically run if tags `role_create, role_deploy, role
 Example: Selectively Run `cisco.nac_dc_vxlan.create` role alone
 
 ```bash
-ansible-playbook -i test_inventory.yml test_vxlan_large.yml --tags role_create
+ansible-playbook -i inventory.yml vxlan.yml --tags role_create
 ```
 
 ### See Also
