@@ -27,10 +27,10 @@
       - "----------------------------------------------------------------"
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.create]           +"
       - "----------------------------------------------------------------"
-  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
+  tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
-  tags: "{{ nac_tags.all }}"
+  tags: "{{ nac_tags.create }}"
 
 - name: Create NDFC Fabric
   ansible.builtin.import_tasks: fabric.yml
