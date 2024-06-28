@@ -50,13 +50,6 @@
     - switch_list.response.DATA | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
-- ansible.builtin.debug:
-    msg:
-      - "-------------------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Fabric Interfaces task because interface_delete_mode flag is set to False  +"
-      - "-------------------------------------------------------------------------------------------------------------------"
-  when: not ((interface_delete_mode is defined) and (interface_delete_mode is true|bool))
-
 - ansible.builtin.debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
 
 - cisco.dcnm.dcnm_network:
@@ -67,13 +60,6 @@
     - switch_list.response.DATA | length > 0
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
 
-- ansible.builtin.debug:
-    msg:
-      - "---------------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Fabric Networks task because network_delete_mode flag is set to False  +"
-      - "---------------------------------------------------------------------------------------------------------------"
-  when: not ((network_delete_mode is defined) and (network_delete_mode is true|bool))
-
 - ansible.builtin.debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
 
 - cisco.dcnm.dcnm_vrf:
@@ -83,13 +69,6 @@
   when:
     - switch_list.response.DATA | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
-
-- ansible.builtin.debug:
-    msg:
-      - "--------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False   +"
-      - "--------------------------------------------------------------------------------------------------------"
-  when: not ((vrf_delete_mode is defined) and (vrf_delete_mode is true|bool))
 
 - ansible.builtin.debug: msg="Removing all Unmanaged vPC Peering. This could take several minutes..."
 
@@ -105,13 +84,6 @@
   when:
     - switch_list.response.DATA | length > 0
     - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
-
-- ansible.builtin.debug:
-    msg:
-      - "-------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_peering_delete_mode flag is set to False  +"
-      - "-------------------------------------------------------------------------------------------------------"
-  when: not ((vpc_peering_delete_mode is defined) and (vpc_peering_delete_mode is true|bool))
 
 - ansible.builtin.debug: msg="Removing all Unmanaged links. This could take several minutes..."
 
@@ -141,6 +113,34 @@
       ansible_connect_timeout: 3000
   when:
     - (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
+
+- ansible.builtin.debug:
+    msg:
+      - "-------------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Fabric Interfaces task because interface_delete_mode flag is set to False  +"
+      - "-------------------------------------------------------------------------------------------------------------------"
+  when: not ((interface_delete_mode is defined) and (interface_delete_mode is true|bool))
+
+- ansible.builtin.debug:
+    msg:
+      - "---------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Fabric Networks task because network_delete_mode flag is set to False  +"
+      - "---------------------------------------------------------------------------------------------------------------"
+  when: not ((network_delete_mode is defined) and (network_delete_mode is true|bool))
+
+- ansible.builtin.debug:
+    msg:
+      - "--------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False   +"
+      - "--------------------------------------------------------------------------------------------------------"
+  when: not ((vrf_delete_mode is defined) and (vrf_delete_mode is true|bool))
+
+- ansible.builtin.debug:
+    msg:
+      - "-------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_peering_delete_mode flag is set to False  +"
+      - "-------------------------------------------------------------------------------------------------------"
+  when: not ((vpc_peering_delete_mode is defined) and (vpc_peering_delete_mode is true|bool))
 
 - ansible.builtin.debug:
     msg:
