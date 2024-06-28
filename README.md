@@ -207,11 +207,11 @@ ansible_httpapi_use_ssl: true
 ansible_httpapi_validate_certs: false
 ansible_network_os: cisco.dcnm.dcnm
 # NDFC API Credentials
-ansible_user: "{{ lookup('env', 'ansible_user') }}"
-ansible_password: "{{ lookup('env', 'ansible_password') }}"
+ansible_user: "{{ lookup('env', 'ND_USERNAME') }}"
+ansible_password: "{{ lookup('env', 'ND_PASSWORD') }}"
 # Credentials for devices in Inventory
-ndfc_device_username: "{{ lookup('env', 'ndfc_device_username') }}"
-ndfc_device_password: "{{ lookup('env', 'ndfc_device_password') }}"
+ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
+ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
 
 ```
 
@@ -230,8 +230,8 @@ The environment variables are set in the shell that is going to execute the play
 export ansible_user=admin
 export ansible_password=Admin_123
 # These are the credentials for the devices in the inventory
-export ndfc_device_username=admin
-export ndfc_device_password=Admin_123
+export ndfc_switch_username=admin
+export ndfc_switch_password=Admin_123
 ```
 
 The following quickstart repository is available to provide a step by step guide for using this collection
