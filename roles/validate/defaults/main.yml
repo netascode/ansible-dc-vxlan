@@ -67,7 +67,7 @@ defaults:
             enable_bpdu_guard: true
           topology_switch_trunk_po_interface:
             description: 'NetAsCode Trunk PO Interface'
-            mtu: jumbo            
+            mtu: jumbo 
             speed: auto
             enabled: true
             trunk_allowed_vlans: none
@@ -156,6 +156,7 @@ defaults:
     overlay_services:
       vrfs:
         vrf_description: "Configured by Ansible NetAsCode"
+        vrf_intf_desc: "Configured by Ansible NetAsCode"
         vrf_int_mtu: 9216
         loopback_route_tag: 12345
         max_bgp_paths: 1

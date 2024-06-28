@@ -53,7 +53,7 @@
   gather_facts: no
 
   tasks:
-    - name: Create New Directories for fabric_empty, fabric_full_large, fabric_full_small
+    - name: Create New Directories for fabric_empty, fabric_full_large, fabric_full_small, fabric_full_small_sha
       ansible.builtin.file:
         path: "{{ playbook_dir }}/host_vars/{{ item }}"
         state: directory
@@ -62,8 +62,9 @@
         - fabric_empty
         - fabric_full_large
         - fabric_full_small
+        - fabric_full_small_sha
 
-    - name: Copy content from host_vars/examples/fabric_* to fabric_empty, fabric_full_large, fabric_full_small
+    - name: Copy content from host_vars/examples/fabric_* to fabric_empty, fabric_full_large, fabric_full_small, fabric_full_small_sha
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/host_vars/examples/{{ item.source_name }}/"
         dest: "{{ playbook_dir }}/host_vars/{{ item.dest_name }}"
@@ -75,6 +76,8 @@
           dest_name: fabric_full_large
         - source_name: fabric_full_small_example
           dest_name: fabric_full_small
+        - source_name: fabric_full_small_sha_example
+          dest_name: fabric_full_small_sha
 
     - name: Copy content from group_vars/ndfc/examples/main.yml group_vars/ndfc/main.yml
       ansible.builtin.copy:
@@ -88,8 +91,10 @@
           dest_name: fabric_full_large
         - source_name: fabric_full_small_example
           dest_name: fabric_full_small
+        - source_name: fabric_full_small_sha_example
+          dest_name: fabric_full_small_sha
 
-- hosts: fabric_empty, fabric_full_small, fabric_full_large
+- hosts: fabric_empty, fabric_full_small, fabric_full_large, fabric_full_small_sha
   gather_facts: no
 
   roles:

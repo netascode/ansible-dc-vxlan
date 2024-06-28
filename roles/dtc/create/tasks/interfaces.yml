@@ -37,7 +37,7 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ interface_access_po }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.access_po.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.access_po.count > 0
 
 # --------------------------------------------------------------------
 # Manage Interface Trunk Portchannel Configuration on NDFC
@@ -48,7 +48,7 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ interface_trunk_po }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.trunk_po.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.trunk_po.count > 0
 
 # --------------------------------------------------------------------
 # Manage Interface Routed Configuration on NDFC
@@ -59,7 +59,7 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ interface_routed }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.routed.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.routed.count > 0
 
 # --------------------------------------------------------------------
 # Manage Sub-interface Routed Configuration on NDFC
@@ -70,8 +70,7 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ sub_interface_routed }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.routed_sub.count >0
-
+  when: MD_Extended.vxlan.topology.interfaces.modes.routed_sub.count > 0
 
 # --------------------------------------------------------------------
 # Manage interface Port-Channel Routed Configuration on NDFC
@@ -82,7 +81,7 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ interface_po_routed }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.routed_po.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.routed_po.count > 0
 
 # --------------------------------------------------------------------
 # Manage interface Loopback Configuration on NDFC
@@ -93,7 +92,7 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ int_loopback_config }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0
 
   # --------------------------------------------------------------------
 # Manage Interface Trunk Configuration on NDFC
@@ -104,8 +103,7 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ interface_trunk }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.trunk.count >0
-
+  when: MD_Extended.vxlan.topology.interfaces.modes.trunk.count > 0
 
 # --------------------------------------------------------------------
 # Manage Interface Access Routed Configuration on NDFC
@@ -116,18 +114,18 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ interface_access }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.access.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.access.count > 0
 
 # --------------------------------------------------------------------
-# Manage interface VPC Configuration on NDFC
+# Manage interface vPC Configuration on NDFC
 # --------------------------------------------------------------------
 
-- name: Manage NDFC Fabric VPCs
+- name: Manage NDFC Fabric vPCs
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD.vxlan.global.name }}"
     state: replaced
     config: "{{ interface_vpc }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.access_vpc.count >0 or MD_Extended.vxlan.topology.interfaces.modes.trunk_vpc.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.access_vpc.count > 0 or MD_Extended.vxlan.topology.interfaces.modes.trunk_vpc.count > 0
 
 ## Will discuss with team and switchover to the below code and remove the above code
 # # --------------------------------------------------------------------
@@ -142,4 +140,5 @@
 #   vars:
 #       ansible_command_timeout: 3000
 #       ansible_connect_timeout: 3000
-#   when: MD_Extended.vxlan.topology.interfaces.modes.all.count >0
+#   when: MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
+#   delegate_to: localhost

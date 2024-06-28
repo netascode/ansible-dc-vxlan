@@ -22,12 +22,16 @@
 ---
 - ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.validate
+  tags: 'role_validate'
 
 - ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.create
+  tags: 'role_create'
 
 - ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.deploy
+  tags: 'role_deploy'
 
 - ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.remove
+  tags: 'role_remove'

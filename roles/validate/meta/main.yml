@@ -25,4 +25,4 @@ galaxy_info:
   license: LICENSE
   min_ansible_version: 2.14.15
 
-dependencies: []
+dependencies: [cisco.nac_dc_vxlan.common_global]
