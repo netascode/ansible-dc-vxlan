@@ -53,4 +53,9 @@
     inv_list: "{{ inv_config }}"
   register: updated_inv_config
   no_log: true
+
+- name: Credential Retrieval Failed
+  ansible.builtin.fail:
+    msg: "{{ updated_inv_config }}"
+  when: updated_inv_config['retrieve_failed']
   delegate_to: localhost
