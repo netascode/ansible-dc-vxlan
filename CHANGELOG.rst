@@ -8,6 +8,31 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.2.0`_
+=====================
+
+**Release Date:** ``2024-06-28``
+
+Added
+-----
+
+* Support for the following device inventory roles.  Only applies to adding devices to a fabric with these role types.
+    - border_spine
+    - border_gateway
+    - border_gateway_spine
+    - super_spine
+    - border_super_spine
+    - border_gateway_super_spine
+* Added SysLog Server Support - Fabric Creation Stage
+* Added DHCP Support and Secondary IP Address Support - Network Creation Stage
+
+Fixed
+-----
+- https://github.com/netascode/ansible-dc-vxlan/issues/111
+- https://github.com/netascode/ansible-dc-vxlan/issues/112
+- https://github.com/netascode/ansible-dc-vxlan/issues/127
+- https://github.com/netascode/ansible-dc-vxlan/issues/135
+
 `0.1.0`_
 =====================
 
@@ -28,4 +53,5 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.2.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.1.0...0.2.0
 .. _0.1.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.1.0...0.1.0
