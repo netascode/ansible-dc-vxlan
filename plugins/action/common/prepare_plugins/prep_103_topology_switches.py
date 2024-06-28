@@ -27,7 +27,7 @@ class PreparePlugin:
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
-#  Loop over all the roles in vxlan.topology.switches.role
+        #  Loop over all the roles in vxlan.topology.switches.role
         model_data['vxlan']['topology']['spine'] = {}
         model_data['vxlan']['topology']['leaf'] = {}
         model_data['vxlan']['topology']['border'] = {}
