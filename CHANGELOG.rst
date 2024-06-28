@@ -25,6 +25,9 @@ Added
     - border_gateway_super_spine
 * Added SysLog Server Support - Fabric Creation Stage
 * Added DHCP Support and Secondary IP Address Support - Network Creation Stage
+* Support for Ansible Tags
+    - Tags to limit execution and target specific roles in the collection
+    - Tags to limit execution and target specific stages inside a role
 
 Fixed
 -----
