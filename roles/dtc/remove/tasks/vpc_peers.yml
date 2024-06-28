@@ -18,34 +18,29 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
-
 ---
-# This playbook runs tests agains the data under tests/integration/host_vars/fabric_full_small_sha
 
-# Instructions for using this playbook:
-#
-# 1. Make sure you run the tests/integration/test_update_model_data playbook first
-#
-# 3. Run the playbook with the following command:
-#    ansible-playbook -i tests/integration/test_inventory.yml tests/integration/test_vxlan_small_sha.yml
+- ansible.builtin.debug: msg="Removing all Unmanaged vPC Peering. This could take several minutes..."
+  when:
+    - switch_list.response.DATA | length > 0
+    - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
 
-# Reset Fabric
-- hosts: fabric_empty
-  gather_facts: no
+- name: Remove vPC Peering
+  cisco.dcnm.dcnm_vpc_pair:
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    deploy: true
+    state: overridden
+    config: "{{ vpc_peering }}"
+  vars:
+      ansible_command_timeout: 1000
+      ansible_connect_timeout: 1000
+  when:
+    - switch_list.response.DATA | length > 0
+    - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
 
-  roles:
-    - test_remove
-
-# Create and Deploy Fabric Configuration
-- hosts: fabric_full_small_sha
-  gather_facts: no
-
-  roles:
-    - test_create
-
-# Reset Fabric Back to Empty
-- hosts: fabric_empty
-  gather_facts: no
-
-  roles:
-    - test_remove
+- ansible.builtin.debug:
+    msg:
+      - "-------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_peering_delete_mode flag is set to False  +"
+      - "-------------------------------------------------------------------------------------------------------"
+  when: not ((vpc_peering_delete_mode is defined) and (vpc_peering_delete_mode is true|bool))

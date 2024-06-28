@@ -19,33 +19,34 @@
 #
 # SPDX-License-Identifier: MIT
 
----
-# This playbook runs tests agains the data under tests/integration/host_vars/fabric_full_small_sha
+from __future__ import absolute_import, division, print_function
 
-# Instructions for using this playbook:
-#
-# 1. Make sure you run the tests/integration/test_update_model_data playbook first
-#
-# 3. Run the playbook with the following command:
-#    ansible-playbook -i tests/integration/test_inventory.yml tests/integration/test_vxlan_small_sha.yml
 
-# Reset Fabric
-- hosts: fabric_empty
-  gather_facts: no
+__metaclass__ = type
 
-  roles:
-    - test_remove
+from ansible.utils.display import Display
+from ansible.plugins.action import ActionBase
 
-# Create and Deploy Fabric Configuration
-- hosts: fabric_full_small_sha
-  gather_facts: no
+display = Display()
 
-  roles:
-    - test_create
 
-# Reset Fabric Back to Empty
-- hosts: fabric_empty
-  gather_facts: no
+class ActionModule(ActionBase):
 
-  roles:
-    - test_remove
+    def run(self, tmp=None, task_vars=None):
+        # self._supports_async = True
+        results = super(ActionModule, self).run(tmp, task_vars)
+        results['failed'] = False
+
+        all_tags = self._task.args['all_tags']
+        play_tags = self._task.args['play_tags']
+
+        if 'all' in play_tags:
+            return results
+
+        for tag in play_tags:
+            if tag not in all_tags:
+                results['failed'] = True
+                results['msg'] = "Tag '{0}' not found in list of supported tags".format(tag)
+                results['supported_tags'] = all_tags
+
+        return results
