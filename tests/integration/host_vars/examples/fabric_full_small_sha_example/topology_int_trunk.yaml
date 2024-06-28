@@ -19,12 +19,30 @@
 #
 # SPDX-License-Identifier: MIT
 
-galaxy_info:
-  author: Cisco
-  description: Role to remove unmanaged state from NDFC and fabric devices.
-  license: LICENSE
-  min_ansible_version: 2.14.15
+vxlan:
+  topology:
+    switches:
+      - name: << spine1_hostname >>
+        serial_number: << spine1_serial >>
+        interfaces: []
 
-dependencies:
-  - cisco.nac_dc_vxlan.validate
-  - cisco.nac_dc_vxlan.dtc.common
+      - name: << leaf1_hostname >>
+        serial_number: << leaf1_serial >>
+        interfaces:
+          - name: Ethernet1/31
+            mode: trunk
+            description: "NaC Trunk for leaf1"
+            mtu: default
+            speed: auto
+            enabled: true
+            trunk_allowed_vlans:
+              - from: 10
+                to: 100
+              - from: 150
+                to: 200
+            spanning_tree_portfast: false
+            enable_bpdu_guard: false
+
+      - name: << leaf2_hostname >>
+        serial_number: << leaf2_serial >>
+        interfaces: []

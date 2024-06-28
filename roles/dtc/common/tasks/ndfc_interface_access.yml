@@ -24,17 +24,21 @@
 - name: Set interface_access_file_name Var
   ansible.builtin.set_fact:
     interface_access_file_name: "{{ MD.vxlan.global.name }}_ndfc_interface_access.yml"
+  delegate_to: localhost
 
 - name: Build Interface
   ansible.builtin.template:
     src: ndfc_interface_access.j2
     dest: "{{ role_path }}/files/{{ interface_access_file_name }}"
+  delegate_to: localhost
 
 - name: Set interface_access Var
   ansible.builtin.set_fact:
     interface_access: []
+  delegate_to: localhost
 
 - name: Set interface_access Var
   ansible.builtin.set_fact:
     interface_access: "{{ lookup('file', interface_access_file_name) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.access.count >0
+  when: MD_Extended.vxlan.topology.interfaces.modes.access.count > 0
+  delegate_to: localhost

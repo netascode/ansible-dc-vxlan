@@ -19,12 +19,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-galaxy_info:
-  author: Cisco
-  description: Role to remove unmanaged state from NDFC and fabric devices.
-  license: LICENSE
-  min_ansible_version: 2.14.15
-
-dependencies:
-  - cisco.nac_dc_vxlan.validate
-  - cisco.nac_dc_vxlan.dtc.common
+---
+vxlan:
+  topology:
+    fabric_links:
+      - source_device: "source_device"
+        source_interface: "Ethernet1/1"
+        dest_device: "dest_device"
+        dest_interface: "Ethernet1/2"
+      - source_device: "source_device2"
+        source_interface: "Ethernet1/1"
+        dest_device: "dest_device2"
+        dest_interface: "Ethernet1/2"

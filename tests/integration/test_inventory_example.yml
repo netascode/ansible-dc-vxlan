@@ -33,5 +33,7 @@ all:
           ansible_host: << ndfc_ip >>
         fabric_full_small:
           ansible_host: < ndfc_ip >>
+        fabric_full_small_sha:
+          ansible_host: << ndfc_ip >> 
         fabric_full_large:
           ansible_host: << ndfc_ip >>
