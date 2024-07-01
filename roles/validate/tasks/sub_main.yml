@@ -72,6 +72,64 @@
     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
   delegate_to: localhost
 
+- name: Verify Connection to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port }}
+  ansible.builtin.include_tasks: verify_ndfc_connectivity.yml
+
+- name: Verify Authorization to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port }}
+  ansible.builtin.include_tasks: verify_ndfc_authorization.yml
+
+- name: Initialize Connectivity Failed Switch Tracker
+  ansible.builtin.set_fact:
+    switch_tracker: []
+  delegate_to: localhost
+
+- name: Verify Connection to Switches on Port 22 Intended to be Managed by NDFC
+  ansible.builtin.include_tasks: verify_sw_connectivity.yml
+  loop: "{{ model_data['data']['vxlan']['topology']['switches'] }}"
+  loop_control:
+    label: >-
+      {%- if item.management is defined and item.management -%}
+      {%- if item.management.management_ipv4_address is defined and item.management.management_ipv4_address -%}
+      {%- set mgmt_ip = item.management.management_ipv4_address -%}
+      {%- elif item.management.management_ipv6_address is defined and item.management.management_ipv6_address -%}
+      {%- set mgmt_ip = item.management.management_ipv6_address -%}
+      {%- endif -%}
+      {%- endif -%}
+      {{ mgmt_ip }}
+  when: model_data['data']['vxlan']['topology']['switches'] is defined and model_data['data']['vxlan']['topology']['switches'] | length > 0
+
+- name: Fail Play If Any Switch Connectivity Test Failed
+  ansible.builtin.fail:
+    msg: "Switches connectivity failed for {{ switch_tracker | join(', ') }}. Check the switch(es) reachability from the Ansible Controller."
+  when: switch_tracker | length > 0
+  delegate_to: localhost
+
+- name: Initialize Connectivity Failed Switch Tracker
+  ansible.builtin.set_fact:
+    switch_tracker: []
+  delegate_to: localhost
+
+- name: Verify Authorization to Switches Intended to be Managed by NDFC
+  ansible.builtin.include_tasks: verify_sw_authorization.yml
+  loop: "{{ model_data['data']['vxlan']['topology']['switches'] }}"
+  loop_control:
+    label: >-
+      {%- if item.management is defined and item.management -%}
+      {%- if item.management.management_ipv4_address is defined and item.management.management_ipv4_address -%}
+      {%- set mgmt_ip = item.management.management_ipv4_address -%}
+      {%- elif item.management.management_ipv6_address is defined and item.management.management_ipv6_address -%}
+      {%- set mgmt_ip = item.management.management_ipv6_address -%}
+      {%- endif -%}
+      {%- endif -%}
+      {{ mgmt_ip }}
+  when: model_data['data']['vxlan']['topology']['switches'] is defined and model_data['data']['vxlan']['topology']['switches'] | length > 0
+
+- name: Fail Play If Any Switch Authorization Test Failed
+  ansible.builtin.fail:
+    msg: "Switch authorization failed using specified ndfc_switch_username and ndfc_switch_password for {{ switch_tracker | join(', ') }}. Check NDFC switch credentials."
+  when: switch_tracker | length > 0
+  delegate_to: localhost
+
 - name: Prepare Service Model
   cisco.nac_dc_vxlan.common.prepare_service_model:
     inventory_hostname: "{{ inventory_hostname }}"

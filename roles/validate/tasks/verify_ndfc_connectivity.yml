@@ -1,0 +1,13 @@
+---
+
+- name: Verify Connection to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port }}
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ ansible_httpapi_port }}"
+    connect_timeout: 5
+    delay: 0
+    sleep: 5
+    timeout: 30
+    state: started
+    msg: Timed out waiting to connect to NDFC at https://{{ ansible_host }}:{{ ansible_httpapi_port }}. Check the NDFC is reachable from the Ansible Controller.
+  delegate_to: localhost
