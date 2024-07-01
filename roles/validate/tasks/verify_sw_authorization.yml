@@ -1,0 +1,35 @@
+---
+
+- name: Verify Authorization to Switches Intended to be Managed by NDFC
+  ansible.builtin.expect:
+    command: >-
+      {%- if item.management is defined and item.management -%}
+      {%- if item.management.management_ipv4_address is defined and item.management.management_ipv4_address -%}
+      {%- set _mgmt_ip = item.management.management_ipv4_address -%}
+      {%- elif item.management.management_ipv6_address is defined and item.management.management_ipv6_address -%}
+      {%- set _mgmt_ip = item.management.management_ipv6_address -%}
+      {%- endif -%}
+      {%- endif -%}
+      ssh -o StrictHostKeyChecking=no {{ ndfc_switch_username }}@{{ _mgmt_ip }}
+    responses:
+      (?i)password: "{{ ndfc_switch_password }}"
+      (?i)#: exit
+    timeout: 30
+  ignore_errors: true
+  register: command_output
+  no_log: true
+  delegate_to: localhost
+
+- name: Add Switch to Authorization Failed Switch Tracker
+  ansible.builtin.set_fact:
+    switch_tracker: >-
+      {%- if item.management is defined and item.management -%}
+      {%- if item.management.management_ipv4_address is defined and item.management.management_ipv4_address -%}
+      {%- set _mgmt_ip = item.management.management_ipv4_address -%}
+      {%- elif item.management.management_ipv6_address is defined and item.management.management_ipv6_address -%}
+      {%- set _mgmt_ip = item.management.management_ipv6_address -%}
+      {%- endif -%}
+      {%- endif -%}
+      {{ switch_tracker + [_mgmt_ip] }}
+  when: command_output.msg is defined and command_output.msg is in "non-zero return code"
+  delegate_to: localhost
