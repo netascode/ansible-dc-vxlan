@@ -1,0 +1,54 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+---
+vxlan:
+  global:
+    name: << fabric_name >>
+    bgp_asn: 787878
+    route_reflectors: 4
+    anycast_gateway_mac: 20:20:00:00:00:aa
+    auth_proto: SHA
+    dns_servers:
+      - ip_address: 1.1.1.1
+        vrf: test
+      - ip_address: 5.5.5.1
+        vrf: test
+      - ip_address: 8.8.8.8
+        vrf: engineering
+    ntp_servers:
+      - ip_address: 15.3.3.3
+        vrf: test
+      - ip_address: 16.3.3.3
+        vrf: engineering
+      - ip_address: 17.3.3.3
+        vrf: engineering
+      - ip_address: 18.3.3.3
+        vrf: engineering
+    vpc:
+      peer_link_vlan: 3600
+      peer_keep_alive: management
+      auto_recovery_time: 300
+      delay_restore_time: 175
+      peer_link_port_channel_id: 555
+      advertise_pip: False
+      advertise_pip_border_only: True
+      domain_id_range: 1-100
