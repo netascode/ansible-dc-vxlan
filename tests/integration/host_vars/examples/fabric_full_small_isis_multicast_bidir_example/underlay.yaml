@@ -70,8 +70,8 @@ vxlan:
       trm_default_group: 239.1.1.0
       underlay_primary_rp_loopback_id: 2
       underlay_backup_rp_loopback_id: 3
-      underlay_second_backup_rp_loopback_id: 4
-      underlay_third_backup_rp_loopback_id: 5
+      # underlay_second_backup_rp_loopback_id: 4
+      # underlay_third_backup_rp_loopback_id: 5
     bfd:
       enable: False
       ibgp: False

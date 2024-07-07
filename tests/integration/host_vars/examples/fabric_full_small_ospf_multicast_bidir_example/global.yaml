@@ -26,7 +26,7 @@ vxlan:
     bgp_asn: 787878
     route_reflectors: 4
     anycast_gateway_mac: 20:20:00:00:00:aa
-    auth_proto: SHA
+    auth_proto: MD5
     dns_servers:
       - ip_address: 1.1.1.1
         vrf: test
@@ -43,6 +43,13 @@ vxlan:
         vrf: engineering
       - ip_address: 18.3.3.3
         vrf: engineering
+    syslog_servers:
+      - ip_address: 172.16.255.251
+        vrf: management
+        severity: 3
+      - ip_address: 172.16.255.252
+        vrf: management
+        severity: 3
     vpc:
       peer_link_vlan: 3600
       peer_keep_alive: management
