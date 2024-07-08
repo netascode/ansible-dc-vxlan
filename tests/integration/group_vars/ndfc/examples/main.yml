@@ -27,8 +27,8 @@ ansible_connection: ansible.netcommon.httpapi
 ansible_network_os: cisco.dcnm.dcnm
 ansible_user: admin
 ansible_password: password
-ndfc_device_username: admin
-ndfc_device_password: super_secret_password
+ndfc_switch_username: admin
+ndfc_switch_username: super_secret_password
 
 # Workflow Control Variables
 interface_delete_mode: True
