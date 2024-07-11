@@ -49,7 +49,7 @@ inventory_delete_mode: True
 # 1) Create a file named 'vault_password_file' and add the vault password in it in clear text.
 #    This is a file you control and should never be checked into source control.
 #
-# 2) Run the following command to encrypt a specific variable like 'ndfc_device_password' above:
+# 2) Run the following command to encrypt a specific variable like 'ndfc_switch_password' above:
 #    ansible-vault encrypt_string --vault-password-file ./vault_password_file 'super_secret_password' --name 'ndfc_switch_password'
 #
 # 3) Copy the encrypted string and replace the original value with it.
