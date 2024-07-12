@@ -1,27 +1,28 @@
 ---
 
-- name: Verify Authorization to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port }}
-  ansible.builtin.uri:
-    url: "https://{{ ansible_host }}/login"
-    method: POST
-    headers:
-      Content-Type: "application/json"
-    body_format: json
-    body:
-      "domain": local
-      "userName": "{{ ansible_user }}"
-      "userPasswd": "{{ ansible_password }}"
-    status_code:
-      - 200
-    validate_certs: false
-    timeout: 30
-  ignore_errors: true
-  register: response
-  no_log: true
-  delegate_to: localhost
-
-- name: Fail Play If NDFC Authorization Test Failed
-  ansible.builtin.fail:
-    msg: "NDFC authorization failed using specified ansible_user and ansible_password for https://{{ ansible_host }}:{{ ansible_httpapi_port }}. Check NDFC credentials."
-  when: response.json.error is defined and response.json.error == "Invalid Username/Password"
-  delegate_to: localhost
+- name: Verify Authorization to NDFC
+  block:
+    - name: Verify Authorization to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
+      ansible.builtin.uri:
+        url: "https://{{ ansible_host }}/login"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          "domain": local
+          "userName": "{{ ansible_user }}"
+          "userPasswd": "{{ ansible_password }}"
+        status_code:
+          - 200
+        validate_certs: false
+        timeout: 30
+      register: response
+      # no_log: true
+      delegate_to: localhost
+      # when: ansible_user is defined and ansible_password is defined
+  rescue:
+    - name: Fail Play If NDFC Authorization Test Failed
+      ansible.builtin.fail:
+        msg: "NDFC authorization failed using specified ansible_user and ansible_password for https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}. Check NDFC credentials."
+      delegate_to: localhost
