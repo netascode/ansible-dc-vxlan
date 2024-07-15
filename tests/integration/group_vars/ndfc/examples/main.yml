@@ -24,9 +24,14 @@
 #
 # Controller Credentials
 ansible_connection: ansible.netcommon.httpapi
+ansible_httpapi_port: 443
+ansible_httpapi_use_ssl: true
+ansible_httpapi_validate_certs: false
 ansible_network_os: cisco.dcnm.dcnm
+# NDFC API Credentials
 ansible_user: admin
 ansible_password: password
+# Credentials for switches in inventory
 ndfc_switch_username: admin
 ndfc_switch_password: super_secret_password
 
@@ -44,13 +49,13 @@ inventory_delete_mode: True
 # 1) Create a file named 'vault_password_file' and add the vault password in it in clear text.
 #    This is a file you control and should never be checked into source control.
 #
-# 2) Run the following command to encrypt a specific variable like 'ndfc_device_password' above:
-#    ansible-vault encrypt_string --vault-password-file ./vault_password_file 'super_secret_password' --name 'ndfc_device_password'
+# 2) Run the following command to encrypt a specific variable like 'ndfc_switch_password' above:
+#    ansible-vault encrypt_string --vault-password-file ./vault_password_file 'super_secret_password' --name 'ndfc_switch_password'
 #
 # 3) Copy the encrypted string and replace the original value with it.
 #
 # It will look somoething like this:
-# ndfc_device_password: !vault |
+# ndfc_switch_password: !vault |
 #           $ANSIBLE_VAULT;1.1;AES256
 #           65316666643664356334643335333931656330343633383664383663316135383833633032316664
 #           6132313165613366643361383433353837336666626236340a616333376636663462663933633337
