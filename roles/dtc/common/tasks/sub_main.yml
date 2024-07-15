@@ -158,3 +158,10 @@
 
 - name: Build Fabric interface All List From Template
   ansible.builtin.include_tasks: ndfc_interface_all.yml
+
+# --------------------------------------------------------------------
+# Build Fabric Policy List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric Policy List From Template
+  ansible.builtin.include_tasks: ndfc_policy_freeform.yml

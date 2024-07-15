@@ -1,0 +1,17 @@
+---
+# This NDFC policy and switch attachments config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+- switch:
+{% for policy in MD.vxlan.policy.policies %}
+{% for switch in policy.switches %}
+    - ip: {{ switch.ip }}
+      policies:
+        - description: {{ policy.name }}
+          name: switch_freeform
+          policy_vars:
+            CONF: >-
+              {{ lookup('ansible.builtin.file', policy.filename) | trim | indent(14) }}
+          priority: {{ policy.priority }}
+{% endfor %}
+{% endfor %}
