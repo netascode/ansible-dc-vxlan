@@ -31,8 +31,6 @@ all:
       hosts:
         fabric_empty:
           ansible_host: << ndfc_ip >>
-        fabric_full_small:
-          ansible_host: < ndfc_ip >>
         fabric_full_small_sha:
           ansible_host: << ndfc_ip >> 
         fabric_full_small_ospf_multicast_asm:

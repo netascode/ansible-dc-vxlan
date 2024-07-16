@@ -20,32 +20,46 @@
 # SPDX-License-Identifier: MIT
 
 ---
-# This playbook runs tests agains the data under tests/integration/host_vars/fabric_full_small_sha
+# This playbook Run tests against the data under tests/integration/host_vars/<fabric_profile>
 
 # Instructions for using this playbook:
 #
 # 1. Make sure you run the tests/integration/test_update_model_data playbook first
 #
-# 3. Run the playbook with the following command:
-#    ansible-playbook -i tests/integration/test_inventory.yml tests/integration/test_vxlan_small_sha.yml
+# 2. Run the playbook with the following command and replacing the fabric pofile name with one of the supported options in the list below:
+#    ansible-playbook -i test_inventory.yml test_vxlan.yml -e 'fabric_profile=<fabric_profile_name>'
+#
+#    Supported Fabric Profiles:
 
-# Reset Fabric
-- hosts: fabric_empty
-  gather_facts: no
+#    - fabric_full_large
+#    - fabric_full_small_sha
+#    - fabric_full_small_ospf_multicast_asm
+#    - fabric_full_small_isis_multicast_asm
+#    - fabric_full_small_ospf_multicast_bidir
+#    - fabric_full_small_isis_multicast_bidir
+#    - fabric_full_small_ospf_ingress
+#    - fabric_full_small_isis_ingress
+#
+#    e.g. ansible-playbook -i test_inventory.yml test_vxlan.yml -e 'fabric_profile=fabric_full_small_isis_multicast_asm'
 
-  roles:
-    - test_remove
+
+# # Reset Fabric
+# - hosts: fabric_empty
+#   gather_facts: no
+
+#   roles:
+#     - test_remove
 
 # Create and Deploy Fabric Configuration
-- hosts: fabric_full_small_sha
+- hosts: '{{ fabric_profile }}'
   gather_facts: no
 
   roles:
     - test_create
 
-# Reset Fabric Back to Empty
-- hosts: fabric_empty
-  gather_facts: no
+# # Reset Fabric Back to Empty
+# - hosts: fabric_empty
+#   gather_facts: no
 
-  roles:
-    - test_remove
+#   roles:
+#     - test_remove

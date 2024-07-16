@@ -44,7 +44,6 @@
 # This will create 3 new directories under tests/integration/host_vars:
 # - fabric_empty
 # - fabric_full_large
-# - fabric_full_small
 #
 # It will copy the content from tests/integration/host_vars/examples/fabric_* to the new directories
 # and replace the placeholders with the real data from tests/integration/fabric_vars.yml
@@ -53,7 +52,7 @@
   gather_facts: no
 
   tasks:
-    - name: Create New Directories for fabric_empty, fabric_full_large, fabric_full_small, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm, fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir, fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
+    - name: Create New Directories for fabric_empty, fabric_full_large, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm, fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir, fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
       ansible.builtin.file:
         path: "{{ playbook_dir }}/host_vars/{{ item }}"
         state: directory
@@ -61,7 +60,6 @@
       loop:
         - fabric_empty
         - fabric_full_large
-        - fabric_full_small
         - fabric_full_small_sha
         - fabric_full_small_ospf_multicast_asm
         - fabric_full_small_isis_multicast_asm
@@ -70,7 +68,7 @@
         - fabric_full_small_ospf_ingress
         - fabric_full_small_isis_ingress
 
-    - name: Copy content from host_vars/examples/fabric_* to fabric_empty, fabric_full_large, fabric_full_small, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm, fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir, fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
+    - name: Copy content from host_vars/examples/fabric_* to fabric_empty, fabric_full_large, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm, fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir, fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/host_vars/examples/{{ item.source_name }}/"
         dest: "{{ playbook_dir }}/host_vars/{{ item.dest_name }}"
@@ -80,8 +78,6 @@
           dest_name: fabric_empty
         - source_name: fabric_full_large_example
           dest_name: fabric_full_large
-        - source_name: fabric_full_small_example
-          dest_name: fabric_full_small
         - source_name: fabric_full_small_sha_example
           dest_name: fabric_full_small_sha
         - source_name: fabric_full_small_ospf_multicast_asm_example
@@ -107,8 +103,6 @@
           dest_name: fabric_empty
         - source_name: fabric_full_large_example
           dest_name: fabric_full_large
-        - source_name: fabric_full_small_example
-          dest_name: fabric_full_small
         - source_name: fabric_full_small_sha_example
           dest_name: fabric_full_small_sha
         - source_name: fabric_full_small_ospf_multicast_asm_example
@@ -124,7 +118,7 @@
         - source_name: fabric_full_small_isis_ingress_example
           dest_name: fabric_full_small_isis_ingress
 
-- hosts: fabric_empty, fabric_full_small, fabric_full_large, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm, fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir, fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
+- hosts: fabric_empty, fabric_full_large, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm, fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir, fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
   gather_facts: no
 
   roles:
