@@ -43,12 +43,12 @@
 #    e.g. ansible-playbook -i test_inventory.yml test_vxlan.yml -e 'fabric_profile=fabric_full_small_isis_multicast_asm'
 
 
-# # Reset Fabric
-# - hosts: fabric_empty
-#   gather_facts: no
+# Reset Fabric
+- hosts: fabric_empty
+  gather_facts: no
 
-#   roles:
-#     - test_remove
+  roles:
+    - test_remove
 
 # Create and Deploy Fabric Configuration
 - hosts: '{{ fabric_profile }}'
@@ -57,9 +57,9 @@
   roles:
     - test_create
 
-# # Reset Fabric Back to Empty
-# - hosts: fabric_empty
-#   gather_facts: no
+# Reset Fabric Back to Empty
+- hosts: fabric_empty
+  gather_facts: no
 
-#   roles:
-#     - test_remove
+  roles:
+    - test_remove
