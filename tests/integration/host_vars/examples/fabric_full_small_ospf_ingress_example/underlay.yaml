@@ -19,31 +19,36 @@
 #
 # SPDX-License-Identifier: MIT
 
-all:
-  vars:
-    ansible_user: "admin"
-    ansible_python_interpreter: "~/.pyenv/shims/python"
-    ansible_httpapi_validate_certs: False
-    ansible_httpapi_use_ssl: True
-
-  children:
-    ndfc:
-      hosts:
-        fabric_empty:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_sha:
-          ansible_host: << ndfc_ip >> 
-        fabric_full_small_ospf_multicast_asm:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_ospf_multicast_bidir:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_ospf_ingress:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_isis_multicast_asm:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_isis_multicast_bidir:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_isis_ingress:
-          ansible_host: << ndfc_ip >>
-        fabric_full_large:
-          ansible_host: << ndfc_ip >>
+---
+vxlan:
+  underlay:
+    general:
+      routing_protocol: ospf
+      enable_ipv6_underlay: False
+      replication_mode: ingress
+      fabric_interface_numbering: p2p
+      subnet_mask: 30
+      manual_underlay_allocation: False
+      underlay_routing_loopback_id: 0
+      underlay_vtep_loopback_id: 1
+      underlay_routing_protocol_tag: UNDERLAY
+      underlay_rp_loopback_id: 3
+      intra_fabric_interface_mtu: 9216
+      layer2_host_interfacde_mtu: 9216
+      unshut_host_interfaces: True
+    ipv4:
+      underlay_routing_loopback_ip_range: 10.2.0.0/22
+      underlay_vtep_loopback_ip_range: 10.3.0.0/22
+      underlay_rp_loopback_ip_range: 10.254.254.0/24
+      underlay_subnet_ip_range: 10.4.0.0/16
+    ospf:
+      area_id: 0.0.0.0
+      authentication_enable: False
+    bgp:
+      authentication_enable: False
+    bfd:
+      enable: False
+      ibgp: False
+      ospf: False
+      pim: False
+      authentication_enable: False

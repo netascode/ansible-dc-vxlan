@@ -19,31 +19,43 @@
 #
 # SPDX-License-Identifier: MIT
 
-all:
-  vars:
-    ansible_user: "admin"
-    ansible_python_interpreter: "~/.pyenv/shims/python"
-    ansible_httpapi_validate_certs: False
-    ansible_httpapi_use_ssl: True
-
-  children:
-    ndfc:
-      hosts:
-        fabric_empty:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_sha:
-          ansible_host: << ndfc_ip >> 
-        fabric_full_small_ospf_multicast_asm:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_ospf_multicast_bidir:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_ospf_ingress:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_isis_multicast_asm:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_isis_multicast_bidir:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_isis_ingress:
-          ansible_host: << ndfc_ip >>
-        fabric_full_large:
-          ansible_host: << ndfc_ip >>
+---
+vxlan:
+  global:
+    name: << fabric_name >>
+    bgp_asn: 787878
+    route_reflectors: 4
+    anycast_gateway_mac: 20:20:00:00:00:aa
+    auth_proto: MD5
+    dns_servers:
+      - ip_address: 1.1.1.1
+        vrf: test
+      - ip_address: 5.5.5.1
+        vrf: test
+      - ip_address: 8.8.8.8
+        vrf: engineering
+    ntp_servers:
+      - ip_address: 15.3.3.3
+        vrf: test
+      - ip_address: 16.3.3.3
+        vrf: engineering
+      - ip_address: 17.3.3.3
+        vrf: engineering
+      - ip_address: 18.3.3.3
+        vrf: engineering
+    syslog_servers:
+      - ip_address: 172.16.255.251
+        vrf: management
+        severity: 3
+      - ip_address: 172.16.255.252
+        vrf: management
+        severity: 3
+    vpc:
+      peer_link_vlan: 3600
+      peer_keep_alive: management
+      auto_recovery_time: 300
+      delay_restore_time: 175
+      peer_link_port_channel_id: 555
+      advertise_pip: False
+      advertise_pip_border_only: True
+      domain_id_range: 1-100

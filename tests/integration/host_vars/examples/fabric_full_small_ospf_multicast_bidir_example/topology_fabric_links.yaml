@@ -19,31 +19,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-all:
-  vars:
-    ansible_user: "admin"
-    ansible_python_interpreter: "~/.pyenv/shims/python"
-    ansible_httpapi_validate_certs: False
-    ansible_httpapi_use_ssl: True
-
-  children:
-    ndfc:
-      hosts:
-        fabric_empty:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_sha:
-          ansible_host: << ndfc_ip >> 
-        fabric_full_small_ospf_multicast_asm:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_ospf_multicast_bidir:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_ospf_ingress:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_isis_multicast_asm:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_isis_multicast_bidir:
-          ansible_host: << ndfc_ip >>
-        fabric_full_small_isis_ingress:
-          ansible_host: << ndfc_ip >>
-        fabric_full_large:
-          ansible_host: << ndfc_ip >>
+---
+vxlan:
+  topology:
+    fabric_links:
+      - source_device: "source_device"
+        source_interface: "Ethernet1/1"
+        dest_device: "dest_device"
+        dest_interface: "Ethernet1/2"
+      - source_device: "source_device2"
+        source_interface: "Ethernet1/1"
+        dest_device: "dest_device2"
+        dest_interface: "Ethernet1/2"
