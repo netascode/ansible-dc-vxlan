@@ -4,7 +4,7 @@
   block:
     - name: Verify Authorization to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
       ansible.builtin.uri:
-        url: "https://{{ ansible_host }}/login"
+        url: "https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}/login"
         method: POST
         headers:
           Content-Type: "application/json"
