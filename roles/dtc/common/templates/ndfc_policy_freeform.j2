@@ -10,7 +10,7 @@
         - description: {{ policy.name }}
           name: switch_freeform
           policy_vars:
-            CONF: >-
+            CONF: |-
               {{ lookup('ansible.builtin.file', policy.filename) | trim | indent(14) }}
           priority: {{ policy.priority }}
 {% endfor %}
