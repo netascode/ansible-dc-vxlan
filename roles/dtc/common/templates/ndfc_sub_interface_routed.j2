@@ -30,7 +30,7 @@
     ipv6_mask_len: {{ ipv6_address__mask[1] | default(omit) }}
 {% endif %}
     vlan: {{ interface['dot1q_id'] }}
-    description: {{ interface['description'] | default(omit) }}
+    description: {{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.description) }}
     route_tag: {{ interface['ipv4_route_tag'] | default(omit) }}
     int_vrf: {{ interface['vrf'] | default(omit) }}
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.mtu) }}
