@@ -18,7 +18,7 @@ class Rule:
             if inventory["vxlan"].get("overlay_services", None):
                 if inventory["vxlan"].get("overlay_services").get("networks", None):
                     networks = inventory["vxlan"]["overlay_services"]["networks"]
-                    
+       
         for network in networks:
             current_network_netflow_status = network.get("netflow_enable", False)
             if current_network_netflow_status != netflow_status:

@@ -24,7 +24,7 @@ class Rule:
             if inventory["vxlan"].get("overlay_services", None):
                 if inventory["vxlan"].get("overlay_services").get("vrfs", None):
                     vrfs = inventory["vxlan"]["overlay_services"]["vrfs"]
-                    
+      
         for vrf in vrfs:
             current_vrf_netflow_status = vrf.get("netflow_enable", False)
             if current_vrf_netflow_status != netflow_status:

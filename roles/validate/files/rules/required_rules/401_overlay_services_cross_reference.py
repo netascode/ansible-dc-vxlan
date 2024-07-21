@@ -19,7 +19,7 @@ class Rule:
             if inventory["vxlan"].get("overlay_services", None):
                 if inventory.get("vxlan").get("overlay_services").get("vrfs", None):
                     sm_vrfs = inventory.get("vxlan").get("overlay_services").get("vrfs")
-  
+
         # Build list of VRF names from sm_vrfs
         if sm_vrfs and sm_networks:
             vrf_names = []
