@@ -67,7 +67,7 @@ defaults:
             enable_bpdu_guard: true
           topology_switch_trunk_po_interface:
             description: 'NetAsCode Trunk PO Interface'
-            mtu: jumbo            
+            mtu: jumbo 
             speed: auto
             enabled: true
             trunk_allowed_vlans: none

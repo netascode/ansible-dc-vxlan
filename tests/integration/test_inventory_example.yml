@@ -31,9 +31,19 @@ all:
       hosts:
         fabric_empty:
           ansible_host: << ndfc_ip >>
-        fabric_full_small:
-          ansible_host: < ndfc_ip >>
         fabric_full_small_sha:
           ansible_host: << ndfc_ip >> 
+        fabric_full_small_ospf_multicast_asm:
+          ansible_host: << ndfc_ip >>
+        fabric_full_small_ospf_multicast_bidir:
+          ansible_host: << ndfc_ip >>
+        fabric_full_small_ospf_ingress:
+          ansible_host: << ndfc_ip >>
+        fabric_full_small_isis_multicast_asm:
+          ansible_host: << ndfc_ip >>
+        fabric_full_small_isis_multicast_bidir:
+          ansible_host: << ndfc_ip >>
+        fabric_full_small_isis_ingress:
+          ansible_host: << ndfc_ip >>
         fabric_full_large:
           ansible_host: << ndfc_ip >>

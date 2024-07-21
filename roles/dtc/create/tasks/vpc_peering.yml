@@ -21,6 +21,13 @@
 
 ---
 
+- name: Manage Fabric vPC Peers Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage Fabric vPC Peers {{ MD.vxlan.global.name }}"
+      - "----------------------------------------------------------------"
+
 # --------------------------------------------------------------------
 # Manage Intra Fabric Links Configuration on NDFC (prepare links for vpc peering)
 # --------------------------------------------------------------------
