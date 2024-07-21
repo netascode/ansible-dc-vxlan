@@ -1,5 +1,5 @@
 class Rule:
-    id = "304"
+    id = "401"
     description = "Cross Reference VRFs and Networks items in the Service Model"
     severity = "HIGH"
 
@@ -19,11 +19,7 @@ class Rule:
             if inventory["vxlan"].get("overlay_services", None):
                 if inventory.get("vxlan").get("overlay_services").get("vrfs", None):
                     sm_vrfs = inventory.get("vxlan").get("overlay_services").get("vrfs")
-        # Build list of VRF names from sm_networks
-        # network_vrf_names = []
-        # for net in sm_networks:
-        #     if net.get('vrf_name') is not None:
-        #         network_vrf_names.append(net.get('vrf_name'))
+  
         # Build list of VRF names from sm_vrfs
         if sm_vrfs and sm_networks:
             vrf_names = []
