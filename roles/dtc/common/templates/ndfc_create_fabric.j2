@@ -86,7 +86,7 @@
 {% endif %}
 {% endif %}
 {# ------------------------------------------------------ #}
-{# VPC Parameters                                         #}
+{# vPC Parameters                                         #}
 {# ------------------------------------------------------ #}
   VPC_PEER_LINK_VLAN: {{ vpc.peer_link_vlan | default(defaults.vxlan.global.vpc.peer_link_vlan) }}
   VPC_PEER_KEEP_ALIVE_OPTION: {{ vpc.peer_keep_alive | default(defaults.vxlan.global.vpc.peer_keep_alive) }}
@@ -217,9 +217,32 @@
 {% endif %}
 {% endif %}
 {# ------------------------------------------------------ #}
-{# Overlay Services Parameters                            #}
+{# Flow Monitor Parameters                                #}
 {# ------------------------------------------------------ #}
-{% if (underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'False' %}
-  ENABLE_NETFLOW: {{ MD_Extended.vxlan.overlay_services.vrfs.netflow_enable | default(defaults.vxlan.overlay_services.vrfs.netflow_enable) }}
+  ENABLE_NETFLOW: {{ global.netflow.enable | default(defaults.vxlan.global.netflow.enable) }}
+{% if global.netflow.enable | bool or defaults.vxlan.global.netflow.enable | bool %}
+{% if global.netflow.exporter is defined %}
+{% set exporter_dict = dict() %}
+{% set _ = exporter_dict.update({ "NETFLOW_EXPORTER_LIST":[] }) %}
+{% for e in global.netflow.exporter %}
+{% set _ = exporter_dict["NETFLOW_EXPORTER_LIST"].append(dict(EXPORTER_NAME=e.name,IP=e.ip_address,VRF=e.vrf | default(""), SRC_IF_NAME=e.source_interface,UDP_PORT=e.udp_port)) %}
+{% endfor %}
+  NETFLOW_EXPORTER_LIST: {{ exporter_dict | tojson | replace('"', '\\"') }}
 {% endif %}
-  NETFLOW_MONITOR_LIST: {{ MD_Extended.vxlan.overlay_services.vrfs.netflow_monitor | default(omit) }}
+{% if global.netflow.record is defined %}
+{% set record_dict = dict() %}
+{% set _ = record_dict.update({ "NETFLOW_RECORD_LIST":[] }) %}
+{% for r in global.netflow.record %}
+{% set _ = record_dict["NETFLOW_RECORD_LIST"].append(dict(RECORD_NAME=r.name,RECORD_TEMPLATE =r.template,LAYER2_RECORD=r.layer2 | default(false) | string | lower)) %}
+{% endfor %}
+  NETFLOW_RECORD_LIST: {{ record_dict | tojson | replace('"', '\\"') }}
+{% endif %}
+{% if global.netflow.monitor is defined %}
+{% set monitor_dict = dict() %}
+{% set _ = monitor_dict.update({ "NETFLOW_MONITOR_LIST":[] }) %}
+{% for m in global.netflow.monitor %}
+{% set _ = monitor_dict["NETFLOW_MONITOR_LIST"].append(dict(MONITOR_NAME=m.name,RECORD_NAME=m.record,EXPORTER1=m.exporter1,EXPORTER2=m.exporter2 | default(""))) %}
+{% endfor %}
+  NETFLOW_MONITOR_LIST: {{ monitor_dict | tojson | replace('"', '\\"') }}
+{% endif %}
+{% endif %}
