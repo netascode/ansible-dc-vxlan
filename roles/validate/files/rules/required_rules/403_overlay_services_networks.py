@@ -6,13 +6,13 @@ class Rule:
     @classmethod
     def match(cls, inventory):
         results = []
-        netflow_status = False
+        fabric_netflow_status = False
         networks = []
 
         if inventory.get("vxlan", None):
             if inventory["vxlan"].get("global", None):
                 if inventory["vxlan"].get("global").get("netflow", None):
-                    netflow_status = inventory["vxlan"]["global"]["netflow"].get("enable", False)
+                    fabric_netflow_status = inventory["vxlan"]["global"]["netflow"].get("enable", False)
 
         if inventory.get("vxlan", None):
             if inventory["vxlan"].get("overlay_services", None):
@@ -20,11 +20,12 @@ class Rule:
                     networks = inventory["vxlan"]["overlay_services"]["networks"]
 
         for network in networks:
-            current_network_netflow_status = network.get("netflow_enable", False)
-            if current_network_netflow_status != netflow_status:
-                results.append(
-                    f"For vxlan.overlay_services.networks.{network['name']}.netflow_enable to be enabled, "
-                    f"first vxlan.global.netflow.enable must be enabled (true)."
-                )
+            current_network_netflow_status = network.get("netflow_enable", None)
+            if current_network_netflow_status is not None:
+                if fabric_netflow_status == False and current_network_netflow_status == True:
+                    results.append(
+                        f"For vxlan.overlay_services.networks.{network['name']}.netflow_enable to be enabled, "
+                        f"first vxlan.global.netflow.enable must be enabled (true)."
+                    )
 
         return results

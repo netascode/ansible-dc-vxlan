@@ -6,19 +6,19 @@ class Rule:
     @classmethod
     def match(cls, inventory):
         results = []
-        netflow_status = False
-        trm_status = False
+        fabric_netflow_status = False
+        fabric_trm_status = False
         vrfs = []
 
         if inventory.get("vxlan", None):
             if inventory["vxlan"].get("global", None):
                 if inventory["vxlan"].get("global").get("netflow", None):
-                    netflow_status = inventory["vxlan"]["global"]["netflow"].get("enable", False)
+                    fabric_netflow_status = inventory["vxlan"]["global"]["netflow"].get("enable", False)
 
         if inventory.get("vxlan", None):
             if inventory["vxlan"].get("underlay", None):
                 if inventory["vxlan"].get("underlay").get("multicast", None):
-                    trm_status = inventory["vxlan"]["underlay"]["multicast"].get("trm_enable", False)
+                    fabric_trm_status = inventory["vxlan"]["underlay"]["multicast"].get("trm_enable", False)
 
         if inventory.get("vxlan", None):
             if inventory["vxlan"].get("overlay_services", None):
@@ -26,18 +26,20 @@ class Rule:
                     vrfs = inventory["vxlan"]["overlay_services"]["vrfs"]
 
         for vrf in vrfs:
-            current_vrf_netflow_status = vrf.get("netflow_enable", False)
-            if current_vrf_netflow_status != netflow_status:
-                results.append(
-                    f"For vxlan.overlay_services.vrfs.{vrf['name']}.netflow_enable to be enabled, "
-                    f"first vxlan.global.netflow.enable must be enabled (true)."
-                )
+            current_vrf_netflow_status = vrf.get("netflow_enable", None)
+            if current_vrf_netflow_status is not None:
+                if fabric_netflow_status == False and current_vrf_netflow_status == True:
+                    results.append(
+                        f"For vxlan.overlay_services.vrfs.{vrf['name']}.netflow_enable to be enabled, "
+                        f"first vxlan.global.netflow.enable must be enabled (true)."
+                    )
 
-            current_vrf_trm_status = vrf.get("trm_enable", False)
-            if current_vrf_trm_status != trm_status:
-                results.append(
-                    f"For vxlan.overlay_services.vrfs.{vrf['name']}.trm_enable to be enabled, "
-                    f"first vxlan.underlay.multicast.trm_enable must be enabled (true)."
-                )
+            current_vrf_trm_status = vrf.get("trm_enable", None)
+            if current_vrf_trm_status is not None:
+                if fabric_trm_status == False and current_vrf_trm_status == True:
+                    results.append(
+                        f"For vxlan.overlay_services.vrfs.{vrf['name']}.trm_enable to be enabled, "
+                        f"first vxlan.underlay.multicast.trm_enable must be enabled (true)."
+                    )
 
         return results
