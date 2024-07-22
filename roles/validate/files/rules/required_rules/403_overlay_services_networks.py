@@ -22,7 +22,7 @@ class Rule:
         for network in networks:
             current_network_netflow_status = network.get("netflow_enable", None)
             if current_network_netflow_status is not None:
-                if fabric_netflow_status == False and current_network_netflow_status == True:
+                if fabric_netflow_status is False and current_network_netflow_status is True:
                     results.append(
                         f"For vxlan.overlay_services.networks.{network['name']}.netflow_enable to be enabled, "
                         f"first vxlan.global.netflow.enable must be enabled (true)."

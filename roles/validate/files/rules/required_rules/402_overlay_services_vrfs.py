@@ -28,7 +28,7 @@ class Rule:
         for vrf in vrfs:
             current_vrf_netflow_status = vrf.get("netflow_enable", None)
             if current_vrf_netflow_status is not None:
-                if fabric_netflow_status == False and current_vrf_netflow_status == True:
+                if fabric_netflow_status is False and current_vrf_netflow_status is True:
                     results.append(
                         f"For vxlan.overlay_services.vrfs.{vrf['name']}.netflow_enable to be enabled, "
                         f"first vxlan.global.netflow.enable must be enabled (true)."
@@ -36,7 +36,7 @@ class Rule:
 
             current_vrf_trm_status = vrf.get("trm_enable", None)
             if current_vrf_trm_status is not None:
-                if fabric_trm_status == False and current_vrf_trm_status == True:
+                if fabric_trm_status is False and current_vrf_trm_status is True:
                     results.append(
                         f"For vxlan.overlay_services.vrfs.{vrf['name']}.trm_enable to be enabled, "
                         f"first vxlan.underlay.multicast.trm_enable must be enabled (true)."
