@@ -15,12 +15,14 @@ class Rule:
 
                     if root_bridge_protocol == "rpvst+" and not mst_instance_range:
                         results.append(
-                            "vxlan.global.spanning_tree.vlan_range must be set when the spanning tree vxlan.global.spanning_tree.root_bridge_protocol is set to rpvst+."
+                            "vxlan.global.spanning_tree.vlan_range must be set when the "
+                            "spanning tree vxlan.global.spanning_tree.root_bridge_protocol is set to rpvst+."
                         )
 
                     if root_bridge_protocol == "mst" and not vlan_range:
                         results.append(
-                            "vxlan.global.spanning_tree.mst_instance_range can only be used when the spanning tree vxlan.global.spanning_tree.root_bridge_protocol is set to mst."
+                            "vxlan.global.spanning_tree.mst_instance_range can only be used when the "
+                            "spanning tree vxlan.global.spanning_tree.root_bridge_protocol is set to mst."
                         )
 
         return results
