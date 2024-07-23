@@ -1,18 +1,18 @@
 {# Macro: convert_ranges
 
-  This macro takes a list of VLAN ranges and converts it into a string representation.
+  This macro takes a list of ranges and converts it into a string representation.
   Each item in the list should be a dictionary with 'from' and optionally 'to' keys.
   If 'to' is provided, it represents a range from 'from' to 'to'.
-  If 'to' is not provided, it represents a single VLAN.
+  If 'to' is not provided, it represents a single primitive.
 
-  If the allowed VLANs are not defined, the macro will return value defined
-  by the 'default_vlan_range' parameter passed from the parent template.
+  If the allowed ranges are not defined, the macro will return value defined
+  by the 'default_range' parameter passed from the parent template.
 
    The macro can be called from the parent template as follows:
 
   {% import 'ndfc_utils.j2' as vlan_macro with context %}
   ...
-  {{ ndfc_utils.convert_ranges(<allowed_ranges> variable, <default_vlan_range> parameter) | trim }}
+  {{ ndfc_utils.convert_ranges(<allowed_ranges> variable, <default_range> parameter) | trim }}
   **NOTE: trim is currently required when calling the macro to remove empty space
   
   VLAN ranges transformation example:
@@ -33,19 +33,19 @@
   "none"
 #}
 
-{%- macro convert_ranges(allowed_ranges, default_vlan_range) -%}
+{%- macro convert_ranges(allowed_ranges, default_range) -%}
     {%- if allowed_ranges is defined -%}
-        {%- set vlan_ranges = [] -%}
-        {%- for vlan_range in allowed_ranges -%}
-            {%- if vlan_range.to is defined -%}
-                {%- set range_str = vlan_range.from ~ ('-' ~ vlan_range.to) -%}
+        {%- set ranges = [] -%}
+        {%- for range in allowed_ranges -%}
+            {%- if range.to is defined -%}
+                {%- set range_str = range.from ~ ('-' ~ range.to) -%}
             {%- else -%}
-                {%- set range_str = vlan_range.from -%}
+                {%- set range_str = range.from -%}
             {%- endif -%}
-            {%- set _ = vlan_ranges.append(range_str) -%}
+            {%- set _ = ranges.append(range_str) -%}
         {%- endfor -%}
-        {{ vlan_ranges | join(',') }}
+        {{ ranges | join(',') }}
     {%- elif allowed_ranges is not defined -%}
-        {{ default_vlan_range }}
+        {{ default_range }}
     {%- endif -%}
 {%- endmacro -%}
