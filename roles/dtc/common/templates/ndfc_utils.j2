@@ -1,4 +1,4 @@
-{# Macro: convert_vlan_ranges
+{# Macro: convert_ranges
 
   This macro takes a list of VLAN ranges and converts it into a string representation.
   Each item in the list should be a dictionary with 'from' and optionally 'to' keys.
@@ -12,7 +12,7 @@
 
   {% import 'ndfc_utils.j2' as vlan_macro with context %}
   ...
-  {{ ndfc_utils.convert_vlan_ranges(<trunk_allowed_vlans> variable, <default_vlan_range> parameter) | trim }}
+  {{ ndfc_utils.convert_ranges(<allowed_ranges> variable, <default_vlan_range> parameter) | trim }}
   **NOTE: trim is currently required when calling the macro to remove empty space
   
   VLAN ranges transformation example:
@@ -33,19 +33,19 @@
   "none"
 #}
 
-{% macro convert_vlan_ranges(trunk_allowed_vlans, default_vlan_range) %}
-    {% if trunk_allowed_vlans is defined %}
-        {% set vlan_ranges = [] %}
-        {% for vlan_range in trunk_allowed_vlans %}
-            {% if vlan_range.to is defined %}
-                {% set range_str = vlan_range.from ~ ('-' ~ vlan_range.to) %}
-            {% else %}
-                {% set range_str = vlan_range.from %}
-            {% endif %}
-            {% set _ = vlan_ranges.append(range_str) %}
-        {% endfor %}
+{%- macro convert_ranges(allowed_ranges, default_vlan_range) -%}
+    {%- if allowed_ranges is defined -%}
+        {%- set vlan_ranges = [] -%}
+        {%- for vlan_range in allowed_ranges -%}
+            {%- if vlan_range.to is defined -%}
+                {%- set range_str = vlan_range.from ~ ('-' ~ vlan_range.to) -%}
+            {%- else -%}
+                {%- set range_str = vlan_range.from -%}
+            {%- endif -%}
+            {%- set _ = vlan_ranges.append(range_str) -%}
+        {%- endfor -%}
         {{ vlan_ranges | join(',') }}
-    {% elif trunk_allowed_vlans is not defined %}
+    {%- elif allowed_ranges is not defined -%}
         {{ default_vlan_range }}
-    {% endif %}
-{% endmacro %}
+    {%- endif -%}
+{%- endmacro -%}
