@@ -35,13 +35,13 @@ class Rule:
                     )
 
             if fabric_netflow_status and current_network_netflow_status:
-                    current_network_netflow_monitor = network.get("vlan_netflow_monitor", None)
-                    if current_network_netflow_monitor is None:
-                        results.append(
-                            f"When vxlan.overlay_services.networks.{network['name']}.netflow_enable is enabled, "
-                            f"then vxlan.overlay_services.networks.{network['name']}.vlan_netflow_monitor must be set "
-                            "to a valid value from vxlan.global.netflow."
-                        )
+                current_network_netflow_monitor = network.get("vlan_netflow_monitor", None)
+                if current_network_netflow_monitor is None:
+                    results.append(
+                        f"When vxlan.overlay_services.networks.{network['name']}.netflow_enable is enabled, "
+                        f"then vxlan.overlay_services.networks.{network['name']}.vlan_netflow_monitor must be set "
+                        "to a valid value from vxlan.global.netflow."
+                    )
 
             current_network_trm_status = network.get("trm_enable", None)
             if current_network_trm_status is not None:
