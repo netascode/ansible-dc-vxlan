@@ -56,7 +56,7 @@ class Rule:
                 current_vrf_trm_rp_address = vrf.get("rp_address", None)
                 current_vrf_trm_rp_loopback_id = vrf.get("rp_loopback_id", None)
                 current_vrf_trm_overlay_multicast_group = vrf.get("overlay_multicast_group", None)
-                
+
                 if fabric_trm_status:
                     if (current_vrf_trm_no_rp and current_vrf_trm_rp_external or
                             current_vrf_trm_no_rp and current_vrf_trm_rp_address or
