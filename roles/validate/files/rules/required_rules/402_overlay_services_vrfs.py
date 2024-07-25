@@ -55,9 +55,16 @@ class Rule:
                 current_vrf_trm_rp_external = vrf.get("rp_external", None)
                 current_vrf_trm_rp_address = vrf.get("rp_address", None)
                 current_vrf_trm_rp_loopback_id = vrf.get("rp_loopback_id", None)
+                current_vrf_trm_underlay_mcast_ip = vrf.get("underlay_mcast_ip", None)
                 current_vrf_trm_overlay_multicast_group = vrf.get("overlay_multicast_group", None)
 
                 if fabric_trm_status:
+                    if current_vrf_trm_no_rp and current_vrf_trm_underlay_mcast_ip is None:
+                        results.append(
+                            f"When vxlan.overlay_services.vrfs.{vrf['name']}.no_rp is enabled (true), "
+                            f"then vxlan.overlay_services.vrfs.{vrf['name']}.underlay_mcast_ip must be set."
+                        )
+
                     if (current_vrf_trm_no_rp and current_vrf_trm_rp_external or
                             current_vrf_trm_no_rp and current_vrf_trm_rp_address or
                             current_vrf_trm_no_rp and current_vrf_trm_rp_loopback_id or
@@ -74,6 +81,14 @@ class Rule:
                         results.append(
                             f"When vxlan.overlay_services.vrfs.{vrf['name']}.rp_external is enabled (true), "
                             f"then vxlan.overlay_services.vrfs.{vrf['name']}.rp_loopback_id must be disabled (false)."
+                        )
+
+                    if (current_vrf_trm_rp_external and current_vrf_trm_rp_address is None or
+                            current_vrf_trm_rp_external and current_vrf_trm_underlay_mcast_ip is None):
+                        results.append(
+                            f"When vxlan.overlay_services.vrfs.{vrf['name']}.rp_external is enabled (true), "
+                            f"then vxlan.overlay_services.vrfs.{vrf['name']}.rp_address and "
+                            f"vxlan.overlay_services.vrfs.{vrf['name']}.underlay_mcast_ip must be set."
                         )
 
         return results
