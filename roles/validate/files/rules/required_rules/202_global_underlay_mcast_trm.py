@@ -20,7 +20,7 @@ class Rule:
                     fabric_trm = inventory["vxlan"]["underlay"]["multicast"].get("trm_enable", False)
 
         if fabric_replication:
-            if ((fabric_replication == "multicast" and fabric_mcast_mode == "bidir" and fabric_trm) or 
+            if ((fabric_replication == "multicast" and fabric_mcast_mode == "bidir" and fabric_trm) or
                     (fabric_replication == "ingress" and fabric_trm)):
                 results.append(
                     "For vxlan.underlay.multicast.trm_enable to be enabled, "
