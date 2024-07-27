@@ -15,12 +15,10 @@ class Rule:
                 if inventory["vxlan"].get("global").get("netflow", None):
                     fabric_netflow_status = inventory["vxlan"]["global"]["netflow"].get("enable", False)
 
-        if inventory.get("vxlan", None):
             if inventory["vxlan"].get("underlay", None):
                 if inventory["vxlan"].get("underlay").get("multicast", None):
                     fabric_trm_status = inventory["vxlan"]["underlay"]["multicast"].get("trm_enable", False)
 
-        if inventory.get("vxlan", None):
             if inventory["vxlan"].get("overlay_services", None):
                 if inventory["vxlan"].get("overlay_services").get("vrfs", None):
                     vrfs = inventory["vxlan"]["overlay_services"]["vrfs"]
