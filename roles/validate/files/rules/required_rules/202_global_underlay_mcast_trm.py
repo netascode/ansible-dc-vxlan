@@ -15,14 +15,8 @@ class Rule:
                 if inventory["vxlan"].get("underlay").get("general", None):
                     fabric_replication = inventory["vxlan"]["underlay"]["general"].get("replication_mode", False)
 
-        if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("underlay", None):
                 if inventory["vxlan"].get("underlay").get("multicast", None):
                     fabric_mcast_mode = inventory["vxlan"]["underlay"]["multicast"].get("rp_mode", False)
-
-        if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("underlay", None):
-                if inventory["vxlan"].get("underlay").get("multicast", None):
                     fabric_trm = inventory["vxlan"]["underlay"]["multicast"].get("trm_enable", False)
 
         if fabric_replication:
