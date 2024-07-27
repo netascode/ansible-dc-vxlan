@@ -86,7 +86,7 @@
 {% endif %}
 {% endif %}
 {# ------------------------------------------------------ #}
-{# VPC Parameters                                         #}
+{# vPC Parameters                                         #}
 {# ------------------------------------------------------ #}
   VPC_PEER_LINK_VLAN: {{ vpc.peer_link_vlan | default(defaults.vxlan.global.vpc.peer_link_vlan) }}
   VPC_PEER_KEEP_ALIVE_OPTION: {{ vpc.peer_keep_alive | default(defaults.vxlan.global.vpc.peer_keep_alive) }}
@@ -107,9 +107,11 @@
   FABRIC_MTU: {{ underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
   L2_HOST_INTF_MTU: {{ underlay.general.layer2_host_interfacde_mtu | default(defaults.vxlan.underlay.general.layer2_host_interfacde_mtu) }}
   HOST_INTF_ADMIN_STATE: {{ underlay.general.unshut_host_interfaces | default(defaults.vxlan.underlay.general.unshut_host_interfaces) }}
+{% if (underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'False' %}
   FABRIC_INTERFACE_TYPE: {{ underlay.general.fabric_interface_numbering | default(defaults.vxlan.underlay.general.fabric_interface_numbering) }}
   SUBNET_TARGET_MASK: {{ underlay.general.subnet_mask | default(defaults.vxlan.underlay.general.subnet_mask) }}
   REPLICATION_MODE: {{ underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title }}
+{% endif %}
   LINK_STATE_ROUTING: {{ underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol) }}
   LINK_STATE_ROUTING_TAG: {{ underlay.general.underlay_routing_protocol_tag | default(defaults.vxlan.underlay.general.underlay_routing_protocol_tag) }}
   UNDERLAY_IS_V6: {{ (underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) }}
@@ -158,7 +160,9 @@
 {# ------------------------------------------------------ #}
 {% elif (underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol)) == 'ospf' %}
   OSPF_AREA_ID: {{ ospf.area_id | default(defaults.vxlan.underlay.ospf.area_id) }}
+{% if (underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'False' %}
   OSPF_AUTH_ENABLE: {{ (ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title) }}
+{% endif %}
 {% if (underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title) == 'True' %}
   OSPF_AUTH_KEY_ID: {{ ospf.authentication_key_id | default(defaults.vxlan.underlay.ospf.authentication_key_id) }}
   OSPF_AUTH_KEY: {{ ospf.authentication_key | default(omit) }}
@@ -171,9 +175,11 @@
 {# Underlay IPv4 Parameters                               #}
 {# ------------------------------------------------------ #}
 {% if (underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title) == 'False' %}
+{% if (underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'False' %}
   LOOPBACK0_IP_RANGE: {{ ipv4.underlay_routing_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_routing_loopback_ip_range) }}
   LOOPBACK1_IP_RANGE: {{ ipv4.underlay_vtep_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_vtep_loopback_ip_range) }}
   SUBNET_RANGE: {{ ipv4.underlay_subnet_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_subnet_ip_range) }}
+{% endif %}
   ANYCAST_RP_IP_RANGE: {{ ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
 {% endif %}
 {# ------------------------------------------------------ #}
@@ -188,7 +194,9 @@
 {# ------------------------------------------------------ #}
 {# Underlay BGP Parameters                                #}
 {# ------------------------------------------------------ #}
+{% if (underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'False' %}
   BGP_AUTH_ENABLE: {{ (bgp.authentication_enable | default(defaults.vxlan.underlay.bgp.authentication_enable) | title)}}
+{% endif %}
 {% if (bgp.authentication_enable | default(defaults.vxlan.underlay.bgp.authentication_enable) | title) == 'True' %}
   BGP_AUTH_KEY_TYPE: {{ bgp.authentication_key_type | default(defaults.vxlan.underlay.bgp.authentication_key_type) }}
   BGP_AUTH_KEY: {{ bgp.authentication_key | default(omit) }}
@@ -196,7 +204,9 @@
 {# ------------------------------------------------------ #}
 {# Underlay BFD Parameters                                #}
 {# ------------------------------------------------------ #}
+{% if (underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'False' %}
   BFD_ENABLE: {{ bfd.enable | default(defaults.vxlan.underlay.bfd.enable) }}
+{% endif %}
 {% if (bfd.enable | default(defaults.vxlan.underlay.bfd.enable) | title) == 'True' %}
   BFD_IBGP_ENABLE: {{ bfd.ibgp | default(defaults.vxlan.underlay.bfd.ibgp) }}
   BFD_PIM_ENABLE: {{ bfd.pim | default(defaults.vxlan.underlay.bfd.pim) }}
@@ -207,7 +217,32 @@
 {% endif %}
 {% endif %}
 {# ------------------------------------------------------ #}
-{# Overlay Services Parameters                            #}
+{# Flow Monitor Parameters                                #}
 {# ------------------------------------------------------ #}
-  ENABLE_NETFLOW: {{ MD_Extended.vxlan.overlay_services.vrfs.netflow_enable | default(defaults.vxlan.overlay_services.vrfs.netflow_enable) }}
-  NETFLOW_MONITOR_LIST: {{ MD_Extended.vxlan.overlay_services.vrfs.netflow_monitor | default(omit) }}
+  ENABLE_NETFLOW: {{ global.netflow.enable | default(defaults.vxlan.global.netflow.enable) }}
+{% if global.netflow.enable is defined and global.netflow.enable | bool or defaults.vxlan.global.netflow.enable | bool %}
+{% if global.netflow.exporter is defined %}
+{% set exporter_dict = dict() %}
+{% set _ = exporter_dict.update({ "NETFLOW_EXPORTER_LIST":[] }) %}
+{% for e in global.netflow.exporter %}
+{% set _ = exporter_dict["NETFLOW_EXPORTER_LIST"].append(dict(EXPORTER_NAME=e.name,IP=e.ip_address,VRF=e.vrf | default(""), SRC_IF_NAME=e.source_interface,UDP_PORT=e.udp_port)) %}
+{% endfor %}
+  NETFLOW_EXPORTER_LIST: "{{ exporter_dict | tojson | replace('"', '\\"') }}"
+{% endif %}
+{% if global.netflow.record is defined %}
+{% set record_dict = dict() %}
+{% set _ = record_dict.update({ "NETFLOW_RECORD_LIST":[] }) %}
+{% for r in global.netflow.record %}
+{% set _ = record_dict["NETFLOW_RECORD_LIST"].append(dict(RECORD_NAME=r.name,RECORD_TEMPLATE =r.template,LAYER2_RECORD=r.layer2 | default(false) | string | lower)) %}
+{% endfor %}
+  NETFLOW_RECORD_LIST: "{{ record_dict | tojson | replace('"', '\\"') }}"
+{% endif %}
+{% if global.netflow.monitor is defined %}
+{% set monitor_dict = dict() %}
+{% set _ = monitor_dict.update({ "NETFLOW_MONITOR_LIST":[] }) %}
+{% for m in global.netflow.monitor %}
+{% set _ = monitor_dict["NETFLOW_MONITOR_LIST"].append(dict(MONITOR_NAME=m.name,RECORD_NAME=m.record,EXPORTER1=m.exporter1,EXPORTER2=m.exporter2 | default(""))) %}
+{% endfor %}
+  NETFLOW_MONITOR_LIST: "{{ monitor_dict | tojson | replace('"', '\\"') }}"
+{% endif %}
+{% endif %}

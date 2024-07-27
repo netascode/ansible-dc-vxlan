@@ -20,32 +20,14 @@
 # SPDX-License-Identifier: MIT
 
 ---
-# This playbook runs tests agains the data under tests/integration/host_vars/fabric_full_small_sha
-
-# Instructions for using this playbook:
-#
-# 1. Make sure you run the tests/integration/test_update_model_data playbook first
-#
-# 3. Run the playbook with the following command:
-#    ansible-playbook -i tests/integration/test_inventory.yml tests/integration/test_vxlan_small_sha.yml
-
-# Reset Fabric
-- hosts: fabric_empty
-  gather_facts: no
-
-  roles:
-    - test_remove
-
-# Create and Deploy Fabric Configuration
-- hosts: fabric_full_small_sha
-  gather_facts: no
-
-  roles:
-    - test_create
-
-# Reset Fabric Back to Empty
-- hosts: fabric_empty
-  gather_facts: no
-
-  roles:
-    - test_remove
+vxlan:
+  topology:
+    fabric_links:
+      - source_device: "source_device"
+        source_interface: "Ethernet1/1"
+        dest_device: "dest_device"
+        dest_interface: "Ethernet1/2"
+      - source_device: "source_device2"
+        source_interface: "Ethernet1/1"
+        dest_device: "dest_device2"
+        dest_interface: "Ethernet1/2"

@@ -35,6 +35,8 @@ defaults:
         advertise_pip: false
         advertise_pip_border_only: true
         domain_id_range: 1-1000
+      netflow:
+        enable: false
     topology:
       switches:
         routing_loopback_id: 0
