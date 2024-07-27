@@ -24,7 +24,7 @@ class Rule:
             if inventory["vxlan"].get("underlay", None):
                 if inventory["vxlan"].get("underlay").get("multicast", None):
                     fabric_trm = inventory["vxlan"]["underlay"]["multicast"].get("trm_enable", False)
-        
+
         if fabric_replication:
             if fabric_replication == "ingress" and fabric_trm:
                 results.append(
