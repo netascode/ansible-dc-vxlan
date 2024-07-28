@@ -172,5 +172,17 @@ class PreparePlugin:
 
             list_index += 1
 
+        # --------------------------------------------------------------------
+        # Fabric Policy List Defaults
+        # --------------------------------------------------------------------
+
+        # Check vxlan.policy list elements
+        parent_keys = ['vxlan', 'policy']
+        dm_check = data_model_key_check(self.model_data, parent_keys)
+        if 'policy' in dm_check['keys_not_found'] or 'policy' in dm_check['keys_no_data']:
+            self.model_data['vxlan']['policy'] = {}
+            self.model_data['vxlan']['policy'].update({'policies': []})
+            self.model_data['vxlan']['policy'].update({'policy_groups': []})
+
         self.kwargs['results']['model_extended'] = self.model_data
         return self.kwargs['results']

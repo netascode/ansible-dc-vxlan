@@ -1,0 +1,19 @@
+#jinja2:lstrip_blocks: True
+---
+# This NDFC policy and switch attachments config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% set switches = MD_Extended | community.general.json_query('vxlan.policy.policies[?(@.switches)].switches[*].name') | unique | sort | first %}
+{% set policies = MD_Extended.vxlan.policy.policies %}
+- switch:
+{% for switch in switches %}
+  - ip: {{ switch }}
+    policies:
+{% for policy in policies %}
+{% set policy_switches = policy | community.general.json_query('switches[*].name') %}
+{% if switch in policy_switches %}
+      - description: {{ policy.name }}
+        priority:  {{ policy.priority }}
+{% endif %}
+{% endfor %}
+{% endfor %}

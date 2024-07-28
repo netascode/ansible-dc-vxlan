@@ -23,12 +23,12 @@
 
 - name: Set policy_file_name Var
   ansible.builtin.set_fact:
-    policy_file_name: "{{ MD.vxlan.global.name }}_policy_freeform.yml"
+    policy_file_name: "{{ MD.vxlan.global.name }}_policy.yml"
   delegate_to: localhost
 
-- name: Build Policy Freeform List From Template
+- name: Build Policy List From Template
   ansible.builtin.template:
-    src: ndfc_policy_freeform.j2
+    src: ndfc_policy.j2
     dest: "{{ role_path }}/files/{{ policy_file_name }}"
   delegate_to: localhost
 
