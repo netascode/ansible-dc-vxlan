@@ -38,9 +38,30 @@ vxlan:
         vlan_id: 2003
         attach_group: leaf1_leaf2
 
-      - name: NetAsCodeVrf4
-        vrf_id: 150004
-        vlan_id: 2004
+      - name: NetAsCodeVrf5
+        vrf_id: 150005
+        vlan_id: 2005
+        vrf_description: NetAsCodeVrf5_Netflow_only
+        netflow_enable: true
+        netflow_monitor: nac-monitor1
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeVrf6
+        vrf_id: 150006
+        vlan_id: 2006
+        vrf_description: NetAsCodeVrf6_No_TRM_No_NetFlow
+        trm_enable: false
+        netflow_enable: false
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeVrf9
+        vrf_id: 150009
+        vlan_id: 2009
+        vrf_description: NetAsCodeVrf6_Max_BGP_Paths
+        max_bgp_paths: 4
+        max_ibgp_paths: 4
+        trm_enable: false
+        netflow_enable: false
         attach_group: leaf1_leaf2
 
       - name: NetAsCodeVrf_Default
@@ -77,6 +98,38 @@ vxlan:
         trm_enable: True
         trm_bgw_msite: False
         underlay_mcast_ip: "224.1.1.1"
+        attach_group: all_leaf
+
+      - name: NetAsCodeVrf_Full
+        vrf_id: 150030
+        vlan_id: 2030
+        vrf_vlan_name: NetAsCodeVrf_Full_vlan2030
+        vrf_intf_desc: NetAsCodeVrf_Full
+        vrf_description: NetAsCodeVrf_Full
+        vrf_int_mtu: 9216
+        loopback_route_tag: 12345
+        max_bgp_paths: 8
+        max_ibgp_paths: 8
+        ipv6_linklocal_enable: True
+        adv_host_routes: True
+        adv_default_routes: True
+        static_default_route: True
+        # bgp_password: cisco
+        # bgp_password_encryption_type: 3
+        disable_rt_auto: False
+        export_evpn_rt: ""
+        export_mvpn_rt: ""
+        export_vpn_rt: ""
+        import_evpn_rt: ""
+        import_mvpn_rt: ""
+        import_vpn_rt: ""
+        netflow_enable: True
+        netflow_monitor: nac-monitor1
+        trm_enable: False
+        no_rp: False
+        rp_external: False
+        overlay_multicast_group: ""
+        trm_bgw_msite: False
         attach_group: all_leaf
 
     vrf_attach_groups:
