@@ -36,14 +36,5 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: merged
     config: "{{ policy_config }}"
-      # - switch:
-      #     - ip: 10.15.33.16
-      #       policies:
-      #         - description: grpc freeform policy
-      #           name: switch_freeform
-      #           policy_vars:
-      #             CONF: |
-      #               feature grpc
-      #           priority: 500
   register: manage_policies_result
   when: MD.vxlan.policy.policies

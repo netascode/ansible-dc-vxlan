@@ -57,6 +57,6 @@
   when: (MD.vxlan.overlay_services is defined) and (MD_Extended.vxlan.topology.switches | length > 0)
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
-# - name: Manage NDFC Fabric Policies
-#   ansible.builtin.import_tasks: policies.yml
-#   when: (MD.vxlan.policy is defined) and (MD.vxlan.policy.policies | length > 0)
+- name: Manage NDFC Fabric Policies
+  ansible.builtin.import_tasks: policies.yml
+  when: (MD.vxlan.policy is defined) and (MD.vxlan.policy.policies | length > 0)

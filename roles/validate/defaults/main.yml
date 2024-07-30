@@ -189,3 +189,6 @@ defaults:
       network_attach_groups:
         switches: []
     overlay_extension:
+    policy:
+      template_name: switch_freeform
+      priority: 500

@@ -1,53 +1,29 @@
-#jinja2:lstrip_blocks: True
+#jinja2:lstrip_blocks: True, trim_blocks: True
 ---
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% set policies_switches = MD_Extended.vxlan.policy.policies | community.general.json_query('[?(@.switches)].switches[*].name') | flatten | unique | sort %}
-{% set policy_groups_switches = MD_Extended.vxlan.policy.policy_groups | default([]) | community.general.json_query('[?(@.switches)].switches[*].name') %}
-{% if policy_groups_switches is defined and policy_groups_switches is iterable %}
-{% set policy_groups_switches = policy_groups_switches | flatten | unique | sort %}
-{% endif %}
-{% set switches = (policies_switches + policy_groups_switches) | unique | sort %}
+{# {% set switches = MD_Extended.vxlan.policy.switches | community.general.json_query('[*].name') | flatten | unique | sort %} #}
 - switch:
-{% for switch in switches %}
-    - ip: {{ switch }}
+{% for switch in MD_Extended.vxlan.policy.switches %}
+    - ip: {{ switch.name }}
       policies:
-{% for policy in MD_Extended.vxlan.policy.policies | default([]) %}
-{% set policy_switches = policy | community.general.json_query('switches[*].name') %}
-{% if policy_switches and policies_switches is iterable %}
-{% if switch in policy_switches %}
-        - description: {{ policy.name }}
-          name: {{ policy.template_name | default(omit) }}
-          policy_vars: >-
-            {% if policy.template_vars is defined and policy.template_vars %}
-            {{ policy.template_vars | default(omit) }}
-            {% elif policy.filename is defined and policy.filename %}
-            {{ lookup('ansible.builtin.file', policy.filename) | trim | indent(14) }}
+{% for group_entry in switch.groups %}
+{% set query = "[?(@.name==`" ~ group_entry ~ "`)]" %}
+{% set policy_group_match = MD_Extended.vxlan.policy.groups | community.general.json_query(query) | first %}
+{% for policy in policy_group_match.policies %}
+{% set query = "[?(@.name==`" ~ policy.name ~ "`)]" %}
+{% set policy_match = MD_Extended.vxlan.policy.policies | community.general.json_query(query) | first %}
+        - create_additional_policy: False
+          description: {{ policy_match.name }}
+          name: {{ policy_match.template_name | default(defaults.vxlan.policy.template_name) }}
+          policy_vars:
+            {% if policy_match.template_vars is defined and policy_match.template_vars %}
+            {{ policy_match.template_vars | default(omit) | ansible.builtin.to_nice_yaml | trim }}
+            {% elif policy_match.filename is defined and policy_match.filename %}
+            {{ lookup('ansible.builtin.file', policy_match.filename) | trim | indent(14) }}
             {% endif %}
-          priority: {{ policy.priority }}
-{% endif %}
-{% endif %}
+          priority: {{ policy.priority | default(policy_group_match.priority) | default(defaults.vxlan.policy.priority) }}
 {% endfor %}
-{% for policy_group in MD_Extended.vxlan.policy.policy_groups | default([]) %}
-{% set policy_group_switches = policy_group | community.general.json_query('switches[*].name') %}
-{% if policy_group_switches and policy_group_switches is iterable %}
-{% if switch in policy_group_switches %}
-{% set policy_group_policies = policy_group | community.general.json_query('policies[*].name') %}
-{% for policy_group_policy in policy_group_policies | default([]) %}
-{% set query = "policies[?(@.name==`" ~ policy_group_policy ~ "`)]" %}
-{% set policy = MD_Extended.vxlan.policy | community.general.json_query(query) | first %}
-        - description: {{ policy.name }}
-          name: {{ policy.template_name | default(omit) }}
-          policy_vars: >-
-            {% if policy.template_vars is defined and policy.template_vars %}
-            {{ policy.template_vars | default(omit) }}
-            {% elif policy.filename is defined and policy.filename %}
-            {{ lookup('ansible.builtin.file', policy.filename) | trim | indent(14) }}
-            {% endif %}
-          priority: {{ policy.priority }}
-{% endfor %}
-{% endif %}
-{% endif %}
 {% endfor %}
 {% endfor %}
