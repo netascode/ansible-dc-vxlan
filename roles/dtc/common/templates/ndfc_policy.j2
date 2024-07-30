@@ -1,4 +1,3 @@
-#jinja2:lstrip_blocks: True, trim_blocks: True
 ---
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
@@ -16,13 +15,20 @@
 {% set policy_match = MD_Extended.vxlan.policy.policies | community.general.json_query(query) | first %}
         - create_additional_policy: False
           description: {{ policy_match.name }}
+{% if (policy_match.template_name is defined and policy_match.template_name) or (policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename)) %}
           name: {{ policy_match.template_name | default(defaults.vxlan.policy.template_name) }}
+{% elif policy_match.filename is defined and policy_match.filename and ".cfg" in policy_match.filename %}
+          name: {{ defaults.vxlan.policy.template_name }}
+{% endif %}
           policy_vars:
-            {% if policy_match.template_vars is defined and policy_match.template_vars %}
-            {{ policy_match.template_vars | default(omit) | ansible.builtin.to_nice_yaml | trim }}
-            {% elif policy_match.filename is defined and policy_match.filename %}
-            {{ lookup('ansible.builtin.file', policy_match.filename) | trim | indent(14) }}
-            {% endif %}
+{% if policy_match.template_vars is defined and policy_match.template_vars %}
+            {{ policy_match.template_vars | default(omit) | ansible.builtin.to_nice_yaml}}
+{% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
+            {{ lookup('ansible.builtin.file', policy_match.filename) | indent(14) }}
+{% elif policy_match.filename is defined and policy_match.filename and ".cfg" in policy_match.filename %}
+            CONF: |-
+              {{ lookup('ansible.builtin.file', policy_match.filename) | indent(14) | trim }}
+{% endif %}
           priority: {{ policy.priority | default(policy_group_match.priority) | default(defaults.vxlan.policy.priority) }}
 {% endfor %}
 {% endfor %}

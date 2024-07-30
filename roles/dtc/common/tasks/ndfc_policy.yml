@@ -42,3 +42,5 @@
     policy_config: "{{ lookup('file', policy_file_name) | from_yaml }}"
   when: (MD.vxlan.policy.policies | default([])) | length > 0
   delegate_to: localhost
+
+# - ansible.builtin.meta: end_play
