@@ -22,9 +22,9 @@
 {% endif %}
           policy_vars:
 {% if policy_match.template_vars is defined and policy_match.template_vars %}
-            {{ policy_match.template_vars | default(omit) | ansible.builtin.to_nice_yaml}}
+            {{ policy_match.template_vars | ansible.builtin.to_nice_yaml(indent=2) | replace('CONF:', 'CONF: |-\n') | replace('\n\n', '\n') | indent(12) | trim }}
 {% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
-            {{ lookup('ansible.builtin.file', policy_match.filename) | indent(14) }}
+            {{ lookup('ansible.builtin.file', policy_match.filename) | indent(12) }}
 {% elif policy_match.filename is defined and policy_match.filename and ".cfg" in policy_match.filename %}
             CONF: |-
               {{ lookup('ansible.builtin.file', policy_match.filename) | indent(14) | trim }}
