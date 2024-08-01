@@ -58,6 +58,65 @@ vxlan:
         vlan_id: 2304
         vlan_name: NetAsCodeNet4_vlan2304
         gw_ip_address: "192.168.12.4/24"
+        route_tag: 54321
+        multicast_group_address: 239.1.1.1
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeNet5
+        vrf_name: NetAsCodeVrf5
+        net_id: 130005
+        vlan_id: 2305
+        vlan_name: NetAsCodeNet5_vlan2305
+        int_desc: NetAsCodeNet5
+        gw_ip_address: 192.168.5.1/24
+        gw_ipv6_address: 2001::1/64
+        mtu_l3intf: 9000
+        secondary_ip_addresses:
+          - ip_address: 10.0.1.1/24
+          - ip_address: 10.0.2.1/24
+          - ip_address: 10.0.3.1/24
+          - ip_address: 10.0.4.1/24
+        dhcp_servers:
+          - ip_address: 10.255.255.101
+            vrf: default
+          - ip_address: 10.255.255.102
+            vrf: default
+          - ip_address: 10.255.255.103
+            vrf: default
+        dhcp_loopback_id: 35
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeNet6
+        is_l2_only: True
+        net_id: 130006
+        vlan_id: 2306
+        vlan_name: NetAsCodeNet6_vlan2306
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeNet7
+        vrf_name: NetAsCodeVrf7
+        net_id: 130007
+        vlan_id: 2307
+        vlan_name: NetAsCodeNet7_vlan2307
+        netflow_enable: True
+        vlan_netflow_monitor: nac-monitor1
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeNet8
+        vrf_name: NetAsCodeVrf8
+        net_id: 130008
+        vlan_id: 2308
+        vlan_name: NetAsCodeNet8_vlan2308
+        trm_enable: True
+        attach_group: leaf1_leaf2
+
+      - name: NetAsCodeNet9
+        vrf_name: NetAsCodeVrf9
+        net_id: 130009
+        vlan_id: 2309
+        vlan_name: NetAsCodeNet9_vlan2309
+        multicast_group_address: 239.1.1.1
+        arp_suppress: False
         attach_group: leaf1_leaf2
 
       - name: NetAsCodeNet_Default
@@ -77,14 +136,46 @@ vxlan:
         l3gw_on_border: True
         mtu_l3intf: 7600
         multicast_group_address: 239.1.1.1
-        netflow_enable: False
         route_target_both: True
         route_tag: 12345
         secondary_ip_addresses:
           - ip_address: 10.10.10.1/24
             route_tag: 12345
         trm_enable: False
-        vlan_netflow_monitor: vlan55
+        netflow_enable: False
+        attach_group: all_leaf
+
+      - name: NetAsCodeNet_Full
+        is_l2_only: False
+        vrf_name: NetAsCodeVrf_Full
+        net_id: 130030
+        vlan_id: 2330
+        vlan_name: NetAsCodeNet_Full_vlan2330
+        int_desc: NetAsCodeNet_Full
+        gw_ip_address: 192.168.30.1/24
+        gw_ipv6_address: 2001::1/64
+        multicast_group_address: 239.1.1.1
+        arp_suppress: False
+        mtu_l3intf: 9000
+        secondary_ip_addresses:
+          - ip_address: 10.0.1.1/24
+          - ip_address: 10.0.2.1/24
+          - ip_address: 10.0.3.1/24
+          - ip_address: 10.0.4.1/24
+        dhcp_servers:
+          - ip_address: 10.255.255.101
+            vrf: default
+          - ip_address: 10.255.255.102
+            vrf: default
+          - ip_address: 10.255.255.103
+            vrf: default
+        dhcp_loopback_id: 35
+        l3gw_on_border: True
+        route_target_both: True
+        route_tag: 12345
+        trm_enable: True
+        netflow_enable: True
+        vlan_netflow_monitor: nac-monitor1
         attach_group: all_leaf
 
     network_attach_groups:
