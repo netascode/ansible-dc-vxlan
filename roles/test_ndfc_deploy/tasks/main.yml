@@ -1,0 +1,25 @@
+---
+# tasks file for test_ndfc_deploy
+
+# Force Actions To Run
+
+# - name: Render NDFC Robot Resource File 
+#   cisco.nac_dc_vxlan.template_local:
+#     src: 'ndfc_common.robot'
+#     dest: ""
+#     lstrip_blocks: yes
+
+- name: Create Output Directory
+  ansible.builtin.file:
+    path: "{{ playbook_dir }}/output/"
+    state: directory
+    mode: '0755'
+
+- name: Run Tests
+  # cisco.nac_dc_vxlan.common.nac_iac_test:
+  cisco.nac_dc_vxlan.iac_test:
+    data: 
+      - "{{ playbook_dir }}/host_vars/{{ MD.fabric.global.name }}"
+    templates: "{{ role_path }}/templates"
+    output: "{{ playbook_dir }}/output"
+  delegate_to: localhost
