@@ -28,24 +28,24 @@
 # --------------------------------------------------------------------
 # Remove all files from the previous run
 # --------------------------------------------------------------------
-- name: Delete content & directory
-  ansible.builtin.file:
-    state: absent
-    path: "{{ role_path }}/files/"
-  delegate_to: localhost
+# - name: Delete content & directory
+#   ansible.builtin.file:
+#     state: absent
+#     path: "{{ role_path }}/files/"
+#   delegate_to: localhost
 
-- name: Recreate the directory
-  ansible.builtin.file:
-    path: "{{ role_path }}/files/"
-    state: directory
-    mode: '0755'
-  delegate_to: localhost
+# - name: Recreate the directory
+#   ansible.builtin.file:
+#     path: "{{ role_path }}/files/"
+#     state: directory
+#     mode: '0755'
+#   delegate_to: localhost
 
-- name: Add gitkeep file back to the directory
-  ansible.builtin.file:
-    path: "{{ role_path }}/files/.gitkeep"
-    state: touch
-  delegate_to: localhost
+# - name: Add gitkeep file back to the directory
+#   ansible.builtin.file:
+#     path: "{{ role_path }}/files/.gitkeep"
+#     state: touch
+#   delegate_to: localhost
 
 # --------------------------------------------------------------------
 # Build Create Fabric parameter List From Template
@@ -158,3 +158,20 @@
 
 - name: Build Fabric interface All List From Template
   ansible.builtin.include_tasks: ndfc_interface_all.yml
+
+- debug: msg="Fabric Changes Detected - {{ changes_detected_fabric }}"
+- debug: msg="Inventory Changes Detected - {{ changes_detected_inventory }}"
+- debug: msg="vPC Peer Changes Detected - {{ changes_detected_vpc_peering }}"
+- debug: msg="vPC Link Peer Changes Detected - {{ changes_detected_link_vpc_peering }}"
+- debug: msg="Interface vPC Changes Detected - {{ changes_detected_interface_vpc }}"
+- debug: msg="Interface Access Changes Detected - {{ changes_detected_interface_access }}"
+- debug: msg="Interfae Access PO Changes Detected - {{ changes_detected_interface_access_po }}"
+- debug: msg="Interface Loopback Changes Detected - {{ changes_detected_interface_loopback }}"
+- debug: msg="Interface PO Routed Changes Detected - {{ changes_detected_interface_po_routed }}"
+- debug: msg="Interface Routed Changes Detected - {{ changes_detected_interface_routed }}"
+- debug: msg="Interface Trunk Changes Detected - {{ changes_detected_interface_trunk }}"
+- debug: msg="Interface Trunk PO Changes Detected - {{ changes_detected_interface_trunk_po }}"
+- debug: msg="Sub Interface Routed Changes Detected - {{ changes_detected_sub_interface_routed }}"
+- debug: msg="All Interfaces Changes Detected - {{ changes_detected_interfaces }}"
+- debug: msg="VRFs Changes Detected - {{ changes_detected_vrfs }}"
+- debug: msg="Networks Changes Detected - {{ changes_detected_networks }}"

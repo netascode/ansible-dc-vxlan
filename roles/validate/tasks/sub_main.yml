@@ -31,6 +31,13 @@
 
 - ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
 
+- name: Perform Required Syntax and Semantic Model Validation
+  cisco.nac_dc_vxlan.common.run_map:
+  register: run_map
+  delegate_to: localhost
+
+- ansible.builtin.debug: msg="{{ run_map }}"
+
 - name: Validate NDFC Service Model Data
   ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
 

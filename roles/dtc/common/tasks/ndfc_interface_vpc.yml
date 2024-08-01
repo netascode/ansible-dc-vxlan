@@ -21,15 +21,39 @@
 
 ---
 
-- name: Set interface_vpc_file_name Var
+- name: Initialize changes_detected_fabric Var
   ansible.builtin.set_fact:
-    interface_vpc_file_name: "{{ MD.vxlan.global.name }}_ndfc_interface_vpc.yml"
+    changes_detected_interface_vpc: false
   delegate_to: localhost
+
+- name: Set file_name Var
+  ansible.builtin.set_fact:
+    file_name: "{{ MD.vxlan.global.name }}_ndfc_interface_vpc.yml"
+  delegate_to: localhost
+
+- name: Stat Previous File If It Exists
+  ansible.builtin.stat:
+    path: "{{ role_path }}/files/{{ file_name }}"
+  register: data_file_previous
+  delegate_to: localhost
+
+- name: Backup Previous Data File If It Exists
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/{{ file_name }}"
+    dest: "{{ role_path }}/files/{{ file_name }}.old"
+  when: data_file_previous.stat.exists
+
+- name: Delete Previous Data File If It Exists
+  ansible.builtin.file:
+    state: absent
+    path: "{{ role_path }}/files/{{ file_name }}"
+  delegate_to: localhost
+  when: data_file_previous.stat.exists
 
 - name: Build VPC interface
   ansible.builtin.template:
     src: ndfc_interface_vpc.j2
-    dest: "{{ role_path }}/files/{{ interface_vpc_file_name }}"
+    dest: "{{ role_path }}/files/{{ file_name }}"
   delegate_to: localhost
 
 - name: Set interface_vpc Var default
@@ -39,6 +63,21 @@
 
 - name: Set interface_vpc Var
   ansible.builtin.set_fact:
-    interface_vpc: "{{ lookup('file', interface_vpc_file_name) | from_yaml }}"
+    interface_vpc: "{{ lookup('file', file_name) | from_yaml }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.access_vpc.count > 0 or MD_Extended.vxlan.topology.interfaces.modes.trunk_vpc.count > 0
   delegate_to: localhost
+
+- name: Diff Previous and Current Data Files
+  cisco.nac_dc_vxlan.dtc.diff_model_changes:
+    file_name_previous: "{{ role_path }}/files/{{ file_name }}.old"
+    file_name_current: "{{ role_path }}/files/{{ file_name }}"
+  register: file_diff_result
+  delegate_to: localhost
+
+- name: Set File Change Flag Based on File Diff Result
+  ansible.builtin.set_fact:
+    changes_detected_interface_vpc: true
+  delegate_to: localhost
+  when:
+    - file_diff_result.file_data_changed
+    - check_roles['save_previous']
