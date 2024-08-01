@@ -36,5 +36,6 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: merged
     config: "{{ policy_config }}"
+    deploy: false
   register: manage_policies_result
   when: MD.vxlan.policy.policies
