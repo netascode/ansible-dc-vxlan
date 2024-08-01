@@ -31,6 +31,7 @@ class Rule:
                         f"For vxlan.overlay_services.vrfs.{vrf['name']}.netflow_enable to be enabled, "
                         f"first vxlan.global.netflow.enable must be enabled (true)."
                     )
+                    break
 
                 if fabric_netflow_status and current_vrf_netflow_status:
                     current_vrf_netflow_monitor = vrf.get("netflow_monitor", None)
@@ -40,6 +41,7 @@ class Rule:
                             f"then vxlan.overlay_services.vrfs.{vrf['name']}.netflow_monitor must be set "
                             "to a valid value from vxlan.global.netflow."
                         )
+                        break
 
             current_vrf_trm_status = vrf.get("trm_enable", None)
             if current_vrf_trm_status is not None:
@@ -48,6 +50,7 @@ class Rule:
                         f"For vxlan.overlay_services.vrfs.{vrf['name']}.trm_enable to be enabled, "
                         f"first vxlan.underlay.multicast.trm_enable must be enabled (true)."
                     )
+                    break
 
                 current_vrf_trm_no_rp = vrf.get("no_rp", None)
                 current_vrf_trm_rp_external = vrf.get("rp_external", None)
@@ -62,6 +65,7 @@ class Rule:
                             f"When vxlan.overlay_services.vrfs.{vrf['name']}.no_rp is enabled (true), "
                             f"then vxlan.overlay_services.vrfs.{vrf['name']}.underlay_mcast_ip must be set."
                         )
+                        break
 
                     if (current_vrf_trm_no_rp and current_vrf_trm_rp_external or
                             current_vrf_trm_no_rp and current_vrf_trm_rp_address or
@@ -74,12 +78,14 @@ class Rule:
                             f"vxlan.overlay_services.vrfs.{vrf['name']}.rp_loopback_id, "
                             f"vxlan.overlay_services.vrfs.{vrf['name']}.overlay_multicast_group must be disabled (false)."
                         )
+                        break
 
                     if current_vrf_trm_rp_external and current_vrf_trm_rp_loopback_id:
                         results.append(
                             f"When vxlan.overlay_services.vrfs.{vrf['name']}.rp_external is enabled (true), "
                             f"then vxlan.overlay_services.vrfs.{vrf['name']}.rp_loopback_id must be disabled (false)."
                         )
+                        break
 
                     if (current_vrf_trm_rp_external and current_vrf_trm_rp_address is None or
                             current_vrf_trm_rp_external and current_vrf_trm_underlay_mcast_ip is None):
@@ -88,5 +94,6 @@ class Rule:
                             f"then vxlan.overlay_services.vrfs.{vrf['name']}.rp_address and "
                             f"vxlan.overlay_services.vrfs.{vrf['name']}.underlay_mcast_ip must be set."
                         )
+                        break
 
         return results

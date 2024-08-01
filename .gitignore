@@ -131,6 +131,9 @@ dmypy.json
 # VSCode
 .vscode/
 
+# Mac OSX
+*.DS_Store
+
 # Ignore Roles Files Directories
 roles/prepare_model/files
 roles/dtc/common/files/*
