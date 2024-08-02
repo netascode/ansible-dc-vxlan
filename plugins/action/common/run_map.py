@@ -54,7 +54,6 @@ class ActionModule(ActionBase):
             results['failed'] = True
         run_map_file_path = common_role_path + '/run_map.yml'
 
-
         if stage == 'starting_execution':
             updated_run_map = {}
             updated_run_map['time_stamp'] = dt.now().isoformat()
@@ -66,7 +65,6 @@ class ActionModule(ActionBase):
             updated_run_map['role_create_completed'] = False
             updated_run_map['role_deploy_completed'] = False
             updated_run_map['role_remove_completed'] = False
-
 
         if stage != 'starting_execution':
             with open(run_map_file_path, 'r') as file:
@@ -83,6 +81,5 @@ class ActionModule(ActionBase):
 
         with open(run_map_file_path, 'w') as outfile:
             yaml.dump(updated_run_map, outfile, default_flow_style=False)
-
 
         return results
