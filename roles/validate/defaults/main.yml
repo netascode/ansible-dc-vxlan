@@ -43,7 +43,7 @@ defaults:
         vtep_loopback_id: 1
         interfaces:
           topology_switch_access_interface:
-            description: 'NetAsCode Access Interface'
+            description: "NetAsCode Access Interface"
             mtu: jumbo
             speed: auto
             enabled: true
@@ -51,7 +51,7 @@ defaults:
             spanning_tree_portfast: true
             enable_bpdu_guard: true
           topology_switch_trunk_interface:
-            description: 'NetAsCode Trunk Interface'
+            description: "NetAsCode Trunk Interface"
             mtu: jumbo
             speed: auto
             enabled: true
@@ -59,7 +59,7 @@ defaults:
             spanning_tree_portfast: true
             enable_bpdu_guard: true
           topology_switch_access_po_interface:
-            description: 'NetAsCode Access PO Interface'
+            description: "NetAsCode Access PO Interface"
             mtu: jumbo
             speed: auto
             enabled: true
@@ -68,8 +68,8 @@ defaults:
             spanning_tree_portfast: true
             enable_bpdu_guard: true
           topology_switch_trunk_po_interface:
-            description: 'NetAsCode Trunk PO Interface'
-            mtu: jumbo 
+            description: "NetAsCode Trunk PO Interface"
+            mtu: jumbo
             speed: auto
             enabled: true
             trunk_allowed_vlans: none
@@ -77,23 +77,23 @@ defaults:
             spanning_tree_portfast: true
             enable_bpdu_guard: true
           topology_switch_routed_interface:
-            description: 'NetAsCode Routed Interface'
+            description: "NetAsCode Routed Interface"
             mtu: 9216
             speed: auto
             enabled: true
           topology_switch_routed_sub_interface:
-            description: 'NetAsCode Routed Sub Interface'
+            description: "NetAsCode Routed Sub Interface"
             mtu: 9216
             speed: auto
             enabled: true
           topology_switch_routed_po_interface:
-            description: 'NetAsCode Routed PO Interface'
+            description: "NetAsCode Routed PO Interface"
             mtu: 9216
             speed: auto
             enabled: true
             pc_mode: active
           topology_switch_loopback_interface:
-            description: 'NetAsCode Loopback Interface'
+            description: "NetAsCode Loopback Interface"
             enabled: true
       vpc_peers:
         domain_id: 1
@@ -170,6 +170,7 @@ defaults:
         disable_rt_auto: false
         netflow_enable: false
         no_rp: false
+        rp_external: false
         redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         trm_enable: false
         trm_bgw_msite: false
@@ -189,6 +190,69 @@ defaults:
       network_attach_groups:
         switches: []
     overlay_extension:
+      vrf_lites:
+        ospf:
+          enabled: true
+        areas:
+          area_type: standard
+          auth_type: none
+          auth_key_id: 0
+        default_area: 0
+        distance: 110
+        bfd:
+          enabled: false
+        bgp:
+          enabled: true
+          best_path_as_path_relax: false
+          graceful_restart: true
+          graceful_restart_helper: false
+          address_family_ipv4_unicast:
+            additional_paths_receive: false
+            additional_paths_send: false
+            default_originate: false
+            ebgp_distance: 20
+            ibgp_distance: 200
+            local_distance: 220
+            max_paths_ebgp: 1
+            max_paths_ibgp: 1
+            max_paths_eibgp: 1
+          address_family_ipv6_unicast:
+            additional_paths_receive: false
+            additional_paths_send: false
+            default_originate: false
+            ebgp_distance: 20
+            ibgp_distance: 200
+            local_distance: 220
+            max_paths_ebgp: 1
+            max_paths_ibgp: 1
+            max_paths_eibgp: 1
+        switches:
+          interfaces:
+            ospf:
+              cost: 0
+              passive_interface: false
+              mtu_ignore: false
+              advertise_subnet: false
+              bfd:
+                enabled: true
+              hello_interval: 10
+              dead_interval: 40
+              network_type: broadcast
+              priority: 1
+              lsa_interval: 5
+              lsa_retransmit_interval: 1
+            bgp_peers:
+              allowas_in: false
+              allowas_in_as_number: 0
+              send_community: true
+              send_ext_community: true
+              as_override: false
+              next_hop_self: false
+              bfd:
+                enabled: true
+              disable_connected_check: false
+              remove_private_as: false
+              remove_private_as_all: false
     policy:
       template_name: switch_freeform
       priority: 500
