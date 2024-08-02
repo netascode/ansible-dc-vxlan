@@ -54,4 +54,3 @@
   when:
     - MD.vxlan.overlay_services.networks
     - changes_detected_networks
-

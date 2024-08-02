@@ -26,8 +26,6 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-from datetime import datetime as dt
-import re
 import os
 import yaml
 
