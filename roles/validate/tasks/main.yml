@@ -44,3 +44,9 @@
   #   - role_create
   #   - role_deploy
   #   - role_remove
+
+- name: Mark Stage Role Validate Completed
+  cisco.nac_dc_vxlan.common.run_map:
+    stage: role_validate_completed
+  register: run_map
+  delegate_to: localhost

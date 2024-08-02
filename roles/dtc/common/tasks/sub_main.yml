@@ -26,26 +26,11 @@
   delegate_to: localhost
 
 # --------------------------------------------------------------------
-# Remove all files from the previous run
+# Remove all files from the previous run if run_map requires it
 # --------------------------------------------------------------------
-# - name: Delete content & directory
-#   ansible.builtin.file:
-#     state: absent
-#     path: "{{ role_path }}/files/"
-#   delegate_to: localhost
-
-# - name: Recreate the directory
-#   ansible.builtin.file:
-#     path: "{{ role_path }}/files/"
-#     state: directory
-#     mode: '0755'
-#   delegate_to: localhost
-
-# - name: Add gitkeep file back to the directory
-#   ansible.builtin.file:
-#     path: "{{ role_path }}/files/.gitkeep"
-#     state: touch
-#   delegate_to: localhost
+- name: Cleanup Files from Previous Run if run_map requires it
+  ansible.builtin.include_tasks: cleanup_files.yml
+  when: not run_map_read_result.diff_run
 
 # --------------------------------------------------------------------
 # Build Create Fabric parameter List From Template

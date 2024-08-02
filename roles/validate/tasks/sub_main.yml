@@ -31,12 +31,21 @@
 
 - ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
 
-- name: Perform Required Syntax and Semantic Model Validation
-  cisco.nac_dc_vxlan.common.run_map:
-  register: run_map
+- name: Read Run Map From Previous Run
+  cisco.nac_dc_vxlan.common.read_run_map:
+  register: run_map_read_result
   delegate_to: localhost
 
-- ansible.builtin.debug: msg="{{ run_map }}"
+- name: Debug Run Map Read Result
+  ansible.builtin.debug:
+    msg: "{{ run_map_read_result }}"
+  delegate_to: localhost
+
+- name: Initialize Run Map
+  cisco.nac_dc_vxlan.common.run_map:
+    stage: starting_execution
+  register: run_map
+  delegate_to: localhost
 
 - name: Validate NDFC Service Model Data
   ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
