@@ -21,7 +21,7 @@
 
 ---
 
-- name: Initialize changes_detected_fabric Var
+- name: Initialize changes_detected Var
   ansible.builtin.set_fact:
     changes_detected_interface_vpc: false
   delegate_to: localhost
