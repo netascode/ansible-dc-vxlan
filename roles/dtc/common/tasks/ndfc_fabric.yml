@@ -36,6 +36,7 @@
     path: "{{ role_path }}/files/{{ file_name }}"
   register: data_file_previous
   delegate_to: localhost
+  # TODO: Add capability to overridde path variable above for CI/CD pipeline
 
 - name: Backup Previous Data File If It Exists
   ansible.builtin.copy:
