@@ -27,7 +27,7 @@
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.speed) }}
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.spanning_tree_portfast) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_bpdu_guard) }}
-    allowed_vlans: "{{ ndfc_utils.convert_vlan_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.trunk_allowed_vlans) | trim }}"
+    allowed_vlans: "{{ ndfc_utils.convert_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.trunk_allowed_vlans) | trim }}"
 {% endif %}
 {% endif %}
 {% endfor %}
