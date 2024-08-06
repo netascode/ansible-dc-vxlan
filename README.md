@@ -51,7 +51,7 @@ network_delete_mode: false
 vrf_delete_mode: false
 inventory_delete_mode: false
 vpc_delete_mode: false
-vpc_peering_delete_mode: false
+link_vpc_delete_mode: false
 ```
 
 **Note:** These variables are set to `false` by default to avoid accidental removal of configuration from NDFC that might impact the network.
