@@ -44,23 +44,35 @@
 - name: Remove Fabric Interfaces
   ansible.builtin.import_tasks: interfaces.yml
   tags: "{{ nac_tags.remove_interfaces }}"
+  when:
+    - changes_detected_interfaces
 
 - name: Remove Fabric Networks
   ansible.builtin.import_tasks: networks.yml
   tags: "{{ nac_tags.remove_networks }}"
+  when:
+    - changes_detected_networks
 
 - name: Remove Fabric VRFs
   ansible.builtin.import_tasks: vrfs.yml
   tags: "{{ nac_tags.remove_vrfs }}"
+  when:
+    - changes_detected_vrfs
 
 - name: Remove Fabric vPC Peering
   ansible.builtin.import_tasks: vpc_peers.yml
   tags: "{{ nac_tags.remove_vpc_peers }}"
+  when:
+    - changes_detected_vpc_peering
 
 - name: Remove Fabric Links
   ansible.builtin.import_tasks: links.yml
   tags: "{{ nac_tags.remove_links }}"
+  when:
+    - changes_detected_link_vpc_peering
 
 - name: Remove Fabric Switches
   ansible.builtin.import_tasks: switches.yml
   tags: "{{ nac_tags.remove_switches }}"
+  when:
+    - changes_detected_inventory

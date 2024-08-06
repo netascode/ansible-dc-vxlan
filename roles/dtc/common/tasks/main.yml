@@ -24,3 +24,4 @@
 - name: Import Role Tasks
   ansible.builtin.import_tasks: sub_main.yml
   tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
+  delegate_to: localhost

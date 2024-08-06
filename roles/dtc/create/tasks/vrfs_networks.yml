@@ -37,7 +37,10 @@
     state: replaced
     config: "{{ vrf_config }}"
   register: manage_vrf_result
-  when: MD.vxlan.overlay_services.vrfs
+  when:
+    - MD.vxlan.overlay_services.vrfs
+    - changes_detected_vrfs
+
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
@@ -48,4 +51,6 @@
     state: replaced
     config: "{{ net_config }}"
   register: manage_network_result
-  when: MD.vxlan.overlay_services.networks
+  when:
+    - MD.vxlan.overlay_services.networks
+    - changes_detected_networks

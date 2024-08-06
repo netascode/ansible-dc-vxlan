@@ -20,7 +20,33 @@
 # SPDX-License-Identifier: MIT
 
 ---
+- debug: msg="{{ nac_tags.all}}"
 
 - name: Import Role Tasks
   ansible.builtin.import_tasks: sub_main.yml
   tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
+  # Could ignore errors and try again with tags specified as below as a work around ...
+  # tags:
+  #   - cr_manage_fabric
+  #   - cr_manage_switches
+  #   - cr_manage_vpc_peers
+  #   - cr_manage_interfaces
+  #   - cr_manage_vrfs_networks
+  #   # -------------------------
+  #   - rr_manage_interfaces
+  #   - rr_manage_networks
+  #   - rr_manage_vrfs
+  #   - rr_manage_vpc_peers
+  #   - rr_manage_links
+  #   - rr_manage_switches
+  #   # -------------------------
+  #   - role_validate
+  #   - role_create
+  #   - role_deploy
+  #   - role_remove
+
+- name: Mark Stage Role Validate Completed
+  cisco.nac_dc_vxlan.common.run_map:
+    stage: role_validate_completed
+  register: run_map
+  delegate_to: localhost

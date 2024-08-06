@@ -25,3 +25,4 @@
     all_tags: "{{ nac_tags.all }}"
     play_tags: "{{ ansible_run_tags }}"
   tags: "{{ ansible_run_tags }}"
+  delegate_to: localhost
