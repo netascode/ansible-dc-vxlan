@@ -50,6 +50,7 @@ interface_delete_mode: false
 network_delete_mode: false
 vrf_delete_mode: false
 inventory_delete_mode: false
+vpc_delete_mode: false
 vpc_peering_delete_mode: false
 ```
 
