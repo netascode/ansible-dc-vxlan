@@ -318,7 +318,7 @@ ansible-playbook -i inventory.yaml vxlan.yaml --tags role_create
 
 This collection has the capability to selectively run only sections within each role that changed in the data model.  This requires at least one run where
 all of the roles and sections are executed creating previous state.  On the next run only the sections that changed in the data model will be executed.
-For example, if VRFs and Networks are added/changed/removed in the modle data files only the VRF and Networks sections will be run.
+For example, if VRFs and Networks are added/changed/removed in the model data files only the VRF and Networks sections will be run.
 
 This capability is not available under the following conditions:
 
