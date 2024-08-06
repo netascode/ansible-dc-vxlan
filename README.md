@@ -314,6 +314,24 @@ Example: Selectively Run `cisco.nac_dc_vxlan.create` role alone
 ansible-playbook -i inventory.yaml vxlan.yaml --tags role_create
 ```
 
+**Selective Execution based on Model Changes**
+
+This collection has the capability to selectively run only sections within each role that changed in the data model.  This requires at least one run where
+all of the roles and sections are executed creating previous state.  On the next run only the sections that changed in the data model will be executed.
+For example, if VRFs and Networks are added/changed/removed in the modle data files only the VRF and Networks sections will be run.
+
+This capability is not available under the following conditions:
+
+  * Control flag `force_run_all` under group_vars is set to `true`.
+  * When using ansible tags to control execution.
+  * When one of the following roles failed to complete on the previous run.
+    * `cisco.nac_dc_vxlan.validate`
+    * `cisco.nac_dc_vxlan.create`
+    * `cisco.nac_dc_vxlan.deploy`
+    * `cisco.nac_dc_vxlan.remove`
+
+  If any of these conditions is true then all roles/sections will be run.
+
 ### See Also
 
 * [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
