@@ -23,7 +23,7 @@
 
 - name: Set vrf_file_name Var
   ansible.builtin.set_fact:
-    vrf_file_name: "{{ MD.vxlan.global.name }}_attach_vrfs.yml"
+    vrf_file_name: "{{ MD.vxlan.global.name }}_ndfc_attach_vrfs.yml"
   delegate_to: localhost
 
 - name: Build VRFs Attach List From Template

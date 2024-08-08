@@ -23,7 +23,7 @@
 
 - name: Set policy_file_name Var
   ansible.builtin.set_fact:
-    policy_file_name: "{{ MD.vxlan.global.name }}_policy.yml"
+    policy_file_name: "{{ MD.vxlan.global.name }}_ndfc_policy.yml"
   delegate_to: localhost
 
 - name: Build Policy List From Template
