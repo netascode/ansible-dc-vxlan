@@ -182,7 +182,8 @@ class PreparePlugin:
         if 'policy' in dm_check['keys_not_found'] or 'policy' in dm_check['keys_no_data']:
             self.model_data['vxlan']['policy'] = {}
             self.model_data['vxlan']['policy'].update({'policies': []})
-            self.model_data['vxlan']['policy'].update({'policy_groups': []})
+            self.model_data['vxlan']['policy'].update({'groups': []})
+            self.model_data['vxlan']['policy'].update({'switches': []})
 
         self.kwargs['results']['model_extended'] = self.model_data
         return self.kwargs['results']

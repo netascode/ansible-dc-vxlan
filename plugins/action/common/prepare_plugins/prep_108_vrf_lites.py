@@ -19,14 +19,14 @@
 #
 # SPDX-License-Identifier: MIT
 
-galaxy_info:
-  author: Cisco
-  description: Role to create state within the NDFC controller.
-  license: LICENSE
-  min_ansible_version: 2.14.15
 
-dependencies:
-  - cisco.nac_dc_vxlan.validate
-  - cisco.nac_dc_vxlan.common_global
-  - cisco.nac_dc_vxlan.render
-  - cisco.nac_dc_vxlan.dtc.common
+class PreparePlugin:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        self.keys = []
+
+    def prepare(self):
+        model_data = self.kwargs['results']['model_extended']
+
+        self.kwargs['results']['model_extended'] = model_data
+        return self.kwargs['results']

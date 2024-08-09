@@ -21,3 +21,6 @@
 
 ---
 # tasks file for render
+
+- name: Import Role Tasks
+  ansible.builtin.import_tasks: sub_main.yml
