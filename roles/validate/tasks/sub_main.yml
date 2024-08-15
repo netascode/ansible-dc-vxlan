@@ -86,6 +86,7 @@
     rules: "{{ enhanced_rules_path }}"
   vars:
     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+  when: enhanced_rules_path is defined and enhanced_rules_path
   delegate_to: localhost
 
 - name: Verify Connection to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}

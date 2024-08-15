@@ -63,7 +63,7 @@
   ansible.builtin.replace:
     path: "{{ playbook_dir }}/group_vars/ndfc/main.yml"
     regexp: 'ndfc_switch_password\:\s+(\S+)'
-    replace: "ndfc_switch_password: {{ fabric_switch_password }}"
+    replace: "ndfc_switch_password: {{ ndfc_switch_password }}"
   delegate_to: 127.0.0.1
 
 - name: Replace << fabric_name >> in test data model files
