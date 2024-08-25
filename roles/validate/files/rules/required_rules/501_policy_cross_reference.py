@@ -18,8 +18,7 @@ class Rule:
                         filename = policy.get("filename", None)
 
                         if ((filename and policy.get("template_name", None) and policy.get("template_vars", None)) or
-                                (filename and policy.get("template_vars", None))
-                            ):
+                                (filename and policy.get("template_vars", None))):
                             results.append(
                                 "Policy definitions are filename with .config or .cfg that defaults template_name to NDFC freeform or "
                                 "filename with .yaml or .yml that requires template_name to be defined per NDFC standards or "
@@ -62,8 +61,7 @@ class Rule:
                                 (any(topology_switch['management'].get('management_ipv4_address', None) == switch['name']
                                      for topology_switch in topology_switches)) or
                                 (any(topology_switch['management'].get('management_ipv6_address', None) == switch['name']
-                                     for topology_switch in topology_switches))
-                            ):
+                                     for topology_switch in topology_switches))):
                             results.append(
                                 f"Switch name {switch['name']} is defined and must be defined in the topology switches section."
                             )
