@@ -6,6 +6,7 @@ plugins/action/common/prepare_plugins/prep_103_topology_switches.py action-plugi
 plugins/action/common/prepare_plugins/prep_104_fabric_overlay_services.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_105_topology_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_106_topology_vpc_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_107_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/get_credentials.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/add_device_check.py action-plugin-docs # action plugin has no matching module to provide documentation

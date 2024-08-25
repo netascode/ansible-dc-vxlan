@@ -165,5 +165,3 @@
 
 - name: Build Fabric Policy List From Template
   ansible.builtin.include_tasks: ndfc_policy.yml
-
-# - ansible.builtin.meta: end_play
