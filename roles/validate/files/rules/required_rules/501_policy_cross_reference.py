@@ -59,9 +59,9 @@ class Rule:
                                 topology_switches = inventory.get("vxlan").get("topology").get("switches")
                     for switch in switches:
                         if not ((any(topology_switch['name'] == switch['name'] for topology_switch in topology_switches)) or
-                                (any(topology_switch['management'].get('management_ipv4_address', None) == switch['name'] 
+                                (any(topology_switch['management'].get('management_ipv4_address', None) == switch['name']
                                      for topology_switch in topology_switches)) or
-                                (any(topology_switch['management'].get('management_ipv6_address', None) == switch['name'] 
+                                (any(topology_switch['management'].get('management_ipv6_address', None) == switch['name']
                                      for topology_switch in topology_switches))
                         ):
                                 results.append(
