@@ -18,7 +18,8 @@ class Rule:
                         filename = policy.get("filename", None)
 
                         if ((filename and policy.get("template_name", None) and policy.get("template_vars", None)) or
-                            (filename and policy.get("template_vars", None))):
+                                (filename and policy.get("template_vars", None))
+                        ):
                             results.append(
                                 "Policy definitions are filename with .config or .cfg that defaults template_name to NDFC freeform or "
                                 "filename with .yaml or .yml that requires template_name to be defined per NDFC standards or "
@@ -58,9 +59,11 @@ class Rule:
                                 topology_switches = inventory.get("vxlan").get("topology").get("switches")
                     for switch in switches:
                         if not ((any(topology_switch['name'] == switch['name'] for topology_switch in topology_switches)) or
-                            (any(topology_switch['management'].get('management_ipv4_address', None) == switch['name'] for topology_switch in topology_switches)) or
-                            (any(topology_switch['management'].get('management_ipv6_address', None) == switch['name'] for topology_switch in topology_switches))
-                            ):
+                                (any(topology_switch['management'].get('management_ipv4_address', None) == switch['name'] 
+                                     for topology_switch in topology_switches)) or
+                                (any(topology_switch['management'].get('management_ipv6_address', None) == switch['name'] 
+                                     for topology_switch in topology_switches))
+                        ):
                                 results.append(
                                     f"Switch name {switch['name']} is defined and must be defined in the topology switches section."
                                 )
@@ -71,7 +74,8 @@ class Rule:
                             for group in groups:
                                 if not (any(group['name'] == switch_group for group in groups)):
                                     results.append(
-                                        f"Policy group name {switch_group} is defined for switch {switch['name']} and must be defined in the policy groups section."
+                                        f"Policy group name {switch_group} is defined for switch {switch['name']} and "
+                                        "must be defined in the policy groups section."
                                     )
                                     break
 
