@@ -30,7 +30,7 @@ class PreparePlugin:
 
         # import epdb; epdb.st()
 
-        # Ensure that vrf_lite's switches are mappinged to their respective 
+        # Ensure that vrf_lite's switches are mappinged to their respective
         # management IP address from topology switches
         topology_switches = model_data['vxlan']['topology']['switches']
         policy_switches = model_data['vxlan']['policy']['switches']
