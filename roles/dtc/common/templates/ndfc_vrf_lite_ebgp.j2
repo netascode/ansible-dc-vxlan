@@ -1,0 +1,31 @@
+---
+# This NDFC switch inventory config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+
+{% for vrf_lite in MD_Extended.vxlan.overlay_extensions.vrf_lites %}
+vrf context {{ vrf_lite['vrf'] }}
+{% for switch in vrf_lite.switches %}
+{% for static_route in switch['static_routes'] %}
+{% for next_hop in static_route['next_hops'] %}
+  ip route {{ static_route['prefix']}} {{ next_hop['ip'] }}
+!
+{% endfor %}
+{% endfor %}
+router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
+  vrf {{ vrf_lite['vrf'] }}
+{% for peer in switch['bgp_peers'] %}
+    neighbor {{ peer['address'] }}
+      remote-as {{ peer['remote_as'] }}
+{% if peer['address_family_ipv4_unicast'] is defined %}
+      address-family ipv4 unicast
+        route-map {{peer['address_family_ipv4_unicast']['route_map_out']}} out
+{% endif %}
+{% if peer['address_family_ipv6_unicast'] is defined %}
+      address-family ipv6 unicast
+        route-map {{peer['address_family_ipv6_unicast']['route_map_out']}} out
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+!
