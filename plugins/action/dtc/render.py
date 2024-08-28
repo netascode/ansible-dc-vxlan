@@ -58,19 +58,19 @@ class ActionModule(ActionBase):
 
         template = env.get_template(template_filename)
         for item in iterable:
-            commands = template.render(MD_Extended=data, item=item)
-
-            new_policy = {
-                "name": item["name"],
-                "template_name": "switch_freeform",
-                "template_vars": {
-                    "CONF": commands
-                }
-            }
-
-            data["vxlan"]["policy"]["policies"].append(new_policy)
-
             for switch in item['switches']:
+                commands = template.render(MD_Extended=data, item=item, switch_item=switch)
+
+                new_policy = {
+                    "name": item["name"],
+                    "template_name": "switch_freeform",
+                    "template_vars": {
+                        "CONF": commands
+                    }
+                }
+
+                data["vxlan"]["policy"]["policies"].append(new_policy)
+
                 if any(sw['name'] == switch['name'] for sw in data["vxlan"]["policy"]["switches"]):
                     found_switch = next(([idx, i] for idx, i in enumerate(data["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
                     if "groups" in found_switch[1].keys():
