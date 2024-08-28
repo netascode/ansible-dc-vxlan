@@ -55,7 +55,8 @@ class ActionModule(ActionBase):
         with open(run_map_file_path, 'r') as file:
             previous_run_map = yaml.safe_load(file)
 
-        # Check run map flags and if all are true then set diff_run to true
+        # Check run map flags and if any of then is false set diff_run to false
+        # to force all sections to run.
         for role in ['role_validate_completed', 'role_create_completed', 'role_deploy_completed', 'role_remove_completed']:
             if not previous_run_map.get(role):
                 results['diff_run'] = False
