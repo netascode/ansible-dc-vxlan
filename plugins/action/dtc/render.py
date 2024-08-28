@@ -56,38 +56,43 @@ class ActionModule(ActionBase):
         # import epdb; epdb.st()
 
         template = env.get_template(template_filename)
+
         for item in iterable:
             for switch in item['switches']:
-                commands = template.render(MD_Extended=data, item=item, switch_item=switch)
+                new_policy = {}
+
+                output = template.render(MD_Extended=data, item=item, switch_item=switch)
 
                 new_policy = {
-                    "name": item["name"],
+                    "name": f"{item['name']}_{switch['name']}",
                     "template_name": "switch_freeform",
                     "template_vars": {
-                        "CONF": commands
+                        "CONF": output
                     }
                 }
 
                 data["vxlan"]["policy"]["policies"].append(new_policy)
 
+                new_switch = {}
                 if any(sw['name'] == switch['name'] for sw in data["vxlan"]["policy"]["switches"]):
                     found_switch = next(([idx, i] for idx, i in enumerate(data["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
                     if "groups" in found_switch[1].keys():
-                        data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(item["name"])
+                        data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(f"{item['name']}_{switch['name']}")
                     else:
-                        data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [item["name"]]
+                        data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [f"{item['name']}_{switch['name']}"]
                 else:
                     new_switch = {
                         "name": switch["name"],
-                        "groups": [item["name"]]
+                        "groups": [f"{item['name']}_{switch['name']}"]
                     }
                     data["vxlan"]["policy"]["switches"].append(new_switch)
 
+                new_group = {}
                 if not any(group['name'] == item['name'] for group in data["vxlan"]["policy"]["groups"]):
                     new_group = {
-                        "name": item["name"],
+                        "name": f"{item['name']}_{switch['name']}",
                         "policies": [
-                            {"name": item["name"]},
+                            {"name": f"{item['name']}_{switch['name']}"},
                         ],
                         "priority": 500
                     }
