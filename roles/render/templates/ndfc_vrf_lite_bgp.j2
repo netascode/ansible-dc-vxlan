@@ -1,0 +1,10 @@
+! This NDFC VRF-Lite BGP config data structure is auto-generated
+! DO NOT EDIT MANUALLY
+!
+!
+router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
+!
+for switch in item.switches
+for neighbor in switch.bgp_peers
+neighbor {{ neighbor.ip }} remote-as {{ neighbor.remote_as }}
+!

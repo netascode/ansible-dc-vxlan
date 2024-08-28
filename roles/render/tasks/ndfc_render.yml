@@ -19,14 +19,22 @@
 #
 # SPDX-License-Identifier: MIT
 
-galaxy_info:
-  author: Cisco
-  description: Role to create state within the NDFC controller.
-  license: LICENSE
-  min_ansible_version: 2.14.15
+---
+# tasks file for ndfc_render
 
-dependencies:
-  - cisco.nac_dc_vxlan.validate
-  - cisco.nac_dc_vxlan.common_global
-  - cisco.nac_dc_vxlan.render
-  - cisco.nac_dc_vxlan.dtc.common
+- ansible.builtin.debug: msg="Rendering Policy Configuration for NDFC VRF-Lite(s)"
+  # tags: "{{ nac_tags.render }}"
+
+- name: Render VRF-Lite Configuration
+  ansible.builtin.import_tasks: ndfc_vrf_lites.yml
+  when: MD_Extended.vxlan.overlay_extensions.vrf_lites is defined
+  # tags: "{{ nac_tags.render }}"
+
+# TODO
+# - ansible.builtin.debug: msg="Rendering Policy Configuration for NDFC Route Control"
+#   # tags: "{{ nac_tags.render }}"
+
+# - name: Render VRF-Lite Configuration
+#   ansible.builtin.import_tasks: ndfc_route_control.yml
+#   when: MD_Extended.vxlan.overlay_extensions.route_control is defined
+#   # tags: "{{ nac_tags.render }}"
