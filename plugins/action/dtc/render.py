@@ -29,7 +29,6 @@ from ansible.plugins.action import ActionBase
 
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader
 
-from ..helper_functions import data_model_key_check
 
 display = Display()
 

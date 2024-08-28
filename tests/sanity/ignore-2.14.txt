@@ -12,6 +12,7 @@ plugins/action/common/get_credentials.py action-plugin-docs # action plugin has 
 plugins/action/dtc/add_device_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/verify_tags.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/render.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtd/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/test/inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/helper_functions.py action-plugin-docs # action plugin has no matching module to provide documentation
