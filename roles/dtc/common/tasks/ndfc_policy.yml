@@ -40,5 +40,5 @@
 - name: Set policy_config Var
   ansible.builtin.set_fact:
     policy_config: "{{ lookup('file', policy_file_name) | from_yaml }}"
-  when: (MD.vxlan.policy.policies | default([])) | length > 0
+  when: (MD_Extended.vxlan.policy.policies | default([])) | length > 0
   delegate_to: localhost

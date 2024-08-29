@@ -39,4 +39,4 @@
     deploy: false
     state: merged
   register: manage_policies_result
-  when: MD.vxlan.policy.policies
+  when: MD_Extended.vxlan.policy.policies

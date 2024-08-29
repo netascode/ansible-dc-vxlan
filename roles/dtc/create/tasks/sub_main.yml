@@ -59,4 +59,4 @@
 
 - name: Manage NDFC Fabric Policies
   ansible.builtin.import_tasks: policies.yml
-  when: (MD.vxlan.policy is defined) and (MD.vxlan.policy.policies | length > 0)
+  when: (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
