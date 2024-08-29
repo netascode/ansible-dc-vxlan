@@ -288,7 +288,6 @@ The playbook is located in the root of the repository and is called `vxlan.yaml`
     # Prepare service model for all subsequent roles
     #
     - role: cisco.nac_dc_vxlan.validate
-      tags: 'role_validate'
 
     # -----------------------
     # DataCenter Roles
