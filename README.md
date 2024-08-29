@@ -60,6 +60,24 @@ link_vpc_delete_mode: false
 
 These roles when run in sequence (validate, create, deploy, remove) are designed to build out the entire fabric and can be executed by a pipeline.  The roles can also be run in isolation by simply commenting out the roles that are not required during testing and fabric buildout to validate incremental changes.
 
+## Control Variables
+
+The following control variables are available in this collection.
+
+| Variable | Description | Default Value |
+| -------- | ------- | ------- |
+| `force_run_all` | Force all roles in the collection to run | `false` | 
+| `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
+| `network_delete_mode` | Remove network state as part of the remove role | `false` |
+| `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
+| `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
+| `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
+| `vpc_delete_mode` | Remove vpc pair state as part of the remove role | `false` |
+
+These variables are described in more detail in different sections of this document.
+
+The default settings can be overridden in `group_vars`.
+
 ## Quick Start Guide
 
 ### Set Environment for the Collection
