@@ -20,33 +20,22 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- debug: msg="{{ nac_tags.all}}"
 
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main.yml
-  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
-  # Could ignore errors and try again with tags specified as below as a work around ...
-  # tags:
-  #   - cr_manage_fabric
-  #   - cr_manage_switches
-  #   - cr_manage_vpc_peers
-  #   - cr_manage_interfaces
-  #   - cr_manage_vrfs_networks
-  #   # -------------------------
-  #   - rr_manage_interfaces
-  #   - rr_manage_networks
-  #   - rr_manage_vrfs
-  #   - rr_manage_vpc_peers
-  #   - rr_manage_links
-  #   - rr_manage_switches
-  #   # -------------------------
-  #   - role_validate
-  #   - role_create
-  #   - role_deploy
-  #   - role_remove
+# ---------------------------------------------------
+# Ansible Execution Control Variables
+# ---------------------------------------------------
+#
+# The parameters below represent the default values for
+# this collection. These values can be overridden by the
+# user in group_vars.
 
-- name: Mark Stage Role Validate Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    stage: role_validate_completed
-  register: run_map
-  delegate_to: localhost
+# Parameter to force all roles/sections to run
+force_run_all: false
+
+# Parameters to enable/disable remove role tasks
+interface_delete_mode: false
+network_delete_mode: false
+vrf_delete_mode: false
+inventory_delete_mode: false
+link_vpc_delete_mode: false
+vpc_delete_mode: false
