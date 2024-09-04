@@ -23,13 +23,12 @@
 
 - name: Build Policy ID Query using Switch Serial Number
   ansible.builtin.set_fact:
-    #query: "response.DATA[?(@.templateName==`host_11_1` && @.serialNumber=='{{ item }}')]"
     query: "[?(@.serialNumber=='{{ item }}')]"
   delegate_to: localhost
 
 - name: Get Hostname Policy for {{ item }} from NDFC Response
   ansible.builtin.set_fact:
-    policy: "{{ result | community.general.json_query(query) }}"
+    policy: "{{ switch_policy_template_host | community.general.json_query(query) }}"
   delegate_to: localhost
 
 - name: Get Current Hostname from Policy for {{ item }} from NDFC Response
@@ -44,7 +43,6 @@
 
 - name: Get Hostname for {{ item }} from Data Model
   ansible.builtin.set_fact:
-    #md_switch_hostname: "{{ MD.vxlan.topology.switches | community.general.json_query(query) }}"
     md_switch_hostname: "{{ md_switch_topology | community.general.json_query(query) }}"
   delegate_to: localhost
 
