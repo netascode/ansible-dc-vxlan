@@ -1,0 +1,20 @@
+---
+
+- name: Delete content & directory
+  ansible.builtin.file:
+    state: absent
+    path: "{{ role_path }}/files/"
+  delegate_to: localhost
+
+- name: Recreate the directory
+  ansible.builtin.file:
+    path: "{{ role_path }}/files/"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+
+- name: Add gitkeep file back to the directory
+  ansible.builtin.file:
+    path: "{{ role_path }}/files/.gitkeep"
+    state: touch
+  delegate_to: localhost

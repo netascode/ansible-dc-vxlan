@@ -131,6 +131,9 @@ dmypy.json
 # VSCode
 .vscode/
 
+# Mac OSX
+*.DS_Store
+
 # Ignore Roles Files Directories
 roles/prepare_model/files
 roles/dtc/common/files/*
@@ -138,6 +141,7 @@ roles/dtc/create/files
 roles/dtc/deploy/files
 roles/dtc/remove/files
 roles/validate/files/schema.yaml
+roles/validate/files/run_map.yml
 !roles/validate/files/rules/enhanced_rules
 !roles/validate/files/rules/enhanced_rules/.gitkeep
 !roles/validate/files/rules/required_rules/*

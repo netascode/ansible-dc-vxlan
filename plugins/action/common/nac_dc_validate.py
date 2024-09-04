@@ -29,6 +29,7 @@ from ansible.plugins.action import ActionBase
 
 import iac_validate.validator
 from iac_validate.yaml import load_yaml_files
+from iac_validate.cli.options import DEFAULT_SCHEMA
 import os
 
 display = Display()
@@ -65,10 +66,8 @@ class ActionModule(ActionBase):
             results['msg'] = "The data directory ({0}) for this fabric is empty!".format(mdata)
             return results
 
-        if schema is None:
-            schema = ""
-        if rules is None:
-            rules = ""
+        if schema == '':
+            schema = DEFAULT_SCHEMA
 
         validator = iac_validate.validator.Validator(schema, rules)
         if schema:
