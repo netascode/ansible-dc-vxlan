@@ -1,3 +1,43 @@
-! This NDFC VRF-Lite OSPF config data structure is auto-generated
+! This NDFC VRF-Lite BGP config data structure is auto-generated
 ! DO NOT EDIT MANUALLY
 !
+!
+vrf context {{ item.vrf }}
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+!
+{% if item.redistribution is defined and item.redistribution %}
+{% for redist in item.redistribution %}
+{% if redist.source is defined and redist.source == 'bgp' %}
+{% if redist.route_map is defined and redist.route_map %}
+route-map {{ redist.route_map }} permit 10
+  match route-type internal
+!
+router ospf {{item.ospf['process']}}
+  vrf {{ item.vrf }}
+    redistribute bgp {{ MD_Extended.vxlan.global.bgp_asn }} route-map {{ redist.route_map }}
+!
+{% endif %}
+{% endif %}
+{% if redist.source is defined and redist.source == 'ospf' %}
+{% if redist.route_map is defined and redist.route_map %}
+route-map {{ redist.route_map }} permit 10
+!
+router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
+  vrf {{ item.vrf }}
+    address-family ipv4 unicast
+      redistribute ospf {{item.ospf['process']}} route-map {{ redist.route_map }}
+! 
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if switch_item.interfaces is defined and switch_item.interfaces %}
+{% for interface in switch_item.interfaces %}
+interface {{ interface['name'] }}
+  ip ospf network {{ interface.ospf['network_type'] }}   
+  ip router ospf {{item.ospf['process']}} area {{interface.ospf['area']}}
+!
+{% endfor %}
+{% endif %}
