@@ -28,13 +28,10 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
 
-        # import epdb; epdb.st()
-
-        # Ensure that vrf_lite's switches are mappinged to their respective
+        # Ensure that vrf_lite's switches are mapping to their respective
         # management IP address from topology switches
         topology_switches = model_data['vxlan']['topology']['switches']
-        policy_switches = model_data['vxlan']['policy']['switches']
-        for switch in policy_switches:
+        for switch in model_data['vxlan']['policy']['switches']:
             if any(sw['name'] == switch['name'] for sw in topology_switches):
                 found_switch = next((item for item in topology_switches if item["name"] == switch['name']))
                 if found_switch.get('management').get('management_ipv4_address'):
