@@ -41,7 +41,7 @@
 - name: Get NDFC Fabric Default Switch Policies
   cisco.dcnm.dcnm_rest:
     method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/pagination?filter=templateName%3D%3Dhost_11_1&fabricName={{ MD.vxlan.global.name }}&GUI=true"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/pagination?filter=templateName==host_11_1&fabricName={{ MD.vxlan.global.name }}&GUI=true"
   register: result
 
 - name: Default Policy Payload Variable
