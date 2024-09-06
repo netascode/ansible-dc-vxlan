@@ -152,8 +152,6 @@
 - name: Build Fabric Policy List From Template
   ansible.builtin.include_tasks: ndfc_policy.yml
 
-- ansible.builtin.meta: end_play
-
 - name: Run Diff Flags
   ansible.builtin.debug:
     msg:
@@ -177,7 +175,8 @@
       - "+     ----- All Interfaces -----"
       - "+     VRFs Changes Detected -                 [ {{ changes_detected_vrfs }} ]"
       - "+     Networks Changes Detected -             [ {{ changes_detected_networks }} ]"
+      - "+     Policy Changes Detected -               [ {{ changes_detected_policy }} ]"
       - "+     ----- Run Map -----"
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
-      - " +    Force Run Flag  -                       [ {{ force_run_all }} ]"
+      - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
       - "----------------------------------------------------------------"

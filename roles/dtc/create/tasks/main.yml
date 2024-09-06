@@ -23,7 +23,7 @@
 
 - name: Import Role Tasks
   ansible.builtin.import_tasks: sub_main.yml
-  when: changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks
+  when: changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy
 
 - name: Mark Stage Role Create Completed
   cisco.nac_dc_vxlan.common.run_map:
