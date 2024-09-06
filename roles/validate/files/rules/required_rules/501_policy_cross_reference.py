@@ -20,8 +20,8 @@ class Rule:
                         if ((filename and policy.get("template_name", None) and policy.get("template_vars", None)) or
                                 (filename and policy.get("template_vars", None))):
                             results.append(
-                                "Policy definitions are filename with .config or .cfg that defaults template_name to NDFC freeform or "
-                                "filename with .yaml or .yml that requires template_name to be defined per NDFC standards or "
+                                "Policy definition filenames with .config or .cfg default template_name to NDFC freeform whereas "
+                                "filenames with .yaml or .yml requires template_name to be defined per NDFC standards and "
                                 "template_name and template_vars must not be defined together per NDFC standards."
                             )
                             break

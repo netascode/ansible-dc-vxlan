@@ -2,7 +2,6 @@
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{# {% set switches = MD_Extended.vxlan.policy.switches | community.general.json_query('[*].name') | flatten | unique | sort %} #}
 - switch:
 {% for switch in MD_Extended.vxlan.policy.switches %}
     - ip: {{ switch.name }}
