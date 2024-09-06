@@ -19,15 +19,25 @@
 #
 # SPDX-License-Identifier: MIT
 
----
 
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main.yml
-  tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
-  when: changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy
+class PreparePlugin:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        self.keys = []
 
-- name: Mark Stage Role Deploy Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    stage: role_deploy_completed
-  register: run_map
-  delegate_to: localhost
+    def prepare(self):
+        model_data = self.kwargs['results']['model_extended']
+
+        # Ensure that vrf_lite's switches are mapping to their respective
+        # management IP address from topology switches
+        topology_switches = model_data['vxlan']['topology']['switches']
+        for switch in model_data['vxlan']['policy']['switches']:
+            if any(sw['name'] == switch['name'] for sw in topology_switches):
+                found_switch = next((item for item in topology_switches if item["name"] == switch['name']))
+                if found_switch.get('management').get('management_ipv4_address'):
+                    switch['name'] = found_switch['management']['management_ipv4_address']
+                elif found_switch.get('management').get('management_ipv6_address'):
+                    switch['name'] = found_switch['management']['management_ipv6_address']
+
+        self.kwargs['results']['model_extended'] = model_data
+        return self.kwargs['results']

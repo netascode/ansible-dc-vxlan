@@ -23,12 +23,12 @@
 
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
-    changes_detected_vrfs: false
+    changes_detected_policy: false
   delegate_to: localhost
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "{{ MD.vxlan.global.name }}_attach_vrfs.yml"
+    file_name: "{{ MD.vxlan.global.name }}_ndfc_policy.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
@@ -36,6 +36,7 @@
     path: "{{ role_path }}/files/{{ file_name }}"
   register: data_file_previous
   delegate_to: localhost
+  # TODO: Add capability to overridde path variable above for CI/CD pipeline
 
 - name: Backup Previous Data File If It Exists
   ansible.builtin.copy:
@@ -43,28 +44,22 @@
     dest: "{{ role_path }}/files/{{ file_name }}.old"
   when: data_file_previous.stat.exists
 
-- name: Delete Previous File If It Exists
+- name: Delete Previous Data File If It Exists
   ansible.builtin.file:
     state: absent
     path: "{{ role_path }}/files/{{ file_name }}"
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
-- name: Build VRFs Attach List From Template
+- name: Build Policy List From Template
   ansible.builtin.template:
-    src: ndfc_attach_vrfs.j2
+    src: ndfc_policy.j2
     dest: "{{ role_path }}/files/{{ file_name }}"
   delegate_to: localhost
 
-- name: Create Empty vrf_config Var
-  ansible.builtin.set_fact:
-    vrf_config: []
-  delegate_to: localhost
-
-- name: Set vrf_config Var
-  ansible.builtin.set_fact:
-    vrf_config: "{{ lookup('file', file_name) | from_yaml }}"
-  when: (MD_Extended.vxlan.overlay_services.vrfs | default([])) | length > 0
+- ansible.builtin.set_fact:
+    policy_config: "{{ lookup('file', file_name) | from_yaml }}"
+  when: (MD_Extended.vxlan.policy.policies | default([])) | length > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
@@ -76,7 +71,7 @@
 
 - name: Set File Change Flag Based on File Diff Result
   ansible.builtin.set_fact:
-    changes_detected_vrfs: true
+    changes_detected_policy: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

@@ -21,13 +21,21 @@
 
 ---
 
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main.yml
-  tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
-  when: changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy
+- name: Manage Policies Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage Policies Fabric {{ MD.vxlan.global.name }}"
+      - "----------------------------------------------------------------"
 
-- name: Mark Stage Role Deploy Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    stage: role_deploy_completed
-  register: run_map
-  delegate_to: localhost
+# --------------------------------------------------------------------
+# Manage VRF Configuration on NDFC
+# --------------------------------------------------------------------
+- name: Manage NDFC Fabric Policies
+  cisco.dcnm.dcnm_policy:
+    fabric: "{{ MD.vxlan.global.name }}"
+    use_desc_as_key: true
+    config: "{{ policy_config }}"
+    deploy: false
+    state: merged
+  register: manage_policies_result

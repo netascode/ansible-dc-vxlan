@@ -29,6 +29,7 @@ nac_tags:
     - cr_manage_vpc_peers
     - cr_manage_interfaces
     - cr_manage_vrfs_networks
+    - cr_manage_policy
     # -------------------------
     - rr_manage_interfaces
     - rr_manage_networks
@@ -48,6 +49,7 @@ nac_tags:
     - cr_manage_vpc_peers
     - cr_manage_interfaces
     - cr_manage_vrfs_networks
+    - cr_manage_policy
   create_fabric:
     - cr_manage_fabric
   create_switches:
@@ -58,6 +60,8 @@ nac_tags:
     - cr_manage_interfaces
   create_vrfs_networks:
     - cr_manage_vrfs_networks
+  create_policy:
+    - cr_manage_policy
   # All Remove Tags
   remove:
     - rr_manage_interfaces

@@ -253,3 +253,6 @@ defaults:
               disable_connected_check: false
               remove_private_as: false
               remove_private_as_all: false
+    policy:
+      template_name: switch_freeform
+      priority: 500

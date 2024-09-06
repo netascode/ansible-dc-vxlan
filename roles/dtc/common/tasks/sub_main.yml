@@ -145,6 +145,13 @@
 - name: Build Fabric interface All List From Template
   ansible.builtin.include_tasks: ndfc_interface_all.yml
 
+# --------------------------------------------------------------------
+# Build Fabric Policy List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric Policy List From Template
+  ansible.builtin.include_tasks: ndfc_policy.yml
+
 - name: Run Diff Flags
   ansible.builtin.debug:
     msg:
@@ -168,7 +175,8 @@
       - "+     ----- All Interfaces -----"
       - "+     VRFs Changes Detected -                 [ {{ changes_detected_vrfs }} ]"
       - "+     Networks Changes Detected -             [ {{ changes_detected_networks }} ]"
+      - "+     Policy Changes Detected -               [ {{ changes_detected_policy }} ]"
       - "+     ----- Run Map -----"
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
-      - " +    Force Run Flag  -                       [ {{ force_run_all }} ]"
+      - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
       - "----------------------------------------------------------------"
