@@ -38,31 +38,26 @@
     md_serial_numbers_list: "{{ MD_Extended.vxlan.topology.switches | map(attribute='serial_number') | list }}"
   delegate_to: localhost
 
-- name: Get NDFC Fabric Default Switch Policies
+- name: Get NDFC Fabric Default Switch Policies with temmplate name host_11_1
   cisco.dcnm.dcnm_rest:
     method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/pagination?filter=templateName==host_11_1&fabricName={{ MD.vxlan.global.name }}&GUI=true"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/pagination?filter=templateName==host_11_1&fabricName={{ MD.vxlan.global.name }}"
   register: result
+
+- name: Set Policy List for template host_11_1
+  ansible.builtin.set_fact:
+    switch_policy_template_host: "{{ result.response.DATA }}"
+  delegate_to: localhost
+
+- name: Set Switches List
+  ansible.builtin.set_fact:
+    md_switch_topology: "{{ MD.vxlan.topology.switches }}"
+  delegate_to: localhost
 
 - name: Default Policy Payload Variable
   ansible.builtin.set_fact:
     policy_payload: []
   delegate_to: localhost
-
-- name: Build Query filtering host_11_1
-  ansible.builtin.set_fact:
-    query: "response.DATA[?(@.templateName==`host_11_1`)]"
-  delegate_to: localhost
-
-- name: Shrink dictionay Policy
-  ansible.builtin.set_fact:
-    switch_policy_template_host: "{{ result.response.DATA }}"
-  delegate_to: localhost
-
-- name: Shrink dictionay MD
-  ansible.builtin.set_fact:
-    md_switch_topology: "{{ MD.vxlan.topology.switches}} "
-  delegate_to: localhost 
 
 - name: Build Payload for NDFC Switch Hostname Policy Update
   ansible.builtin.include_tasks: build_hostname_policy_payload.yml
