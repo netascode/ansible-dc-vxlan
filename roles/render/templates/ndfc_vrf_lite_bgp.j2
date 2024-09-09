@@ -10,10 +10,32 @@ vrf context {{ item.vrf }}
 {% endfor %}
 {% endfor %}
 router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
+{% if switch_item['router_id'] is defined and switch_item['router_id'] %}
+  router-id {{ switch_item['router_id'] }}
+{% endif %}
+{% if switch_item.bgp.best_path_as_path_relax is defined and switch_item.bgp.best_path_as_path_relax %}
+  bestpathswitch as-path multipath-relax
+{% elif switch_item.bgp.best_path_as_path_relax is not defined and item.bgp.best_path_as_path_relax is defined and item.bgp.best_path_as_path_relax %}
+  bestpathbgp as-path multipath-relax
+{% endif %}
   vrf {{ item.vrf }}
+{% if item.bgp.local_as is defined and item.bgp.local_as  %}
+  local-as {{ item['bgp']['local_as']  }}
+{% endif %}
+{% if switch_item.bgp_peers is defined and switch_item.bgp_peers %}
 {% for peer in switch_item['bgp_peers'] %}
     neighbor {{ peer['address'] }}
       remote-as {{ peer['remote_as'] }}
+{% if peer['local_as'] is defined and peer['local_as'] %}
+    local-as {{ peer['local_as'] }}
+{% elif switch_item['bgp']['local_as'] is defined and switch_item['bgp']['local_as'] %}
+    local-as {{ switch_item['bgp']['local_as'] }}
+{% elif item['bgp']['local_as'] is defined and item['bgp']['local_as'] %}
+    local-as {{ item['bgp']['local_as'] }}
+{% endif %}
+{% if peer['description'] is defined %}
+      description {{ peer['description'] }}
+{% endif %}
 {% if peer['address_family_ipv4_unicast'] is defined %}
       address-family ipv4 unicast
         route-map {{peer['address_family_ipv4_unicast']['route_map_out']}} out
@@ -23,4 +45,5 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
         route-map {{peer['address_family_ipv6_unicast']['route_map_out']}} out
 {% endif %}
 {% endfor %}
+{% endif %}
 !
