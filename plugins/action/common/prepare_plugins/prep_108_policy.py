@@ -28,7 +28,7 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
 
-        # Ensure that vrf_lite's switches are mapping to their respective
+        # Ensure that policy switches are mapped to their respective
         # management IP address from topology switches
         topology_switches = model_data['vxlan']['topology']['switches']
         for switch in model_data['vxlan']['policy']['switches']:
