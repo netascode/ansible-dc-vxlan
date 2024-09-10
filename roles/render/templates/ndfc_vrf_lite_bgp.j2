@@ -14,9 +14,9 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   router-id {{ switch_item['router_id'] }}
 {% endif %}
 {% if switch_item.bgp.best_path_as_path_relax is defined and switch_item.bgp.best_path_as_path_relax %}
-  bestpathswitch as-path multipath-relax
+  bestpath as-path multipath-relax
 {% elif switch_item.bgp.best_path_as_path_relax is not defined and item.bgp.best_path_as_path_relax is defined and item.bgp.best_path_as_path_relax %}
-  bestpathbgp as-path multipath-relax
+  bestpath as-path multipath-relax
 {% endif %}
   vrf {{ item.vrf }}
 {% if item.bgp.local_as is defined and item.bgp.local_as  %}
