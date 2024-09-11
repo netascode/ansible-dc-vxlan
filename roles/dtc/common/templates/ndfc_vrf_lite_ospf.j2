@@ -10,97 +10,84 @@ vrf context {{ item.vrf }}
 {% set bgp1 = namespace(route_map='') %}
 {% set ospf1 = namespace(route_map='') %}
 {% if item.redistribution is defined and item.redistribution %}
-{% for redist in item.redistribution %}
-{% if redist.source is defined and redist.source == 'bgp' %}
-{% if redist.route_map is defined and redist.route_map %}
-{% set bgp1.route_map = redist.route_map %}
-{% endif %}
-{% endif %}
-{% if redist.source is defined and redist.source == 'ospf' %}
-{% if redist.route_map is defined and redist.route_map %}
-{% set ospf1.route_map = redist.route_map %}
-{% endif %}
-{% endif %}
-{% endfor %}
+  {% for redist in item.redistribution %}
+    {% if redist.source == 'bgp' and redist.route_map %}
+      {% set bgp1.route_map = redist.route_map %}
+    {% elif redist.source == 'ospf' and redist.route_map %}
+      {% set ospf1.route_map = redist.route_map %}
+    {% endif %}
+  {% endfor %}
 {% endif %}
 {% if switch_item.redistribution is defined and switch_item.redistribution %}
-{% for switch_redist in switch_item.redistribution %}
-{% if switch_redist.source is defined and switch_redist.source == 'bgp' %}
-{% if switch_redist.route_map is defined and switch_redist.route_map %}
-{% set bgp1.route_map = switch_redist.route_map %}
+  {% for switch_redist in switch_item.redistribution %}
+    {% if switch_redist.source == 'bgp' and switch_redist.route_map %}
+      {% set bgp1.route_map = switch_redist.route_map %}
+    {% elif switch_redist.source == 'ospf' and switch_redist.route_map %}
+      {% set ospf1.route_map = switch_redist.route_map %}
+    {% endif %}
+  {% endfor %}
 {% endif %}
-{% endif %}
-{% if switch_redist.source is defined and switch_redist.source == 'ospf' %}
-{% if switch_redist.route_map is defined and switch_redist.route_map %}
-{% set ospf1.route_map = switch_redist.route_map %}
-{% endif %}
-{% endif %}
-{% endfor %}
-{% endif %}
-{% if bgp1.route_map != '' %}
+{% if bgp1.route_map %}
 route-map {{ bgp1.route_map }} permit 10
   match route-type internal
 !
-router ospf {{item.ospf['process']}}
+router ospf {{ item.ospf['process'] }}
   vrf {{ item.vrf }}
     redistribute bgp {{ MD_Extended.vxlan.global.bgp_asn }} route-map {{ bgp1.route_map }}
 !
 {% endif %}
-{% if ospf1.route_map != '' %}
+{% if ospf1.route_map %}
 route-map {{ ospf1.route_map }} permit 10
 !
 router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   vrf {{ item.vrf }}
     address-family ipv4 unicast
-      redistribute ospf {{item.ospf['process']}} route-map {{ ospf1.route_map }}
+      redistribute ospf {{ item.ospf['process'] }} route-map {{ ospf1.route_map }}
 !
 {% endif %}
 {% if switch_item.interfaces is defined and switch_item.interfaces %}
-{% for interface in switch_item.interfaces %}
+  {% for interface in switch_item.interfaces %}
 interface {{ interface['name'] }}
-{% if interface.ospf.network_type is defined and interface.ospf.network_type %}
+  {% if interface.ospf.network_type %}
   ip ospf network {{ interface.ospf['network_type'] }}
-{% endif %}
-{% if interface.ospf.area is defined and interface.ospf.area %}
-  ip router ospf {{item.ospf['process']}} area {{interface.ospf['area']}}
-{% endif %}
-{% if interface.ospf.cost is defined and interface.ospf.cost %}
+  {% endif %}
+  {% if interface.ospf.area %}
+  ip router ospf {{ item.ospf['process'] }} area {{ interface.ospf['area'] }}
+  {% endif %}
+  {% if interface.ospf.cost %}
   ip ospf cost {{ interface.ospf.cost }}
-{% endif %}
-{% if interface.ospf.passive_interface is defined and interface.ospf.passive_interface %}
+  {% endif %}
+  {% if interface.ospf.passive_interface %}
   ip ospf passive-interface
-{% endif %}
-{% if interface.ospf.passive_interface is defined and interface.ospf.passive_interface == false %}
+  {% elif interface.ospf.passive_interface == false %}
   no ip ospf passive-interface
-{% endif %}
-{% if interface.ospf.mtu_ignore is defined and interface.ospf.mtu_ignore %}
+  {% endif %}
+  {% if interface.ospf.mtu_ignore %}
   ip ospf mtu-ignore
-{% endif %}
-{% if interface.ospf.mtu_ignore is defined and interface.ospf.mtu_ignore == false %}
+  {% elif interface.ospf.mtu_ignore == false %}
   no ip ospf mtu-ignore
-{% endif %}
-{% if interface.ospf.bfd.enabled is defined and interface.ospf.bfd.enabled %}
+  {% endif %}
+  {% if interface.ospf.bfd.enabled %}
   feature bfd
   ip ospf bfd
-{% endif %}
-{% if interface.ospf.bfd.enabled == false %}
+  {% elif interface.ospf.bfd.enabled == false %}
   ip ospf bfd disable
-{% endif %}
-{% if interface.ospf.hello_interval is defined and interface.ospf.hello_interval %}
+  {% endif %}
+  {% if interface.ospf.hello_interval %}
   ip ospf hello-interval {{ interface.ospf.hello_interval }}
-{% endif %}
-{% if interface.ospf.dead_interval is defined and interface.ospf.dead_interval %}
+  {% endif %}
+  {% if interface.ospf.dead_interval %}
   ip ospf dead-interval {{ interface.ospf.dead_interval }}
-{% endif %}
-{% if interface.ospf.priority is defined and interface.ospf.priority %}
+  {% endif %}
+  {% if interface.ospf.priority %}
   ip ospf priority {{ interface.ospf.priority }}
-{% endif %}
-{% if interface.ospf.lsa_retransmit_interval is defined and interface.ospf.lsa_retransmit_interval %}
+  {% endif %}
+  {% if interface.ospf.lsa_retransmit_interval %}
   ip ospf retransmit-interval {{ interface.ospf.lsa_retransmit_interval }}
-{% endif %}
-{% if interface.ospf.lsa_transmit_delay is defined and interface.ospf.lsa_transmit_delay %}
+  {% endif %}
+  {% if interface.ospf.lsa_transmit_delay %}
   ip ospf transmit-delay {{ interface.ospf.lsa_transmit_delay }}
-{% endif %}
+  {% endif %}
 !
-{% endfor %}
+  {% endfor %}
 {% endif %}
