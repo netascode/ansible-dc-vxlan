@@ -19,34 +19,25 @@
 #
 # SPDX-License-Identifier: MIT
 
----
-- debug: msg="{{ nac_tags.all}}"
 
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main.yml
-  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
-  # Could ignore errors and try again with tags specified as below as a work around ...
-  # tags:
-  #   - cr_manage_fabric
-  #   - cr_manage_switches
-  #   - cr_manage_vpc_peers
-  #   - cr_manage_interfaces
-  #   - cr_manage_vrfs_networks
-  #   # -------------------------
-  #   - rr_manage_interfaces
-  #   - rr_manage_networks
-  #   - rr_manage_vrfs
-  #   - rr_manage_vpc_peers
-  #   - rr_manage_links
-  #   - rr_manage_switches
-  #   # -------------------------
-  #   - role_validate
-  #   - role_create
-  #   - role_deploy
-  #   - role_remove
+class PreparePlugin:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        self.keys = []
 
-- name: Mark Stage Role Validate Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    stage: role_validate_completed
-  register: run_map
-  delegate_to: localhost
+    def prepare(self):
+        model_data = self.kwargs['results']['model_extended']
+
+        # Ensure that vrf_lite's switches are mapping to their respective
+        # management IP address from topology switches
+        topology_switches = model_data['vxlan']['topology']['switches']
+        for switch in model_data['vxlan']['policy']['switches']:
+            if any(sw['name'] == switch['name'] for sw in topology_switches):
+                found_switch = next((item for item in topology_switches if item["name"] == switch['name']))
+                if found_switch.get('management').get('management_ipv4_address'):
+                    switch['name'] = found_switch['management']['management_ipv4_address']
+                elif found_switch.get('management').get('management_ipv6_address'):
+                    switch['name'] = found_switch['management']['management_ipv6_address']
+
+        self.kwargs['results']['model_extended'] = model_data
+        return self.kwargs['results']
