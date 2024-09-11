@@ -38,9 +38,9 @@ jobs:
       run: ansible-galaxy collection build --output-path "${GITHUB_WORKSPACE}/.cache/collection-tarballs"
 
     - name: Store migrated collection artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: collection
+        name: collection-${{ matrix.ansible }}
         path: .cache/collection-tarballs
 
   sanity:
@@ -66,9 +66,9 @@ jobs:
       run: pip install https://github.com/ansible/ansible/archive/v${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
     - name: Download migrated collection artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: collection
+        name: collection-${{ matrix.ansible }}
         path: .cache/collection-tarballs
 
     - name: Install the collection tarball
