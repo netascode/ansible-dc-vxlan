@@ -1,6 +1,6 @@
 # Ansible Solution Collection:  nac_dc_vxlan (NetAsCode DC VXLAN)
 
-[![Actions Status](https://github.com/netascode/ansible-dc-vxlan/workflows/CI/badge.svg)](https://github.com/netascode/ansible-dc-vxlan/actions)
+[![Actions Status](https://github.com/netascode/ansible-dc-vxlan/workflows/CI/badge.svg?branch=develop)](https://github.com/netascode/ansible-dc-vxlan/actions)
 
 Ansible Collection for configuring Cisco VXLAN EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a data model that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
 
