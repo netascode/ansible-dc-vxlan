@@ -41,6 +41,7 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
 
+        fabric_name = task_vars['inventory_hostname']
         stage = self._task.args['stage']
 
         if 'dtc' in task_vars['role_path']:
@@ -52,7 +53,8 @@ class ActionModule(ActionBase):
         if not os.path.exists(common_role_path):
             # Return failure if the common role path does not exist
             results['failed'] = True
-        run_map_file_path = common_role_path + '/run_map.yml'
+
+        run_map_file_path = common_role_path + f'/{fabric_name}_run_map.yml'
 
         if stage == 'starting_execution':
             updated_run_map = {}
