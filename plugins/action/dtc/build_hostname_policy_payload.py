@@ -35,16 +35,25 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
 
-        model_data = self._task.args['model_data']
-        policy_data = self._task.args['policy_data']
+        model_data = self._task.args["model_data"]
+        # policy_data = self._task.args["policy_data"]
 
         policy_payload = []
 
         for switch in model_data["vxlan"]["topology"]["switches"]:
-            if any(policy["serialNumber"] == switch["serial_number"] and policy["templateName"] == "host_11_1" for policy in policy_data):
-                policy_match = next((item for item in policy_data if item["serialNumber"] == switch["serial_number"] and item["templateName"] == "host_11_1"))
-                policy_match["nvPairs"]["SWITCH_NAME"] = switch["name"]
-                policy_payload.append(policy_match)
+            policy_data = self._execute_module(
+                module_name="cisco.dcnm.dcnm_rest",
+                module_args={
+                    "method": "GET", 
+                    "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches/{switch['serial_number']}/SWITCH/SWITCH"
+                    },
+                task_vars=task_vars,
+                tmp=tmp
+            )
+            # if any(policy["templateName"] == "host_11_1" for policy in policy_data["response"]["DATA"]):
+            policy_match = next((item for item in policy_data["response"]["DATA"] if item["templateName"] == "host_11_1"))
+            policy_match["nvPairs"]["SWITCH_NAME"] = switch["name"]
+            policy_payload.append(policy_match)
 
         results['policy_payload'] = policy_payload
         results['policy_ids'] = "%2C".join([str(policy["id"]) for policy in policy_payload])
