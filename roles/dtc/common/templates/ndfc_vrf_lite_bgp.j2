@@ -18,14 +18,16 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
 {% elif switch_item.bgp.best_path_as_path_relax is not defined and item.bgp.best_path_as_path_relax is defined and item.bgp.best_path_as_path_relax %}
   bestpath as-path multipath-relax
 {% endif %}
-  vrf {{ item.vrf }}
-{% if item.bgp.local_as is defined and item.bgp.local_as  %}
-  local-as {{ item['bgp']['local_as']  }}
+{% if item.bgp.graceful_restart is defined and item.bgp.graceful_restart %}
+  graceful-restart
+{% endif %}
+{% if item.bgp.graceful_restart_helper is defined and item.bgp.graceful_restart_helper %}
+  graceful-restart-helper
 {% endif %}
 {% if switch_item.bgp_peers is defined and switch_item.bgp_peers %}
 {% for peer in switch_item['bgp_peers'] %}
-    neighbor {{ peer['address'] }}
-      remote-as {{ peer['remote_as'] }}
+  neighbor {{ peer['address'] }}
+    remote-as {{ peer['remote_as'] }}
 {% if peer['local_as'] is defined and peer['local_as'] %}
     local-as {{ peer['local_as'] }}
 {% elif switch_item['bgp']['local_as'] is defined and switch_item['bgp']['local_as'] %}
@@ -34,16 +36,42 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     local-as {{ item['bgp']['local_as'] }}
 {% endif %}
 {% if peer['description'] is defined %}
-      description {{ peer['description'] }}
+    description {{ peer['description'] }}
 {% endif %}
 {% if peer['address_family_ipv4_unicast'] is defined %}
-      address-family ipv4 unicast
-        route-map {{peer['address_family_ipv4_unicast']['route_map_out']}} out
+    address-family ipv4 unicast
+      route-map {{peer['address_family_ipv4_unicast']['route_map_out']}} out
 {% endif %}
 {% if peer['address_family_ipv6_unicast'] is defined %}
-      address-family ipv6 unicast
-        route-map {{peer['address_family_ipv6_unicast']['route_map_out']}} out
+    address-family ipv6 unicast
+      route-map {{peer['address_family_ipv6_unicast']['route_map_out']}} out
 {% endif %}
 {% endfor %}
+{% endif %}
+  vrf {{ item.vrf }}
+{% if item.bgp.local_as is defined and item.bgp.local_as  %}
+    local-as {{ item['bgp']['local_as']  }}
+{% endif %}
+{% if item.bgp.address_family_ipv4_unicast is defined and item.bgp.address_family_ipv4_unicast %}
+    address-family ipv4 unicast
+{% endif %}
+      maximum-paths {{ item.bgp.address_family_ipv4_unicast.max_paths_ebgp }}
+      maximum-paths ibgp {{ item.bgp.address_family_ipv4_unicast.max_paths_ibgp }}
+{#      maximum-paths {{ item.bgp.address_family_ipv4_unicast.max_paths_eibgp }} #}
+      distance {{item.bgp.address_family_ipv4_unicast.ebgp_distance}} {{item.bgp.address_family_ipv4_unicast.ibgp_distance}} {{item.bgp.address_family_ipv4_unicast.local_distance}}
+{% if item.bgp.address_family_ipv4_unicast.default_originate is defined and item.bgp.address_family_ipv4_unicast.default_originate %}
+      default-information originate
+{% endif %}
+{% if item.bgp.address_family_ipv4_unicast.additional_paths_send is defined and item.bgp.address_family_ipv4_unicast.additional_paths_send %}
+      additional-paths send
+{% endif %}
+{% if item.bgp.address_family_ipv4_unicast.additional_paths_receive is defined and item.bgp.address_family_ipv4_unicast.additional_paths_receive %}
+      additional-paths receive
+{% endif %}
+{% if item.bgp.address_family_ipv4_unicast.additional_paths_selection_route_map is defined and item.bgp.address_family_ipv4_unicast.additional_paths_selection_route_map %}
+      additional-paths selection route-map {{ item.bgp.address_family_ipv4_unicast.additional_paths_selection_route_map }}
+{% endif %}
+{% if item.bgp.address_family_ipv6_unicast is defined and item.bgp.address_family_ipv6_unicast %}
+    address-family ipv6 unicast
 {% endif %}
 !
