@@ -41,8 +41,9 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
 
-        fabric_name = task_vars['inventory_hostname']
+        model_data = task_vars['model_data']['data']
         stage = self._task.args['stage']
+        fabric_name = model_data["vxlan"]["global"]["name"]
 
         if 'dtc' in task_vars['role_path']:
             common_role_path = os.path.dirname(task_vars['role_path'])
