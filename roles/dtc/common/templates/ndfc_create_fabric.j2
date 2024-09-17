@@ -233,7 +233,7 @@
 {# Flow Monitor Parameters                                #}
 {# ------------------------------------------------------ #}
   ENABLE_NETFLOW: {{ global.netflow.enable | default(defaults.vxlan.global.netflow.enable) }}
-{% if global.netflow.enable | bool or defaults.vxlan.global.netflow.enable | bool %}
+{% if global.netflow.enable is defined and global.netflow.enable | bool or defaults.vxlan.global.netflow.enable | bool %}
 {% if global.netflow.exporter is defined %}
 {% set exporter_dict = dict() %}
 {% set _ = exporter_dict.update({ "NETFLOW_EXPORTER_LIST":[] }) %}

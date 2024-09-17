@@ -1,6 +1,6 @@
 # Ansible Solution Collection:  nac_dc_vxlan (NetAsCode DC VXLAN)
 
-[![Actions Status](https://github.com/netascode/ansible-dc-vxlan/workflows/CI/badge.svg)](https://github.com/netascode/ansible-dc-vxlan/actions)
+![Actions Status](https://github.com/netascode/ansible-dc-vxlan/actions/workflows/main.yml/badge.svg?branch=develop)
 
 Ansible Collection for configuring Cisco VXLAN EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a data model that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
 
@@ -50,7 +50,8 @@ interface_delete_mode: false
 network_delete_mode: false
 vrf_delete_mode: false
 inventory_delete_mode: false
-vpc_peering_delete_mode: false
+vpc_delete_mode: false
+link_vpc_delete_mode: false
 ```
 
 **Note:** These variables are set to `false` by default to avoid accidental removal of configuration from NDFC that might impact the network.
@@ -58,6 +59,24 @@ vpc_peering_delete_mode: false
 ### Advantages of the Roles in the Workflow
 
 These roles when run in sequence (validate, create, deploy, remove) are designed to build out the entire fabric and can be executed by a pipeline.  The roles can also be run in isolation by simply commenting out the roles that are not required during testing and fabric buildout to validate incremental changes.
+
+## Control Variables
+
+The following control variables are available in this collection.
+
+| Variable | Description | Default Value |
+| -------- | ------- | ------- |
+| `force_run_all` | Force all roles in the collection to run | `false` | 
+| `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
+| `network_delete_mode` | Remove network state as part of the remove role | `false` |
+| `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
+| `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
+| `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
+| `vpc_delete_mode` | Remove vpc pair state as part of the remove role | `false` |
+
+These variables are described in more detail in different sections of this document.
+
+The default settings can be overridden in `group_vars`.
 
 ## Quick Start Guide
 
@@ -269,7 +288,6 @@ The playbook is located in the root of the repository and is called `vxlan.yaml`
     # Prepare service model for all subsequent roles
     #
     - role: cisco.nac_dc_vxlan.validate
-      tags: 'role_validate'
 
     # -----------------------
     # DataCenter Roles
@@ -313,6 +331,24 @@ Example: Selectively Run `cisco.nac_dc_vxlan.create` role alone
 ```bash
 ansible-playbook -i inventory.yaml vxlan.yaml --tags role_create
 ```
+
+**Selective Execution based on Model Changes**
+
+This collection has the capability to selectively run only sections within each role that changed in the data model.  This requires at least one run where
+all of the roles and sections are executed creating previous state.  On the next run only the sections that changed in the data model will be executed.
+For example, if VRFs and Networks are added/changed/removed in the model data files only the VRF and Networks sections will be run.
+
+This capability is not available under the following conditions:
+
+  * Control flag `force_run_all` under group_vars is set to `true`.
+  * When using ansible tags to control execution.
+  * When one of the following roles failed to complete on the previous run.
+    * `cisco.nac_dc_vxlan.validate`
+    * `cisco.nac_dc_vxlan.create`
+    * `cisco.nac_dc_vxlan.deploy`
+    * `cisco.nac_dc_vxlan.remove`
+
+  If any of these conditions is true then all roles/sections will be run.
 
 ### See Also
 

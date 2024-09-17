@@ -2,7 +2,7 @@ import re
 
 
 class Rule:
-    id = "306"
+    id = "305"
     description = (
         "Verify vPC interfaces are compliant with vPC configuration requirements"
     )

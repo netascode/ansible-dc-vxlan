@@ -179,6 +179,7 @@ defaults:
         disable_rt_auto: false
         netflow_enable: false
         no_rp: false
+        rp_external: false
         redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         trm_enable: false
         trm_bgw_msite: false
@@ -261,3 +262,6 @@ defaults:
               disable_connected_check: false
               remove_private_as: false
               remove_private_as_all: false
+    policy:
+      template_name: switch_freeform
+      priority: 500
