@@ -24,10 +24,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-
-display = Display()
 
 
 class ActionModule(ActionBase):
@@ -36,7 +33,6 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
 
         model_data = self._task.args["model_data"]
-        # policy_data = self._task.args["policy_data"]
 
         policy_payload = []
 
@@ -50,7 +46,6 @@ class ActionModule(ActionBase):
                 task_vars=task_vars,
                 tmp=tmp
             )
-            # if any(policy["templateName"] == "host_11_1" for policy in policy_data["response"]["DATA"]):
             policy_match = next((item for item in policy_data["response"]["DATA"] if item["templateName"] == "host_11_1"))
             policy_match["nvPairs"]["SWITCH_NAME"] = switch["name"]
             policy_payload.append(policy_match)

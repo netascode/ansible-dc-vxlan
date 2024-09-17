@@ -97,3 +97,20 @@ class Rule:
                         break
 
         return results
+# if inventory["vxlan"].get("policy").get("switches", None):
+#     switches = inventory["vxlan"]["policy"]["switches"]
+
+#     if inventory.get("vxlan"):
+#         if inventory["vxlan"].get("topology"):
+#             if inventory.get("vxlan").get("topology").get("switches"):
+#                 topology_switches = inventory.get("vxlan").get("topology").get("switches")
+#     for switch in switches:
+#         if not ((any(topology_switch['name'] == switch['name'] for topology_switch in topology_switches)) or
+#                 (any(topology_switch['management'].get('management_ipv4_address', None) == switch['name']
+#                         for topology_switch in topology_switches)) or
+#                 (any(topology_switch['management'].get('management_ipv6_address', None) == switch['name']
+#                         for topology_switch in topology_switches))):
+#             results.append(
+#                 f"Switch name {switch['name']} is defined and must be defined in the topology switches section."
+#             )
+#             break
