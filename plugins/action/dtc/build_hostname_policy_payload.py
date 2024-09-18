@@ -56,6 +56,5 @@ class ActionModule(ActionBase):
             results['changed'] = True
 
         results['policy_payload'] = policy_payload
-        results['policy_ids'] = [policy["id"] for policy in policy_payload]
 
         return results
