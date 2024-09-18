@@ -47,8 +47,9 @@ class ActionModule(ActionBase):
                 tmp=tmp
             )
             policy_match = next((item for item in policy_data["response"]["DATA"] if item["templateName"] == "host_11_1"))
-            policy_match["nvPairs"]["SWITCH_NAME"] = switch["name"]
-            policy_payload.append(policy_match)
+            if policy_match["nvPairs"]["SWITCH_NAME"] != switch["name"]:
+                policy_match["nvPairs"]["SWITCH_NAME"] = switch["name"]
+                policy_payload.append(policy_match)
 
         results['policy_payload'] = policy_payload
         results['policy_ids'] = "%2C".join([str(policy["id"]) for policy in policy_payload])

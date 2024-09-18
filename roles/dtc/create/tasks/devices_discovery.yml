@@ -37,32 +37,7 @@
   cisco.nac_dc_vxlan.dtc.build_hostname_policy_payload:
     model_data: "{{ MD_Extended }}"
   register: results
-  # delegate_to: localhost
-
-# - name: Create List of Switch Serial Numbers from Data Model
-#   ansible.builtin.set_fact:
-#     md_serial_numbers_list: "{{ MD_Extended.vxlan.topology.switches | map(attribute='serial_number') | list }}"
-#   delegate_to: localhost
-
-# - name: Default Policy Payload Variable
-#   ansible.builtin.set_fact:
-#     policy_payload: []
-#   delegate_to: localhost
-
-# - name: Build Payload for NDFC Switch Hostname Policy Update
-#   ansible.builtin.include_tasks: build_hostname_policy_payload.yml
-#   loop: "{{ md_serial_numbers_list }}"
-
-# - name: Create List of Switch Hostname Policy IDs from NDFC
-#   ansible.builtin.set_fact:
-#     policy_ids: "{{ policy_payload | map(attribute='policyId') | list | join('%2C') }}"
-#   when: policy_payload | length > 0
-#   delegate_to: localhost
-
-# - ansible.builtin.debug:
-#     var: policy_payload
-
-- ansible.builtin.meta: end_play
+# do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 
 - name: Update Switch Hostname Policy in NDFC
   cisco.dcnm.dcnm_rest:
