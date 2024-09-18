@@ -34,27 +34,30 @@ class ActionModule(ActionBase):
         results['changed'] = False
 
         model_data = self._task.args["model_data"]
+        switch_serial_numbers = self._task.args["switch_serial_numbers"]
+        template_name = self._task.args["template_name"]
 
-        policy_payload = []
+        policy_update = {}
 
-        for switch in model_data["vxlan"]["topology"]["switches"]:
+        for switch_serial_number in switch_serial_numbers:
             policy_data = self._execute_module(
                 module_name="cisco.dcnm.dcnm_rest",
                 module_args={
                     "method": "GET",
-                    "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches/{switch['serial_number']}/SWITCH/SWITCH"
+                    "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches/{switch_serial_number}/SWITCH/SWITCH"
                 },
                 task_vars=task_vars,
                 tmp=tmp
             )
-            policy_match = next((item for item in policy_data["response"]["DATA"] if item["templateName"] == "host_11_1"))
-            if policy_match["nvPairs"]["SWITCH_NAME"] != switch["name"]:
-                policy_match["nvPairs"]["SWITCH_NAME"] = switch["name"]
-                policy_payload.append(policy_match)
+            switch_match = next((item for item in model_data["vxlan"]["topology"]["switches"] if item["serial_number"] == switch_serial_number))
+            policy_match = next((item for item in policy_data["response"]["DATA"] if item["templateName"] == template_name))
+            if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match["name"]:
+                policy_match["nvPairs"]["SWITCH_NAME"] = switch_match["name"]
+                policy_update.update({switch_serial_number: policy_match})
 
-        if policy_payload:
+        if policy_update:
             results['changed'] = True
 
-        results['policy_payload'] = policy_payload
+        results['policy_update'] = policy_update
 
         return results
