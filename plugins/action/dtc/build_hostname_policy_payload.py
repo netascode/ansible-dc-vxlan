@@ -40,9 +40,9 @@ class ActionModule(ActionBase):
             policy_data = self._execute_module(
                 module_name="cisco.dcnm.dcnm_rest",
                 module_args={
-                    "method": "GET", 
+                    "method": "GET",
                     "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches/{switch['serial_number']}/SWITCH/SWITCH"
-                    },
+                },
                 task_vars=task_vars,
                 tmp=tmp
             )
