@@ -31,6 +31,7 @@ class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
+        results['changed'] = False
 
         model_data = self._task.args["model_data"]
 
@@ -51,7 +52,10 @@ class ActionModule(ActionBase):
                 policy_match["nvPairs"]["SWITCH_NAME"] = switch["name"]
                 policy_payload.append(policy_match)
 
+        if policy_payload:
+            results['changed'] = True
+
         results['policy_payload'] = policy_payload
-        results['policy_ids'] = "%2C".join([str(policy["id"]) for policy in policy_payload])
+        results['policy_ids'] = [policy["id"] for policy in policy_payload]
 
         return results

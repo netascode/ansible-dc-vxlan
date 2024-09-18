@@ -39,9 +39,15 @@
   register: results
 # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 
+- name: Join List of Switch Hostname Policy IDs from NDFC
+  ansible.builtin.set_fact:
+    policy_ids: "{{ results.policy_ids | list | join('%2C') }}"
+  when: results.policy_payload | length > 0 and results.policy_ids | length > 0
+  delegate_to: localhost
+
 - name: Update Switch Hostname Policy in NDFC
   cisco.dcnm.dcnm_rest:
     method: PUT
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ results.policy_ids }}/bulk"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"
     json_data: "{{ results.policy_payload | to_json }}"
-  when: results.policy_payload | length > 0
+  when: results.policy_payload | length > 0 and results.policy_ids | length > 0
