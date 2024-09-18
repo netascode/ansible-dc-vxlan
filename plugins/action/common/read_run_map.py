@@ -39,13 +39,16 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['diff_run'] = True
 
+        model_data = task_vars['model_data']['data']
+        fabric_name = model_data["vxlan"]["global"]["name"]
+
         if 'dtc' in task_vars['role_path']:
             common_role_path = os.path.dirname(task_vars['role_path'])
             common_role_path = os.path.dirname(common_role_path) + '/validate/files'
         else:
             common_role_path = os.path.dirname(task_vars['role_path']) + '/validate/files'
 
-        run_map_file_path = common_role_path + '/run_map.yml'
+        run_map_file_path = common_role_path + f'/{fabric_name}_run_map.yml'
 
         if not os.path.exists(run_map_file_path):
             # Return failure if run_map file does not exist
