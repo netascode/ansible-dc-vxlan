@@ -39,7 +39,7 @@
   delegate_to: localhost
 
 - name: Build Switch Hostname Policy Payload from Data Model Update
-  cisco.nac_dc_vxlan.dtc.update_policy:
+  cisco.nac_dc_vxlan.dtc.update_switch_hostname_policy:
     model_data: "{{ MD_Extended }}"
     switch_serial_numbers: "{{ md_serial_numbers }}"
     template_name: host_11_1

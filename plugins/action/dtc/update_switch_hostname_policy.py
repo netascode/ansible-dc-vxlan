@@ -25,6 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
+from ..helper_functions import ndfc_get_switch_policy
 
 
 class ActionModule(ActionBase):
@@ -40,17 +41,16 @@ class ActionModule(ActionBase):
         policy_update = {}
 
         for switch_serial_number in switch_serial_numbers:
-            policy_data = self._execute_module(
-                module_name="cisco.dcnm.dcnm_rest",
-                module_args={
-                    "method": "GET",
-                    "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches/{switch_serial_number}/SWITCH/SWITCH"
-                },
+            policy_match = ndfc_get_switch_policy(
+                self=self,
                 task_vars=task_vars,
-                tmp=tmp
+                tmp=tmp,
+                template_name=template_name,
+                switch_serial_number=switch_serial_number
             )
+
             switch_match = next((item for item in model_data["vxlan"]["topology"]["switches"] if item["serial_number"] == switch_serial_number))
-            policy_match = next((item for item in policy_data["response"]["DATA"] if item["templateName"] == template_name))
+
             if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match["name"]:
                 policy_match["nvPairs"]["SWITCH_NAME"] = switch_match["name"]
                 policy_update.update({switch_serial_number: policy_match})
