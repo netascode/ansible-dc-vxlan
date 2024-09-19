@@ -30,6 +30,7 @@ class PreparePlugin:
     def prepare(self):
         templates_path = self.kwargs['templates_path']
         model_data = self.kwargs['results']['model_extended']
+        default_values = self.kwargs['default_values']
 
         template_filename = "ndfc_vrf_lite.j2"
 
@@ -45,6 +46,105 @@ class PreparePlugin:
         for vrf_lite in model_data["vxlan"]["overlay_extensions"]["vrf_lites"]:
             for switch in vrf_lite["switches"]:
                 unique_name = f"nac_{vrf_lite['name']}_{switch['name']}"
+
+                # Adding redistribution secion under the switches with the vrf_lite global config if it is not defined
+                # for example:
+                # before:
+                # vxlan:
+                #   overlay_extensions:
+                #     vrf_lites:
+                #       - name: ospf_vrf_red
+                #         vrf: vrf_red
+                #         redistribution:
+                #           - source: direct
+                #             route_map: fabric-rmp-redist-direct
+                #           - source: static
+                #             route_map: fabric-rmp-redist-static
+                #         switches:
+                #           - name: dc-border1
+                #after: 
+                # vxlan:
+                #   overlay_extensions:
+                #     vrf_lites:
+                #       - name: ospf_vrf_red
+                #         vrf: vrf_red
+                #         redistribution:
+                #           - source: direct
+                #             route_map: fabric-rmp-redist-direct
+                #           - source: static
+                #             route_map: fabric-rmp-redist-static
+                #         switches:
+                #           - name: dc-border1
+                #             redistribution:
+                #               - source: direct
+                #                 route_map: fabric-rmp-redist-direct
+                #               - source: static
+                #                 route_map: fabric-rmp-redist-static
+                
+                g_redist = vrf_lite.get("redistribution", [])
+                if switch.get("redistribution", []) == []:
+                    switch["redistribution"] = g_redist
+
+                # Adding ospf section under the interfaces config if ospf is not define with the default area id
+                # for example:
+                # before: 
+                # vxlan:
+                #   overlay_extensions:
+                #     vrf_lites:
+                #       - name: ospf_vrf_red
+                #         vrf: vrf_red
+                #         ospf:
+                #           process: overlay
+                #           default_area: 0
+                #         switches:
+                #           - name: dc-border1
+                #             interfaces:
+                #               - name: ethernet1/1
+                #                 ospf:
+                #                   area: 1
+                #               - name: ethernet1/2
+                #               - name: ethernet1/3
+                #                 ospf:
+                #                   area_cost: 55
+                # after: 
+                # vxlan:
+                #   overlay_extensions:
+                #     vrf_lites:
+                #       - name: ospf_vrf_red
+                #         vrf: vrf_red
+                #         ospf:
+                #           process: overlay
+                #           default_area: 0
+                #         switches:
+                #           - name: dc-border1
+                #             interfaces:
+                #               - name: ethernet1/1
+                #                 ospf:
+                #                   area: 1
+                #               - name: ethernet1/2     
+                #                 ospf:
+                #                   area: 0
+                #               - name: ethernet1/3
+                #                 ospf:
+                #                   area: 0
+                #                   area_cost: 55
+
+                ospf_enabled = True if vrf_lite.get("ospf") is not None else False
+                default_area = vrf_lite.get( "ospf", {}).get(
+                                "default_area",
+                                default_values["vxlan"]["overlay_extension"]["vrf_lites"]["ospf"]["default_area"]
+                                )
+                for intf_index in range(len(switch.get("interfaces", []))):
+                    intf = switch["interfaces"][intf_index]
+                    if not ospf_enabled or (intf.get("ospf") is not None and intf["ospf"].get("area", -1)) == -1:
+                        continue
+                    if intf.get("ospf") is None:
+                        intf["ospf"] = {
+                                "area": default_area
+                                }
+                    else:
+                        intf["ospf"]["area"] = default_area
+                    switch["interfaces"][intf_index] = intf  
 
                 output = template.render(MD_Extended=model_data, item=vrf_lite, switch_item=switch)
 
