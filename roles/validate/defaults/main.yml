@@ -189,20 +189,21 @@ defaults:
         switches: []
       network_attach_groups:
         switches: []
+    policy:
+      template_name: switch_freeform
+      priority: 500
     overlay_extension:
       vrf_lites:
         ospf:
-          enabled: true
-        areas:
-          area_type: standard
-          auth_type: none
-          auth_key_id: 0
-        default_area: 0
-        distance: 110
-        bfd:
-          enabled: false
+          areas:
+            area_type: standard
+            auth_type: none
+            auth_key_id: 0
+          default_area: 0
+          distance: 110
+          bfd:
+            enabled: false
         bgp:
-          enabled: true
           best_path_as_path_relax: false
           graceful_restart: true
           graceful_restart_helper: false
@@ -213,9 +214,6 @@ defaults:
             ebgp_distance: 20
             ibgp_distance: 200
             local_distance: 220
-            max_paths_ebgp: 1
-            max_paths_ibgp: 1
-            max_paths_eibgp: 1
           address_family_ipv6_unicast:
             additional_paths_receive: false
             additional_paths_send: false
@@ -223,9 +221,6 @@ defaults:
             ebgp_distance: 20
             ibgp_distance: 200
             local_distance: 220
-            max_paths_ebgp: 1
-            max_paths_ibgp: 1
-            max_paths_eibgp: 1
         switches:
           interfaces:
             ospf:
@@ -234,7 +229,7 @@ defaults:
               mtu_ignore: false
               advertise_subnet: false
               bfd:
-                enabled: true
+                enabled: false
               hello_interval: 10
               dead_interval: 40
               network_type: broadcast
@@ -242,17 +237,28 @@ defaults:
               lsa_interval: 5
               lsa_retransmit_interval: 1
             bgp_peers:
-              allowas_in: false
-              allowas_in_as_number: 0
-              send_community: true
-              send_ext_community: true
-              as_override: false
               next_hop_self: false
               bfd:
-                enabled: true
+                enabled: false
               disable_connected_check: false
               remove_private_as: false
               remove_private_as_all: false
-    policy:
-      template_name: switch_freeform
-      priority: 500
+              ebgp_multihop: 1
+              address_family_ipv4_unicast:
+                send_community: true
+                send_ext_community: true
+                allowas_in: false
+                allowas_in_as_number: 0
+                as_override: false
+                route_reflector_client: false
+                default_originate: false
+                next_hop_self: false
+              address_family_ipv6_unicast:
+                send_community: true
+                send_ext_community: true
+                allowas_in: false
+                allowas_in_as_number: 0
+                as_override: false
+                route_reflector_client: false
+                default_originate: false
+                next_hop_self: false
