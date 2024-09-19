@@ -38,3 +38,21 @@ def data_model_key_check(tested_object, keys):
         else:
             dm_key_dict['keys_not_found'].append(key)
     return dm_key_dict
+
+
+def ndfc_get_switch_policy(self, task_vars, tmp, template_name, switch_serial_number):
+    policy_data = self._execute_module(
+        module_name="cisco.dcnm.dcnm_rest",
+        module_args={
+            "method": "GET",
+            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches/{switch_serial_number}/SWITCH/SWITCH"
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+
+    policy_match = next(
+        (item for item in policy_data["response"]["DATA"] if item["templateName"] == template_name and item['serialNumber'] == switch_serial_number)
+    )
+
+    return policy_match

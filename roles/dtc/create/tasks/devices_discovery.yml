@@ -29,49 +29,32 @@
     save: true
     state: merged
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
   when: MD_Extended.vxlan.topology.switches | length > 0
 
 - name: Create List of Switch Serial Numbers from Data Model
   ansible.builtin.set_fact:
-    md_serial_numbers_list: "{{ MD_Extended.vxlan.topology.switches | map(attribute='serial_number') | list }}"
+    md_serial_numbers: "{{ MD_Extended.vxlan.topology.switches | map(attribute='serial_number') | list }}"
   delegate_to: localhost
 
-- name: Concatenate Switch Serial Numbers
+- name: Build Switch Hostname Policy Payload from Data Model Update
+  cisco.nac_dc_vxlan.dtc.update_switch_hostname_policy:
+    model_data: "{{ MD_Extended }}"
+    switch_serial_numbers: "{{ md_serial_numbers }}"
+    template_name: host_11_1
+  register: results
+# do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
+
+- name: Join List of Switch Hostname Policy IDs from NDFC
   ansible.builtin.set_fact:
-    md_serial_numbers: "{{ md_serial_numbers_list | join('%2C') }}"
-  delegate_to: localhost
-
-- name: Get NDFC Fabric Default Switch Policies
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches?serialNumber={{ md_serial_numbers }}"
-  register: result
-
-- name: Default Policy Payload Variable
-  ansible.builtin.set_fact:
-    policy_payload: []
-  delegate_to: localhost
-
-- name: Build Payload for NDFC Switch Hostname Policy Update
-  ansible.builtin.include_tasks: build_hostname_policy_payload.yml
-  loop: "{{ md_serial_numbers_list }}"
-
-- name: Build Policy ID Query from NDFC Response
-  ansible.builtin.set_fact:
-    query: "response.DATA[?(@.templateName==`host_11_1`)].policyId"
-  delegate_to: localhost
-
-- name: Create List of Switch Hostname Policy IDs from NDFC
-  ansible.builtin.set_fact:
-    policy_ids: "{{ policy_payload | map(attribute='policyId') | list | join('%2C') }}"
-  when: policy_payload | length > 0
+    policy_ids: "{{ results.policy_update.values() | map(attribute='policyId') | list | join('%2C') }}"
+  when: results.policy_update | length > 0
   delegate_to: localhost
 
 - name: Update Switch Hostname Policy in NDFC
   cisco.dcnm.dcnm_rest:
     method: PUT
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"
-    json_data: "{{ policy_payload | to_json }}"
-  when: policy_payload | length > 0
+    json_data: "{{ results.policy_update.values() | list | to_json }}"
+  when: results.policy_update | length > 0
