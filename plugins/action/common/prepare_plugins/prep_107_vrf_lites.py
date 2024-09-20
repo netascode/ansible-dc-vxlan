@@ -143,8 +143,8 @@ class PreparePlugin:
                         intf["ospf"] = {
                             "area": default_area
                         }
-                    else:
-                        intf["ospf"]["area"] = default_area
+                    # else:
+                    #     intf["ospf"]["area"] = default_area
                     switch["interfaces"][intf_index] = intf
 
                 output = template.render(
