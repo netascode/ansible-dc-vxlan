@@ -28,5 +28,4 @@ galaxy_info:
 dependencies:
   - cisco.nac_dc_vxlan.validate
   - cisco.nac_dc_vxlan.common_global
-  # - cisco.nac_dc_vxlan.render
   - cisco.nac_dc_vxlan.dtc.common
