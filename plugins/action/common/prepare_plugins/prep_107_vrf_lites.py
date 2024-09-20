@@ -137,7 +137,7 @@ class PreparePlugin:
                 )
                 for intf_index in range(len(switch.get("interfaces", []))):
                     intf = switch["interfaces"][intf_index]
-                    if not ospf_enabled or (intf.get("ospf") is not None and intf["ospf"].get("area", -1)) == -1:
+                    if not ospf_enabled or (intf.get("ospf") is not None and intf["ospf"].get("area", -1)) != -1:
                         continue
                     if intf.get("ospf") is None:
                         intf["ospf"] = {
