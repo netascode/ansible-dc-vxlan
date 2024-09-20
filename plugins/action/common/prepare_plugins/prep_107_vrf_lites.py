@@ -62,7 +62,7 @@ class PreparePlugin:
                 #             route_map: fabric-rmp-redist-static
                 #         switches:
                 #           - name: dc-border1
-                #after: 
+                #after:
                 # vxlan:
                 #   overlay_extensions:
                 #     vrf_lites:
@@ -80,14 +80,14 @@ class PreparePlugin:
                 #                 route_map: fabric-rmp-redist-direct
                 #               - source: static
                 #                 route_map: fabric-rmp-redist-static
-                
+
                 g_redist = vrf_lite.get("redistribution", [])
                 if switch.get("redistribution", []) == []:
                     switch["redistribution"] = g_redist
 
                 # Adding ospf section under the interfaces config if ospf is not define with the default area id
                 # for example:
-                # before: 
+                # before:
                 # vxlan:
                 #   overlay_extensions:
                 #     vrf_lites:
@@ -106,7 +106,7 @@ class PreparePlugin:
                 #               - name: ethernet1/3
                 #                 ospf:
                 #                   area_cost: 55
-                # after: 
+                # after:
                 # vxlan:
                 #   overlay_extensions:
                 #     vrf_lites:
@@ -121,7 +121,7 @@ class PreparePlugin:
                 #               - name: ethernet1/1
                 #                 ospf:
                 #                   area: 1
-                #               - name: ethernet1/2     
+                #               - name: ethernet1/2
                 #                 ospf:
                 #                   area: 0
                 #               - name: ethernet1/3
@@ -144,7 +144,7 @@ class PreparePlugin:
                                 }
                     else:
                         intf["ospf"]["area"] = default_area
-                    switch["interfaces"][intf_index] = intf  
+                    switch["interfaces"][intf_index] = intf
 
                 output = template.render(MD_Extended=model_data, item=vrf_lite, switch_item=switch)
 
