@@ -133,7 +133,7 @@ class PreparePlugin:
                     "ospf") is not None else False
                 default_area = vrf_lite.get("ospf", {}).get(
                     "default_area",
-                    default_values["vxlan"]["overlay_extension"]["vrf_lites"]["ospf"]["default_area"]
+                    default_values["vxlan"]["overlay_extensions"]["vrf_lites"]["ospf"]["default_area"]
                 )
                 for intf_index in range(len(switch.get("interfaces", []))):
                     intf = switch["interfaces"][intf_index]
