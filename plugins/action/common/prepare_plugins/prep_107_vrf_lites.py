@@ -62,7 +62,7 @@ class PreparePlugin:
                 #             route_map: fabric-rmp-redist-static
                 #         switches:
                 #           - name: dc-border1
-                #after:
+                # after:
                 # vxlan:
                 #   overlay_extensions:
                 #     vrf_lites:
@@ -129,24 +129,26 @@ class PreparePlugin:
                 #                   area: 0
                 #                   area_cost: 55
 
-                ospf_enabled = True if vrf_lite.get("ospf") is not None else False
-                default_area = vrf_lite.get( "ospf", {}).get(
-                                "default_area",
-                                default_values["vxlan"]["overlay_extension"]["vrf_lites"]["ospf"]["default_area"]
-                                )
+                ospf_enabled = True if vrf_lite.get(
+                    "ospf") is not None else False
+                default_area = vrf_lite.get("ospf", {}).get(
+                    "default_area",
+                    default_values["vxlan"]["overlay_extension"]["vrf_lites"]["ospf"]["default_area"]
+                )
                 for intf_index in range(len(switch.get("interfaces", []))):
                     intf = switch["interfaces"][intf_index]
                     if not ospf_enabled or (intf.get("ospf") is not None and intf["ospf"].get("area", -1)) == -1:
                         continue
                     if intf.get("ospf") is None:
                         intf["ospf"] = {
-                                "area": default_area
-                                }
+                            "area": default_area
+                        }
                     else:
                         intf["ospf"]["area"] = default_area
                     switch["interfaces"][intf_index] = intf
 
-                output = template.render(MD_Extended=model_data, item=vrf_lite, switch_item=switch)
+                output = template.render(
+                    MD_Extended=model_data, item=vrf_lite, switch_item=switch)
 
                 new_policy = {
                     "name": unique_name,
@@ -159,17 +161,21 @@ class PreparePlugin:
                 model_data["vxlan"]["policy"]["policies"].append(new_policy)
 
                 if any(sw['name'] == switch['name'] for sw in model_data["vxlan"]["policy"]["switches"]):
-                    found_switch = next(([idx, i] for idx, i in enumerate(model_data["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
+                    found_switch = next(([idx, i] for idx, i in enumerate(
+                        model_data["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
                     if "groups" in found_switch[1].keys():
-                        model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(unique_name)
+                        model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(
+                            unique_name)
                     else:
-                        model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [unique_name]
+                        model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [
+                            unique_name]
                 else:
                     new_switch = {
                         "name": switch["name"],
                         "groups": [unique_name]
                     }
-                    model_data["vxlan"]["policy"]["switches"].append(new_switch)
+                    model_data["vxlan"]["policy"]["switches"].append(
+                        new_switch)
 
                 if not any(group['name'] == vrf_lite['name'] for group in model_data["vxlan"]["policy"]["groups"]):
                     new_group = {
