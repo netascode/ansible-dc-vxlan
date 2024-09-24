@@ -24,6 +24,11 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   {% elif switch_item.bgp.graceful_restart is not defined and item.bgp.graceful_restart is defined and item.bgp.graceful_restart | default(true) %}
     graceful-restart
   {% endif %}
+  {% if switch_item.bgp.graceful_restart_helper is defined and switch_item.bgp.graceful_restart_helper %}
+    graceful-restart-helper
+  {% elif switch_item.bgp.graceful_restart_helper is not defined and item.bgp.graceful_restart_helper is defined and item.bgp.graceful_restart_helper %}
+    graceful-restart-helper
+  {% endif %}
   {% if switch_item.bgp.local_as is defined and switch_item.bgp.local_as %}
     local-as {{ switch_item.bgp.local_as }}
   {% elif item.bgp.local_as is defined and item.bgp.local_as %}
