@@ -56,6 +56,18 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     address-family ipv6 unicast
       distance {{ item.bgp.address_family_ipv6_unicast.ebgp_distance }} {{ item.bgp.address_family_ipv6_unicast.ibgp_distance }} {{ item.bgp.address_family_ipv6_unicast.local_distance }}
   {% endif %}
+    {% if item.bgp.address_family_ipv6_unicast.default_originate is defined and item.bgp.address_family_ipv6_unicast.default_originate %}
+      default-information originate
+    {% endif %}
+    {% if item.bgp.address_family_ipv6_unicast.additional_paths_send is defined and item.bgp.address_family_ipv6_unicast.additional_paths_send %}
+      additional-paths send
+    {% endif %}
+    {% if item.bgp.address_family_ipv6_unicast.additional_paths_receive is defined and item.bgp.address_family_ipv6_unicast.additional_paths_receive %}
+      additional-paths receive
+    {% endif %}
+    {% if item.bgp.address_family_ipv6_unicast.additional_paths_selection_route_map is defined and item.bgp.address_family_ipv6_unicast.additional_paths_selection_route_map %}
+      additional-paths selection route-map {{ item.bgp.address_family_ipv6_unicast.additional_paths_selection_route_map }}
+    {% endif %}
   {% if switch_item.bgp_peers is defined and switch_item.bgp_peers %}
   {% for peer in switch_item.bgp_peers %}
     neighbor {{ peer.address }}
@@ -68,6 +80,8 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
     {% if peer.update_source is defined and peer.update_source %}
       update-source {{ peer.update_source }}
+    {% elif switch_item.loopback_id is defined and switch_item.loopback_id %}
+      update-source Loopback{{ switch_item.loopback_id }}
     {% endif %}
     {% if peer.disable_connected_check is defined and peer.disable_connected_check %}
       disable-connected-check
