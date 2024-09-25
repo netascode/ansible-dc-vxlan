@@ -2,6 +2,10 @@
 ! DO NOT EDIT MANUALLY
 !
 !
+{% if item.ospf.bfd.enabled %}
+feature bfd
+!
+{% endif %}
 vrf context {{ item.vrf }}
   address-family ipv4 unicast
     route-target both auto
@@ -34,6 +38,7 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   {% for interface in switch_item.interfaces %}
   {% if interface.ospf.bfd.enabled %}
 feature bfd
+!
   {% endif %}
 interface {{ interface['name'] }}
   {% if interface.ospf.network_type %}
