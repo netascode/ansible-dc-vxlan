@@ -91,9 +91,8 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
       ebgp-multihop {{ peer.ebgp_multihop | default(1) }}
     {% if peer.password is defined %}
-      password 3 {{ peer.password }} {# this needs to be discussed in the call 0,3,7 #}
+      password 3 {{ peer.password }}
     {% endif %}
-
     {% if peer.address_family_ipv4_unicast is defined %}
       address-family ipv4 unicast
       {% if peer.address_family_ipv4_unicast.route_map_in is defined %}
