@@ -44,6 +44,12 @@ class PreparePlugin:
         template = env.get_template(template_filename)
 
         for vrf_lite in model_data["vxlan"]["overlay_extensions"]["vrf_lites"]:
+            ospf_enabled = True if vrf_lite.get(
+                "ospf") is not None else False
+            default_area = vrf_lite.get("ospf", {}).get(
+                "default_area",
+                default_values["vxlan"]["overlay_extensions"]["vrf_lites"]["ospf"]["default_area"]
+            )
             for switch in vrf_lite["switches"]:
                 unique_name = f"nac_{vrf_lite['name']}_{switch['name']}"
 
@@ -129,15 +135,9 @@ class PreparePlugin:
                 #                   area: 0
                 #                   area_cost: 55
 
-                ospf_enabled = True if vrf_lite.get(
-                    "ospf") is not None else False
-                default_area = vrf_lite.get("ospf", {}).get(
-                    "default_area",
-                    default_values["vxlan"]["overlay_extensions"]["vrf_lites"]["ospf"]["default_area"]
-                )
                 for intf_index in range(len(switch.get("interfaces", []))):
                     intf = switch["interfaces"][intf_index]
-                    if not ospf_enabled or (intf.get("ospf") is not None and intf["ospf"].get("area", -1)) != -1:
+                    if not ospf_enabled or (intf.get("ospf") is not None and intf["ospf"].get("area", -1) != -1):
                         continue
                     if intf.get("ospf") is None:
                         intf["ospf"] = {
