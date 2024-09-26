@@ -41,15 +41,13 @@ feature bfd
 !
   {% endif %}
 interface {{ interface['name'] }}
-  {% if interface.ospf.network_type %}
-  ip ospf network {{ interface.ospf['network_type'] | default(defaults.vxlan.overlay_extension.vrf_lites.switches.interfaces.ospf.network_type) }}
+  ip ospf network {{ interface.ospf['network_type'] | default('broadcast') }}
+  {% if interface.ospf['area'] is number %}
+  ip router ospf {{ item.ospf['process'] }} area 0.0.0.{{ interface.ospf['area'] }}
+  {% else %}
+  ip router ospf {{ item.ospf['process'] }} area {{ interface.ospf['area'] }}
   {% endif %}
-  {% if interface.ospf.area is defined %}
-  ip router ospf {{ item.ospf['process'] }} area {{ interface.ospf['area'] | default(defaults.vxlan.overlay_extension.vrf_lites.switches.interfaces.ospf.area) }}
-  {% endif %}
-  {% if interface.ospf.cost %}
-  ip ospf cost {{ interface.ospf.cost | default(defaults.vxlan.overlay_extension.vrf_lites.switches.interfaces.ospf.cost) }}
-  {% endif %}
+  ip ospf cost {{ interface.ospf.cost | default('0') }}
   {% if interface.ospf.passive_interface %}
   ip ospf passive-interface
   {% endif %}
@@ -59,21 +57,11 @@ interface {{ interface['name'] }}
   {% if interface.ospf.bfd.enabled %}
   ip ospf bfd
   {% endif %}
-  {% if interface.ospf.hello_interval %}
-  ip ospf hello-interval {{ interface.ospf.hello_interval | default(defaults.vxlan.overlay_extension.vrf_lites.switches.interfaces.ospf.hello_interval) }}
-  {% endif %}
-  {% if interface.ospf.dead_interval %}
-  ip ospf dead-interval {{ interface.ospf.dead_interval | default(defaults.vxlan.overlay_extension.vrf_lites.switches.interfaces.ospf.dead_interval) }}
-  {% endif %}
-  {% if interface.ospf.priority %}
-  ip ospf priority {{ interface.ospf.priority | default(defaults.vxlan.overlay_extension.vrf_lites.switches.interfaces.ospf.priority) }}
-  {% endif %}
-  {% if interface.ospf.lsa_retransmit_interval %}
-  ip ospf retransmit-interval {{ interface.ospf.lsa_retransmit_interval | default(defaults.vxlan.overlay_extension.vrf_lites.switches.interfaces.ospf.lsa_retransmit_interval) }}
-  {% endif %}
-  {% if interface.ospf.lsa_transmit_delay %}
-  ip ospf transmit-delay {{ interface.ospf.lsa_transmit_delay | default(defaults.vxlan.overlay_extension.vrf_lites.switches.interfaces.ospf.lsa_transmit_delay) }}
-  {% endif %}
+  ip ospf hello-interval {{ interface.ospf.hello_interval | default('10') }}
+  ip ospf dead-interval {{ interface.ospf.dead_interval | default('40') }}
+  ip ospf priority {{ interface.ospf.priority | default('1') }}
+  ip ospf retransmit-interval {{ interface.ospf.lsa_retransmit_interval | default('1') }}
+  ip ospf transmit-delay {{ interface.ospf.lsa_transmit_delay | default('5') }}
 !
   {% endfor %}
 {% endif %}
