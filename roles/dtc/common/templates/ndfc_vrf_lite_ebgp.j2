@@ -101,6 +101,30 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
       {% if peer.address_family_ipv4_unicast.route_map_out is defined %}
         route-map {{ peer.address_family_ipv4_unicast.route_map_out }} out
       {% endif %}
+      {% if peer.address_family_ipv4_unicast.weight is defined and peer.address_family_ipv4_unicast.weight %}
+        weight {{ peer.address_family_ipv4_unicast.weight }}
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.allow_as_in_max is defined and peer.address_family_ipv4_unicast.allow_as_in_max %}
+        allowas-in {{ peer.address_family_ipv4_unicast.allow_as_in_max }}
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.send_community is defined and peer.address_family_ipv4_unicast.send_community %}
+        send-community
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.send_ext_community is defined and peer.address_family_ipv4_unicast.send_ext_community %}
+        send-community extended
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.as_override is defined and peer.address_family_ipv4_unicast.as_override %}
+        as-override
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.next_hop_self is defined and peer.address_family_ipv4_unicast.next_hop_self %}
+        next-hop-self
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.default_originate is defined and peer.address_family_ipv4_unicast.default_originate %}
+        default-originate
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.route_reflector_client is defined and peer.address_family_ipv4_unicast.route_reflector_client %}
+        route-reflector-client
+      {% endif %}
     {% endif %}
     {% if peer.address_family_ipv6_unicast is defined %}
       address-family ipv6 unicast
@@ -109,6 +133,30 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
       {% endif %}
       {% if peer.address_family_ipv6_unicast.route_map_out is defined %}
         route-map {{ peer.address_family_ipv6_unicast.route_map_out }} out
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.weight is defined and peer.address_family_ipv6_unicast.weight %}
+        weight {{ peer.address_family_ipv6_unicast.weight }}
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.allow_as_in_max is defined and peer.address_family_ipv6_unicast.allow_as_in_max %}
+        allowas-in {{ peer.address_family_ipv6_unicast.allow_as_in_max }}
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.send_community is defined and peer.address_family_ipv6_unicast.send_community %}
+        send-community
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.send_ext_community is defined and peer.address_family_ipv6_unicast.send_ext_community %}
+        send-community extended
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.as_override is defined and peer.address_family_ipv6_unicast.as_override %}
+        as-override
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.next_hop_self is defined and peer.address_family_ipv6_unicast.next_hop_self %}
+        next-hop-self
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.default_originate is defined and peer.address_family_ipv6_unicast.default_originate %}
+        default-originate
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.route_reflector_client is defined and peer.address_family_ipv6_unicast.route_reflector_client %}
+        route-reflector-client
       {% endif %}
     {% endif %}
   {% endfor %}
