@@ -47,7 +47,7 @@ interface {{ interface['name'] }}
   {% else %}
   ip router ospf {{ item.ospf['process'] }} area {{ interface.ospf['area'] }}
   {% endif %}
-  ip ospf cost {{ interface.ospf.cost | default('0') }}
+  ip ospf cost {{ interface.ospf.cost | default('1') }}
   {% if interface.ospf.passive_interface %}
   ip ospf passive-interface
   {% endif %}
