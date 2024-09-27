@@ -234,8 +234,8 @@ defaults:
               dead_interval: 40
               network_type: broadcast
               priority: 1
-              lsa_retransmit_interval: 1
-              lsa_transmit_delay: 5
+              lsa_retransmit_interval: 5
+              lsa_transmit_delay: 1
             bgp_peers:
               next_hop_self: false
               bfd:

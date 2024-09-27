@@ -60,8 +60,8 @@ interface {{ interface['name'] }}
   ip ospf hello-interval {{ interface.ospf.hello_interval | default('10') }}
   ip ospf dead-interval {{ interface.ospf.dead_interval | default('40') }}
   ip ospf priority {{ interface.ospf.priority | default('1') }}
-  ip ospf retransmit-interval {{ interface.ospf.lsa_retransmit_interval | default('1') }}
-  ip ospf transmit-delay {{ interface.ospf.lsa_transmit_delay | default('5') }}
+  ip ospf retransmit-interval {{ interface.ospf.lsa_retransmit_interval | default('5') }}
+  ip ospf transmit-delay {{ interface.ospf.lsa_transmit_delay | default('1') }}
 !
   {% endfor %}
 {% endif %}
