@@ -224,7 +224,7 @@ defaults:
         switches:
           interfaces:
             ospf:
-              cost: 0
+              cost: 1
               passive_interface: false
               mtu_ignore: false
               advertise_subnet: false
@@ -243,7 +243,7 @@ defaults:
               disable_connected_check: false
               remove_private_as: false
               remove_private_as_all: false
-              ebgp_multihop: 1
+              ebgp_multihop: 2
               address_family_ipv4_unicast:
                 send_community: true
                 send_ext_community: true
