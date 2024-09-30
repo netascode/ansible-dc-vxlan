@@ -211,9 +211,6 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
       {% if peer.address_family_ipv4_unicast.default_originate is defined and peer.address_family_ipv4_unicast.default_originate %}
         default-originate
       {% endif %}
-      {% if peer.address_family_ipv4_unicast.route_reflector_client is defined and peer.address_family_ipv4_unicast.route_reflector_client %}
-        route-reflector-client
-      {% endif %}
 !
     {% endif %}
     {% if peer.address_family_ipv6_unicast is defined %}
@@ -246,9 +243,6 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
       {% endif %}
       {% if peer.address_family_ipv6_unicast.default_originate is defined and peer.address_family_ipv6_unicast.default_originate %}
         default-originate
-      {% endif %}
-      {% if peer.address_family_ipv6_unicast.route_reflector_client is defined and peer.address_family_ipv6_unicast.route_reflector_client %}
-        route-reflector-client
       {% endif %}
     {% endif %}
   {% endfor %}
