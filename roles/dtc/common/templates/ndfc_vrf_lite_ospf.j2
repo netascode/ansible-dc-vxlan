@@ -57,11 +57,22 @@ interface {{ interface['name'] }}
   {% if interface.ospf.bfd.enabled %}
   ip ospf bfd
   {% endif %}
-  ip ospf hello-interval {{ interface.ospf.hello_interval | default('10') }}
+  {% if interface.ospf.hello_interval and interface.ospf.hello_interval != 10 %}
+  ip ospf hello-interval {{ interface.ospf.hello_interval }}
+  {% endif %}
   ip ospf dead-interval {{ interface.ospf.dead_interval | default('40') }}
-  ip ospf priority {{ interface.ospf.priority | default('1') }}
-  ip ospf retransmit-interval {{ interface.ospf.lsa_retransmit_interval | default('5') }}
-  ip ospf transmit-delay {{ interface.ospf.lsa_transmit_delay | default('1') }}
+  {% if interface.ospf.priority and interface.ospf.priority != 1 %}
+  ip ospf priority {{ interface.ospf.priority }}
+  {% endif %}
+  {% if interface.ospf.lsa_retransmit_interval and interface.ospf.lsa_retransmit_interval != 5 %}
+  ip ospf retransmit-interval {{ interface.ospf.lsa_retransmit_interval }}
+  {% endif %}
+  {% if interface.ospf.lsa_transmit_delay and interface.ospf.lsa_transmit_delay != 1 %}
+  ip ospf transmit-delay {{ interface.ospf.lsa_transmit_delay }}
+  {% endif %}
 !
   {% endfor %}
 {% endif %}
+
+
+
