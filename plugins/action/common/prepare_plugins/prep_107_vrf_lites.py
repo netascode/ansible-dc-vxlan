@@ -148,7 +148,7 @@ class PreparePlugin:
                     switch["interfaces"][intf_index] = intf
 
                 output = template.render(
-                    MD_Extended=model_data, item=vrf_lite, switch_item=switch)
+                    MD_Extended=model_data, item=vrf_lite, switch_item=switch, defaults=default_values['vxlan'])
 
                 new_policy = {
                     "name": unique_name,
