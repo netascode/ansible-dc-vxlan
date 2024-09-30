@@ -248,7 +248,7 @@ defaults:
                 send_community: true
                 send_ext_community: true
                 allow_as_in: false
-                allow_as_in_number: 0
+                allow_as_in_number: 3
                 as_override: false
                 route_reflector_client: false
                 default_originate: false
@@ -257,7 +257,7 @@ defaults:
                 send_community: true
                 send_ext_community: true
                 allow_as_in: false
-                allow_as_in_number: 0
+                allow_as_in_number: 3
                 as_override: false
                 route_reflector_client: false
                 default_originate: false
