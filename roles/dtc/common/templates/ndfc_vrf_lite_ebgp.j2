@@ -191,9 +191,9 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
       {% if peer.address_family_ipv4_unicast.weight is defined and peer.address_family_ipv4_unicast.weight %}
         weight {{ peer.address_family_ipv4_unicast.weight }}
       {% endif %}
-      {% if peer.address_family_ipv4_unicast.allowas_in_as_number is defined and peer.address_family_ipv4_unicast.allowas_in_as_number %}
-        allowas-in {{ peer.address_family_ipv4_unicast.allowas_in_as_number }}
-      {% elif peer.address_family_ipv4_unicast.allowas_in is defined and peer.address_family_ipv4_unicast.allowas_in %}
+      {% if peer.address_family_ipv4_unicast.allow_as_in_number is defined and peer.address_family_ipv4_unicast.allow_as_in_number %}
+        allowas-in {{ peer.address_family_ipv4_unicast.allow_as_in_number }}
+      {% elif peer.address_family_ipv4_unicast.allow_as_in is defined and peer.address_family_ipv4_unicast.allow_as_in %}
         allowas-in 
       {% endif %}
       {% if peer.address_family_ipv4_unicast.send_community is defined and peer.address_family_ipv4_unicast.send_community %}
@@ -224,9 +224,9 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
       {% if peer.address_family_ipv6_unicast.weight is defined and peer.address_family_ipv6_unicast.weight %}
         weight {{ peer.address_family_ipv6_unicast.weight }}
       {% endif %}
-      {% if peer.address_family_ipv6_unicast.allowas_in_as_number is defined and peer.address_family_ipv6_unicast.allowas_in_as_number %}
-        allowas-in {{ peer.address_family_ipv6_unicast.allowas_in_as_number }}
-      {% elif peer.address_family_ipv6_unicast.allowas_in is defined and peer.address_family_ipv6_unicast.allowas_in %}
+      {% if peer.address_family_ipv6_unicast.allow_as_in_number is defined and peer.address_family_ipv6_unicast.allow_as_in_number %}
+        allowas-in {{ peer.address_family_ipv6_unicast.allow_as_in_number }}
+      {% elif peer.address_family_ipv6_unicast.allow_as_in is defined and peer.address_family_ipv6_unicast.allow_as_in %}
         allowas-in
       {% endif %}
       {% if peer.address_family_ipv6_unicast.send_community is defined and peer.address_family_ipv6_unicast.send_community %}
