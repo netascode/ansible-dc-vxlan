@@ -2,17 +2,19 @@
 ! DO NOT EDIT MANUALLY
 !
 !
+{% set redistribute = {} %}
+{% set feature = {} %}
 {% if item.ospf.bfd.enabled %}
-  {% set bfd_enabled = true %}
+  {% set _ = feature.update({'bfd': true}) %}
 {% endif %}
 {% if switch_item.interfaces %}
   {% for interface in switch_item.interfaces %}
     {% if interface.ospf.bfd.enabled %}
-      {% set bfd_enabled = true %}
+      {% set _ = feature.update({'bfd': true}) %}
     {% endif %}
   {% endfor %}
 {% endif %}
-{% if bfd_enabled %}
+{% if feature['bfd']%}
 feature bfd
 !
 {% endif %}
@@ -48,19 +50,18 @@ router ospf {{ item.ospf['process'] }}
         {% if switch_redist.source == 'bgp' and switch_redist.route_map %}
     redistribute bgp {{ MD_Extended.vxlan.global.bgp_asn }} route-map {{ switch_redist.route_map }}
         {% endif %}
+        {% if switch_redist.source == 'ospf' and switch_redist.route_map %}
+          {% set _ = redistribute.update({'ospf': switch_redist.route_map}) %}
+        {% endif %}
       {% endfor %}
     {% endif %}
 !
-{% if switch_item.redistribution %}
-  {% for switch_redist in switch_item.redistribution %}
-    {% if switch_redist.source == 'ospf' and switch_redist.route_map %}
+{% if redistribute['ospf'] %}
 router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   vrf {{ item.vrf }}
     address-family ipv4 unicast
-      redistribute ospf {{ item.ospf['process'] }} route-map {{ switch_redist.route_map }}
+      redistribute ospf {{ item.ospf['process'] }} route-map {{ redistribute['ospf'] }}
 !
-    {% endif %}
-  {% endfor %}
 {% endif %}
 {% if switch_item.interfaces %}
   {% for interface in switch_item.interfaces %}
@@ -106,6 +107,7 @@ interface {{ interface['name'] }}
     {% if interface_name.startswith('lo') and interface.ospf['advertise_subnet'] == true %}
   ip ospf advertise-subnet
     {% endif %}
+!  
   {% endfor %}
 {% endif %}
 !
