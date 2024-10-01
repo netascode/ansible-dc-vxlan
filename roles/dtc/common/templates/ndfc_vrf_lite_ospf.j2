@@ -20,7 +20,17 @@ route-map {{ switch_redist.route_map }} permit 10
 router ospf {{ item.ospf['process'] }}
   vrf {{ item.vrf }}
     redistribute bgp {{ MD_Extended.vxlan.global.bgp_asn }} route-map {{ switch_redist.route_map }}
-!
+    {% if switch_item.redistribution is defined and switch_item.redistribution %}
+    {% for switch_redist in switch_item.redistribution %}
+    {% if switch_redist.source == 'direct' and switch_redist.route_map %}
+    redistribute direct route-map {{ switch_redist.route_map }}
+    {% endif %}
+    {% if switch_redist.source == 'static' and switch_redist.route_map %}
+    redistribute static route-map {{ switch_redist.route_map }}
+    {% endif %}
+    {% endfor %}
+    !
+    {% endif %}
     {% endif %}
     {% if switch_redist.source == 'ospf' and switch_redist.route_map %}
 route-map {{ switch_redist.route_map }} permit 10
@@ -33,6 +43,17 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
   {% endfor %}
 {# PLACEHOLDER TO HANDLE DIRECT AND STATIC REDISTRIBUTION #}
+{% if switch_item.redistribution is defined and switch_item.redistribution %}
+{% for switch_redist in switch_item.redistribution %}
+{% if switch_redist.source == 'direct' and switch_redist.route_map %}
+route-map {{ switch_redist.route_map }} permit 10
+{% endif %}
+{% if switch_redist.source == 'static' and switch_redist.route_map %}
+route-map {{ switch_redist.route_map }} permit 10
+{% endif %}
+{% endfor %}
+!
+{% endif %}
 {% endif %}
 {% if switch_item.interfaces is defined and switch_item.interfaces %}
   {% for interface in switch_item.interfaces %}
@@ -40,8 +61,15 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
 feature bfd
 !
   {% endif %}
+{% set is_loopback = interface['name'] | lower %}
 interface {{ interface['name'] }}
-  ip ospf network {{ interface.ospf['network_type'] | default('broadcast') }}
+  {% if is_loopback.startswith('lo') %}
+  {% if interface.ospf['network_type'] and interface.ospf['network_type'] != 'broadcast' %}
+  ip ospf network {{ interface.ospf['network_type'] }}
+  {% endif %}
+  {% elif interface.ospf['network_type'] %}
+  ip ospf network {{ interface.ospf['network_type'] }}
+  {% endif %}
   {% if interface.ospf['area'] is number %}
   ip router ospf {{ item.ospf['process'] }} area 0.0.0.{{ interface.ospf['area'] }}
   {% else %}
@@ -72,9 +100,9 @@ interface {{ interface['name'] }}
   {% if interface.ospf.lsa_transmit_delay and interface.ospf.lsa_transmit_delay != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_transmit_delay %}
   ip ospf transmit-delay {{ interface.ospf.lsa_transmit_delay }}
   {% endif %}
+  {% if is_loopback.startswith('lo') and interface.ospf['advertise_subnet'] == true %}
+  ip ospf advertise-subnet
+  {% endif %}
 !
   {% endfor %}
 {% endif %}
-
-
-
