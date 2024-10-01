@@ -3,41 +3,57 @@
 !
 !
 {% if item.ospf.bfd.enabled %}
+  {% set bfd_enabled = true %}
+{% endif %}
+{% if switch_item.interfaces %}
+  {% for interface in switch_item.interfaces %}
+    {% if interface.ospf.bfd.enabled %}
+      {% set bfd_enabled = true %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{% if bfd_enabled %}
 feature bfd
 !
 {% endif %}
 vrf context {{ item.vrf }}
+  {% if switch_item.static_routes %}
+    {% for static_route in switch_item.static_routes %}
+      {% for next_hop in static_route.next_hops %}
+        {% if static_route.route_tag is defined and static_route.route_tag %}
+  ip route {{ static_route.prefix }} {{ next_hop.ip }} tag {{ static_route.route_tag }}
+        {% else %}
+  ip route {{ static_route.prefix }} {{ next_hop.ip }}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  {% endif %}
   address-family ipv4 unicast
     route-target both auto
     route-target both auto evpn
 !
-{% if switch_item.redistribution is defined and switch_item.redistribution %}
-  {% for switch_redist in switch_item.redistribution %}
-    {% if switch_redist.source == 'bgp' and switch_redist.route_map %}
-route-map {{ switch_redist.route_map }} permit 10
-  match route-type internal
-!
 router ospf {{ item.ospf['process'] }}
   vrf {{ item.vrf }}
-    {% if switch_item['router_id'] is defined and switch_item['router_id'] %}
+    {% if switch_item['router_id'] %}
     router-id {{ switch_item['router_id'] }}
     {% endif %}
-    redistribute bgp {{ MD_Extended.vxlan.global.bgp_asn }} route-map {{ switch_redist.route_map }}
-    {% if switch_item.redistribution is defined and switch_item.redistribution %}
-    {% for switch_redist in switch_item.redistribution %}
-    {% if switch_redist.source == 'direct' and switch_redist.route_map %}
+    {% if switch_item.redistribution %}
+      {% for switch_redist in switch_item.redistribution %}
+        {% if switch_redist.source == 'direct' and switch_redist.route_map %}
     redistribute direct route-map {{ switch_redist.route_map }}
-    {% endif %}
-    {% if switch_redist.source == 'static' and switch_redist.route_map %}
+        {% endif %}
+        {% if switch_redist.source == 'static' and switch_redist.route_map %}
     redistribute static route-map {{ switch_redist.route_map }}
+        {% endif %}
+        {% if switch_redist.source == 'bgp' and switch_redist.route_map %}
+    redistribute bgp {{ MD_Extended.vxlan.global.bgp_asn }} route-map {{ switch_redist.route_map }}
+        {% endif %}
+      {% endfor %}
     {% endif %}
-    {% endfor %}
-    !
-    {% endif %}
-    {% endif %}
-    {% if switch_redist.source == 'ospf' and switch_redist.route_map %}
-route-map {{ switch_redist.route_map }} permit 10
 !
+{% if switch_item.redistribution %}
+  {% for switch_redist in switch_item.redistribution %}
+    {% if switch_redist.source == 'ospf' and switch_redist.route_map %}
 router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   vrf {{ item.vrf }}
     address-family ipv4 unicast
@@ -45,66 +61,51 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
 !
     {% endif %}
   {% endfor %}
-{% if switch_item.redistribution is defined and switch_item.redistribution %}
-{% for switch_redist in switch_item.redistribution %}
-{% if switch_redist.source == 'direct' and switch_redist.route_map %}
-route-map {{ switch_redist.route_map }} permit 10
 {% endif %}
-{% if switch_redist.source == 'static' and switch_redist.route_map %}
-route-map {{ switch_redist.route_map }} permit 10
-{% endif %}
-{% endfor %}
-!
-{% endif %}
-{% endif %}
-{% if switch_item.interfaces is defined and switch_item.interfaces %}
+{% if switch_item.interfaces %}
   {% for interface in switch_item.interfaces %}
-  {% if interface.ospf.bfd.enabled %}
-feature bfd
-!
-  {% endif %}
-{% set interface_name = interface['name'] | lower %}
+    {% set interface_name = interface['name'] | lower %}
 interface {{ interface['name'] }}
-  {% if interface_name.startswith('lo') %}
-  {% if interface.ospf['network_type'] and interface.ospf['network_type'] != 'broadcast' %}
+    {% if interface_name.startswith('lo') %}
+      {% if interface.ospf['network_type'] and interface.ospf['network_type'] != 'broadcast' %}
   ip ospf network {{ interface.ospf['network_type'] }}
-  {% endif %}
-  {% elif interface.ospf['network_type'] %}
+      {% endif %}
+    {% elif interface.ospf['network_type'] %}
   ip ospf network {{ interface.ospf['network_type'] }}
-  {% endif %}
-  {% if interface.ospf['area'] is number %}
+    {% endif %}
+    {% if interface.ospf['area'] is number %}
   ip router ospf {{ item.ospf['process'] }} area 0.0.0.{{ interface.ospf['area'] }}
-  {% else %}
+    {% else %}
   ip router ospf {{ item.ospf['process'] }} area {{ interface.ospf['area'] }}
-  {% endif %}
-  {% if interface.ospf.cost %}
+    {% endif %}
+    {% if interface.ospf.cost %}
   ip ospf cost {{ interface.ospf.cost }}
-  {% endif %}
-  {% if interface.ospf.passive_interface %}
+    {% endif %}
+    {% if interface.ospf.passive_interface %}
   ip ospf passive-interface
-  {% endif %}
-  {% if interface.ospf.mtu_ignore %}
+    {% endif %}
+    {% if interface.ospf.mtu_ignore %}
   ip ospf mtu-ignore
-  {% endif %}
-  {% if interface.ospf.bfd.enabled %}
+    {% endif %}
+    {% if interface.ospf.bfd.enabled %}
   ip ospf bfd
-  {% endif %}
-  {% if interface.ospf.hello_interval and interface.ospf.hello_interval != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.hello_interval %}
+    {% endif %}
+    {% if interface.ospf.hello_interval and interface.ospf.hello_interval != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.hello_interval %}
   ip ospf hello-interval {{ interface.ospf.hello_interval }}
-  {% endif %}
+    {% endif %}
   ip ospf dead-interval {{ interface.ospf.dead_interval | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.dead_interval) }}
-  {% if interface.ospf.priority and interface.ospf.priority != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.priority %}
+    {% if interface.ospf.priority and interface.ospf.priority != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.priority %}
   ip ospf priority {{ interface.ospf.priority }}
-  {% endif %}
-  {% if interface.ospf.lsa_retransmit_interval and interface.ospf.lsa_retransmit_interval != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_retransmit_interval %}
+    {% endif %}
+    {% if interface.ospf.lsa_retransmit_interval and interface.ospf.lsa_retransmit_interval != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_retransmit_interval %}
   ip ospf retransmit-interval {{ interface.ospf.lsa_retransmit_interval }}
-  {% endif %}
-  {% if interface.ospf.lsa_transmit_delay and interface.ospf.lsa_transmit_delay != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_transmit_delay %}
+    {% endif %}
+    {% if interface.ospf.lsa_transmit_delay and interface.ospf.lsa_transmit_delay != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_transmit_delay %}
   ip ospf transmit-delay {{ interface.ospf.lsa_transmit_delay }}
-  {% endif %}
-  {% if interface_name.startswith('lo') and interface.ospf['advertise_subnet'] == true %}
+    {% endif %}
+    {% if interface_name.startswith('lo') and interface.ospf['advertise_subnet'] == true %}
   ip ospf advertise-subnet
-  {% endif %}
-!
+    {% endif %}
   {% endfor %}
 {% endif %}
+!
