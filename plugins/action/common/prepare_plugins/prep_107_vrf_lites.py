@@ -20,6 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader
+from ...helper_functions import hostname_to_ip_mapping
 
 
 class PreparePlugin:
@@ -186,6 +187,8 @@ class PreparePlugin:
                         "priority": 500
                     }
                     model_data["vxlan"]["policy"]["groups"].append(new_group)
+
+        model_data = hostname_to_ip_mapping(model_data)
 
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
