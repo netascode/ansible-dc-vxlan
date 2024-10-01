@@ -176,7 +176,7 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% elif peer.remove_private_as is defined and peer.remove_private_as %}
       remove-private-as
     {% endif %}
-      ebgp-multihop {{ peer.ebgp_multihop | default(1) }}
+      ebgp-multihop {{ peer.ebgp_multihop | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.ebgp_multihop) }}
     {% if peer.password is defined %}
       password 3 {{ peer.password }}
     {% endif %}
