@@ -1,26 +1,26 @@
-! This NDFC VRF-Lite BGP config data structure is auto-generated
+! This NDFC VRF-Lite eBGP config data structure is auto-generated
 ! DO NOT EDIT MANUALLY
 !
 !
 {% if switch_item.bgp_peers %}
-{% for peer in switch_item.bgp_peers %}
-{% if peer.bfd.enabled %}
+  {% for peer in switch_item.bgp_peers %}
+    {% if peer.bfd.enabled %}
 feature bfd
-{% endif %}
-{% endfor %}
+    {% endif %}
+  {% endfor %}
 !
 {% endif %}
 vrf context {{ item.vrf }}
 {% if switch_item.static_routes %}
-{% for static_route in switch_item.static_routes %}
-{% for next_hop in static_route.next_hops %}
-{% if static_route.route_tag %}
+  {% for static_route in switch_item.static_routes %}
+    {% for next_hop in static_route.next_hops %}
+      {% if static_route.route_tag %}
   ip route {{ static_route.prefix }} {{ next_hop.ip }} tag {{ static_route.route_tag }}
-{% else %}
+      {% else %}
   ip route {{ static_route.prefix }} {{ next_hop.ip }}
-{% endif %}
-{% endfor %}
-{% endfor %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
 !
 {% endif %}
 router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
@@ -66,16 +66,16 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
       additional-paths selection route-map {{ switch_item.bgp.address_family_ipv4_unicast.additional_paths_selection_route_map }}
     {% endif %}
     {% if switch_item.redistribution %}
-    {% for switch_redist in switch_item.redistribution %}
-      {% if switch_redist.source == 'direct' and switch_redist.route_map %}
+      {% for switch_redist in switch_item.redistribution %}
+        {% if switch_redist.source == 'direct' and switch_redist.route_map %}
       redistribute direct route-map {{ switch_redist.route_map }}
-    {% endif %}
-      {% if switch_redist.source == 'static' and switch_redist.route_map %}
+        {% endif %}
+        {% if switch_redist.source == 'static' and switch_redist.route_map %}
       redistribute static route-map {{ switch_redist.route_map }}
-      {% endif %}
-    {% endfor %}
+        {% endif %}
+      {% endfor %}
 !
-  {% endif %}
+    {% endif %}
   {% elif item.bgp.address_family_ipv4_unicast %}
     address-family ipv4 unicast
     {% if item.bgp.address_family_ipv4_unicast.ebgp_distance and item.bgp.address_family_ipv4_unicast.ibgp_distance and item.bgp.address_family_ipv4_unicast.local_distance %}
@@ -113,16 +113,16 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
       additional-paths selection route-map {{ switch_item.bgp.address_family_ipv6_unicast.additional_paths_selection_route_map }}
     {% endif %}
     {% if switch_item.redistribution %}
-    {% for switch_redist in switch_item.redistribution %}
-      {% if switch_redist.source == 'direct' and switch_redist.route_map %}
+      {% for switch_redist in switch_item.redistribution %}
+        {% if switch_redist.source == 'direct' and switch_redist.route_map %}
       redistribute direct route-map {{ switch_redist.route_map }}
-    {% endif %}
-      {% if switch_redist.source == 'static' and switch_redist.route_map %}
+        {% endif %}
+        {% if switch_redist.source == 'static' and switch_redist.route_map %}
       redistribute static route-map {{ switch_redist.route_map }}
-      {% endif %}
-    {% endfor %}
+        {% endif %}
+      {% endfor %}
 !
-  {% endif %}
+    {% endif %}
   {% elif item.bgp.address_family_ipv6_unicast %}
     address-family ipv6 unicast
     {% if item.bgp.address_family_ipv6_unicast.ebgp_distance and item.bgp.address_family_ipv6_unicast.ibgp_distance and item.bgp.address_family_ipv6_unicast.local_distance %}
@@ -142,7 +142,7 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
 !
   {% endif %}
-  {% if switch_item.bgp_peers %}
+{% if switch_item.bgp_peers %}
   {% for peer in switch_item.bgp_peers %}
     neighbor {{ peer.address }}
       remote-as {{ peer.remote_as }}
@@ -235,4 +235,4 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
       {% endif %}
     {% endif %}
   {% endfor %}
-  {% endif %}
+{% endif %}
