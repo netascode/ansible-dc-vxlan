@@ -10,17 +10,6 @@ feature bfd
 {% endfor %}
 !
 {% endif %}
-{% if switch_item.redistribution is defined and switch_item.redistribution %}
-  {% for switch_redist in switch_item.redistribution %}
-    {% if switch_redist.source == 'direct' and switch_redist.route_map %}
-route-map {{ switch_redist.route_map }} permit 10
-   {% endif %}
-    {% if switch_redist.source == 'static' and switch_redist.route_map %}
-route-map {{ switch_redist.route_map }} permit 10
-    {% endif %}
-  {% endfor %}
-!
-{% endif %}
 vrf context {{ item.vrf }}
 {% if switch_item.static_routes is defined and switch_item.static_routes %}
 {% for static_route in switch_item.static_routes %}
