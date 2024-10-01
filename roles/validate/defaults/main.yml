@@ -236,29 +236,29 @@ defaults:
               priority: 1
               lsa_retransmit_interval: 5
               lsa_transmit_delay: 1
-            bgp_peers:
+          bgp_peers:
+            next_hop_self: false
+            bfd:
+              enabled: false
+            disable_connected_check: false
+            remove_private_as: false
+            remove_private_as_all: false
+            ebgp_multihop: 2
+            address_family_ipv4_unicast:
+              send_community: true
+              send_ext_community: true
+              allow_as_in: false
+              allow_as_in_number: 3
+              as_override: false
+              route_reflector_client: false
+              default_originate: false
               next_hop_self: false
-              bfd:
-                enabled: false
-              disable_connected_check: false
-              remove_private_as: false
-              remove_private_as_all: false
-              ebgp_multihop: 2
-              address_family_ipv4_unicast:
-                send_community: true
-                send_ext_community: true
-                allow_as_in: false
-                allow_as_in_number: 3
-                as_override: false
-                route_reflector_client: false
-                default_originate: false
-                next_hop_self: false
-              address_family_ipv6_unicast:
-                send_community: true
-                send_ext_community: true
-                allow_as_in: false
-                allow_as_in_number: 3
-                as_override: false
-                route_reflector_client: false
-                default_originate: false
-                next_hop_self: false
+            address_family_ipv6_unicast:
+              send_community: true
+              send_ext_community: true
+              allow_as_in: false
+              allow_as_in_number: 3
+              as_override: false
+              route_reflector_client: false
+              default_originate: false
+              next_hop_self: false
