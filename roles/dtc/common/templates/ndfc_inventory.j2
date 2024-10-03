@@ -14,4 +14,14 @@
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: {{ switch['role'] }}
   preserve_config: false
+{% if switch.poap is defined %}
+  poap:
+    - serial_number: {{ switch['serial_number'] }}
+      hostname: {{ switch['name'] }}
+      model: {{ switch['poap']['model'] }}
+      version: {{ switch['poap']['version'] }}
+      config_data:
+        modulesModel: {{ switch['poap']['modulesModel'] }}
+        gateway: {{ switch['poap']['gateway'] }}
+{% endif %}
 {% endfor %}

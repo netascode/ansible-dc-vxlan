@@ -88,8 +88,8 @@
 {# ------------------------------------------------------ #}
 {# Bootstrap Parameters                                   #}
 {# ------------------------------------------------------ #}
-{% if global.bootstrap is defined and global.bootstrap %}
-{% if global.bootstrap.enable_bootstrap is defined and global.bootstrap.enable_bootstrap == 'True' %}
+{% if global.bootstrap is defined %}
+{% if global.bootstrap.enable_bootstrap is defined and global.bootstrap.enable_bootstrap %}
   BOOTSTRAP_ENABLE: {{ global.bootstrap.enable_bootstrap }}
   DHCP_ENABLE: {{ global.bootstrap.enable_local_dhcp_server }}
   DHCP_IPV6_ENABLE: {{ global.bootstrap.dhcp_version }}
@@ -99,7 +99,7 @@
   MGMT_PREFIX: {{ global.bootstrap.dhcp_v4.mgmt_prefix }}
   BOOTSTRAP_MULTISUBNET: {{ global.bootstrap.dhcp_v4.multi_subnet_scope }}
 {% endif %}
-{% if global.bootstrap.enable_bootstrap is defined and global.bootstrap.enable_bootstrap == 'False' %}
+{% if global.bootstrap.enable_bootstrap is defined and not global.bootstrap.enable_bootstrap %}
   BOOTSTRAP_ENABLE: {{ global.bootstrap.enable_bootstrap }}
 {% endif %}
 {% endif %}
