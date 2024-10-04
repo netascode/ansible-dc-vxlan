@@ -52,9 +52,11 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   {% endif %}
   {% if switch_item.bgp.address_family_ipv4_unicast %}
     address-family ipv4 unicast
-    {% if switch_item.bgp.address_family_ipv4_unicast.ebgp_distance and switch_item.bgp.address_family_ipv4_unicast.ibgp_distance and switch_item.bgp.address_family_ipv4_unicast.local_distance %}
-      distance {{ switch_item.bgp.address_family_ipv4_unicast.ebgp_distance }} {{ switch_item.bgp.address_family_ipv4_unicast.ibgp_distance }} {{ switch_item.bgp.address_family_ipv4_unicast.local_distance }}
+  {#
+    {% if switch_item.bgp.address_family_ipv4_unicast.ebgp_distance | switch_item.bgp.address_family_ipv4_unicast.ibgp_distance | switch_item.bgp.address_family_ipv4_unicast.local_distance %}
+      distance {{ switch_item.bgp.address_family_ipv4_unicast.ebgp_distance  }} {{ switch_item.bgp.address_family_ipv4_unicast.ibgp_distance }} {{ switch_item.bgp.address_family_ipv4_unicast.local_distance }}
     {% endif %}
+  #}
     {% if switch_item.bgp.address_family_ipv4_unicast.default_originate %}
       default-information originate
     {% endif %}
@@ -80,9 +82,9 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
   {% elif item.bgp.address_family_ipv4_unicast %}
     address-family ipv4 unicast
-    {% if (item.bgp.address_family_ipv4_unicast.ebgp_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv4_unicast.ebgp_distance) and (item.bgp.address_family_ipv4_unicast.ibgp_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv4_unicast.ibgp_distance) and (item.bgp.address_family_ipv4_unicast.local_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv4_unicast.local_distance) %}
-      distance {{ (item.bgp.address_family_ipv4_unicast.ebgp_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv4_unicast.ebgp_distance) }} {{ (item.bgp.address_family_ipv4_unicast.ibgp_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv4_unicast.ibgp_distance) }} {{ (item.bgp.address_family_ipv4_unicast.local_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv4_unicast.local_distance) }}
-    {% endif %}
+    {#
+      distance {{ (item.bgp.address_family_ipv4_unicast.ebgp_distance | defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.ebgp_distance) }} {{ (item.bgp.address_family_ipv4_unicast.ibgp_distance | defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.ibgp_distance) }} {{ (item.bgp.address_family_ipv4_unicast.local_distance | defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.local_distance) }}
+    #}
     {% if item.bgp.address_family_ipv4_unicast.default_originate %}
       default-information originate
     {% endif %}
@@ -99,9 +101,11 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   {% endif %}
   {% if switch_item.bgp.address_family_ipv6_unicast %}
     address-family ipv6 unicast
+    {#
     {% if switch_item.bgp.address_family_ipv6_unicast.ebgp_distance and switch_item.bgp.address_family_ipv6_unicast.ibgp_distance and switch_item.bgp.address_family_ipv6_unicast.local_distance %}
       distance {{ switch_item.bgp.address_family_ipv6_unicast.ebgp_distance }} {{ switch_item.bgp.address_family_ipv6_unicast.ibgp_distance }} {{ switch_item.bgp.address_family_ipv6_unicast.local_distance }}
     {% endif %}
+    #}
     {% if switch_item.bgp.address_family_ipv6_unicast.default_originate %}
       default-information originate
     {% endif %}
@@ -127,9 +131,9 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
   {% elif item.bgp.address_family_ipv6_unicast %}
     address-family ipv6 unicast
-    {% if (item.bgp.address_family_ipv6_unicast.ebgp_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv6_unicast.ebgp_distance) and (item.bgp.address_family_ipv6_unicast.ibgp_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv6_unicast.ibgp_distance) and (item.bgp.address_family_ipv6_unicast.local_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv6_unicast.local_distance) %}
-      distance {{ (item.bgp.address_family_ipv6_unicast.ebgp_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv6_unicast.ebgp_distance) }} {{ (item.bgp.address_family_ipv6_unicast.ibgp_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv6_unicast.ibgp_distance) }} {{ (item.bgp.address_family_ipv6_unicast.local_distance | defaults.vxlan.overlay_extensions.vrf_lite.bgp.address_family_ipv6_unicast.local_distance) }}
-    {% endif %}
+    {#
+      distance {{ item.bgp.address_family_ipv6_unicast.ebgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.ebgp_distance) }} {{ item.bgp.address_family_ipv6_unicast.ibgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.ibgp_distance) }} {{ item.bgp.address_family_ipv6_unicast.local_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.local_distance) }}
+    #}
     {% if item.bgp.address_family_ipv6_unicast.default_originate %}
       default-information originate
     {% endif %}
