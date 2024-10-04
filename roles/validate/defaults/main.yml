@@ -245,8 +245,8 @@ defaults:
             remove_private_as_all: false
             ebgp_multihop: 2
             address_family_ipv4_unicast:
-              send_community: true
-              send_ext_community: true
+              send_community: false
+              send_ext_community: false
               allow_as_in: false
               allow_as_in_number: 3
               as_override: false
@@ -254,8 +254,8 @@ defaults:
               default_originate: false
               next_hop_self: false
             address_family_ipv6_unicast:
-              send_community: true
-              send_ext_community: true
+              send_community: false
+              send_ext_community: false
               allow_as_in: false
               allow_as_in_number: 3
               as_override: false
