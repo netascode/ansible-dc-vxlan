@@ -35,6 +35,7 @@
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
   when: MD_Extended.vxlan.topology.switches | length > 0
+  ignore_errors: True
   # TODO: Need to add logic to only save if changes are made
 
 - name: Deploy for Fabric {{ MD.vxlan.global.name }}
@@ -45,4 +46,5 @@
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
   when: MD_Extended.vxlan.topology.switches | length > 0
+  ignore_errors: True
   # TODO: Need to add logic to only deploy if changes are made
