@@ -223,13 +223,13 @@ class PreparePlugin:
                 #                   ebgp_distance: 25
                 #                   ibgp_distance: 180
                 #                   local_distance: 200
-
-                for af in ["address_family_ipv4_unicast", "address_family_ipv6_unicast"]:
-                    if af in vrf_lite["bgp"]:
-                        switch_bgp_af = switch.setdefault("bgp", {}).setdefault(af, {})
-                        for key, value in vrf_lite["bgp"][af].items():
-                            if key not in switch_bgp_af:
-                                switch_bgp_af[key] = value
+                if "bgp" in vrf_lite:
+                    for af in ["address_family_ipv4_unicast", "address_family_ipv6_unicast"]:
+                        if af in vrf_lite["bgp"]:
+                            switch_bgp_af = switch.setdefault("bgp", {}).setdefault(af, {})
+                            for key, value in vrf_lite["bgp"][af].items():
+                                if key not in switch_bgp_af:
+                                    switch_bgp_af[key] = value
 
                 output = template.render(
                     MD_Extended=model_data, item=vrf_lite, switch_item=switch, defaults=default_values)
