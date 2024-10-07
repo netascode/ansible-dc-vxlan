@@ -168,10 +168,10 @@ class PreparePlugin:
                 #               ibgp_distance: 180
                 #               local_distance: 200
                 #           address_family_ipv6_unicast:
-                #               additional_paths_receive: true 
-                #               additional_paths_send: true 
+                #               additional_paths_receive: true
+                #               additional_paths_send: true
                 #               additional_paths_selection_route_map: test-map-globalaf6
-                #               default_originate: true 
+                #               default_originate: true
                 #               ebgp_distance: 25
                 #               ibgp_distance: 180
                 #               local_distance: 200
