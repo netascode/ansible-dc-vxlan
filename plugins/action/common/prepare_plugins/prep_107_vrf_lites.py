@@ -148,6 +148,88 @@ class PreparePlugin:
                         intf["ospf"]["area"] = default_area
                     switch["interfaces"][intf_index] = intf
 
+                # Adding address_family_ipv4_unicast and address_family_ipv6_unicast and child keys under switches with the vrf_lite global config if it is not defined.
+                # for example:
+                # before:
+                # vxlan:
+                #   overlay_extensions:
+                #     vrf_lites:
+                #       - name: myvrf_50001_vrf_lite
+                #         vrf: myvrf_50001
+                #         bgp:
+                #           local_as: 1111
+                #           address_family_ipv4_unicast:
+                #               additional_paths_receive: true
+                #               additional_paths_send: true
+                #               additional_paths_selection_route_map: test-map-globalaf4
+                #               default_originate: true
+                #               ebgp_distance: 25
+                #               ibgp_distance: 180
+                #               local_distance: 200
+                #           address_family_ipv6_unicast:
+                #               additional_paths_receive: true 
+                #               additional_paths_send: true 
+                #               additional_paths_selection_route_map: test-map-globalaf6
+                #               default_originate: true 
+                #               ebgp_distance: 25
+                #               ibgp_distance: 180
+                #               local_distance: 200
+                #         switches:
+                #           - name: netascode4-ebgp-bl1
+                #             bgp:
+                #               local_as: 1111
+                # after: 
+                # vxlan:
+                #   overlay_extensions:
+                #     vrf_lites:
+                #       - name: myvrf_50001_vrf_lite
+                #         vrf: myvrf_50001
+                #         bgp:
+                #           local_as: 1111
+                #           address_family_ipv4_unicast:
+                #               additional_paths_receive: true
+                #               additional_paths_send: true
+                #               additional_paths_selection_route_map: test-map-globalaf4
+                #               default_originate: true
+                #               ebgp_distance: 25
+                #               ibgp_distance: 180
+                #               local_distance: 200
+                #           address_family_ipv6_unicast:
+                #               additional_paths_receive: true 
+                #               additional_paths_send: true 
+                #               additional_paths_selection_route_map: test-map-globalaf6
+                #               default_originate: true 
+                #               ebgp_distance: 25
+                #               ibgp_distance: 180
+                #               local_distance: 200
+                #         switches:
+                #           - name: netascode4-ebgp-bl1
+                #             bgp:
+                #               local_as: 1111
+                #               address_family_ipv4_unicast:
+                #                   additional_paths_receive: true
+                #                   additional_paths_send: true
+                #                   additional_paths_selection_route_map: test-map-globalaf4
+                #                   default_originate: true
+                #                   ebgp_distance: 25
+                #                   ibgp_distance: 180
+                #                   local_distance: 200
+                #               address_family_ipv6_unicast:
+                #                   additional_paths_receive: true 
+                #                   additional_paths_send: true 
+                #                   additional_paths_selection_route_map: test-map-globalaf6
+                #                   default_originate: true 
+                #                   ebgp_distance: 25
+                #                   ibgp_distance: 180
+                #                   local_distance: 200  
+            
+                for af in ["address_family_ipv4_unicast", "address_family_ipv6_unicast"]:
+                    if af in vrf_lite["bgp"]:
+                        switch_bgp_af = switch.setdefault("bgp", {}).setdefault(af, {})
+                        for key, value in vrf_lite["bgp"][af].items():
+                            if key not in switch_bgp_af:
+                                switch_bgp_af[key] = value
+
                 output = template.render(
                     MD_Extended=model_data, item=vrf_lite, switch_item=switch, defaults=default_values)
 
