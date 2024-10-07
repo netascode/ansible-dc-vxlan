@@ -41,7 +41,7 @@ router ospf {{ item.ospf['process'] }}
     {% endif %}
     {% if item.ospf.areas %}
       {% for area in item.ospf.areas %}
-        {% if area.id and (area.id != 0 | area.id != '0.0.0.0') %}
+        {% if area.id and (area.id != 0 or area.id != '0.0.0.0') %}
           {% if area.area_type and area.area_type == 'stub' %}
     area {{ area.id }} stub
           {% elif area.area_type and area.area_type == 'totally_stub' %}
@@ -57,11 +57,6 @@ router ospf {{ item.ospf['process'] }}
     {% endif %}
     {% if item.ospf.distance and item.ospf.distance != defaults.vxlan.overlay_extensions.vrf_lites.ospf.distance %}
     distance {{ item.ospf.distance }}
-    {% endif %}
-    {% if auth_type and auth_type == 'simple' %}
-    area {{ area.id }} authentication
-    {% elif auth_type and auth_type == 'md5' %}
-    area {{ area.id }} authentication message-digest
     {% endif %}
     {% if switch_item.redistribution %}
       {% for switch_redist in switch_item.redistribution %}
