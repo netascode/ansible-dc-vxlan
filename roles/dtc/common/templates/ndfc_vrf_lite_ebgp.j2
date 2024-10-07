@@ -71,9 +71,6 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
     {% if switch_item.redistribution %}
       {% for switch_redist in switch_item.redistribution %}
-        {% if switch_redist.source == 'direct' and switch_redist.route_map %}
-      redistribute direct route-map {{ switch_redist.route_map }}
-        {% endif %}
         {% if switch_redist.source == 'static' and switch_redist.route_map %}
       redistribute static route-map {{ switch_redist.route_map }}
         {% endif %}
