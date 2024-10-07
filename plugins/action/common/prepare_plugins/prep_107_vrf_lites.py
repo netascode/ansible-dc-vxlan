@@ -148,7 +148,8 @@ class PreparePlugin:
                         intf["ospf"]["area"] = default_area
                     switch["interfaces"][intf_index] = intf
 
-                # Adding address_family_ipv4_unicast and address_family_ipv6_unicast and child keys under switches with the vrf_lite global config if it is not defined.
+                # Adding address_family_ipv4_unicast and address_family_ipv6_unicast and child keys 
+                # under switches with the vrf_lite global config if it is not defined.
                 # for example:
                 # before:
                 # vxlan:
@@ -221,8 +222,8 @@ class PreparePlugin:
                 #                   default_originate: true 
                 #                   ebgp_distance: 25
                 #                   ibgp_distance: 180
-                #                   local_distance: 200  
-            
+                #                   local_distance: 200
+
                 for af in ["address_family_ipv4_unicast", "address_family_ipv6_unicast"]:
                     if af in vrf_lite["bgp"]:
                         switch_bgp_af = switch.setdefault("bgp", {}).setdefault(af, {})
