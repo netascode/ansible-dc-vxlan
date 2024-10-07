@@ -148,7 +148,7 @@ class PreparePlugin:
                         intf["ospf"]["area"] = default_area
                     switch["interfaces"][intf_index] = intf
 
-                # Adding address_family_ipv4_unicast and address_family_ipv6_unicast and child keys 
+                # Adding address_family_ipv4_unicast and address_family_ipv6_unicast and child keys
                 # under switches with the vrf_lite global config if it is not defined.
                 # for example:
                 # before:
@@ -179,7 +179,7 @@ class PreparePlugin:
                 #           - name: netascode4-ebgp-bl1
                 #             bgp:
                 #               local_as: 1111
-                # after: 
+                # after:
                 # vxlan:
                 #   overlay_extensions:
                 #     vrf_lites:
@@ -196,10 +196,10 @@ class PreparePlugin:
                 #               ibgp_distance: 180
                 #               local_distance: 200
                 #           address_family_ipv6_unicast:
-                #               additional_paths_receive: true 
-                #               additional_paths_send: true 
+                #               additional_paths_receive: true
+                #               additional_paths_send: true
                 #               additional_paths_selection_route_map: test-map-globalaf6
-                #               default_originate: true 
+                #               default_originate: true
                 #               ebgp_distance: 25
                 #               ibgp_distance: 180
                 #               local_distance: 200
@@ -216,10 +216,10 @@ class PreparePlugin:
                 #                   ibgp_distance: 180
                 #                   local_distance: 200
                 #               address_family_ipv6_unicast:
-                #                   additional_paths_receive: true 
-                #                   additional_paths_send: true 
+                #                   additional_paths_receive: true
+                #                   additional_paths_send: true
                 #                   additional_paths_selection_route_map: test-map-globalaf6
-                #                   default_originate: true 
+                #                   default_originate: true
                 #                   ebgp_distance: 25
                 #                   ibgp_distance: 180
                 #                   local_distance: 200
