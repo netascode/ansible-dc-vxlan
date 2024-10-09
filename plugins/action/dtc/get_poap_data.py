@@ -26,26 +26,35 @@ __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
 import json
+import re
 
 
 class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
+        results['failed'] = False
         results['poap_data'] = {}
 
+        # Get data from Ansible task parameters
         model_data = self._task.args["model_data"]
         fabric_name = model_data['vxlan']['global']['name']
         switches = model_data['vxlan']['topology']['switches']
 
+        # Check model switch data to see if any switches
+        # have poap settings enabled
         poap_supported_switches = False
         for switch in switches:
             if 'poap' in switch and switch['poap'].get('bootstrap'):
                 poap_supported_switches = True
 
+        # If the data model does not enable poap we are done
         if not poap_supported_switches:
             return results
 
+        # If we get here we need to query NDFC to see if any devices
+        # show up in the poap (bootstrap) device list.
+        parsed_data = []
         if poap_supported_switches:
             fabric_name = 'nac-ndfc1'
             poap_data = self._execute_module(
@@ -58,11 +67,33 @@ class ActionModule(ActionBase):
                 tmp=tmp
             )
 
-            if poap_data['response']['RETURN_CODE'] == 200:
-                parsed_data = self._parse_poap_data(poap_data['response']['DATA'])
+            if poap_data.get('response'):
+                if poap_data['response']['RETURN_CODE'] == 200:
+                    parsed_data = self._parse_poap_data(poap_data['response']['DATA'])
+            elif poap_data.get('failed'):
+                # If we get here it's possible that the Fabric settings for
+                # bootstrap are not enabled.  If that is the case we don't want
+                # to error but rather just silently ignore it because the fabric
+                # setting for this might be modified when the create role runs.
+                fail_msg = poap_data.get('msg').get('DATA')
+                match_text = r"Please\s+enable\s+the\s+DHCP\s+in\s+Fabric\s+Settings\s+to\s+start\s+the\s+bootstrap"
+                if re.search(match_text, fail_msg, re.IGNORECASE):
+                    pass
+                else:
+                    # Return any messages we don't recognize and fail
+                    results['failed'] = True
+                    results['message'] = "Unrecognized Failure Attempting To Get POAP Data: {0}".format(fail_msg)
+                    return results
 
         if parsed_data:
             results['poap_data'] = parsed_data
+        else:
+            # Since POAP is enabled on at least one device in the service
+            # model then we should not continue until we have POAP data
+            # from NDFC
+            results['failed'] = True
+            results['message'] = "POAP Bootstrap Data Is Not Available from NDFC"
+            return results
 
 
         return results

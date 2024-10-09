@@ -15,6 +15,8 @@
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: {{ switch['role'] }}
   preserve_config: false
+{% if MD_Extended.vxlan.global.bootstrap is defined %}
+{% if MD_Extended.vxlan.global.bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.global.bootstrap.enable_bootstrap %}
 {% if switch.poap is defined and switch.poap.bootstrap %}
 {% if poap_data[switch['serial_number']] is defined %}
 {% set pdata = poap_data[switch['serial_number']] %}
@@ -26,6 +28,8 @@
       config_data:
         modulesModel: {{ pdata['modulesModel'] }}
         gateway: {{ pdata['gateway'] }}
+{% endif %}
+{% endif %}
 {% endif %}
 {% endif %}
 {% endfor %}
