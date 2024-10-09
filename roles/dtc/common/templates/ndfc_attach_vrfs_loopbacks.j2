@@ -1,0 +1,18 @@
+[
+  {% for attach in MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict[vrf["attach_group"]] %}
+  {
+    "fabric": "{{ MD.vxlan.global.name }}",
+    "vrfName": "{{ vrf["name"] }}",
+    {% for switch in MD.vxlan.topology.switches %}
+      {% if switch.management.management_ipv4_address == attach["hostname"] %}
+    "serialNumber": "{{ switch.serial_number }}",
+      {% endif %}
+    {% endfor %}
+    "freeformConfig": "",
+    "extensionValues": "",
+    "vlan": "{{ vrf["vlan_id"] }}",
+    "deployment": true,
+    "instanceValues": "{\"loopbackId\": \"{{ attach['loopback_id'] }}\", \"loopbackIpAddress\": \"{{ attach['loopback_ip'] }}\", \"loopbackIpV6Address\":\"\"}"
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+]

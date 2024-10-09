@@ -20,7 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
     changes_detected_vrfs: false
@@ -81,3 +80,18 @@
   when:
     - file_diff_result.file_data_changed
     - check_roles['save_previous']
+
+- name: Set file_name Var for loopback attachments
+  ansible.builtin.set_fact:
+    file_name: "{{ MD.vxlan.global.name }}_attach_vrfs_loopbacks.yml"
+  delegate_to: localhost
+
+- name: Build VRFs Attach List From Template for loopback
+  ansible.builtin.template:
+    src: ndfc_attach_vrfs_loopbacks.j2
+    dest: "{{ role_path }}/files/{{ vrf.name }}_{{ file_name }}"
+  delegate_to: localhost
+  loop: "{{ MD_Extended.vxlan.overlay_services.vrfs }}"
+  loop_control:
+    loop_var: vrf
+
