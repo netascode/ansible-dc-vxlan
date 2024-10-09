@@ -25,7 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
-from ..helper_functions import ndfc_get_switch_policy
+from ...plugin_utils.helper_functions import ndfc_get_switch_policy
 
 
 class ActionModule(ActionBase):
