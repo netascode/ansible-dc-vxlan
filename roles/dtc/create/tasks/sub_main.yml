@@ -20,7 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 - name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.create]
   ansible.builtin.debug:
     msg:
@@ -76,9 +75,7 @@
 
 - name: Manage NDFC Fabric Intra Links
   ansible.builtin.include_tasks: links.yml
-  loop: "{{ MD_Extended.vxlan.topology.fabric_links }}"
-  loop_control:
-    loop_var: link
   when:
     - MD_Extended.vxlan.topology.fabric_links | length > 0
     - changes_detected_inventory
+  tags: "{{ nac_tags.create_links }}"

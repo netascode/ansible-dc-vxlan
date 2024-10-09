@@ -20,7 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 - name: Manage Fabric Intra Fabric Links Entry Point
   ansible.builtin.debug:
     msg:
@@ -28,39 +27,35 @@
       - "+     Manage Fabric Links {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
-# --------------------------------------------------------------------
-# Manage Intra Fabric Links
-# --------------------------------------------------------------------
-
-- name: Query Links - with Src & Dst Fabric, Src & Dst Intf, Src & Dst Device
+- name: Query Links - with Src & Dst Fabric
   cisco.dcnm.dcnm_links:
-    state: query                                             # choose from [merged, replaced, deleted, query]
+    state: query # choose from [merged, replaced, deleted, query]
     src_fabric: "{{ MD.vxlan.global.name }}"
     config:
-      - dst_fabric: "{{ MD.vxlan.global.name }}"             # Destination fabric
-        src_interface: "{{ link.source_interface }}"                         # Interface on the Source fabric
-        dst_interface: "{{ link.dest_interface }}"                         # Interface on the Destination fabric
-        src_device: "{{ link.source_device }}"                              # Device on the Source fabric
-        dst_device: "{{ link.dest_device }}"
-  register: result
+      - dst_fabric: "{{ MD.vxlan.global.name }}" # Destination fabric
+  register: result_links
 
-- name: Create Link
+- name: Create empty result List
+  ansible.builtin.set_fact:
+    not_required_links: []
+    required_links: []
+
+- name: Loop through links input to check if they already exist
+  ansible.builtin.include_tasks: link_loop.yml
+  loop: "{{ fabric_links }}"
+  loop_control:
+    loop_var: link
+
+- name: remove unwanted links from required links input
+  ansible.builtin.set_fact:
+    required_links: "{{ fabric_links | difference(not_required_links) }}"
+# --------------------------------------------------------------------
+# Manage VRF Configuration on NDFC
+# --------------------------------------------------------------------
+- name: Manage NDFC Fabric Policies
   cisco.dcnm.dcnm_links:
-      state: merged                                            # choose from [merged, replaced, deleted, query]
-      src_fabric: "{{ MD.vxlan.global.name }}"
-      config:
-        - dst_fabric: "{{ MD.vxlan.global.name }}"             # Destination fabric
-          src_interface: "{{ link.source_interface }}"                         # Interface on the Source fabric
-          dst_interface: "{{ link.dest_interface }}"                         # Interface on the Destination fabric
-          src_device: "{{ link.source_device }}"                              # Device on the Source fabric
-          dst_device: "{{ link.dest_device }}"                             # Device on the Destination fabric
-          template: int_pre_provision_intra_fabric_link        # template to be applied, choose from
-                                                               #   [ int_intra_fabric_ipv6_link_local, int_intra_fabric_num_link,
-                                                               #     int_intra_fabric_unnum_link, int_intra_vpc_peer_keep_alive_link,
-                                                               #     int_pre_provision_intra_fabric_link, ios_xe_int_intra_fabric_num_link ]
-
-          profile:
-              admin_state: true                                  # choose from [true, false]
-              mtu: 9216
-  when: (result["response"] | length) == 0      # Only create the link if it's not already found
-  ignore_errors: True
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    config: "{{ required_links }}"
+    deploy: false
+    state: merged
+  register: manage_fabric_links_result
