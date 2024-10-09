@@ -28,7 +28,9 @@ DOCUMENTATION = """
 module: nac_dc_validate
 short_description: Prepare action plugin to validate the data model against the schema and return the rendered data model.
 version_added: "0.1.0"
-author: Mike Wiebe & Matt Tarkington
+author:
+    - Mike Wiebe (@mikewiebe)
+    - Matt Tarkington (@mtarking)
 description:
 - Prepare action plugin to validate the data model against the schema and return the rendered data model.
 options:

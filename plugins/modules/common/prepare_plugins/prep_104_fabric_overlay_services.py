@@ -28,7 +28,7 @@ DOCUMENTATION = """
 module: prep_104_fabric_overlay_services
 short_description: Prepare action plugin for overlay vrf & network elementes of the extended data model.
 version_added: "0.1.0"
-author: Matt Tarkington
+author: Matt Tarkington (@mtarking)
 description:
 - Invoked from the main prepare action plugin prepare_service_model.
 - Prepare action plugin for overlay vrf & network elementes of the extended data model.

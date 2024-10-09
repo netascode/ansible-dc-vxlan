@@ -28,7 +28,7 @@ DOCUMENTATION = """
 module: prep_106_topology_vpc_interfaces
 short_description: Prepare action plugin for Cisco vPC interface elementes of the extended data model.
 version_added: "0.1.0"
-author: Rameez Rahim
+author: Rameez Rahim M (@rrahimm)
 description:
 - Invoked from the main prepare action plugin prepare_service_model.
 - Prepare action plugin for Cisco vPC interface elementes of the extended data model.
