@@ -11,6 +11,8 @@ plugins/modules/common/check_roles.py validate-modules:missing-gplv3-license # i
 plugins/modules/common/get_credentials.py validate-modules:missing-gplv3-license # ignore license check
 plugins/modules/common/run_map.py validate-modules:missing-gplv3-license # ignore license check
 plugins/modules/common/read_run_map.py validate-modules:missing-gplv3-license # ignore license check
+plugins/action/dtc/add_device_check.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/modules/dtc/verify_tags.py validate-modules:missing-gplv3-license # ignore license check
 plugins/modules/dtc/diff_model_changes.py validate-modules:missing-gplv3-license # ignore license check
 plugins/modules/dtc/update_switch_hostname_policy.py validate-modules:missing-gplv3-license # ignore license check
