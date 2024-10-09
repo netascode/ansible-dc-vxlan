@@ -92,7 +92,10 @@ class ActionModule(ActionBase):
             # model then we should not continue until we have POAP data
             # from NDFC
             results['failed'] = True
-            results['message'] = "POAP Bootstrap Data Is Not Available from NDFC"
+            msg1 = "POAP is enabled on at least one switch in the service model but "
+            msg2 = "POAP bootstrap data is not yet available from NDFC. "
+            msg3 = "To disable poap on a device set (poap.boostrap) to (False) under (vxlan.topology.switches)"
+            results['message'] = msg1 + msg2 + msg3
             return results
 
 
