@@ -25,27 +25,34 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: check_roles
-short_description: Action plugin to check roles for create or remove.
-version_added: "0.2.0"
+module: verify_tags
+short_description: Action plugin to verify embedded collection tags.
+version_added: "0.3.0"
 author: Mike Wiebe (@mikewiebe)
 description:
-- Action plugin to check roles for create or remove.
+- Action plugin to verify embedded collection tags.
+- Used a dependency within the overall collection.
 options:
-    role_list:
+    all_tags:
         description:
-        - List of roles.
+        - All the tags supported in the collection natively.
         required: true
-        type: str
+        type: dict
+    play_tags:
+        description:
+        - List of current play tags.
+        required: true
+        type: list
 """
 
 EXAMPLES = """
 
-# Perform Role Check
+# Perform Required Syntax and Semantic Model Validation and Return the Model Data
 
-- name: Check Roles
-  cisco.nac_dc_vxlan.common.check_roles:
-    role_list: "{{ role_names }}"
-  register: check_roles
+- name: Verify User Tags
+  cisco.nac_dc_vxlan.dtc.verify_tags:
+    all_tags: "{{ nac_tags.all }}"
+    play_tags: "{{ ansible_run_tags }}"
+  tags: "{{ ansible_run_tags }}"
 
 """

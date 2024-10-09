@@ -25,27 +25,41 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: check_roles
-short_description: Action plugin to check roles for create or remove.
-version_added: "0.2.0"
-author: Mike Wiebe (@mikewiebe)
+module: nac_dc_validate
+short_description: Prepare action plugin to validate the data model against the schema and return the rendered data model.
+version_added: "0.1.0"
+author:
+    - Mike Wiebe (@mikewiebe)
+    - Matt Tarkington (@mtarking)
 description:
-- Action plugin to check roles for create or remove.
+- Prepare action plugin to validate the data model against the schema and return the rendered data model.
 options:
-    role_list:
+    schema:
         description:
-        - List of roles.
+        - The path to the schema file.
+        required: false
+        type: str
+    mdata:
+        description:
+        - The path to the model data dir.
         required: true
+        type: dict
+    rules:
+        description:
+        - The path to the rules dir.
+        required: false
         type: str
 """
 
 EXAMPLES = """
 
-# Perform Role Check
+# Perform Required Syntax and Semantic Model Validation and Return the Model Data
 
-- name: Check Roles
-  cisco.nac_dc_vxlan.common.check_roles:
-    role_list: "{{ role_names }}"
-  register: check_roles
+- name: Perform Required Syntax and Semantic Model Validation
+  cisco.nac_dc_vxlan.common.nac_dc_validate:
+    schema: "{{ schema_path }}"
+    mdata: "{{ data_path }}"
+    rules: "{{ rules_path }}"
+  register: model_data
 
 """

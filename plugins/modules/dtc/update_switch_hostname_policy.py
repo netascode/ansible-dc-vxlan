@@ -25,27 +25,38 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: check_roles
-short_description: Action plugin to check roles for create or remove.
-version_added: "0.2.0"
-author: Mike Wiebe (@mikewiebe)
+module: update_switch_hostname_policy
+short_description: Action plugin to parse, build, and return an updated policy payload for updating NDFC switch hostnames based on the data model.
+version_added: "0.3.0"
+author: Matt Tarkington (@mtarking)
 description:
-- Action plugin to check roles for create or remove.
+- Action plugin to parse, build, and return an updated policy payload for updating NDFC switch hostnames based on the data model.
 options:
-    role_list:
+    mdata:
         description:
-        - List of roles.
+        - The runtime data model, typically the extended data model.
+        required: true
+        type: dict
+    switch_serial_numbers:
+        description:
+        - List of switch serial numbers NDFC is managing.
+        required: true
+        type: list
+    template_name:
+        description:
+        - NDFC template name.
         required: true
         type: str
 """
 
 EXAMPLES = """
 
-# Perform Role Check
+# Parses, builds, and returns an updated policy payload for updating NDFC switch hostnames based on the data model. 
 
-- name: Check Roles
-  cisco.nac_dc_vxlan.common.check_roles:
-    role_list: "{{ role_names }}"
-  register: check_roles
+- name: Build Switch Hostname Policy Payload from Data Model Update
+  cisco.nac_dc_vxlan.dtc.update_switch_hostname_policy:
+    model_data: "{{ MD_Extended }}"
+    switch_serial_numbers: "{{ md_serial_numbers }}"
+    template_name: host_11_1
 
 """

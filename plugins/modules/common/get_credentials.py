@@ -36,7 +36,7 @@ options:
         description:
         - Inventory list.
         required: true
-        type: list
+        type: str
 """
 
 EXAMPLES = """

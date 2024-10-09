@@ -25,27 +25,38 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: check_roles
-short_description: Action plugin to check roles for create or remove.
-version_added: "0.2.0"
+module: diff_model_changes
+short_description: Action plugin used to diff the previous and current state data files.
+version_added: "0.3.0"
 author: Mike Wiebe (@mikewiebe)
 description:
-- Action plugin to check roles for create or remove.
+- Action plugin used to diff the previous and current state data files.
 options:
-    role_list:
+    schema:
         description:
-        - List of roles.
+        - The path to the schema file.
+        required: false
+        type: str
+    mdata:
+        description:
+        - The path to the model data dir.
         required: true
+        type: dict
+    rules:
+        description:
+        - The path to the rules dir.
+        required: false
         type: str
 """
 
 EXAMPLES = """
 
-# Perform Role Check
+# Diffs the previous and current state data files
 
-- name: Check Roles
-  cisco.nac_dc_vxlan.common.check_roles:
-    role_list: "{{ role_names }}"
-  register: check_roles
+- name: Diff Previous and Current Data Files
+  cisco.nac_dc_vxlan.dtc.diff_model_changes:
+    file_name_previous: "{{ role_path }}/files/{{ file_name }}.old"
+    file_name_current: "{{ role_path }}/files/{{ file_name }}"
+  register: file_diff_result
 
 """
