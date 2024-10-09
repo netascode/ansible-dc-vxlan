@@ -1,0 +1,130 @@
+---
+
+name: Feature Request
+description: Request a feature for the VXLAN as Code collection
+title: Feature Request Title
+labels:
+  - feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for creating a feature request issue to help us improve the VXLAN as Code collection. 
+        Please fill out the sections below to help us understand and reproduce the issue you are facing.
+
+  - type: markdown
+    attributes:
+      value: |
+        ### Community Note
+        Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request
+        Please do not leave "+1" or other comments that do not add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request
+        If you are interested in working on this issue or have submitted a pull request, please leave a comment
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Which role would this new feature be associated?
+      multiple: false
+      options:
+        - validate
+        - create
+        - deploy
+        - remove
+        - other
+    validations:
+      required: true
+
+  - type: textarea
+    id: new-feature-role
+    attributes:
+      label: Would this be a new feature requiring a new role?
+      description: Please provide input on the new role if required
+      placeholder: New role name and description if required
+      render: shell
+    validations:
+      required: false
+
+  - type: dropdown
+    id: data-model
+    attributes:
+      label: Which section of the data model is the new feature related?
+      multiple: false
+      options:
+        - global
+        - topology
+        - underlay
+        - overlay_services
+        - overlay_extensions
+        - policy
+        - defaults
+        - other
+    validations:
+      required: true
+
+  - type: textarea
+    id: new-feature-data-model
+    attributes:
+      label: Would this be a new feature requiring a new addition to the data model?
+      description: Please provide input on the new the aspects to the data model if required
+      placeholder: New data model aspects and description if required
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: new-or-affected-documentation
+    attributes:
+      label: New or Affected Documentation for New Feature
+      description: Please list the new or affected documentation sections for the new feature
+      placeholder: Documentation section or new documentation that needs attention for the new feature
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: ansible-playbook
+    attributes:
+      label: Potential Ansible Task Config
+      description: Please provide a potential Ansible task configuration for the new feature
+      placeholder: Ansible Playbook
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: ansible-version
+    attributes:
+      label: Ansible Version
+      description: Please provide your Ansible version used when encountering this issue
+      placeholder: ansible --version
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: ansible-collection-versions
+    attributes:
+      label: Ansible Collection Versions
+      description: Please provide your Ansible Collection versions used when encountering this issue
+      placeholder: ansible-galaxy collection list
+      render: shell
+    validations:
+      required: false
+    
+  - type: textarea
+    id: ndfc-version
+    attributes:
+      label: Cisco NDFC Version
+      description: Please provide your Cisco NDFC version used when encountering this issue
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: nxos-version
+    attributes:
+      label: Cisco NX-OS Version
+      description: Please provide your Cisco NX-OS version used when encountering this issue
+      render: shell
+    validations:
+      required: false
