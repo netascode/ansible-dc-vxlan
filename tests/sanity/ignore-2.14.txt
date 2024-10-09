@@ -13,7 +13,7 @@ plugins/modules/common/run_map.py validate-modules:missing-gplv3-license # ignor
 plugins/modules/common/read_run_map.py validate-modules:missing-gplv3-license # ignore license check
 plugins/action/dtc/add_device_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/modules/dtc/verify_tags.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/modules/dtc/diff_model_changes.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/modules/dtc/update_switch_hostname_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/modules/dtc/verify_tags.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/dtc/diff_model_changes.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/dtc/update_switch_hostname_policy.py validate-modules:missing-gplv3-license # ignore license check
 plugins/action/common/nac_dc_validate.py import-3.10!skip
