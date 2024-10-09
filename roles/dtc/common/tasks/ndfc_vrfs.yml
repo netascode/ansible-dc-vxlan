@@ -94,4 +94,3 @@
   loop: "{{ MD_Extended.vxlan.overlay_services.vrfs }}"
   loop_control:
     loop_var: vrf
-
