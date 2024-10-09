@@ -55,12 +55,12 @@
     dest: "{{ role_path }}/files/{{ file_name }}"
   delegate_to: localhost
 
-- name: Set link_vpc_peering Var default
+- name: Set fabric_links Var default
   ansible.builtin.set_fact:
     fabric_links: []
   delegate_to: localhost
 
-- name: Set link_vpc_peering Var
+- name: Set fabric_links Var
   ansible.builtin.set_fact:
     fabric_links: "{{ lookup('file', file_name) | from_yaml }}"
   when: MD_Extended.vxlan.topology.fabric_links | length > 0
