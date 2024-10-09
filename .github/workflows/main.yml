@@ -61,7 +61,6 @@ jobs:
     - name: Upgrade pip
       run: |
         pip install --upgrade pip
-        pip install iac-validate==0.2.5
 
     - name: Install ansible-base (v${{ matrix.ansible }})
       run: pip install https://github.com/ansible/ansible/archive/v${{ matrix.ansible }}.tar.gz --disable-pip-version-check

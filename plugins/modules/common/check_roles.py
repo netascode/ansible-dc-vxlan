@@ -20,25 +20,32 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import absolute_import, division, print_function
-
-
 __metaclass__ = type
 
-from ansible.utils.display import Display
-from ansible.plugins.action import ActionBase
 
-display = Display()
+DOCUMENTATION = """
+---
+module: check_roles
+short_description: Action plugin to check roles for create or remove.
+version_added: "0.2.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Action plugin to check roles for create or remove.
+options:
+    role_list:
+        description:
+        - List of roles.
+        required: true
+        type: list
+"""
 
+EXAMPLES = """
 
-class ActionModule(ActionBase):
+# Perform Role Check
 
-    def run(self, tmp=None, task_vars=None):
-        results = super(ActionModule, self).run(tmp, task_vars)
-        results['save_previous'] = False
+- name: Check Roles
+  cisco.nac_dc_vxlan.common.check_roles:
+    role_list: "{{ role_names }}"
+  register: check_roles
 
-        roles = self._task.args['role_list']
-        for role in ['cisco.nac_dc_vxlan.create', 'cisco.nac_dc_vxlan.remove']:
-            if role in roles:
-                results['save_previous'] = True
-
-        return results
+"""

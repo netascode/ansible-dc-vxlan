@@ -20,25 +20,32 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import absolute_import, division, print_function
-
-
 __metaclass__ = type
 
-from ansible.utils.display import Display
-from ansible.plugins.action import ActionBase
 
-display = Display()
+DOCUMENTATION = """
+---
+module: read_run_map
+short_description: Action plugin to read run history map from previous runs.
+version_added: "0.3.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Action plugin to read run history map from previous runs.
+options:
+    model_data:
+        description:
+        - The runtime data model, typically the extended data model.
+        required: true
+        type: dict
+"""
 
+EXAMPLES = """
 
-class ActionModule(ActionBase):
+# Read Run Map From Previous Run
 
-    def run(self, tmp=None, task_vars=None):
-        results = super(ActionModule, self).run(tmp, task_vars)
-        results['save_previous'] = False
+- name: Read Run Map From Previous Run
+  cisco.nac_dc_vxlan.common.read_run_map:
+    model_data: "{{ MD_Extended }}"
+  register: run_map_read_result
 
-        roles = self._task.args['role_list']
-        for role in ['cisco.nac_dc_vxlan.create', 'cisco.nac_dc_vxlan.remove']:
-            if role in roles:
-                results['save_previous'] = True
-
-        return results
+"""

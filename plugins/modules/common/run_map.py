@@ -20,25 +20,42 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import absolute_import, division, print_function
-
-
 __metaclass__ = type
 
-from ansible.utils.display import Display
-from ansible.plugins.action import ActionBase
 
-display = Display()
+DOCUMENTATION = """
+---
+module: run_map
+short_description: Action plugin used to perform updates to run map for tracking previous run state.
+version_added: "0.3.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Action plugin used to perform updates to run map for tracking previous run state.
+options:
+    schema:
+        description:
+        - The path to the schema file.
+        required: false
+        type: str
+    mdata:
+        description:
+        - The path to the model data dir.
+        required: true
+        type: dict
+    rules:
+        description:
+        - The path to the rules dir.
+        required: false
+        type: str
+"""
 
+EXAMPLES = """
 
-class ActionModule(ActionBase):
+# Used to perform updates to run map for tracking previous run state
 
-    def run(self, tmp=None, task_vars=None):
-        results = super(ActionModule, self).run(tmp, task_vars)
-        results['save_previous'] = False
+- name: Mark Stage Role Create Completed
+  cisco.nac_dc_vxlan.common.run_map:
+    stage: role_create_completed
+  register: run_map
 
-        roles = self._task.args['role_list']
-        for role in ['cisco.nac_dc_vxlan.create', 'cisco.nac_dc_vxlan.remove']:
-            if role in roles:
-                results['save_previous'] = True
-
-        return results
+"""

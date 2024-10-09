@@ -20,25 +20,33 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import absolute_import, division, print_function
-
-
 __metaclass__ = type
 
-from ansible.utils.display import Display
-from ansible.plugins.action import ActionBase
 
-display = Display()
+DOCUMENTATION = """
+---
+module: get_credentials
+short_description: Action plugin to get NDFC switch credentials and update inventory list.
+version_added: "0.1.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Action plugin to get NDFC switch credentials and update inventory list.
+options:
+    inv_list:
+        description:
+        - Inventory list.
+        required: true
+        type: list
+"""
 
+EXAMPLES = """
 
-class ActionModule(ActionBase):
+# Get Collection NDFC Switch Credentials and Update Inventory List
 
-    def run(self, tmp=None, task_vars=None):
-        results = super(ActionModule, self).run(tmp, task_vars)
-        results['save_previous'] = False
+- name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
+  cisco.nac_dc_vxlan.common.get_credentials:
+    inv_list: "{{ inv_config }}"
+  register: updated_inv_config
+  no_log: true
 
-        roles = self._task.args['role_list']
-        for role in ['cisco.nac_dc_vxlan.create', 'cisco.nac_dc_vxlan.remove']:
-            if role in roles:
-                results['save_previous'] = True
-
-        return results
+"""
