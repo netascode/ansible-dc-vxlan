@@ -50,7 +50,12 @@ class ActionModule(ActionBase):
 
         # Get Data from Ansible Task
         fac_def = self._task.args['factory_defaults']
-        cus_def = self._task.args['custom_defaults']
+        md = self._task.args['model_data']
+        
+        cus_def = {}
+        if md is not None:
+            if md['defaults'] is not None:
+                cus_def = md['defaults']
 
         results['defaults'] = merge_dicts(fac_def, cus_def)
 
