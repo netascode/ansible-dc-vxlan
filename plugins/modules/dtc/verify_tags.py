@@ -43,6 +43,7 @@ options:
         - List of current play tags.
         required: true
         type: list
+        elements: str
 """
 
 EXAMPLES = """

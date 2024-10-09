@@ -36,7 +36,8 @@ options:
         description:
         - List of roles.
         required: true
-        type: str
+        type: list
+        elements: str
 """
 
 EXAMPLES = """

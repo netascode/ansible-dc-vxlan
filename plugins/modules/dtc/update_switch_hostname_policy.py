@@ -42,6 +42,7 @@ options:
         - List of switch serial numbers NDFC is managing.
         required: true
         type: list
+        elements: str
     template_name:
         description:
         - NDFC template name.
@@ -51,7 +52,7 @@ options:
 
 EXAMPLES = """
 
-# Parses, builds, and returns an updated policy payload for updating NDFC switch hostnames based on the data model. 
+# Parses, builds, and returns an updated policy payload for updating NDFC switch hostnames based on the data model.
 
 - name: Build Switch Hostname Policy Payload from Data Model Update
   cisco.nac_dc_vxlan.dtc.update_switch_hostname_policy:
