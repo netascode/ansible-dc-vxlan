@@ -1,3 +1,4 @@
+plugins/modules/* validate-modules:missing-gplv3-license # ignore license check
 plugins/action/common/check_roles.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/get_credentials.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/run_map.py action-plugin-docs # action plugin has no matching module to provide documentation
