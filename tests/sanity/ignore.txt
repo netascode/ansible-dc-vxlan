@@ -1,1 +1,0 @@
-plugins/modules/* validate-modules:missing-gplv3-license # ignore license check
