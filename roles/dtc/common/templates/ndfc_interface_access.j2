@@ -21,7 +21,7 @@
   profile:
     admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enabled) }}
     mode: 'access'
-    description: {{ interface['description'] | default(omit) }}
+    description: {{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.description) }}
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.speed) }}
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.spanning_tree_portfast) }}

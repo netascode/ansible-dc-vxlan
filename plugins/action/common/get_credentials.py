@@ -34,21 +34,23 @@ display = Display()
 class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
-        # self._supports_async = True
         results = super(ActionModule, self).run(tmp, task_vars)
-        results['failed'] = False
+        results['retrieve_failed'] = False
 
-        inv_list = self._task.args['inv_list']
-        username = task_vars.get('ndfc_device_username')
-        password = task_vars.get('ndfc_device_password')
+        key_username = 'ndfc_switch_username'
+        key_password = 'ndfc_switch_password'
+
+        ndfc_host_name = task_vars['inventory_hostname']
+        username = task_vars['hostvars'][ndfc_host_name].get(key_username, '')
+        password = task_vars['hostvars'][ndfc_host_name].get(key_password, '')
 
         # Fail if username and password are not set
-        if username is None or password is None:
-            results['failed'] = True
-            results['msg'] = "ndfc_device_username and ndfc_device_username must be set in group_vars or as environment variables!"
-            # TODO: Add support for environemnt variables
+        if username == '' or password == '':
+            results['retrieve_failed'] = True
+            results['msg'] = "{0} and {1} must be set in group_vars or as environment variables!".format(key_username, key_password)
             return results
 
+        inv_list = self._task.args['inv_list']
         # Create a new list and deep copy each dict item to avoid modifying the original and dict items
         updated_inv_list = []
         for device in inv_list:

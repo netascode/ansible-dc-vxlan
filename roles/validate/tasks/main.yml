@@ -20,98 +20,33 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Role Entry Point - [cisco.nac_dc_vxlan.validate]
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.validate]             +"
-      - "----------------------------------------------------------------"
+- debug: msg="{{ nac_tags.all}}"
 
-- ansible.builtin.debug: msg="Role Path - {{ role_path }}"
+- name: Import Role Tasks
+  ansible.builtin.import_tasks: sub_main.yml
+  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
+  # Could ignore errors and try again with tags specified as below as a work around ...
+  # tags:
+  #   - cr_manage_fabric
+  #   - cr_manage_switches
+  #   - cr_manage_vpc_peers
+  #   - cr_manage_interfaces
+  #   - cr_manage_vrfs_networks
+  #   # -------------------------
+  #   - rr_manage_interfaces
+  #   - rr_manage_networks
+  #   - rr_manage_vrfs
+  #   - rr_manage_vpc_peers
+  #   - rr_manage_links
+  #   - rr_manage_switches
+  #   # -------------------------
+  #   - role_validate
+  #   - role_create
+  #   - role_deploy
+  #   - role_remove
 
-- ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
-
-- name: Validate NDFC Service Model Data
-  block:
-    - ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
-
-    - ansible.builtin.debug: msg="Workflow is Direct to Device (DTD)"
-      when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.nxos.nxos"
-
-    - ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
-      when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
-
-    - name: Check for Schema Path Being Defined
-      ansible.builtin.set_fact:
-        schema_path: ''
-      when: schema_path is not defined
-      delegate_to: localhost
-
-    - name: Check for Enhanced Roles Path Being Defined
-      ansible.builtin.set_fact:
-        enhanced_rules_path: ''
-      when: enhanced_rules_path is not defined
-      delegate_to: localhost
-
-    - name: Perform Required Syntax and Semantic Model Validation
-      cisco.nac_dc_vxlan.common.nac_dc_validate:
-        schema: "{{ schema_path }}"
-        mdata: "{{ data_path }}"
-        rules: "{{ rules_path }}"
-      register: model_data
-      vars:
-        data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-        rules_path: "{{ role_path }}/files/rules/required_rules/"
-      delegate_to: localhost
-
-    - name: Perform Enhanced Syntax and Semantic Model Validation
-      cisco.nac_dc_vxlan.common.nac_dc_validate:
-        schema: "{{ schema_path }}"
-        mdata: "{{ data_path }}"
-        rules: "{{ enhanced_rules_path }}"
-      vars:
-        data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-      delegate_to: localhost
-
-    - name: Prepare Service Model
-      cisco.nac_dc_vxlan.common.prepare_service_model:
-        inventory_hostname: "{{ inventory_hostname }}"
-        hostvars: "{{ hostvars }}"
-        model_data: "{{ model_data['data'] }}"
-      register: smd
-      delegate_to: localhost
-
-    - name: Store Golden Service Model Data
-      ansible.builtin.set_fact:
-        MD: "{{ smd['model_golden'] }}"
-      delegate_to: localhost
-
-    - name: Store Extended Service Model Data
-      ansible.builtin.set_fact:
-        MD_Extended: "{{ smd['model_extended'] }}"
-      delegate_to: localhost
-
-    - name: Check Roles
-      cisco.nac_dc_vxlan.common.check_roles:
-        role_list: "{{ role_names }}"
-      register: check_roles
-      delegate_to: localhost
-
-    - name: Manage Previous Service Model Data Files
-      ansible.builtin.include_tasks: manage_model_files_previous.yml
-      when: check_roles['save_previous']
-
-    - name: Manage Current Service Model Data Files
-      ansible.builtin.include_tasks: manage_model_files_current.yml
-      when: check_roles['save_previous']
-
-    - name: Stat Host Specific Defaults
-      ansible.builtin.stat: path="{{ role_path }}/defaults/{{ inventory_hostname }}/defaults.yml"
-      register: host_defaults
-      delegate_to: localhost
-
-    - name: Include Host Specific Defaults if Available
-      ansible.builtin.include_vars:
-        file: "{{ role_path }}/defaults/{{ inventory_hostname }}/defaults.yml"
-      when: host_defaults.stat.exists
-      delegate_to: localhost
+- name: Mark Stage Role Validate Completed
+  cisco.nac_dc_vxlan.common.run_map:
+    stage: role_validate_completed
+  register: run_map
+  delegate_to: localhost

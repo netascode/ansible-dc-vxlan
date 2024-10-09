@@ -52,18 +52,18 @@
     msg: "{{ files_names }}"
   delegate_to: 127.0.0.1
 
-- name: Replace Ansible Password in Group Vars ndfc_device_password
+- name: Replace Ansible Password in Group Vars
   ansible.builtin.replace:
     path: "{{ playbook_dir }}/group_vars/ndfc/main.yml"
     regexp: 'ansible_password\:\s+(\S+)'
     replace: "ansible_password: {{ fabric_password }}"
   delegate_to: 127.0.0.1
 
-- name: Replace ndfc_device_password Password in Group Vars
+- name: Replace ndfc_switch_password Password in Group Vars
   ansible.builtin.replace:
     path: "{{ playbook_dir }}/group_vars/ndfc/main.yml"
-    regexp: 'ndfc_device_password\:\s+(\S+)'
-    replace: "ndfc_device_password: {{ fabric_device_password }}"
+    regexp: 'ndfc_switch_password\:\s+(\S+)'
+    replace: "ndfc_switch_password: {{ ndfc_switch_password }}"
   delegate_to: 127.0.0.1
 
 - name: Replace << fabric_name >> in test data model files

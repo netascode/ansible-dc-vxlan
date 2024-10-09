@@ -21,47 +21,12 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.create]
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.create]           +"
-      - "----------------------------------------------------------------"
+- name: Import Role Tasks
+  ansible.builtin.import_tasks: sub_main.yml
+  when: changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
-
-- name: Create NDFC Fabric
-  ansible.builtin.include_tasks: fabric.yml
-  when: MD_Extended.vxlan.global is defined
-
-- name: Manage NDFC Fabric Switches
-  ansible.builtin.include_tasks: devices.yml
-  when: MD_Extended.vxlan.topology.switches | length > 0
-
-- name: Manage VPC Peering
-  ansible.builtin.include_tasks: vpc_peering.yml
-  when: MD_Extended.vxlan.topology.vpc_peers | length > 0
-
-- name: Manage NDFC Fabric Interfaces
-  ansible.builtin.include_tasks: interfaces.yml
-  when: (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
-
-- name: Manage NDFC Fabric VRFs and Networks
-  ansible.builtin.include_tasks: vrfs_networks.yml
-  when: (MD.vxlan.overlay_services is defined) and (MD_Extended.vxlan.topology.switches | length > 0)
-
-# - name: Manage NDFC VRF-Lite Extensions
-#   ansible.builtin.include_tasks: vrflite.yml
-#   when: MD.vxlan is defined
-
-# - name: Manage NDFC Templates
-#   ansible.builtin.include_tasks: templates.yml
-#   when: MD.vxlan is defined
-
-# - name: Manage NDFC Policies
-#   ansible.builtin.include_tasks: policies.yml
-#   when: MD.vxlan is defined
-
-# Other areas to enable
-# 1. Diff between git source data model files and only call stage that is needed.
-# 2. Build data model from NDFC queries (brown field) DTC feature only
+- name: Mark Stage Role Create Completed
+  cisco.nac_dc_vxlan.common.run_map:
+    stage: role_create_completed
+  register: run_map
+  delegate_to: localhost

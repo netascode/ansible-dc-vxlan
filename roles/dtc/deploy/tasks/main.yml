@@ -21,28 +21,13 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
-      - "----------------------------------------------------------------"
+- name: Import Role Tasks
+  ansible.builtin.import_tasks: sub_main.yml
+  tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
+  when: changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
-
-- name: Config-Save for Fabric {{ MD.vxlan.global.name }}
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
-  when: MD_Extended.vxlan.topology.switches | length > 0
-  # TODO: Need to add logic to only save if changes are made
-
-- name: Deploy for Fabric {{ MD.vxlan.global.name }}
-  cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
-    method: POST
-  vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
-  when: MD_Extended.vxlan.topology.switches | length > 0
-  # TODO: Need to add logic to only deploy if changes are made
+- name: Mark Stage Role Deploy Completed
+  cisco.nac_dc_vxlan.common.run_map:
+    stage: role_deploy_completed
+  register: run_map
+  delegate_to: localhost

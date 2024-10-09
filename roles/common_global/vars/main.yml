@@ -1,0 +1,86 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+---
+
+nac_tags:
+  # All Create and Remove Tags
+  all:
+    - cr_manage_fabric
+    - cr_manage_switches
+    - cr_manage_vpc_peers
+    - cr_manage_interfaces
+    - cr_manage_vrfs_networks
+    - cr_manage_policy
+    # -------------------------
+    - rr_manage_interfaces
+    - rr_manage_networks
+    - rr_manage_vrfs
+    - rr_manage_vpc_peers
+    - rr_manage_links
+    - rr_manage_switches
+    # -------------------------
+    - role_validate
+    - role_create
+    - role_deploy
+    - role_remove
+  # All Create Tags
+  create:
+    - cr_manage_fabric
+    - cr_manage_switches
+    - cr_manage_vpc_peers
+    - cr_manage_interfaces
+    - cr_manage_vrfs_networks
+    - cr_manage_policy
+  create_fabric:
+    - cr_manage_fabric
+  create_switches:
+    - cr_manage_switches
+  create_vpc_peers:
+    - cr_manage_vpc_peers
+  create_interfaces:
+    - cr_manage_interfaces
+  create_vrfs_networks:
+    - cr_manage_vrfs_networks
+  create_policy:
+    - cr_manage_policy
+  # All Remove Tags
+  remove:
+    - rr_manage_interfaces
+    - rr_manage_networks
+    - rr_manage_vrfs
+    - rr_manage_vpc_peers
+    - rr_manage_links
+    - rr_manage_switches
+  remove_interfaces:
+    - rr_manage_interfaces
+  remove_networks:
+    - rr_manage_networks
+  remove_vrfs:
+    - rr_manage_vrfs
+  remove_vpc_peers:
+    - rr_manage_vpc_peers
+  remove_links:
+    - rr_manage_links
+  remove_switches:
+    - rr_manage_switches
+  
+  
