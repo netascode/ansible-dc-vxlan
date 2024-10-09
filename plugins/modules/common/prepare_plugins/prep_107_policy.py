@@ -27,7 +27,7 @@ DOCUMENTATION = """
 module: prep_107_policy
 short_description: Prepare action plugin for policy elementes of the extended data model.
 version_added: "0.1.0"
-author: Cisco Systems
+author: Matt Tarkington
 description:
 - Invoked from the main prepare action plugin prepare_service_model.
 - Prepare action plugin for policy elementes of the extended data model.

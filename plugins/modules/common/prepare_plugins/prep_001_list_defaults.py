@@ -27,7 +27,7 @@ DOCUMENTATION = """
 module: prep_001_list_defaults
 short_description: Prepare action plugin for list and nested list elementes of the extended data model.
 version_added: "0.1.0"
-author: Cisco Systems
+author: Mike Wiebe
 description:
 - Invoked from the main prepare action plugin prepare_service_model.
 - Prepare action plugin for list and nested list elementes of the extended data model.

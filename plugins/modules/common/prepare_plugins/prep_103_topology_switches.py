@@ -27,7 +27,7 @@ DOCUMENTATION = """
 module: prep_103_topology_switches
 short_description: Prepare action plugin for topology elementes of the extended data model.
 version_added: "0.1.0"
-author: Cisco Systems
+author: Rameez Rahim
 description:
 - Invoked from the main prepare action plugin prepare_service_model.
 - Prepare action plugin for topology elementes of the extended data model.

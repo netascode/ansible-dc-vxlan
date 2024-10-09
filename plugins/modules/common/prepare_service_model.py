@@ -27,7 +27,7 @@ DOCUMENTATION = """
 module: prepare_service_model
 short_description: Prepare action plugin to prepare extended runtime data model.
 version_added: "0.1.0"
-author: Cisco Systems
+author: Mike Wiebe
 description:
 - Prepare action plugin to prepare extended runtime data model.
 - Additional prepare action plugins are invoked for different parts of the data model.
