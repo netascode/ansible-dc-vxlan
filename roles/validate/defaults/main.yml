@@ -197,8 +197,6 @@ defaults:
         ospf:
           areas:
             area_type: standard
-            auth_type: none
-            auth_key_id: 0
           default_area: 0
           distance: 110
           bfd:
@@ -224,6 +222,8 @@ defaults:
         switches:
           interfaces:
             ospf:
+              auth_type: none
+              auth_key_id: 0
               cost: 1
               passive_interface: false
               mtu_ignore: false
