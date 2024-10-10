@@ -96,12 +96,12 @@ interface {{ interface['name'] }}
     {% if interface.ospf['area'] %}
   ip router ospf {{ item.ospf['process'] }} area {{ interface.ospf['area'] | ipaddr('address') }}
     {% endif %}
-    {% if auth_type and auth_type == 'simple' %}
+    {% if interface.ospf.auth_type and interface.ospf.auth_type == 'simple' %}
   ip ospf authentication
       {% if interface.ospf.auth_key %}
   ip ospf authentication-key 3 {{ interface.ospf.auth_key }}
       {% endif %}
-    {% elif auth_type and auth_type == 'md5' %}
+    {% elif interface.ospf.auth_type and interface.ospf.auth_type == 'md5' %}
   ip ospf authentication message-digest
       {% if interface.ospf.auth_key %}
   ip ospf message-digest-key {{ interface.ospf.auth_key_id | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.auth_key_id) }} md5 3 {{ interface.ospf.auth_key }}
