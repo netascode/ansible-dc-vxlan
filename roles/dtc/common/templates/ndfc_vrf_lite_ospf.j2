@@ -43,15 +43,15 @@ router ospf {{ item.ospf['process'] }}
       {% for area in item.ospf.areas %}
         {% if area.id and (area.id != 0 or area.id != '0.0.0.0') %}
           {% if area.area_type and area.area_type == 'stub' %}
-    area {{ area.id }} stub
+    area {{ area.id | ipaddr('address') }} stub
           {% elif area.area_type and area.area_type == 'totally_stub' %}
-    area {{ area.id }} stub no-summary
+    area {{ area.id | ipaddr('address') }} stub no-summary
           {% elif area.area_type and area.area_type == 'nssa' %}
-    area {{ area.id }} nssa
+    area {{ area.id | ipaddr('address') }} nssa
           {% endif %}
         {% endif %}
         {% if area.area_cost %}
-    area {{ area.id }} default-cost {{ area.area_cost }}
+    area {{ area.id | ipaddr('address') }} default-cost {{ area.area_cost }}
         {% endif %}
       {% endfor %}
     {% endif %}
@@ -94,9 +94,9 @@ interface {{ interface['name'] }}
   ip ospf network {{ interface.ospf['network_type'] }}
     {% endif %}
     {% if interface.ospf['area'] is number %}
-  ip router ospf {{ item.ospf['process'] }} area 0.0.0.{{ interface.ospf['area'] }}
+  ip router ospf {{ item.ospf['process'] }} area {{ interface.ospf['area'] | ipaddr('address') }}
     {% else %}
-  ip router ospf {{ item.ospf['process'] }} area {{ interface.ospf['area'] }}
+  ip router ospf {{ item.ospf['process'] }} area {{ interface.ospf['area'] | ipaddr('address') }}
     {% endif %}
     {% if interface.ospf.cost %}
   ip ospf cost {{ interface.ospf.cost }}

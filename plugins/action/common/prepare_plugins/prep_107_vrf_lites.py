@@ -21,6 +21,7 @@
 
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader
 from ...helper_functions import hostname_to_ip_mapping
+from ansible_collections.ansible.utils.plugins.filter import ipaddr
 
 
 class PreparePlugin:
@@ -32,6 +33,7 @@ class PreparePlugin:
         templates_path = self.kwargs['templates_path']
         model_data = self.kwargs['results']['model_extended']
         default_values = self.kwargs['default_values']
+        
 
         template_filename = "ndfc_vrf_lite.j2"
 
@@ -41,7 +43,8 @@ class PreparePlugin:
             lstrip_blocks=True,
             trim_blocks=True,
         )
-
+        
+        env.filters["ipaddr"] = ipaddr.ipaddr
         template = env.get_template(template_filename)
 
         for vrf_lite in model_data["vxlan"]["overlay_extensions"]["vrf_lites"]:
