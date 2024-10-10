@@ -32,7 +32,7 @@ class PreparePlugin:
     def prepare(self):
         templates_path = self.kwargs['templates_path']
         model_data = self.kwargs['results']['model_extended']
-        default_values = self.kwargs['default_values']        
+        default_values = self.kwargs['default_values']
 
         template_filename = "ndfc_vrf_lite.j2"
 
