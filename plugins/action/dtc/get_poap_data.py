@@ -176,7 +176,6 @@ class ActionModule(ActionBase):
         params['action_plugin'] = self._execute_module
         params['task_vars'] = task_vars
         params['tmp'] = tmp
-        # model_data = self._task.args["model_data"]
 
         # Instantiate POAPDevice workflow object with params
         workflow = POAPDevice(params)
