@@ -40,7 +40,7 @@ def data_model_key_check(tested_object, keys):
     return dm_key_dict
 
 
-def ndfc_get_switch_policy(self, task_vars, tmp, template_name, switch_serial_number):
+def ndfc_get_switch_policy_by_template(self, task_vars, tmp, switch_serial_number, template_name):
     policy_data = self._execute_module(
         module_name="cisco.dcnm.dcnm_rest",
         module_args={
@@ -55,4 +55,23 @@ def ndfc_get_switch_policy(self, task_vars, tmp, template_name, switch_serial_nu
         (item for item in policy_data["response"]["DATA"] if item["templateName"] == template_name and item['serialNumber'] == switch_serial_number)
     )
 
+    return policy_match
+
+def ndfc_get_switch_policy_by_desc(self, task_vars, tmp, switch_serial_number, description):
+    policy_data = self._execute_module(
+        module_name="cisco.dcnm.dcnm_rest",
+        module_args={
+            "method": "GET",
+            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches/{switch_serial_number}/SWITCH/SWITCH"
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+
+    import epdb; epdb.st()
+
+    # policy_match = next(
+    #     (item for item in policy_data["response"]["DATA"] if item["templateName"] == template_name and item['serialNumber'] == switch_serial_number)
+    # )
+    policy_match = True
     return policy_match

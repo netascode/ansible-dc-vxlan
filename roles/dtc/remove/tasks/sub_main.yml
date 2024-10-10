@@ -41,6 +41,12 @@
   register: switch_list
   tags: "{{ nac_tags.remove }}"
 
+- name: Remove Policy
+  ansible.builtin.import_tasks: policy.yml
+  tags: "{{ nac_tags.remove_policy }}"
+  # when:
+  #   - changes_detected_policy
+
 - name: Remove Fabric Interfaces
   ansible.builtin.import_tasks: interfaces.yml
   tags: "{{ nac_tags.remove_interfaces }}"

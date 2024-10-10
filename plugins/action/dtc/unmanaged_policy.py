@@ -25,7 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
-from ..helper_functions import ndfc_get_switch_policy_by_template
+from ..helper_functions import ndfc_get_switch_policy_by_desc
 
 
 class ActionModule(ActionBase):
@@ -34,30 +34,39 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['changed'] = False
 
-        model_data = self._task.args["model_data"]
+        # Switches from NDFC
         switch_serial_numbers = self._task.args["switch_serial_numbers"]
-        template_name = self._task.args["template_name"]
+        model_data = self._task.args["model_data"]
+
+        policy_policies = model_data["vxlan"]["policy"]["policies"]
+        policy_groups = model_data["vxlan"]["policy"]["groups"]
+        policy_switches = model_data["vxlan"]["policy"]["switches"]
+
+        topology_switches = model_data["vxlan"]["topology"]["switches"]
 
         policy_update = {}
 
         for switch_serial_number in switch_serial_numbers:
-            policy_match = ndfc_get_switch_policy_by_template(
-                self=self,
-                task_vars=task_vars,
-                tmp=tmp,
-                switch_serial_number=switch_serial_number,
-                template_name=template_name
-            )
+            import epdb; epdb.st()
 
-            switch_match = next((item for item in model_data["vxlan"]["topology"]["switches"] if item["serial_number"] == switch_serial_number))
+            topology_switch = next((item for item in topology_switches if item["serial_number"] == switch_serial_number))
+            management_ipv4_address = topology_switch["management"]["management_ipv4_address"]
 
-            if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match["name"]:
-                policy_match["nvPairs"]["SWITCH_NAME"] = switch_match["name"]
-                policy_update.update({switch_serial_number: policy_match})
 
-        if policy_update:
-            results['changed'] = True
+            policy_switch = next((item for item in policy_switches if item["name"] == management_ipv4_address))
 
-        results['policy_update'] = policy_update
+            # if not (
+            #     switch["management"].get("management_ipv4_address", False)
+            #     or switch["management"].get("management_ipv6_address", False)
+            # ):
+            #     pass
+
+            # policy_match = ndfc_get_switch_policy_by_desc(
+            #     self=self,
+            #     task_vars=task_vars,
+            #     tmp=tmp,
+            #     switch_serial_number=switch_serial_number,
+            #     description=description
+            # )
 
         return results

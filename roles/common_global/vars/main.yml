@@ -70,6 +70,7 @@ nac_tags:
     - rr_manage_vpc_peers
     - rr_manage_links
     - rr_manage_switches
+    - rr_manage_policy
   remove_interfaces:
     - rr_manage_interfaces
   remove_networks:
@@ -82,5 +83,7 @@ nac_tags:
     - rr_manage_links
   remove_switches:
     - rr_manage_switches
+  remove_policy:
+    - rr_manage_policy
   
   
