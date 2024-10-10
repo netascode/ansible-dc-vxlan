@@ -8,10 +8,10 @@
 
 ## Related Collection Role
 <!-- If a new role to the collection, please specify -->
-* [ ] cisco.nac_dc_vxlan.validate
-* [ ] cisco.nac_dc_vxlan.create
-* [ ] cisco.nac_dc_vxlan.deploy
-* [ ] cisco.nac_dc_vxlan.remove
+* [ ] cisco.nac_dc_vxlan.dtc.validate
+* [ ] cisco.nac_dc_vxlan.dtc.create
+* [ ] cisco.nac_dc_vxlan.dtc.deploy
+* [ ] cisco.nac_dc_vxlan.dtc.remove
 * [ ] other
 
 ## Related Data Model Element

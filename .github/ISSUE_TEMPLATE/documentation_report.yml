@@ -27,10 +27,10 @@ body:
       label: Which role is the documentation update related?
       multiple: false
       options:
-        - cisco.nac_dc_vxlan.validate
-        - cisco.nac_dc_vxlan.create
-        - cisco.nac_dc_vxlan.deploy
-        - cisco.nac_dc_vxlan.remove
+        - cisco.nac_dc_vxlan.dtc.validate
+        - cisco.nac_dc_vxlan.dtc.create
+        - cisco.nac_dc_vxlan.dtc.deploy
+        - cisco.nac_dc_vxlan.dtc.remove
         - other
     validations:
       required: true
