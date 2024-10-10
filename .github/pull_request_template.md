@@ -8,21 +8,21 @@
 
 ## Related Collection Role
 <!-- If a new role to the collection, please specify -->
-* [ ] validate
-* [ ] create
-* [ ] deploy
-* [ ] remove
+* [ ] cisco.nac_dc_vxlan.validate
+* [ ] cisco.nac_dc_vxlan.create
+* [ ] cisco.nac_dc_vxlan.deploy
+* [ ] cisco.nac_dc_vxlan.remove
 * [ ] other
 
 ## Related Data Model Element
 <!-- If a new element to the data model, please specify -->
-* [ ] global
-* [ ] topology
-* [ ] underlay
-* [ ] overlay_services
-* [ ] overlay_extensions
-* [ ] policy
-* [ ] defaults
+* [ ] vxlan.global
+* [ ] vxlan.topology
+* [ ] vxlan.underlay
+* [ ] vxlan.overlay_services
+* [ ] vxlan.overlay_extensions
+* [ ] vxlan.policy
+* [ ] defaults.vxlan
 * [ ] other
 
 ## Proposed Changes

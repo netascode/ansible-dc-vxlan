@@ -62,10 +62,10 @@ body:
       label: Which role is this issue related to?
       multiple: false
       options:
-        - validate
-        - create
-        - deploy
-        - remove
+        - cisco.nac_dc_vxlan.validate
+        - cisco.nac_dc_vxlan.create
+        - cisco.nac_dc_vxlan.deploy
+        - cisco.nac_dc_vxlan.remove
         - other
     validations:
       required: true
@@ -76,13 +76,13 @@ body:
       label: Which section of the data model is this issue related to?
       multiple: false
       options:
-        - global
-        - topology
-        - underlay
-        - overlay_services
-        - overlay_extensions
-        - policy
-        - defaults
+        - vxlan.global
+        - vxlan.topology
+        - vxlan.underlay
+        - vxlan.overlay_services
+        - vxlan.overlay_extensions
+        - vxlan.policy
+        - defaults.vxlan
         - other
     validations:
       required: true
