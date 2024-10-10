@@ -50,9 +50,9 @@ router ospf {{ item.ospf['process'] }}
     area {{ area.id | ipaddr('address') }} nssa
           {% endif %}
         {% endif %}
-        {% if area.area_cost is defined and area.id != 0 %}
+        {% if area.area_cost is defined and area.area_cost != 1 and area.id != 0 %}
     area {{ area.id | ipaddr('address') }} default-cost {{ area.area_cost }}
-        {% elif area.area_cost is defined %}
+        {% elif area.area_cost is defined and area.area_cost != 1%}
     area 0.0.0.0 default-cost {{ area.area_cost }}
         {% endif %}
       {% endfor %}
