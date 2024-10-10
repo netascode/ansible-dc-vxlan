@@ -48,8 +48,8 @@ class POAPDevice:
         #     serial_number: 9Y0K4YPFV64
         #     role: border
         #     management:
-        #       default_gateway_v4: 10.15.9.1
-        #       management_ipv4_address: 10.15.9.14
+        #       default_gateway_v4: 192.168.9.1
+        #       management_ipv4_address: 192.168.9.14
         #       netmask: 24
         #     routing_loopback_id: 0
         #     vtep_loopback_id: 1
@@ -58,7 +58,7 @@ class POAPDevice:
         #       preprovision:
         #         serial: 9Y0K4YPFFFF
         #         model: N9K-C9300v
-        #         version: 9.4(8)
+        #         version: 9.3(9)
         #         modulesModel: [N9K-X9364v, N9K-vSUP]
 
         self.model_data = params['model_data']
