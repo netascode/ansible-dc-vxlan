@@ -20,7 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
     changes_detected_vpc_peering: false
@@ -29,6 +28,11 @@
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "{{ MD.vxlan.global.name }}_ndfc_vpc_peering.yml"
+  delegate_to: localhost
+
+- name: Set file_name Var
+  ansible.builtin.set_fact:
+    file_name_serials: "{{ MD.vxlan.global.name }}_ndfc_vpc_peering_serials.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
@@ -56,14 +60,27 @@
     dest: "{{ role_path }}/files/{{ file_name }}"
   delegate_to: localhost
 
+- name: Build vPC Peering with serials
+  ansible.builtin.template:
+    src: ndfc_vpc_peering_serials.j2
+    dest: "{{ role_path }}/files/{{ file_name_serials }}"
+  delegate_to: localhost
+
 - name: Set vpc_peering Var default
   ansible.builtin.set_fact:
     vpc_peering: []
+    vpc_peering_serial: []
   delegate_to: localhost
 
 - name: Set vpc_peering Var
   ansible.builtin.set_fact:
     vpc_peering: "{{ lookup('file', file_name) | from_yaml }}"
+  when: MD_Extended.vxlan.topology.vpc_peers | length > 0
+  delegate_to: localhost
+
+- name: Set vpc_peering_serial Var
+  ansible.builtin.set_fact:
+    vpc_peering_serial: "{{ lookup('file', file_name_serials) | from_yaml }}"
   when: MD_Extended.vxlan.topology.vpc_peers | length > 0
   delegate_to: localhost
 
