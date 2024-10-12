@@ -64,7 +64,9 @@ class ActionModule(ActionBase):
 
         for ndfc_sw_serial_number in ndfc_sw_serial_numbers:
             if any(switch["serial_number"] == ndfc_sw_serial_number for switch in dm_topology_switches):
-                dm_switch_found = next((dm_topology_switch for dm_topology_switch in dm_topology_switches if dm_topology_switch["serial_number"] == ndfc_sw_serial_number))
+                dm_switch_found = next(
+                    (dm_topology_switch for dm_topology_switch in dm_topology_switches if dm_topology_switch["serial_number"] == ndfc_sw_serial_number)
+                )
                 dm_management_ipv4_address = dm_switch_found["management"].get("management_ipv4_address", None)
                 dm_management_ipv6_address = dm_switch_found["management"].get("management_ipv6_address", None)
 
@@ -72,33 +74,48 @@ class ActionModule(ActionBase):
                 (switch["name"] == dm_management_ipv4_address for switch in dm_policy_switches) or
                 (switch["name"] == dm_management_ipv6_address for switch in dm_policy_switches)
             ):
-                dm_policy_switch = next((dm_policy_switch for dm_policy_switch in dm_policy_switches if dm_policy_switch["name"] == dm_management_ipv4_address or dm_policy_switch["name"] == dm_management_ipv6_address))
+                dm_policy_switch = next(
+                    (
+                        dm_policy_switch for dm_policy_switch in dm_policy_switches
+                        if dm_policy_switch["name"] == dm_management_ipv4_address or dm_policy_switch["name"] == dm_management_ipv6_address
+                    )
+                )
 
                 for dm_sw_policy_group in dm_policy_switch["groups"]:
                     if any(dm_policy_group["name"] == dm_sw_policy_group for dm_policy_group in dm_policy_groups):
                         current_sw_policies = next(
                             (
-                                [policy["name"] for policy in dm_policy_group["policies"]] for dm_policy_group in dm_policy_groups if dm_policy_group["name"] == dm_sw_policy_group
+                                [policy["name"] for policy in dm_policy_group["policies"]]
+                                for dm_policy_group in dm_policy_groups if dm_policy_group["name"] == dm_sw_policy_group
                             )
                         )
 
                 ndfc_policies_with_desc = ndfc_get_switch_policy_with_desc(self, task_vars, tmp, ndfc_sw_serial_number)
-                if any(((ndfc_policy_with_desc["description"] not in vrf_lites) and (ndfc_policy_with_desc["description"] not in current_sw_policies)) for ndfc_policy_with_desc in ndfc_policies_with_desc):
-                        results['changed'] = True
-                        umanaged_policies[0]["switch"].append(
-                            {
-                                "ip": dm_management_ipv4_address if dm_management_ipv4_address else dm_management_ipv6_address
-                            }
-                        )
-                        last_idx = len(umanaged_policies[0]["switch"]) - 1
-                        _unmanaged_policies = [
-                            {"name": ndfc_policy_with_desc["policyId"], "description": ndfc_policy_with_desc["description"]} for ndfc_policy_with_desc in ndfc_policies_with_desc if ((ndfc_policy_with_desc["description"] not in vrf_lites) and (ndfc_policy_with_desc["description"] not in current_sw_policies))
-                        ]
-                        umanaged_policies[0]["switch"][last_idx].update(
-                            {
-                                "policies": _unmanaged_policies
-                            }
-                        )
+                if any(
+                    ((ndfc_policy_with_desc["description"] not in vrf_lites) and (ndfc_policy_with_desc["description"] not in current_sw_policies))
+                    for ndfc_policy_with_desc in ndfc_policies_with_desc
+                ):
+                    results['changed'] = True
+                    umanaged_policies[0]["switch"].append(
+                        {
+                            "ip": dm_management_ipv4_address if dm_management_ipv4_address else dm_management_ipv6_address
+                        }
+                    )
+                    last_idx = len(umanaged_policies[0]["switch"]) - 1
+                    _unmanaged_policies = [
+                        {
+                            "name": ndfc_policy_with_desc["policyId"],
+                            "description": ndfc_policy_with_desc["description"]
+                        }
+                        for ndfc_policy_with_desc in ndfc_policies_with_desc
+                        if ((ndfc_policy_with_desc["description"] not in vrf_lites) and (ndfc_policy_with_desc["description"] not in current_sw_policies))
+                    ]
+                    umanaged_policies[0]["switch"][last_idx].update(
+                        {
+                            "policies": _unmanaged_policies
+                        }
+                    )
+
         results['unmanaged_policies'] = umanaged_policies
 
         return results
