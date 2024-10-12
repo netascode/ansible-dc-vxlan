@@ -25,7 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
-from ..helper_functions import ndfc_get_switch_policy_by_desc
+from ..helper_functions import ndfc_get_switch_policy_with_desc
 
 
 class ActionModule(ActionBase):
@@ -35,38 +35,70 @@ class ActionModule(ActionBase):
         results['changed'] = False
 
         # Switches from NDFC
-        switch_serial_numbers = self._task.args["switch_serial_numbers"]
+        ndfc_sw_serial_numbers = self._task.args["switch_serial_numbers"]
         model_data = self._task.args["model_data"]
 
-        policy_policies = model_data["vxlan"]["policy"]["policies"]
-        policy_groups = model_data["vxlan"]["policy"]["groups"]
-        policy_switches = model_data["vxlan"]["policy"]["switches"]
+        dm_topology_switches = model_data["vxlan"]["topology"]["switches"]
 
-        topology_switches = model_data["vxlan"]["topology"]["switches"]
+        dm_policy_policies = model_data["vxlan"]["policy"]["policies"]
+        dm_policy_groups = model_data["vxlan"]["policy"]["groups"]
+        dm_policy_switches = model_data["vxlan"]["policy"]["switches"]
 
-        policy_update = {}
+        vrf_lites = []
+        if model_data["vxlan"].get("overlay_extensions", None):
+            if model_data["vxlan"]["overlay_extensions"].get("vrf_lites", None):
+                dm_vrf_lites = model_data["vxlan"]["overlay_extensions"]["vrf_lites"]
+                for dm_vrf_lite in dm_vrf_lites:
+                    for dm_vrf_lite_switch in dm_vrf_lite["switches"]:
+                        unique_name = f"nac_{dm_vrf_lite['name']}_{dm_vrf_lite_switch['name']}"
+                        vrf_lites.append(unique_name)
 
-        for switch_serial_number in switch_serial_numbers:
-            import epdb; epdb.st()
+        dm_management_ipv4_address = ""
+        dm_management_ipv6_address = ""
+        current_sw_policies = []
+        umanaged_policies = [
+            {
+                "switch": []
+            }
+        ]
 
-            topology_switch = next((item for item in topology_switches if item["serial_number"] == switch_serial_number))
-            management_ipv4_address = topology_switch["management"]["management_ipv4_address"]
+        for ndfc_sw_serial_number in ndfc_sw_serial_numbers:
+            if any(switch["serial_number"] == ndfc_sw_serial_number for switch in dm_topology_switches):
+                dm_switch_found = next((dm_topology_switch for dm_topology_switch in dm_topology_switches if dm_topology_switch["serial_number"] == ndfc_sw_serial_number))
+                dm_management_ipv4_address = dm_switch_found["management"].get("management_ipv4_address", None)
+                dm_management_ipv6_address = dm_switch_found["management"].get("management_ipv6_address", None)
 
+            if any(
+                (switch["name"] == dm_management_ipv4_address for switch in dm_policy_switches) or
+                (switch["name"] == dm_management_ipv6_address for switch in dm_policy_switches)
+            ):
+                dm_policy_switch = next((dm_policy_switch for dm_policy_switch in dm_policy_switches if dm_policy_switch["name"] == dm_management_ipv4_address or dm_policy_switch["name"] == dm_management_ipv6_address))
 
-            policy_switch = next((item for item in policy_switches if item["name"] == management_ipv4_address))
+                for dm_sw_policy_group in dm_policy_switch["groups"]:
+                    if any(dm_policy_group["name"] == dm_sw_policy_group for dm_policy_group in dm_policy_groups):
+                        current_sw_policies = next(
+                            (
+                                [policy["name"] for policy in dm_policy_group["policies"]] for dm_policy_group in dm_policy_groups if dm_policy_group["name"] == dm_sw_policy_group
+                            )
+                        )
 
-            # if not (
-            #     switch["management"].get("management_ipv4_address", False)
-            #     or switch["management"].get("management_ipv6_address", False)
-            # ):
-            #     pass
-
-            # policy_match = ndfc_get_switch_policy_by_desc(
-            #     self=self,
-            #     task_vars=task_vars,
-            #     tmp=tmp,
-            #     switch_serial_number=switch_serial_number,
-            #     description=description
-            # )
+                ndfc_policies_with_desc = ndfc_get_switch_policy_with_desc(self, task_vars, tmp, ndfc_sw_serial_number)
+                if any(((ndfc_policy_with_desc["description"] not in vrf_lites) and (ndfc_policy_with_desc["description"] not in current_sw_policies)) for ndfc_policy_with_desc in ndfc_policies_with_desc):
+                        results['changed'] = True
+                        umanaged_policies[0]["switch"].append(
+                            {
+                                "ip": dm_management_ipv4_address if dm_management_ipv4_address else dm_management_ipv6_address
+                            }
+                        )
+                        last_idx = len(umanaged_policies[0]["switch"]) - 1
+                        _unmanaged_policies = [
+                            {"name": ndfc_policy_with_desc["policyId"], "description": ndfc_policy_with_desc["description"]} for ndfc_policy_with_desc in ndfc_policies_with_desc if ((ndfc_policy_with_desc["description"] not in vrf_lites) and (ndfc_policy_with_desc["description"] not in current_sw_policies))
+                        ]
+                        umanaged_policies[0]["switch"][last_idx].update(
+                            {
+                                "policies": _unmanaged_policies
+                            }
+                        )
+        results['unmanaged_policies'] = umanaged_policies
 
         return results

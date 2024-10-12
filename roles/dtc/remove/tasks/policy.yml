@@ -35,15 +35,14 @@
     register: unmanaged_policy_config
     # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 
-  - ansible.builtin.meta: end_play
-
   - name: Remove Unmanaged Policy
     cisco.dcnm.dcnm_policy:
       fabric: "{{ MD.vxlan.global.name }}"
       use_desc_as_key: true
-      config: "{{ unmanaged_policy_config }}"
+      config: "{{ unmanaged_policy_config.unmanaged_policies }}"
       deploy: true
-      state: absent
+      state: deleted
+    when: unmanaged_policy_config.unmanaged_policies | length > 0
     vars:
         ansible_command_timeout: 3000
         ansible_connect_timeout: 3000
