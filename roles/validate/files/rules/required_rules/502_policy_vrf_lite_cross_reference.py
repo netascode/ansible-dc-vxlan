@@ -60,8 +60,7 @@ class Rule:
             results.append(
                 f"In the policy: {policy['name']}, BGP and OSPF are configured " +
                 "in the same policy at the Global level. " +
-                "Please use two different policies"
-                )
+                "Please use two different policies")
 
     @classmethod
     def check_global_ospf_area(cls, results, policy):
@@ -113,8 +112,7 @@ class Rule:
             results.append(
                 f"In the policy: {policy['name']}, " +
                 "BGP and OSPF are configured in the same policy at the switch level. " +
-                "Please use two different policies"
-            )
+                "Please use two different policies")
 
         # Check if switch exists in topology
         cls.check_switch_in_topology(results,
