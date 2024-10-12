@@ -58,8 +58,9 @@ class Rule:
         '''
         if "ospf" in policy and "bgp" in policy:
             results.append(
-                f"In the policy: {policy['name']}, BGP and OSPF are configured " +
-                "in the same policy at the Global level. " +
+                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf ," +
+                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.bgp." +
+                "BGP and OSPF are defined in the same policy " +
                 "Please use two different policies")
 
     @classmethod
@@ -75,8 +76,9 @@ class Rule:
                         if ((area['id'] == 0 or area['id'] == '0.0.0.0')
                                 and area['area_type'] != 'standard'):
                             results.append(
-                                f"In the policy: {policy['name']}, area backbone (0) " +
-                                "is always standard not {area['area_type']}"
+                                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf.areas.id.0. "
+                                f"area_type is defined to {area['area_type']}" +
+                                "Backbone area is always standard"
                             )
 
     @classmethod
@@ -93,6 +95,7 @@ class Rule:
             bgp = True
             if "bgp_peers" in switch_policy:
                 cls.check_switch_bgp_route_reflector(results,
+                                                     switch=switch_policy['name'],
                                                      bgp_peers=switch_policy['bgp_peers'],
                                                      fabric_asn=infra_bgp_asn,
                                                      policy=policy['name'])
@@ -104,13 +107,14 @@ class Rule:
                     ospf = True
                     cls.check_switch_ospf(results,
                                           interface['ospf'],
+                                          switch_policy['name'],
                                           interface['name'],
                                           policy['name'])
 
         # Check if OSPF and BGP is enabled
         if ospf is True and bgp is True:
             results.append(
-                f"In the policy: {policy['name']}, " +
+                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.switches.{switch_policy['name']}. " +
                 "BGP and OSPF are configured in the same policy at the switch level. " +
                 "Please use two different policies")
 
@@ -138,11 +142,12 @@ class Rule:
             pass
         else:
             results.append(
-                f"In the policy: {policy}, switch {switch} is not defined in the topology inventory"
+                f"vxlan.overlay_extensions.vrf_lites.{policy}.switches.{switch} " +
+                "is not defined in vxlan.topology.switches"
             )
 
     @classmethod
-    def check_switch_ospf(cls, results, ospf, interface=None, policy=None):
+    def check_switch_ospf(cls, results, ospf, switch, interface=None, policy=None):
         '''
         Check OSPF parameters
         '''
@@ -158,20 +163,21 @@ class Rule:
         if ospf.get('network_type'):
             if interface.startswith('Lo') and ospf['network_type'] == "broadcast":
                 results.append(
-                    f"In the policy: {policy}, network_type: " +
-                    "broadcast is not supported with Loopback"
+                    f"vxlan.overlay_extensions.vrf_lites.{policy}.switches.{switch}.interfaces.{interface}.ospf. "
+                    f"network_type: {ospf['network_type']}" +
+                    " is not supported with Loopback"
                 )
 
         # Check if Adversise-subnet is used only for Loopback in ospf
         if ospf.get('advertise_subnet'):
             if not interface.startswith('Lo') and ospf['advertise_subnet']:
                 results.append(
-                    f"In the policy: {policy} is configured on {interface}, " +
-                    "advertise_subnet: True is only supported with Loopback"
+                    f"vxlan.overlay_extensions.vrf_lites.{policy}.switches.{switch}.interfaces.{interface}.ospf. "
+                    f"advertise_subnet: True is only supported with Loopback"
                 )
 
     @classmethod
-    def check_switch_bgp_route_reflector(cls, results, bgp_peers, fabric_asn, policy):
+    def check_switch_bgp_route_reflector(cls, results, switch, bgp_peers, fabric_asn, policy):
         '''
         Check if route-reflector is enabled in eBGP
         '''
@@ -182,8 +188,9 @@ class Rule:
                     if bgp_peer['address_family_ipv4_unicast']['route_reflector_client'] is True:
                         if bgp_peer['remote_as'] != fabric_asn:
                             results.append(
-                                f"In the policy: {policy}, " +
-                                "BGP route-reflector is not allowed in AF IPv4."
+                                f"vxlan.overlay_extensions.vrf_lites.{policy}.switches.{switch}.bgp_peers.{bgp_peer['address']}.address_family_ipv4_unicast"
+                                f"route_reflector_client: {bgp_peer['address_family_ipv4_unicast']['route_reflector_client']} " +
+                                "is not allowed in eBGP"
                             )
 
             # Check RR for AF IPv6
@@ -192,8 +199,9 @@ class Rule:
                     if bgp_peer['address_family_ipv6_unicast']['route_reflector_client'] is True:
                         if bgp_peer['remote_as'] != fabric_asn:
                             results.append(
-                                f"In the policy: {policy}, " +
-                                "BGP route-reflector is not allowed in AF IPv6."
+                                f"vxlan.overlay_extensions.vrf_lites.{policy}.switches.{switch}.bgp_peers.{bgp_peer['address']}.address_family_ipv6_unicast"
+                                f"route_reflector_client: {bgp_peer['address_family_ipv4_unicast']['route_reflector_client']} " +
+                                "is not allowed in eBGP"
                             )
 
     @classmethod
@@ -224,34 +232,39 @@ class Rule:
                                                     pass
                                                 else:
                                                     results.append(
-                                                        f"In the policy {route['policy']} Next Hop are different. "
+                                                        f"vxlan.overlay_extensions.vrf_lites.{route['policy']}.switches.{route['switch']}.static_routes. "
+                                                        f"next_hops are different. "
                                                         f"Local: {route['routes'][nb_pref]['next_hops']} "
                                                         f"- Remote: {route2['routes'][nb_pref]['next_hops']}"
                                                     )
                                                     break
                                             else:
                                                 results.append(
-                                                    f"In the policy {route['policy']} Nb Next Hop are different. "
+                                                    f"vxlan.overlay_extensions.vrf_lites.{route['policy']}.switches.{route['switch']}.static_routes. "
+                                                    f"next_hops number is different. "
                                                     f"Local: {route['routes'][nb_pref]['next_hops']} "
                                                     f"- Remote: {route2['routes'][nb_pref]['next_hops']}"
                                                 )
                                                 break
                                     else:
                                         results.append(
-                                            f"In the policy {route['policy']} Route Tag are different. "
+                                            f"vxlan.overlay_extensions.vrf_lites.{route['policy']}.switches.{route['switch']}.static_routes. "
+                                            f"route_tag is different. "
                                             f"Local: {route['routes'][nb_pref]['route_tag']} "
                                             f"- Remote: {route2['routes'][nb_pref]['route_tag']}"
                                         )
                                         break
                                 else:
                                     results.append(
-                                        f"In the policy {route['policy']} Prefixes are different. "
+                                        f"vxlan.overlay_extensions.vrf_lites.{route['policy']}.switches.{route['switch']}.static_routes. "
+                                        f"prefix is different. "
                                         f"Local: {route['routes'][nb_pref]['prefix']} "
                                         f"- Remote: {route2['routes'][nb_pref]['prefix']}"
                                     )
                                     break
                             else:
                                 results.append(
-                                    f"In the policy {route['policy']} Nb prefixes are different. "
-                                    f"Local: {route['routes']} - Remote: {route2['routes']}"
+                                    f"vxlan.overlay_extensions.vrf_lites.{route['policy']}.switches.{route['switch']}.static_routes. "
+                                    f"Prefixes number is different. "
+                                    f"Local: {len(route['routes'])} - Remote: {len(route2['routes'])}"
                                 )
