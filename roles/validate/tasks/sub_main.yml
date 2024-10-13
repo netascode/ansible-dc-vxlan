@@ -140,3 +140,7 @@
     file: "{{ role_path }}/defaults/{{ inventory_hostname }}/defaults.yml"
   when: host_defaults.stat.exists
   delegate_to: localhost
+
+- ansible.builtin.debug: msg="{{ ndfc_version.response.DATA.version }}"
+
+# - ansible.builtin.meta: end_play
