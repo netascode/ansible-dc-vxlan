@@ -1,0 +1,15 @@
+---
+{#- This NDFC fabric config data structure is auto-generated #}
+{#- DO NOT EDIT MANUALLY #}
+
+{% set vxlan = MD_Extended.vxlan %}
+{% set global = vxlan.global %}
+{% if vxlan.global.fabric_type == 'VXLAN_EVPN' %}
+
+{# Include NDFC DC VXLAN EVPN Base Template #}
+{% include '/ndfc_fabric/dc_vxlan_fabric/dc_vxlan_fabric_base.j2' %}
+
+{% else %}
+
+{# Supported fabric types are: DC VXLAN EVPN #}
+{% endif %}
