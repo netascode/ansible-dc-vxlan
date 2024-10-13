@@ -28,7 +28,7 @@
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "{{ MD.vxlan.global.name }}_ndfc_create_fabric.yml"
+    file_name: "{{ MD.vxlan.global.name }}_ndfc_fabric.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists

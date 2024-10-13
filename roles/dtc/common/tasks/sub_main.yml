@@ -40,7 +40,7 @@
 - name: Build Fabric Create Parameters
   ansible.builtin.include_tasks: ndfc_fabric.yml
 
-- ansible.builtin.meta: end_play
+# - ansible.builtin.meta: end_play
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Switch Inventory List From Template
