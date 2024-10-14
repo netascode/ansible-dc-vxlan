@@ -1,6 +1,6 @@
 '''
 Validation Rules scenarios:
-1.  Switches in the [insert vrf-lite switch model key structure here] should be defined in the vxlan.topology.switches
+1.  Switches in the vxlan.overlay_extensions.vrf_lites.switches should be defined in the vxlan.topology.switches
 2.  BGP and OSPF should be defined in two different policy.
 3.  route_reflector_client for AF IPv4 and IPv6 config should not be allowed.
 4.  Check if OSPF Authentication is enabled, key must be provided
