@@ -73,6 +73,7 @@ The following control variables are available in this collection.
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
 | `vpc_delete_mode` | Remove vpc pair state as part of the remove role | `false` |
+| `policy_delete_mode` | Remove policy state as part of the remove role | `false` |
 
 These variables are described in more detail in different sections of this document.
 
