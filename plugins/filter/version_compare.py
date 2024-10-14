@@ -84,7 +84,7 @@ def version_compare(version1, version2, op):
         raise AnsibleFilterTypeError(f"Can only check string versions, however version2 is: {type(version2)}")
 
     if not isinstance(op, (string_types, Undefined)) and op not in SUPPORTED_COMPARISON_OPERATORS:
-      raise AnsibleFilterError(f"Unsupported operator {op} type. Supported operators are: {SUPPORTED_COMPARISON_OPERATORS}")
+        raise AnsibleFilterError(f"Unsupported operator {op} type. Supported operators are: {SUPPORTED_COMPARISON_OPERATORS}")
 
     try:
         v1 = Version(version1)
@@ -93,7 +93,7 @@ def version_compare(version1, version2, op):
         raise
     except Exception as e:
         raise AnsibleFilterError("Unable handle version: %s" % to_native(e), orig_exc=e)
-    
+
     if op == '==':
         return operator.eq(v1, v2)
     elif op == '!=':
