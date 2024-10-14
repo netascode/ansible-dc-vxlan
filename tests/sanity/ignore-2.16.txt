@@ -15,6 +15,7 @@ plugins/action/dtc/add_device_check.py action-plugin-docs # action plugin has no
 plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/verify_tags.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/diff_model_changes.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/update_switch_hostname_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtd/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/test/inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/helper_functions.py action-plugin-docs # action plugin has no matching module to provide documentation

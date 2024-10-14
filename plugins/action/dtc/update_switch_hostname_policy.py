@@ -24,45 +24,40 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-import os
-import yaml
-
-display = Display()
+from ..helper_functions import ndfc_get_switch_policy
 
 
 class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
-        # self._supports_async = True
         results = super(ActionModule, self).run(tmp, task_vars)
-        results['diff_run'] = True
+        results['changed'] = False
 
-        model_data = task_vars['model_data']['data']
-        fabric_name = model_data["vxlan"]["global"]["name"]
+        model_data = self._task.args["model_data"]
+        switch_serial_numbers = self._task.args["switch_serial_numbers"]
+        template_name = self._task.args["template_name"]
 
-        if 'dtc' in task_vars['role_path']:
-            common_role_path = os.path.dirname(task_vars['role_path'])
-            common_role_path = os.path.dirname(common_role_path) + '/validate/files'
-        else:
-            common_role_path = os.path.dirname(task_vars['role_path']) + '/validate/files'
+        policy_update = {}
 
-        run_map_file_path = common_role_path + f'/{fabric_name}_run_map.yml'
+        for switch_serial_number in switch_serial_numbers:
+            policy_match = ndfc_get_switch_policy(
+                self=self,
+                task_vars=task_vars,
+                tmp=tmp,
+                template_name=template_name,
+                switch_serial_number=switch_serial_number
+            )
 
-        if not os.path.exists(run_map_file_path):
-            # Return failure if run_map file does not exist
-            results['diff_run'] = False
-            return results
+            switch_match = next((item for item in model_data["vxlan"]["topology"]["switches"] if item["serial_number"] == switch_serial_number))
 
-        with open(run_map_file_path, 'r') as file:
-            previous_run_map = yaml.safe_load(file)
+            if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match["name"]:
+                policy_match["nvPairs"]["SWITCH_NAME"] = switch_match["name"]
+                policy_update.update({switch_serial_number: policy_match})
 
-        # Check run map flags and if any of then is false set diff_run to false
-        # to force all sections to run.
-        for role in ['role_validate_completed', 'role_create_completed', 'role_deploy_completed', 'role_remove_completed']:
-            if not previous_run_map.get(role):
-                results['diff_run'] = False
-                break
+        if policy_update:
+            results['changed'] = True
+
+        results['policy_update'] = policy_update
 
         return results

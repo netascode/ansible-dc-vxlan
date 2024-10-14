@@ -20,6 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
+
 - name: Role Entry Point - [cisco.nac_dc_vxlan.validate]
   ansible.builtin.debug:
     msg:
@@ -31,22 +32,6 @@
 
 - ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
 
-- name: Read Run Map From Previous Run
-  cisco.nac_dc_vxlan.common.read_run_map:
-  register: run_map_read_result
-  delegate_to: localhost
-
-- name: Debug Run Map Read Result
-  ansible.builtin.debug:
-    msg: "{{ run_map_read_result }}"
-  delegate_to: localhost
-
-- name: Initialize Run Map
-  cisco.nac_dc_vxlan.common.run_map:
-    stage: starting_execution
-  register: run_map
-  delegate_to: localhost
-
 - name: Validate NDFC Service Model Data
   ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
 
@@ -55,6 +40,12 @@
 
 - ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
   when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
+
+- name: Verify Connection to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
+  ansible.builtin.include_tasks: verify_ndfc_connectivity.yml
+
+- name: Verify Authorization to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
+  ansible.builtin.include_tasks: verify_ndfc_authorization.yml
 
 - name: Check for Schema Path Being Defined
   ansible.builtin.set_fact:
@@ -89,12 +80,6 @@
   when: enhanced_rules_path is defined and enhanced_rules_path
   delegate_to: localhost
 
-- name: Verify Connection to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
-  ansible.builtin.include_tasks: verify_ndfc_connectivity.yml
-
-- name: Verify Authorization to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
-  ansible.builtin.include_tasks: verify_ndfc_authorization.yml
-
 - name: Prepare Service Model
   cisco.nac_dc_vxlan.common.prepare_service_model:
     inventory_hostname: "{{ inventory_hostname }}"
@@ -117,6 +102,24 @@
   cisco.nac_dc_vxlan.common.check_roles:
     role_list: "{{ role_names }}"
   register: check_roles
+  delegate_to: localhost
+
+- name: Read Run Map From Previous Run
+  cisco.nac_dc_vxlan.common.read_run_map:
+    model_data: "{{ MD_Extended }}"
+  register: run_map_read_result
+  delegate_to: localhost
+
+- name: Debug Run Map Read Result
+  ansible.builtin.debug:
+    msg: "{{ run_map_read_result }}"
+  delegate_to: localhost
+
+- name: Initialize Run Map
+  cisco.nac_dc_vxlan.common.run_map:
+    model_data: "{{ MD_Extended }}"
+    stage: starting_execution
+  register: run_map
   delegate_to: localhost
 
 - name: Manage Previous Service Model Data Files
