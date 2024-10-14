@@ -2,11 +2,22 @@
 Validation Rules scenarios:
 1.  Switches in the vxlan.overlay_extensions.vrf_lites.switches should be defined in the vxlan.topology.switches
 2.  BGP and OSPF should be defined in two different policy.
+    vxlan.overlay_extensions.vrf_lites.ospf
+    vxlan.overlay_extensions.vrf_lites.bgp
+    vxlan.overlay_extensions.vrf_lites.switches.bgp
+    vxlan.overlay_extensions.vrf_lites.switches.bgp_peers
+    vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf
 3.  route_reflector_client for AF IPv4 and IPv6 config should not be allowed.
+    vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv4_unicast.route_reflector_client
+    vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv6_unicast.route_reflector_client
 4.  Check if OSPF Authentication is enabled, key must be provided
+    vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.auth_key
 5.  Check AREA 0 is standard
+    vxlan.overlay_extensions.vrf_lites.ospf.areas.area_type
 6.  Check static routes across Policies
+    vxlan.overlay_extensions.vrf_lites.switches.static_routes
 7.  Check ospf network type for Loopback
+    vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.network_type
 '''
 
 
