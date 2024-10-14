@@ -21,6 +21,14 @@
 
 ---
 
+- name: Query NDFC Version
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: /appcenter/cisco/ndfc/api/about/version
+  register: ndfc_version
+
+- debug: msg="{{ ndfc_version.response.DATA.version }}"
+
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
     changes_detected_fabric: false
@@ -56,6 +64,14 @@
     src: ndfc_create_fabric.j2
     dest: "{{ role_path }}/files/{{ file_name }}"
   delegate_to: localhost
+  when: ndfc_version.response.DATA.version is version('12.2.2', '<')
+
+- name: Build Fabric Creation Parameters From Template
+  ansible.builtin.template:
+    src: ndfc_create_fabric_1222.j2
+    dest: "{{ role_path }}/files/{{ file_name }}"
+  delegate_to: localhost
+  when: ndfc_version.response.DATA.version is version('12.2.2', '>=')
 
 - ansible.builtin.set_fact:
     fabric_config: "{{ lookup('file', file_name) | from_yaml }}"
