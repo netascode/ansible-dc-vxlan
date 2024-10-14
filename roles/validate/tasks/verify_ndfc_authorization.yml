@@ -21,6 +21,13 @@
       # no_log: true
       delegate_to: localhost
       # when: ansible_user is defined and ansible_password is defined
+  
+    - name: Get Cisco NDFC Version
+      cisco.dcnm.dcnm_rest:
+        method: GET
+        path: /appcenter/cisco/ndfc/api/about/version
+      register: ndfc_version
+
   rescue:
     - name: Fail Play If NDFC Authorization Test Failed
       ansible.builtin.fail:
