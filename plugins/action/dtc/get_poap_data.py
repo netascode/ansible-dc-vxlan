@@ -50,13 +50,13 @@ class POAPDevice:
         #     management:
         #       default_gateway_v4: 192.168.9.1
         #       management_ipv4_address: 192.168.9.14
-        #       netmask: 24
+        #       subnet_mask_ipv4: 24
         #     routing_loopback_id: 0
         #     vtep_loopback_id: 1
         #     poap:
         #       bootstrap: true
         #       preprovision:
-        #         serial: 9Y0K4YPFFFF
+        #         serial_number: 9Y0K4YPFFFF
         #         model: N9K-C9300v
         #         version: 9.3(9)
         #         modulesModel: [N9K-X9364v, N9K-vSUP]
