@@ -20,25 +20,44 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import absolute_import, division, print_function
-
-
 __metaclass__ = type
 
-from ansible.utils.display import Display
-from ansible.plugins.action import ActionBase
 
-display = Display()
+DOCUMENTATION = """
+---
+module: update_switch_hostname_policy
+short_description: Action plugin to parse, build, and return an updated policy payload for updating NDFC switch hostnames based on the data model.
+version_added: "0.3.0"
+author: Matt Tarkington (@mtarking)
+description:
+- Action plugin to parse, build, and return an updated policy payload for updating NDFC switch hostnames based on the data model.
+options:
+    mdata:
+        description:
+        - The runtime data model, typically the extended data model.
+        required: true
+        type: dict
+    switch_serial_numbers:
+        description:
+        - List of switch serial numbers NDFC is managing.
+        required: true
+        type: list
+        elements: str
+    template_name:
+        description:
+        - NDFC template name.
+        required: true
+        type: str
+"""
 
+EXAMPLES = """
 
-class ActionModule(ActionBase):
+# Parses, builds, and returns an updated policy payload for updating NDFC switch hostnames based on the data model.
 
-    def run(self, tmp=None, task_vars=None):
-        results = super(ActionModule, self).run(tmp, task_vars)
-        results['save_previous'] = False
+- name: Build Switch Hostname Policy Payload from Data Model Update
+  cisco.nac_dc_vxlan.dtc.update_switch_hostname_policy:
+    model_data: "{{ MD_Extended }}"
+    switch_serial_numbers: "{{ md_serial_numbers }}"
+    template_name: host_11_1
 
-        roles = self._task.args['role_list']
-        for role in ['cisco.nac_dc_vxlan.create', 'cisco.nac_dc_vxlan.remove']:
-            if role in roles:
-                results['save_previous'] = True
-
-        return results
+"""

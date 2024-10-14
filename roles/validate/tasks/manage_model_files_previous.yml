@@ -21,7 +21,7 @@
 
 ---
 
-- name: "Check Roles"
+- name: Check Roles
   cisco.nac_dc_vxlan.common.check_roles:
     role_list: "{{ role_names }}"
   register: check_roles

@@ -20,7 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 
-from ...helper_functions import data_model_key_check
+from ....plugin_utils.helper_functions import data_model_key_check
 
 
 def update_nested_dict(nested_dict, keys, new_value):

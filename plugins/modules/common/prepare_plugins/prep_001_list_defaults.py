@@ -20,25 +20,45 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import absolute_import, division, print_function
-
-
 __metaclass__ = type
 
-from ansible.utils.display import Display
-from ansible.plugins.action import ActionBase
 
-display = Display()
+DOCUMENTATION = """
+---
+module: prep_001_list_defaults
+short_description: Prepare action plugin for list and nested list elementes of the extended data model.
+version_added: "0.1.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Invoked from the main prepare action plugin prepare_service_model.
+- Prepare action plugin for list and nested list elementes of the extended data model.
+options:
+    inventory_hostname:
+        description:
+        - Ansible inventory_hostname.
+        required: true
+        type: str
+    hostvars:
+        description:
+        - Ansible runtime hostvars data.
+        required: true
+        type: dict
+    model_data:
+        description:
+        - The path to the data dir.
+        required: true
+        type: str
+"""
 
+EXAMPLES = """
 
-class ActionModule(ActionBase):
+# Prepare Data Model and Return Extended Data Model
 
-    def run(self, tmp=None, task_vars=None):
-        results = super(ActionModule, self).run(tmp, task_vars)
-        results['save_previous'] = False
+- name: Perform Required Syntax and Semantic Model Validation
+  cisco.nac_dc_vxlan.common.prepare_service_model:
+    inventory_hostname: "{{ inventory_hostname }}"
+    hostvars: "{{ hostvars }}"
+    model_data: "{{ model_data['data'] }}"
+  register: smd
 
-        roles = self._task.args['role_list']
-        for role in ['cisco.nac_dc_vxlan.create', 'cisco.nac_dc_vxlan.remove']:
-            if role in roles:
-                results['save_previous'] = True
-
-        return results
+"""

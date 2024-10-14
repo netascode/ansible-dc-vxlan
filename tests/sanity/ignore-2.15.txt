@@ -1,26 +1,19 @@
-plugins/action/common/check_roles.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/nac_dc_validate.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_001_list_defaults.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_101_global.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_103_topology_switches.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_104_fabric_overlay_services.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_105_topology_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_106_topology_vpc_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_107_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/get_credentials.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/run_map.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/read_run_map.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/modules/common/nac_dc_validate.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/prepare_plugins/prep_001_list_defaults.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/prepare_plugins/prep_101_global.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/prepare_plugins/prep_103_topology_switches.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/prepare_plugins/prep_104_fabric_overlay_services.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/prepare_plugins/prep_105_topology_interfaces.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/prepare_plugins/prep_106_topology_vpc_interfaces.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/prepare_plugins/prep_107_policy.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/prepare_service_model.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/check_roles.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/get_credentials.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/run_map.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/common/read_run_map.py validate-modules:missing-gplv3-license # ignore license check
 plugins/action/dtc/add_device_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/dtc/verify_tags.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/dtc/diff_model_changes.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/dtc/update_switch_hostname_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/dtd/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/test/inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/helper_functions.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/modules/dtc/verify_tags.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/dtc/diff_model_changes.py validate-modules:missing-gplv3-license # ignore license check
+plugins/modules/dtc/update_switch_hostname_policy.py validate-modules:missing-gplv3-license # ignore license check
 plugins/action/common/nac_dc_validate.py import-3.10!skip
-plugins/action/test/inventory.py import-3.10!skip
-plugins/action/common/run_map.py import-3.10!skip
-plugins/action/common/read_run_map.py import-3.10!skip
-plugins/action/dtc/diff_model_changes.py import-3.10!skip

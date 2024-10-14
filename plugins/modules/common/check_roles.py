@@ -19,13 +19,34 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-class PreparePlugin:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-        self.keys = []
 
-    def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
-        self.kwargs['results']['model_extended'] = model_data
-        return self.kwargs['results']
+DOCUMENTATION = """
+---
+module: check_roles
+short_description: Action plugin to check roles for create or remove.
+version_added: "0.2.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Action plugin to check roles for create or remove.
+options:
+    role_list:
+        description:
+        - List of roles.
+        required: true
+        type: list
+        elements: str
+"""
+
+EXAMPLES = """
+
+# Perform Role Check
+
+- name: Check Roles
+  cisco.nac_dc_vxlan.common.check_roles:
+    role_list: "{{ role_names }}"
+  register: check_roles
+
+"""

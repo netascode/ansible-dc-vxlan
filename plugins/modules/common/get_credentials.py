@@ -19,13 +19,35 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-class PreparePlugin:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-        self.keys = []
 
-    def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
-        self.kwargs['results']['model_extended'] = model_data
-        return self.kwargs['results']
+DOCUMENTATION = """
+---
+module: get_credentials
+short_description: Action plugin to get NDFC switch credentials and update inventory list.
+version_added: "0.1.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Action plugin to get NDFC switch credentials and update inventory list.
+options:
+    inv_list:
+        description:
+        - Inventory list.
+        required: true
+        type: list
+        elements: str
+"""
+
+EXAMPLES = """
+
+# Get Collection NDFC Switch Credentials and Update Inventory List
+
+- name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
+  cisco.nac_dc_vxlan.common.get_credentials:
+    inv_list: "{{ inv_config }}"
+  register: updated_inv_config
+  no_log: true
+
+"""
