@@ -4,7 +4,8 @@
 
 {% set vxlan = MD_Extended.vxlan %}
 {% set global = vxlan.global %}
-{% if vxlan.global.fabric_type == 'VXLAN_EVPN' %}
+{% set fabric_type = vxlan.global.fabric_type | default('VXLAN_EVPN') %}
+{% if fabric_type == 'VXLAN_EVPN' %}
 
 {# Include NDFC DC VXLAN EVPN Base Template #}
 {% include '/ndfc_fabric/dc_vxlan_fabric/dc_vxlan_fabric_base.j2' %}

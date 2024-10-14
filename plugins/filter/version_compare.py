@@ -68,7 +68,7 @@ from jinja2.exceptions import UndefinedError
 
 from packaging.version import Version
 
-from ansible.module_utils.six import string_types, binary_type
+from ansible.module_utils.six import string_types
 from ansible.errors import AnsibleFilterError, AnsibleFilterTypeError
 from ansible.module_utils.common.text.converters import to_native
 

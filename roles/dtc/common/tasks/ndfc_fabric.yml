@@ -55,8 +55,6 @@
   ansible.builtin.template:
     src: ndfc_fabric.j2
     dest: "{{ role_path }}/files/{{ file_name }}"
-    lstrip_blocks: true
-    trim_blocks: true
   delegate_to: localhost
 
 - ansible.builtin.set_fact:
