@@ -21,6 +21,11 @@
 
 ---
 
+- name: Get POAP Data From POAP Enabled Devices
+  cisco.nac_dc_vxlan.dtc.get_poap_data:
+    model_data: "{{ MD_Extended }}"
+  register: poap_data
+
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
     changes_detected_inventory: false
