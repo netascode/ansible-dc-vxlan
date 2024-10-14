@@ -7,7 +7,7 @@
   VPC_PEER_LINK_PO: {{ global.vpc.peer_link_port_channel_id | default(defaults.vxlan.global.vpc.peer_link_port_channel_id) }}
   VPC_DOMAIN_ID_RANGE: {{ global.vpc.domain_id_range | default(defaults.vxlan.global.vpc.domain_id_range) }}
   VPC_DELAY_RESTORE: {{ global.vpc.delay_restore_time | default(defaults.vxlan.global.vpc.delay_restore_time) }}
-  ADVERTISE_PIP_BGP: {{ (vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) }}
-{% if (vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) == 'False' %}
+  ADVERTISE_PIP_BGP: {{ (global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) }}
+{% if (global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) == 'False' %}
   ADVERTISE_PIP_ON_BORDER: {{ global.vpc.advertise_pip_border_only | default(defaults.vxlan.global.vpc.advertise_pip_border_only) | title }}
 {% endif %}
