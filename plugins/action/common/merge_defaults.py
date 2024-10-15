@@ -54,7 +54,7 @@ class ActionModule(ActionBase):
 
         cus_def = {}
         if md is not None:
-            if md['defaults'] is not None:
+            if md.get('defaults') is not None:
                 cus_def = md['defaults']
 
         results['defaults'] = merge_dicts(fac_def, cus_def)
