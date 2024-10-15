@@ -20,31 +20,42 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
+- name: Manage Fabric Intra Fabric Links Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
+      - "+     Manage Fabric Links {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+- name: Query Links - with Src & Dst Fabric
+  cisco.dcnm.dcnm_links:
+    state: query # choose from [merged, replaced, deleted, query]
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    config:
+      - dst_fabric: "{{ MD.vxlan.global.name }}" # Destination fabric
+  register: result_links
 
-- name: Config-Save for Fabric {{ MD.vxlan.global.name }}
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
-  when: MD_Extended.vxlan.topology.switches | length > 0
-  ignore_errors: True
-  # TODO: Need to add logic to only save if changes are made
+- name: Create empty result List
+  ansible.builtin.set_fact:
+    not_required_links: []
+    required_links: []
 
-- name: Deploy for Fabric {{ MD.vxlan.global.name }}
-  cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
-    method: POST
-  vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
-  when: MD_Extended.vxlan.topology.switches | length > 0
-  ignore_errors: True
-  # TODO: Need to add logic to only deploy if changes are made
+- name: Loop through links input to check if they already exist
+  ansible.builtin.include_tasks: link_loop.yml
+  loop: "{{ fabric_links }}"
+  loop_control:
+    loop_var: link
+
+- name: remove unwanted links from required links input
+  ansible.builtin.set_fact:
+    required_links: "{{ fabric_links | difference(not_required_links) }}"
+# --------------------------------------------------------------------
+# Manage VRF Configuration on NDFC
+# --------------------------------------------------------------------
+- name: Manage NDFC Fabric Policies
+  cisco.dcnm.dcnm_links:
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    config: "{{ required_links }}"
+    deploy: false
+    state: merged
+  register: manage_fabric_links_result
