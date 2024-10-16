@@ -98,6 +98,11 @@
   register: defaults
   delegate_to: localhost
 
+- name: Register Variable With Only Defaults from Previous Task
+  ansible.builtin.set_fact:
+    defaults: "{{ defaults['defaults'] }}"
+  delegate_to: localhost
+
 - name: Prepare Service Model
   cisco.nac_dc_vxlan.common.prepare_service_model:
     inventory_hostname: "{{ inventory_hostname }}"
