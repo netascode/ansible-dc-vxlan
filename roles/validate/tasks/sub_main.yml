@@ -80,6 +80,24 @@
   when: enhanced_rules_path is defined and enhanced_rules_path
   delegate_to: localhost
 
+- name: Stat Factory Defaults
+  ansible.builtin.stat: path="{{ role_path }}/files/defaults.yml"
+  register: factory_defaults_file
+  delegate_to: localhost
+
+- name: Include Factory Defaults if Available
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/files/defaults.yml"
+  when: factory_defaults_file.stat.exists
+  delegate_to: localhost
+
+- name: Merge factory and custom defaults
+  cisco.nac_dc_vxlan.common.merge_defaults:
+    factory_defaults: "{{ factory_defaults }}"
+    model_data: "{{ model_data['data'] }}"
+  register: defaults
+  delegate_to: localhost
+
 - name: Prepare Service Model
   cisco.nac_dc_vxlan.common.prepare_service_model:
     inventory_hostname: "{{ inventory_hostname }}"
@@ -131,14 +149,3 @@
 - name: Manage Current Service Model Data Files
   ansible.builtin.include_tasks: manage_model_files_current.yml
   when: check_roles['save_previous']
-
-- name: Stat Host Specific Defaults
-  ansible.builtin.stat: path="{{ role_path }}/defaults/{{ inventory_hostname }}/defaults.yml"
-  register: host_defaults
-  delegate_to: localhost
-
-- name: Include Host Specific Defaults if Available
-  ansible.builtin.include_vars:
-    file: "{{ role_path }}/defaults/{{ inventory_hostname }}/defaults.yml"
-  when: host_defaults.stat.exists
-  delegate_to: localhost

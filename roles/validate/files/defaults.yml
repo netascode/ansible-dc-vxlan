@@ -20,7 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
-defaults:
+factory_defaults:
   vxlan:
     global:
       route_reflectors: 2
