@@ -1,0 +1,13 @@
+{# Auto-generated NDFC DC VXLAN EVPN vPC config data structure for fabric {{ vxlan.global.name }} #}
+  ENABLE_FABRIC_VPC_DOMAIN_ID: False
+  VPC_PEER_LINK_VLAN: {{ global.vpc.peer_link_vlan | default(defaults.vxlan.global.vpc.peer_link_vlan) }}
+  VPC_PEER_KEEP_ALIVE_OPTION: {{ global.vpc.peer_keep_alive | default(defaults.vxlan.global.vpc.peer_keep_alive) }}
+  VPC_AUTO_RECOVERY_TIME: {{ global.vpc.auto_recovery_time | default(defaults.vxlan.global.vpc.auto_recovery_time) }}
+  VPC_DELAY_RESTORE_TIME: {{ global.vpc.delay_restore_time | default(defaults.vxlan.global.vpc.delay_restore_time) }}
+  VPC_PEER_LINK_PO: {{ global.vpc.peer_link_port_channel_id | default(defaults.vxlan.global.vpc.peer_link_port_channel_id) }}
+  VPC_DOMAIN_ID_RANGE: {{ global.vpc.domain_id_range | default(defaults.vxlan.global.vpc.domain_id_range) }}
+  VPC_DELAY_RESTORE: {{ global.vpc.delay_restore_time | default(defaults.vxlan.global.vpc.delay_restore_time) }}
+  ADVERTISE_PIP_BGP: {{ (global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) }}
+{% if (global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) == 'False' %}
+  ADVERTISE_PIP_ON_BORDER: {{ global.vpc.advertise_pip_border_only | default(defaults.vxlan.global.vpc.advertise_pip_border_only) | title }}
+{% endif %}
