@@ -20,12 +20,8 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main.yml
-  when: changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy or changes_detected_fabric_links
-
-- name: Mark Stage Role Create Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    stage: role_create_completed
-  register: run_map
-  delegate_to: localhost
+- name: Add links to not_required_links if they already exist
+  ansible.builtin.set_fact:
+    not_required_links: "{{ not_required_links + [ link ]}}"
+  loop: "{{ result_links.response }}"
+  when: (item['sw1-info']['sw-sys-name'] is defined and item['sw2-info']['sw-sys-name'] is defined) and ((item['sw1-info']['sw-sys-name'] == link.src_device) and (item['sw1-info']['if-name']  ==  link.src_interface ) and ( item['sw2-info']['sw-sys-name']  ==  link.dst_device ) and ( item['sw2-info']['if-name']  ==  link.dst_interface ))

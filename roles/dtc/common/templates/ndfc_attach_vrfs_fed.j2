@@ -1,0 +1,16 @@
+[
+  {% for vrf in MD_Extended.vxlan.overlay_services.vrfs %}
+  {
+   "fabric":"{{ MD.vxlan.global.name }}",
+   "vrfName":"{{ vrf.name}}",
+   "vrfId":"{{ vrf.vrf_id }}",
+   "vrfTemplate":"Default_VRF_Universal",
+   "vrfTemplateConfig": "{\"vrfVlanName\":\"{{ vrf.vlan_id }}\",\"vrfIntfDescription\":\"{{ vrf.vrf_intf_desc | default(defaults.vxlan.overlay_services.vrfs.vrf_intf_desc) }}\",\"vrfDescription\":\"{{ vrf.vrf_description | default(defaults.vxlan.overlay_services.vrfs.vrf_description) }}\",\"mtu\":\"{{ vrf.vrf_int_mtu | default(defaults.vxlan.overlay_services.vrfs.vrf_int_mtu) }}\",\"tag\":\"{{ vrf.loopback_route_tag | default(defaults.vxlan.overlay_services.vrfs.loopback_route_tag)}}\",\"vrfRouteMap\":\"{{ vrf.loopback_route_tag | default(defaults.vxlan.overlay_services.vrfs.loopback_route_tag) }}\",\"v6VrfRouteMap\":\"{{ vrf.loopback_route_tag | default(defaults.vxlan.overlay_services.vrfs.loopback_route_tag) }}\",\"maxBgpPaths\":\"{{ vrf.max_bgp_paths | default(defaults.vxlan.overlay_services.vrfs.max_bgp_paths) }}\",\"maxIbgpPaths\":\"{{ vrf['max_ibgp_paths'] | default(defaults.vxlan.overlay_services.vrfs.max_ibgp_paths) }}\",\"ipv6LinkLocalFlag\":\"{{ vrf['ipv6_linklocal_enable'] | default(defaults.vxlan.overlay_services.vrfs.ipv6_linklocal_enable) }}\",\"disableRtAuto\":\"{{ vrf['disable_rt_auto'] | default(defaults.vxlan.overlay_services.vrfs.disable_rt_auto)}}\",\"routeTargetImport\":\"\",\"routeTargetExport\":\"\",\"routeTargetImportEvpn\":\"\",\"routeTargetExportEvpn\":\"\",\"vrfName\":\"{{ vrf.name }}\",\"vrfVlanId\":\"{{ vrf.vlan_id }}\",\"vrfSegmentId\":\"{{ vrf.vlan_id }}\",\"nveId\":\"1\",\"asn\":\"\"}",
+   "serviceVrfTemplate": null,
+   "serviceVrfTemplate": null,
+   "displayName": "{{ vrf.name}}",
+   "vrfExtensionTemplate":"Default_VRF_Extension_Universal"
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+]
+

@@ -21,30 +21,36 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
+- name: Manage VRFs for Federated NDFC
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
+      - "+     Manage VRFs for Federated Fabrics {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+# --------------------------------------------------------------------
+# Manage VRF Configuration on NDFC
+# --------------------------------------------------------------------
 
-- name: Config-Save for Fabric {{ MD.vxlan.global.name }}
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
-  when: MD_Extended.vxlan.topology.switches | length > 0
-  ignore_errors: True
-  # TODO: Need to add logic to only save if changes are made
+- name: Debug VRF Payload
+  debug:
+    var: vrf
 
-- name: Deploy for Fabric {{ MD.vxlan.global.name }}
+- name: Get existing VRFs in Federated Fabric
   cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
-    method: POST
+      method: GET
+      path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/vrfs"
+  register: dcnm_vrf_existing
+
+- name: Check if VRF Exists
+  set_fact:
+    vrf_exist_result: "{{ dcnm_vrf_existing | json_query(policy_query) }}"
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
-  when: MD_Extended.vxlan.topology.switches | length > 0
-  ignore_errors: True
-  # TODO: Need to add logic to only deploy if changes are made
+    policy_query: "response.DATA[?vrfName=='{{vrf.displayName}}'].vrfName"
+
+- name: Configure VRF for Federated NDFCs
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/vrfs"
+    method: "POST"
+    json_data: "{{ vrf | to_json}}"
+  when: vrf_exist_result|default(None)|length == 0

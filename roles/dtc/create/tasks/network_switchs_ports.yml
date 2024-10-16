@@ -20,31 +20,30 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
+- name: Manage Networks for Federated NDFC
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
+      - "+     Manage Networks for Federated Fabrics {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+# --------------------------------------------------------------------
+# Manage Network Configuration on NDFC
+# --------------------------------------------------------------------
 
-- name: Config-Save for Fabric {{ MD.vxlan.global.name }}
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
-  when: MD_Extended.vxlan.topology.switches | length > 0
-  ignore_errors: True
-  # TODO: Need to add logic to only save if changes are made
+- name: Debug Network Payload
+  debug:
+    var: network
 
-- name: Deploy for Fabric {{ MD.vxlan.global.name }}
-  cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
-    method: POST
+- name: Get Existing Network ID for Federated Fabric
+  set_fact:
+    network_id_list: "{{ fed_networks_existing | json_query(network_query) }}"
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
-  when: MD_Extended.vxlan.topology.switches | length > 0
-  ignore_errors: True
-  # TODO: Need to add logic to only deploy if changes are made
+    network_query: "response.DATA[?displayName=='{{network.network_name}}'].networkId"
+
+- name: Configure Network for Federated NDFCs
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/networks"
+    method: "POST"
+    json_data: "{{ network | to_json}}"
+  when: network_id_list|default(None)|length == 0

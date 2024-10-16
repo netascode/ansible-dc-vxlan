@@ -14,4 +14,13 @@
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: {{ switch['role'] }}
   preserve_config: false
+  poap:
+  - config_data:
+      gateway: {{ switch['management']['default_gateway_v4'] }}
+      modulesModel: []
+    hostname: {{ switch['name'] }}
+    imagePolicy: ''
+    model: N9K-C93600CD-GX
+    preprovision_serial: {{ switch['serial_number'] }}
+    version: 10.1(2)
 {% endfor %}
