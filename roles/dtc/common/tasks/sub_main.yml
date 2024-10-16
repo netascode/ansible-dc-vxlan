@@ -36,8 +36,14 @@
 # Build Create Fabric parameter List From Template
 # --------------------------------------------------------------------
 
+# - name: debug fabric_type_topology
+#   debug:
+#     msg: MD.vxlan.global.fabric_type_topology
+
 - name: Build Fabric Create Parameters
   ansible.builtin.include_tasks: ndfc_fabric.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Switch Inventory List From Template
@@ -45,6 +51,8 @@
 
 - name: Build NDFC Fabric Switch Inventory List From Template
   ansible.builtin.include_tasks: ndfc_inventory.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build Fabric intra links for vpc peering From Template
@@ -52,6 +60,8 @@
 
 - name: Build Intra Fabric Links From Template
   ansible.builtin.include_tasks: ndfc_link_vpc_peering.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build vPC Peering parameter List From Template
@@ -59,6 +69,17 @@
 
 - name: Build vPC Peering Parameters
   ansible.builtin.include_tasks: ndfc_vpc_peering.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric Get Switch Inventory when Federated Fabric
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Switch inventory
+  ansible.builtin.include_tasks: ndfc_get_inventory.yml
+  when:
+    - MD.vxlan.global.fabric_type == 'MFD'
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric VRFs Attach List From Template
@@ -80,6 +101,8 @@
 
 - name: Build NDFC Fabric Loopback Interfaces List From Template
   ansible.builtin.include_tasks: ndfc_interface_loopback.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Access Port-Channel Interfaces List From Template
@@ -87,6 +110,8 @@
 
 - name: Build NDFC Fabric Access Port-Channel Interfaces List From Template
   ansible.builtin.include_tasks: ndfc_interface_access_po.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
@@ -94,6 +119,8 @@
 
 - name: Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
   ansible.builtin.include_tasks: ndfc_interface_trunk_po.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Interface Routed List From Template
@@ -101,6 +128,8 @@
 
 - name: Build NDFC Fabric Interface Routed List From Template
   ansible.builtin.include_tasks: ndfc_interface_routed.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Sub-Interface Routed List From Template
@@ -108,6 +137,8 @@
 
 - name: Build NDFC Fabric Sub-Interface Routed List From Template
   ansible.builtin.include_tasks: ndfc_sub_interface_routed.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Routed Port-Channel Interface List From Template
@@ -115,6 +146,8 @@
 
 - name: Build NDFC Fabric Routed Port-Channel Interface List From Template
   ansible.builtin.include_tasks: ndfc_interface_po_routed.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build Trunk Interfaces List From Template
@@ -122,6 +155,8 @@
 
 - name: Build Trunk Interfaces List From Template
   ansible.builtin.include_tasks: ndfc_interface_trunk.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build Access Interfaces List From Template
@@ -129,6 +164,8 @@
 
 - name: Build Access Interfaces List From Template
   ansible.builtin.include_tasks: ndfc_interface_access.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build Fabric interface VPC List From Template
@@ -136,6 +173,8 @@
 
 - name: Build Fabric interface VPC List From Template
   ansible.builtin.include_tasks: ndfc_interface_vpc.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build Fabric interface all List From Template
@@ -143,6 +182,8 @@
 
 - name: Build Fabric interface All List From Template
   ansible.builtin.include_tasks: ndfc_interface_all.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build Fabric Policy List From Template
@@ -150,6 +191,8 @@
 
 - name: Build Fabric Policy List From Template
   ansible.builtin.include_tasks: ndfc_policy.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Build Fabric Links List From Template
@@ -157,6 +200,28 @@
 
 - name: Build Fabric Links List From Template
   ansible.builtin.include_tasks: ndfc_fabric_links.yml
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
+
+- name: Set facts for missed changes_detected flags for Federated Fabric
+  ansible.builtin.set_fact:
+    changes_detected_fabric: "{{ changes_detected_fabric | default(false) }}"
+    changes_detected_inventory: "{{ changes_detected_inventory | default(false) }}"
+    changes_detected_vpc_peering: "{{ changes_detected_vpc_peering | default(false) }}"
+    changes_detected_interfaces: "{{ changes_detected_interfaces | default(false) }}"
+    changes_detected_link_vpc_peering: "{{ changes_detected_link_vpc_peering | default(false) }}"
+    changes_detected_policy: "{{ changes_detected_policy | default(false) }}"
+    changes_detected_fabric_links: "{{ changes_detected_fabric_links | default(false) }}"
+    changes_detected_interface_vpc: "{{ changes_detected_interface_vpc | default(false) }}"
+    changes_detected_interface_access: "{{ changes_detected_interface_access | default(false) }}"
+    changes_detected_interface_access_po: "{{ changes_detected_interface_access_po | default(false) }}"
+    changes_detected_interface_loopback: "{{ changes_detected_interface_loopback | default(false) }}"
+    changes_detected_interface_po_routed: "{{ changes_detected_interface_po_routed | default(false) }}"
+    changes_detected_interface_routed: "{{ changes_detected_interface_routed | default(false) }}"
+    changes_detected_interface_trunk: "{{ changes_detected_interface_trunk | default(false) }}"
+    changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po | default(false) }}"
+    changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed | default(false) }}"
+  when: MD.vxlan.global.fabric_type == 'MFD'
 
 - name: Run Diff Flags
   ansible.builtin.debug:
@@ -187,3 +252,4 @@
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
       - "----------------------------------------------------------------"
+  when: MD.vxlan.global.fabric_type != 'MFD'

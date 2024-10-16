@@ -43,6 +43,7 @@ class Rule:
 
         # Cross reference VRF attach groups hostnames with inventory topology switch names
         vrf_attach_groups = []
+        switches = []
         if inventory.get("vxlan"):
             if inventory.get("vxlan").get("overlay_services"):
                 if inventory.get("vxlan").get("overlay_services").get("vrf_attach_groups"):
@@ -53,12 +54,13 @@ class Rule:
         for vrf_attach_group in vrf_attach_groups:
             for switch in vrf_attach_group.get("switches"):
                 if switch.get("hostname"):
-                    if not any(s.get("name") == switch.get("hostname") for s in switches):
-                        if not any(s.get('management').get('management_ipv4_address') == switch.get("hostname") for s in switches):
-                            if not any(s.get('management').get('management_ipv6_address') == switch.get("hostname") for s in switches):
-                                vag = vrf_attach_group.get("name")
-                                hn = switch.get("hostname")
-                                results.append("VRF attach group {0} hostname {1} does not match any switch in the topology".format(vag, hn))
+                    if len(switches) > 0:
+                        if not any(s.get("name") == switch.get("hostname") for s in switches):
+                            if not any(s.get('management').get('management_ipv4_address') == switch.get("hostname") for s in switches):
+                                if not any(s.get('management').get('management_ipv6_address') == switch.get("hostname") for s in switches):
+                                    vag = vrf_attach_group.get("name")
+                                    hn = switch.get("hostname")
+                                    results.append("VRF attach group {0} hostname {1} does not match any switch in the topology".format(vag, hn))
 
         # Cross reference Network attach groups hostnames with inventory topology switch names
         network_attach_groups = []
@@ -72,11 +74,12 @@ class Rule:
         for network_attach_group in network_attach_groups:
             for switch in network_attach_group.get("switches"):
                 if switch.get("hostname"):
-                    if not any(s.get("name") == switch.get("hostname") for s in switches):
-                        if not any(s.get('management').get('management_ipv4_address') == switch.get("hostname") for s in switches):
-                            if not any(s.get('management').get('management_ipv6_address') == switch.get("hostname") for s in switches):
-                                nag = network_attach_group.get("name")
-                                hn = switch.get("hostname")
-                                results.append("Network attach group {0} hostname {1} does not match any switch in the topology".format(nag, hn))
+                    if len(switches) > 0:
+                        if not any(s.get("name") == switch.get("hostname") for s in switches):
+                            if not any(s.get('management').get('management_ipv4_address') == switch.get("hostname") for s in switches):
+                                if not any(s.get('management').get('management_ipv6_address') == switch.get("hostname") for s in switches):
+                                    nag = network_attach_group.get("name")
+                                    hn = switch.get("hostname")
+                                    results.append("Network attach group {0} hostname {1} does not match any switch in the topology".format(nag, hn))
 
         return results

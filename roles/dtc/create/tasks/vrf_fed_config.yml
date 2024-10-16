@@ -20,14 +20,37 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Manage Fabric Entry Point
+
+- name: Manage VRFs for Federated NDFC
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD.vxlan.global.name }}"
+      - "+     Manage VRFs for Federated Fabrics {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
-- name: Manage fabric {{ MD.vxlan.global.name }} in NDFC
-  cisco.dcnm.dcnm_fabric:
-    state: merged
-    config: "{{ fabric_config }}"
+# --------------------------------------------------------------------
+# Manage VRF Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Debug VRF Payload
+  debug:
+    var: vrf
+
+- name: Get existing VRFs in Federated Fabric
+  cisco.dcnm.dcnm_rest:
+      method: GET
+      path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/vrfs"
+  register: dcnm_vrf_existing
+
+- name: Check if VRF Exists
+  set_fact:
+    vrf_exist_result: "{{ dcnm_vrf_existing | json_query(policy_query) }}"
+  vars:
+    policy_query: "response.DATA[?vrfName=='{{vrf.displayName}}'].vrfName"
+
+- name: Configure VRF for Federated NDFCs
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/vrfs"
+    method: "POST"
+    json_data: "{{ vrf | to_json}}"
+  when: vrf_exist_result|default(None)|length == 0

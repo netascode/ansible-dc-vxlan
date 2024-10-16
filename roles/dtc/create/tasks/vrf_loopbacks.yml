@@ -20,7 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 - name: Manage VRFs and Networks Entry Point
   ansible.builtin.debug:
     msg:
@@ -58,6 +57,14 @@
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD.vxlan.global.name }}/vrfs/attachments"
     method: "POST"
     json_data: "{{ attach_payload | to_json}}"
+  when: MD.vxlan.global.fabric_type != 'MFD'
+
+- name: Call API to attach VRF to Leaf Switches for Federated NDFCs
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/vrfs/attachments"
+    method: "POST"
+    json_data: "{{ attach_payload | to_json}}"
+  when: MD.vxlan.global.fabric_type == 'MFD'
 
 - name: Clear payload
   set_fact:
