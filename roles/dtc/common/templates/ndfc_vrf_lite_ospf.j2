@@ -4,12 +4,12 @@
 !
 {% set redistribute = {} %}
 {% set feature = {} %}
-{% if item.ospf.bfd.enabled %}
+{% if item.ospf.bfd.enabled | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.bfd.enabled) %}
   {% set _ = feature.update({'bfd': true}) %}
 {% endif %}
 {% if switch_item.interfaces %}
   {% for interface in switch_item.interfaces %}
-    {% if interface.ospf.bfd.enabled %}
+    {% if interface.ospf.bfd.enabled | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.bfd.enabled) %}
       {% set _ = feature.update({'bfd': true}) %}
     {% endif %}
   {% endfor %}
