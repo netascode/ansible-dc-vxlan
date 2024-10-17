@@ -57,7 +57,7 @@ router ospf {{ item.ospf['process'] }}
         {% endif %}
       {% endfor %}
     {% endif %}
-    {% if item.ospf.distance and item.ospf.distance != defaults.vxlan.overlay_extensions.vrf_lites.ospf.distance %}
+    {% if item.ospf.distance and item.ospf.distance != 110 %}
     distance {{ item.ospf.distance }}
     {% endif %}
     {% if switch_item.redistribution %}
@@ -114,31 +114,40 @@ interface {{ interface['name'] }}
     {% if interface.ospf.cost %}
   ip ospf cost {{ interface.ospf.cost }}
     {% endif %}
-    {% if interface.ospf.passive_interface %}
+    {% if interface.ospf.passive_interface | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.passive_interface )  %}
   ip ospf passive-interface
     {% endif %}
-    {% if interface.ospf.mtu_ignore %}
+    {% if interface.ospf.mtu_ignore | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.mtu_ignore) %}
   ip ospf mtu-ignore
     {% endif %}
-    {% if interface.ospf.bfd.enabled %}
+    {% if interface.ospf.bfd.enabled == false %}
+    {% elif interface.ospf.bfd.enabled or (interface.ospf.bfd.enabled is not defined and feature['bfd']) %}
   ip ospf bfd
     {% endif %}
-    {% if interface.ospf.hello_interval and interface.ospf.hello_interval != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.hello_interval %}
+    {% if interface.ospf.hello_interval and interface.ospf.hello_interval != 10 %}
   ip ospf hello-interval {{ interface.ospf.hello_interval }}
+    {% elif defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.hello_interval and defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.hello_interval != 10 %}
+  ip ospf hello-interval {{ defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.hello_interval }}
     {% endif %}
   ip ospf dead-interval {{ interface.ospf.dead_interval | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.dead_interval) }}
-    {% if interface.ospf.priority and interface.ospf.priority != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.priority %}
+    {% if interface.ospf.priority and interface.ospf.priority != 1 %}
   ip ospf priority {{ interface.ospf.priority }}
+    {% elif defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.priority and defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.priority != 1 %}
+  ip ospf priority {{ defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.priority }}
     {% endif %}
-    {% if interface.ospf.lsa_retransmit_interval and interface.ospf.lsa_retransmit_interval != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_retransmit_interval %}
+    {% if interface.ospf.lsa_retransmit_interval and interface.ospf.lsa_retransmit_interval != 5 %}
   ip ospf retransmit-interval {{ interface.ospf.lsa_retransmit_interval }}
+    {% elif defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_retransmit_interval and defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_retransmit_interval != 5 %}
+  ip ospf retransmit-interval {{ defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_retransmit_interval }}
     {% endif %}
-    {% if interface.ospf.lsa_transmit_delay and interface.ospf.lsa_transmit_delay != defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_transmit_delay %}
+    {% if interface.ospf.lsa_transmit_delay and interface.ospf.lsa_transmit_delay != 1 %}
   ip ospf transmit-delay {{ interface.ospf.lsa_transmit_delay }}
+    {% elif defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_transmit_delay and defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_transmit_delay != 1 %}
+  ip ospf transmit-delay {{ defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.lsa_transmit_delay }}
     {% endif %}
-    {% if interface_name.startswith('lo') and interface.ospf['advertise_subnet'] == true %}
+    {% if interface_name.startswith('lo') and (interface.ospf['advertise_subnet'] or defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.advertise_subnet) %}
   ip ospf advertise-subnet
     {% endif %}
-!  
+!
   {% endfor %}
 {% endif %}
