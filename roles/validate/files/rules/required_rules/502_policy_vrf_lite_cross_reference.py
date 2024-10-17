@@ -171,7 +171,7 @@ class Rule:
 
         # Check if Network type for Loopback interface is not Broadcast
         if ospf.get('network_type'):
-            if interface.startswith('Lo') and ospf['network_type'] == "broadcast":
+            if (interface.startswith('Lo') or interface.startswith('lo')) and ospf['network_type'] == "broadcast":
                 cls.results.append(
                     f"vxlan.overlay_extensions.vrf_lites.{policy}.switches.{switch}.interfaces.{interface}.ospf. "
                     f"network_type: {ospf['network_type']}"
@@ -180,7 +180,7 @@ class Rule:
 
         # Check if Adversise-subnet is used only for Loopback in ospf
         if ospf.get('advertise_subnet'):
-            if not interface.startswith('Lo') and ospf['advertise_subnet']:
+            if not (interface.startswith('Lo') or interface.startswith('lo')) and ospf['advertise_subnet']:
                 cls.results.append(
                     f"vxlan.overlay_extensions.vrf_lites.{policy}.switches.{switch}.interfaces.{interface}.ospf. "
                     f"advertise_subnet: True is only supported with Loopback"
