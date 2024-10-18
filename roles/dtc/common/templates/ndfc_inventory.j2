@@ -14,13 +14,15 @@
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: {{ switch['role'] }}
   preserve_config: false
+{% if switch['poap'] is defined %}
   poap:
   - config_data:
       gateway: {{ switch['management']['default_gateway_v4'] }}
-      modulesModel: []
+      modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
     hostname: {{ switch['name'] }}
     imagePolicy: ''
-    model: N9K-C93600CD-GX
-    preprovision_serial: {{ switch['serial_number'] }}
-    version: 10.1(2)
+    model: {{ switch['poap']['preprovision']['model']  }}
+    preprovision_serial: {{ switch['poap']['preprovision']['serial_number'] }}
+    version: {{ switch['poap']['preprovision']['version']  }}
+{% endif%}
 {% endfor %}
