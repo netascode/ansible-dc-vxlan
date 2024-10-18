@@ -115,6 +115,9 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% elif switch_item.loopback_id %}
       update-source Loopback{{ switch_item.loopback_id }}
     {% endif %}
+    {% if peer.bfd.enabled | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.bfd.enabled) %}
+      bfd
+    {% endif %}
     {% if peer.disable_connected_check | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.disable_connected_check) %}
       disable-connected-check
     {% endif %}
