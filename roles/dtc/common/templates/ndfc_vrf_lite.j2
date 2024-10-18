@@ -1,0 +1,6 @@
+{% if item.ospf is defined and item.ospf %}
+{% include 'ndfc_vrf_lite_ospf.j2' %}
+{% endif %}
+{% if item.bgp is defined and item.bgp %}
+{% include 'ndfc_vrf_lite_ebgp.j2' %}
+{% endif %}
