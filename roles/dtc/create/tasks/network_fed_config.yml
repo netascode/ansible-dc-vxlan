@@ -20,21 +20,34 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Manage Policies Entry Point
+- name: Manage Networks for Federated NDFC
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Policies Fabric {{ MD.vxlan.global.name }}"
+      - "+     Manage Networks for Federated Fabrics {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
-# Manage VRF Configuration on NDFC
+# Manage Network Configuration on NDFC
 # --------------------------------------------------------------------
-- name: Manage NDFC Fabric Policies
-  cisco.dcnm.dcnm_policy:
-    fabric: "{{ MD.vxlan.global.name }}"
-    use_desc_as_key: true
-    config: "{{ policy_config }}"
-    deploy: false
-    state: merged
-  register: manage_policies_result
+
+- name: Debug Network Payload
+  debug:
+    var: network
+
+- name: Debug Network Payload
+  debug:
+    var: fed_networks_existing.response.DATA
+
+- name: Get Existing Network ID for Federated Fabric
+  set_fact:
+    network_id_list: "{{ fed_networks_existing | json_query(network_query) }}"
+  vars:
+    network_query: "response.DATA[?displayName=='{{network.displayName}}'].networkId"
+
+- name: Configure Network for Federated NDFCs
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/networks"
+    method: "POST"
+    json_data: "{{ network | to_json}}"
+  when: network_id_list|default(None)|length == 0

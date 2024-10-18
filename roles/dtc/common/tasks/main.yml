@@ -20,8 +20,16 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
-- name: Import Role Tasks
+- name: Import Role Tasks None Federated Fabric
   ansible.builtin.import_tasks: sub_main.yml
   tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
   delegate_to: localhost
+  when:
+    - MD.vxlan.global.fabric_type != 'MFD'
+
+- name: Import Role Tasks Federated Fabric
+  ansible.builtin.import_tasks: sub_main_fed.yml
+  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
+  delegate_to: localhost
+  when:
+    - MD.vxlan.global.fabric_type == 'MFD'
