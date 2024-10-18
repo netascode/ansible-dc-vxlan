@@ -186,6 +186,14 @@ class Rule:
                     f"advertise_subnet: True is only supported with Loopback"
                 )
 
+        # Check if passive-interface is used only for Loopback in ospf
+        if ospf.get('passive_interface'):
+            if (interface.startswith('Lo') or interface.startswith('lo')) and ospf['passive_interface']:
+                cls.results.append(
+                    f"vxlan.overlay_extensions.vrf_lites.{policy}.switches.{switch}.interfaces.{interface}.ospf. "
+                    f"passive_interface: True is not supported with Loopback"
+                )
+
     @classmethod
     def check_switch_bgp_route_reflector(cls, switch, bgp_peers, fabric_asn, policy):
         '''
