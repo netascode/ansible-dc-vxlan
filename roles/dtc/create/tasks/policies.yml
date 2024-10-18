@@ -33,7 +33,7 @@
 - name: Manage NDFC Fabric Policies
   cisco.dcnm.dcnm_policy:
     fabric: "{{ MD.vxlan.global.name }}"
-    # use_desc_as_key: true
+    use_desc_as_key: true
     config: "{{ policy_config }}"
     deploy: false
     state: merged
