@@ -41,7 +41,6 @@
     - MD.vxlan.overlay_services.vrfs
     - changes_detected_vrfs
 
-
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
 # --------------------------------------------------------------------
@@ -54,3 +53,15 @@
   when:
     - MD.vxlan.overlay_services.networks
     - changes_detected_networks
+
+# --------------------------------------------------------------------
+# Manage Loopback VRF attachments on NDFC
+# --------------------------------------------------------------------
+- name: Attach VRF Loopbacks per VRF
+  include_tasks: vrf_loopbacks.yml
+  loop_control:
+    loop_var: vrf
+  loop: "{{ MD.vxlan.overlay_services.vrfs }}"
+  when:
+    - MD.vxlan.overlay_services.vrfs
+    - changes_detected_vrfs

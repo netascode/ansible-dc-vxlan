@@ -20,21 +20,42 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Manage Policies Entry Point
+- name: Manage Fabric Intra Fabric Links Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Policies Fabric {{ MD.vxlan.global.name }}"
+      - "+     Manage Fabric Links {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
+- name: Query Links - with Src & Dst Fabric
+  cisco.dcnm.dcnm_links:
+    state: query # choose from [merged, replaced, deleted, query]
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    config:
+      - dst_fabric: "{{ MD.vxlan.global.name }}" # Destination fabric
+  register: result_links
+
+- name: Create empty result List
+  ansible.builtin.set_fact:
+    not_required_links: []
+    required_links: []
+
+- name: Loop through links input to check if they already exist
+  ansible.builtin.include_tasks: link_loop.yml
+  loop: "{{ fabric_links }}"
+  loop_control:
+    loop_var: link
+
+- name: remove unwanted links from required links input
+  ansible.builtin.set_fact:
+    required_links: "{{ fabric_links | difference(not_required_links) }}"
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
 # --------------------------------------------------------------------
 - name: Manage NDFC Fabric Policies
-  cisco.dcnm.dcnm_policy:
-    fabric: "{{ MD.vxlan.global.name }}"
-    use_desc_as_key: true
-    config: "{{ policy_config }}"
+  cisco.dcnm.dcnm_links:
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    config: "{{ required_links }}"
     deploy: false
     state: merged
-  register: manage_policies_result
+  register: manage_fabric_links_result
