@@ -114,7 +114,8 @@ interface {{ interface['name'] }}
     {% if interface.ospf.cost %}
   ip ospf cost {{ interface.ospf.cost }}
     {% endif %}
-    {% if interface.ospf.passive_interface | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.passive_interface )  %}
+    {% if interface_name.startswith('lo') %}
+    {% elif interface.ospf.passive_interface | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.passive_interface )  %}
   ip ospf passive-interface
     {% endif %}
     {% if interface.ospf.mtu_ignore | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.mtu_ignore) %}
