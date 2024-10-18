@@ -57,7 +57,7 @@ router ospf {{ item.ospf['process'] }}
         {% endif %}
       {% endfor %}
     {% endif %}
-    {% if item.ospf.distance and item.ospf.distance != 110 %}
+    {% if (item.ospf.distance and item.ospf.distance != 110) or (item.ospf.distance not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.distance and defaults.vxlan.overlay_extensions.vrf_lites.ospf.distance != 110) %}
     distance {{ item.ospf.distance }}
     {% endif %}
     {% if switch_item.redistribution %}
@@ -100,7 +100,7 @@ interface {{ interface['name'] }}
     {% else %}
   ip router ospf {{ item.ospf['process'] }} area 0.0.0.0
     {% endif %}
-    {% if interface.ospf.auth_type and interface.ospf.auth_type == 'simple' %}
+    {% if interface.ospf.auth_type and interface.ospf.auth_type == 'simple' or  %}
   ip ospf authentication
       {% if interface.ospf.auth_key %}
   ip ospf authentication-key 3 {{ interface.ospf.auth_key }}
@@ -113,6 +113,8 @@ interface {{ interface['name'] }}
     {% endif %}
     {% if interface.ospf.cost %}
   ip ospf cost {{ interface.ospf.cost }}
+    {% elif defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.cost and defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.cost != 1 %}
+  ip ospf cost {{ defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.cost }}
     {% endif %}
     {% if interface_name.startswith('lo') %}
     {% elif interface.ospf.passive_interface | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.passive_interface )  %}
