@@ -145,7 +145,6 @@ class POAPDevice:
             parsed_poap_data[switch['serialNumber']]['modulesModel'] = self._split_string_data(switch['data'])['modulesModel']
             parsed_poap_data[switch['serialNumber']]['serialNumber'] = switch['serialNumber']
 
-
         return parsed_poap_data
 
     def _split_string_data(self, switch_data):
@@ -162,6 +161,7 @@ class POAPDevice:
             parsed['modulesModel'] = "NOT_SET"
 
         return parsed
+
 
 class ActionModule(ActionBase):
 
