@@ -42,11 +42,11 @@ router ospf {{ item.ospf['process'] }}
     {% if item.ospf.areas %}
       {% for area in item.ospf.areas %}
         {% if area.id and (area.id != 0 or area.id != '0.0.0.0') %}
-          {% if area.area_type and area.area_type == 'stub' %}
+          {% if (area.area_type and area.area_type == 'stub') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.areas.area_type == 'stub') %}
     area {{ area.id | ipaddr('address') }} stub
-          {% elif area.area_type and area.area_type == 'totally_stub' %}
+          {% elif (area.area_type and area.area_type == 'totally_stub') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.areas.area_type == 'totally_stub') %}
     area {{ area.id | ipaddr('address') }} stub no-summary
-          {% elif area.area_type and area.area_type == 'nssa' %}
+          {% elif (area.area_type and area.area_type == 'nssa') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.areas.area_type == 'nssa') %}
     area {{ area.id | ipaddr('address') }} nssa
           {% endif %}
         {% endif %}
