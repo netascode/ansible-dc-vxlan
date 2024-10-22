@@ -56,3 +56,18 @@ def ndfc_get_switch_policy(self, task_vars, tmp, template_name, switch_serial_nu
     )
 
     return policy_match
+
+
+def hostname_to_ip_mapping(model_data):
+    topology_switches = model_data['vxlan']['topology']['switches']
+    for switch in model_data['vxlan']['policy']['switches']:
+        if any(sw['name'] == switch['name'] for sw in topology_switches):
+            found_switch = next((item for item in topology_switches if item["name"] == switch['name']))
+            if found_switch.get('management').get('management_ipv4_address'):
+                switch['name'] = found_switch['management']['management_ipv4_address']
+            elif found_switch.get('management').get('management_ipv6_address'):
+                switch['name'] = found_switch['management']['management_ipv6_address']
+
+    # self.kwargs['results']['model_extended'] = model_data
+    # return self.kwargs['results']
+    return model_data
