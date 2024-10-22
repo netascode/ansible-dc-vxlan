@@ -53,7 +53,14 @@ class Rule:
         for policy in vrf_lites:   # Check Global Level
             if policy.get('name', None):
                 policies.append(policy['name'])
-
+                if policy.get('ospf'):  # Check OSPF parameters
+                    if policy['ospf'].get('process'):
+                        pass
+                    else:
+                        cls.results.append(
+                            f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf.process. "
+                            f"OSPF process is not defined."
+                )
                 cls.check_global_ospf_and_bgp(policy)
                 cls.check_global_ospf_area(policy)
 
@@ -78,6 +85,18 @@ class Rule:
                 f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.bgp."
                 "BGP and OSPF are defined in the same policy "
                 "Please use two different policies")
+
+    @classmethod
+    def check_global_ospf_process(cls, policy):
+        '''
+        Check OSPF Process
+        '''
+        if policy.get('ospf'):  # Check OSPF parameters
+            if not policy['ospf'].get('process'):
+                cls.results.append(
+                    f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf.process. "
+                    f"OSPF process is not defined."
+                )
 
     @classmethod
     def check_global_ospf_area(cls, policy):
