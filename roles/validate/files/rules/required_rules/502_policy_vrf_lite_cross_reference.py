@@ -77,7 +77,7 @@ class Rule:
             cls.results.append(
                 f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf, "
                 f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.bgp. "
-               "BGP and OSPF are defined in the same vrf-lite entry; "
+                "BGP and OSPF are defined in the same vrf-lite entry; "
                 "please use two different vrf-lite entries.")
 
     @classmethod
