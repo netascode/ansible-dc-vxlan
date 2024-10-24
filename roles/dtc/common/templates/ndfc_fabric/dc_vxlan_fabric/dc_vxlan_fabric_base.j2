@@ -1,0 +1,33 @@
+{# Auto-generated NDFC DC VXLAN EVPN Base config data structure for fabric {{ vxlan.global.name }} #}
+- FABRIC_NAME: {{ global.name }}
+  FABRIC_TYPE: {{ fabric_type }}
+  DEPLOY: True
+
+{# Include NDFC DC VXLAN EVPN General Template #}
+{% include '/ndfc_fabric/dc_vxlan_fabric/general/dc_vxlan_fabric_general.j2' %}
+
+{# Include NDFC DC VXLAN EVPN Replication Template #}
+{% include '/ndfc_fabric/dc_vxlan_fabric/replication/dc_vxlan_fabric_replication.j2' %}
+
+{# Include NDFC DC VXLAN EVPN vPC Template #}
+{% include '/ndfc_fabric/dc_vxlan_fabric/vpc/dc_vxlan_fabric_vpc.j2' %}
+
+{# Include NDFC DC VXLAN EVPN Protocols Template #}
+{% include '/ndfc_fabric/dc_vxlan_fabric/protocols/dc_vxlan_fabric_protocols.j2' %}
+
+{% if ndfc_version.response.DATA.version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
+{# Include NDFC DC VXLAN EVPN Security Template #}
+{% include '/ndfc_fabric/dc_vxlan_fabric/security/dc_vxlan_fabric_security.j2' %}
+{% endif %}
+
+{# Include NDFC DC VXLAN EVPN Advanced Template #}
+{% include '/ndfc_fabric/dc_vxlan_fabric/advanced/dc_vxlan_fabric_advanced.j2' %}
+
+{# Include NDFC DC VXLAN EVPN Resources Template #}
+{% include '/ndfc_fabric/dc_vxlan_fabric/resources/dc_vxlan_fabric_resources.j2' %}
+
+{# Include NDFC DC VXLAN EVPN Manageability Template #}
+{% include '/ndfc_fabric/dc_vxlan_fabric/manageability/dc_vxlan_fabric_manageability.j2' %}
+
+{# Include NDFC DC VXLAN EVPN Flow Monitor Template #}
+{% include '/ndfc_fabric/dc_vxlan_fabric/flow_monitor/dc_vxlan_fabric_flow_monitor.j2' %}
