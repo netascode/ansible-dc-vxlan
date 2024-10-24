@@ -20,7 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 - ansible.builtin.fail: msg="Service Model Not Defined.  Role cisco.nac_dc_vxlan.validate Must Be Called First"
   when: MD is undefined
   delegate_to: localhost
@@ -152,6 +151,13 @@
 - name: Build Fabric Policy List From Template
   ansible.builtin.include_tasks: ndfc_policy.yml
 
+# --------------------------------------------------------------------
+# Build Fabric Links List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric Links List From Template
+  ansible.builtin.include_tasks: ndfc_fabric_links.yml
+
 - name: Run Diff Flags
   ansible.builtin.debug:
     msg:
@@ -176,6 +182,7 @@
       - "+     VRFs Changes Detected -                 [ {{ changes_detected_vrfs }} ]"
       - "+     Networks Changes Detected -             [ {{ changes_detected_networks }} ]"
       - "+     Policy Changes Detected -               [ {{ changes_detected_policy }} ]"
+      - "+     Fabric Links Changes Detected -         [ {{ changes_detected_fabric_links }} ]"
       - "+     ----- Run Map -----"
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"

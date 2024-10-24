@@ -20,51 +20,42 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
-- name: Manage VRFs and Networks Entry Point
+- name: Manage Fabric Intra Fabric Links Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage VRFs and Networks Fabric {{ MD.vxlan.global.name }}"
+      - "+     Manage Fabric Links {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
+- name: Query Links - with Src & Dst Fabric
+  cisco.dcnm.dcnm_links:
+    state: query # choose from [merged, replaced, deleted, query]
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    config:
+      - dst_fabric: "{{ MD.vxlan.global.name }}" # Destination fabric
+  register: result_links
+
+- name: Create empty result List
+  ansible.builtin.set_fact:
+    not_required_links: []
+    required_links: []
+
+- name: Loop through links input to check if they already exist
+  ansible.builtin.include_tasks: link_loop.yml
+  loop: "{{ fabric_links }}"
+  loop_control:
+    loop_var: link
+
+- name: remove unwanted links from required links input
+  ansible.builtin.set_fact:
+    required_links: "{{ fabric_links | difference(not_required_links) }}"
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
 # --------------------------------------------------------------------
-- name: Manage NDFC Fabric VRFs
-  cisco.dcnm.dcnm_vrf:
-    fabric: "{{ MD.vxlan.global.name }}"
-    state: replaced
-    config: "{{ vrf_config }}"
-  register: manage_vrf_result
-  when:
-    - MD.vxlan.overlay_services.vrfs is defined
-    - MD.vxlan.overlay_services.vrfs
-    - changes_detected_vrfs
-
-# --------------------------------------------------------------------
-# Manage Network Configuration on NDFC
-# --------------------------------------------------------------------
-- name: Manage NDFC Fabric Networks
-  cisco.dcnm.dcnm_network:
-    fabric: "{{ MD.vxlan.global.name }}"
-    state: replaced
-    config: "{{ net_config }}"
-  register: manage_network_result
-  when:
-    - MD.vxlan.overlay_services.networks is defined
-    - MD.vxlan.overlay_services.networks
-    - changes_detected_networks
-
-# --------------------------------------------------------------------
-# Manage Loopback VRF attachments on NDFC
-# --------------------------------------------------------------------
-- name: Attach VRF Loopbacks per VRF
-  include_tasks: vrf_loopbacks.yml
-  loop_control:
-    loop_var: vrf
-  loop: "{{ MD.vxlan.overlay_services.vrfs }}"
-  when:
-    - MD.vxlan.overlay_services.vrfs is defined
-    - MD.vxlan.overlay_services.vrfs
-    - changes_detected_vrfs
+- name: Manage NDFC Fabric Policies
+  cisco.dcnm.dcnm_links:
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    config: "{{ required_links }}"
+    deploy: false
+    state: merged
+  register: manage_fabric_links_result
