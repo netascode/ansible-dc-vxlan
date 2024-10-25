@@ -145,6 +145,7 @@
 {% endif %}
   ISIS_P2P_ENABLE: {{ underlay.isis.network_point_to_point | default(defaults.vxlan.underlay.isis.network_point_to_point) }}
 {% if (underlay.bfd.enable | default(defaults.vxlan.underlay.bfd.enable) | title) == 'True' %}
+  ISIS_AUTH_KEY: {{ underlay.isis.authentication_key }}
   BFD_ISIS_ENABLE: {{ underlay.bfd.isis | default(defaults.vxlan.underlay.bfd.isis) }}
 {% endif %}
 {# ------------------------------------------------------ #}
