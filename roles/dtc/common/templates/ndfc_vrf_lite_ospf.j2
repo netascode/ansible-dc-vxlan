@@ -2,6 +2,7 @@
 ! DO NOT EDIT MANUALLY
 !
 !
+feature ospf
 {% set redistribute = {} %}
 {% set feature = {} %}
 {% if item.ospf.bfd.enabled | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.bfd.enabled) %}
