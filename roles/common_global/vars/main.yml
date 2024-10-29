@@ -24,6 +24,9 @@
 nac_tags:
   # All Create and Remove Tags
   all:
+    - cc_connectivity_check
+    - cc_version
+    # -------------------------
     - cr_manage_fabric
     - cr_manage_switches
     - cr_manage_vpc_peers
@@ -42,6 +45,10 @@ nac_tags:
     - role_create
     - role_deploy
     - role_remove
+  # All Connectivity Check Tags
+  connectivity_check:
+    - cc_connectivity_check
+    - cc_version
   # All Create Tags
   create:
     - cr_manage_fabric

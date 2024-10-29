@@ -15,7 +15,7 @@
 {# Include NDFC DC VXLAN EVPN Protocols Template #}
 {% include '/ndfc_fabric/dc_vxlan_fabric/protocols/dc_vxlan_fabric_protocols.j2' %}
 
-{% if ndfc_version.response.DATA.version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
 {# Include NDFC DC VXLAN EVPN Security Template #}
 {% include '/ndfc_fabric/dc_vxlan_fabric/security/dc_vxlan_fabric_security.j2' %}
 {% endif %}
