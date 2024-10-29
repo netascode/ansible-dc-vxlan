@@ -6,9 +6,6 @@ class Rule:
     @classmethod
     def match(cls, inventory):
         results = []
-        fabric_replication = False
-        fabric_mcast_mode = False
-        fabric_trm = False
 
         if inventory.get("vxlan", None):
             if inventory["vxlan"].get("underlay", None):
