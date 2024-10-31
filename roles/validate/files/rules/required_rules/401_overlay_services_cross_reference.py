@@ -6,37 +6,42 @@ class Rule:
     @classmethod
     def match(cls, inventory):
         results = []
-        # Cross Reference Service Model VRFs with Service Model Networks and generate
-        # an error message if a network is found that is referencing a VRF
+
+        switches = None
+        sm_networks = None
+        sm_vrfs = None
+        network_attach_groups = None
+        vrf_attach_groups = None
+
+        switch_keys = ['vxlan', 'topology', 'switches']
+        network_keys = ['vxlan', 'overlay_services', 'networks']
+        vrf_keys = ['vxlan', 'overlay_services', 'vrfs']
+        network_attach_keys = ['vxlan', 'overlay_services', 'network_attach_groups']
+        vrf_attach_keys = ['vxlan', 'overlay_services', 'vrf_attach_groups']
 
         # Check if vrfs, network and switch data is defined in the service model
-        switches = []
-        check = cls.data_model_key_check(inventory, ['vxlan', 'topology', 'switches'])
+        check = cls.data_model_key_check(inventory, switch_keys)
         if 'switches' in check['keys_data']:
-            switches = inventory.get("vxlan").get("topology").get("switches")
+            switches = cls.safeget(inventory, switch_keys)
         if not switches:
             # No switches defined in the service model, no reason to continue
             return results
 
-        sm_networks = []
-        check = cls.data_model_key_check(inventory, ['vxlan', 'overlay_services', 'networks'])
+        check = cls.data_model_key_check(inventory, network_keys)
         if 'networks' in check['keys_data']:
-            sm_networks = inventory.get("vxlan").get("overlay_services").get("networks")
+            sm_networks = cls.safeget(inventory, network_keys)
 
-        sm_vrfs = []
-        check = cls.data_model_key_check(inventory, ['vxlan', 'overlay_services', 'vrfs'])
+        check = cls.data_model_key_check(inventory, vrf_keys)
         if 'vrfs' in check['keys_data']:
-            sm_vrfs = inventory.get("vxlan").get("overlay_services").get("vrfs")
+            sm_vrfs = cls.safeget(inventory, vrf_keys)
 
-        vrf_attach_groups = []
-        check = cls.data_model_key_check(inventory, ['vxlan', 'overlay_services', 'vrf_attach_groups'])
+        check = cls.data_model_key_check(inventory, vrf_attach_keys)
         if 'vrf_attach_groups' in check['keys_data']:
-            vrf_attach_groups = inventory.get("vxlan").get("overlay_services").get("vrf_attach_groups")
+            vrf_attach_groups = cls.safeget(inventory, vrf_attach_keys)
 
-        network_attach_groups = []
-        check = cls.data_model_key_check(inventory, ['vxlan', 'overlay_services', 'network_attach_groups'])
+        check = cls.data_model_key_check(inventory, network_attach_keys)
         if 'network_attach_groups' in check['keys_data']:
-            network_attach_groups = inventory.get("vxlan").get("overlay_services").get("network_attach_groups")
+            network_attach_groups = cls.safeget(inventory, network_attach_keys)
 
         # Ensure Network is not referencing a VRF that is not defined in the service model
         results = cls.cross_reference_vrfs_nets(sm_vrfs, sm_networks, results)
@@ -64,6 +69,19 @@ class Rule:
         return dm_key_dict
 
     @classmethod
+    def safeget(cls, dict, keys):
+        # Utility function to safely get nested dictionary values
+        for key in keys:
+            if dict is None:
+                return None
+            if key in dict:
+                dict = dict[key]
+            else:
+                return None
+
+        return dict
+
+    @classmethod
     def cross_reference_vrfs_nets(cls, sm_vrfs, sm_networks, results):
         if not sm_vrfs or not sm_networks:
             return results
@@ -76,14 +94,10 @@ class Rule:
         for net in sm_networks:
             if net.get("vrf_name") is not None:
                 if net.get("vrf_name") not in vrf_names:
-                    results.append(
-                        "Network ({0}) is referencing VRF ({1})".format(
-                            net.get("name"), net.get("vrf_name")
-                        )
-                    )
-                    results.append(
-                        " which is not defined in the service model.  Add the VRF to the service model or remove the network from the service model"
-                    )
+                    msg1 = "Network ({0}) is referencing VRF ({1})"
+                    msg2 = " which is not defined in the service model.  Add the VRF to the service model or remove the network from the service model"
+                    results.append(msg1.format(net.get("name"), net.get("vrf_name")))
+                    results.append(msg2)
                     results.append(" and re-run the playbook")
 
         return results
