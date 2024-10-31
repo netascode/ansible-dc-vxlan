@@ -49,7 +49,7 @@ class Rule:
         if sm_vrfs and vrf_attach_groups:
             results = cls.cross_reference_switches(vrf_attach_groups, switches, 'vrf', results)
         if sm_networks and network_attach_groups:
-            results = cls.cross_reference_switches(network_attach_groups, switches, 'vrf', results)
+            results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
 
         return results
 
