@@ -51,8 +51,13 @@ def ndfc_get_switch_policy(self, task_vars, tmp, template_name, switch_serial_nu
         tmp=tmp
     )
 
-    policy_match = next(
-        (item for item in policy_data["response"]["DATA"] if item["templateName"] == template_name and item['serialNumber'] == switch_serial_number)
-    )
+    try:
+        policy_match = next(
+            (item for item in policy_data["response"]["DATA"] if item["templateName"] == template_name and item['serialNumber'] == switch_serial_number)
+        )
+    except StopIteration:
+        err_msg = f"Policy for template {template_name} and switch {switch_serial_number} not found!"
+        err_msg += f" Please ensure switch with serial number {switch_serial_number} is part of the fabric"
+        raise Exception(err_msg)
 
     return policy_match
