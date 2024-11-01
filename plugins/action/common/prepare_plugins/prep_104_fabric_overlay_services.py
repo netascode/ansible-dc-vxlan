@@ -47,11 +47,11 @@ class PreparePlugin:
                     elif found_switch.get('management').get('management_ipv6_address'):
                         switch['hostname'] = found_switch['management']['management_ipv6_address']
 
-        # Remove attach_group from vrf if the group_name is not defined
+        # Remove vrf_attach_group from vrf if the group_name is not defined
         for vrf in model_data['vxlan']['overlay_services']['vrfs']:
-            if 'attach_group' in vrf:
-                if vrf.get('attach_group') not in vrf_grp_name_list:
-                    del vrf['attach_group']
+            if 'vrf_attach_group' in vrf:
+                if vrf.get('vrf_attach_group') not in vrf_grp_name_list:
+                    del vrf['vrf_attach_group']
 
         # Rebuild sm_data['vxlan']['overlay_services']['network_attach_groups'] into
         # a structure that is easier to use.
@@ -71,11 +71,11 @@ class PreparePlugin:
                     elif found_switch.get('management').get('management_ipv6_address'):
                         switch['hostname'] = found_switch['management']['management_ipv6_address']
 
-        # Remove attach_group from net if the group_name is not defined
+        # Remove network_attach_group from net if the group_name is not defined
         for net in model_data['vxlan']['overlay_services']['networks']:
-            if 'attach_group' in net:
-                if net.get('attach_group') not in net_grp_name_list:
-                    del net['attach_group']
+            if 'network_attach_group' in net:
+                if net.get('network_attach_group') not in net_grp_name_list:
+                    del net['network_attach_group']
 
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
