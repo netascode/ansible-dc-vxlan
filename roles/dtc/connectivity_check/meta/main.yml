@@ -21,12 +21,9 @@
 
 galaxy_info:
   author: Cisco
-  description: Role to create state within the NDFC controller.
+  description: Role to check connectivity to the NDFC controller.
   license: LICENSE
   min_ansible_version: 2.14.15
 
 dependencies:
-  - cisco.nac_dc_vxlan.validate
   - cisco.nac_dc_vxlan.common_global
-  - cisco.nac_dc_vxlan.dtc.connectivity_check
-  - cisco.nac_dc_vxlan.dtc.common

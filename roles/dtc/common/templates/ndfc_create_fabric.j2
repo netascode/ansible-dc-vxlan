@@ -66,6 +66,7 @@
 {% if (underlay.isis.authentication_enable | default(defaults.vxlan.underlay.isis.authentication_enable) | title) == 'True' %}
   ISIS_AUTH_KEYCHAIN_NAME: {{ underlay.isis.authentication_keychain_name | default(omit) }}
   ISIS_AUTH_KEYCHAIN_KEY_ID: {{ underlay.isis.authentication_key_id | default(defaults.vxlan.underlay.isis.authentication_key_id) }}
+  ISIS_AUTH_KEY: {{ underlay.isis.authentication_key }}
 {% endif %}
   ISIS_OVERLOAD_ENABLE: {{ underlay.isis.overload_bit | default(defaults.vxlan.underlay.isis.overload_bit) }}
 {% if (underlay.isis.overload_bit | default(defaults.vxlan.underlay.isis.overload_bit) | title) == 'True' %}

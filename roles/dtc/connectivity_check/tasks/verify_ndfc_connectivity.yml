@@ -11,3 +11,5 @@
     state: started
     msg: Timed out waiting to connect to NDFC at https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}. Check the NDFC is reachable from the Ansible Controller.
   delegate_to: localhost
+  tags:
+    - cc_connectivity_check
