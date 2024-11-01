@@ -20,7 +20,9 @@
       register: response
       # no_log: true
       delegate_to: localhost
-      # when: ansible_user is defined and ansible_password is defined
+      tags:
+        - cc_connectivity_check
+
   rescue:
     - name: Fail Play If NDFC Authorization Test Failed
       ansible.builtin.fail:
