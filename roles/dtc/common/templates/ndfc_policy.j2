@@ -22,12 +22,12 @@
           policy_vars:
 {% if policy_match.template_vars is defined and policy_match.template_vars %}
 {% for key, value in policy_match.template_vars.items() %}
-{% if key == 'CONF' and policy_match.template_name == 'switch_freeform' %}
+{% if key == 'CONF' and policy_match.template_name != 'switch_freeform' %}
+              {{ key }}: |2-
+                {{ value | indent(16) }}            
+{% elif key == 'CONF' %}
             {{ key }}: |-
               {{ value | indent(14) }}
-{% elif key == 'CONF' %}
-              {{ key }}: |2-
-                {{ value | indent(16) }}
 {% else %}
               {{ key }}: {{ value | to_nice_yaml(indent=2) | indent(10) | trim }}
 {% endif %}
