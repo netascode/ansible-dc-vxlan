@@ -24,7 +24,7 @@
 {% for key, value in policy_match.template_vars.items() %}
 {% if key == "CONF" and policy_match.template_name != "switch_freeform" %}
               {{ key }}: |2-
-                {{ value | indent(16) }}            
+                {{ value | indent(16) }}
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
