@@ -41,12 +41,6 @@
 - ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
   when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
 
-- name: Verify Connection to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
-  ansible.builtin.include_tasks: verify_ndfc_connectivity.yml
-
-- name: Verify Authorization to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
-  ansible.builtin.include_tasks: verify_ndfc_authorization.yml
-
 - name: Check for Schema Path Being Defined
   ansible.builtin.set_fact:
     schema_path: ''
