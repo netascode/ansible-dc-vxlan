@@ -123,6 +123,33 @@ class Rule:
                                 f"area_type is defined to {area['area_type']}. "
                                 "Backbone area is always standard"
                             )
+                        elif area["area_type"] == "nssa":
+                            cls.check_global_ospf_nssa(area, policy["name"])
+
+    @classmethod
+    def check_global_ospf_nssa(cls, area, policy):
+        """
+        Check NSSA parameters
+        """
+        if "nssa" in area:
+            if "translate" in area["nssa"][0]:
+                translate = area["nssa"][0]["translate"][0]
+                if "never" in translate and translate["never"] is True:
+                    if ("supress_fa" in translate or "always" in translate) and (
+                        translate["supress_fa"] is True or translate["always"] is True
+                    ):
+                        cls.results.append(
+                            f"vxlan.overlay_extensions.vrf_lites.{policy}.ospf.areas.id.{area['id']}. "
+                            f"NSSA translate type 7 never, cannot be enabled with always or supress"
+                        )
+            if "route_map" in area["nssa"][0] and (
+                "default_information_originate" not in area["nssa"][0]
+                or area["nssa"][0]["default_information_originate"] is False
+            ):
+                cls.results.append(
+                    f"vxlan.overlay_extensions.vrf_lites.{policy}.ospf.areas.id.{area['id']}. "
+                    f"route-map couldn't be used without default_information_originate"
+                )
 
     @classmethod
     def check_switch_level(
