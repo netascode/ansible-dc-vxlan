@@ -201,6 +201,16 @@ factory_defaults:
           distance: 110
           bfd:
             enabled: false
+          default_information_originate:
+            always: false
+          nssa:
+            default_information_originate: false
+            no_redistribution: false
+            no_summary: false
+            translate:
+              always: false
+              supress_fa: false
+              never: false
         bgp:
           best_path_as_path_relax: false
           graceful_restart: true
