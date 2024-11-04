@@ -95,7 +95,7 @@ router ospf {{ item.ospf['process'] }}
     area {{ area.id | ipaddr('address') }} nssa {{ nssa_options_flags | join(' ') }}
               {% endif %}
               {% if nssa_options_translate_enabled is true %}
-    area {{ area.id | ipaddr('address') }} nssa {{ nssa_options_translate | join(' ') }}
+    area {{ area.id | ipaddr('address') }} nssa translate type7 {{ nssa_options_translate | join(' ') }}
               {% endif %}
             {% endif %}
           {% endif %}
