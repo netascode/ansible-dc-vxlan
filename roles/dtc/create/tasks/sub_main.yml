@@ -20,6 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
+
 - name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.create]
   ansible.builtin.debug:
     msg:

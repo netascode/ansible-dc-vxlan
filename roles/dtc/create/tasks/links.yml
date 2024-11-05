@@ -20,6 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
+
 - name: Manage Fabric Intra Fabric Links Entry Point
   ansible.builtin.debug:
     msg:
