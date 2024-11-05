@@ -40,19 +40,20 @@
     not_required_links: []
     required_links: []
 
-- name: Loop through links input to check if they already exist
-  ansible.builtin.include_tasks: link_loop.yml
-  loop: "{{ fabric_links }}"
-  loop_control:
-    loop_var: link
+- name: Build Switch Hostname Policy Payload from Data Model Update (WIP)
+  cisco.nac_dc_vxlan.dtc.existing_links_check:
+    existing_links: "{{ result_links }}"
+    fabric_links: "{{ fabric_links }}"
+  register: not_required_links
+# do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 
 - name: remove unwanted links from required links input
   ansible.builtin.set_fact:
-    required_links: "{{ fabric_links | difference(not_required_links) }}"
+    required_links: "{{ fabric_links | difference(not_required_links['not_required_links']) }}"
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
 # --------------------------------------------------------------------
-- name: Manage NDFC Fabric Policies
+- name: Manage NDFC Fabric Links
   cisco.dcnm.dcnm_links:
     src_fabric: "{{ MD.vxlan.global.name }}"
     config: "{{ required_links }}"

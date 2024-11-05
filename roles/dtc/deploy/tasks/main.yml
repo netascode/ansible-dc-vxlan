@@ -20,11 +20,10 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 - name: Import Role Tasks
   ansible.builtin.import_tasks: sub_main.yml
   tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
-  when: changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy
+  when: changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy or changes_detected_fabric_links
 
 - name: Mark Stage Role Deploy Completed
   cisco.nac_dc_vxlan.common.run_map:
