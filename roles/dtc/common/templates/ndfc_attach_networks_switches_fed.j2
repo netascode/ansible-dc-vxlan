@@ -1,0 +1,16 @@
+{
+  {% for attach_group in MD_Extended.vxlan.overlay_services.network_attach_groups %}
+    {% for switch in attach_group['switches']%}
+      {% for switch_inv in switches_in_fabric%}
+        {% if switch_inv.logicalName == switch['hostname']%}
+          {{switches.append(switch_inv.serialNumber)}}
+        {% endif%}
+      {% endfor%}
+    {% endfor%}
+  {% endfor%}
+  {% for network in MD_Extended.vxlan.overlay_services.networks %}
+    {{ networks.append(network.name )}}
+  {% endfor %}
+    'networks':'{{ networks | join(",")}}',
+    'switches':'{{switches |unique|list | join(",")}}'
+}

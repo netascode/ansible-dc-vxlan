@@ -20,20 +20,15 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main.yml
-  when:
-    - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs or changes_detected_vpc_peering or changes_detected_link_vpc_peering or changes_detected_inventory
-    - MD.vxlan.global.fabric_type != 'MFD'
 
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main_fed.yml
-  when:
-    - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs or changes_detected_vpc_peering or changes_detected_link_vpc_peering or changes_detected_inventory
-    - MD.vxlan.global.fabric_type == 'MFD'
+- name: Get all the switches in the Federated Fabric
+  cisco.dcnm.dcnm_rest:
+      method: GET
+      path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/inventory/switchesByFabric"
+  register: switch_results
+  delegate_to: "{{ inventory_hostname }}"
 
-- name: Mark Stage Role Remove Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    stage: role_remove_completed
-  register: run_map
-  delegate_to: localhost
+
+- name: Store switches in the fabric for Federated Fabric
+  ansible.builtin.set_fact:
+      switches_in_fabric: "{{ switch_results.response.DATA }}"

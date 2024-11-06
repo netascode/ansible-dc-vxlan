@@ -20,14 +20,34 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Manage Fabric Entry Point
+- name: Manage Networks for Federated NDFC
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD.vxlan.global.name }}"
+      - "+     Manage Networks for Federated Fabrics {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
-- name: Manage fabric {{ MD.vxlan.global.name }} in NDFC
-  cisco.dcnm.dcnm_fabric:
-    state: merged
-    config: "{{ fabric_config }}"
+# --------------------------------------------------------------------
+# Manage Network Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Debug Network Payload
+  debug:
+    var: network
+
+- name: Debug Network Payload
+  debug:
+    var: fed_networks_existing.response.DATA
+
+- name: Get Existing Network ID for Federated Fabric
+  set_fact:
+    network_id_list: "{{ fed_networks_existing | json_query(network_query) }}"
+  vars:
+    network_query: "response.DATA[?displayName=='{{network.displayName}}'].networkId"
+
+- name: Configure Network for Federated NDFCs
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/networks"
+    method: "POST"
+    json_data: "{{ network | to_json}}"
+  when: network_id_list|default(None)|length == 0

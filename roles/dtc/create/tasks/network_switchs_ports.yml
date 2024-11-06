@@ -20,20 +20,30 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main.yml
-  when:
-    - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs or changes_detected_vpc_peering or changes_detected_link_vpc_peering or changes_detected_inventory
-    - MD.vxlan.global.fabric_type != 'MFD'
+- name: Manage Networks for Federated NDFC
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage Networks for Federated Fabrics {{ MD.vxlan.global.name }}"
+      - "----------------------------------------------------------------"
 
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main_fed.yml
-  when:
-    - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs or changes_detected_vpc_peering or changes_detected_link_vpc_peering or changes_detected_inventory
-    - MD.vxlan.global.fabric_type == 'MFD'
+# --------------------------------------------------------------------
+# Manage Network Configuration on NDFC
+# --------------------------------------------------------------------
 
-- name: Mark Stage Role Remove Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    stage: role_remove_completed
-  register: run_map
-  delegate_to: localhost
+- name: Debug Network Payload
+  debug:
+    var: network
+
+- name: Get Existing Network ID for Federated Fabric
+  set_fact:
+    network_id_list: "{{ fed_networks_existing | json_query(network_query) }}"
+  vars:
+    network_query: "response.DATA[?displayName=='{{network.network_name}}'].networkId"
+
+- name: Configure Network for Federated NDFCs
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/networks"
+    method: "POST"
+    json_data: "{{ network | to_json}}"
+  when: network_id_list|default(None)|length == 0

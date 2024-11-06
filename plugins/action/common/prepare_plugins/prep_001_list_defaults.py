@@ -102,13 +102,14 @@ class PreparePlugin:
 
         # Check vxlan.topology.switches[index].freeforms list elements
         list_index = 0
-        for switch in self.model_data['vxlan']['topology']['switches']:
-            dm_check = data_model_key_check(switch, ['freeforms'])
-            if 'freeforms' in dm_check['keys_not_found'] or \
-               'freeforms' in dm_check['keys_no_data']:
-                self.model_data['vxlan']['topology']['switches'][list_index]['freeforms'] = []
+        if self.model_data['vxlan'].get('topology', None) is not None:
+            for switch in self.model_data['vxlan']['topology']['switches']:
+                dm_check = data_model_key_check(switch, ['freeforms'])
+                if 'freeforms' in dm_check['keys_not_found'] or \
+                'freeforms' in dm_check['keys_no_data']:
+                    self.model_data['vxlan']['topology']['switches'][list_index]['freeforms'] = []
 
-            list_index += 1
+                list_index += 1
 
         # --------------------------------------------------------------------
         # Fabric Topology Switches Interfaces List Defaults
@@ -116,12 +117,13 @@ class PreparePlugin:
 
         # Check vxlan.topology.switches[index].interfaces list elements
         list_index = 0
-        for switch in self.model_data['vxlan']['topology']['switches']:
-            dm_check = data_model_key_check(switch, ['interfaces'])
-            if 'interfaces' in dm_check['keys_not_found'] or 'interfaces' in dm_check['keys_no_data']:
-                self.model_data['vxlan']['topology']['switches'][list_index]['interfaces'] = []
+        if self.model_data['vxlan'].get('topology', None) is not None:
+            for switch in self.model_data['vxlan']['topology']['switches']:
+                dm_check = data_model_key_check(switch, ['interfaces'])
+                if 'interfaces' in dm_check['keys_not_found'] or 'interfaces' in dm_check['keys_no_data']:
+                    self.model_data['vxlan']['topology']['switches'][list_index]['interfaces'] = []
 
-            list_index += 1
+                list_index += 1
 
         # --------------------------------------------------------------------
         # Fabric Overlay List Defaults
