@@ -20,6 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
+
 - name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.remove]
   ansible.builtin.debug:
     msg:
@@ -37,12 +38,8 @@
 - cisco.dcnm.dcnm_rest:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/inventory/switchesByFabric"
-  register: result
+  register: switch_list
   tags: "{{ nac_tags.remove }}"
-
-- name: set facts for result
-  ansible.builtin.set_fact:
-    switch_list: "{{result}}"
 
 - name: Remove Fabric Interfaces
   ansible.builtin.import_tasks: interfaces.yml

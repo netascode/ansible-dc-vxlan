@@ -27,10 +27,7 @@ class PreparePlugin:
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
-        if model_data['vxlan'].get('topology', None) is not None:
-            switches = model_data['vxlan']['topology']['switches']
-        else:
-            switches = []
+        switches = model_data['vxlan']['topology']['switches']
 
         # Rebuild sm_data['vxlan']['overlay_services']['vrf_attach_groups'] into
         # a structure that is easier to use.

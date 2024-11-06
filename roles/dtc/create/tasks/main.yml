@@ -33,12 +33,6 @@
     - changes_detected_inventory or changes_detected_interfaces or changes_detected_policy
     - MD.vxlan.global.fabric_type == 'External'
 
-- name: Import Role Tasks Federated Fabric
-  ansible.builtin.import_tasks: sub_main_fed.yml
-  when:
-    - changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy or changes_detected_fabric_links
-    - MD.vxlan.global.fabric_type == 'MFD'
-
 - name: Mark Stage Role Create Completed
   cisco.nac_dc_vxlan.common.run_map:
     stage: role_create_completed

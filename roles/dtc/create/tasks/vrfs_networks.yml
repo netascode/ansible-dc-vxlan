@@ -20,6 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
+
 - name: Manage VRFs and Networks Entry Point
   ansible.builtin.debug:
     msg:
@@ -40,59 +41,6 @@
     - MD.vxlan.overlay_services.vrfs is defined
     - MD.vxlan.overlay_services.vrfs
     - changes_detected_vrfs
-    - MD.vxlan.global.fabric_type != 'MFD'
-
-# --------------------------------------------------------------------
-# Manage VRF Configuration for Federated NDFCs
-# --------------------------------------------------------------------
-
-- name: set filename for federated
-  set_fact:
-    file_name: "{{ MD.vxlan.global.name }}_fed_attach_vrfs.yml"
-  when:
-    - MD.vxlan.overlay_services.vrfs is defined
-    - changes_detected_vrfs
-    - MD.vxlan.global.fabric_type == 'MFD'
-
-- name: load VRF federated details from file
-  ansible.builtin.set_fact:
-    fed_vrf_config: "{{ lookup('file', role_path + '/../common/files/' + file_name) | from_json }}"
-  when:
-    - MD.vxlan.overlay_services.vrfs is defined
-    - changes_detected_vrfs
-    - MD.vxlan.global.fabric_type == 'MFD'
-
-- name: Get existing VRFs in Federated Fabric
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/vrfs"
-  register: dcnm_vrf_existing
-  when:
-    - MD.vxlan.overlay_services.vrfs is defined
-    - changes_detected_vrfs
-    - MD.vxlan.global.fabric_type == 'MFD'
-
-- name: Manage NDFC Fabric VRFs for Federated
-  include_tasks: vrf_fed_config.yml
-  loop: "{{ fed_vrf_config }}"
-  loop_control:
-    loop_var: vrf
-  when:
-    - MD.vxlan.overlay_services.vrfs is defined
-    - changes_detected_vrfs
-    - MD.vxlan.global.fabric_type == 'MFD'
-
-# --------------------------------------------------------------------
-# Manage Loopback VRF attachments on NDFC
-# --------------------------------------------------------------------
-- name: Attach VRF Loopbacks per VRF
-  include_tasks: vrf_loopbacks.yml
-  loop_control:
-    loop_var: vrf
-  loop: "{{ MD.vxlan.overlay_services.vrfs }}"
-  when:
-    - MD.vxlan.overlay_services.vrfs is defined
-    - changes_detected_vrfs
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
@@ -107,47 +55,16 @@
     - MD.vxlan.overlay_services.networks is defined
     - MD.vxlan.overlay_services.networks
     - changes_detected_networks
-    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
-# Manage Network Configuration for Federated NDFCs
+# Manage Loopback VRF attachments on NDFC
 # --------------------------------------------------------------------
-- name: Query existing network.switches_to_attach.split in Federated Fabric
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{MD.vxlan.global.name}}/networks"
-  register: fed_networks_existing
-  when:
-    - MD.vxlan.overlay_services.networks is defined
-    - changes_detected_networks
-    - MD.vxlan.global.fabric_type == 'MFD'
-
-- name: Manage NDFC Fabric Networks for Federated
-  include_tasks: network_fed_config.yml
-  loop: "{{ net_config }}"
+- name: Attach VRF Loopbacks per VRF
+  include_tasks: vrf_loopbacks.yml
   loop_control:
-    loop_var: network
+    loop_var: vrf
+  loop: "{{ MD.vxlan.overlay_services.vrfs }}"
   when:
-    - MD.vxlan.global.fabric_type == 'MFD'
-    - MD.vxlan.overlay_services.networks is defined
-    - changes_detected_networks
-
-- name: Attach switches for all networks
-  cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/networks/attachments"
-    method: "POST"
-    json_data: "{{ network_switches | to_json}}"
-  when:
-    - MD.vxlan.global.fabric_type == 'MFD'
-    - MD.vxlan.overlay_services.networks is defined
-    - changes_detected_networks
-
-- name: Attach network to switches and ports for all networks
-  cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/networks/multiattach"
-    method: "POST"
-    json_data: "{{ network_switches_ports | to_json}}"
-  when:
-    - MD.vxlan.global.fabric_type == 'MFD'
-    - MD.vxlan.overlay_services.networks is defined
-    - changes_detected_networks
+    - MD.vxlan.overlay_services.vrfs is defined
+    - MD.vxlan.overlay_services.vrfs
+    - changes_detected_vrfs

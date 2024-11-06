@@ -30,15 +30,14 @@ class PreparePlugin:
 
         # Ensure that vrf_lite's switches are mapping to their respective
         # management IP address from topology switches
-        if model_data['vxlan'].get('topology', None) is not None:
-            topology_switches = model_data['vxlan']['topology']['switches']
-            for switch in model_data['vxlan']['policy']['switches']:
-                if any(sw['name'] == switch['name'] for sw in topology_switches):
-                    found_switch = next((item for item in topology_switches if item["name"] == switch['name']))
-                    if found_switch.get('management').get('management_ipv4_address'):
-                        switch['name'] = found_switch['management']['management_ipv4_address']
-                    elif found_switch.get('management').get('management_ipv6_address'):
-                        switch['name'] = found_switch['management']['management_ipv6_address']
+        topology_switches = model_data['vxlan']['topology']['switches']
+        for switch in model_data['vxlan']['policy']['switches']:
+            if any(sw['name'] == switch['name'] for sw in topology_switches):
+                found_switch = next((item for item in topology_switches if item["name"] == switch['name']))
+                if found_switch.get('management').get('management_ipv4_address'):
+                    switch['name'] = found_switch['management']['management_ipv4_address']
+                elif found_switch.get('management').get('management_ipv6_address'):
+                    switch['name'] = found_switch['management']['management_ipv6_address']
 
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']

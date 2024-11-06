@@ -159,25 +159,6 @@
 - name: Build Fabric Links List From Template
   ansible.builtin.include_tasks: ndfc_fabric_links.yml
 
-- name: Set facts for missed changes_detected flags for Federated Fabric
-  ansible.builtin.set_fact:
-    changes_detected_fabric: "{{ changes_detected_fabric | default(false) }}"
-    changes_detected_inventory: "{{ changes_detected_inventory | default(false) }}"
-    changes_detected_vpc_peering: "{{ changes_detected_vpc_peering | default(false) }}"
-    changes_detected_interfaces: "{{ changes_detected_interfaces | default(false) }}"
-    changes_detected_link_vpc_peering: "{{ changes_detected_link_vpc_peering | default(false) }}"
-    changes_detected_policy: "{{ changes_detected_policy | default(false) }}"
-    changes_detected_fabric_links: "{{ changes_detected_fabric_links | default(false) }}"
-    changes_detected_interface_vpc: "{{ changes_detected_interface_vpc | default(false) }}"
-    changes_detected_interface_access: "{{ changes_detected_interface_access | default(false) }}"
-    changes_detected_interface_access_po: "{{ changes_detected_interface_access_po | default(false) }}"
-    changes_detected_interface_loopback: "{{ changes_detected_interface_loopback | default(false) }}"
-    changes_detected_interface_po_routed: "{{ changes_detected_interface_po_routed | default(false) }}"
-    changes_detected_interface_routed: "{{ changes_detected_interface_routed | default(false) }}"
-    changes_detected_interface_trunk: "{{ changes_detected_interface_trunk | default(false) }}"
-    changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po | default(false) }}"
-    changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed | default(false) }}"
-
 - name: Run Diff Flags
   ansible.builtin.debug:
     msg:
