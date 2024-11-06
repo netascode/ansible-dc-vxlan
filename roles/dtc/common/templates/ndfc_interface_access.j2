@@ -11,7 +11,7 @@
 {% if interface['mode'] == 'access' %}
 - name : {{ interface['name'] }}
   type: eth
-  switch: 
+  switch:
 {% if switch.management.management_ipv4_address is defined %}
     - {{ switch.management.management_ipv4_address}}
 {% elif (switch.management.management_ipv4_address is not defined) and (switch.management.management_ipv6_address is defined)  %}
@@ -27,6 +27,8 @@
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.spanning_tree_portfast) }}
     access_vlan: {{ interface['access_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.access_vlan) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_bpdu_guard) }}
+    cmds: |2-
+      {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
 {% endif %}
 {% endfor %}
