@@ -20,6 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
+
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
     changes_detected_vrfs: false
