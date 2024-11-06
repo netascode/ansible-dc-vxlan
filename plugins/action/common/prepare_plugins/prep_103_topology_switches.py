@@ -28,7 +28,6 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
         #  Loop over all the roles in vxlan.topology.switches.role
-
         if model_data['vxlan'].get('topology', None) is not None:
             model_data['vxlan']['topology']['spine'] = {}
             model_data['vxlan']['topology']['leaf'] = {}
@@ -40,7 +39,6 @@ class PreparePlugin:
             model_data['vxlan']['topology']['border_super_spine'] = {}
             model_data['vxlan']['topology']['border_gateway_super_spine'] = {}
             model_data['vxlan']['topology']['tor'] = {}
-            model_data['vxlan']['topology']['core_router'] = {}
             sm_switches = model_data['vxlan']['topology']['switches']
             for switch in sm_switches:
                 # Build list of switch IP's based on role keyed by switch name
@@ -53,7 +51,6 @@ class PreparePlugin:
                 v6ip = switch.get('management').get(v6_key)
                 model_data['vxlan']['topology'][role][name][v4_key] = v4ip
                 model_data['vxlan']['topology'][role][name][v6_key] = v6ip
-
 
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']

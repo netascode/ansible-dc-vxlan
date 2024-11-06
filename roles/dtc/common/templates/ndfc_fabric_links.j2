@@ -9,8 +9,8 @@
     dst_interface: "{{ link.dest_interface }}" 
     src_device: "{{ link.source_device }}" 
     dst_device: "{{ link.dest_device }}" 
-    template: "{{ link.template }}"
+    template: int_pre_provision_intra_fabric_link
     profile:
-        admin_state: "{{ link.admin_state }}" 
-        mtu: "{{ link.mtu }}"
+        admin_state: true
+        mtu: 9216
 {% endfor %}

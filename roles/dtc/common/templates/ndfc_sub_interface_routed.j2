@@ -35,8 +35,6 @@
     int_vrf: {{ interface['vrf'] | default(omit) }}
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.speed) }}
-    cmds: |2-
-      {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
 {% endfor %}
 {% endif %}

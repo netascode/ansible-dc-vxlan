@@ -35,8 +35,6 @@
 {#       Also need to add freeform commands to the model? #}
 {# ------------------------------------------------------ #}
     secondary_ipv4_addr: {{ interface.secondary_ipv4_addresses[0].ip_address | default(omit) }}
-    cmds: |2-
-      {{ interface.freeform_config | default('') | indent(6) }}
 {% endif %}
 {% endfor %}
 {% endif %}
