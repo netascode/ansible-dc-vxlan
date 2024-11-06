@@ -31,8 +31,6 @@
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.speed) }}
     pc_mode:  {{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.pc_mode) }}
     members: {{ interface['members'] | default(omit) }}
-    cmds: |2-
-      {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
 {% endfor %}
 {% endif %}

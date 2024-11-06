@@ -20,7 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 - name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.create]
   ansible.builtin.debug:
     msg:
@@ -63,13 +62,6 @@
     - changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
 
-- name: Manage NDFC Fabric VRFs and Networks
-  ansible.builtin.import_tasks: vrfs_networks.yml
-  when:
-    - MD.vxlan.overlay_services is defined
-    - changes_detected_vrfs or changes_detected_networks
-  tags: "{{ nac_tags.create_vrfs_networks }}"
-
 - name: Manage NDFC Fabric Intra Links
   ansible.builtin.include_tasks: links.yml
   when:
@@ -84,5 +76,11 @@
     - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
     - changes_detected_policy
   tags:
-    - "{{ nac_tags.create_policy }}"
+    - "{{ nac_tags.create_policy[0] }}"
 
+- name: Manage NDFC Fabric VRFs and Networks
+  ansible.builtin.import_tasks: vrfs_networks.yml
+  when:
+    - MD.vxlan.overlay_services is defined
+    - changes_detected_vrfs or changes_detected_networks
+  tags: "{{ nac_tags.create_vrfs_networks[0] }}"

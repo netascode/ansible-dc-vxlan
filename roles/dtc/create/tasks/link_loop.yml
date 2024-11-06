@@ -20,21 +20,8 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Manage Policies Entry Point
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Manage Policies Fabric {{ MD.vxlan.global.name }}"
-      - "----------------------------------------------------------------"
-
-# --------------------------------------------------------------------
-# Manage VRF Configuration on NDFC
-# --------------------------------------------------------------------
-- name: Manage NDFC Fabric Policies
-  cisco.dcnm.dcnm_policy:
-    fabric: "{{ MD.vxlan.global.name }}"
-    use_desc_as_key: true
-    config: "{{ policy_config }}"
-    deploy: false
-    state: merged
-  register: manage_policies_result
+- name: Add links to not_required_links if they already exist
+  ansible.builtin.set_fact:
+    not_required_links: "{{ not_required_links + [ link ]}}"
+  loop: "{{ result_links.response }}"
+  when: (item['sw1-info']['sw-sys-name'] is defined and item['sw2-info']['sw-sys-name'] is defined) and ((item['sw1-info']['sw-sys-name'] == link.src_device) and (item['sw1-info']['if-name']  ==  link.src_interface ) and ( item['sw2-info']['sw-sys-name']  ==  link.dst_device ) and ( item['sw2-info']['if-name']  ==  link.dst_interface ))
