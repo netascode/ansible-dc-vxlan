@@ -18,3 +18,47 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+DOCUMENTATION = """
+---
+module: prepare_service_model
+short_description: Prepare action plugin to prepare extended runtime data model.
+version_added: "0.1.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Prepare action plugin to prepare extended runtime data model.
+- Additional prepare action plugins are invoked for different parts of the data model.
+options:
+    inventory_hostname:
+        description:
+        - Ansible inventory_hostname.
+        required: true
+        type: str
+    hostvars:
+        description:
+        - Ansible runtime hostvars data.
+        required: true
+        type: dict
+    model_data:
+        description:
+        - The path to the data dir.
+        required: true
+        type: str
+"""
+
+EXAMPLES = """
+
+# # Prepare Data Model and Return Extended Data Model
+
+- name: Perform Required Syntax and Semantic Model Validation
+  cisco.nac_dc_vxlan.common.prepare_service_model:
+    inventory_hostname: "{{ inventory_hostname }}"
+    hostvars: "{{ hostvars }}"
+    model_data: "{{ model_data['data'] }}"
+  register: smd
+
+"""

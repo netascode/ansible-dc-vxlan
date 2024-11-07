@@ -19,13 +19,41 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-class PreparePlugin:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-        self.keys = []
 
-    def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
-        self.kwargs['results']['model_extended'] = model_data
-        return self.kwargs['results']
+DOCUMENTATION = """
+---
+module: verify_tags
+short_description: Action plugin to verify embedded collection tags.
+version_added: "0.3.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Action plugin to verify embedded collection tags.
+- Used a dependency within the overall collection.
+options:
+    all_tags:
+        description:
+        - All the tags supported in the collection natively.
+        required: true
+        type: dict
+    play_tags:
+        description:
+        - List of current play tags.
+        required: true
+        type: list
+        elements: str
+"""
+
+EXAMPLES = """
+
+# Perform Required Syntax and Semantic Model Validation and Return the Model Data
+
+- name: Verify User Tags
+  cisco.nac_dc_vxlan.dtc.verify_tags:
+    all_tags: "{{ nac_tags.all }}"
+    play_tags: "{{ ansible_run_tags }}"
+  tags: "{{ ansible_run_tags }}"
+
+"""

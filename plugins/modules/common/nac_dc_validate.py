@@ -20,25 +20,46 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import absolute_import, division, print_function
-
-
 __metaclass__ = type
 
-from ansible.utils.display import Display
-from ansible.plugins.action import ActionBase
 
-display = Display()
+DOCUMENTATION = """
+---
+module: nac_dc_validate
+short_description: Prepare action plugin to validate the data model against the schema and return the rendered data model.
+version_added: "0.1.0"
+author:
+    - Mike Wiebe (@mikewiebe)
+    - Matt Tarkington (@mtarking)
+description:
+- Prepare action plugin to validate the data model against the schema and return the rendered data model.
+options:
+    schema:
+        description:
+        - The path to the schema file.
+        required: false
+        type: str
+    mdata:
+        description:
+        - The path to the model data dir.
+        required: true
+        type: dict
+    rules:
+        description:
+        - The path to the rules dir.
+        required: false
+        type: str
+"""
 
+EXAMPLES = """
 
-class ActionModule(ActionBase):
+# Perform Required Syntax and Semantic Model Validation and Return the Model Data
 
-    def run(self, tmp=None, task_vars=None):
-        results = super(ActionModule, self).run(tmp, task_vars)
-        results['save_previous'] = False
+- name: Perform Required Syntax and Semantic Model Validation
+  cisco.nac_dc_vxlan.common.nac_dc_validate:
+    schema: "{{ schema_path }}"
+    mdata: "{{ data_path }}"
+    rules: "{{ rules_path }}"
+  register: model_data
 
-        roles = self._task.args['role_list']
-        for role in ['cisco.nac_dc_vxlan.create', 'cisco.nac_dc_vxlan.remove']:
-            if role in roles:
-                results['save_previous'] = True
-
-        return results
+"""

@@ -19,13 +19,46 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-class PreparePlugin:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-        self.keys = []
 
-    def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
-        self.kwargs['results']['model_extended'] = model_data
-        return self.kwargs['results']
+DOCUMENTATION = """
+---
+module: prep_103_topology_switches
+short_description: Prepare action plugin for topology elementes of the extended data model.
+version_added: "0.1.0"
+author: Rameez Rahim M (@rrahimm)
+description:
+- Invoked from the main prepare action plugin prepare_service_model.
+- Prepare action plugin for topology elementes of the extended data model.
+options:
+    inventory_hostname:
+        description:
+        - Ansible inventory_hostname.
+        required: true
+        type: str
+    hostvars:
+        description:
+        - Ansible runtime hostvars data.
+        required: true
+        type: dict
+    model_data:
+        description:
+        - The path to the data dir.
+        required: true
+        type: str
+"""
+
+EXAMPLES = """
+
+# Prepare Data Model and Return Extended Data Model
+
+- name: Perform Required Syntax and Semantic Model Validation
+  cisco.nac_dc_vxlan.common.prepare_service_model:
+    inventory_hostname: "{{ inventory_hostname }}"
+    hostvars: "{{ hostvars }}"
+    model_data: "{{ model_data['data'] }}"
+  register: smd
+
+"""

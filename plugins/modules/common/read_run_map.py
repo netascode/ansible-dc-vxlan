@@ -19,13 +19,33 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-class PreparePlugin:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-        self.keys = []
 
-    def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
-        self.kwargs['results']['model_extended'] = model_data
-        return self.kwargs['results']
+DOCUMENTATION = """
+---
+module: read_run_map
+short_description: Action plugin to read run history map from previous runs.
+version_added: "0.3.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Action plugin to read run history map from previous runs.
+options:
+    model_data:
+        description:
+        - The runtime data model, typically the extended data model.
+        required: true
+        type: dict
+"""
+
+EXAMPLES = """
+
+# Read Run Map From Previous Run
+
+- name: Read Run Map From Previous Run
+  cisco.nac_dc_vxlan.common.read_run_map:
+    model_data: "{{ MD_Extended }}"
+  register: run_map_read_result
+
+"""

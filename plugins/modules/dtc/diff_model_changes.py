@@ -19,13 +19,44 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
-class PreparePlugin:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-        self.keys = []
 
-    def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
-        self.kwargs['results']['model_extended'] = model_data
-        return self.kwargs['results']
+DOCUMENTATION = """
+---
+module: diff_model_changes
+short_description: Action plugin used to diff the previous and current state data files.
+version_added: "0.3.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Action plugin used to diff the previous and current state data files.
+options:
+    schema:
+        description:
+        - The path to the schema file.
+        required: false
+        type: str
+    mdata:
+        description:
+        - The path to the model data dir.
+        required: true
+        type: dict
+    rules:
+        description:
+        - The path to the rules dir.
+        required: false
+        type: str
+"""
+
+EXAMPLES = """
+
+# Diffs the previous and current state data files
+
+- name: Diff Previous and Current Data Files
+  cisco.nac_dc_vxlan.dtc.diff_model_changes:
+    file_name_previous: "{{ role_path }}/files/{{ file_name }}.old"
+    file_name_current: "{{ role_path }}/files/{{ file_name }}"
+  register: file_diff_result
+
+"""

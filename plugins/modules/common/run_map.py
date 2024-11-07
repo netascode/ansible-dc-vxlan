@@ -20,29 +20,42 @@
 # SPDX-License-Identifier: MIT
 
 from __future__ import absolute_import, division, print_function
-
-
 __metaclass__ = type
 
-from ansible.utils.display import Display
-from ansible.plugins.action import ActionBase
 
-display = Display()
+DOCUMENTATION = """
+---
+module: run_map
+short_description: Action plugin used to perform updates to run map for tracking previous run state.
+version_added: "0.3.0"
+author: Mike Wiebe (@mikewiebe)
+description:
+- Action plugin used to perform updates to run map for tracking previous run state.
+options:
+    schema:
+        description:
+        - The path to the schema file.
+        required: false
+        type: str
+    mdata:
+        description:
+        - The path to the model data dir.
+        required: true
+        type: dict
+    rules:
+        description:
+        - The path to the rules dir.
+        required: false
+        type: str
+"""
 
+EXAMPLES = """
 
-class ActionModule(ActionBase):
+# Used to perform updates to run map for tracking previous run state
 
-    def run(self, tmp=None, task_vars=None):
-        results = super(ActionModule, self).run(tmp, task_vars)
-        results['failed'] = False
+- name: Mark Stage Role Create Completed
+  cisco.nac_dc_vxlan.common.run_map:
+    stage: role_create_completed
+  register: run_map
 
-        test_data = self._task.args['test_data']['response']
-        model_data = self._task.args['model_data']
-
-        num_fabric_devices = len(test_data)
-        num_model_devices = len(model_data['vxlan']['topology']['switches'])
-        if num_fabric_devices != num_model_devices:
-            results['msg'] = 'There should be {0} switches in the fabric but only found {1}'.format(num_model_devices, num_fabric_devices)
-            results['failed'] = True
-
-        return results
+"""
