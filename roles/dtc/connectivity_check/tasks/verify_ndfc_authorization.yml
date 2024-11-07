@@ -22,6 +22,9 @@
       delegate_to: localhost
       tags:
         - cc_connectivity_check
+        - role_create
+        - role_deploy
+        - role_remove
 
   rescue:
     - name: Fail Play If NDFC Authorization Test Failed
