@@ -40,6 +40,7 @@ nac_tags:
     - rr_manage_vpc_peers
     - rr_manage_links
     - rr_manage_switches
+    - rr_manage_policy
     # -------------------------
     - role_validate
     - role_create

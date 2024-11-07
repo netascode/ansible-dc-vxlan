@@ -38,8 +38,8 @@
     peer2_description: "{{ switches[peer2].description | default(omit) }}"
     bpdu_guard: {{ switches[peer1].enable_bpdu_guard | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard)   }}
 {% if switches[peer1].mode == 'trunk' %}
-    peer1_allowed_vlans: "{{ ndfc_utils.convert_vlan_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
-    peer2_allowed_vlans: "{{ ndfc_utils.convert_vlan_ranges(switches[peer2].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
+    peer1_allowed_vlans: "{{ ndfc_utils.convert_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
+    peer2_allowed_vlans: "{{ ndfc_utils.convert_ranges(switches[peer2].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
 {% elif switches[peer1].mode == 'access' %}
     peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
     peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan)  }}

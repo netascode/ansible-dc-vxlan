@@ -25,7 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
-from ..helper_functions import ndfc_get_switch_policy_with_desc
+from ...plugin_utils.helper_functions import ndfc_get_nac_switch_policy_using_desc
 
 
 class ActionModule(ActionBase):
@@ -85,15 +85,15 @@ class ActionModule(ActionBase):
                     if any(dm_policy_group["name"] == dm_sw_policy_group for dm_policy_group in dm_policy_groups):
                         current_sw_policies = next(
                             (
-                                [policy["name"] for policy in dm_policy_group["policies"]]
+                                ["nac_" + policy["name"].replace(" ", "_") for policy in dm_policy_group["policies"]]
                                 for dm_policy_group in dm_policy_groups if dm_policy_group["name"] == dm_sw_policy_group
                             )
                         )
 
-                ndfc_policies_with_desc = ndfc_get_switch_policy_with_desc(self, task_vars, tmp, ndfc_sw_serial_number)
+                ndfc_policies_with_nac_desc = ndfc_get_nac_switch_policy_using_desc(self, task_vars, tmp, ndfc_sw_serial_number)
                 if any(
                     ((ndfc_policy_with_desc["description"] not in vrf_lites) and (ndfc_policy_with_desc["description"] not in current_sw_policies))
-                    for ndfc_policy_with_desc in ndfc_policies_with_desc
+                    for ndfc_policy_with_desc in ndfc_policies_with_nac_desc
                 ):
                     results['changed'] = True
                     umanaged_policies[0]["switch"].append(
@@ -107,7 +107,7 @@ class ActionModule(ActionBase):
                             "name": ndfc_policy_with_desc["policyId"],
                             "description": ndfc_policy_with_desc["description"]
                         }
-                        for ndfc_policy_with_desc in ndfc_policies_with_desc
+                        for ndfc_policy_with_desc in ndfc_policies_with_nac_desc
                         if ((ndfc_policy_with_desc["description"] not in vrf_lites) and (ndfc_policy_with_desc["description"] not in current_sw_policies))
                     ]
                     umanaged_policies[0]["switch"][last_idx].update(

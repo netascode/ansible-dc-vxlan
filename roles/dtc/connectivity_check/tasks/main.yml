@@ -23,13 +23,11 @@
 
 - name: Verify Connection to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
   ansible.builtin.include_tasks: verify_ndfc_connectivity.yml
-  tags:
-    - cc_connectivity_check
+  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Verify Authorization to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
   ansible.builtin.include_tasks: verify_ndfc_authorization.yml
-  tags:
-    - cc_connectivity_check
+  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Get Cisco ND Version
   ansible.builtin.uri:
@@ -41,25 +39,21 @@
     timeout: 30
   register: nd_version_response
   delegate_to: localhost
-  tags:
-    - cc_version
+  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Set Cisco ND Version Var
   ansible.builtin.set_fact:
     nd_version: "{{ nd_version_response.json.major }}.{{ nd_version_response.json.minor }}.{{ nd_version_response.json.maintenance }}{{ nd_version_response.json.patch }}"
-  tags:
-  - cc_version
+  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Get Cisco NDFC Version
   cisco.dcnm.dcnm_rest:
     method: GET
     path: /appcenter/cisco/ndfc/api/about/version
   register: ndfc_version
-  tags:
-    - cc_version
+  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Set Cisco NDFC Version Var
   ansible.builtin.set_fact:
     ndfc_version: "{{ ndfc_version.response.DATA.version }}"
-  tags:
-    - cc_version
+  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml

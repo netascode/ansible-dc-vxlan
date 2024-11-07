@@ -20,8 +20,7 @@
       register: response
       # no_log: true
       delegate_to: localhost
-      tags:
-        - cc_connectivity_check
+      tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
 
   rescue:
     - name: Fail Play If NDFC Authorization Test Failed
