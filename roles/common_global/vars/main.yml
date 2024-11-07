@@ -63,7 +63,7 @@ nac_tags:
     - rr_manage_links
     - rr_manage_switches
   # We need the ability to pass tags to the common role but we don't need the following
-  #   - validate, cc_connectivity_check or cc_version
+  #   - validate, cc_verify
   common_role:
     - role_create
     - role_deploy
@@ -80,8 +80,8 @@ nac_tags:
     - rr_manage_vpc_peers
     - rr_manage_links
     - rr_manage_switches
-  # We need the ability to pass tags to the common role but we don't need the following
-  #   - validate, cc_connectivity_check or cc_version
+  # We need the ability to pass tags to the validate role but we don't need the following
+  #   - cc_verify
   validate_role:
     - role_validate
     - role_create
