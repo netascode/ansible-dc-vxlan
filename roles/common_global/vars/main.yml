@@ -139,5 +139,7 @@ nac_tags:
     - rr_manage_links
   remove_switches:
     - rr_manage_switches
-  
+  deploy:
+    - role_deploy
+
   
