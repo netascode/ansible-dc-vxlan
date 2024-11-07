@@ -19,6 +19,11 @@
 #
 # SPDX-License-Identifier: MIT
 
----
+galaxy_info:
+  author: Cisco
+  description: Role to check connectivity to the NDFC controller.
+  license: LICENSE
+  min_ansible_version: 2.14.15
 
-# Add POAP worfklows here
+dependencies:
+  - cisco.nac_dc_vxlan.common_global

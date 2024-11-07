@@ -67,9 +67,9 @@
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
-{% if net['attach_group'] is defined %}
+{% if net['network_attach_group'] is defined %}
   attach:
-{% for attach in MD_Extended.vxlan.overlay_services.network_attach_groups_dict[net['attach_group']] %}
+{% for attach in MD_Extended.vxlan.overlay_services.network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['hostname'] }}
       ports: {{ attach['ports'] }}
 {% endfor %}
