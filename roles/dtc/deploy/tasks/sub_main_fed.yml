@@ -33,23 +33,24 @@
 - name: Config-Save for Fabric {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_rest:
     method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-save"
   register: config_save
   ignore_errors: True
   # TODO: Need to add logic to only save if changes are made
 
 - name: Inspect config_save
   vars:
-      error_msg: "{{config_save.msg.DATA | default('No error')}}"
+      error_msg: "{{config_save.response.DATA | default('No error')}}"
   fail:
       msg: Config-Save Failed - {{config_save}}
   when:
-    - (config_save.msg.RETURN_CODE != 200)
+    - (config_save.response.RETURN_CODE != 200)
     - ('Switch(es) are either reloading or not reachable' not in error_msg)
+
 
 - name: Deploy for Fabric {{ MD.vxlan.global.name }}
   cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
     method: POST
   vars:
       ansible_command_timeout: 3000
