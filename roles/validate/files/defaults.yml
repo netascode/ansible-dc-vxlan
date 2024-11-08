@@ -20,7 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
-defaults:
+factory_defaults:
   vxlan:
     global:
       route_reflectors: 2
@@ -35,6 +35,15 @@ defaults:
         advertise_pip: false
         advertise_pip_border_only: true
         domain_id_range: 1-1000
+      spanning_tree:
+        root_bridge_protocol: unmanaged
+        vlan_range: 
+          - from: 1
+            to: 3967
+        mst_instance_range:
+          - from: 0
+            to: 0
+        bridge_priority: 0
       netflow:
         enable: false
     topology:

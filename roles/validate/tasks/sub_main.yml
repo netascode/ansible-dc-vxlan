@@ -41,12 +41,6 @@
 - ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
   when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
 
-- name: Verify Connection to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
-  ansible.builtin.include_tasks: verify_ndfc_connectivity.yml
-
-- name: Verify Authorization to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
-  ansible.builtin.include_tasks: verify_ndfc_authorization.yml
-
 - name: Check for Schema Path Being Defined
   ansible.builtin.set_fact:
     schema_path: ''
@@ -78,6 +72,29 @@
   vars:
     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
   when: enhanced_rules_path is defined and enhanced_rules_path
+  delegate_to: localhost
+
+- name: Stat Factory Defaults
+  ansible.builtin.stat: path="{{ role_path }}/files/defaults.yml"
+  register: factory_defaults_file
+  delegate_to: localhost
+
+- name: Include Factory Defaults if Available
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/files/defaults.yml"
+  when: factory_defaults_file.stat.exists
+  delegate_to: localhost
+
+- name: Merge factory and custom defaults
+  cisco.nac_dc_vxlan.common.merge_defaults:
+    factory_defaults: "{{ factory_defaults }}"
+    model_data: "{{ model_data['data'] }}"
+  register: defaults
+  delegate_to: localhost
+
+- name: Register Variable With Only Defaults from Previous Task
+  ansible.builtin.set_fact:
+    defaults: "{{ defaults['defaults'] }}"
   delegate_to: localhost
 
 - name: Prepare Service Model
@@ -129,14 +146,3 @@
 - name: Manage Current Service Model Data Files
   ansible.builtin.include_tasks: manage_model_files_current.yml
   when: check_roles['save_previous']
-
-- name: Stat Host Specific Defaults
-  ansible.builtin.stat: path="{{ role_path }}/defaults/{{ inventory_hostname }}/defaults.yml"
-  register: host_defaults
-  delegate_to: localhost
-
-- name: Include Host Specific Defaults if Available
-  ansible.builtin.include_vars:
-    file: "{{ role_path }}/defaults/{{ inventory_hostname }}/defaults.yml"
-  when: host_defaults.stat.exists
-  delegate_to: localhost
