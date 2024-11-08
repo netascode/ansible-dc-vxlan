@@ -24,7 +24,7 @@
 
 - name: Import Role Tasks
   ansible.builtin.import_tasks: sub_main.yml
-  tags: "{{ nac_tags.all }}" # Tags defined in roles/common_global/vars/main.yml
+  tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
   # Problems with lower versions of python and ansible
   # Python 3.9.16 and Ansible 7.3.0 (Ansible-Core 2.14.4)
   # Could ignore errors and try again with tags specified as below as a work around ...
