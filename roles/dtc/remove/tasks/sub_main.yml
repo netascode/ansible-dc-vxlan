@@ -32,16 +32,14 @@
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
   tags: "{{ nac_tags.remove }}"
 
-- ansible.builtin.debug: msg="Query NDFC for List of Fabric Switches"
-  tags: "{{ nac_tags.remove }}"
-
-- cisco.dcnm.dcnm_rest:
+- name: Get List of Fabric Switches from NDFC
+  cisco.dcnm.dcnm_rest:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/inventory/switchesByFabric"
   register: switch_list
   tags: "{{ nac_tags.remove }}"
 
-- name: Remove Policy
+- name: Remove Fabric Policy
   ansible.builtin.import_tasks: policy.yml
   tags: "{{ nac_tags.remove_policy }}"
   when:

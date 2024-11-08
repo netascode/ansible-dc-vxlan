@@ -21,21 +21,21 @@
 ---
 
 - block:
-  - ansible.builtin.debug: msg="Removing Unmanaged Policy from Switches. This could take several minutes..."
+  - ansible.builtin.debug: msg="Removing Unmanaged Fabric Policy From Switches. This could take several minutes..."
 
-  - name: Create List of Switch Serial Numbers from NDFC Response
+  - name: Create List of Switch Serial Numbers from NDFC Switch List
     ansible.builtin.set_fact:
       switch_serial_numbers: "{{ switch_list.response.DATA | map(attribute='serialNumber') | list }}"
     delegate_to: localhost
 
-  - name: Build Unmanaged Policy Payload
+  - name: Build Unmanaged Fabric Policy Payload
     cisco.nac_dc_vxlan.dtc.unmanaged_policy:
       switch_serial_numbers: "{{ switch_serial_numbers }}"
       model_data: "{{ MD_Extended }}"
     register: unmanaged_policy_config
     # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 
-  - name: Remove Unmanaged Policy
+  - name: Remove Unmanaged NDFC Fabric Policy
     cisco.dcnm.dcnm_policy:
       fabric: "{{ MD.vxlan.global.name }}"
       use_desc_as_key: true

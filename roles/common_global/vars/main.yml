@@ -63,6 +63,7 @@ nac_tags:
     - rr_manage_vpc_peers
     - rr_manage_links
     - rr_manage_switches
+    - rr_manage_policy
   # We need the ability to pass tags to the common role but we don't need the following
   #   - validate, cc_verify
   common_role:
@@ -81,6 +82,7 @@ nac_tags:
     - rr_manage_vpc_peers
     - rr_manage_links
     - rr_manage_switches
+    - rr_manage_policy
   # We need the ability to pass tags to the validate role but we don't need the following
   #   - cc_verify
   validate_role:
@@ -100,6 +102,7 @@ nac_tags:
     - rr_manage_vpc_peers
     - rr_manage_links
     - rr_manage_switches
+    - rr_manage_policy
   # All Create Tags
   create:
     - cr_manage_fabric
