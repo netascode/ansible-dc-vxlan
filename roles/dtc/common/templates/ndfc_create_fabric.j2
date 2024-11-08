@@ -1,3 +1,4 @@
+{% import 'ndfc_utils.j2' as ndfc_utils with context %}
 ---
 # This NDFC fabric config data structure is auto-generated
 # DO NOT EDIT MANUALLY
@@ -78,6 +79,24 @@
 {% endif %}
 {% endif %}
 {# ------------------------------------------------------ #}
+{# Bootstrap Parameters                                   #}
+{# ------------------------------------------------------ #}
+{% if global.bootstrap is defined %}
+{% if global.bootstrap.enable_bootstrap is defined and global.bootstrap.enable_bootstrap %}
+  BOOTSTRAP_ENABLE: {{ global.bootstrap.enable_bootstrap }}
+  DHCP_ENABLE: {{ global.bootstrap.enable_local_dhcp_server }}
+  DHCP_IPV6_ENABLE: {{ global.bootstrap.dhcp_version }}
+  DHCP_START: {{ global.bootstrap.dhcp_v4.scope_start_address }}
+  DHCP_END: {{ global.bootstrap.dhcp_v4.scope_end_address }}
+  MGMT_GW: {{ global.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
+  MGMT_PREFIX: {{ global.bootstrap.dhcp_v4.mgmt_prefix }}
+  BOOTSTRAP_MULTISUBNET: {{ global.bootstrap.dhcp_v4.multi_subnet_scope }}
+{% endif %}
+{% if global.bootstrap.enable_bootstrap is defined and not global.bootstrap.enable_bootstrap %}
+  BOOTSTRAP_ENABLE: {{ global.bootstrap.enable_bootstrap }}
+{% endif %}
+{% endif %}
+{# ------------------------------------------------------ #}
 {# vPC Parameters                                         #}
 {# ------------------------------------------------------ #}
   VPC_PEER_LINK_VLAN: {{ vxlan.global.vpc.peer_link_vlan | default(defaults.vxlan.global.vpc.peer_link_vlan) }}
@@ -138,6 +157,7 @@
 {% if (underlay.isis.authentication_enable | default(defaults.vxlan.underlay.isis.authentication_enable) | title) == 'True' %}
   ISIS_AUTH_KEYCHAIN_NAME: {{ underlay.isis.authentication_keychain_name | default(omit) }}
   ISIS_AUTH_KEYCHAIN_KEY_ID: {{ underlay.isis.authentication_key_id | default(defaults.vxlan.underlay.isis.authentication_key_id) }}
+  ISIS_AUTH_KEY: {{ underlay.isis.authentication_key }}
 {% endif %}
   ISIS_OVERLOAD_ENABLE: {{ underlay.isis.overload_bit | default(defaults.vxlan.underlay.isis.overload_bit) }}
 {% if (underlay.isis.overload_bit | default(defaults.vxlan.underlay.isis.overload_bit) | title) == 'True' %}
@@ -206,6 +226,91 @@
 {% if (underlay.bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | title) == 'True' %}
   BFD_AUTH_KEY: {{ underlay.bfd.authentication_key | default(omit) }}
   BFD_AUTH_KEY_ID: {{ underlay.bfd.authentication_key_id | default(defaults.vxlan.underlay.bfd.authentication_key_id) }}
+{% endif %}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# vPC Parameters                                         #}
+{# ------------------------------------------------------ #}
+  VPC_PEER_LINK_VLAN: {{ vpc.peer_link_vlan | default(defaults.vxlan.global.vpc.peer_link_vlan) }}
+  VPC_PEER_KEEP_ALIVE_OPTION: {{ vpc.peer_keep_alive | default(defaults.vxlan.global.vpc.peer_keep_alive) }}
+  VPC_AUTO_RECOVERY_TIME: {{ vpc.auto_recovery_time | default(defaults.vxlan.global.vpc.auto_recovery_time) }}
+  VPC_DELAY_RESTORE_TIME: {{ vpc.delay_restore_time | default(defaults.vxlan.global.vpc.delay_restore_time) }}
+  VPC_PEER_LINK_PO: {{ vpc.peer_link_port_channel_id | default(defaults.vxlan.global.vpc.peer_link_port_channel_id) }}
+  VPC_DOMAIN_ID_RANGE: {{ vpc.domain_id_range | default(defaults.vxlan.global.vpc.domain_id_range) }}
+  VPC_DELAY_RESTORE: {{ vpc.delay_restore_time | default(defaults.vxlan.global.vpc.delay_restore_time) }}
+  ADVERTISE_PIP_BGP: {{ (vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) }}
+{% if (vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) == 'False' %}
+  ADVERTISE_PIP_ON_BORDER: {{ vpc.advertise_pip_border_only | default(defaults.vxlan.global.vpc.advertise_pip_border_only) }}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# STP Parameters                                         #}
+{# ------------------------------------------------------ #}
+{#  STP_ROOT_OPTION: {{ global.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.spanning_tree.root_bridge_protocol) }}
+{% if global.spanning_tree.root_bridge_protocol is defined and global.spanning_tree.root_bridge_protocol != 'unmanaged' %}
+{% if (global.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.spanning_tree.root_bridge_protocol)) == 'rpvst+' %}
+  STP_VLAN_RANGE: {{ ndfc_utils.convert_ranges(global.spanning_tree.vlan_range, defaults.vxlan.global.spanning_tree.vlan_range) }}
+{% elif (global.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.spanning_tree.root_bridge_protocol)) == 'mst' %}
+  MST_INSTANCE_RANGE: {{ ndfc_utils.convert_ranges(global.spanning_tree.mst_instance_range, defaults.vxlan.global.spanning_tree.mst_instance_range) }}
+{% endif %}
+  STP_BRIDGE_PRIORITY: {{ global.spanning_tree.bridge_priority | default(defaults.vxlan.global.spanning_tree.bridge_priority) }}
+{% endif %}#}
+{# ------------------------------------------------------ #}
+{# Manageability Parameters                               #}
+{# ------------------------------------------------------ #}
+{% if global.dns_servers is defined and global.dns_servers %}
+{% set dns_server_ips = [] %}
+{% set dns_server_vrfs = [] %}
+{% for dns in global.dns_servers %}
+{% if dns.ip_address | string is defined and dns.ip_address %}
+{% set dns_ip = dns.ip_address | string %}
+{% set dns_server_ips = dns_server_ips.append(dns_ip) %}
+{% endif %}
+{% if dns.vrf | string is defined and dns.vrf %}
+{% set dns_vrf = dns.vrf  | string %}
+{% set dns_server_vrfs = dns_server_vrfs.append(dns_vrf) %}
+{% endif %}
+{% endfor %}
+  DNS_SERVER_IP_LIST: {{ dns_server_ips | join(',') | default(omit) }}
+  DNS_SERVER_VRF: {{ dns_server_vrfs | join(',') | default(omit) }}
+{% endif %}
+{% if global.ntp_servers is defined and global.ntp_servers %}
+{% set ntp_server_ips = [] %}
+{% set ntp_server_vrfs = [] %}
+{% for ntp in global.ntp_servers %}
+{% if ntp.ip_address is defined and ntp.ip_address %}
+{% set ntp_ip = ntp.ip_address | string %}
+{% set ntp_server_ips = ntp_server_ips.append(ntp_ip) %}
+{% endif %}
+{% if ntp.vrf is defined and ntp.vrf %}
+{% set ntp_vrf = ntp.vrf|string %}
+{% set ntp_server_vrfs = ntp_server_vrfs.append(ntp_vrf) %}
+{% endif %}
+{% endfor %}
+  NTP_SERVER_IP_LIST: {{ ntp_server_ips | join(',') | default(omit) }}
+  NTP_SERVER_VRF: {{ ntp_server_vrfs | join(',') | default(omit) }}
+{% endif %}
+{% if global.syslog_servers is defined and global.syslog_servers %}
+{% set syslog_server_ips = [] %}
+{% set syslog_server_vrfs = [] %}
+{% set syslog_server_sevs = [] %}
+{% for syslog_server in global.syslog_servers %}
+{% if syslog_server.ip_address is defined and syslog_server.ip_address %}
+{% set syslog_server_ip = syslog_server.ip_address | string %}
+{% set syslog_server_ips = syslog_server_ips.append(syslog_server_ip) %}
+{% endif %}
+{% if syslog_server.vrf is defined and syslog_server.vrf %}
+{% set syslog_server_vrf = syslog_server.vrf | string %}
+{% set syslog_server_vrfs = syslog_server_vrfs.append(syslog_server_vrf) %}
+{% endif %}
+{% if syslog_server.severity is defined and syslog_server.severity %}
+{% set syslog_server_sev = syslog_server.severity %}
+{% set syslog_server_sevs = syslog_server_sevs.append(syslog_server_sev) %}
+{% endif %}
+{% endfor %}
+  SYSLOG_SERVER_IP_LIST: {{ syslog_server_ips | join(',') | default(omit) }}
+{% if syslog_server_ips is defined and syslog_server_ips %}
+  SYSLOG_SERVER_VRF: {{ syslog_server_vrfs | join(',') | default(omit) }}
+  SYSLOG_SEV: {{ syslog_server_sevs | join(',') | default(omit) }}
 {% endif %}
 {% endif %}
 {# ------------------------------------------------------ #}
