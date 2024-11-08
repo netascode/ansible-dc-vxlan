@@ -110,7 +110,8 @@ class ActionModule(ActionBase):
                             )
                         )
 
-                # Query NDFC for the current switch's serial number to get back any policy that exists for that switch that as the description prepended with "nac_"
+                # Query NDFC for the current switch's serial number to get back any policy that exists for that switch
+                # with the description prepended with "nac_"
                 ndfc_policies_with_nac_desc = ndfc_get_nac_switch_policy_using_desc(self, task_vars, tmp, ndfc_sw_serial_number)
 
                 # Currently, check two things to determine an unmanaged policy:
