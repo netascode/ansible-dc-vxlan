@@ -39,3 +39,4 @@ vrf_delete_mode: false
 inventory_delete_mode: false
 link_vpc_delete_mode: false
 vpc_delete_mode: false
+policy_delete_mode: false
