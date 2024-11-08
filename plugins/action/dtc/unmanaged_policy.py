@@ -126,7 +126,7 @@ class ActionModule(ActionBase):
                     # Add the switch to unmanaged_policies payload
                     # Get the last index of where the switch was added
                     # Build specific unmanaged policy entry
-                    # Add unmanaged policy entry to last switch added to list 
+                    # Add unmanaged policy entry to last switch added to list
 
                     # Update Ansible for a configuration change
                     results['changed'] = True
