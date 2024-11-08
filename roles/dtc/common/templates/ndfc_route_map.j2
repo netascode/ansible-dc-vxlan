@@ -1,0 +1,48 @@
+! This NDFC VRF-Lite BGP config data structure is auto-generated
+! DO NOT EDIT MANUALLY
+!
+!
+{% set bgp1 = namespace(route_map='') %}
+{% set ospf1 = namespace(route_map='') %}
+{% if item.redistribution is defined and item.redistribution %}
+  {% for redist in item.redistribution %}
+    {% if redist.source == 'bgp' and redist.route_map %}
+      {% set bgp1.route_map = redist.route_map %}
+    {% elif redist.source == 'ospf' and redist.route_map %}
+      {% set ospf1.route_map = redist.route_map %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{% if switch_item.redistribution is defined and switch_item.redistribution %}
+  {% for switch_redist in switch_item.redistribution %}
+    {% if switch_redist.source == 'bgp' and switch_redist.route_map %}
+      {% set bgp1.route_map = switch_redist.route_map %}
+    {% elif switch_redist.source == 'ospf' and switch_redist.route_map %}
+      {% set ospf1.route_map = switch_redist.route_map %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{% if bgp1.route_map %}
+route-map {{ bgp1.route_map }} permit 10
+  match route-type internal
+!
+router ospf {{ item.ospf['process'] }}
+  vrf {{ item.vrf }}
+    redistribute bgp {{ MD_Extended.vxlan.global.bgp_asn }} route-map {{ bgp1.route_map }}
+!
+{% endif %}
+{% if ospf1.route_map %}
+route-map {{ ospf1.route_map }} permit 10
+!
+router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
+  vrf {{ item.vrf }}
+    address-family ipv4 unicast
+      redistribute ospf {{ item.ospf['process'] }} route-map {{ ospf1.route_map }}
+!
+{% endif %}
+{% if switch_item.interfaces is defined and switch_item.interfaces %}
+  {% for interface in switch_item.interfaces %}
+interface {{ interface['name'] }}
+!
+  {% endfor %}
+{% endif %}

@@ -1,0 +1,6 @@
+{% if item.route_map is defined and item.route_map %}
+{% include 'ndfc_route_map.j2' %}
+{% endif %}
+{% if item.prefix_list is defined and item.prefix_list %}
+{% include 'ndfc_prefix_list.j2' %}
+{% endif %}
