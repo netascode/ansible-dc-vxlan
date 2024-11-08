@@ -1,6 +1,6 @@
-{% if item.route_map is defined and item.route_map %}
+{% if item.route_maps is defined and item.route_maps %}
 {% include 'ndfc_route_map.j2' %}
 {% endif %}
-{% if item.prefix_list is defined and item.prefix_list %}
+{% if item.prefix_lists is defined and item.prefix_lists %}
 {% include 'ndfc_prefix_list.j2' %}
 {% endif %}
