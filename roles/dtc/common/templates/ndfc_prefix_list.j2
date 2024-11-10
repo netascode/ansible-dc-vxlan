@@ -2,3 +2,12 @@
 ! DO NOT EDIT MANUALLY
 !
 !
+{% if policies["ipv4_prefix_lists"] is defined %}
+!!! Generate IPv4 Pfx-List:
+!!! {{ policies["ipv4_prefix_lists"] }}
+{% endif%}
+
+{% if policies["ipv6_prefix_lists"] is defined %}
+!!! Generate IPv6 Pfx-Lists:
+!!! {{ policies["ipv6_prefix_lists"] }}
+{% endif%}

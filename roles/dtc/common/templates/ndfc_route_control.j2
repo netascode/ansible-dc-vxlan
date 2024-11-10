@@ -1,6 +1,47 @@
-{% if item.ipv4_prefix_lists is defined and item.ipv4_prefix_lists %}
+!!! DEBUG Route-Control
+!!! Route-control: {{ route_control }}
+!!! Switch: {{ switch_item }}
+!!! Group: {{ group }}
+
+{% set route_control = MD_Extended.vxlan.overlay_extensions.route_control %}
+{% if route_control["standard_community_lists"] is defined %}
+    {% set standard_community_lists = route_control["standard_community_lists"] %}
+{% endif %}
+{% for sw_group in switch_item["groups"] %}
+!!! ================ Leaf: {{ sw_group }} =====================
+    {% for policies in group %}
+        {% if "route_maps" in policies and policies["name"] == sw_group %}
+
+!!! ================ Route-maps found =====================
+{{ policies }}
+
+            {% include 'ndfc_route_map.j2' %}
+
+        {% endif %}
+        {% if ("ipv4_prefix_lists" in policies or "ipv6_prefix_lists" in policies ) and policies["name"] == sw_group %}
+
+!!! ================ IPv4 Pfx found =====================
+
+{{ policies }}
+            {% include 'ndfc_prefix_list.j2' %}
+
+        {% endif %}
+
+        {% if ( "ipv4_access_lists" in policies or "ipv6_access_lists" in policies ) and policies["name"] == sw_group %}
+!!! ================ IP ACLs found =====================
+
+{{ policies }}
+
+            {% include 'ndfc_ip_access_list.j2' %}
+
+        {% endif %}
+
+    {% endfor %}
+{% endfor %}
+
+{# {% if item.ipv4_prefix_lists is defined and item.ipv4_prefix_lists %}
     {% include 'ndfc_prefix_list.j2' %}
 {% endif %}
 {% if item.route_maps is defined and item.route_maps %}
     {% include 'ndfc_route_map.j2' %}
-{% endif %}
+{% endif %} #}

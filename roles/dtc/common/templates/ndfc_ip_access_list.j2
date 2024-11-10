@@ -1,0 +1,95 @@
+! This NDFC Route_Control_ACLs config data structure is auto-generated
+! DO NOT EDIT MANUALLY
+!
+!
+
+{% if policies["ipv4_access_lists"] is defined %}
+!!! Generate IPv4 ACLs:
+!!! Policies name for Leaf:
+!!! {{ policies["ipv4_access_lists"] }}
+{% set flag_lists = [] %}
+
+    {% for policy_name in policies["ipv4_access_lists"] : %}
+        {% for ipv4_access_list in route_control["ipv4_access_lists"] %}
+            {% if policy_name.name == ipv4_access_list.name %}
+!!! {{ ipv4_access_list }}
+
+    ip access-list {{ ipv4_access_list.name }}
+                {% if ipv4_access_list.statistics_per_entry is defined and ipv4_access_list.statistics_per_entry is true %}
+      statistics per-entry
+                {% endif %}
+                {% for entrie in ipv4_access_list["entries"] %}
+                    {% if entrie.source.ip is defined and entrie.source.wildcard is defined %}
+                        {% set source = entrie.source.ip ~ " " ~ entrie.source.wildcard %}
+                    {% elif entrie.source.ip is defined %}
+                        {% set source = entrie.source.ip | ipaddr('network') ~ " " ~ entrie.source.ip | ipaddr('netmask') %}
+                    {% elif entrie.source.host is defined %}
+                        {% set source = entrie.source.host | ipaddr('address') ~ " 255.255.255.255" %}
+                    {% elif entrie.source.any is defined and entrie.source.any is true %}
+                        {% set source = "any" %}
+                    {% endif %}
+                    {% if entrie.source.port_number is defined and entrie.source.port_number.operator is defined %}
+                        {% if entrie.source.port_number.port is defined %}
+                            {% set source = source ~ " " ~ entrie.source.port_number.operator ~ " " ~ entrie.source.port_number.port %}
+                        {% elif entrie.source.port_number.range_start and entrie.source.port_number.range_end %}
+                            {% set source = source ~ " range " ~ entrie.source.port_number.range_start ~ " " ~ entrie.source.port_number.range_end %}
+                        {% endif %}
+                    {% endif %}
+                    {% if entrie.destination.ip is defined and entrie.destination.wildcard is defined %}
+                         {% set destination = entrie.destination.ip ~ " " ~ entrie.destination.wildcard %}
+                    {% elif entrie.destination.ip is defined  %}
+                        {% set destination = entrie.destination.ip | ipaddr('network') ~ " " ~ entrie.destination.ip | ipaddr('netmask') %}
+                    {% elif entrie.destination.host is defined %}
+                        {% set destination = entrie.destination.host | ipaddr('address') ~ " 255.255.255.255" %}
+                    {% elif entrie.destination.any is defined and entrie.destination.any is true %}
+                        {% set destination = "any" %}
+                    {% endif %}
+                    {% if entrie.destination.port_number is defined and entrie.destination.port_number.operator is defined %}
+                        {% if entrie.destination.port_number.port is defined %}
+                            {% set destination = destination ~ " " ~ entrie.destination.port_number.operator ~ " " ~ entrie.destination.port_number.port %}
+                        {% elif entrie.destination.port_number.range_start and entrie.destination.port_number.range_end %}
+                            {% set destination = destination ~ " range " ~ entrie.destination.port_number.range_start ~ " " ~ entrie.destination.port_number.range_end %}
+                        {% endif %}
+                    {% endif %}
+                    {% if entrie.filtering_options is defined %}
+                        {% set filter_option = "" %}
+                        {% set flag_lists = [] %}
+                        {% set http_method = [] %}
+                        {% set tcp_option_length = [] %}
+                        {% for filtering_option in entrie.filtering_options %}
+                            {% if "flags" in filtering_option %}
+                                {% for flag in filtering_option["flags"] %}
+                                    {% if flag.establish is true %}
+                                        {% set _ = flag_lists.append("established") %}
+                                    {% endif %}
+                                    {% if flag.ack is true %}
+                                        {% set _ = flag_lists.append("ack") %}
+                                    {% endif %}
+                                    {# TODO add all flags #}
+                                {% endfor %}
+                            {# endif flags #}
+                            {% endif %}
+                            {% if "http_method" in filtering_option %}
+                                {% set _ = http_method.append(" http-method " ~ filtering_option["http_method"]) %}
+                            {% endif %}
+                            {% if "tcp_option_length" in filtering_option %}
+                                {% set _ = tcp_option_length.append(" tcp-option-length " ~ filtering_option["tcp_option_length"]) %}
+                            {% endif %}
+                        {% endfor %}
+                    {# endif filtering_options #}
+                    {% endif %}
+                    {% set filter_option = flag_lists | join(" ") ~ http_method | join(" ") ~ tcp_option_length | join(" ") %}
+                    {% if entrie.log is defined and entrie.log is true %}
+                        {% set filter_option = filter_option ~ " log"%}
+                    {% endif %}
+      {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }} {{ filter_option }}
+                {% endfor%}
+            {% endif%}
+        {% endfor %}
+    {% endfor %}
+{% endif %}
+
+{% if policies["ipv6_access_lists"] is defined %}
+!!! Generate IPv6 ACLs:
+!!! {{ policies["ipv6_access_lists"] }}
+{% endif %}
