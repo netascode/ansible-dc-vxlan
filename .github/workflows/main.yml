@@ -6,7 +6,7 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the develop branch
   push:
-    branches: [ develop, main ]
+    branches: [ develop, main, actions_playbook ]
   pull_request:
     branches: [ develop, main ]
 
@@ -77,3 +77,18 @@ jobs:
     - name: Run sanity tests
       run: ansible-test sanity --docker --python ${{matrix.python}} -v --color --truncate 0
       working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+
+  base_roles:
+    name: Execute Base Collection Roles
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Check out code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.10.14
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.10.14
+
