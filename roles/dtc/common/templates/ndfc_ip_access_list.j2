@@ -2,14 +2,13 @@
 ! DO NOT EDIT MANUALLY
 !
 !
-
-{% if policies["ipv4_access_lists"] is defined %}
+{% if policy_types["ipv4_access_lists"] is defined %}
 !!! Generate IPv4 ACLs:
 !!! Policies name for Leaf:
-!!! {{ policies["ipv4_access_lists"] }}
+!!! {{ policy_types["ipv4_access_lists"] }}
 
-    {% for policy_name in policies["ipv4_access_lists"] : %}
-        {% for ipv4_access_list in route_control["ipv4_access_lists"] %}
+    {% for policy_name in policy_types["ipv4_access_lists"] : %}
+        {% for ipv4_access_list in item["ipv4_access_lists"] %}
             {% if policy_name.name == ipv4_access_list.name %}
 {# !!! {{ ipv4_access_list }} #}
 ip access-list {{ ipv4_access_list.name }}
@@ -147,7 +146,7 @@ ip access-list {{ ipv4_access_list.name }}
     {% endfor %}
 {% endif %}
 
-{% if policies["ipv6_access_lists"] is defined %}
+{% if policy_types["ipv6_access_lists"] is defined %}
 !!! Generate IPv6 ACLs:
-!!! {{ policies["ipv6_access_lists"] }}
+!!! {{ policy_types["ipv6_access_lists"] }}
 {% endif %}

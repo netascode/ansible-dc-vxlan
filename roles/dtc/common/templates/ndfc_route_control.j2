@@ -1,47 +1,36 @@
-!!! DEBUG Route-Control
-!!! Route-control: {{ route_control }}
-!!! Switch: {{ switch_item }}
-!!! Group: {{ group }}
+!!! Policy : nac_{{switch}}_{{group_item["name"]}}_route_control
+!!! group (Used to find groups equal to group in switch_item):
+!!! {{ group_item }}
+!!! item (elements under route_control): {{ item }}
 
-{% set route_control = MD_Extended.vxlan.overlay_extensions.route_control %}
-{% if route_control["standard_community_lists"] is defined %}
-    {% set standard_community_lists = route_control["standard_community_lists"] %}
-{% endif %}
-{% for sw_group in switch_item["groups"] %}
-!!! ================ Leaf: {{ sw_group }} =====================
-    {% for policies in group %}
-        {% if "route_maps" in policies and policies["name"] == sw_group %}
+{% for policy_types in group_item %}
+    {% if "route_maps" in policy_types %}
 
 !!! ================ Route-maps found =====================
-{{ policies }}
+{{ policy_types }}
+        {% include 'ndfc_route_map.j2' %}
 
-            {% include 'ndfc_route_map.j2' %}
-
-        {% endif %}
-        {% if ("ipv4_prefix_lists" in policies or "ipv6_prefix_lists" in policies ) and policies["name"] == sw_group %}
+    {% endif %}
+    {% if ("ipv4_prefix_lists" in policy_types or "ipv6_prefix_lists" in policy_types ) %}
 
 !!! ================ IPv4 Pfx found =====================
+{{ policy_types }}
+        {% include 'ndfc_prefix_list.j2' %}
 
-{{ policies }}
-            {% include 'ndfc_prefix_list.j2' %}
-
-        {% endif %}
-
-        {% if ( "ipv4_access_lists" in policies or "ipv6_access_lists" in policies ) and policies["name"] == sw_group %}
+    {% endif %}
+    {% if ( "ipv4_access_lists" in policy_types or "ipv6_access_lists" in policy_types )  %}
 !!! ================ IP ACLs found =====================
+{{ policy_types }}
 
-{{ policies }}
-
-            {% include 'ndfc_ip_access_list.j2' %}
+        {% include 'ndfc_ip_access_list.j2' %}
 
         {% endif %}
 
-    {% endfor %}
-{% endfor %}
+    {% if "mac_list" in policy_types %}
+!!! ================ MAC List found =====================
+{{ policy_types }}
 
-{# {% if item.ipv4_prefix_lists is defined and item.ipv4_prefix_lists %}
-    {% include 'ndfc_prefix_list.j2' %}
-{% endif %}
-{% if item.route_maps is defined and item.route_maps %}
-    {% include 'ndfc_route_map.j2' %}
-{% endif %} #}
+        {% include 'ndfc_mac_list.j2' %}
+
+    {% endif %}
+{% endfor %}

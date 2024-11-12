@@ -51,50 +51,57 @@ class PreparePlugin:
                 for route_control in model_data["vxlan"]["overlay_extensions"]["route_control"]:
                     if "switches" == route_control:
                         for switch in model_data["vxlan"]["overlay_extensions"]["route_control"]["switches"]:
-                        # for switch in route_control["switches"]:
-                            unique_name = f"nac_{switch['name']}_route_control"
-                            # unique_name = f"nac_{route_control['name']}_{switch['name']}_route_control"
-                            output = template.render(
-                                # MD_Extended=model_data, item=route_control, switch_item=switch, defaults=default_values)
-                                MD_Extended=model_data, item=model_data["vxlan"]["overlay_extensions"]["route_control"], group=model_data["vxlan"]["overlay_extensions"]["route_control"]["groups"], switch_item=switch, defaults=default_values)
+                            for sw_group in switch['groups']:
+                                unique_name = f"nac_{switch['name']}_{sw_group}_route_control"
+                                group_policies = []
+                                for group_name in model_data["vxlan"]["overlay_extensions"]["route_control"]["groups"]:
+                                    if sw_group == group_name["name"]:
+                                        group_policies.append(group_name)
 
-                            new_policy = {
-                                "name": unique_name,
-                                "template_name": "switch_freeform",
-                                "template_vars": {
-                                    "CONF": output
-                                }
-                            }
+                                output = template.render(
+                                    MD_Extended=model_data,
+                                    item=model_data["vxlan"]["overlay_extensions"]["route_control"],
+                                    switch=switch['name'],
+                                    group_item=group_policies,
+                                    defaults=default_values)
 
-                            model_data["vxlan"]["policy"]["policies"].append(new_policy)
-
-                            if any(sw['name'] == switch['name'] for sw in model_data["vxlan"]["policy"]["switches"]):
-                                found_switch = next(([idx, i] for idx, i in enumerate(
-                                    model_data["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
-                                if "groups" in found_switch[1].keys():
-                                    model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(
-                                        unique_name)
-                                else:
-                                    model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [
-                                        unique_name]
-                            else:
-                                new_switch = {
-                                    "name": switch["name"],
-                                    "groups": [unique_name]
-                                }
-                                model_data["vxlan"]["policy"]["switches"].append(
-                                    new_switch)
-
-                            if not any(group['name'] == route_control['name'] for group in model_data["vxlan"]["policy"]["groups"]):
-                                new_group = {
+                                new_policy = {
                                     "name": unique_name,
-                                    "policies": [
-                                        {"name": unique_name},
-                                    ],
-                                    "priority": 500
+                                    "template_name": "switch_freeform",
+                                    "template_vars": {
+                                        "CONF": output
+                                    }
                                 }
-                                model_data["vxlan"]["policy"]["groups"].append(new_group)
+
+                                model_data["vxlan"]["policy"]["policies"].append(new_policy)
+
+                                if any(sw['name'] == switch['name'] for sw in model_data["vxlan"]["policy"]["switches"]):
+                                    found_switch = next(([idx, i] for idx, i in enumerate(
+                                        model_data["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
+                                    if "groups" in found_switch[1].keys():
+                                        model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(
+                                            unique_name)
+                                    else:
+                                        model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [
+                                            unique_name]
+                                else:
+                                    new_switch = {
+                                        "name": switch["name"],
+                                        "groups": [unique_name]
+                                    }
+                                    model_data["vxlan"]["policy"]["switches"].append(new_switch)
+
+                                if not any(group['name'] == sw_group for group in model_data["vxlan"]["policy"]["groups"]):
+                                    new_group = {
+                                        "name": unique_name,
+                                        "policies": [
+                                            {"name": unique_name},
+                                        ],
+                                        "priority": 500
+                                    }
+                                    model_data["vxlan"]["policy"]["groups"].append(new_group)
 
             model_data = hostname_to_ip_mapping(model_data)
+
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
