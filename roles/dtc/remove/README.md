@@ -28,7 +28,7 @@ Example Playbook
 ```
 
 -------
-The following tags can be used to selectively execute stages within the `cisco.nac_dc_vxlan.create` role
+The following tags can be used to selectively execute stages within the `cisco.nac_dc_vxlan.dtc.remove` role
 
 `rr` stands for `remove_role`
 
@@ -38,6 +38,7 @@ The following tags can be used to selectively execute stages within the `cisco.n
 * rr_manage_vpc_peers
 * rr_manage_links
 * rr_manage_switches
+* rr_manage_policy
 
 ```bash
 # Selectively run stage to remove networks and vrfs and skip all other stages
