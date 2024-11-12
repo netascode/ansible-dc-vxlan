@@ -7,7 +7,7 @@
 !!! {{ item }}
 !!! ==========================================
 
-{# Loop thougth policies name for each group #}
+{# Loop though policies name for each group #}
 {% for policy_types in group_item %}
 !!! {{ policy_types }}
 
@@ -22,5 +22,8 @@
         {% endif %}
     {% if "mac_list" in policy_types %}
         {% include 'ndfc_mac_list.j2' %}
+    {% endif %}
+    {% if "time_range" in policy_types %}
+        {% include 'ndfc_time_range.j2' %}
     {% endif %}
 {% endfor %}

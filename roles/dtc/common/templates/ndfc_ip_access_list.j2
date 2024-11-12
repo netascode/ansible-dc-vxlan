@@ -55,10 +55,13 @@ ip access-list {{ ipv4_access_list.name }}
                             {% set flag_lists = [] %}
                             {% set precedence = [] %}
                             {% set ttl = [] %}
+                            {% set dscp = [] %}
                             {% set packet_length = [] %}
                             {% set http_method = [] %}
                             {% set tcp_option_length = [] %}
                             {% set udf = [] %}
+                            {% set load_share = [] %}
+                            {% set timerange = [] %}
                             {% for filtering_option in entrie.filtering_options %}
                                 {# Flags #}
                                 {% if "flags" in filtering_option %}
@@ -95,6 +98,9 @@ ip access-list {{ ipv4_access_list.name }}
                                 {% if "ttl" in filtering_option %}
                                     {% set _ = ttl.append("ttl " ~ filtering_option["ttl"]) %}
                                 {% endif %}
+                                {% if "dscp" in filtering_option %}
+                                    {% set _ = dscp.append("dscp " ~ filtering_option["dscp"]) %}
+                                {% endif %}
                                 {# Packet Length #}
                                 {% if "packet_length" in filtering_option %}
                                     {% if filtering_option["packet_length"]["range_start"] is defined and filtering_option["packet_length"]["range_end"] is defined %}
@@ -115,8 +121,17 @@ ip access-list {{ ipv4_access_list.name }}
                                 {% if "udf" in filtering_option %}
                                     {% set _ = udf.append(filtering_option["udf"]["name"] ~ " 0x%x" | format(filtering_option["udf"]["value"]) ~ " 0x%x" | format(filtering_option["udf"]["mask"])) %}
                                 {% endif %}
+                                {# load-share #}
+                                {% if "load_share" in filtering_option and filtering_option["load_share"] is true %}
+                                    {% set _ = load_share.append("load-share") %}
+                                {% endif %}
+                                {# timerange #}
+                                {% if "time_range" in filtering_option %}
+                                    {% set _ = timerange.append("time-range " ~ filtering_option["time_range"]) %}
+                                {% endif %}
                             {% endfor %}
-                            {% set filter_option = (flag_lists + precedence + ttl + packet_length + http_method  + tcp_option_length + udf ) | join(" ") %}
+                            {% set filter_option = (flag_lists + precedence + ttl + packet_length + dscp + http_method +
+                            tcp_option_length + udf + load_share + timerange ) | join(" ") %}
                         {# endif filtering_options #}
                         {% endif %}
                         {% if source is defined and destination is defined and filter_option is defined %}
