@@ -17,7 +17,7 @@ authors:
 description: Ansible Solution Collection for VXLAN
 
 repository: https://github.com/netascode/ansible-dc-vxlan
-documentation: https://github.com/cisco-open/ansible-collection-catalystwan/blob/main/README.md
+documentation: https://github.com/netascode/ansible-dc-vxlan/blob/main/README.md
 homepage: https://netascode.cisco.com/data_model/vxlan/overview
 issues: https://github.com/netascode/ansible-dc-vxlan/issues
 
