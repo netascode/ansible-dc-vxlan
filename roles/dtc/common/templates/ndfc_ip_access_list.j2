@@ -3,8 +3,7 @@
 !
 !
 {% if policy_types["ipv4_access_lists"] is defined %}
-!!! Generate IPv4 ACLs:
-!!! Policies name for Leaf:
+!!! ================ IPv4 ACL found =====================
 !!! {{ policy_types["ipv4_access_lists"] }}
 
     {% for policy_name in policy_types["ipv4_access_lists"] : %}
@@ -147,6 +146,6 @@ ip access-list {{ ipv4_access_list.name }}
 {% endif %}
 
 {% if policy_types["ipv6_access_lists"] is defined %}
-!!! Generate IPv6 ACLs:
+!!! ================ IPv6 ACL found =====================
 !!! {{ policy_types["ipv6_access_lists"] }}
 {% endif %}

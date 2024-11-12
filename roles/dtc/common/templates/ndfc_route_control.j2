@@ -1,36 +1,26 @@
-!!! Policy : nac_{{switch}}_{{group_item["name"]}}_route_control
-!!! group (Used to find groups equal to group in switch_item):
+!!! ================= DEBUG ==================
+!!! One policy per group per switch. If one switch has two or more groups, we generate one policy for each one.
+!!! Policy name: nac_{{switch}}_{{group_item[0]["name"]}}_route_control
+!!! group_item contains all policy names per type of policy for the given switch {{switch}}:
 !!! {{ group_item }}
-!!! item (elements under route_control): {{ item }}
+!!! item (elements under route_control i.e all the route-map, pfx, etc.):
+!!! {{ item }}
+!!! ==========================================
 
+{# Loop thougth policies name for each group #}
 {% for policy_types in group_item %}
+!!! {{ policy_types }}
+
     {% if "route_maps" in policy_types %}
-
-!!! ================ Route-maps found =====================
-{{ policy_types }}
         {% include 'ndfc_route_map.j2' %}
-
     {% endif %}
     {% if ("ipv4_prefix_lists" in policy_types or "ipv6_prefix_lists" in policy_types ) %}
-
-!!! ================ IPv4 Pfx found =====================
-{{ policy_types }}
         {% include 'ndfc_prefix_list.j2' %}
-
     {% endif %}
     {% if ( "ipv4_access_lists" in policy_types or "ipv6_access_lists" in policy_types )  %}
-!!! ================ IP ACLs found =====================
-{{ policy_types }}
-
         {% include 'ndfc_ip_access_list.j2' %}
-
         {% endif %}
-
     {% if "mac_list" in policy_types %}
-!!! ================ MAC List found =====================
-{{ policy_types }}
-
         {% include 'ndfc_mac_list.j2' %}
-
     {% endif %}
 {% endfor %}
