@@ -20,12 +20,12 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- ansible.builtin.debug: msg="Removing all Unmanaged links. This could take several minutes..."
+- ansible.builtin.debug: msg="Removing Unmanaged Links. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
     - (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
 
-- name: Remove Intra Fabric Links for vpc peering
+- name: Remove Intra Fabric Links for vPC Peering
   cisco.dcnm.dcnm_links:
     state: replaced
     src_fabric: "{{ MD_Extended.vxlan.global.name }}"

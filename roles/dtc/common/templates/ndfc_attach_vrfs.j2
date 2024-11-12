@@ -31,7 +31,7 @@
   import_vpn_rt: {{ vrf['import_vpn_rt'] | default(omit) }}
   netflow_enable: {{ vrf['netflow_enable'] | default(defaults.vxlan.overlay_services.vrfs.netflow_enable) }}
 {% if vrf['netflow_enable'] is defined and vrf['netflow_enable'] | bool %}
-  netflow_monitor: {{ vrf['netflow_monitor'] }}
+  nf_monitor: {{ vrf['netflow_monitor'] }}
 {% endif %}
   no_rp: {{ vrf['no_rp'] | default(defaults.vxlan.overlay_services.vrfs.no_rp) }}
   trm_enable: {{ vrf['trm_enable'] | default(defaults.vxlan.overlay_services.vrfs.trm_enable) }}
@@ -47,9 +47,9 @@
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
-{% if vrf['attach_group'] is defined %}
+{% if vrf['vrf_attach_group'] is defined %}
   attach:
-{% for attach in MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict[vrf['attach_group']] %}
+{% for attach in MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
     - ip_address: {{ attach['hostname'] }}
 {% endfor %}
   deploy: false

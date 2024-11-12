@@ -20,6 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
+
 - name: Role Entry Point - [cisco.nac_dc_vxlan.validate]
   ansible.builtin.debug:
     msg:
@@ -70,6 +71,30 @@
     rules: "{{ enhanced_rules_path }}"
   vars:
     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+  when: enhanced_rules_path is defined and enhanced_rules_path
+  delegate_to: localhost
+
+- name: Stat Factory Defaults
+  ansible.builtin.stat: path="{{ role_path }}/files/defaults.yml"
+  register: factory_defaults_file
+  delegate_to: localhost
+
+- name: Include Factory Defaults if Available
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/files/defaults.yml"
+  when: factory_defaults_file.stat.exists
+  delegate_to: localhost
+
+- name: Merge factory and custom defaults
+  cisco.nac_dc_vxlan.common.merge_defaults:
+    factory_defaults: "{{ factory_defaults }}"
+    model_data: "{{ model_data['data'] }}"
+  register: defaults
+  delegate_to: localhost
+
+- name: Register Variable With Only Defaults from Previous Task
+  ansible.builtin.set_fact:
+    defaults: "{{ defaults['defaults'] }}"
   delegate_to: localhost
 
 - name: Prepare Service Model
@@ -96,6 +121,24 @@
   register: check_roles
   delegate_to: localhost
 
+- name: Read Run Map From Previous Run
+  cisco.nac_dc_vxlan.common.read_run_map:
+    model_data: "{{ MD_Extended }}"
+  register: run_map_read_result
+  delegate_to: localhost
+
+- name: Debug Run Map Read Result
+  ansible.builtin.debug:
+    msg: "{{ run_map_read_result }}"
+  delegate_to: localhost
+
+- name: Initialize Run Map
+  cisco.nac_dc_vxlan.common.run_map:
+    model_data: "{{ MD_Extended }}"
+    stage: starting_execution
+  register: run_map
+  delegate_to: localhost
+
 - name: Manage Previous Service Model Data Files
   ansible.builtin.include_tasks: manage_model_files_previous.yml
   when: check_roles['save_previous']
@@ -103,14 +146,3 @@
 - name: Manage Current Service Model Data Files
   ansible.builtin.include_tasks: manage_model_files_current.yml
   when: check_roles['save_previous']
-
-- name: Stat Host Specific Defaults
-  ansible.builtin.stat: path="{{ role_path }}/defaults/{{ inventory_hostname }}/defaults.yml"
-  register: host_defaults
-  delegate_to: localhost
-
-- name: Include Host Specific Defaults if Available
-  ansible.builtin.include_vars:
-    file: "{{ role_path }}/defaults/{{ inventory_hostname }}/defaults.yml"
-  when: host_defaults.stat.exists
-  delegate_to: localhost

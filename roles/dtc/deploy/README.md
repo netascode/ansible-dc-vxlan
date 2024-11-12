@@ -27,6 +27,16 @@ Example Playbook
       - role: cisco.nac_dc_vxlan.dtc.deploy
 ```
 
+-------
+The following tags can be used to selectively execute stages within the `cisco.nac_dc_vxlan.dtc.deploy` role
+
+* role_deploy
+
+```bash
+# Selectively run stage to add VRFs and Networks and skip all other stages
+ansible-playbook -i inventory.yml vxlan.yml --tags role_deploy
+```
+
 License
 -------
 

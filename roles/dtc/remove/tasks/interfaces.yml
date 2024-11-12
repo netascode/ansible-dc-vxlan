@@ -20,21 +20,45 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- ansible.builtin.debug: msg="Removing all Unmanaged Fabric Interfaces. This could take several minutes..."
+- ansible.builtin.debug: msg="Removing Unmanaged Fabric Interfaces. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
-- cisco.dcnm.dcnm_interface:
+- name: Remove Unmanaged Fabric Interfaces
+  cisco.dcnm.dcnm_interface:
     fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
     config: "{{ interface_all }}"
+    # deploy: false
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
+  register: int_data
   when:
     - switch_list.response.DATA | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
+
+# - name: Config-Save for Fabric {{ MD.vxlan.global.name }} after removing or defaulting interfaces
+#   cisco.dcnm.dcnm_rest:
+#     method: POST
+#     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
+#   when:
+#     - int_data.changed is true
+#     - switch_list.response.DATA | length > 0
+#     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
+
+# - name: Deploy for Fabric {{ MD.vxlan.global.name }} after removing or defaulting interfaces
+#   cisco.dcnm.dcnm_rest:
+#     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
+#     method: POST
+#   vars:
+#       ansible_command_timeout: 3000
+#       ansible_connect_timeout: 3000
+#   when:
+#     - int_data.changed is true
+#     - switch_list.response.DATA | length > 0
+#     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
 - ansible.builtin.debug:
     msg:

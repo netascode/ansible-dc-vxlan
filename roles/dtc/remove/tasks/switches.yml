@@ -24,7 +24,7 @@
   when:
     - (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
 
-- name: Remove NDFC Fabric Devices {{ MD.vxlan.global.name }}
+- name: Remove Unmanaged NDFC Fabric Devices
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD.vxlan.global.name }}"
     config: "{{ updated_inv_config['updated_inv_list'] }}"

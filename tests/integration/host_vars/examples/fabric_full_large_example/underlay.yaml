@@ -66,7 +66,7 @@ vxlan:
       rendezvous_points: 2
       rp_mode: asm
       underlay_rp_loopback_id: 254
-      trm_enable: False
+      trm_enable: True
       trm_default_group: 239.1.1.0
       underlay_primary_rp_loopback_id: 0
       underlay_backup_rp_loopback_id: 1

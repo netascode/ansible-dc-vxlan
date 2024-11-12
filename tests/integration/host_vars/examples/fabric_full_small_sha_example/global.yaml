@@ -43,6 +43,32 @@ vxlan:
         vrf: engineering
       - ip_address: 18.3.3.3
         vrf: engineering
+    netflow:
+      enable: true
+      exporter:
+        - name: nac-exporter1
+          ip_address: 192.168.70.1
+          source_interface: eth1/11
+          udp_port: 2055
+        - name: nac-exporter2
+          ip_address: 192.168.70.1
+          vrf: management
+          source_interface: eth1/12
+          udp_port: 2055
+      record:
+        - name: nac-record1
+          template: netflow_ipv4_record
+        - name: nac-record2
+          template: netflow_l2_record
+          layer2: true
+      monitor:
+        - name: nac-monitor1
+          record: nac-record1
+          exporter1: nac-exporter1
+        - name: nac-monitor2
+          record: nac-record2
+          exporter1: nac-exporter1
+          exporter2: nac-exporter2
     vpc:
       peer_link_vlan: 3600
       peer_keep_alive: management

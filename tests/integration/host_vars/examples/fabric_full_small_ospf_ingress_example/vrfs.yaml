@@ -1,0 +1,149 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+---
+vxlan:
+  overlay_services:
+    vrfs:
+      - name: NetAsCodeVrf1
+        vrf_id: 150001
+        vlan_id: 2001
+        vrf_attach_group: all_leaf
+
+      - name: NetAsCodeVrf2
+        vrf_id: 150002
+        vlan_id: 2002
+        vrf_attach_group: leaf1_leaf2
+
+      - name: NetAsCodeVrf3
+        vrf_id: 150003
+        vlan_id: 2003
+        vrf_attach_group: leaf1_leaf2
+
+      - name: NetAsCodeVrf5
+        vrf_id: 150005
+        vlan_id: 2005
+        vrf_description: NetAsCodeVrf5_Netflow_only
+        netflow_enable: true
+        netflow_monitor: nac-monitor1
+        vrf_attach_group: leaf1_leaf2
+
+      - name: NetAsCodeVrf6
+        vrf_id: 150006
+        vlan_id: 2006
+        vrf_description: NetAsCodeVrf6_No_TRM_No_NetFlow
+        trm_enable: false
+        netflow_enable: false
+        vrf_attach_group: leaf1_leaf2
+
+      - name: NetAsCodeVrf9
+        vrf_id: 150009
+        vlan_id: 2009
+        vrf_description: NetAsCodeVrf6_Max_BGP_Paths
+        max_bgp_paths: 4
+        max_ibgp_paths: 4
+        trm_enable: false
+        netflow_enable: false
+        vrf_attach_group: leaf1_leaf2
+
+      - name: NetAsCodeVrf_Default
+        vrf_id: 150020
+        vlan_id: 2020
+        vrf_vlan_name: NetAsCodeVrf_Default_vlan2020
+        vrf_intf_desc: NetAsCodeVrf_Default
+        vrf_description: NetAsCodeVrf_Default
+        vrf_int_mtu: 9216
+        loopback_route_tag: 12345
+        max_bgp_paths: 8
+        max_ibgp_paths: 8
+        ipv6_linklocal_enable: True
+        adv_host_routes: True
+        adv_default_routes: True
+        static_default_route: True
+        # bgp_password: cisco
+        # bgp_password_encryption_type: 3
+        disable_rt_auto: True
+        export_evpn_rt: ""
+        export_mvpn_rt: ""
+        export_vpn_rt: ""
+        import_evpn_rt: ""
+        import_mvpn_rt: ""
+        import_vpn_rt: ""
+        netflow_enable: False
+        netflow_monitor: ""
+        no_rp: False
+        overlay_multicast_group: ""
+        redist_direct_routemap: ""
+        rp_address: 192.168.1.1
+        rp_external: False
+        rp_loopback_id: 2
+        trm_enable: True
+        trm_bgw_msite: False
+        underlay_mcast_ip: "224.1.1.1"
+        vrf_attach_group: all_leaf
+
+      - name: NetAsCodeVrf_Full
+        vrf_id: 150030
+        vlan_id: 2030
+        vrf_vlan_name: NetAsCodeVrf_Full_vlan2030
+        vrf_intf_desc: NetAsCodeVrf_Full
+        vrf_description: NetAsCodeVrf_Full
+        vrf_int_mtu: 9216
+        loopback_route_tag: 12345
+        max_bgp_paths: 8
+        max_ibgp_paths: 8
+        ipv6_linklocal_enable: True
+        adv_host_routes: True
+        adv_default_routes: True
+        static_default_route: True
+        # bgp_password: cisco
+        # bgp_password_encryption_type: 3
+        disable_rt_auto: False
+        export_evpn_rt: ""
+        export_mvpn_rt: ""
+        export_vpn_rt: ""
+        import_evpn_rt: ""
+        import_mvpn_rt: ""
+        import_vpn_rt: ""
+        netflow_enable: True
+        netflow_monitor: nac-monitor1
+        trm_enable: False
+        no_rp: False
+        rp_external: False
+        overlay_multicast_group: ""
+        trm_bgw_msite: False
+        vrf_attach_group: all_leaf
+
+    vrf_attach_groups:
+      - name: all_leaf
+        switches:
+          - {hostname: << leaf1_ip >>}
+          - {hostname: << leaf2_ip >>}
+      - name: leaf1_leaf2
+        switches:
+          - {hostname: << leaf1_ip >>}
+          - {hostname: << leaf2_ip >>}
+      - name: leaf1
+        switches:
+          - {hostname: << leaf1_ip >>}
+      - name: leaf2
+        switches:
+          - {hostname: << leaf2_ip >>}

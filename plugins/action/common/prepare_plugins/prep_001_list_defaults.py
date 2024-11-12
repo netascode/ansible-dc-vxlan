@@ -20,7 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 
-from ...helper_functions import data_model_key_check
+from ....plugin_utils.helper_functions import data_model_key_check
 
 
 def update_nested_dict(nested_dict, keys, new_value):
@@ -130,7 +130,7 @@ class PreparePlugin:
         # Check vxlan.overlay_services list elements
         parent_keys = ['vxlan', 'overlay_services']
         dm_check = data_model_key_check(self.model_data, parent_keys)
-        if 'overlay_services' in dm_check['keys_no_data']:
+        if 'overlay_services' in dm_check['keys_not_found'] or 'overlay_services' in dm_check['keys_no_data']:
             self.model_data['vxlan']['overlay_services'] = {'vrfs': []}
             self.model_data['vxlan']['overlay_services'] = {'vrf_attach_groups': []}
             self.model_data['vxlan']['overlay_services'] = {'networks': []}
@@ -171,6 +171,34 @@ class PreparePlugin:
                 self.model_data['vxlan']['overlay_services']['network_attach_groups'][list_index]['switches'] = []
 
             list_index += 1
+
+        # --------------------------------------------------------------------
+        # Fabric Policy List Defaults
+        # --------------------------------------------------------------------
+
+        # Check vxlan.policy list elements
+        parent_keys = ['vxlan', 'policy']
+        dm_check = data_model_key_check(self.model_data, parent_keys)
+        if 'policy' in dm_check['keys_not_found'] or 'policy' in dm_check['keys_no_data']:
+            self.model_data['vxlan']['policy'] = {}
+            self.model_data['vxlan']['policy'].update({'policies': []})
+            self.model_data['vxlan']['policy'].update({'groups': []})
+            self.model_data['vxlan']['policy'].update({'switches': []})
+
+        parent_keys = ['vxlan', 'policy', 'policies']
+        dm_check = data_model_key_check(self.model_data, parent_keys)
+        if 'policies' in dm_check['keys_not_found'] or 'policies' in dm_check['keys_no_data']:
+            self.model_data['vxlan']['policy']['policies'] = []
+
+        parent_keys = ['vxlan', 'policy', 'groups']
+        dm_check = data_model_key_check(self.model_data, parent_keys)
+        if 'groups' in dm_check['keys_not_found'] or 'groups' in dm_check['keys_no_data']:
+            self.model_data['vxlan']['policy']['groups'] = []
+
+        parent_keys = ['vxlan', 'policy', 'switches']
+        dm_check = data_model_key_check(self.model_data, parent_keys)
+        if 'switches' in dm_check['keys_not_found'] or 'switches' in dm_check['keys_no_data']:
+            self.model_data['vxlan']['policy']['switches'] = []
 
         self.kwargs['results']['model_extended'] = self.model_data
         return self.kwargs['results']

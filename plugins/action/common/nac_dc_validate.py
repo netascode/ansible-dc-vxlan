@@ -26,9 +26,17 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+from ansible.errors import AnsibleError
 
-import iac_validate.validator
-from iac_validate.yaml import load_yaml_files
+try:
+    import iac_validate.validator
+    from iac_validate.yaml import load_yaml_files
+    from iac_validate.cli.options import DEFAULT_SCHEMA
+except ImportError as imp_exc:
+    IAC_VALIDATE_IMPORT_ERROR = imp_exc
+else:
+    IAC_VALIDATE_IMPORT_ERROR = None
+
 import os
 
 display = Display()
@@ -41,6 +49,9 @@ class ActionModule(ActionBase):
         results['failed'] = False
         results['msg'] = None
         results['data'] = {}
+
+        if IAC_VALIDATE_IMPORT_ERROR:
+            raise AnsibleError('iac-validate not found and must be installed. Please pip install iac-validate.') from IAC_VALIDATE_IMPORT_ERROR
 
         schema = self._task.args.get('schema')
         rules = self._task.args.get('rules')
@@ -65,10 +76,8 @@ class ActionModule(ActionBase):
             results['msg'] = "The data directory ({0}) for this fabric is empty!".format(mdata)
             return results
 
-        if schema is None:
-            schema = ""
-        if rules is None:
-            rules = ""
+        if schema == '':
+            schema = DEFAULT_SCHEMA
 
         validator = iac_validate.validator.Validator(schema, rules)
         if schema:

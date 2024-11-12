@@ -1,4 +1,5 @@
 requests
-iac-validate<=0.2.4
+iac-validate==0.2.5
 iac-test==0.2.5
 macaddress
+packaging==24.1
