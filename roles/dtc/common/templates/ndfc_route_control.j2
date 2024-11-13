@@ -26,4 +26,7 @@
     {% if "time_range" in policy_types %}
         {% include 'ndfc_time_range.j2' %}
     {% endif %}
+    {% if "ipv4_object_groups" in policy_types or "ipv6_object_groups" in policy_types %}
+        {% include "ndfc_object_groups.j2" %}
+    {% endif %}
 {% endfor %}

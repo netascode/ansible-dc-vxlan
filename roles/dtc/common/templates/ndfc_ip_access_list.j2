@@ -26,6 +26,8 @@ ip access-list {{ ipv4_access_list.name }}
                             {% set source = entrie.source.host | ipaddr('address') ~ " 255.255.255.255" %}
                         {% elif entrie.source.any is defined and entrie.source.any is true %}
                             {% set source = "any" %}
+                        {% elif entrie.source.addrgroup is defined %}
+                            {% set source = "addrgroup " ~ entrie.source.addrgroup %}
                         {% endif %}
                         {% if entrie.source.port_number is defined and entrie.source.port_number.operator is defined %}
                             {% if entrie.source.port_number.port is defined %}
@@ -42,6 +44,8 @@ ip access-list {{ ipv4_access_list.name }}
                             {% set destination = entrie.destination.host | ipaddr('address') ~ " 255.255.255.255" %}
                         {% elif entrie.destination.any is defined and entrie.destination.any is true %}
                             {% set destination = "any" %}
+                        {% elif entrie.destination.addrgroup is defined %}
+                            {% set destination = "addrgroup " ~ entrie.destination.addrgroup %}
                         {% endif %}
                         {% if entrie.destination.port_number is defined and entrie.destination.port_number.operator is defined %}
                             {% if entrie.destination.port_number.port is defined %}
@@ -62,6 +66,7 @@ ip access-list {{ ipv4_access_list.name }}
                             {% set udf = [] %}
                             {% set load_share = [] %}
                             {% set timerange = [] %}
+                            {% set fragment = [] %}
                             {% for filtering_option in entrie.filtering_options %}
                                 {# Flags #}
                                 {% if "flags" in filtering_option %}
@@ -131,23 +136,35 @@ ip access-list {{ ipv4_access_list.name }}
                                 {% endif %}
                             {% endfor %}
                             {% set filter_option = (flag_lists + precedence + ttl + packet_length + dscp + http_method +
-                            tcp_option_length + udf + load_share + timerange ) | join(" ") %}
+                            tcp_option_length + udf + load_share + timerange + fragment ) | join(" ") %}
                         {# endif filtering_options #}
                         {% endif %}
                         {% if source is defined and destination is defined and filter_option is defined %}
                         {# !! src dst w/ filter #}
+                            {# Fragment #}
+                            {% if "fragments" in entrie and entrie["fragments"] %}
+                                {% set filter_option = filter_option ~ " fragments" %}
+                            {% endif %}
                             {% if entrie.log is defined and entrie.log is true %}
                                 {% set filter_option = filter_option ~ " log" %}
                             {% endif %}
   {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }} {{ filter_option }}
                         {% elif source is defined and destination is defined  %}
                         {# !! src dst w/o filter #}
+                            {# Fragment #}
+                            {% if "fragments" in entrie and entrie["fragments"] %}
+                                {% set destination = destination ~ " fragments" %}
+                            {% endif %}
                             {% if entrie.log is defined and entrie.log is true %}
                                 {% set destination = destination ~ " log" %}
                             {% endif %}
   {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }}
                         {% elif filter_option is defined %}
                         {# !! w/ filter only #}
+                            {# Fragment #}
+                            {% if "fragments" in entrie and entrie["fragments"] %}
+                                {% set filter_option = filter_option ~ " fragments" %}
+                            {% endif %}
                             {% if entrie.log is defined and entrie.log is true %}
                                 {% set filter_option = filter_option ~ " log" %}
                             {% endif %}

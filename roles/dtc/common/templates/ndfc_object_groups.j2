@@ -1,0 +1,47 @@
+! This NDFC Route_Control_Object_Groups config data structure is auto-generated
+! DO NOT EDIT MANUALLY
+!
+!
+{% if policy_types["ipv4_object_groups"] is defined %}
+!!! ================ IPv4 Object Group found =====================
+!!! {{ policy_types["ipv4_object_groups"] }}
+    {# Get policy ipv4 object groups in groups #}
+    {% for policy_name in policy_types["ipv4_object_groups"] %}
+    {# Get ipv4 object group under Route_control #}
+        {% for ipv4_object_group in item["ipv4_object_groups"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == ipv4_object_group["name"] %}
+object-group ip address {{ ipv4_object_group["name"] }}
+                {% for entrie in ipv4_object_group["entries"] %}
+                    {% if entrie["host"] is defined%}
+  {{ entrie["seq_number"] }} host {{ entrie["host"]}}
+                     {% elif entrie["ip"] is defined %}
+  {{ entrie["seq_number"] }} {{ entrie["ip"] | ipaddr("net")}}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endif %}
+
+{% if policy_types["ipv6_object_groups"] is defined %}
+!!! ================ IPv6 Object Group found =====================
+!!! {{ policy_types["ipv6_object_groups"] }}
+    {# Get policy ipv4 object groups in groups #}
+    {% for policy_name in policy_types["ipv6_object_groups"] %}
+        {# Get ipv4 object group under Route_control #}
+        {% for ipv6_object_group in item["ipv6_object_groups"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == ipv6_object_group["name"] %}
+object-group ipv6 address {{ ipv6_object_group["name"] }}
+                {% for entrie in ipv6_object_group["entries"] %}
+                    {% if entrie["host"] is defined%}
+  {{ entrie["seq_number"] }} host {{ entrie["host"]}}
+                    {% elif entrie["ip"] is defined %}
+  {{ entrie["seq_number"] }} {{ entrie["ip"] | ipaddr("net")}}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endif %}
