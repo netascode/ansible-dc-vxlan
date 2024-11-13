@@ -20,47 +20,47 @@ ip access-list {{ ipv4_access_list["name"] }}
                 {% else %}
                     {% for entrie in ipv4_access_list["entries"] %}
                         {% if entrie.remark is defined %}
-  {{ entrie.seq_number }} remark {{ entrie.remark }}
-                        {% elif entrie.fragments is defined %}
-  {{ entrie.seq_number }} fragments {{ entrie.fragments }}
+  {{ entrie["seq_number"] }} remark {{ entrie["remark"] }}
+                        {% elif entrie["fragments"] is defined %}
+  {{ entrie["seq_number"] }} fragments {{ entrie["fragments"] }}
                         {% else %}
-                            {% if entrie.source.ip is defined and entrie.source.wildcard is defined %}
-                                {% set source = entrie.source.ip ~ " " ~ entrie.source.wildcard %}
-                            {% elif entrie.source.ip is defined %}
-                                {% set source = entrie.source.ip | ipaddr('network') ~ " " ~ entrie.source.ip | ipaddr('netmask') %}
-                            {% elif entrie.source.host is defined %}
-                                {% set source = entrie.source.host | ipaddr('address') ~ " 255.255.255.255" %}
-                            {% elif entrie.source.any is defined and entrie.source.any is true %}
+                            {% if entrie["source"]["ip"] is defined and entrie["source"]["wildcard"] is defined %}
+                                {% set source = entrie["source"]["ip"] ~ " " ~ entrie["source"]["wildcard"] %}
+                            {% elif entrie["source"]["ip"] is defined %}
+                                {% set source = entrie["source"]["ip"] | ipaddr('network') ~ " " ~ entrie["source"]["ip"] | ipaddr('hostmask') %}
+                            {% elif entrie["source"]["host"] is defined %}
+                                {% set source = "host " ~ entrie["source"]["host"] | ipaddr('address') %}
+                            {% elif entrie["source"]["any"] is defined and entrie["source"]["any"] is true %}
                                 {% set source = "any" %}
-                            {% elif entrie.source.addrgroup is defined %}
-                                {% set source = "addrgroup " ~ entrie.source.addrgroup %}
+                            {% elif entrie["source"]["addrgroup"] is defined %}
+                                {% set source = "addrgroup " ~ entrie["source"]["addrgroup"] %}
                             {% endif %}
-                            {% if entrie.source.port_number is defined and entrie.source.port_number.operator is defined %}
-                                {% if entrie.source.port_number.port is defined %}
-                                    {% set source = source ~ " " ~ entrie.source.port_number.operator ~ " " ~ entrie.source.port_number.port %}
-                                {% elif entrie.source.port_number.range_start and entrie.source.port_number.range_end %}
-                                    {% set source = source ~ " range " ~ entrie.source.port_number.range_start ~ " " ~ entrie.source.port_number.range_end %}
+                            {% if entrie["source"]["port_number"] is defined and entrie["source"]["port_number"]["operator"] is defined %}
+                                {% if entrie["source"]["port_number"]["port"] is defined %}
+                                    {% set source = source ~ " " ~ entrie["source"]["port_number"]["operator"] ~ " " ~ entrie["source"]["port_number"]["port"] %}
+                                {% elif entrie["source"]["port_number"]["from"] and entrie["source"]["port_number"]["to"] %}
+                                    {% set source = source ~ " range " ~ entrie["source"]["port_number"]["from"] ~ " " ~ entrie["source"]["port_number"]["to"] %}
                                 {% endif %}
                             {% endif %}
-                            {% if entrie.destination.ip is defined and entrie.destination.wildcard is defined %}
-                                {% set destination = entrie.destination.ip ~ " " ~ entrie.destination.wildcard %}
-                            {% elif entrie.destination.ip is defined  %}
-                                {% set destination = entrie.destination.ip | ipaddr('network') ~ " " ~ entrie.destination.ip | ipaddr('netmask') %}
-                            {% elif entrie.destination.host is defined %}
-                                {% set destination = entrie.destination.host | ipaddr('address') ~ " 255.255.255.255" %}
-                            {% elif entrie.destination.any is defined and entrie.destination.any is true %}
+                            {% if entrie["destination"].ip is defined and entrie["destination"]["wildcard"] is defined %}
+                                {% set destination = entrie["destination"].ip ~ " " ~ entrie["destination"]["wildcard"] %}
+                            {% elif entrie["destination"].ip is defined  %}
+                                {% set destination = entrie["destination"].ip | ipaddr('network') ~ " " ~ entrie["destination"].ip | ipaddr('hostmask') %}
+                            {% elif entrie["destination"].host is defined %}
+                                {% set destination = "host " ~ entrie["destination"].host | ipaddr('address') %}
+                            {% elif entrie["destination"]["any"] is defined and entrie["destination"]["any"] is true %}
                                 {% set destination = "any" %}
-                            {% elif entrie.destination.addrgroup is defined %}
-                                {% set destination = "addrgroup " ~ entrie.destination.addrgroup %}
+                            {% elif entrie["destination"]["addrgroup"] is defined %}
+                                {% set destination = "addrgroup " ~ entrie["destination"]["addrgroup"] %}
                             {% endif %}
-                            {% if entrie.destination.port_number is defined and entrie.destination.port_number.operator is defined %}
-                                {% if entrie.destination.port_number.port is defined %}
-                                    {% set destination = destination ~ " " ~ entrie.destination.port_number.operator ~ " " ~ entrie.destination.port_number.port %}
-                                {% elif entrie.destination.port_number.range_start and entrie.destination.port_number.range_end %}
-                                    {% set destination = destination ~ " range " ~ entrie.destination.port_number.range_start ~ " " ~ entrie.destination.port_number.range_end %}
+                            {% if entrie["destination"]["port_number"] is defined and entrie["destination"]["port_number"]["operator"] is defined %}
+                                {% if entrie["destination"]["port_number"]["port"] is defined %}
+                                    {% set destination = destination ~ " " ~ entrie["destination"]["port_number"]["operator"] ~ " " ~ entrie["destination"]["port_number"]["port"] %}
+                                {% elif entrie["destination"]["port_number"]["from"] and entrie["destination"]["port_number"]["to"] %}
+                                    {% set destination = destination ~ " range " ~ entrie["destination"]["port_number"]["from"] ~ " " ~ entrie["destination"]["port_number"]["to"] %}
                                 {% endif %}
                             {% endif %}
-                            {% if entrie.filtering_options is defined %}
+                            {% if entrie["filtering_options"] is defined %}
                                 {% set filter_option = "" %}
                                 {% set flag_lists = [] %}
                                 {% set precedence = [] %}
@@ -73,7 +73,7 @@ ip access-list {{ ipv4_access_list["name"] }}
                                 {% set load_share = [] %}
                                 {% set timerange = [] %}
                                 {% set fragment = [] %}
-                                {% for filtering_option in entrie.filtering_options %}
+                                {% for filtering_option in entrie["filtering_options"] %}
                                     {# Flags #}
                                     {% if "flags" in filtering_option %}
                                         {% for flag in filtering_option["flags"] %}
@@ -114,8 +114,8 @@ ip access-list {{ ipv4_access_list["name"] }}
                                     {% endif %}
                                     {# Packet Length #}
                                     {% if "packet_length" in filtering_option %}
-                                        {% if filtering_option["packet_length"]["range_start"] is defined and filtering_option["packet_length"]["range_end"] is defined %}
-                                            {% set _ = packet_length.append("packet-length range " ~ filtering_option["packet_length"]["range_start"] ~ " " ~ filtering_option["packet_length"]["range_end"]) %}
+                                        {% if filtering_option["packet_length"]["from"] is defined and filtering_option["packet_length"]["to"] is defined %}
+                                            {% set _ = packet_length.append("packet-length range " ~ filtering_option["packet_length"]["from"] ~ " " ~ filtering_option["packet_length"]["to"]) %}
                                         {% elif filtering_option["packet_length"]["size"] is defined %}
                                             {% set _ = packet_length.append("packet-length " ~ filtering_option["packet_length"]["operation"] ~ " " ~ filtering_option["packet_length"]["size"])%}
                                         {% endif %}
@@ -151,22 +151,22 @@ ip access-list {{ ipv4_access_list["name"] }}
                             {% endif %}
                             {% if source is defined and destination is defined and filter_option is defined %}
                             {# !! src dst w/ filter #}
-                                {% if entrie.log is defined and entrie.log is true %}
+                                {% if entrie["log"] is defined and entrie["log"] is true %}
                                     {% set filter_option = filter_option ~ " log" %}
                                 {% endif %}
-  {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }} {{ filter_option }}
+  {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["protocol"] }} {{ source }} {{ destination }} {{ filter_option }}
                             {% elif source is defined and destination is defined  %}
                             {# !! src dst w/o filter #}
-                                {% if entrie.log is defined and entrie.log is true %}
+                                {% if entrie["log"] is defined and entrie["log"] is true %}
                                     {% set destination = destination ~ " log" %}
                                 {% endif %}
-  {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }}
+  {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["protocol"] }} {{ source }} {{ destination }}
                             {% elif filter_option is defined %}
                             {# !! w/ filter only #}
-                                {% if entrie.log is defined and entrie.log is true %}
+                                {% if entrie["log"] is defined and entrie["log"] is true %}
                                     {% set filter_option = filter_option ~ " log" %}
                                 {% endif %}
-  {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ filter_option }}
+  {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["protocol"] }} {{ filter_option }}
                             {% endif %}
                         {% endif %}
                     {% endfor %}
@@ -193,47 +193,47 @@ ipv6 access-list {{ ipv6_access_list.name }}
                 {% else %}
                 {% for entrie in ipv6_access_list["entries"] %}
                     {% if entrie.remark is defined %}
-    {{ entrie.seq_number }} remark {{ entrie.remark }}
+    {{ entrie["seq_number"] }} remark {{ entrie.remark }}
                     {% else %}
-                    {% if entrie.source.ip is defined and entrie.source.wildcard is defined %}
-                        {% set source = entrie.source.ip ~ " " ~ entrie.source.wildcard %}
-                    {% elif entrie.source.ip is defined %}
-                        {% set source = entrie.source.ip | ipaddr('network/prefix') %}
-                    {% elif entrie.source.host is defined %}
-                        {% set source = entrie.source.host | ipaddr('network/prefix') %}
-                    {% elif entrie.source.any is defined and entrie.source.any is true %}
+                    {% if entrie["source"]["ip"] is defined and entrie["source"]["wildcard"] is defined %}
+                        {% set source = entrie["source"]["ip"] ~ " " ~ entrie["source"]["wildcard"] %}
+                    {% elif entrie["source"]["ip"] is defined %}
+                        {% set source = entrie["source"]["ip"] | ipaddr('network/prefix') %}
+                    {% elif entrie["source"].host is defined %}
+                        {% set source = entrie["source"].host | ipaddr('network/prefix') %}
+                    {% elif entrie["source"]["any"] is defined and entrie["source"]["any"] is true %}
                         {% set source = "any" %}
-                    {% elif entrie.source.addrgroup is defined %}
-                        {% set source = "addrgroup " ~ entrie.source.addrgroup %}
+                    {% elif entrie["source"]["addrgroup"] is defined %}
+                        {% set source = "addrgroup " ~ entrie["source"]["addrgroup"] %}
                     {% endif %}
-                    {% if entrie.source.port_number is defined and entrie.source.port_number.operator is defined %}
-                        {% if entrie.source.port_number.port is defined %}
-                            {% set source = source ~ " " ~ entrie.source.port_number.operator ~ " " ~ entrie.source.port_number.port %}
-                        {% elif entrie.source.port_number.range_start and entrie.source.port_number.range_end %}
-                            {% set source = source ~ " range " ~ entrie.source.port_number.range_start ~ " " ~ entrie.source.port_number.range_end %}
+                    {% if entrie["source"]["port_number"] is defined and entrie["source"]["port_number"]["operator"] is defined %}
+                        {% if entrie["source"]["port_number"]["port"] is defined %}
+                            {% set source = source ~ " " ~ entrie["source"]["port_number"]["operator"] ~ " " ~ entrie["source"]["port_number"]["port"] %}
+                        {% elif entrie["source"]["port_number"]["from"] and entrie["source"]["port_number"]["to"] %}
+                            {% set source = source ~ " range " ~ entrie["source"]["port_number"]["from"] ~ " " ~ entrie["source"]["port_number"]["to"] %}
                         {% endif %}
                     {% endif %}
-                    {% if entrie.destination.ip is defined and entrie.destination.wildcard is defined %}
-                        {% set destination = entrie.destination.ip ~ " " ~ entrie.destination.wildcard %}
-                    {% elif entrie.destination.ip is defined %}
-                        {% set destination = entrie.destination.ip | ipaddr('network/prefix') %}
-                    {% elif entrie.destination.host is defined %}
-                        {% set destination = entrie.destination.host | ipaddr('address/prefix')%}
-                    {% elif entrie.destination.any is defined and entrie.destination.any is true %}
+                    {% if entrie["destination"].ip is defined and entrie["destination"]["wildcard"] is defined %}
+                        {% set destination = entrie["destination"].ip ~ " " ~ entrie["destination"]["wildcard"] %}
+                    {% elif entrie["destination"].ip is defined %}
+                        {% set destination = entrie["destination"].ip | ipaddr('network/prefix') %}
+                    {% elif entrie["destination"].host is defined %}
+                        {% set destination = entrie["destination"].host | ipaddr('address/prefix')%}
+                    {% elif entrie["destination"]["any"] is defined and entrie["destination"]["any"] is true %}
                         {% set destination = "any" %}
-                    {% elif entrie.destination.addrgroup is defined %}
-                        {% set destination = "addrgroup " ~ entrie.destination.addrgroup %}
+                    {% elif entrie["destination"]["addrgroup"] is defined %}
+                        {% set destination = "addrgroup " ~ entrie["destination"]["addrgroup"] %}
                     {% endif %}
-                    {% if entrie.destination.port_number is defined and entrie.destination.port_number.operator is defined %}
-                        {% if entrie.destination.port_number.port is defined %}
-                            {% set destination = destination ~ " " ~ entrie.destination.port_number.operator ~ " " ~
-                        entrie.destination.port_number.port %}
-                        {% elif entrie.destination.port_number.range_start and entrie.destination.port_number.range_end %}
-                            {% set destination = destination ~ " range " ~ entrie.destination.port_number.range_start ~ " " ~
-                        entrie.destination.port_number.range_end %}
+                    {% if entrie["destination"]["port_number"] is defined and entrie["destination"]["port_number"]["operator"] is defined %}
+                        {% if entrie["destination"]["port_number"]["port"] is defined %}
+                            {% set destination = destination ~ " " ~ entrie["destination"]["port_number"]["operator"] ~ " " ~
+                        entrie["destination"]["port_number"]["port"] %}
+                        {% elif entrie["destination"]["port_number"]["from"] and entrie["destination"]["port_number"]["to"] %}
+                            {% set destination = destination ~ " range " ~ entrie["destination"]["port_number"]["from"] ~ " " ~
+                        entrie["destination"]["port_number"]["to"] %}
                         {% endif %}
                     {% endif %}
-                    {% if entrie.filtering_options is defined %}
+                    {% if entrie["filtering_options"] is defined %}
                         {% set filter_option = "" %}
                         {% set flag_lists = [] %}
                         {% set precedence = [] %}
@@ -246,7 +246,7 @@ ipv6 access-list {{ ipv6_access_list.name }}
                         {% set load_share = [] %}
                         {% set timerange = [] %}
                         {% set fragment = [] %}
-                        {% for filtering_option in entrie.filtering_options %}
+                        {% for filtering_option in entrie["filtering_options"] %}
                             {# Flags #}
                             {% if "flags" in filtering_option %}
                                 {% for flag in filtering_option["flags"] %}
@@ -287,10 +287,10 @@ ipv6 access-list {{ ipv6_access_list.name }}
                             {% endif %}
                             {# Packet Length #}
                             {% if "packet_length" in filtering_option %}
-                                {% if filtering_option["packet_length"]["range_start"] is defined and filtering_option["packet_length"]["range_end"] is
+                                {% if filtering_option["packet_length"]["from"] is defined and filtering_option["packet_length"]["to"] is
                                 defined %}
-                                    {% set _ = packet_length.append("packet-length range " ~ filtering_option["packet_length"]["range_start"] ~ " " ~
-                                filtering_option["packet_length"]["range_end"]) %}
+                                    {% set _ = packet_length.append("packet-length range " ~ filtering_option["packet_length"]["from"] ~ " " ~
+                                filtering_option["packet_length"]["to"]) %}
                                 {% elif filtering_option["packet_length"]["size"] is defined %}
                                     {% set _ = packet_length.append("packet-length " ~ filtering_option["packet_length"]["operation"] ~ " " ~
                                 filtering_option["packet_length"]["size"])%}
@@ -327,22 +327,22 @@ ipv6 access-list {{ ipv6_access_list.name }}
                     {% endif %}
                     {% if source is defined and destination is defined and filter_option is defined %}
                         {# !! src dst w/ filter #}
-                        {% if entrie.log is defined and entrie.log is true %}
+                        {% if entrie["log"] is defined and entrie["log"] is true %}
                             {% set filter_option = filter_option ~ " log" %}
                         {% endif %}
-    {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }} {{ filter_option }}
+    {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["protocol"] }} {{ source }} {{ destination }} {{ filter_option }}
                     {% elif source is defined and destination is defined %}
                         {# !! src dst w/o filter #}
-                        {% if entrie.log is defined and entrie.log is true %}
+                        {% if entrie["log"] is defined and entrie["log"] is true %}
                             {% set destination = destination ~ " log" %}
                         {% endif %}
-    {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }}
+    {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["protocol"] }} {{ source }} {{ destination }}
                     {% elif filter_option is defined %}
                         {# !! w/ filter only #}
-                        {% if entrie.log is defined and entrie.log is true %}
+                        {% if entrie["log"] is defined and entrie["log"] is true %}
                             {% set filter_option = filter_option ~ " log" %}
                         {% endif %}
-                        {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ filter_option }}
+                        {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["protocol"] }} {{ filter_option }}
                     {% endif %}
                     {% endif %}
                     {% endfor %}
