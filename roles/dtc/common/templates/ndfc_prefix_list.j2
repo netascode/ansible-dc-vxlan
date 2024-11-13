@@ -5,9 +5,77 @@
 {% if policy_types["ipv4_prefix_lists"] is defined %}
 !!! ================ IPv4 Pfx found =====================
 !!! {{ policy_types["ipv4_prefix_lists"] }}
+    {# Get policy IPv4 Pfx in groups #}
+    {% for policy_name in policy_types["ipv4_prefix_lists"] %}
+        {# Get IPv4 Pfx under Route_control #}
+        {% for ipv4_prefix_list in item["ipv4_prefix_lists"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == ipv4_prefix_list["name"] %}
+                {% if "description" in ipv4_prefix_list %}
+ip prefix-list {{ ipv4_prefix_list["name"] }} description {{ ipv4_prefix_list["description"] }}
+                {% endif %}
+                {% if "entries" in ipv4_prefix_list %}
+                    {% for entrie in ipv4_prefix_list["entries"] %}
+                        {% set options = [] %}
+                        {%if entrie["eq"] is defined %}
+                            {% set _ = options.append("eq " ~ entrie["eq"] ) %}
+                        {% endif %}
+                        {%if entrie["ge"] is defined %}
+                            {% set _ = options.append("ge " ~ entrie["ge"] ) %}
+                        {% endif %}
+                        {%if entrie["le"] is defined %}
+                            {% set _ = options.append("le " ~ entrie["le"] ) %}
+                        {% endif %}
+                        {%if entrie["mask"] is defined %}
+                            {% set _ = options.append("mask " ~ entrie["mask"] ) %}
+                        {% endif %}
+                        {% if options | length > 1 %}
+ip prefix-list {{ ipv4_prefix_list["name"] }} {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["prefix"] }} {{ options | join(" ") }}
+                        {% else %}
+ip prefix-list {{ ipv4_prefix_list["name"] }} {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["prefix"] }}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
 {% endif%}
 
 {% if policy_types["ipv6_prefix_lists"] is defined %}
 !!! ================ IPv6 Pfx found =====================
 !!! {{ policy_types["ipv6_prefix_lists"] }}
+    {# Get policy IPv6 Pfx in groups #}
+    {% for policy_name in policy_types["ipv6_prefix_lists"] %}
+    {# Get IPv6 Pfx under Route_control #}
+        {% for ipv6_prefix_list in item["ipv6_prefix_lists"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == ipv6_prefix_list["name"] %}
+                {% if "description" in ipv6_prefix_list %}
+ipv6 prefix-list {{ ipv6_prefix_list["name"] }} description {{ ipv6_prefix_list["description"] }}
+                {% endif %}
+                {% if "entries" in ipv6_prefix_list %}
+                    {% for entrie in ipv6_prefix_list["entries"] %}
+                        {% set options = [] %}
+                        {%if entrie["eq"] is defined %}
+                            {% set _ = options.append("eq " ~ entrie["eq"] ) %}
+                        {% endif %}
+                        {%if entrie["ge"] is defined %}
+                            {% set _ = options.append("ge " ~ entrie["ge"] ) %}
+                        {% endif %}
+                        {%if entrie["le"] is defined %}
+                            {% set _ = options.append("le " ~ entrie["le"] ) %}
+                        {% endif %}
+                        {%if entrie["mask"] is defined %}
+                            {% set _ = options.append("mask " ~ entrie["mask"] ) %}
+                        {% endif %}
+                        {% if options | length > 1 %}
+ipv6 prefix-list {{ ipv6_prefix_list["name"] }} {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["prefix"] }} {{ options | join(" ") }}
+                        {% else %}
+ipv6 prefix-list {{ ipv6_prefix_list["name"] }} {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["prefix"] }}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
 {% endif%}
