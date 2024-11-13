@@ -3,4 +3,13 @@
 !
 !
 !!! ================ MAC List found =====================
-{{ policy_types["mac_list"] }}
+
+    {% for policy_name in policy_types["mac_list"] : %}
+        {% for mac_list in item["mac_list"] %}
+            {% if policy_name.name == mac_list.name %}
+                {% for entrie in mac_list["entries"] %}
+mac-list {{ mac_list.name }} seq {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.mac }} {{ entrie.mac_mask }}
+                {% endfor %}
+            {% endif %}
+       {% endfor %}
+    {% endfor %}
