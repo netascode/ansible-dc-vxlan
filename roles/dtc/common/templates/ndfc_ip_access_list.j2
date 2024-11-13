@@ -8,170 +8,169 @@
 
     {% for policy_name in policy_types["ipv4_access_lists"] : %}
         {% for ipv4_access_list in item["ipv4_access_lists"] %}
-            {% if policy_name.name == ipv4_access_list.name %}
+            {% if policy_name["name"] == ipv4_access_list["name"] %}
 {# !!! {{ ipv4_access_list }} #}
-ip access-list {{ ipv4_access_list.name }}
-                {% if ipv4_access_list.statistics_per_entry is defined and ipv4_access_list.statistics_per_entry is true %}
+ip access-list {{ ipv4_access_list["name"] }}
+                {% if ipv4_access_list["statistics_per_entry"] is defined and ipv4_access_list["statistics_per_entry"] is true %}
   statistics per-entry
-                {% endif %}
-                {% for entrie in ipv4_access_list["entries"] %}
-                    {% if entrie.remark is defined %}
+                {% elif ipv4_access_list["fragments"] is defined %}
+  fragments {{ ipv4_access_list["fragments"] }}
+                {% elif ipv4_access_list["ignore_routable"] is defined and ipv4_access_list["ignore_routable"] is true %}
+  ignore routable
+                {% else %}
+                    {% for entrie in ipv4_access_list["entries"] %}
+                        {% if entrie.remark is defined %}
   {{ entrie.seq_number }} remark {{ entrie.remark }}
-                    {% else %}
-                        {% if entrie.source.ip is defined and entrie.source.wildcard is defined %}
-                            {% set source = entrie.source.ip ~ " " ~ entrie.source.wildcard %}
-                        {% elif entrie.source.ip is defined %}
-                            {% set source = entrie.source.ip | ipaddr('network') ~ " " ~ entrie.source.ip | ipaddr('netmask') %}
-                        {% elif entrie.source.host is defined %}
-                            {% set source = entrie.source.host | ipaddr('address') ~ " 255.255.255.255" %}
-                        {% elif entrie.source.any is defined and entrie.source.any is true %}
-                            {% set source = "any" %}
-                        {% elif entrie.source.addrgroup is defined %}
-                            {% set source = "addrgroup " ~ entrie.source.addrgroup %}
-                        {% endif %}
-                        {% if entrie.source.port_number is defined and entrie.source.port_number.operator is defined %}
-                            {% if entrie.source.port_number.port is defined %}
-                                {% set source = source ~ " " ~ entrie.source.port_number.operator ~ " " ~ entrie.source.port_number.port %}
-                            {% elif entrie.source.port_number.range_start and entrie.source.port_number.range_end %}
-                                {% set source = source ~ " range " ~ entrie.source.port_number.range_start ~ " " ~ entrie.source.port_number.range_end %}
+                        {% elif entrie.fragments is defined %}
+  {{ entrie.seq_number }} fragments {{ entrie.fragments }}
+                        {% else %}
+                            {% if entrie.source.ip is defined and entrie.source.wildcard is defined %}
+                                {% set source = entrie.source.ip ~ " " ~ entrie.source.wildcard %}
+                            {% elif entrie.source.ip is defined %}
+                                {% set source = entrie.source.ip | ipaddr('network') ~ " " ~ entrie.source.ip | ipaddr('netmask') %}
+                            {% elif entrie.source.host is defined %}
+                                {% set source = entrie.source.host | ipaddr('address') ~ " 255.255.255.255" %}
+                            {% elif entrie.source.any is defined and entrie.source.any is true %}
+                                {% set source = "any" %}
+                            {% elif entrie.source.addrgroup is defined %}
+                                {% set source = "addrgroup " ~ entrie.source.addrgroup %}
                             {% endif %}
-                        {% endif %}
-                        {% if entrie.destination.ip is defined and entrie.destination.wildcard is defined %}
-                            {% set destination = entrie.destination.ip ~ " " ~ entrie.destination.wildcard %}
-                        {% elif entrie.destination.ip is defined  %}
-                            {% set destination = entrie.destination.ip | ipaddr('network') ~ " " ~ entrie.destination.ip | ipaddr('netmask') %}
-                        {% elif entrie.destination.host is defined %}
-                            {% set destination = entrie.destination.host | ipaddr('address') ~ " 255.255.255.255" %}
-                        {% elif entrie.destination.any is defined and entrie.destination.any is true %}
-                            {% set destination = "any" %}
-                        {% elif entrie.destination.addrgroup is defined %}
-                            {% set destination = "addrgroup " ~ entrie.destination.addrgroup %}
-                        {% endif %}
-                        {% if entrie.destination.port_number is defined and entrie.destination.port_number.operator is defined %}
-                            {% if entrie.destination.port_number.port is defined %}
-                                {% set destination = destination ~ " " ~ entrie.destination.port_number.operator ~ " " ~ entrie.destination.port_number.port %}
-                            {% elif entrie.destination.port_number.range_start and entrie.destination.port_number.range_end %}
-                                {% set destination = destination ~ " range " ~ entrie.destination.port_number.range_start ~ " " ~ entrie.destination.port_number.range_end %}
+                            {% if entrie.source.port_number is defined and entrie.source.port_number.operator is defined %}
+                                {% if entrie.source.port_number.port is defined %}
+                                    {% set source = source ~ " " ~ entrie.source.port_number.operator ~ " " ~ entrie.source.port_number.port %}
+                                {% elif entrie.source.port_number.range_start and entrie.source.port_number.range_end %}
+                                    {% set source = source ~ " range " ~ entrie.source.port_number.range_start ~ " " ~ entrie.source.port_number.range_end %}
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                        {% if entrie.filtering_options is defined %}
-                            {% set filter_option = "" %}
-                            {% set flag_lists = [] %}
-                            {% set precedence = [] %}
-                            {% set ttl = [] %}
-                            {% set dscp = [] %}
-                            {% set packet_length = [] %}
-                            {% set http_method = [] %}
-                            {% set tcp_option_length = [] %}
-                            {% set udf = [] %}
-                            {% set load_share = [] %}
-                            {% set timerange = [] %}
-                            {% set fragment = [] %}
-                            {% for filtering_option in entrie.filtering_options %}
-                                {# Flags #}
-                                {% if "flags" in filtering_option %}
-                                    {% for flag in filtering_option["flags"] %}
-                                        {% if flag.establish is true %}
-                                            {% set _ = flag_lists.append("established") %}
-                                        {% endif %}
-                                        {% if flag.ack is true %}
-                                            {% set _ = flag_lists.append("ack") %}
-                                        {% endif %}
-                                        {% if flag.fin is true %}
-                                            {% set _ = flag_lists.append("fin") %}
-                                        {% endif %}
-                                        {% if flag.psk is true %}
-                                            {% set _ = flag_lists.append("psk") %}
-                                        {% endif %}
-                                        {% if flag.rst is true %}
-                                            {% set _ = flag_lists.append("rst") %}
-                                        {% endif %}
-                                        {% if flag.syn is true %}
-                                            {% set _ = flag_lists.append("syn") %}
-                                        {% endif %}
-                                        {% if flag.urg is true %}
-                                            {% set _ = flag_lists.append("urg") %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {# endif flags #}
+                            {% if entrie.destination.ip is defined and entrie.destination.wildcard is defined %}
+                                {% set destination = entrie.destination.ip ~ " " ~ entrie.destination.wildcard %}
+                            {% elif entrie.destination.ip is defined  %}
+                                {% set destination = entrie.destination.ip | ipaddr('network') ~ " " ~ entrie.destination.ip | ipaddr('netmask') %}
+                            {% elif entrie.destination.host is defined %}
+                                {% set destination = entrie.destination.host | ipaddr('address') ~ " 255.255.255.255" %}
+                            {% elif entrie.destination.any is defined and entrie.destination.any is true %}
+                                {% set destination = "any" %}
+                            {% elif entrie.destination.addrgroup is defined %}
+                                {% set destination = "addrgroup " ~ entrie.destination.addrgroup %}
+                            {% endif %}
+                            {% if entrie.destination.port_number is defined and entrie.destination.port_number.operator is defined %}
+                                {% if entrie.destination.port_number.port is defined %}
+                                    {% set destination = destination ~ " " ~ entrie.destination.port_number.operator ~ " " ~ entrie.destination.port_number.port %}
+                                {% elif entrie.destination.port_number.range_start and entrie.destination.port_number.range_end %}
+                                    {% set destination = destination ~ " range " ~ entrie.destination.port_number.range_start ~ " " ~ entrie.destination.port_number.range_end %}
                                 {% endif %}
-                                {# IP Precedence #}
-                                {% if "precedence" in filtering_option %}
-                                    {% set _ = precedence.append("precedence " ~ filtering_option["precedence"]) %}
-                                {% endif %}
-                                {# TTL #}
-                                {% if "ttl" in filtering_option %}
-                                    {% set _ = ttl.append("ttl " ~ filtering_option["ttl"]) %}
-                                {% endif %}
-                                {% if "dscp" in filtering_option %}
-                                    {% set _ = dscp.append("dscp " ~ filtering_option["dscp"]) %}
-                                {% endif %}
-                                {# Packet Length #}
-                                {% if "packet_length" in filtering_option %}
-                                    {% if filtering_option["packet_length"]["range_start"] is defined and filtering_option["packet_length"]["range_end"] is defined %}
-                                        {% set _ = packet_length.append("packet-length range " ~ filtering_option["packet_length"]["range_start"] ~ " " ~ filtering_option["packet_length"]["range_end"]) %}
-                                    {% elif filtering_option["packet_length"]["size"] is defined %}
-                                        {% set _ = packet_length.append("packet-length " ~ filtering_option["packet_length"]["operation"] ~ " " ~ filtering_option["packet_length"]["size"])%}
+                            {% endif %}
+                            {% if entrie.filtering_options is defined %}
+                                {% set filter_option = "" %}
+                                {% set flag_lists = [] %}
+                                {% set precedence = [] %}
+                                {% set ttl = [] %}
+                                {% set dscp = [] %}
+                                {% set packet_length = [] %}
+                                {% set http_method = [] %}
+                                {% set tcp_option_length = [] %}
+                                {% set udf = [] %}
+                                {% set load_share = [] %}
+                                {% set timerange = [] %}
+                                {% set fragment = [] %}
+                                {% for filtering_option in entrie.filtering_options %}
+                                    {# Flags #}
+                                    {% if "flags" in filtering_option %}
+                                        {% for flag in filtering_option["flags"] %}
+                                            {% if flag.establish is true %}
+                                                {% set _ = flag_lists.append("established") %}
+                                            {% endif %}
+                                            {% if flag.ack is true %}
+                                                {% set _ = flag_lists.append("ack") %}
+                                            {% endif %}
+                                            {% if flag.fin is true %}
+                                                {% set _ = flag_lists.append("fin") %}
+                                            {% endif %}
+                                            {% if flag.psk is true %}
+                                                {% set _ = flag_lists.append("psk") %}
+                                            {% endif %}
+                                            {% if flag.rst is true %}
+                                                {% set _ = flag_lists.append("rst") %}
+                                            {% endif %}
+                                            {% if flag.syn is true %}
+                                                {% set _ = flag_lists.append("syn") %}
+                                            {% endif %}
+                                            {% if flag.urg is true %}
+                                                {% set _ = flag_lists.append("urg") %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {# endif flags #}
                                     {% endif %}
-                                {% endif %}
-                                {# HTTP Method #}
-                                {% if "http_method" in filtering_option %}
-                                    {% set _ = http_method.append("http-method " ~ filtering_option["http_method"]) %}
-                                {% endif %}
-                                {# TCP Option #}
-                                {% if "tcp_option_length" in filtering_option %}
-                                    {% set _ = tcp_option_length.append("tcp-option-length " ~ filtering_option["tcp_option_length"]) %}
-                                {% endif %}
-                                {# UDF #}
-                                {% if "udf" in filtering_option %}
-                                    {% set _ = udf.append(filtering_option["udf"]["name"] ~ " 0x%x" | format(filtering_option["udf"]["value"]) ~ " 0x%x" | format(filtering_option["udf"]["mask"])) %}
-                                {% endif %}
-                                {# load-share #}
-                                {% if "load_share" in filtering_option and filtering_option["load_share"] is true %}
-                                    {% set _ = load_share.append("load-share") %}
-                                {% endif %}
-                                {# timerange #}
-                                {% if "time_range" in filtering_option %}
-                                    {% set _ = timerange.append("time-range " ~ filtering_option["time_range"]) %}
-                                {% endif %}
-                            {% endfor %}
-                            {% set filter_option = (flag_lists + precedence + ttl + packet_length + dscp + http_method +
-                            tcp_option_length + udf + load_share + timerange + fragment ) | join(" ") %}
-                        {# endif filtering_options #}
-                        {% endif %}
-                        {% if source is defined and destination is defined and filter_option is defined %}
-                        {# !! src dst w/ filter #}
-                            {# Fragment #}
-                            {% if "fragments" in entrie and entrie["fragments"] %}
-                                {% set filter_option = filter_option ~ " fragments" %}
+                                    {# IP Precedence #}
+                                    {% if "precedence" in filtering_option %}
+                                        {% set _ = precedence.append("precedence " ~ filtering_option["precedence"]) %}
+                                    {% endif %}
+                                    {# TTL #}
+                                    {% if "ttl" in filtering_option %}
+                                        {% set _ = ttl.append("ttl " ~ filtering_option["ttl"]) %}
+                                    {% endif %}
+                                    {% if "dscp" in filtering_option %}
+                                        {% set _ = dscp.append("dscp " ~ filtering_option["dscp"]) %}
+                                    {% endif %}
+                                    {# Packet Length #}
+                                    {% if "packet_length" in filtering_option %}
+                                        {% if filtering_option["packet_length"]["range_start"] is defined and filtering_option["packet_length"]["range_end"] is defined %}
+                                            {% set _ = packet_length.append("packet-length range " ~ filtering_option["packet_length"]["range_start"] ~ " " ~ filtering_option["packet_length"]["range_end"]) %}
+                                        {% elif filtering_option["packet_length"]["size"] is defined %}
+                                            {% set _ = packet_length.append("packet-length " ~ filtering_option["packet_length"]["operation"] ~ " " ~ filtering_option["packet_length"]["size"])%}
+                                        {% endif %}
+                                    {% endif %}
+                                    {# HTTP Method #}
+                                    {% if "http_method" in filtering_option %}
+                                        {% set _ = http_method.append("http-method " ~ filtering_option["http_method"]) %}
+                                    {% endif %}
+                                    {# TCP Option #}
+                                    {% if "tcp_option_length" in filtering_option %}
+                                        {% set _ = tcp_option_length.append("tcp-option-length " ~ filtering_option["tcp_option_length"]) %}
+                                    {% endif %}
+                                    {# UDF #}
+                                    {% if "udf" in filtering_option %}
+                                        {% set _ = udf.append(filtering_option["udf"]["name"] ~ " 0x%x" | format(filtering_option["udf"]["value"]) ~ " 0x%x" | format(filtering_option["udf"]["mask"])) %}
+                                    {% endif %}
+                                    {# load-share #}
+                                    {% if "load_share" in filtering_option and filtering_option["load_share"] is true %}
+                                        {% set _ = load_share.append("load-share") %}
+                                    {% endif %}
+                                    {# timerange #}
+                                    {% if "time_range" in filtering_option %}
+                                        {% set _ = timerange.append("time-range " ~ filtering_option["time_range"]) %}
+                                    {% endif %}
+                                    {# Fragment #}
+                                    {% if "fragments" in filtering_option and filtering_option["fragments"] is true %}
+                                        {% set _ = fragment.append("fragments") %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% set filter_option = (flag_lists + precedence + ttl + packet_length + dscp + http_method +
+                                tcp_option_length + udf + load_share + timerange + fragment ) | join(" ") %}
+                            {# endif filtering_options #}
                             {% endif %}
-                            {% if entrie.log is defined and entrie.log is true %}
-                                {% set filter_option = filter_option ~ " log" %}
-                            {% endif %}
+                            {% if source is defined and destination is defined and filter_option is defined %}
+                            {# !! src dst w/ filter #}
+                                {% if entrie.log is defined and entrie.log is true %}
+                                    {% set filter_option = filter_option ~ " log" %}
+                                {% endif %}
   {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }} {{ filter_option }}
-                        {% elif source is defined and destination is defined  %}
-                        {# !! src dst w/o filter #}
-                            {# Fragment #}
-                            {% if "fragments" in entrie and entrie["fragments"] %}
-                                {% set destination = destination ~ " fragments" %}
-                            {% endif %}
-                            {% if entrie.log is defined and entrie.log is true %}
-                                {% set destination = destination ~ " log" %}
-                            {% endif %}
+                            {% elif source is defined and destination is defined  %}
+                            {# !! src dst w/o filter #}
+                                {% if entrie.log is defined and entrie.log is true %}
+                                    {% set destination = destination ~ " log" %}
+                                {% endif %}
   {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }}
-                        {% elif filter_option is defined %}
-                        {# !! w/ filter only #}
-                            {# Fragment #}
-                            {% if "fragments" in entrie and entrie["fragments"] %}
-                                {% set filter_option = filter_option ~ " fragments" %}
-                            {% endif %}
-                            {% if entrie.log is defined and entrie.log is true %}
-                                {% set filter_option = filter_option ~ " log" %}
-                            {% endif %}
+                            {% elif filter_option is defined %}
+                            {# !! w/ filter only #}
+                                {% if entrie.log is defined and entrie.log is true %}
+                                    {% set filter_option = filter_option ~ " log" %}
+                                {% endif %}
   {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ filter_option }}
+                            {% endif %}
                         {% endif %}
-                    {% endif %}
-                {% endfor %}
+                    {% endfor %}
+                {% endif %}
             {% endif %}
         {% endfor %}
     {% endfor %}
@@ -185,173 +184,169 @@ ip access-list {{ ipv4_access_list.name }}
             {% if policy_name.name == ipv6_access_list.name %}
 {# !!! {{ ipv6_access_list }} #}
 ipv6 access-list {{ ipv6_access_list.name }}
-            {% if ipv6_access_list.statistics_per_entry is defined and ipv6_access_list.statistics_per_entry is true %}
+                {% if ipv6_access_list["statistics_per_entry"] is defined and ipv6_access_list["statistics_per_entry"] is true %}
   statistics per-entry
-            {% endif %}
-            {% for entrie in ipv6_access_list["entries"] %}
-                {% if entrie.remark is defined %}
-  {{ entrie.seq_number }} remark {{ entrie.remark }}
+                {% elif ipv6_access_list["fragments"] is defined %}
+  fragments {{ ipv6_access_list["fragments"] }}
+                {% elif ipv6_access_list["ignore_routable"] is defined and ipv6_access_list["ignore_routable"] is true %}
+  ignore routable
                 {% else %}
-                {% if entrie.source.ip is defined and entrie.source.wildcard is defined %}
-                    {% set source = entrie.source.ip ~ " " ~ entrie.source.wildcard %}
-                {% elif entrie.source.ip is defined %}
-                    {% set source = entrie.source.ip | ipaddr('network/prefix') %}
-                {% elif entrie.source.host is defined %}
-                    {% set source = entrie.source.host | ipaddr('network/prefix') %}
-                {% elif entrie.source.any is defined and entrie.source.any is true %}
-                    {% set source = "any" %}
-                {% elif entrie.source.addrgroup is defined %}
-                    {% set source = "addrgroup " ~ entrie.source.addrgroup %}
-                {% endif %}
-                {% if entrie.source.port_number is defined and entrie.source.port_number.operator is defined %}
-                    {% if entrie.source.port_number.port is defined %}
-                        {% set source = source ~ " " ~ entrie.source.port_number.operator ~ " " ~ entrie.source.port_number.port %}
-                    {% elif entrie.source.port_number.range_start and entrie.source.port_number.range_end %}
-                        {% set source = source ~ " range " ~ entrie.source.port_number.range_start ~ " " ~ entrie.source.port_number.range_end %}
+                {% for entrie in ipv6_access_list["entries"] %}
+                    {% if entrie.remark is defined %}
+    {{ entrie.seq_number }} remark {{ entrie.remark }}
+                    {% else %}
+                    {% if entrie.source.ip is defined and entrie.source.wildcard is defined %}
+                        {% set source = entrie.source.ip ~ " " ~ entrie.source.wildcard %}
+                    {% elif entrie.source.ip is defined %}
+                        {% set source = entrie.source.ip | ipaddr('network/prefix') %}
+                    {% elif entrie.source.host is defined %}
+                        {% set source = entrie.source.host | ipaddr('network/prefix') %}
+                    {% elif entrie.source.any is defined and entrie.source.any is true %}
+                        {% set source = "any" %}
+                    {% elif entrie.source.addrgroup is defined %}
+                        {% set source = "addrgroup " ~ entrie.source.addrgroup %}
                     {% endif %}
-                {% endif %}
-                {% if entrie.destination.ip is defined and entrie.destination.wildcard is defined %}
-                    {% set destination = entrie.destination.ip ~ " " ~ entrie.destination.wildcard %}
-                {% elif entrie.destination.ip is defined %}
-                    {% set destination = entrie.destination.ip | ipaddr('network/prefix') %}
-                {% elif entrie.destination.host is defined %}
-                    {% set destination = entrie.destination.host | ipaddr('address/prefix')%}
-                {% elif entrie.destination.any is defined and entrie.destination.any is true %}
-                    {% set destination = "any" %}
-                {% elif entrie.destination.addrgroup is defined %}
-                    {% set destination = "addrgroup " ~ entrie.destination.addrgroup %}
-                {% endif %}
-                {% if entrie.destination.port_number is defined and entrie.destination.port_number.operator is defined %}
-                    {% if entrie.destination.port_number.port is defined %}
-                        {% set destination = destination ~ " " ~ entrie.destination.port_number.operator ~ " " ~
-                    entrie.destination.port_number.port %}
-                    {% elif entrie.destination.port_number.range_start and entrie.destination.port_number.range_end %}
-                        {% set destination = destination ~ " range " ~ entrie.destination.port_number.range_start ~ " " ~
-                    entrie.destination.port_number.range_end %}
+                    {% if entrie.source.port_number is defined and entrie.source.port_number.operator is defined %}
+                        {% if entrie.source.port_number.port is defined %}
+                            {% set source = source ~ " " ~ entrie.source.port_number.operator ~ " " ~ entrie.source.port_number.port %}
+                        {% elif entrie.source.port_number.range_start and entrie.source.port_number.range_end %}
+                            {% set source = source ~ " range " ~ entrie.source.port_number.range_start ~ " " ~ entrie.source.port_number.range_end %}
+                        {% endif %}
                     {% endif %}
-                {% endif %}
-                {% if entrie.filtering_options is defined %}
-                    {% set filter_option = "" %}
-                    {% set flag_lists = [] %}
-                    {% set precedence = [] %}
-                    {% set ttl = [] %}
-                    {% set dscp = [] %}
-                    {% set packet_length = [] %}
-                    {% set http_method = [] %}
-                    {% set tcp_option_length = [] %}
-                    {% set udf = [] %}
-                    {% set load_share = [] %}
-                    {% set timerange = [] %}
-                    {% set fragment = [] %}
-                    {% for filtering_option in entrie.filtering_options %}
-                        {# Flags #}
-                        {% if "flags" in filtering_option %}
-                            {% for flag in filtering_option["flags"] %}
-                                {% if flag.establish is true %}
-                                {% set _ = flag_lists.append("established") %}
-                                {% endif %}
-                                {% if flag.ack is true %}
-                                {% set _ = flag_lists.append("ack") %}
-                                {% endif %}
-                                {% if flag.fin is true %}
-                                {% set _ = flag_lists.append("fin") %}
-                                {% endif %}
-                                {% if flag.psk is true %}
-                                {% set _ = flag_lists.append("psk") %}
-                                {% endif %}
-                                {% if flag.rst is true %}
-                                {% set _ = flag_lists.append("rst") %}
-                                {% endif %}
-                                {% if flag.syn is true %}
-                                {% set _ = flag_lists.append("syn") %}
-                                {% endif %}
-                                {% if flag.urg is true %}
-                                {% set _ = flag_lists.append("urg") %}
-                                {% endif %}
-                            {% endfor %}
-                        {# endif flags #}
+                    {% if entrie.destination.ip is defined and entrie.destination.wildcard is defined %}
+                        {% set destination = entrie.destination.ip ~ " " ~ entrie.destination.wildcard %}
+                    {% elif entrie.destination.ip is defined %}
+                        {% set destination = entrie.destination.ip | ipaddr('network/prefix') %}
+                    {% elif entrie.destination.host is defined %}
+                        {% set destination = entrie.destination.host | ipaddr('address/prefix')%}
+                    {% elif entrie.destination.any is defined and entrie.destination.any is true %}
+                        {% set destination = "any" %}
+                    {% elif entrie.destination.addrgroup is defined %}
+                        {% set destination = "addrgroup " ~ entrie.destination.addrgroup %}
+                    {% endif %}
+                    {% if entrie.destination.port_number is defined and entrie.destination.port_number.operator is defined %}
+                        {% if entrie.destination.port_number.port is defined %}
+                            {% set destination = destination ~ " " ~ entrie.destination.port_number.operator ~ " " ~
+                        entrie.destination.port_number.port %}
+                        {% elif entrie.destination.port_number.range_start and entrie.destination.port_number.range_end %}
+                            {% set destination = destination ~ " range " ~ entrie.destination.port_number.range_start ~ " " ~
+                        entrie.destination.port_number.range_end %}
                         {% endif %}
-                        {# IP Precedence #}
-                        {% if "precedence" in filtering_option %}
-                            {% set _ = precedence.append("precedence " ~ filtering_option["precedence"]) %}
-                        {% endif %}
-                        {# TTL #}
-                        {% if "ttl" in filtering_option %}
-                            {% set _ = ttl.append("ttl " ~ filtering_option["ttl"]) %}
-                        {% endif %}
-                        {% if "dscp" in filtering_option %}
-                            {% set _ = dscp.append("dscp " ~ filtering_option["dscp"]) %}
-                        {% endif %}
-                        {# Packet Length #}
-                        {% if "packet_length" in filtering_option %}
-                            {% if filtering_option["packet_length"]["range_start"] is defined and filtering_option["packet_length"]["range_end"] is
-                            defined %}
-                                {% set _ = packet_length.append("packet-length range " ~ filtering_option["packet_length"]["range_start"] ~ " " ~
-                            filtering_option["packet_length"]["range_end"]) %}
-                            {% elif filtering_option["packet_length"]["size"] is defined %}
-                                {% set _ = packet_length.append("packet-length " ~ filtering_option["packet_length"]["operation"] ~ " " ~
-                            filtering_option["packet_length"]["size"])%}
+                    {% endif %}
+                    {% if entrie.filtering_options is defined %}
+                        {% set filter_option = "" %}
+                        {% set flag_lists = [] %}
+                        {% set precedence = [] %}
+                        {% set ttl = [] %}
+                        {% set dscp = [] %}
+                        {% set packet_length = [] %}
+                        {% set http_method = [] %}
+                        {% set tcp_option_length = [] %}
+                        {% set udf = [] %}
+                        {% set load_share = [] %}
+                        {% set timerange = [] %}
+                        {% set fragment = [] %}
+                        {% for filtering_option in entrie.filtering_options %}
+                            {# Flags #}
+                            {% if "flags" in filtering_option %}
+                                {% for flag in filtering_option["flags"] %}
+                                    {% if flag.establish is true %}
+                                    {% set _ = flag_lists.append("established") %}
+                                    {% endif %}
+                                    {% if flag.ack is true %}
+                                    {% set _ = flag_lists.append("ack") %}
+                                    {% endif %}
+                                    {% if flag.fin is true %}
+                                    {% set _ = flag_lists.append("fin") %}
+                                    {% endif %}
+                                    {% if flag.psk is true %}
+                                    {% set _ = flag_lists.append("psk") %}
+                                    {% endif %}
+                                    {% if flag.rst is true %}
+                                    {% set _ = flag_lists.append("rst") %}
+                                    {% endif %}
+                                    {% if flag.syn is true %}
+                                    {% set _ = flag_lists.append("syn") %}
+                                    {% endif %}
+                                    {% if flag.urg is true %}
+                                    {% set _ = flag_lists.append("urg") %}
+                                    {% endif %}
+                                {% endfor %}
+                            {# endif flags #}
                             {% endif %}
+                            {# IP Precedence #}
+                            {% if "precedence" in filtering_option %}
+                                {% set _ = precedence.append("precedence " ~ filtering_option["precedence"]) %}
+                            {% endif %}
+                            {# TTL #}
+                            {% if "ttl" in filtering_option %}
+                                {% set _ = ttl.append("ttl " ~ filtering_option["ttl"]) %}
+                            {% endif %}
+                            {% if "dscp" in filtering_option %}
+                                {% set _ = dscp.append("dscp " ~ filtering_option["dscp"]) %}
+                            {% endif %}
+                            {# Packet Length #}
+                            {% if "packet_length" in filtering_option %}
+                                {% if filtering_option["packet_length"]["range_start"] is defined and filtering_option["packet_length"]["range_end"] is
+                                defined %}
+                                    {% set _ = packet_length.append("packet-length range " ~ filtering_option["packet_length"]["range_start"] ~ " " ~
+                                filtering_option["packet_length"]["range_end"]) %}
+                                {% elif filtering_option["packet_length"]["size"] is defined %}
+                                    {% set _ = packet_length.append("packet-length " ~ filtering_option["packet_length"]["operation"] ~ " " ~
+                                filtering_option["packet_length"]["size"])%}
+                                {% endif %}
+                            {% endif %}
+                            {# HTTP Method #}
+                            {% if "http_method" in filtering_option %}
+                                {% set _ = http_method.append("http-method " ~ filtering_option["http_method"]) %}
+                            {% endif %}
+                            {# TCP Option #}
+                            {% if "tcp_option_length" in filtering_option %}
+                                {% set _ = tcp_option_length.append("tcp-option-length " ~ filtering_option["tcp_option_length"]) %}
+                            {% endif %}
+                            {# UDF #}
+                            {% if "udf" in filtering_option %}
+                                {% set _ = udf.append(filtering_option["udf"]["name"] ~ " 0x%x" | format(filtering_option["udf"]["value"]) ~ " 0x%x" |
+                            format(filtering_option["udf"]["mask"])) %}
+                            {% endif %}
+                            {# load-share #}
+                            {% if "load_share" in filtering_option and filtering_option["load_share"] is true %}
+                                {% set _ = load_share.append("load-share") %}
+                            {% endif %}
+                            {# timerange #}
+                            {% if "time_range" in filtering_option %}
+                                {% set _ = timerange.append("time-range " ~ filtering_option["time_range"]) %}
+                            {% endif %}
+                            {% if "fragments" in filtering_option and filtering_option["fragments"] is true %}
+                                {% set _ = fragment.append("fragments") %}
+                            {% endif %}
+                        {% endfor %}
+                        {% set filter_option = (flag_lists + precedence + ttl + packet_length + dscp + http_method +
+                    tcp_option_length + udf + load_share + timerange + fragment ) | join(" ") %}
+                    {# endif filtering_options #}
+                    {% endif %}
+                    {% if source is defined and destination is defined and filter_option is defined %}
+                        {# !! src dst w/ filter #}
+                        {% if entrie.log is defined and entrie.log is true %}
+                            {% set filter_option = filter_option ~ " log" %}
                         {% endif %}
-                        {# HTTP Method #}
-                        {% if "http_method" in filtering_option %}
-                            {% set _ = http_method.append("http-method " ~ filtering_option["http_method"]) %}
+    {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }} {{ filter_option }}
+                    {% elif source is defined and destination is defined %}
+                        {# !! src dst w/o filter #}
+                        {% if entrie.log is defined and entrie.log is true %}
+                            {% set destination = destination ~ " log" %}
                         {% endif %}
-                        {# TCP Option #}
-                        {% if "tcp_option_length" in filtering_option %}
-                            {% set _ = tcp_option_length.append("tcp-option-length " ~ filtering_option["tcp_option_length"]) %}
+    {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }}
+                    {% elif filter_option is defined %}
+                        {# !! w/ filter only #}
+                        {% if entrie.log is defined and entrie.log is true %}
+                            {% set filter_option = filter_option ~ " log" %}
                         {% endif %}
-                        {# UDF #}
-                        {% if "udf" in filtering_option %}
-                            {% set _ = udf.append(filtering_option["udf"]["name"] ~ " 0x%x" | format(filtering_option["udf"]["value"]) ~ " 0x%x" |
-                        format(filtering_option["udf"]["mask"])) %}
-                        {% endif %}
-                        {# load-share #}
-                        {% if "load_share" in filtering_option and filtering_option["load_share"] is true %}
-                            {% set _ = load_share.append("load-share") %}
-                        {% endif %}
-                        {# timerange #}
-                        {% if "time_range" in filtering_option %}
-                            {% set _ = timerange.append("time-range " ~ filtering_option["time_range"]) %}
-                        {% endif %}
+                        {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ filter_option }}
+                    {% endif %}
+                    {% endif %}
                     {% endfor %}
-                    {% set filter_option = (flag_lists + precedence + ttl + packet_length + dscp + http_method +
-                tcp_option_length + udf + load_share + timerange + fragment ) | join(" ") %}
-                {# endif filtering_options #}
                 {% endif %}
-                {% if source is defined and destination is defined and filter_option is defined %}
-                    {# !! src dst w/ filter #}
-                    {# Fragment #}
-                    {% if "fragments" in entrie and entrie["fragments"] %}
-                        {% set filter_option = filter_option ~ " fragments" %}
-                    {% endif %}
-                    {% if entrie.log is defined and entrie.log is true %}
-                        {% set filter_option = filter_option ~ " log" %}
-                    {% endif %}
-  {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }} {{ filter_option }}
-                {% elif source is defined and destination is defined %}
-                    {# !! src dst w/o filter #}
-                    {# Fragment #}
-                    {% if "fragments" in entrie and entrie["fragments"] %}
-                        {% set destination = destination ~ " fragments" %}
-                    {% endif %}
-                    {% if entrie.log is defined and entrie.log is true %}
-                        {% set destination = destination ~ " log" %}
-                    {% endif %}
-  {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ source }} {{ destination }}
-                {% elif filter_option is defined %}
-                    {# !! w/ filter only #}
-                    {# Fragment #}
-                    {% if "fragments" in entrie and entrie["fragments"] %}
-                        {% set filter_option = filter_option ~ " fragments" %}
-                    {% endif %}
-                    {% if entrie.log is defined and entrie.log is true %}
-                        {% set filter_option = filter_option ~ " log" %}
-                    {% endif %}
-                    {{ entrie.seq_number }} {{ entrie.operation }} {{ entrie.protocol }} {{ filter_option }}
-                {% endif %}
-                {% endif %}
-                {% endfor %}
             {% endif %}
         {% endfor %}
     {% endfor %}
