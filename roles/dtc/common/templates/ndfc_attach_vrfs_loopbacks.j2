@@ -11,7 +11,7 @@
     "freeformConfig": "",
     "extensionValues": "",
     "vlan": "{{ vrf["vlan_id"] }}",
-    "deployment": true,
+    "deployment": false,
     "instanceValues": "{\"loopbackId\": \"{{ attach['loopback_id'] }}\", \"loopbackIpAddress\": \"{{ attach['loopback_ipv4'] | default('') }}\", \"loopbackIpV6Address\":\"{{ attach['loopback_ipv6'] | default('') }}\"}"
   }{% if not loop.last %},{% endif %}
   {% endfor %}
