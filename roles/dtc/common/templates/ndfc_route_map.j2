@@ -4,4 +4,58 @@
 !
 !!! ================ Route-maps found =====================
 !!! {{ policy_types["route_maps"] }}
+    {# Get policy route-maps in groups #}
+    {% for policy_name in policy_types["route_maps"] %}
+    {# Get route-maps under Route_control #}
+        {% for route_map in item["route_maps"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == route_map["name"] %}
+                {% for entry in route_map["entries"] %}
+route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"] }}
+                    {% if description is defined %}
+  description {{ entry["description"] }}
+                    {% endif %}
+                    {% if match is defined %}
+                        {% for match in entry["match"] %}
+                            {% if match["as_path_list"] is defined %}
+  match as-path {{ match["as_path_list"] }}
+                            {% endif %}
+                            {% if match["as_number"] is defined %}
+  match as-number {{ match["as_number"] }}
+  {# we should use from and to for this #}
+                            {% endif %}
+                            {% if match["community_list"] is defined %}
+                            {% endif %}
+                            {% if match["community_list"] is defined %}
+  match community {{ match["community_list"] }}
+                            {% endif %}
+                            {% if match["extended_community_list"] is defined %}
+  match extcommunity {{ match["extended_community_list"] }}
+                            {% endif %}
+{# !!! LISTS                {% if match["interface"] is defined %}
+                                {% for interface in match["interface"] %}
+                            {% if match["evpn_route_types"] is defined %}
+                                {% for evpn in match["evpn"] %}
+                            {% if match["route_types"] is defined %}
+                                {% for route_type in match["route_types"] %}
+!!! #}
+                            {% if match["mac_list"] is defined %}
+  match mac-list {{ match["mac_list"] }}
+                            {% endif %}
+                            {% if match["ospf_area"] is defined %}
+  match ospf area {{ match["ospf_area"] }}
+                            {% endif %}
+                            {% if match["source_protocol"] is defined %}
+  match source-protocol {{ match["source_protocol"] }}
+                            {% endif %}
+                            {% if match["tag"] is defined %}
+  match tag {{ match["tag"] }}
+                            {% endif %}
+{# !!! add ipv4/ipv6, metric #}
+{# !!! missing schema option for 'ip"
+  match ip address prefix-list myPref
+  match ip next-hop prefix-list myPref
+  match ip route-source prefix-list myPref #}
 
+{# !!! Add "set" and "continue"
+  set ip ....   ip is missing in schema under set. #}
