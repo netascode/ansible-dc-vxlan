@@ -59,3 +59,9 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
 
 {# !!! Add "set" and "continue"
   set ip ....   ip is missing in schema under set. #}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}

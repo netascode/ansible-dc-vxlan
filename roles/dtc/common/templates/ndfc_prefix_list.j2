@@ -15,24 +15,24 @@
 ip prefix-list {{ ipv4_prefix_list["name"] }} description {{ ipv4_prefix_list["description"] }}
                 {% endif %}
                 {% if "entries" in ipv4_prefix_list %}
-                    {% for entrie in ipv4_prefix_list["entries"] %}
+                    {% for entry in ipv4_prefix_list["entries"] %}
                         {% set options = [] %}
-                        {%if entrie["eq"] is defined %}
-                            {% set _ = options.append("eq " ~ entrie["eq"] ) %}
+                        {%if entry["eq"] is defined %}
+                            {% set _ = options.append("eq " ~ entry["eq"] ) %}
                         {% endif %}
-                        {%if entrie["ge"] is defined %}
-                            {% set _ = options.append("ge " ~ entrie["ge"] ) %}
+                        {%if entry["ge"] is defined %}
+                            {% set _ = options.append("ge " ~ entry["ge"] ) %}
                         {% endif %}
-                        {%if entrie["le"] is defined %}
-                            {% set _ = options.append("le " ~ entrie["le"] ) %}
+                        {%if entry["le"] is defined %}
+                            {% set _ = options.append("le " ~ entry["le"] ) %}
                         {% endif %}
-                        {%if entrie["mask"] is defined %}
-                            {% set _ = options.append("mask " ~ entrie["mask"] ) %}
+                        {%if entry["mask"] is defined %}
+                            {% set _ = options.append("mask " ~ entry["mask"] ) %}
                         {% endif %}
                         {% if options | length > 1 %}
-ip prefix-list {{ ipv4_prefix_list["name"] }} {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["prefix"] }} {{ options | join(" ") }}
+ip prefix-list {{ ipv4_prefix_list["name"] }} {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }} {{ options | join(" ") }}
                         {% else %}
-ip prefix-list {{ ipv4_prefix_list["name"] }} {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["prefix"] }}
+ip prefix-list {{ ipv4_prefix_list["name"] }} {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }}
                         {% endif %}
                     {% endfor %}
                 {% endif %}
@@ -54,24 +54,24 @@ ip prefix-list {{ ipv4_prefix_list["name"] }} {{ entrie["seq_number"] }} {{ entr
 ipv6 prefix-list {{ ipv6_prefix_list["name"] }} description {{ ipv6_prefix_list["description"] }}
                 {% endif %}
                 {% if "entries" in ipv6_prefix_list %}
-                    {% for entrie in ipv6_prefix_list["entries"] %}
+                    {% for entry in ipv6_prefix_list["entries"] %}
                         {% set options = [] %}
-                        {%if entrie["eq"] is defined %}
-                            {% set _ = options.append("eq " ~ entrie["eq"] ) %}
+                        {%if entry["eq"] is defined %}
+                            {% set _ = options.append("eq " ~ entry["eq"] ) %}
                         {% endif %}
-                        {%if entrie["ge"] is defined %}
-                            {% set _ = options.append("ge " ~ entrie["ge"] ) %}
+                        {%if entry["ge"] is defined %}
+                            {% set _ = options.append("ge " ~ entry["ge"] ) %}
                         {% endif %}
-                        {%if entrie["le"] is defined %}
-                            {% set _ = options.append("le " ~ entrie["le"] ) %}
+                        {%if entry["le"] is defined %}
+                            {% set _ = options.append("le " ~ entry["le"] ) %}
                         {% endif %}
-                        {%if entrie["mask"] is defined %}
-                            {% set _ = options.append("mask " ~ entrie["mask"] ) %}
+                        {%if entry["mask"] is defined %}
+                            {% set _ = options.append("mask " ~ entry["mask"] ) %}
                         {% endif %}
                         {% if options | length > 1 %}
-ipv6 prefix-list {{ ipv6_prefix_list["name"] }} {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["prefix"] }} {{ options | join(" ") }}
+ipv6 prefix-list {{ ipv6_prefix_list["name"] }} {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }} {{ options | join(" ") }}
                         {% else %}
-ipv6 prefix-list {{ ipv6_prefix_list["name"] }} {{ entrie["seq_number"] }} {{ entrie["operation"] }} {{ entrie["prefix"] }}
+ipv6 prefix-list {{ ipv6_prefix_list["name"] }} {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }}
                         {% endif %}
                     {% endfor %}
                 {% endif %}
