@@ -12,16 +12,16 @@
             {% if policy_name["name"] == route_map["name"] %}
                 {% for entry in route_map["entries"] %}
 route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"] }}
-                    {% if description is defined %}
+                    {% if entry["description"] is defined %}
   description {{ entry["description"] }}
                     {% endif %}
-                    {% if match is defined %}
+                    {% if entry["match"] is defined %}
                         {% for match in entry["match"] %}
                             {% if match["as_path_list"] is defined %}
   match as-path {{ match["as_path_list"] }}
                             {% endif %}
-                            {% if match["as_number"] is defined %}
-  match as-number {{ match["as_number"] }}
+                            {% if match["as_numbers"] is defined %}
+  match as-number {{ match["as_numbers"] }}
   {# we should use from and to for this #}
                             {% endif %}
                             {% if match["community_list"] is defined %}
@@ -48,8 +48,8 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                             {% if match["source_protocol"] is defined %}
   match source-protocol {{ match["source_protocol"] }}
                             {% endif %}
-                            {% if match["tag"] is defined %}
-  match tag {{ match["tag"] }}
+                            {% if match["tags"] is defined %}
+  match tag {{ match["tags"] }}
                             {% endif %}
 {# !!! add ipv4/ipv6, metric #}
 {# !!! missing schema option for 'ip"
