@@ -22,7 +22,7 @@
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader
 from ....plugin_utils.helper_functions import hostname_to_ip_mapping
 from ansible_collections.ansible.utils.plugins.filter import ipaddr
-
+from ansible_collections.ansible.utils.plugins.filter import hwaddr
 
 class PreparePlugin:
     def __init__(self, **kwargs):
@@ -44,6 +44,7 @@ class PreparePlugin:
         )
 
         env.filters["ipaddr"] = ipaddr.ipaddr
+        env.filters["hwaddr"] = hwaddr.hwaddr
         template = env.get_template(template_filename)
 
         if "overlay_extensions" in model_data["vxlan"]:

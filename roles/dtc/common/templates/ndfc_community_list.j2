@@ -5,9 +5,67 @@
 {% if policy_types["standard_community_lists"] is defined %}
 !!! ================ standard_community_lists found =====================
 !!! {{ policy_types["standard_community_lists"] }}
+    {# Get policy Community lists in groups #}
+    {% for policy_name in policy_types["standard_community_lists"] %}
+    {# Get Community lists under Route_control #}
+        {% for standard_community_list in item["standard_community_lists"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == standard_community_list["name"] %}
+                {% if "entries" in standard_community_list %}
+                    {% for entry in standard_community_list["entries"] %}
+ip community-list standard {{ standard_community_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["communities"] | join(" ") }}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
 {% endif %}
 
 {% if policy_types["extended_community_lists"] is defined %}
 !!! ================ extended_community_lists found =====================
 !!! {{ policy_types["extended_community_lists"] }}
+    {# Get policy Ext Community lists in groups #}
+    {% for policy_name in policy_types["extended_community_lists"] %}
+        {# Get Ext Community lists under Route_control #}
+        {% for extended_community_list in item["extended_community_lists"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == extended_community_list["name"] %}
+                {% if "entries" in extended_community_list %}
+                    {% for entry in extended_community_list["entries"] %}
+                        {% set options = [] %}
+                        {# if option 4byteas_generic #}
+                        {% if "4byteas_generic" in entry["communities"] %}
+                            {% for fourbyteas_generic in entry["communities"]["4byteas_generic"] %}
+                                {% set _ = options.append("4byteas-generic") %}
+                                {% if fourbyteas_generic["transitive"] is true %}
+                                    {% set _ = options.append("transitive " ~ fourbyteas_generic["extended_community"]) %}
+                                {% else %}
+                                    {% set _ = options.append("non-transitive " ~ fourbyteas_generic["extended_community"]) %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {# if option rmac #}
+                        {% if "rmac" in entry["communities"] %}
+                            {% for rmac in entry["communities"]["rmac"] %}
+                                {% set _ = options.append("rmac " ~ rmac | hwaddr('cisco') ) %}
+                            {% endfor %}
+                        {% endif %}
+                        {# if option rt #}
+                        {% if "rt" in entry["communities"] %}
+                            {% for rt in entry["communities"]["rt"] %}
+                                {% set _ = options.append("rt " ~ rt ) %}
+                            {% endfor %}
+                        {% endif %}
+                        {# if option soo  #}
+                        {% if "soo" in entry["communities"] %}
+                            {% for soo in entry["communities"]["rt"] %}
+                                {% set _ = options.append("soo " ~ soo ) %}
+                            {% endfor %}
+                        {% endif %}
+ip extcommunity-list standard {{ extended_community_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ options | join(" ") }}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
 {% endif %}
