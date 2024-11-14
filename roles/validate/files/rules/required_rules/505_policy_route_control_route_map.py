@@ -14,7 +14,6 @@ Validation Rules scenarios:
 12. IPv6 object groups in the vxlan.overlay_extensions.route_control.groups.ipv6_object_groups should be defined in the vxlan.overlay_extensions.route_control.ipv6_object_groups.
 13. Name for each of these policies should be unique when they are created and when they are consumed
 14. Check if in the set_metric route map if we use metric bandwith or all the five metrics: bandwidth, delay, reliability, load, mtu
-https://github.com/netascode/ansible-dc-vxlan/blob/initial_render/roles/validate/files/rules/required_rules/502_policy_vrf_lite_cross_reference.py
 """
 
 
