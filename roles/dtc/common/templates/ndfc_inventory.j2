@@ -21,18 +21,22 @@
 {% if poap_data[switch['serial_number']] is defined %}
 {% set pdata = poap_data[switch['serial_number']] %}
   poap:
-{% if switch['poap']['preprovision'] is defined %}
-    - preprovision_serial: {{ switch['serial_number'] }}
-{% else %}
     - serial_number: {{ switch['serial_number'] }}
-{% endif %}  
       hostname: {{ switch['name'] }}
       model: {{ pdata['model'] }}
       version: {{ pdata['version'] }}
       config_data:
         modulesModel: {{ pdata['modulesModel'] }}
         gateway: {{ pdata['gateway'] }}
-
+{% elif switch['poap']['preprovision'] is defined %}
+  poap:
+    - preprovision_serial: {{ switch['poap']['preprovision']['serial_number'] }}
+      model: {{  switch['poap']['preprovision']['model'] }}
+      version: {{ switch['poap']['preprovision']['version']  }}
+      config_data:
+        modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
+        gateway: {{ switch['management']['default_gateway_v4']  }} 
+      hostname: {{ switch['name'] }}
 {% endif %}
 {% endif %}
 {% endif %}
