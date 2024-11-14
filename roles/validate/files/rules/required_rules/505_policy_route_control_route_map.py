@@ -6,20 +6,23 @@ Validation Rules scenarios:
 4.  MAC list in vxlan.overlay_extensions.route_control.groups.mac_lists ishould be defined in vxlan.overlay_extensions.route_control.mac_lists
 5.  Standard community lists in the vxlan.overlay_extensions.route_control.groups.standard_community_lists should be defined in the vxlan.overlay_extensions.route_control.standard_community_lists
 6.  Extended community lists in the vxlan.overlay_extensions.route_control.groups.extended_community_lists should be defined in the vxlan.overlay_extensions.route_control.extended_community_lists
-7.  IPv4 prefix lists in the vxlan.overlay_extensions.route_control.groups.ipv4_prefix_lists should be defined in the vxlan.overlay_extensions.route_control.ipv4_prefix_lists  
+7.  IPv4 prefix lists in the vxlan.overlay_extensions.route_control.groups.ipv4_prefix_lists should be defined in the vxlan.overlay_extensions.route_control.ipv4_prefix_lists
 8.  IPv6 prefix lists in the vxlan.overlay_extensions.route_control.groups.ipv6_prefix_lists should be defined in the vxlan.overlay_extensions.route_control.ipv6_prefix_lists
 9.  IPv4 access lists in the vxlan.overlay_extensions.route_control.groups.ipv4_access_lists should be defined in the vxlan.overlay_extensions.route_control.ipv4_access_lists
 10. Time ranges in the vxlan.overlay_extensions.route_control.groups.time_ranges should be defined in the vxlan.overlay_extensions.route_control.time_ranges
 11. IPv4 object groups in the vxlan.overlay_extensions.route_control.groups.ipv4_object_groups should be defined in the vxlan.overlay_extensions.route_control.ipv4_object_groups
 12. IPv6 object groups in the vxlan.overlay_extensions.route_control.groups.ipv6_object_groups should be defined in the vxlan.overlay_extensions.route_control.ipv6_object_groups.
-13. Name for each of this policies should be unique.
+13. Name for each of these policies should be unique when they are created and when they are consumed
 14. Check if in the set_metric route map if we use metric bandwith or all the five metrics: bandwidth, delay, reliability, load, mtu
+https://github.com/netascode/ansible-dc-vxlan/blob/initial_render/roles/validate/files/rules/required_rules/502_policy_vrf_lite_cross_reference.py
 """
+
+
 class Rule:
     """
     Class 505 - Verify Route-Control Cross Reference Between Policies, Groups, and Switches
     """
-    
+
     id = "505"
     description = (
         "Verify Route-Control Cross Reference Between Policies, Groups, and Switches"
@@ -34,7 +37,6 @@ class Rule:
         """
         route_control = []
         topology_switches = []
-        policies = []
         switch_policy = []
         group_policy = []
 
@@ -57,9 +59,9 @@ class Rule:
             if data["vxlan"].get("overlay_extensions", None):
                 if data["vxlan"].get("overlay_extensions").get("route_control", None):
                     if data["vxlan"].get("overlay_extensions").get("route_control").get("groups", None):
-                        group_policy = data["vxlan"]["overlay_extensions"]["route_control"]["groups"]     
-        
-        # Check Global Level
+                        group_policy = data["vxlan"]["overlay_extensions"]["route_control"]["groups"]
+
+        # Check switch Level
         if route_control.get("switches"):
             for switch_policy in route_control["switches"]:
                 cls.check_switch_level(
@@ -67,8 +69,17 @@ class Rule:
                     topology_switches,
                     group_policy
                 )
-        
-        cls.check_set_metric_integrity(data)
+
+        # Check route maps
+        if route_control.get("route_maps"):
+            for route_map in route_control["route_maps"]:
+                if route_map.get("entries", None):
+                    for seq_numer in route_map["entries"]:
+                        if seq_numer.get("set", None):
+                            # Check set metric integrity
+                            cls.check_set_metric_integrity(
+                                seq_numer["set"]
+                            )
 
         return cls.results
 
@@ -122,25 +133,17 @@ class Rule:
             )
 
     @classmethod
-    def check_set_metric_integrity(cls, policy):
+    def check_set_metric_integrity(cls, set_policy):
         """
         Check if in the set_metric route map if we use metric bandwith or all the five metrics: bandwidth, delay, reliability, load, mtu
-        """            
-        if policy.get("vxlan", None):
-            if policy["vxlan"].get("overlay_extensions", None):
-                if policy["vxlan"].get("overlay_extensions").get("route_control", None):
-                    if policy["vxlan"].get("overlay_extensions").get("route_control").get("route_maps", None):
-                        for route_maps in policy["vxlan"]["overlay_extensions"]["route_control"].get("route_maps"):
-                            if route_maps.get("entries", None):
-                                for seq_numer in route_maps["entries"]:
-                                    if seq_numer.get("set" , None):
-                                        if seq_numer["set"].get("metric", None):
-                                            metrics = ['bandwidth', 'delay', 'reliability', 'load', 'mtu']
-                                            if 'bandwidth' in seq_numer["set"]["metric"][0].keys() and len(seq_numer["set"]["metric"][0].keys()) == 1:
-                                                pass
-                                            else:
-                                                for metric in metrics:
-                                                    if metric not in list(seq_numer["set"]["metric"][0].keys()):
-                                                       cls.results.append(
-                                                           "For vxlan.overlay_extensions.route_control.route_maps.entries.set.metric to be enabled, " +
-                                                            metric + " must be set in the metric.")
+        """
+        if set_policy.get("metric", None):
+            metrics = ['bandwidth', 'delay', 'reliability', 'load', 'mtu']
+            if 'bandwidth' in set_policy["metric"][0].keys() and len(set_policy["metric"][0].keys()) == 1:
+                pass
+            else:
+                for metric in metrics:
+                    if metric not in list(set_policy["metric"][0].keys()):
+                        cls.results.append(
+                            "For vxlan.overlay_extensions.route_control.route_maps.entries.set.metric to be enabled, " +
+                            metric + " must be set in the metric.")
