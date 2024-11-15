@@ -24,6 +24,8 @@ from jinja2 import ChainableUndefined, Environment, FileSystemLoader
 from ....plugin_utils.helper_functions import hostname_to_ip_mapping
 from ansible_collections.ansible.utils.plugins.filter import ipaddr
 
+display = Display()
+
 
 class PreparePlugin:
     def __init__(self, **kwargs):
