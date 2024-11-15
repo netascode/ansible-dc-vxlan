@@ -59,7 +59,25 @@ class Rule:
                     # route control is empty
                     return cls.results
 
-     
+        # Check switch Level
+        if route_control.get("switches"):
+            for switch_policy in route_control["switches"]:
+                cls.check_switch_level(
+                    switch_policy,
+                    topology_switches,
+                    group_policy
+                )
+
+        # Check route maps
+        if route_control.get("route_maps"):
+            for route_map in route_control["route_maps"]:
+                if route_map.get("entries", None):
+                    for seq_numer in route_map["entries"]:
+                        if seq_numer.get("set", None):
+                            # Check set metric integrity
+                            cls.check_set_metric_integrity(
+                                seq_numer["set"]
+                            )
 
         return cls.results
 
