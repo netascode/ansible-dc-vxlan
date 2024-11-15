@@ -52,12 +52,12 @@ router ospf {{ item.ospf['process'] }}
     area {{ area.id | ipaddr('address') }} nssa
             {% else %}
                 {% set nssa_options = {
-                'no_redistribution': area.nssa[0].no_redistribution | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.no_redistribution),
-                'no_summary': area.nssa[0].no_summary | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.no_summary),
-                'default_information_originate': area.nssa[0].default_information_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.default_information_originate),
-                'translate_always': area.nssa[0].translate[0].always | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.always),
-                'translate_supress_fa': area.nssa[0].translate[0].supress_fa | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.supress_fa),
-                'translate_never': area.nssa[0].translate[0].never | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.never)
+                'no_redistribution': area.nssa.no_redistribution | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.no_redistribution),
+                'no_summary': area.nssa.no_summary | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.no_summary),
+                'default_information_originate': area.nssa.default_information_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.default_information_originate),
+                'translate_always': area.nssa.translate.always | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.always),
+                'translate_supress_fa': area.nssa.translate.supress_fa | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.supress_fa),
+                'translate_never': area.nssa.translate.never | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.never)
                 } %}
                 {% set nssa_options_flags = [] %}
                 {% set nssa_options_translate = [] %}
@@ -73,7 +73,7 @@ router ospf {{ item.ospf['process'] }}
               {% endif %}
               {% if nssa_options.default_information_originate is true %}
                 {% set _= nssa_options_flags.append("default-information-originate") %}
-                {% if area.nssa[0].route_map %}
+                {% if area.nssa.route_map %}
                   {% set _= nssa_options_flags.append("route-map") %}
                   {% set _= nssa_options_flags.append(area.nssa[0].route_map) %}
                   {% set nssa_options_flags_enabled = true %}
@@ -106,17 +106,17 @@ router ospf {{ item.ospf['process'] }}
     area 0.0.0.0 default-cost {{ area.area_cost }}
         {% endif %}
         {% if area.default_information_originate is defined %}
-          {% if area.default_information_originate[0].always is not defined %}
+          {% if area.default_information_originate.always is not defined %}
             {% set default_information_originate_always = defaults.vxlan.overlay_extensions.vrf_lites.ospf.default_information_originate.always %}
           {% else %}
-            {% set default_information_originate_always = area.default_information_originate[0].always %}
+            {% set default_information_originate_always = area.default_information_originate.always %}
           {% endif %}
-          {% if (default_information_originate_always is true and area.default_information_originate[0].route_map is defined) %}
-    default-information originate always route-map {{ area.default_information_originate[0].route_map }}
-          {% elif default_information_originate_always is true and area.default_information_originate[0].route_map is not defined %}
+          {% if (default_information_originate_always is true and area.default_information_originate.route_map is defined) %}
+    default-information originate always route-map {{ area.default_information_originate.route_map }}
+          {% elif default_information_originate_always is true and area.default_information_originate.route_map is not defined %}
     default-information originate always
-          {% elif default_information_originate_always is false and area.default_information_originate[0].route_map is defined %}
-    default-information originate route-map {{ area.default_information_originate[0].route_map }}
+          {% elif default_information_originate_always is false and area.default_information_originate.route_map is defined %}
+    default-information originate route-map {{ area.default_information_originate.route_map }}
           {% else %}
     default-information originate
           {% endif %}
