@@ -37,9 +37,9 @@ class PreparePlugin:
         model_data = self.kwargs['results']['model_extended']
         default_values = self.kwargs['default_values']
 
-        # Remove lines 38-40 after route control that includes route-maps, prefix-lists, etc is merged
-        return self.kwargs['results']
+        # Remove lines 40-42 after route control that includes route-maps, prefix-lists, etc is merged
         display.warning("VRF-Lite in VXLAN as Code is currently not supported.")
+        return self.kwargs['results']
 
         template_filename = "ndfc_vrf_lite.j2"
 
