@@ -4,20 +4,20 @@
 !
 {% if policy_types["ipv4_access_lists"] is defined %}
 !!! ================ IPv4 ACL found =====================
-!!! {{ policy_types["ipv4_access_lists"] }}
 
     {% for policy_name in policy_types["ipv4_access_lists"] : %}
         {% for ipv4_access_list in item["ipv4_access_lists"] %}
             {% if policy_name["name"] == ipv4_access_list["name"] %}
 {# !!! {{ ipv4_access_list }} #}
 ip access-list {{ ipv4_access_list["name"] }}
-                {% if ipv4_access_list["statistics_per_entry"] is defined and ipv4_access_list["statistics_per_entry"] is true %}
-  statistics per-entry
-                {% elif ipv4_access_list["fragments"] is defined %}
+                {% if ipv4_access_list["fragments"] is defined %}
   fragments {{ ipv4_access_list["fragments"] }}
                 {% elif ipv4_access_list["ignore_routable"] is defined and ipv4_access_list["ignore_routable"] is true %}
   ignore routable
                 {% else %}
+                    {% if ipv4_access_list["statistics_per_entry"] is defined and ipv4_access_list["statistics_per_entry"] is true %}
+  statistics per-entry
+                    {% endif %}
                     {% for entry in ipv4_access_list["entries"] %}
                         {% if entry.remark is defined %}
   {{ entry[ "seq_number"] }} remark {{ entry[ "remark"] }}
@@ -149,7 +149,7 @@ ip access-list {{ ipv4_access_list["name"] }}
                                 tcp_option_length + udf + load_share + timerange + fragment ) | join(" ") %}
                             {# endif filtering_options #}
                             {% endif %}
-                            {% if source is defined and destination is defined and filter_option is defined %}
+                            {% if source is defined and destination is defined and filter_option is defined and filter_option | length > 0 %}
                             {# !! src dst w/ filter #}
                                 {% if entry[ "log"] is defined and entry[ "log"] is true %}
                                     {% set filter_option = filter_option ~ " log" %}
@@ -178,7 +178,7 @@ ip access-list {{ ipv4_access_list["name"] }}
 
 {% if policy_types["ipv6_access_lists"] is defined %}
 !!! ================ IPv6 ACL found =====================
-!!! {{ policy_types["ipv6_access_lists"] }}
+
     {% for policy_name in policy_types["ipv6_access_lists"] : %}
         {% for ipv6_access_list in item["ipv6_access_lists"] %}
             {% if policy_name.name == ipv6_access_list.name %}

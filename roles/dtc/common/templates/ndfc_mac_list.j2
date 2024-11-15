@@ -8,7 +8,11 @@
         {% for mac_list in item["mac_list"] %}
             {% if policy_name.name == mac_list.name %}
                 {% for entry in mac_list["entries"] %}
+                    {% if "mac_mask" in entry %}
 mac-list {{ mac_list.name }} seq {{ entry.seq_number }} {{ entry.operation }} {{ entry.mac }} {{ entry.mac_mask }}
+                    {% else %}
+mac-list {{ mac_list.name }} seq {{ entry.seq_number }} {{ entry.operation }} {{ entry.mac }}
+                    {% endif%}
                 {% endfor %}
             {% endif %}
        {% endfor %}

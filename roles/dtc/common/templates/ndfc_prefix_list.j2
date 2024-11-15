@@ -4,7 +4,7 @@
 !
 {% if policy_types["ipv4_prefix_lists"] is defined %}
 !!! ================ IPv4 Pfx found =====================
-!!! {{ policy_types["ipv4_prefix_lists"] }}
+
     {# Get policy IPv4 Pfx in groups #}
     {% for policy_name in policy_types["ipv4_prefix_lists"] %}
         {# Get IPv4 Pfx under Route_control #}
@@ -43,7 +43,7 @@ ip prefix-list {{ ipv4_prefix_list["name"] }} {{ entry["seq_number"] }} {{ entry
 
 {% if policy_types["ipv6_prefix_lists"] is defined %}
 !!! ================ IPv6 Pfx found =====================
-!!! {{ policy_types["ipv6_prefix_lists"] }}
+
     {# Get policy IPv6 Pfx in groups #}
     {% for policy_name in policy_types["ipv6_prefix_lists"] %}
     {# Get IPv6 Pfx under Route_control #}
