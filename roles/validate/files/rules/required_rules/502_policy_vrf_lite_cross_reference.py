@@ -132,8 +132,8 @@ class Rule:
         Check NSSA parameters
         """
         if "nssa" in area:
-            if "translate" in area["nssa"][0]:
-                translate = area["nssa"][0]["translate"][0]
+            if "translate" in area["nssa"]:
+                translate = area["nssa"]["translate"]
                 if "never" in translate and translate["never"] is True:
                     if ("supress_fa" in translate or "always" in translate) and (
                         translate["supress_fa"] is True or translate["always"] is True
@@ -142,9 +142,9 @@ class Rule:
                             f"vxlan.overlay_extensions.vrf_lites.{policy}.ospf.areas.id.{area['id']}. "
                             f"NSSA translate type 7 never, cannot be enabled with always or supress"
                         )
-            if "route_map" in area["nssa"][0] and (
-                "default_information_originate" not in area["nssa"][0]
-                or area["nssa"][0]["default_information_originate"] is False
+            if "route_map" in area["nssa"] and (
+                "default_information_originate" not in area["nssa"]
+                or area["nssa"]["default_information_originate"] is False
             ):
                 cls.results.append(
                     f"vxlan.overlay_extensions.vrf_lites.{policy}.ospf.areas.id.{area['id']}. "
