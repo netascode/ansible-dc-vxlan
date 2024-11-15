@@ -19,6 +19,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from ansible.utils.display import Display
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader
 from ....plugin_utils.helper_functions import hostname_to_ip_mapping
 from ansible_collections.ansible.utils.plugins.filter import ipaddr
@@ -33,6 +34,10 @@ class PreparePlugin:
         templates_path = self.kwargs['templates_path']
         model_data = self.kwargs['results']['model_extended']
         default_values = self.kwargs['default_values']
+
+        # Remove lines 38-40 after route control that includes route-maps, prefix-lists, etc is merged
+        return self.kwargs['results']
+        display.warning("VRF-Lite in VXLAN as Code is currently not supported.")
 
         template_filename = "ndfc_vrf_lite.j2"
 
