@@ -38,4 +38,8 @@
 
         {% include "ndfc_object_groups.j2" %}
     {% endif %}
+    {% if "ip_as_path_access_lists" in policy_types %}
+
+        {% include "ndfc_ip_as_path_access_lists.j2" %}
+    {% endif %}
 {% endfor %}

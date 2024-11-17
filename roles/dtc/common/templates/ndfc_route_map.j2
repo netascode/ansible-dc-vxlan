@@ -17,48 +17,163 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                     {% endif %}
                     {% if entry["match"] is defined %}
                         {% for match in entry["match"] %}
+                            {% if match["route_types"] is defined %}
+  match route-type {{ match["route_types"] | join(" ") }}
+                            {% endif %}
+                            {% if match["community_list"] is defined %}
+                                {% if match["community_list"]["community"] is defined and match["community_list"]["exact_match"] is defined %}
+  match community {{ match["community_list"]["community"] }} exact-match
+                                {% elif match["community_list"]["community"] is defined %}
+  match community {{ match["community_list"]["community"] }}
+                                {% endif %}
+                            {% endif %}
+                            {% if match["extended_community_list"] is defined %}
+                                {% if match["extended_community_list"]["community"] is defined and match["extended_community_list"]["exact_match"] is defined %}
+  match extcommunity {{ match["extended_community_list"]["community"] }} exact-match
+                                {% elif match["extended_community_list"]["community"] is defined %}
+  match extcommunity {{ match["extended_community_list"]["community"] }}
+                                {% endif %}
+                            {% endif %}
+                            {% if match["evpn_route_types"] is defined %}
+  match evpn route-type {{ match["evpn_route_types"] | unique | join (" ")}}
+                            {% endif %}
                             {% if match["as_path_list"] is defined %}
   match as-path {{ match["as_path_list"] }}
                             {% endif %}
                             {% if match["as_numbers"] is defined %}
-  match as-number {{ match["as_numbers"] }}
-  {# we should use from and to for this #}
+                                {% set asnumber = [] %}
+                                {% for as in match["as_numbers"] %}
+                                    {% if as["from"] is defined and as["to"] is defined %}
+                                        {% set _ = asnumber.append(as["from"]~ "-" ~as["to"])%}
+                                    {% elif as["from"] is defined %}
+                                        {% set _ = asnumber.append(as["from"]) %}
+                                    {% endif %}
+                                {% endfor %}
+  match as-number {{ asnumber | join(", ") }}
                             {% endif %}
-                            {% if match["community_list"] is defined %}
+                            {% if match["interfaces"] is defined %}
+                                {% set iflist = [] %}
+                                {% for interface in match["interfaces"] %}
+                                    {% set _ = iflist.append(interface[0]|upper ~ interface[1:]) %}
+                                {% endfor %}
+  match interface {{ iflist | join(" ") }}
                             {% endif %}
-                            {% if match["community_list"] is defined %}
-  match community {{ match["community_list"] }}
+                            {% if match["metric"] is defined %}
+                                {% if match["metric"]["deviation_operator"] is defined %}
+  match metric {{ match["metric"]["metric"] }} {{ match["metric"]["deviation_operator"] }} {{ match["metric"]["deviation_value"] }}
+                                {% else %}
+  match metric {{ match["metric"]["metric"] }}
+                                {% endif %}
                             {% endif %}
-                            {% if match["extended_community_list"] is defined %}
-  match extcommunity {{ match["extended_community_list"] }}
-                            {% endif %}
-{# !!! LISTS                {% if match["interface"] is defined %}
-                                {% for interface in match["interface"] %}
-                            {% if match["evpn_route_types"] is defined %}
-                                {% for evpn in match["evpn"] %}
-                            {% if match["route_types"] is defined %}
-                                {% for route_type in match["route_types"] %}
-!!! #}
                             {% if match["mac_list"] is defined %}
   match mac-list {{ match["mac_list"] }}
                             {% endif %}
                             {% if match["ospf_area"] is defined %}
-  match ospf area {{ match["ospf_area"] }}
+  match ospf-area {{ match["ospf_area"] }}
                             {% endif %}
                             {% if match["source_protocol"] is defined %}
   match source-protocol {{ match["source_protocol"] }}
                             {% endif %}
                             {% if match["tags"] is defined %}
-  match tag {{ match["tags"] }}
+  match tag {{ match["tags"] | join (" ") }}
                             {% endif %}
-{# !!! add ipv4/ipv6, metric #}
-{# !!! missing schema option for 'ip"
-  match ip address prefix-list myPref
-  match ip next-hop prefix-list myPref
-  match ip route-source prefix-list myPref #}
-
-{# !!! Add "set" and "continue"
-  set ip ....   ip is missing in schema under set. #}
+                            {% if match["ipv4"] is defined %}
+                                {% if match["ipv4"]["address_prefix_list"] is defined %}
+  match ip address prefix-list {{ match["ipv4"]["address_prefix_list"] | join(" ") }}
+                                {% endif %}
+                                {% if match["ipv4"]["next_hop_prefix_list"] is defined %}
+  match ip next-hop prefix-list {{ match["ipv4"]["next_hop_prefix_list"] | join(" ") }}
+                                {% endif %}
+                                {% if match["ipv4"]["route_src_prefix_list"] is defined %}
+  match ip route-source prefix-list {{ match["ipv4"]["route_src_prefix_list"] | join(" ") }}
+                                {% endif %}
+                            {% endif %}
+                            {% if match["ipv6"] is defined %}
+                                {% if match["ipv6"]["address_prefix_list"] is defined %}
+  match ip address prefix-list {{ match["ipv6"]["address_prefix_list"] | join(" ") }}
+                                {% endif %}
+                                {% if match["ipv6"]["next_hop_prefix_list"] is defined %}
+  match ip next-hop prefix-list {{ match["ipv6"]["next_hop_prefix_list"] | join(" ") }}
+                                {% endif %}
+                                {% if match["ipv6"]["route_src_prefix_list"] is defined %}
+  match ip route-source prefix-list {{ match["ipv6"]["route_src_prefix_list"] | join(" ") }}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if entry["continue"] is defined %}
+  continue {{ entry["continue"] }}
+                    {% endif %}
+                    {% if entry["set"] is defined %}
+                        {% for set in entry["set"] %}
+                            {% if set["as_path"] is defined %}
+  set as-path {{ set["as_path"] }}
+                            {% endif %}
+                            {# delete keyword doesn't exist #}
+                            {% if set["community_list"] is defined %}
+  set comm-list {{ set["community_list"] }}
+                            {% endif %}
+                            {% if set["community"] is defined %}
+  set community {{ set["community"] | join(" ") }}
+                            {% endif %}
+                            {% if set["dampening"] is defined %}
+  set dampening {{ set["dampening"]["half_life"] }} {{ set["dampening"]["reuse_penalty"] }} {{ set["dampening"]["suppress_penalty"] }} {{ set["dampening"]["max_suppress_time"] }}
+                            {% endif %}
+                            {% if set["distance"] is defined %}
+                                {% if set["distance"]["igp_ebgp"] is defined and set["distance"]["internal"] is defined and set["distance"]["local"] is defined %}
+  set distance {{ set["distance"]["igp_ebgp"] }} {{ set["distance"]["internal"] }} {{ set["distance"]["local"] }}
+                                {% elif set["distance"]["igp_ebgp"] is defined and set["distance"]["internal"] is defined %}
+  set distance {{ set["distance"]["igp_ebgp"] }} {{ set["distance"]["internal"] }}
+                                {% elif set["distance"]["igp_ebgp"] is defined and set["distance"]["internal"] is defined %}
+  set distance {{ set["distance"]["igp_ebgp"] }}
+                                {% endif %}
+                            {% endif %}
+                            {% if set["evpn"] is defined and set["evpn"]["gateway_ip"] is defined %}
+  set evpn gateway-ip {{ set["evpn"]["gateway_ip"] }}
+                            {% endif %}
+                            {% if set["extended_community_list"] is defined %}
+  set extcomm-list {{ set["extended_community_list"]}}
+                            {% endif %}
+                            {# Add set ext-community #}
+                            {% if set["forwarding_address"] is defined and set["forwarding_address"] is true %}
+  set forwarding-address
+                            {% endif %}
+                            {% if set["interface"] is defined %}
+                                {% set set_interface = [] %}
+                                {% set _ = set_interface.append(set["interface"][0] | upper ~ set["interface"][1:]) %}
+  set interface {{ set_interface | join("") }}
+                            {% endif %}
+                            {% if set["level"] is defined %}
+  set level {{ set["level"] }}
+                            {% endif %}
+                            {% if set["local_preference"] is defined %}
+  set local-preference {{ set["local_preference"] }}
+                            {% endif %}
+                            {% if set["metric_type"] is defined %}
+  set metric-type {{ set["metric_type"] }}
+                            {% endif %}
+                            {% if set["metric"] is defined %}
+                                {% if set["metric"] | length == 5 %}
+  set metric {{ set["metric"]["bandwidth"] }} {{ set["metric"]["delay"] }} {{ set["metric"]["reliability"] }} {{ set["metric"]["load"] }} {{ set["metric"]["mtu"]}}
+                                {% elif set["metric"]["bandwidth"] is defined %}
+  set metric {{ set["metric"]["bandwidth"] }}
+                                {% endif %}
+                            {% endif %}
+                            {% if set["nssa_only"] is defined and set["nssa_only"] is true %}
+  set nssa-only
+                            {% endif %}
+                            {% if set["origin"] is defined %}
+  set origin {{ set["origin"] }}
+                            {% endif %}
+                            {% if set["path_selection"] is defined %}
+  set path-selection {{ set["path_selection"] }}
+                            {% endif %}
+                            {% if set["tag"] is defined %}
+  set tag {{ set["tag"] }}
+                            {% endif %}
+                            {% if set["weight"] is defined %}
+  set weight {{ set["weight"] }}
+                            {% endif %}
                         {% endfor %}
                     {% endif %}
                 {% endfor %}
