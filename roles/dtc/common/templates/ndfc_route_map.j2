@@ -134,7 +134,7 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                             {% if set["extended_community_list"] is defined %}
   set extcomm-list {{ set["extended_community_list"]}}
                             {% endif %}
-                            {# Add set ext-community #}
+                            {# TODO Add set ext-community #}
                             {% if set["forwarding_address"] is defined and set["forwarding_address"] is true %}
   set forwarding-address
                             {% endif %}
@@ -173,6 +173,23 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                             {% endif %}
                             {% if set["weight"] is defined %}
   set weight {{ set["weight"] }}
+                            {% endif %}
+                            {% if set["ipv4"] is defined %}
+                                {% if set["ipv4"]["precedence"] is defined %}
+  set ip precedence {{ set["ipv4"]["precedence"] }}
+                                {% endif %}
+                                {% if set["ipv4"]["address_prefix_list"] is defined %}
+  set ip address prefix-list {{ set["ipv4"]["address_prefix_list"] }}
+                                {% endif %}
+                            {# TODO: add ip next-hop #}
+                            {% endif %}
+                            {% if set["ipv6"] is defined %}
+                                {% if set["ipv6"]["precedence"] is defined %}
+  set ipv6 precedence {{ set["ipv6"]["precedence"] }}
+                                {% endif %}
+                                {% if set["ipv6"]["address_prefix_list"] is defined %}
+  set ipv6 address prefix-list {{ set["ipv6"]["address_prefix_list"] }}
+                                {% endif %}
                             {% endif %}
                         {% endfor %}
                     {% endif %}
