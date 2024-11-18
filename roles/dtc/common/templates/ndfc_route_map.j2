@@ -107,8 +107,26 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                     {% if entry["set"] is defined %}
                         {% for set in entry["set"] %}
                             {% if set["as_path"] is defined %}
+                                {% if set["as_path"]["tag"] is defined and set["as_path"]["tag"] is true %}
+  set as-path tag
+                                {% elif set["as_path"]["none"] is defined and set["as_path"]["none"] is true %}
+  set as-path none
+                                {% elif set["as_path"]["local_as"] is defined or set["as_path"]["remote_as"] is defined %}
+                                    {% set options = [] %}
+                                    {% if set["as_path"]["local_as"] is true %}
+                                        {% set _ = options.append("local-as")%}
+                                    {% endif %}
+                                    {% if set["as_path"]["remote_as"] is true %}
+                                        {% set _ = options.append("remote-as")%}
+                                    {% endif %}
+                                    {% if set["as_path"]["as_number"] is defined %}
+                                        {% for as in set["as_path"]["as_number"]%}
+                                            {% set _ = options.append(as) %}
+                                        {% endfor %}
+                                    {% endif %}
+  set as-path {{ options | join(" ")}}
                                 {# as-path prepend #}
-                                {% if set["as_path"]["prepend"] is defined %}
+                                {% elif set["as_path"]["prepend"] is defined %}
                                     {% if set["as_path"]["prepend"]["last_as_path_count"] is defined %}
   set as-path prepend last-as {{ set["as_path"]["prepend"]["last_as_path_count"] }}
                                     {% else %}
@@ -139,6 +157,9 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
   set as-path replace {{ set["as_path"]["replace"]["as_number"] | join(" ") }}
                                         {% endif %}
                                     {% endif %}
+                                {# if only as-number #}
+                                {% elif set["as_path"]["as_number"] is defined %}
+  set as-path {{ set["as_path"]["as_number"] | join(" ")}}
                                 {% endif %}
                             {% endif %}
                             {# delete keyword doesn't exist #}
@@ -171,9 +192,7 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
   set forwarding-address
                             {% endif %}
                             {% if set["interface"] is defined %}
-                                {% set set_interface = [] %}
-                                {% set _ = set_interface.append(set["interface"][0] | upper ~ set["interface"][1:]) %}
-  set interface {{ set_interface | join("") }}
+  set interface Null0
                             {% endif %}
                             {% if set["level"] is defined %}
   set level {{ set["level"] }}
