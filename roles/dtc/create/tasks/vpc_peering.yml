@@ -52,10 +52,3 @@
     deploy: false
     state: replaced
     config: "{{ vpc_peering }}"
-
-- name: Turn on virtual peer link
-  cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/vpcpair"
-    method: "PUT"
-    json_data: "{{ item | to_json }}"
-  loop: "{{vpc_peering_serial}}"
