@@ -107,7 +107,39 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                     {% if entry["set"] is defined %}
                         {% for set in entry["set"] %}
                             {% if set["as_path"] is defined %}
-  set as-path {{ set["as_path"] }}
+                                {# as-path prepend #}
+                                {% if set["as_path"]["prepend"] is defined %}
+                                    {% if set["as_path"]["prepend"]["last_as_path_count"] is defined %}
+  set as-path prepend last-as {{ set["as_path"]["prepend"]["last_as_path_count"] }}
+                                    {% else %}
+  set as-path prepend {{ set["as_path"]["prepend"] | join(" ") }}
+                                    {% endif %}
+                                {# as-path replace #}
+                                {% elif set["as_path"]["replace"] is defined %}
+                                    {# as-path replace w/ private-as #}
+                                    {% if set["as_path"]["replace"]["private_as"] is defined %}
+                                        {% if set["as_path"]["replace"]["private_as"] is true %}
+  set as-path replace private
+                                        {% elif set["as_path"]["replace"]["private_as"] == 'none' %}
+  set as-path replace private with none
+                                        {% elif set["as_path"]["replace"]["private_as"] == 'remote-as' %}
+  set as-path replace private with remote-as
+                                        {% else %}
+  set as-path replace private with {{ set["as_path"]["replace"]["private_as"] }}
+                                        {% endif %}
+                                    {# as-path replace w/o private-as #}
+                                    {% elif set["as_path"]["replace"] is defined and set["as_path"]["as_number"] is defined%}
+                                        {% if set["as_path"]["replace"]["as_number"] is defined and set["as_path"]["replace"]["as_number"] == 'none' %}
+  set as-path replace {{ set["as_path"]["as_number"] | join(" ") }} with none
+                                        {% elif set["as_path"]["replace"]["as_number"] is defined and set["as_path"]["replace"]["as_number"] == 'remote-as' %}
+  set as-path replace {{ set["as_path"]["as_number"] | join(" ") }} with remote_as
+                                        {% elif set["as_path"]["replace"]["as_number"] is defined %}
+  set as-path replace {{ set["as_path"]["as_number"] | join(" ") }} with {{ set["as_path"]["replace"]["as_number"] }}
+                                        {% else %}
+  set as-path replace {{ set["as_path"]["replace"]["as_number"] | join(" ") }}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
                             {% endif %}
                             {# delete keyword doesn't exist #}
                             {% if set["community_list"] is defined %}
