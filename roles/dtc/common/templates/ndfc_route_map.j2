@@ -106,6 +106,7 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                     {% endif %}
                     {% if entry["set"] is defined %}
                         {% for set in entry["set"] %}
+                            {# as-path #}
                             {% if set["as_path"] is defined %}
                                 {% if set["as_path"]["tag"] is defined and set["as_path"]["tag"] is true %}
   set as-path tag
@@ -164,7 +165,11 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                             {% endif %}
                             {# delete keyword doesn't exist #}
                             {% if set["community_list"] is defined %}
+                                {% if set["community_list"]["comm_list"] is defined and set["community_list"]["delete"] is defined and set["community_list"]["delete"] is true %}
+  set comm-list {{ set["community_list"] }} delete
+                                {% elif set["community_list"]["comm_list"] is defined %}
   set comm-list {{ set["community_list"] }}
+                                {% endif %}
                             {% endif %}
                             {% if set["community"] is defined %}
   set community {{ set["community"] | join(" ") }}
@@ -232,7 +237,36 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                                 {% if set["ipv4"]["address_prefix_list"] is defined %}
   set ip address prefix-list {{ set["ipv4"]["address_prefix_list"] }}
                                 {% endif %}
-                            {# TODO: add ip next-hop #}
+                                {% if set["ipv4"]["next_hop"] is defined %}
+                                    {% if set["ipv4"]["next_hop"]["peer_address"] is defined and set["ipv4"]["next_hop"]["peer_address"] is true %}
+  set ip next-hop peer-address
+                                    {% elif set["ipv4"]["next_hop"]["redist_unchanged"] is defined and set["ipv4"]["next_hop"]["redist_unchanged"] is true %}
+  set ip next-hop redist-unchanged
+                                    {% elif set["ipv4"]["next_hop"]["unchanged"] is defined and set["ipv4"]["next_hop"]["unchanged"] is true %}
+  set ip next-hop unchanged
+                                    {% else %}
+                                        {% set nh_options = [] %}
+                                        {% if set["ipv4"]["next_hop"]["verify_availability"] is defined and set["ipv4"]["next_hop"]["verify_availability"] is true %}
+                                            {% set _ = nh_options.append("verify-availability")%}
+                                        {% endif %}
+                                        {% if set["ipv4"]["next_hop"]["address"] is defined %}
+                                            {% set _ = nh_options.append(set["ipv4"]["next_hop"]["address"] | ipaddr('address')) %}
+                                        {% endif %}
+                                        {% if set["ipv4"]["next_hop"]["drop_on_fail"] is defined or set["ipv4"]["next_hop"]["load_share"] is defined or
+                                        set["ipv4"]["next_hop"]["force_order"] is defined %}
+                                            {% if set["ipv4"]["next_hop"]["drop_on_fail"] is true %}
+                                                {% set _ = nh_options.append("drop-on-fail")%}
+                                            {% endif %}
+                                            {% if set["ipv4"]["next_hop"]["force_order"] is true %}
+                                                {% set _ = nh_options.append("force-order")%}
+                                            {% endif %}
+                                            {% if set["ipv4"]["next_hop"]["load_share"] is true %}
+                                                {% set _ = nh_options.append("load-share")%}
+                                            {% endif %}
+                                        {% endif %}
+    set ip next-hop {{ nh_options | join(" ") }}
+                                    {% endif %}
+                                {% endif %}
                             {% endif %}
                             {% if set["ipv6"] is defined %}
                                 {% if set["ipv6"]["precedence"] is defined %}
@@ -240,6 +274,38 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                                 {% endif %}
                                 {% if set["ipv6"]["address_prefix_list"] is defined %}
   set ipv6 address prefix-list {{ set["ipv6"]["address_prefix_list"] }}
+                                {% endif %}
+                                {% if set["ipv6"]["next_hop"] is defined %}
+                                    {% if set["ipv6"]["next_hop"]["peer_address"] is defined and set["ipv6"]["next_hop"]["peer_address"] is true %}
+  set ipv6 next-hop peer-address
+                                    {% elif set["ipv6"]["next_hop"]["redist_unchanged"] is defined and set["ipv6"]["next_hop"]["redist_unchanged"] is true
+                                    %}
+  set ipv6 next-hop redist-unchanged
+                                    {% elif set["ipv6"]["next_hop"]["unchanged"] is defined and set["ipv6"]["next_hop"]["unchanged"] is true %}
+  set ipv6 next-hop unchanged
+                                    {% else %}
+                                        {% set nh_options = [] %}
+                                        {% if set["ipv6"]["next_hop"]["verify_availability"] is defined and set["ipv6"]["next_hop"]["verify_availability"] is
+                                        true %}
+                                            {% set _ = nh_options.append("verify-availability")%}
+                                        {% endif %}
+                                        {% if set["ipv6"]["next_hop"]["address"] is defined %}
+                                            {% set _ = nh_options.append(set["ipv6"]["next_hop"]["address"] | ipaddr('address')) %}
+                                        {% endif %}
+                                        {% if set["ipv6"]["next_hop"]["drop_on_fail"] is defined or set["ipv6"]["next_hop"]["load_share"] is defined or
+                                        set["ipv6"]["next_hop"]["force_order"] is defined %}
+                                        {% if set["ipv6"]["next_hop"]["drop_on_fail"] is true %}
+                                            {% set _ = nh_options.append("drop-on-fail")%}
+                                        {% endif %}
+                                        {% if set["ipv6"]["next_hop"]["force_order"] is true %}
+                                            {% set _ = nh_options.append("force-order")%}
+                                        {% endif %}
+                                        {% if set["ipv6"]["next_hop"]["load_share"] is true %}
+                                            {% set _ = nh_options.append("load-share")%}
+                                        {% endif %}
+                                    {% endif %}
+  set ipv6 next-hop {{ nh_options | join(" ") }}
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
