@@ -41,9 +41,9 @@ class PreparePlugin:
         display.warning("VRF-Lite in VXLAN as Code is currently not supported.")
         # pylint: disable=unreachable
         return self.kwargs['results']
-        # pylint: enable=unreachable
+        
         template_filename = "ndfc_vrf_lite.j2"
-
+        # pylint: enable=unreachable
         env = Environment(
             loader=FileSystemLoader(templates_path),
             undefined=ChainableUndefined,
