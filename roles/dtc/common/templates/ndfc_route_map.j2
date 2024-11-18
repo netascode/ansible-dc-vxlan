@@ -164,9 +164,9 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                             {# delete keyword doesn't exist #}
                             {% if set["community_list"] is defined %}
                                 {% if set["community_list"]["comm_list"] is defined and set["community_list"]["delete"] is defined and set["community_list"]["delete"] is true %}
-  set comm-list {{ set["community_list"] }} delete
+  set comm-list {{ set["community_list"]["comm_list"] }} delete
                                 {% elif set["community_list"]["comm_list"] is defined %}
-  set comm-list {{ set["community_list"] }}
+  set comm-list {{ set["community_list"]["comm_list"] }}
                                 {% endif %}
                             {% endif %}
                             {% if set["community"] is defined %}
