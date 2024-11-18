@@ -39,8 +39,9 @@ class PreparePlugin:
 
         # Remove lines 40-42 after route control that includes route-maps, prefix-lists, etc is merged
         display.warning("VRF-Lite in VXLAN as Code is currently not supported.")
+        # pylint: disable=unreachable
         return self.kwargs['results']
-
+        # pylint: enable=unreachable
         template_filename = "ndfc_vrf_lite.j2"
 
         env = Environment(
