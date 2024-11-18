@@ -37,7 +37,25 @@ class Rule:
         route_control = []
         topology_switches = []
         switch_policy = []
-        group_policy = []
+        route_maps = []
+        group_policies = []
+
+        # Get route_control policies
+        if data.get("vxlan", None):
+            if data["vxlan"].get("overlay_extensions", None):
+                if data["vxlan"].get("overlay_extensions").get("route_control", None):
+                    route_control = data["vxlan"]["overlay_extensions"]["route_control"]
+                    # Get groups policies
+                    if data["vxlan"].get("overlay_extensions").get("route_control").get("groups", None):
+                        group_policies = data["vxlan"]["overlay_extensions"]["route_control"]["groups"]
+                    else:
+                        # group is empty
+                        return cls.results
+                    if data["vxlan"].get("overlay_extensions").get("route_control").get("route_maps", None):
+                        route_maps = data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]
+                else:
+                    # route control is empty
+                    return cls.results
 
         # Get fabric switches
         if data.get("vxlan"):
@@ -47,37 +65,18 @@ class Rule:
                         data.get("vxlan").get("topology").get("switches")
                     )
 
-        # Get route_control policies
-        if data.get("vxlan", None):
-            if data["vxlan"].get("overlay_extensions", None):
-                if data["vxlan"].get("overlay_extensions").get("route_control", None):
-                    route_control = data["vxlan"]["overlay_extensions"]["route_control"]
-                    # Get groups policies
-                    if data["vxlan"].get("overlay_extensions").get("route_control").get("groups", None):
-                        group_policy = data["vxlan"]["overlay_extensions"]["route_control"]["groups"]
-                else:
-                    # route control is empty
-                    return cls.results
-
         # Check switch Level
         if route_control.get("switches"):
             for switch_policy in route_control["switches"]:
                 cls.check_switch_level(
                     switch_policy,
                     topology_switches,
-                    group_policy
+                    group_policies
                 )
 
-        # Check route maps
-        if route_control.get("route_maps"):
-            for route_map in route_control["route_maps"]:
-                if route_map.get("entries", None):
-                    for seq_numer in route_map["entries"]:
-                        if seq_numer.get("set", None):
-                            # Check set metric integrity
-                            cls.check_set_metric_integrity(
-                                seq_numer["set"]
-                            )
+        cls.check_route_maps(
+            route_maps
+        )
 
         return cls.results
 
@@ -86,7 +85,7 @@ class Rule:
         cls,
         switch_policy,
         topology_switches,
-        group_policy
+        group_policies
     ):
         """
         Check switch level
@@ -101,11 +100,15 @@ class Rule:
             for switch_group in switch_policy["groups"]:
                 cls.check_group_in_switch(
                     switch_group,
-                    group_policy
+                    group_policies
                 )
 
     @classmethod
-    def check_switch_in_topology(cls, switch, topology_switches):
+    def check_switch_in_topology(
+        cls,
+        switch,
+        topology_switches
+    ):
         """
         Check if switch is in the topology
         """
@@ -118,11 +121,15 @@ class Rule:
             )
 
     @classmethod
-    def check_group_in_switch(cls, switch_group, group_policy):
+    def check_group_in_switch(
+        cls,
+        switch_group,
+        group_policies
+    ):
         """
         Check if group in switch is defined in route_control
         """
-        if list(filter(lambda group: group["name"] == switch_group, group_policy)):
+        if list(filter(lambda group: group["name"] == switch_group, group_policies)):
             pass
         else:
             cls.results.append(
@@ -131,17 +138,56 @@ class Rule:
             )
 
     @classmethod
-    def check_set_metric_integrity(cls, set_policy):
+    def check_route_maps(
+        cls,
+        route_maps
+    ):
+        """
+        Check if route_maps integrity
+        """
+
+        # Check route maps
+        for route_map in route_maps:
+            if route_map.get("entries", None):
+                # Check set metric integrity
+                cls.check_route_maps_entries(
+                    route_map["entries"]
+                )
+
+    @classmethod
+    def check_route_maps_entries(
+        cls,
+        entries
+    ):
+        """
+        Check if route_maps entries integrity
+        """
+
+        # Check route maps entries
+        for seq_numer in entries:
+            if seq_numer.get("set", None):
+                for sets in seq_numer["set"]:
+                    if sets.get("metric", None):
+                        # Check set metric integrity
+                        cls.check_set_metric_integrity(
+                            sets["metric"]
+                        )
+
+    @classmethod
+    def check_set_metric_integrity(
+        cls,
+        set_metric
+    ):
         """
         Check if in the set_metric route map if we use metric bandwith or all the five metrics: bandwidth, delay, reliability, load, mtu
         """
-        if set_policy.get("metric", None):
-            metrics = ['bandwidth', 'delay', 'reliability', 'load', 'mtu']
-            if 'bandwidth' in set_policy["metric"][0].keys() and len(set_policy["metric"][0].keys()) == 1:
-                pass
-            else:
-                for metric in metrics:
-                    if metric not in list(set_policy["metric"][0].keys()):
-                        cls.results.append(
-                            "For vxlan.overlay_extensions.route_control.route_maps.entries.set.metric to be enabled, " +
-                            metric + " must be set in the metric.")
+
+        metrics = ['bandwidth', 'delay', 'reliability', 'load', 'mtu']
+        if 'bandwidth' in set_metric and len(set_metric) == 1:
+            pass
+        else:
+            for metric in metrics:
+                if metric not in set_metric:
+                    cls.results.append(
+                        "For vxlan.overlay_extensions.route_control.route_maps.entries.set.metric to be enabled, " +
+                        metric + " must be set in the metric.")
