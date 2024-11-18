@@ -2,8 +2,6 @@
 ! DO NOT EDIT MANUALLY
 !
 !
-!!! ================ Route-maps found =====================
-!!! {{ policy_types["route_maps"] }}
     {# Get policy route-maps in groups #}
     {% for policy_name in policy_types["route_maps"] %}
     {# Get route-maps under Route_control #}
@@ -192,7 +190,64 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                             {% if set["extended_community_list"] is defined %}
   set extcomm-list {{ set["extended_community_list"]}}
                             {% endif %}
-                            {# TODO Add set ext-community #}
+                            {% if set["extended_community"] is defined %}
+                                {% if set["extended_community"]["4byteas_generic"] is defined %}
+                                    {% set ext_4byte_option = [] %}
+                                    {# additive or none #}
+                                    {% if set["extended_community"]["4byteas_generic"]["option"] is defined and set["extended_community"]["4byteas_generic"]["transitivity"] is not defined %}
+                                        {% set _ = ext_4byte_option.append(set["extended_community"]["4byteas_generic"]["option"]) %}
+                                    {% endif %}
+                                    {# transitive or none + communities #}
+                                    {% if set["extended_community"]["4byteas_generic"]["transitivity"] is defined %}
+                                        {% for transitive in set["extended_community"]["4byteas_generic"]["transitivity"] %}
+                                            {% if transitive["transitive"] is true %}
+                                                {% set _ = ext_4byte_option.append("transitive") %}
+                                            {% elif transitive["transitive"] is false %}
+                                                {% set _ = ext_4byte_option.append("non-transitive") %}
+                                            {% endif %}
+                                            {% if transitive["community"] %}
+                                                {% set _ = ext_4byte_option.append(transitive["community"]) %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if set["extended_community"]["4byteas_generic"]["option"] is defined and
+                                        set["extended_community"]["4byteas_generic"]["option"] == 'additive' %}
+                                            {% set _ = ext_4byte_option.append('additive') %}
+                                        {% endif %}
+                                    {% endif %}
+  set extcommunity 4byteas-generic {{ ext_4byte_option | join(" ")}}
+                                {% endif %}
+                                {# extcommunity w/ color #}
+                                {% if set["extended_community"]["color"] is defined %}
+                                    {% if set["extended_community"]["color"]["color_community"] is defined and set["extended_community"]["color"]["co_flag"] is defined %}
+  set extcommunity color {{ set["extended_community"]["color"]["color_community"] }} {{ set["extended_community"]["color"]["co_flag"]}}
+                                    {% elif set["extended_community"]["color"]["color_community"] is defined %}
+  set extcommunity color {{ set["extended_community"]["color"]["color_community"] }}
+                                    {% endif %}
+                                {% endif %}
+                                {# extcommunity w/ cost #}
+                                {% if set["extended_community"]["cost"] is defined %}
+                                        {% set prebestpath = [] %}
+                                        {% set igp = [] %}
+                                    {% for cost in set["extended_community"]["cost"] %}
+                                        {% if cost["community_id"] is defined and cost["cost"] is defined %}
+                                            {% if cost["type_cost"] is defined and cost["type_cost"] == 'pre-bestpath' %}
+                                                {% set _ = prebestpath.append("pre-bestpath " ~ cost["community_id"] ~ " " ~ cost["cost"])%}
+                                            {% elif cost["type_cost"] is defined and cost["type_cost"] == 'igp' %}
+                                                {% set _ = igp.append("igp " ~ cost["community_id"] ~ " " ~ cost["cost"]) %}
+                                            {% else %}
+                                                {% set _ = igp.append("igp " ~ cost["community_id"] ~ " " ~ cost["cost"]) %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if prebestpath | length > 0 and igp | length > 0 %}
+  set extcommunity cost {{ prebestpath | join(" ") }} {{ igp | join(" ")}}
+                                    {% elif prebestpath | length > 0 %}
+  set extcommunity cost {{ prebestpath | join(" ") }}
+                                    {% elif igp | length > 0 %}
+  set extcommunity cost {{ igp | join(" ")}}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
                             {% if set["forwarding_address"] is defined and set["forwarding_address"] is true %}
   set forwarding-address
                             {% endif %}
@@ -264,7 +319,7 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                                                 {% set _ = nh_options.append("load-share")%}
                                             {% endif %}
                                         {% endif %}
-    set ip next-hop {{ nh_options | join(" ") }}
+  set ip next-hop {{ nh_options | join(" ") }}
                                     {% endif %}
                                 {% endif %}
                             {% endif %}

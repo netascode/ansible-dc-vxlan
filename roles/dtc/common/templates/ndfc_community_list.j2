@@ -3,8 +3,6 @@
 !
 !
 {% if policy_types["standard_community_lists"] is defined %}
-!!! ================ standard_community_lists found =====================
-
     {# Get policy Community lists in groups #}
     {% for policy_name in policy_types["standard_community_lists"] %}
     {# Get Community lists under Route_control #}
@@ -22,8 +20,6 @@ ip community-list standard {{ standard_community_list["name"] }} seq {{ entry["s
 {% endif %}
 
 {% if policy_types["extended_community_lists"] is defined %}
-!!! ================ extended_community_lists found =====================
-
     {# Get policy Ext Community lists in groups #}
     {% for policy_name in policy_types["extended_community_lists"] %}
         {# Get Ext Community lists under Route_control #}

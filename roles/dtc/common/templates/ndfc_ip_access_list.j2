@@ -3,8 +3,6 @@
 !
 !
 {% if policy_types["ipv4_access_lists"] is defined %}
-!!! ================ IPv4 ACL found =====================
-
     {% for policy_name in policy_types["ipv4_access_lists"] : %}
         {% for ipv4_access_list in item["ipv4_access_lists"] %}
             {% if policy_name["name"] == ipv4_access_list["name"] %}
@@ -177,8 +175,6 @@ ip access-list {{ ipv4_access_list["name"] }}
 {% endif %}
 
 {% if policy_types["ipv6_access_lists"] is defined %}
-!!! ================ IPv6 ACL found =====================
-
     {% for policy_name in policy_types["ipv6_access_lists"] : %}
         {% for ipv6_access_list in item["ipv6_access_lists"] %}
             {% if policy_name.name == ipv6_access_list.name %}
