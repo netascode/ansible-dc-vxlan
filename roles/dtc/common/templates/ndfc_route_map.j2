@@ -170,7 +170,7 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                                 {# set community internet 65000:42 65000:43 no-export no-advertise local-AS graceful-shutdown blackhole additive #}
                                 {% set community_asn = [] %}
                                 {% for asn in set["community"] %}
-                                    {% if asn not in ['internet','no-export','no-advertise','local-as','graceful-shutdown','blackhole','additive'] %}
+                                    {% if asn not in ['internet','no_export','no_advertise','local_as','graceful_shutdown','blackhole','additive'] %}
                                         {% set _ = community_asn.append(asn) %}
                                     {% endif %}
                                 {% endfor %}
@@ -181,16 +181,16 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
                                 {% if community_asn | length > 0 %}
                                     {% set _= community_options.append(community_asn | join(" ")) %}
                                 {% endif %}
-                                {% if 'no-export' in set["community"] %}
+                                {% if 'no_export' in set["community"] %}
                                     {% set _ = community_options.append("no-export") %}
                                 {% endif %}
-                                {% if 'no-advertise' in set["community"] %}
+                                {% if 'no_advertise' in set["community"] %}
                                     {% set _ = community_options.append("no-advertise") %}
                                 {% endif %}
-                                {% if 'local-as' in set["community"] %}
+                                {% if 'local_as' in set["community"] %}
                                     {% set _ = community_options.append("local-AS") %}
                                 {% endif %}
-                                {% if 'graceful-shutdown' in set["community"] %}
+                                {% if 'graceful_shutdown' in set["community"] %}
                                     {% set _ = community_options.append("graceful-shutdown") %}
                                 {% endif %}
                                 {% if 'blackhole' in set["community"] %}
