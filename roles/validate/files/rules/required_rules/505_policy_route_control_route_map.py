@@ -33,6 +33,9 @@ class Rule:
     severity = "HIGH"
     results = []
 
+    route_control_objects_names = ["ip_as_path_access_lists", "route_maps", "ipv4_access_lists", "ipv6_access_lists", "ipv4_prefix_lists", "ipv6_prefix_lists",
+                                   "standard_community_lists", "extended_community_lists", "time_range", "ipv4_object_groups", "ipv6_object_groups", "mac_list"]
+
     @classmethod
     def match(cls, data):
         """
@@ -176,13 +179,14 @@ class Rule:
         Check group policy integrity
         """
         for switch in group_policies:
-            if switch.get("route_maps", None):
-                # Check uniquiness of route_control_object whitin a group
-                route_control_object = switch.get("route_maps")
-                cls.validate_unique_names(
-                    route_control_object,
-                    "groups." + switch["name"] + ".route_maps.",
-                )
+            for policy_name in cls.route_control_objects_names:
+                if switch.get(policy_name, None):
+                    # Check uniquiness of route_control_object whitin a group
+                    route_control_object = switch.get(policy_name)
+                    cls.validate_unique_names(
+                        route_control_object,
+                        "groups." + switch["name"] + "." + policy_name + ".",
+                    )
 
     @classmethod
     def check_route_maps(
