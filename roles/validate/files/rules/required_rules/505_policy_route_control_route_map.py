@@ -4,16 +4,20 @@ Validation Rules scenarios:
 2.  Groups in the vxlan.overlay_extensions.route_control.switches.group should be defined in the vxlan.overlay_extensions.route_control.groups
 3.  Route maps in the vxlan.overlay_extensions.route_control.groups.route_maps should be defined in the vxlan.overlay_extensions.route_control.route_maps
 4.  MAC list in vxlan.overlay_extensions.route_control.groups.mac_lists ishould be defined in vxlan.overlay_extensions.route_control.mac_lists
-5.  Standard community lists in the vxlan.overlay_extensions.route_control.groups.standard_community_lists should be defined in the vxlan.overlay_extensions.route_control.standard_community_lists
-6.  Extended community lists in the vxlan.overlay_extensions.route_control.groups.extended_community_lists should be defined in the vxlan.overlay_extensions.route_control.extended_community_lists
+5.  Standard community lists in the vxlan.overlay_extensions.route_control.groups.standard_community_lists should be defined in the
+vxlan.overlay_extensions.route_control.standard_community_lists
+6.  Extended community lists in the vxlan.overlay_extensions.route_control.groups.extended_community_lists should be defined in the
+vxlan.overlay_extensions.route_control.extended_community_lists
 7.  IPv4 prefix lists in the vxlan.overlay_extensions.route_control.groups.ipv4_prefix_lists should be defined in the vxlan.overlay_extensions.route_control.ipv4_prefix_lists
-8.  IPv6 prefix lists in the vxlan.overlay_extensions.route_control.groups.ipv6_prefix_lists should be defined in the vxlan.overlay_extensions.route_control.ipv6_prefix_lists
+8.  IPv6 prefix lists in the vxlan.overlay_extensions.route_control.groups.ipv6_prefix_lists should be defined in the
+vxlan.overlay_extensions.route_control.ipv6_prefix_lists
 9.  IPv4 access lists in the vxlan.overlay_extensions.route_control.groups.ipv4_access_lists should be defined in the vxlan.overlay_extensions.route_control.ipv4_access_lists
 10. Time ranges in the vxlan.overlay_extensions.route_control.groups.time_ranges should be defined in the vxlan.overlay_extensions.route_control.time_ranges
 11. IPv4 object groups in the vxlan.overlay_extensions.route_control.groups.ipv4_object_groups should be defined in the vxlan.overlay_extensions.route_control.ipv4_object_groups
 12. IPv6 object groups in the vxlan.overlay_extensions.route_control.groups.ipv6_object_groups should be defined in the vxlan.overlay_extensions.route_control.ipv6_object_groups.
 13. Name for each of these policies should be unique when they are created and when they are consumed
-14. Check if in the set_metric route map if we use metric bandwith or all the five metrics: bandwidth, delay, reliability, load, mtu
+14. Check if in the set_metric route map only metric bandwith is used or alternatively all the five metrics are used: bandwidth, delay, reliability, load, mtu
+15. Check if in set ip/ipv6 next-hop route map next-hops should be configured
 """
 
 
@@ -48,11 +52,13 @@ class Rule:
                     # Get groups policies
                     if data["vxlan"].get("overlay_extensions").get("route_control").get("groups", None):
                         group_policies = data["vxlan"]["overlay_extensions"]["route_control"]["groups"]
+                        # Check groups integrity
+                        cls.check_groups(
+                            group_policies
+                        )
                     else:
                         # group is empty
                         return cls.results
-                    if data["vxlan"].get("overlay_extensions").get("route_control").get("route_maps", None):
-                        route_maps = data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]
                 else:
                     # route control is empty
                     return cls.results
@@ -74,9 +80,12 @@ class Rule:
                     group_policies
                 )
 
-        cls.check_route_maps(
-            route_maps
-        )
+        # Check route maps integrity
+        if data["vxlan"].get("overlay_extensions").get("route_control").get("route_maps", None):
+            route_maps = data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]
+            cls.check_route_maps(
+                route_maps
+            )
 
         return cls.results
 
@@ -96,6 +105,7 @@ class Rule:
             switch_policy["name"], topology_switches
         )
 
+        # Check if group in switch is defined in route_control
         if switch_policy.get("groups"):
             for switch_group in switch_policy["groups"]:
                 cls.check_group_in_switch(
@@ -138,6 +148,43 @@ class Rule:
             )
 
     @classmethod
+    def validate_unique_names(
+        cls,
+        route_control_object,
+        label
+    ):
+        """
+        Checks if route control object uses policy with unique name
+        """
+
+        # Track seen names
+        seen_names = set()
+        # Check for duplicates
+        for policy in route_control_object:
+            name = policy.get('name')
+            if name in seen_names:
+                cls.results.append(
+                    "For vxlan.overlay_extensions.route_control." + label + name + " can be defined only one time")
+            seen_names.add(name)
+
+    @classmethod
+    def check_groups(
+        cls,
+        group_policies
+    ):
+        """
+        Check group policy integrity
+        """
+        for switch in group_policies:
+            if switch.get("route_maps", None):
+                # Check uniquiness of route_control_object whitin a group
+                route_control_object = switch.get("route_maps")
+                cls.validate_unique_names(
+                    route_control_object,
+                    "groups." + switch["name"] + ".route_maps.",
+                )
+
+    @classmethod
     def check_route_maps(
         cls,
         route_maps
@@ -145,6 +192,11 @@ class Rule:
         """
         Check if route_maps integrity
         """
+        # Check uniquiness of route_control_object
+        cls.validate_unique_names(
+            route_maps,
+            "route_maps.",
+        )
 
         # Check route maps
         for route_map in route_maps:
