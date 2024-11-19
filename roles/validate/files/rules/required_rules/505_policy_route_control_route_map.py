@@ -3,7 +3,7 @@ Validation Rules scenarios:
 1.  Switches in the vxlan.overlay_extensions.route_control.switches should be defined in the vxlan.topology.switches
 2.  Groups in the vxlan.overlay_extensions.route_control.switches.group should be defined in the vxlan.overlay_extensions.route_control.groups
 3.  Route maps in the vxlan.overlay_extensions.route_control.groups.route_maps should be defined in the vxlan.overlay_extensions.route_control.route_maps
-4.  MAC list in vxlan.overlay_extensions.route_control.groups.mac_lists ishould be defined in vxlan.overlay_extensions.route_control.mac_lists
+4.  MAC list in vxlan.overlay_extensions.route_control.groups.mac_lists should be defined in vxlan.overlay_extensions.route_control.mac_lists
 5.  Standard community lists in the vxlan.overlay_extensions.route_control.groups.standard_community_lists should be defined in the
 vxlan.overlay_extensions.route_control.standard_community_lists
 6.  Extended community lists in the vxlan.overlay_extensions.route_control.groups.extended_community_lists should be defined in the
@@ -23,12 +23,12 @@ vxlan.overlay_extensions.route_control.ipv6_prefix_lists
 
 class Rule:
     """
-    Class 505 - Verify Route-Control Cross Reference Between Policies, Groups, and Switches
+    Class 505 - Verify Route-Control Cross Reference Integrity Between Policies, Groups, and Switches
     """
 
     id = "505"
     description = (
-        "Verify Route-Control Cross Reference Between Policies, Groups, and Switches"
+        "Verify Route-Control Cross Reference Integrity Between Policies, Groups, and Switches"
     )
     severity = "HIGH"
     results = []
@@ -57,7 +57,8 @@ class Rule:
                         group_policies = data["vxlan"]["overlay_extensions"]["route_control"]["groups"]
                         # Check groups integrity
                         cls.check_groups(
-                            group_policies
+                            group_policies,
+                            route_control
                         )
                     else:
                         # group is empty
@@ -108,7 +109,7 @@ class Rule:
             switch_policy["name"], topology_switches
         )
 
-        # Check if group in switch is defined in route_control
+        # Check if group in switch is defined in route_control group
         if switch_policy.get("groups"):
             for switch_group in switch_policy["groups"]:
                 cls.check_group_in_switch(
@@ -140,7 +141,7 @@ class Rule:
         group_policies
     ):
         """
-        Check if group in switch is defined in route_control
+        Check if group in switch is defined in route_control group
         """
         if list(filter(lambda group: group["name"] == switch_group, group_policies)):
             pass
@@ -171,9 +172,36 @@ class Rule:
             seen_names.add(name)
 
     @classmethod
+    def validate_group_objects(
+        cls,
+        route_control_object,
+        policy_name,
+        route_control
+    ):
+        """
+        Check if route_control_objects in group is defined in route_control
+        """
+        for policy in route_control_object:
+            # The policy exist in the group. Check if exists under route control
+            if route_control.get(policy_name, None):
+                if list(filter(lambda group, policy=policy: group["name"] == policy['name'], route_control[policy_name])):
+                    pass
+                else:
+                    cls.results.append(
+                        f"vxlan.overlay_extensions.route_control.switches.groups.{policy_name}.{policy["name"]} "
+                        f"is not defined in vxlan.overlay_extensions.route_control.{policy_name}"
+                    )
+            else:
+                cls.results.append(
+                    f"vxlan.overlay_extensions.route_control.groups.{policy_name} "
+                    "is not defined in vxlan.overlay_extensions.route_control"
+                )
+
+    @classmethod
     def check_groups(
         cls,
-        group_policies
+        group_policies,
+        route_control
     ):
         """
         Check group policy integrity
@@ -186,6 +214,13 @@ class Rule:
                     cls.validate_unique_names(
                         route_control_object,
                         "groups." + switch["name"] + "." + policy_name + ".",
+                    )
+
+                    # Check if route_control_object in group is defined in route_control
+                    cls.validate_group_objects(
+                        route_control_object,
+                        policy_name,
+                        route_control
                     )
 
     @classmethod
