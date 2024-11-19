@@ -63,12 +63,12 @@ router ospf {{ item.ospf['process'] }}
                 {% set nssa_options_translate = [] %}
                 {% set nssa_options_flags_enabled = false %}
                 {% set nssa_options_translate_enabled = false %}
-              {% if nssa_options.no_redistribution is true %}
-                {% set _= nssa_options_flags.append("no-redistribution") %}
-                {% set nssa_options_flags_enabled = true %}
-              {% endif %}
               {% if nssa_options.no_summary is true %}
                 {% set _= nssa_options_flags.append("no-summary") %}
+                {% set nssa_options_flags_enabled = true %}
+              {% endif %}
+              {% if nssa_options.no_redistribution is true %}
+                {% set _= nssa_options_flags.append("no-redistribution") %}
                 {% set nssa_options_flags_enabled = true %}
               {% endif %}
               {% if nssa_options.default_information_originate is true %}
