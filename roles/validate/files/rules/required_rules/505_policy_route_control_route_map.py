@@ -184,11 +184,11 @@ class Rule:
         for policy in route_control_object:
             # The policy exist in the group. Check if exists under route control
             if route_control.get(policy_name, None):
-                if list(filter(lambda group, policy=policy: group["name"] == policy['name'], route_control[policy_name])):
+                if list(filter(lambda group, policy=policy: group['name'] == policy['name'], route_control[policy_name])):
                     pass
                 else:
                     cls.results.append(
-                        f"vxlan.overlay_extensions.route_control.switches.groups.{policy_name}.{policy["name"]} "
+                        f"vxlan.overlay_extensions.route_control.switches.groups.{policy_name}.{policy['name']} "
                         f"is not defined in vxlan.overlay_extensions.route_control.{policy_name}"
                     )
             else:
