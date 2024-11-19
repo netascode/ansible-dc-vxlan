@@ -15,7 +15,7 @@ vxlan.overlay_extensions.route_control.ipv6_prefix_lists
 10. Time ranges in the vxlan.overlay_extensions.route_control.groups.time_ranges should be defined in the vxlan.overlay_extensions.route_control.time_ranges
 11. IPv4 object groups in the vxlan.overlay_extensions.route_control.groups.ipv4_object_groups should be defined in the vxlan.overlay_extensions.route_control.ipv4_object_groups
 12. IPv6 object groups in the vxlan.overlay_extensions.route_control.groups.ipv6_object_groups should be defined in the vxlan.overlay_extensions.route_control.ipv6_object_groups.
-13. Name for each of these policies should be unique when they are created and when they are consumed
+13. Name for each of these policies should be unique when they are consumed in a group
 14. Check if in the set_metric route map only metric bandwith is used or alternatively all the five metrics are used: bandwidth, delay, reliability, load, mtu
 15. Check if in set ip/ipv6 next-hop route map next-hops should be configured
 """
@@ -231,12 +231,6 @@ class Rule:
         """
         Check if route_maps integrity
         """
-        # Check uniquiness of route_control_object
-        cls.validate_unique_names(
-            route_maps,
-            "route_maps.",
-        )
-
         # Check route maps
         for route_map in route_maps:
             if route_map.get("entries", None):
