@@ -27,7 +27,8 @@ ip access-list {{ ipv4_access_list["name"] }}
                             {% elif entry[ "source"]["ip"] is defined %}
                                 {% set source = entry[ "source"]["ip"] | ipaddr('network') ~ " " ~ entry[ "source"]["ip"] | ipaddr('hostmask') %}
                             {% elif entry[ "source"]["host"] is defined %}
-                                {% set source = "host " ~ entry[ "source"]["host"] | ipaddr('address') %}
+                                {# {% set source = "host " ~ entry[ "source"]["host"] | ipaddr('address') %} #}
+                                {% set source = entry[ "source"]["host"] | ipaddr('address') ~ "/32"%}
                             {% elif entry[ "source"]["any"] is defined and entry[ "source"]["any"] is true %}
                                 {% set source = "any" %}
                             {% elif entry[ "source"]["addrgroup"] is defined %}
@@ -43,9 +44,14 @@ ip access-list {{ ipv4_access_list["name"] }}
                             {% if entry[ "destination"].ip is defined and entry[ "destination"]["wildcard"] is defined %}
                                 {% set destination = entry[ "destination"].ip ~ " " ~ entry[ "destination"]["wildcard"] %}
                             {% elif entry[ "destination"].ip is defined  %}
-                                {% set destination = entry[ "destination"].ip | ipaddr('network') ~ " " ~ entry[ "destination"].ip | ipaddr('hostmask') %}
+                                {% if entry[ "destination"]["ip"] | ipaddr('hostmask') == '/32' %}
+                                    {% set destination = "host " ~ entry[ "destination"].host | ipaddr('address') %}
+                                {% else %}
+                                    {% set destination = entry[ "destination"].ip | ipaddr('network') ~ " " ~ entry[ "destination"].ip | ipaddr('hostmask') %}
+                                {% endif %}
                             {% elif entry[ "destination"].host is defined %}
-                                {% set destination = "host " ~ entry[ "destination"].host | ipaddr('address') %}
+                                {# {% set destination = "host " ~ entry[ "destination"].host | ipaddr('address') %} #}
+                                {% set destination = entry[ "destination"]["host"] | ipaddr('address') ~ "/32"%}
                             {% elif entry[ "destination"]["any"] is defined and entry[ "destination"]["any"] is true %}
                                 {% set destination = "any" %}
                             {% elif entry[ "destination"]["addrgroup"] is defined %}

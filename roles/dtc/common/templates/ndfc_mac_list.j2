@@ -9,7 +9,7 @@
                 {% if "mac_mask" in entry %}
 mac-list {{ mac_list.name }} seq {{ entry.seq_number }} {{ entry.operation }} {{ entry.mac }} {{ entry.mac_mask }}
                 {% else %}
-mac-list {{ mac_list.name }} seq {{ entry.seq_number }} {{ entry.operation }} {{ entry.mac }}
+mac-list {{ mac_list.name }} seq {{ entry.seq_number }} {{ entry.operation }} {{ entry.mac }} ffff.ffff.ffff
                 {% endif%}
             {% endfor %}
         {% endif %}

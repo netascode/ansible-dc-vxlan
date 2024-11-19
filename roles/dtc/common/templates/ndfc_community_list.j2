@@ -29,6 +29,18 @@ ip community-list standard {{ standard_community_list["name"] }} seq {{ entry["s
                 {% if "entries" in extended_community_list %}
                     {% for entry in extended_community_list["entries"] %}
                         {% set options = [] %}
+                        {# if option rt #}
+                        {% if "rt" in entry["communities"] %}
+                            {% for rt in entry["communities"]["rt"] %}
+                                {% set _ = options.append("rt " ~ rt ) %}
+                            {% endfor %}
+                        {% endif %}
+                        {# if option soo #}
+                        {% if "soo" in entry["communities"] %}
+                            {% for soo in entry["communities"]["rt"] %}
+                                {% set _ = options.append("soo " ~ soo ) %}
+                            {% endfor %}
+                        {% endif %}
                         {# if option 4byteas_generic #}
                         {% if "4byteas_generic" in entry["communities"] %}
                             {% for fourbyteas_generic in entry["communities"]["4byteas_generic"] %}
@@ -44,18 +56,6 @@ ip community-list standard {{ standard_community_list["name"] }} seq {{ entry["s
                         {% if "rmac" in entry["communities"] %}
                             {% for rmac in entry["communities"]["rmac"] %}
                                 {% set _ = options.append("rmac " ~ rmac | hwaddr('cisco') ) %}
-                            {% endfor %}
-                        {% endif %}
-                        {# if option rt #}
-                        {% if "rt" in entry["communities"] %}
-                            {% for rt in entry["communities"]["rt"] %}
-                                {% set _ = options.append("rt " ~ rt ) %}
-                            {% endfor %}
-                        {% endif %}
-                        {# if option soo  #}
-                        {% if "soo" in entry["communities"] %}
-                            {% for soo in entry["communities"]["rt"] %}
-                                {% set _ = options.append("soo " ~ soo ) %}
                             {% endfor %}
                         {% endif %}
 ip extcommunity-list standard {{ extended_community_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ options | join(" ") }}

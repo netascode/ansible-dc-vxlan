@@ -10,7 +10,7 @@
         {# If policy name in Group equal to policy in Route_control #}
         {% if policy_name["name"] == ip_as_path_access_list["name"] %}
             {% for entry in ip_as_path_access_list["entries"] %}
-ip as-path access-list {{ ip_as_path_access_list["name"] }} seq {{ entry["operation"] }} "{{ entry["bgp_as_paths_regex"] }}"
+ip as-path access-list {{ ip_as_path_access_list["name"] }} seq {{entry["seq_number"]}} {{ entry["operation"] }} "{{ entry["bgp_as_paths_regex"] }}"
             {% endfor %}
         {% endif %}
     {% endfor %}

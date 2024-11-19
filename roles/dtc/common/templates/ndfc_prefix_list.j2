@@ -28,9 +28,9 @@ ip prefix-list {{ ipv4_prefix_list["name"] }} description {{ ipv4_prefix_list["d
                             {% set _ = options.append("mask " ~ entry["mask"] ) %}
                         {% endif %}
                         {% if options | length > 1 %}
-ip prefix-list {{ ipv4_prefix_list["name"] }} {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }} {{ options | join(" ") }}
+ip prefix-list {{ ipv4_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }} {{ options | join(" ") }}
                         {% else %}
-ip prefix-list {{ ipv4_prefix_list["name"] }} {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }}
+ip prefix-list {{ ipv4_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }}
                         {% endif %}
                     {% endfor %}
                 {% endif %}
@@ -65,9 +65,9 @@ ipv6 prefix-list {{ ipv6_prefix_list["name"] }} description {{ ipv6_prefix_list[
                             {% set _ = options.append("mask " ~ entry["mask"] ) %}
                         {% endif %}
                         {% if options | length > 1 %}
-ipv6 prefix-list {{ ipv6_prefix_list["name"] }} {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }} {{ options | join(" ") }}
+ipv6 prefix-list {{ ipv6_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }} {{ options | join(" ") }}
                         {% else %}
-ipv6 prefix-list {{ ipv6_prefix_list["name"] }} {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }}
+ipv6 prefix-list {{ ipv6_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }}
                         {% endif %}
                     {% endfor %}
                 {% endif %}
