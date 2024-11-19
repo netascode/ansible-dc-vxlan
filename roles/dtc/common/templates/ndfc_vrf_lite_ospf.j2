@@ -75,7 +75,7 @@ router ospf {{ item.ospf['process'] }}
                 {% set _= nssa_options_flags.append("default-information-originate") %}
                 {% if area.nssa.route_map %}
                   {% set _= nssa_options_flags.append("route-map") %}
-                  {% set _= nssa_options_flags.append(area.nssa[0].route_map) %}
+                  {% set _= nssa_options_flags.append(area.nssa.route_map) %}
                   {% set nssa_options_flags_enabled = true %}
                 {% endif %}
               {% endif %}
