@@ -63,7 +63,7 @@ class PreparePlugin:
                         default_values["vxlan"]["overlay_extensions"]["vrf_lites"]["ospf"]["default_area"]
                     )
                     for switch in vrf_lite["switches"]:
-                        unique_name = f"nac_{vrf_lite['name']}_{switch['name']}"
+                        unique_name = f"{vrf_lite['name']}_{switch['name']}"
 
                         # Adding redistribution secion under the switches with the vrf_lite global config if it is not defined
                         # for example:
