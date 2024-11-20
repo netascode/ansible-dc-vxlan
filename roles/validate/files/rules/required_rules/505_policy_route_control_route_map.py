@@ -17,7 +17,8 @@ vxlan.overlay_extensions.route_control.ipv6_prefix_lists
 12. IPv6 object groups in the vxlan.overlay_extensions.route_control.groups.ipv6_object_groups should be defined in the vxlan.overlay_extensions.route_control.ipv6_object_groups.
 13. Name for each of these policies should be unique when they are consumed in a group
 14. Check if in the set_metric route map only metric bandwith is used or alternatively all the five metrics are used: bandwidth, delay, reliability, load, mtu
-15. Check if in set ip/ipv6 next-hop route map next-hops should be configured
+15. Check if in set ip/ipv6 next-hop verify-availability route map next-hops is configured
+16. Check if in set ip/ipv6 route map ipv4 or ipv6 is configure. Both ipv4 and ipv6 are not allowed
 """
 
 
@@ -55,11 +56,6 @@ class Rule:
                     # Get groups policies
                     if data["vxlan"].get("overlay_extensions").get("route_control").get("groups", None):
                         group_policies = data["vxlan"]["overlay_extensions"]["route_control"]["groups"]
-                        # Check groups integrity
-                        cls.check_groups(
-                            group_policies,
-                            route_control
-                        )
                     else:
                         # group is empty
                         return cls.results
@@ -83,6 +79,12 @@ class Rule:
                     topology_switches,
                     group_policies
                 )
+
+        # Check groups integrity
+        cls.check_groups(
+            group_policies,
+            route_control
+        )
 
         # Check route maps integrity
         if data["vxlan"].get("overlay_extensions").get("route_control").get("route_maps", None):
@@ -251,28 +253,64 @@ class Rule:
         # Check route maps entries
         for seq_numer in entries:
             if seq_numer.get("set", None):
-                for sets in seq_numer["set"]:
-                    if sets.get("metric", None):
-                        # Check set metric integrity
-                        cls.check_set_metric_integrity(
-                            sets["metric"]
-                        )
+                for rm_set in seq_numer["set"]:
+                    # Check set metric integrity
+                    cls.check_set_metric_integrity(
+                        rm_set
+                    )
+
+                    # Check set metric integrity
+                    cls.check_set_next_hop_verify_availability(
+                        rm_set
+                    )
+
+    @classmethod
+    def check_set_next_hop_verify_availability(
+        cls,
+        rm_set,
+    ):
+        """
+        Check if in the set_next_hop_verify_availability route map has next-hop ip defined
+        """
+        if rm_set.get("ipv4"):
+            set_ip = rm_set["ipv4"]
+            if 'next_hop' in set_ip:
+                if 'verify_availability' in set_ip["next_hop"]:
+                    if set_ip["next_hop"]['verify_availability']:
+                        # Ip address must be defined in verify_availability
+                        if 'address' not in set_ip["next_hop"]:
+                            cls.results.append(
+                                "For vxlan.overlay_extensions.route_control.route_maps.entries.set.ipv4.next_hop.verify_availability to be enabled, " +
+                                "ipv4 addredd must be configured"
+                            )
+        if rm_set.get("ipv6"):
+            set_ip = rm_set["ipv6"]
+            if 'next_hop' in set_ip:
+                if 'verify_availability' in set_ip["next_hop"]:
+                    if set_ip["next_hop"]['verify_availability']:
+                        # Ip address must be defined in verify_availability
+                        if 'address' not in set_ip["next_hop"]:
+                            cls.results.append(
+                                "For vxlan.overlay_extensions.route_control.route_maps.entries.set.ipv6.next_hop.verify_availability to be enabled, " +
+                                "ipv6 addredd must be configured"
+                            )
 
     @classmethod
     def check_set_metric_integrity(
         cls,
-        set_metric
+        rm_set
     ):
         """
         Check if in the set_metric route map if we use metric bandwith or all the five metrics: bandwidth, delay, reliability, load, mtu
         """
-
-        metrics = ['bandwidth', 'delay', 'reliability', 'load', 'mtu']
-        if 'bandwidth' in set_metric and len(set_metric) == 1:
-            pass
-        else:
-            for metric in metrics:
-                if metric not in set_metric:
-                    cls.results.append(
-                        "For vxlan.overlay_extensions.route_control.route_maps.entries.set.metric to be enabled, " +
-                        metric + " must be set in the metric.")
+        if rm_set.get("metric", None):
+            set_metric = rm_set["metric"]
+            metrics = ['bandwidth', 'delay', 'reliability', 'load', 'mtu']
+            if 'bandwidth' in set_metric and len(set_metric) == 1:
+                pass
+            else:
+                for metric in metrics:
+                    if metric not in set_metric:
+                        cls.results.append(
+                            "For vxlan.overlay_extensions.route_control.route_maps.entries.set.metric to be enabled, " +
+                            metric + " must be set in the metric.")
