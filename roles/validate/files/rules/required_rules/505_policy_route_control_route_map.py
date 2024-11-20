@@ -18,7 +18,6 @@ vxlan.overlay_extensions.route_control.ipv6_prefix_lists
 13. Name for each of these policies should be unique when they are consumed in a group
 14. Check if in the set_metric route map only metric bandwith is used or alternatively all the five metrics are used: bandwidth, delay, reliability, load, mtu
 15. Check if in set ip/ipv6 next-hop verify-availability route map next-hops is configured
-16. Check if in set ip/ipv6 route map ipv4 or ipv6 is configure. Both ipv4 and ipv6 are not allowed
 """
 
 
