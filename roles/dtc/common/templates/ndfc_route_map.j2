@@ -9,7 +9,7 @@
             {# If policy name in Group equal to policy in Route_control #}
             {% if policy_name["name"] == route_map["name"] %}
                 {% for entry in route_map["entries"] %}
-route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"] }}
+route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq_number"] }}
                     {% if entry["description"] is defined %}
   description {{ entry["description"] }}
                     {% endif %}
@@ -50,11 +50,7 @@ route-map {{ route_map["name"] }} {{ entry["operation"] }} {{ entry["seq_number"
   match as-number {{ asnumber | join(", ") }}
                             {% endif %}
                             {% if match["interfaces"] is defined %}
-                                {% set iflist = [] %}
-                                {% for interface in match["interfaces"] %}
-                                    {% set _ = iflist.append(interface[0]|upper ~ interface[1:]) %}
-                                {% endfor %}
-  match interface {{ iflist | join(" ") }}
+  match interface {{ match["interfaces"] | join(" ") }}
                             {% endif %}
                             {% if match["metric"] is defined %}
                                 {% if match["metric"]["deviation_operator"] is defined %}

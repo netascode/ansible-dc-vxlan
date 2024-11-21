@@ -7,7 +7,7 @@
         {% for ipv4_access_list in item["ipv4_access_lists"] %}
             {% if policy_name["name"] == ipv4_access_list["name"] %}
 {# !!! {{ ipv4_access_list }} #}
-ip access-list {{ ipv4_access_list["name"] }}
+ip access-list {{ ipv4_access_list["name"] | lower }}
                 {% if ipv4_access_list["fragments"] is defined %}
   fragments {{ ipv4_access_list["fragments"] }}
                 {% elif ipv4_access_list["ignore_routable"] is defined and ipv4_access_list["ignore_routable"] is true %}
