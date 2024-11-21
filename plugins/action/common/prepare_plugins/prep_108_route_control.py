@@ -18,18 +18,26 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
-
+import json
+import re
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader
-from ....plugin_utils.helper_functions import hostname_to_ip_mapping
 from ansible_collections.ansible.utils.plugins.filter import ipaddr
 from ansible_collections.ansible.utils.plugins.filter import hwaddr
+from ....plugin_utils.helper_functions import hostname_to_ip_mapping
+
 
 class PreparePlugin:
+    """
+    Class PreparePlugin
+    """
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.keys = []
 
     def prepare(self):
+        """
+        function to prepare data for route_control
+        """
         templates_path = self.kwargs['templates_path']
         model_data = self.kwargs['results']['model_extended']
         default_values = self.kwargs['default_values']
@@ -49,6 +57,196 @@ class PreparePlugin:
 
         if "overlay_extensions" in model_data["vxlan"]:
             if "route_control" in model_data["vxlan"]["overlay_extensions"]:
+                original_rm = model_data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"].copy()
+
+                # =================================================
+                # convert values for ACL and IP Predence, Interfaces
+                # =================================================
+                # TODO: Rewrite route-map IP Precedence number to string
+                # Example: set ip precedence 6 -> set ip precedence internet
+                #   critical        Set critical precedence (5)
+                #   flash           Set flash precedence (3)
+                #   flash-override  Set flash override precedence (4)
+                #   immediate       Set immediate precedence (2)
+                #   internet        Set internetwork control precedence (6)
+                #   network         Set network control precedence (7)
+                #   priority        Set priority precedence (1)
+                #   routine         Set routine precedence (0)
+                # TODO: Rewrite match interface based on CLI
+                # Order is not important, only the case
+                # Example: CLI match interface Ethernet1/10 loopback100 Null0 port-channel100
+
+                precedence_translation = {
+                    0: 'routine',
+                    1: 'priority',
+                    2: 'immediate',
+                    3: 'flash',
+                    4: 'flash-override',
+                    5: 'critical',
+                    6: 'internet',
+                    7: 'network',
+                }
+                for route_map in model_data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]:
+                    if "entries" in route_map:
+                        for entry in route_map["entries"]:
+                            if "match" in entry:
+                                for option_match in entry["match"]:
+                                    if "interfaces" in option_match:
+                                        new_interfaces = []
+                                        for interface in option_match["interfaces"]:
+                                            intf_ethernet = re.match(r'(?i)^(?:e|eth(?:ernet)?)(\d(?:\/\d+){1,2}$)', interface)
+                                            intf_ethernetdot1q = re.match(r'(?i)^(?:e|eth(?:ernet)?)(\d(?:\/\d+){1,2}.(\d+)$)', interface)
+                                            intf_loopback = re.match(r'(?i)^(?:lo|lo(?:opback)?)(\d+)$', interface)
+                                            intf_portchannel = re.match(r'(?i)^(?:po|po(?:rt-channel)?)(\d+)$', interface)
+                                            intf_portchanneldot1q = re.match(r'(?i)^(?:po|po(?:ort-channel)?)(\d{1,4}.\d+)$', interface)
+                                            intf_null = re.match(r'(?i)^(?:n|null:?)([0])$', interface)
+                                            if intf_ethernet:
+                                                new_interfaces.append("Ethernet" + intf_ethernet[1])
+                                            elif intf_ethernetdot1q:
+                                                new_interfaces.append("Ethernet" + intf_ethernetdot1q[1])
+                                            elif intf_loopback:
+                                                new_interfaces.append("loopback" + intf_loopback[1])
+                                            elif intf_portchannel:
+                                                new_interfaces.append("port-channel" + intf_portchannel[1])
+                                            elif intf_portchanneldot1q:
+                                                new_interfaces.append("port-channel" + intf_portchanneldot1q[1])
+                                            elif intf_null:
+                                                new_interfaces.append("Null" + intf_null[1])
+                                        option_match["interfaces"] = new_interfaces
+                            if "set" in entry:
+                                for option_set in entry["set"]:
+
+                                    if ("ipv4" in option_set) and ("precedence" in option_set["ipv4"]):
+                                        if isinstance(option_set["ipv4"]["precedence"], int):
+                                            option_set["ipv4"]["precedence"] = precedence_translation[
+                                                option_set["ipv4"]["precedence"]]
+
+                                    if ("ipv6" in option_set) and ("precedence" in option_set["ipv6"]):
+                                        if isinstance(option_set["ipv6"]["precedence"], int):
+                                            print(precedence_translation[option_set["ipv6"]["precedence"]])
+
+                print("Before:")
+                print(json.dumps(original_rm, indent=4))
+
+                print("After route_map:")
+                print(json.dumps(model_data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"], indent=4))
+
+                # TODO: Refactor ipv4 and ipv6
+                if "ipv4_access_lists" in model_data["vxlan"]["overlay_extensions"]["route_control"]:
+                    new_ip_acls = []
+                    for ip_acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv4_access_lists"]:
+                        new_ip_acl = []
+                        if "entries" in ip_acl:
+                            for entry in ip_acl["entries"]:
+                                new_ip_acl_entry = {}
+                                if ("protocol" in entry) and (entry["protocol"] == "tcp"):
+                                    if "source" in entry and "port_number" in entry["source"]:
+
+                                        if "port" in entry["source"]["port_number"]:
+                                            new_ip_acl_entry = entry
+                                            new_ip_acl_entry["source"][
+                                                "port_number"]["port"] = self.convert_port_number(
+                                                entry["source"]["port_number"]["port"], 'tcp')
+
+                                    if "destination" in entry and "port_number" in entry["destination"]:
+                                        if "port" in entry["destination"]["port_number"]:
+                                            new_ip_acl_entry = entry
+                                            new_ip_acl_entry["destination"][
+                                                "port_number"]["port"] = self.convert_port_number(
+                                                entry["destination"]["port_number"]["port"], 'tcp')
+
+                                elif ("protocol" in entry) and (entry["protocol"] == "udp"):
+                                    if "source" in entry and "port_number" in entry["source"]:
+
+                                        if "port" in entry["source"]["port_number"]:
+                                            new_ip_acl_entry = entry
+                                            new_ip_acl_entry["source"][
+                                                "port_number"]["port"] = self.convert_port_number(
+                                                entry["source"]["port_number"]["port"], 'udp')
+
+                                    if "destination" in entry and "port_number" in entry["destination"]:
+                                        if "port" in entry["destination"]["port_number"]:
+                                            new_ip_acl_entry = entry
+                                            new_ip_acl_entry["destination"][
+                                                "port_number"]["port"] = self.convert_port_number(
+                                                entry["destination"]["port_number"]["port"], 'udp')
+
+                                if new_ip_acl_entry != {}:
+                                    new_ip_acl.append(new_ip_acl_entry)
+                                else:
+                                    new_ip_acl.append(entry)
+                            new_ip_acls.append({'name': ip_acl['name'], 'entries': new_ip_acl})
+                        else:
+                            new_ip_acls.append(ip_acl)
+
+                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                print("Before IPv4:")
+                print(json.dumps(model_data["vxlan"]["overlay_extensions"][
+                    "route_control"]["ipv4_access_lists"], indent=4))
+                model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv4_access_lists"] = new_ip_acls
+                print("After IPv4:")
+                print(json.dumps(model_data["vxlan"]["overlay_extensions"][
+                    "route_control"]["ipv4_access_lists"], indent=4))
+                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+                # Check IPv6 ACL
+                if "ipv6_access_lists" in model_data["vxlan"]["overlay_extensions"]["route_control"]:
+                    new_ip_acls = []
+                    for ip_acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"]:
+                        new_ip_acl = []
+                        if "entries" in ip_acl:
+                            for entry in ip_acl["entries"]:
+                                new_ip_acl_entry = {}
+                                if ("protocol" in entry) and (entry["protocol"] == "tcp"):
+                                    if "source" in entry and "port_number" in entry["source"]:
+
+                                        if "port" in entry["source"]["port_number"]:
+                                            new_ip_acl_entry = entry
+                                            new_ip_acl_entry["source"][
+                                                "port_number"]["port"] = self.convert_port_number(
+                                                entry["source"]["port_number"]["port"], 'tcp')
+
+                                    if "destination" in entry and "port_number" in entry["destination"]:
+                                        if "port" in entry["destination"]["port_number"]:
+                                            new_ip_acl_entry = entry
+                                            new_ip_acl_entry["destination"][
+                                                "port_number"]["port"] = self.convert_port_number(
+                                                entry["destination"]["port_number"]["port"], 'tcp')
+
+                                elif ("protocol" in entry) and (entry["protocol"] == "udp"):
+                                    if "source" in entry and "port_number" in entry["source"]:
+
+                                        if "port" in entry["source"]["port_number"]:
+                                            new_ip_acl_entry = entry
+                                            new_ip_acl_entry["source"][
+                                                "port_number"]["port"] = self.convert_port_number(
+                                                entry["source"]["port_number"]["port"], 'udp')
+
+                                    if "destination" in entry and "port_number" in entry["destination"]:
+                                        if "port" in entry["destination"]["port_number"]:
+                                            new_ip_acl_entry = entry
+                                            new_ip_acl_entry["destination"][
+                                                "port_number"]["port"] = self.convert_port_number(
+                                                entry["destination"]["port_number"]["port"], 'udp')
+
+                                if new_ip_acl_entry != {}:
+                                    new_ip_acl.append(new_ip_acl_entry)
+                                else:
+                                    new_ip_acl.append(entry)
+                            new_ip_acls.append({'name': ip_acl['name'], 'entries': new_ip_acl})
+                        else:
+                            new_ip_acls.append(ip_acl)
+
+                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                print("Before IPv6:")
+                print(json.dumps(model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"],
+                                 indent=4))
+                model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"] = new_ip_acls
+                print("After IPv6:")
+                print(json.dumps(model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"],
+                                 indent=4))
+                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
                 for route_control in model_data["vxlan"]["overlay_extensions"]["route_control"]:
                     if "switches" == route_control:
                         for switch in model_data["vxlan"]["overlay_extensions"]["route_control"]["switches"]:
@@ -103,6 +301,86 @@ class PreparePlugin:
                                     model_data["vxlan"]["policy"]["groups"].append(new_group)
 
             model_data = hostname_to_ip_mapping(model_data)
-
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
+
+    def convert_port_number(self, port_number, protocol):
+        """
+        Convert TCP, UDP port number with well-know
+        """
+
+        tcp = {
+            7: "echo",
+            9: "discard",
+            13: "daytime",
+            19: "chargen",
+            20: "ftp-data",
+            21: "ftp",
+            23: "telnet",
+            25: "smtp",
+            37: "time",
+            43: "whois",
+            49: "tacacs",
+            53: "domain",
+            70: "gopher",
+            79: "finger",
+            80: "www",
+            101: "hostname",
+            109: "pop2",
+            110: "pop3",
+            111: "sunrpc",
+            113: "ident",
+            119: "nntp",
+            179: "bgp",
+            194: "irc",
+            496: "pim-auto-rp",
+            512: "exec",
+            513: "login",
+            514: "cmd",
+            515: "lpd",
+            517: "talk",
+            540: "uucp",
+            543: "klogin",
+            544: "kshell",
+            3949: "drip",
+        }
+
+        udp = {
+            7: "echo",
+            9: "discard",
+            37: "time",
+            42: "nameserver",
+            49: "tacacs",
+            53: "domain",
+            67: "bootps",
+            68: "bootpc",
+            69: "tftp",
+            111: "sunrpc",
+            123: "ntp",
+            137: "netbios-ns",
+            138: "netbios-dgm",
+            139: "netbios-ss",
+            161: "snmp",
+            162: "snmptrap",
+            177: "xdmcp",
+            195: "dnsix",
+            434: "mobile-ip",
+            496: "pim-auto-rp",
+            500: "isakmp",
+            512: "biff",
+            513: "who",
+            514: "syslog",
+            517: "talk",
+            520: "rip",
+            4500: "non500-isakmp",
+        }
+
+        if protocol == 'tcp':
+            if port_number in tcp:
+                return tcp[port_number]
+
+        elif protocol == 'udp':
+            if port_number in udp:
+                return udp[port_number]
+
+        return port_number
