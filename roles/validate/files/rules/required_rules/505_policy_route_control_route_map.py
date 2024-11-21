@@ -276,22 +276,22 @@ class Rule:
             if 'next_hop' in set_ip:
                 if 'verify_availability' in set_ip["next_hop"]:
                     if set_ip["next_hop"]['verify_availability']:
-                        # Ip address must be defined in verify_availability
+                        # Ip address should be defined in verify_availability
                         if 'address' not in set_ip["next_hop"]:
                             cls.results.append(
-                                "For vxlan.overlay_extensions.route_control.route_maps.entries.set.ipv4.next_hop.verify_availability to be enabled, " +
-                                "ipv4 addredd must be configured"
+                                "For vxlan.overlay_extensions.route_control.route_maps.entries.set.ipv4.next_hop.verify_availability to be used, " +
+                                "ipv4 address should be configured"
                             )
         if rm_set.get("ipv6"):
             set_ip = rm_set["ipv6"]
             if 'next_hop' in set_ip:
                 if 'verify_availability' in set_ip["next_hop"]:
                     if set_ip["next_hop"]['verify_availability']:
-                        # Ip address must be defined in verify_availability
+                        # Ip address should be defined in verify_availability
                         if 'address' not in set_ip["next_hop"]:
                             cls.results.append(
-                                "For vxlan.overlay_extensions.route_control.route_maps.entries.set.ipv6.next_hop.verify_availability to be enabled, " +
-                                "ipv6 addredd must be configured"
+                                "For vxlan.overlay_extensions.route_control.route_maps.entries.set.ipv6.next_hop.verify_availability to be used, " +
+                                "ipv6 address should be configured"
                             )
 
     @classmethod
@@ -312,4 +312,4 @@ class Rule:
                     if metric not in set_metric:
                         cls.results.append(
                             "For vxlan.overlay_extensions.route_control.route_maps.entries.set.metric to be enabled, " +
-                            metric + " must be set in the metric.")
+                            metric + " should be set in the metric.")
