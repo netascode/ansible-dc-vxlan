@@ -21,58 +21,58 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.validate]
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.validate]             +"
-      - "----------------------------------------------------------------"
+# - name: Role Entry Point - [cisco.nac_dc_vxlan.validate]
+#   ansible.builtin.debug:
+#     msg:
+#       - "----------------------------------------------------------------"
+#       - "+     Calling Role - [cisco.nac_dc_vxlan.validate]             +"
+#       - "----------------------------------------------------------------"
 
-- ansible.builtin.debug: msg="Role Path - {{ role_path }}"
+# - ansible.builtin.debug: msg="Role Path - {{ role_path }}"
 
-- ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
+# - ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
 
-- name: Validate NDFC Service Model Data
-  ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
+# - name: Validate NDFC Service Model Data
+#   ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
 
-- ansible.builtin.debug: msg="Workflow is Direct to Device (DTD)"
-  when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.nxos.nxos"
+# - ansible.builtin.debug: msg="Workflow is Direct to Device (DTD)"
+#   when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.nxos.nxos"
 
-- ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
-  when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
+# - ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
+#   when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
 
-- name: Check for Schema Path Being Defined
-  ansible.builtin.set_fact:
-    schema_path: ''
-  when: schema_path is not defined
-  delegate_to: localhost
+# - name: Check for Schema Path Being Defined
+#   ansible.builtin.set_fact:
+#     schema_path: ''
+#   when: schema_path is not defined
+#   delegate_to: localhost
 
-- name: Check for Enhanced Roles Path Being Defined
-  ansible.builtin.set_fact:
-    enhanced_rules_path: ''
-  when: enhanced_rules_path is not defined
-  delegate_to: localhost
+# - name: Check for Enhanced Roles Path Being Defined
+#   ansible.builtin.set_fact:
+#     enhanced_rules_path: ''
+#   when: enhanced_rules_path is not defined
+#   delegate_to: localhost
 
-- name: Perform Required Syntax and Semantic Model Validation
-  cisco.nac_dc_vxlan.common.nac_dc_validate:
-    schema: "{{ schema_path }}"
-    mdata: "{{ data_path }}"
-    rules: "{{ rules_path }}"
-  register: model_data
-  vars:
-    data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-    rules_path: "{{ role_path }}/files/rules/required_rules/"
-  delegate_to: localhost
+# - name: Perform Required Syntax and Semantic Model Validation
+#   cisco.nac_dc_vxlan.common.nac_dc_validate:
+#     schema: "{{ schema_path }}"
+#     mdata: "{{ data_path }}"
+#     rules: "{{ rules_path }}"
+#   register: model_data
+#   vars:
+#     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+#     rules_path: "{{ role_path }}/files/rules/required_rules/"
+#   delegate_to: localhost
 
-- name: Perform Enhanced Syntax and Semantic Model Validation
-  cisco.nac_dc_vxlan.common.nac_dc_validate:
-    schema: "{{ schema_path }}"
-    mdata: "{{ data_path }}"
-    rules: "{{ enhanced_rules_path }}"
-  vars:
-    data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-  when: enhanced_rules_path is defined and enhanced_rules_path
-  delegate_to: localhost
+# - name: Perform Enhanced Syntax and Semantic Model Validation
+#   cisco.nac_dc_vxlan.common.nac_dc_validate:
+#     schema: "{{ schema_path }}"
+#     mdata: "{{ data_path }}"
+#     rules: "{{ enhanced_rules_path }}"
+#   vars:
+#     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+#   when: enhanced_rules_path is defined and enhanced_rules_path
+#   delegate_to: localhost
 
 - name: Stat Factory Defaults
   ansible.builtin.stat: path="{{ role_path }}/files/defaults.yml"
