@@ -38,6 +38,7 @@
     config: "{{ vrf_config }}"
   register: manage_vrf_result
   when:
+    - MD.vxlan.overlay_services.vrfs is defined
     - MD.vxlan.overlay_services.vrfs
     - changes_detected_vrfs
 
@@ -52,5 +53,6 @@
     config: "{{ net_config }}"
   register: manage_network_result
   when:
+    - MD.vxlan.overlay_services.networks is defined
     - MD.vxlan.overlay_services.networks
     - changes_detected_networks

@@ -58,11 +58,7 @@ class ActionModule(ActionBase):
                         unique_name = f"nac_{dm_vrf_lite['name']}_{dm_vrf_lite_switch['name']}"
                         vrf_lites.append(unique_name)
 
-        # Set defaults for management IP addresses, current switch policies, and unmanaged policies
-        dm_management_ipv4_address = ""
-        dm_management_ipv6_address = ""
         # For each switch current_sw_policies will be used to store a list of policies currently associated to the switch
-        current_sw_policies = []
         # For each switch that has unmanaged policies, the switch IP address and the list of unmanaged policies will be stored
         # This default dict is the start of what is required for the NDFC policy module
         unmanaged_policies = [
@@ -73,6 +69,13 @@ class ActionModule(ActionBase):
 
         # Loop over each serial number obtained from NDFC
         for ndfc_sw_serial_number in ndfc_sw_serial_numbers:
+            # Set empty default values to reset for each switch
+            dm_switch_found = {}
+            dm_management_ipv4_address = ""
+            dm_management_ipv6_address = ""
+            dm_policy_switch = {}
+            current_sw_policies = []
+
             # Check if the serial number from NDFC matches any serial number for a switch in the data model
             # If found, grab the specific switch entry from the data model
             # Also if a match, set the IP mgmt information for the current switch found
@@ -103,94 +106,96 @@ class ActionModule(ActionBase):
                     # If found, store a list of current policies that are part of that policy group in the data model
                     # In the process of storing, reformat the policy description name to prepend "nac_" and replace white spaces with underscores
                     if any(dm_policy_group["name"] == dm_sw_policy_group for dm_policy_group in dm_policy_groups):
-                        current_sw_policies = next(
-                            (
-                                ["nac_" + policy["name"].replace(" ", "_") for policy in dm_policy_group["policies"]]
-                                for dm_policy_group in dm_policy_groups if dm_policy_group["name"] == dm_sw_policy_group
+                        current_sw_policies.extend(
+                            next(
+                                (
+                                    ["nac_" + policy["name"].replace(" ", "_") for policy in dm_policy_group["policies"]]
+                                    for dm_policy_group in dm_policy_groups if dm_policy_group["name"] == dm_sw_policy_group
+                                )
                             )
                         )
 
-                # Query NDFC for the current switch's serial number to get back any policy that exists for that switch
-                # with the description prepended with "nac_"
-                ndfc_policies_with_nac_desc = ndfc_get_nac_switch_policy_using_desc(self, task_vars, tmp, ndfc_sw_serial_number)
+            # Query NDFC for the current switch's serial number to get back any policy that exists for that switch
+            # with the description prepended with "nac_"
+            ndfc_policies_with_nac_desc = ndfc_get_nac_switch_policy_using_desc(self, task_vars, tmp, ndfc_sw_serial_number)
 
-                # Currently, check two things to determine an unmanaged policy:
-                # Check no matching policy in the data model against the policy returned from NDFC for the current switch
-                # This check uses the prepended "nac_"
-                # Additionally, as of now, check no matching policy is from the VRF Lite policy of the data model
-                if any(
-                    ((ndfc_policy_with_desc["description"] not in current_sw_policies) and (ndfc_policy_with_desc["description"] not in vrf_lites))
-                    for ndfc_policy_with_desc in ndfc_policies_with_nac_desc
-                ):
-                    # If found, do the following:
-                    # Update Ansible result status
-                    # Add the switch to unmanaged_policies payload
-                    # Get the last index of where the switch was added
-                    # Build specific unmanaged policy entry
-                    # Add unmanaged policy entry to last switch added to list
+            # Currently, check two things to determine an unmanaged policy:
+            # Check no matching policy in the data model against the policy returned from NDFC for the current switch
+            # This check uses the prepended "nac_"
+            # Additionally, as of now, check no matching policy is from the VRF Lite policy of the data model
+            if any(
+                ((ndfc_policy_with_nac_desc["description"] not in current_sw_policies) and (ndfc_policy_with_nac_desc["description"] not in vrf_lites))
+                for ndfc_policy_with_nac_desc in ndfc_policies_with_nac_desc
+            ):
+                # If found, do the following:
+                # Update Ansible result status
+                # Add the switch to unmanaged_policies payload
+                # Get the last index of where the switch was added
+                # Build specific unmanaged policy entry
+                # Add unmanaged policy entry to last switch added to list
 
-                    # Update Ansible for a configuration change
-                    results['changed'] = True
+                # Update Ansible for a configuration change
+                results['changed'] = True
 
-                    # Update unmanaged_policies with the IP address of the switch that now has unmanaged policy
-                    # The NDFC policy module can take a list of various dictionaries with the switch key previously being pre-stored
-                    # Given this, each update the switch element with a new switch entry is the zeroth reference location always in unmanaged_policies
-                    # Example:
-                    # [
-                    #     {
-                    #         "switch": [
-                    #             {
-                    #                 "ip": <mgmt_ip_address>,
-                    #             }
-                    #         ]
-                    #     }
-                    # ]
-                    unmanaged_policies[0]["switch"].append(
-                        {
-                            "ip": dm_management_ipv4_address if dm_management_ipv4_address else dm_management_ipv6_address
-                        }
-                    )
+                # Update unmanaged_policies with the IP address of the switch that now has unmanaged policy
+                # The NDFC policy module can take a list of various dictionaries with the switch key previously being pre-stored
+                # Given this, each update the switch element with a new switch entry is the zeroth reference location always in unmanaged_policies
+                # Example:
+                # [
+                #     {
+                #         "switch": [
+                #             {
+                #                 "ip": <mgmt_ip_address>,
+                #             }
+                #         ]
+                #     }
+                # ]
+                unmanaged_policies[0]["switch"].append(
+                    {
+                        "ip": dm_management_ipv4_address if dm_management_ipv4_address else dm_management_ipv6_address
+                    }
+                )
 
-                    # Grab the last index of a switch added
-                    last_idx = len(unmanaged_policies[0]["switch"]) - 1
+                # Grab the last index of a switch added
+                last_idx = len(unmanaged_policies[0]["switch"]) - 1
 
-                    # Since initially found there is indeed an unmananged policy, build a list of unmanaged policy
-                    _unmanaged_policies = [
-                        {
-                            "name": ndfc_policy_with_desc["policyId"],
-                            "description": ndfc_policy_with_desc["description"]
-                        }
-                        for ndfc_policy_with_desc in ndfc_policies_with_nac_desc
-                        if ((ndfc_policy_with_desc["description"] not in current_sw_policies) and (ndfc_policy_with_desc["description"] not in vrf_lites))
-                    ]
+                # Since initially found there is indeed an unmananged policy, build a list of unmanaged policy
+                _unmanaged_policies = [
+                    {
+                        "name": ndfc_policy_with_nac_desc["policyId"],
+                        "description": ndfc_policy_with_nac_desc["description"]
+                    }
+                    for ndfc_policy_with_nac_desc in ndfc_policies_with_nac_desc
+                    if ((ndfc_policy_with_nac_desc["description"] not in current_sw_policies) and (ndfc_policy_with_nac_desc["description"] not in vrf_lites))
+                ]
 
-                    # Update the dictionary entry for the last switch with the expected policies key the NDFC policy module expects
-                    unmanaged_policies[0]["switch"][last_idx].update(
-                        {
-                            "policies": _unmanaged_policies
-                        }
-                    )
+                # Update the dictionary entry for the last switch with the expected policies key the NDFC policy module expects
+                unmanaged_policies[0]["switch"][last_idx].update(
+                    {
+                        "policies": _unmanaged_policies
+                    }
+                )
 
-                    # Example of unmanaged policy payload:
-                    # [
-                    #     {
-                    #         "switch": [
-                    #             {
-                    #                 "ip": '<ip_address>',
-                    #                 "policies": [
-                    #                     {
-                    #                         "name": <Policy ID>,
-                    #                         "description": "nac_<description>"
-                    #                     },
-                    #                     {
-                    #                         "name": <Policy ID>,
-                    #                         "description": "nac_<description>"
-                    #                     },
-                    #                 ]
-                    #             },
-                    #         ]
-                    #     }
-                    # ]
+                # Example of unmanaged policy payload:
+                # [
+                #     {
+                #         "switch": [
+                #             {
+                #                 "ip": '<ip_address>',
+                #                 "policies": [
+                #                     {
+                #                         "name": <Policy ID>,
+                #                         "description": "nac_<description>"
+                #                     },
+                #                     {
+                #                         "name": <Policy ID>,
+                #                         "description": "nac_<description>"
+                #                     },
+                #                 ]
+                #             },
+                #         ]
+                #     }
+                # ]
 
         # Store the unmanaged policy payload for return and usage in the NDFC policy module to delete from NDFC
         results['unmanaged_policies'] = unmanaged_policies

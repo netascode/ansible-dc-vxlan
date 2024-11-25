@@ -1,8 +1,8 @@
-# Ansible Solution Collection:  nac_dc_vxlan (NetAsCode DC VXLAN)
+# Ansible Solution Collection: nac_dc_vxlan
 
 ![Actions Status](https://github.com/netascode/ansible-dc-vxlan/actions/workflows/main.yml/badge.svg?branch=develop)
 
-Ansible Collection for configuring Cisco VXLAN EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a data model that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
+NetAsCode DC VXLAN (nac_dc_vxlan) Ansible Collection for configuring Cisco VXLAN EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a data model that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
 
 This approach allows for consistent and repeatable configuration of VXLAN fabrics and aligns with Infrastructure as Code (IaC) methodology, where the configuration state of NDFC is saved in a version control system and managed as code.
 
@@ -52,6 +52,7 @@ vrf_delete_mode: false
 inventory_delete_mode: false
 vpc_delete_mode: false
 link_vpc_delete_mode: false
+policy_delete_mode: false
 ```
 
 **Note:** These variables are set to `false` by default to avoid accidental removal of configuration from NDFC that might impact the network.
@@ -186,7 +187,7 @@ all:
     ndfc:
       hosts:
         nac-ndfc1:
-          ansible_host: 10.X.X.X
+          ansible_host: "{{ lookup('ansible.builtin.env', 'ND_HOST') }}"
 ```
 
 This structure creates two things in Ansible, a group called `ndfc` and a host called `nac-ndfc1:`. These are tied back to the directory structure of the repository that contains two folders in the top directory:
@@ -208,7 +209,7 @@ The collection is **pre-built** to utilize the `group_vars` and `host_vars` matc
 
 #### Step 1 - Update the Inventory File
 
-In the provided `inventory.yaml` file on the root directory, update the `ansible_host` variable to point to your NDFC controller by replacing `10.X.X.X` with the IP address of the NDFC controller.
+In the provided `inventory.yaml` file on the root directory, update the `ansible_host` variable to point to your NDFC controller by replacing `"{{ lookup('ansible.builtin.env', 'ND_HOST') }}"` with the IP address of the NDFC controller or setting the ```ND_HOST``` environment variable as described in Step 3.
 
 
 #### Step 2 - Configure Ansible Connection File
@@ -245,12 +246,14 @@ The usage of [Ansible vault](https://docs.ansible.com/ansible/latest/vault_guide
 The environment variables are set in the shell that is going to execute the playbook. The environment variables are configured via the `export` command in the shell (bash). Using this template set the environment variables to the correct credentials for the NDFC controller and the devices in the inventory on your topology.
 
 ```bash
-# These are the credentials for 
-export ansible_user=admin
-export ansible_password=Admin_123
+# These are the credentials for ND/NDFC
+export ND_HOST=10.15.0.11
+export ND_DOMAIN=local
+export ND_USERNAME=admin
+export ND_PASSWORD=Admin_123
 # These are the credentials for the devices in the inventory
-export ndfc_switch_username=admin
-export ndfc_switch_password=Admin_123
+export NDFC_SW_USERNAME=admin
+export NDFC_SW_PASSWORD=Admin_123
 ```
 
 The following quickstart repository is available to provide a step by step guide for using this collection

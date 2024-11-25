@@ -130,7 +130,7 @@ class PreparePlugin:
         # Check vxlan.overlay_services list elements
         parent_keys = ['vxlan', 'overlay_services']
         dm_check = data_model_key_check(self.model_data, parent_keys)
-        if 'overlay_services' in dm_check['keys_no_data']:
+        if 'overlay_services' in dm_check['keys_not_found'] or 'overlay_services' in dm_check['keys_no_data']:
             self.model_data['vxlan']['overlay_services'] = {'vrfs': []}
             self.model_data['vxlan']['overlay_services'] = {'vrf_attach_groups': []}
             self.model_data['vxlan']['overlay_services'] = {'networks': []}
