@@ -41,10 +41,10 @@ class ActionModule(ActionBase):
             for existing_link in existing_links:
                 if ('sw1-info' in existing_link and 'sw2-info' in existing_link and
                     (existing_link['sw1-info']['sw-sys-name'] == link['src_device'] and
-                    existing_link['sw1-info']['if-name'] == link['src_interface'] and
-                    existing_link['sw2-info']['sw-sys-name'] == link['dst_device'] and
-                    existing_link['sw2-info']['if-name'] == link['dst_interface'])):
-                    not_required_links.append(link)
+                     existing_link['sw1-info']['if-name'] == link['src_interface'] and
+                     existing_link['sw2-info']['sw-sys-name'] == link['dst_device'] and
+                     existing_link['sw2-info']['if-name'] == link['dst_interface'])):
+                     not_required_links.append(link)
         results['not_required_links'] = not_required_links
 
         return results
