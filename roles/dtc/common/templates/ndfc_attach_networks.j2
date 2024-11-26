@@ -70,7 +70,7 @@
 {% if net['network_attach_group'] is defined %}
   attach:
 {% for attach in MD_Extended.vxlan.overlay_services.network_attach_groups_dict[net['network_attach_group']] %}
-    - ip_address: {{ attach['hostname'] }}
+    - ip_address: {{ attach['ip_address'] }}
       ports: {{ attach['ports'] }}
 {% endfor %}
   deploy: false

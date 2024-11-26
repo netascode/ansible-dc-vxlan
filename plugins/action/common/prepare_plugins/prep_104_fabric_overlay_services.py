@@ -67,9 +67,9 @@ class PreparePlugin:
                 if any(sw['name'] == switch['hostname'] for sw in switches):
                     found_switch = next((item for item in switches if item["name"] == switch['hostname']))
                     if found_switch.get('management').get('management_ipv4_address'):
-                        switch['hostname'] = found_switch['management']['management_ipv4_address']
+                        switch['ip_address'] = found_switch['management']['management_ipv4_address']
                     elif found_switch.get('management').get('management_ipv6_address'):
-                        switch['hostname'] = found_switch['management']['management_ipv6_address']
+                        switch['ip_address'] = found_switch['management']['management_ipv6_address']
 
         # Remove network_attach_group from net if the group_name is not defined
         for net in model_data['vxlan']['overlay_services']['networks']:
