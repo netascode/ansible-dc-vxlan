@@ -21,87 +21,22 @@
 
 ---
 
-# - name: Role Entry Point - [cisco.nac_dc_vxlan.validate]
-#   ansible.builtin.debug:
-#     msg:
-#       - "----------------------------------------------------------------"
-#       - "+     Calling Role - [cisco.nac_dc_vxlan.validate]             +"
-#       - "----------------------------------------------------------------"
-
-# - ansible.builtin.debug: msg="Role Path - {{ role_path }}"
-
-# - ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
-
-# - name: Validate NDFC Service Model Data
-#   ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
-
-# - ansible.builtin.debug: msg="Workflow is Direct to Device (DTD)"
-#   when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.nxos.nxos"
-
-# - ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
-#   when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
-
-# - name: Check for Schema Path Being Defined
-#   ansible.builtin.set_fact:
-#     schema_path: ''
-#   when: schema_path is not defined
-#   delegate_to: localhost
-
-# - name: Check for Enhanced Roles Path Being Defined
-#   ansible.builtin.set_fact:
-#     enhanced_rules_path: ''
-#   when: enhanced_rules_path is not defined
-#   delegate_to: localhost
-
-# - name: Perform Required Syntax and Semantic Model Validation
-#   cisco.nac_dc_vxlan.common.nac_dc_validate:
-#     schema: "{{ schema_path }}"
-#     mdata: "{{ data_path }}"
-#     rules: "{{ rules_path }}"
-#   register: model_data
-#   vars:
-#     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-#     rules_path: "{{ role_path }}/files/rules/required_rules/"
-#   delegate_to: localhost
-
-# - name: Perform Enhanced Syntax and Semantic Model Validation
-#   cisco.nac_dc_vxlan.common.nac_dc_validate:
-#     schema: "{{ schema_path }}"
-#     mdata: "{{ data_path }}"
-#     rules: "{{ enhanced_rules_path }}"
-#   vars:
-#     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-#   when: enhanced_rules_path is defined and enhanced_rules_path
-#   delegate_to: localhost
-
-- name: Stat Factory Defaults
-  ansible.builtin.stat: path="{{ role_path }}/files/defaults.yml"
-  register: factory_defaults_file
-  delegate_to: localhost
-
-- name: Include Factory Defaults if Available
-  ansible.builtin.include_vars:
-    file: "{{ role_path }}/files/defaults.yml"
-  when: factory_defaults_file.stat.exists
-  delegate_to: localhost
-
-- name: Merge factory and custom defaults
-  cisco.nac_dc_vxlan.common.merge_defaults:
-    factory_defaults: "{{ factory_defaults }}"
-    model_data: "{{ model_data['data'] }}"
-  register: defaults
-  delegate_to: localhost
-
-- name: Register Variable With Only Defaults from Previous Task
-  ansible.builtin.set_fact:
-    defaults: "{{ defaults['defaults'] }}"
+- name: Perform Required Syntax and Semantic Model Validation
+  cisco.nac_dc_vxlan.common.nac_dc_validate:
+    schema: "{{ schema_path }}"
+    mdata: "{{ data_path }}"
+    rules: "{{ rules_path }}"
+  register: model_data_vxlan
+  vars:
+    data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+    rules_path: "{{ role_path }}/files/rules/required_rules/"
   delegate_to: localhost
 
 - name: Prepare Service Model
   cisco.nac_dc_vxlan.common.prepare_service_model:
     inventory_hostname: "{{ inventory_hostname }}"
     hostvars: "{{ hostvars }}"
-    model_data: "{{ model_data['data'] }}"
+    model_data: "{{ model_data_vxlan['data'] }}"
     default_values: "{{ defaults }}"
     templates_path: "{{ role_path }}/../dtc/common/templates/"
   register: smd

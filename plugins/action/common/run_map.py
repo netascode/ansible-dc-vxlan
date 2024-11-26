@@ -43,7 +43,7 @@ class ActionModule(ActionBase):
 
         model_data = task_vars['model_data']['data']
         stage = self._task.args['stage']
-        fabric_name = model_data["vxlan"]["global"]["name"]
+        fabric_name = model_data["vxlan"]["name"]
 
         if 'dtc' in task_vars['role_path']:
             common_role_path = os.path.dirname(task_vars['role_path'])

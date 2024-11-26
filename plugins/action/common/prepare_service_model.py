@@ -54,9 +54,12 @@ class ActionModule(ActionBase):
         sm_data = self._task.args['model_data']
         # results['model_extended'] contains the data that can be extended by the plugins
         results['model_extended'] = copy.deepcopy(sm_data)
+        fabric_type = sm_data.get('vxlan').get('fabric_type', None)
 
         full_plugin_path = "ansible_collections.cisco.nac_dc_vxlan.plugins.action.common.prepare_plugins"
         glob_plugin_path = os.path.dirname(__file__) + "/prepare_plugins"
+        if fabric_type == 'MSD':
+            glob_plugin_path = os.path.dirname(__file__) + "/prepare_plugins/msd"
         plugin_prefix = "prep*.py"
 
         prepare_libs = set(x.stem for x in pathlib.Path.glob(pathlib.Path(glob_plugin_path), plugin_prefix))

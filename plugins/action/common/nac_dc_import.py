@@ -26,8 +26,17 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+from ansible.errors import AnsibleError
+
+try:
+    from iac_validate.yaml import load_yaml_files
+    from iac_validate.cli.options import DEFAULT_SCHEMA
+except ImportError as imp_exc:
+    IAC_VALIDATE_IMPORT_ERROR = imp_exc
+else:
+    IAC_VALIDATE_IMPORT_ERROR = None
+
 import os
-import yaml
 
 display = Display()
 
@@ -35,34 +44,27 @@ display = Display()
 class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
-        # self._supports_async = True
         results = super(ActionModule, self).run(tmp, task_vars)
-        results['diff_run'] = True
+        results['failed'] = False
+        results['msg'] = None
+        results['data'] = {}
 
-        model_data = task_vars['model_data']['data']
-        fabric_name = model_data["vxlan"]["name"]
+        if IAC_VALIDATE_IMPORT_ERROR:
+            raise AnsibleError('iac-validate not found and must be installed. Please pip install iac-validate.') from IAC_VALIDATE_IMPORT_ERROR
 
-        if 'dtc' in task_vars['role_path']:
-            common_role_path = os.path.dirname(task_vars['role_path'])
-            common_role_path = os.path.dirname(common_role_path) + '/validate/files'
-        else:
-            common_role_path = os.path.dirname(task_vars['role_path']) + '/validate/files'
+        mdata = self._task.args.get('mdata')
 
-        run_map_file_path = common_role_path + f'/{fabric_name}_run_map.yml'
-
-        if not os.path.exists(run_map_file_path):
-            # Return failure if run_map file does not exist
-            results['diff_run'] = False
+        # Verify That Data Sources Exists
+        if mdata and not os.path.exists(mdata):
+            results['failed'] = True
+            results['msg'] = "The data directory ({0}) for this fabric does not appear to exist!".format(mdata)
+            return results
+        if len(os.listdir(mdata)) == 0:
+            results['failed'] = True
+            results['msg'] = "The data directory ({0}) for this fabric is empty!".format(mdata)
             return results
 
-        with open(run_map_file_path, 'r') as file:
-            previous_run_map = yaml.safe_load(file)
-
-        # Check run map flags and if any of then is false set diff_run to false
-        # to force all sections to run.
-        for role in ['role_validate_completed', 'role_create_completed', 'role_deploy_completed', 'role_remove_completed']:
-            if not previous_run_map.get(role):
-                results['diff_run'] = False
-                break
+        # Return Schema Validated Model Data
+        results['data'] = load_yaml_files([mdata])
 
         return results
