@@ -5,7 +5,7 @@
 {% if MD_Extended.vxlan.policy.policies | default([]) | length > 0 %}
 - switch:
 {% for switch in MD_Extended.vxlan.policy.switches %}
-    - ip: {{ switch.ip_address }}
+    - ip: {{ switch.mgmt_ip_address }}
       policies:
 {% for group_entry in switch.groups %}
 {% set query = "[?(@.name==`" ~ group_entry ~ "`)]" %}
