@@ -20,6 +20,7 @@
 # SPDX-License-Identifier: MIT
 from ....plugin_utils.helper_functions import hostname_to_ip_mapping
 
+
 class PreparePlugin:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
