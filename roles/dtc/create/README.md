@@ -28,7 +28,7 @@ Example Playbook
 ```
 
 -------
-The following tags can be used to selectively execute stages within the `cisco.nac_dc_vxlan.create` role
+The following tags can be used to selectively execute stages within the `cisco.nac_dc_vxlan.dtc.create` role
 
 `cr` stands for `create_role`
 
@@ -37,6 +37,7 @@ The following tags can be used to selectively execute stages within the `cisco.n
 * cr_manage_vpc_peers
 * cr_manage_interfaces
 * cr_manage_vrfs_networks
+* cr_manage_policy
 
 ```bash
 # Selectively run stage to add VRFs and Networks and skip all other stages

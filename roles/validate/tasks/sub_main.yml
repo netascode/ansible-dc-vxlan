@@ -102,6 +102,8 @@
     inventory_hostname: "{{ inventory_hostname }}"
     hostvars: "{{ hostvars }}"
     model_data: "{{ model_data['data'] }}"
+    default_values: "{{ defaults }}"
+    templates_path: "{{ role_path }}/../dtc/common/templates/"
   register: smd
   delegate_to: localhost
 

@@ -198,20 +198,29 @@ factory_defaults:
         switches: []
       network_attach_groups:
         switches: []
-    overlay_extension:
+    policy:
+      template_name: switch_freeform
+      priority: 500
+    overlay_extensions:
       vrf_lites:
         ospf:
-          enabled: true
-        areas:
-          area_type: standard
-          auth_type: none
-          auth_key_id: 0
-        default_area: 0
-        distance: 110
-        bfd:
-          enabled: false
+          areas:
+            area_type: standard
+          default_area: 0
+          distance: 110
+          bfd:
+            enabled: false
+          default_information_originate:
+            always: false
+          nssa:
+            default_information_originate: false
+            no_redistribution: false
+            no_summary: false
+            translate:
+              always: false
+              supress_fa: false
+              never: false
         bgp:
-          enabled: true
           best_path_as_path_relax: false
           graceful_restart: true
           graceful_restart_helper: false
@@ -222,9 +231,6 @@ factory_defaults:
             ebgp_distance: 20
             ibgp_distance: 200
             local_distance: 220
-            max_paths_ebgp: 1
-            max_paths_ibgp: 1
-            max_paths_eibgp: 1
           address_family_ipv6_unicast:
             additional_paths_receive: false
             additional_paths_send: false
@@ -232,36 +238,46 @@ factory_defaults:
             ebgp_distance: 20
             ibgp_distance: 200
             local_distance: 220
-            max_paths_ebgp: 1
-            max_paths_ibgp: 1
-            max_paths_eibgp: 1
         switches:
           interfaces:
             ospf:
-              cost: 0
+              auth_type: none
+              auth_key_id: 0
+              cost: 1
               passive_interface: false
               mtu_ignore: false
               advertise_subnet: false
               bfd:
-                enabled: true
+                enabled: false
               hello_interval: 10
               dead_interval: 40
               network_type: broadcast
               priority: 1
-              lsa_interval: 5
-              lsa_retransmit_interval: 1
-            bgp_peers:
-              allowas_in: false
-              allowas_in_as_number: 0
-              send_community: true
-              send_ext_community: true
+              lsa_retransmit_interval: 5
+              lsa_transmit_delay: 1
+          bgp_peers:
+            next_hop_self: false
+            bfd:
+              enabled: false
+            disable_connected_check: false
+            remove_private_as: false
+            remove_private_as_all: false
+            ebgp_multihop: 2
+            address_family_ipv4_unicast:
+              send_community: false
+              send_ext_community: false
+              allow_as_in: false
+              allow_as_in_number: 3
               as_override: false
+              route_reflector_client: false
+              default_originate: false
               next_hop_self: false
-              bfd:
-                enabled: true
-              disable_connected_check: false
-              remove_private_as: false
-              remove_private_as_all: false
-    policy:
-      template_name: switch_freeform
-      priority: 500
+            address_family_ipv6_unicast:
+              send_community: false
+              send_ext_community: false
+              allow_as_in: false
+              allow_as_in_number: 3
+              as_override: false
+              route_reflector_client: false
+              default_originate: false
+              next_hop_self: false

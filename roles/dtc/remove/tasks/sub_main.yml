@@ -63,17 +63,17 @@
   when:
     - changes_detected_vrfs
 
-- name: Remove Fabric vPC Peering
-  ansible.builtin.import_tasks: vpc_peers.yml
-  tags: "{{ nac_tags.remove_vpc_peers }}"
-  when:
-    - changes_detected_vpc_peering
-
 - name: Remove Fabric Links
   ansible.builtin.import_tasks: links.yml
   tags: "{{ nac_tags.remove_links }}"
   when:
     - changes_detected_link_vpc_peering
+
+- name: Remove Fabric vPC Peering
+  ansible.builtin.import_tasks: vpc_peers.yml
+  tags: "{{ nac_tags.remove_vpc_peers }}"
+  when:
+    - changes_detected_vpc_peering
 
 - name: Remove Fabric Switches
   ansible.builtin.import_tasks: switches.yml

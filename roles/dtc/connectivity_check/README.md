@@ -2,7 +2,7 @@ Role Name: cisco.nac_dc_vxlan.dtc.connectivity_check
 ========================================
 
 This role is used to check the connectivity and authentication to NDFCs.
-Additionally, the role is used to obtain the NDFC version information.
+Additionally, the role is used to obtain the Nexus Dashboard (ND) and Nexus Dashboard Fabric Controller (NDFC) version information.
 
 Requirements
 ------------
@@ -33,12 +33,11 @@ The following tags can be used to selectively execute stages within the `cisco.n
 
 `cc` stands for `connectivity_check` role
 
-* cc_connectivity_check
-* cc_version
+* cc_verify
 
 ```bash
 # Selectively run stage to add VRFs and Networks and skip all other stages
-ansible-playbook -i inventory.yml vxlan.yml --tags cc_connectivity_check
+ansible-playbook -i inventory.yml vxlan.yml --tags cc_verify
 ```
 
 License

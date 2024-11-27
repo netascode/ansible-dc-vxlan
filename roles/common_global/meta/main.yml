@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+ # Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,5 +19,10 @@
 #
 # SPDX-License-Identifier: MIT
 
----
-# handlers file for render
+galaxy_info:
+  author: Cisco
+  description: Infrastructure role to manage tags and default flag settings.
+  license: LICENSE
+  min_ansible_version: 2.14.15
+
+dependencies: []
