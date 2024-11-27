@@ -53,8 +53,8 @@
   when: enhanced_rules_path is not defined
   delegate_to: localhost
 
-- name: Import Semantic Model
-  cisco.nac_dc_vxlan.common.nac_dc_import:
+- name: Load Data Model
+  cisco.nac_dc_vxlan.common.nac_dc_load:
     mdata: "{{ data_path }}"
   register: model_data
   vars:

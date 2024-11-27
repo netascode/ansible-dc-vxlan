@@ -48,7 +48,6 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
         results['msg'] = None
-        results['data'] = {}
 
         if IAC_VALIDATE_IMPORT_ERROR:
             raise AnsibleError('iac-validate not found and must be installed. Please pip install iac-validate.') from IAC_VALIDATE_IMPORT_ERROR
@@ -92,8 +91,5 @@ class ActionModule(ActionBase):
         if msg:
             results['failed'] = True
             results['msg'] = msg
-
-        # Return Schema Validated Model Data
-        results['data'] = load_yaml_files([mdata])
 
         return results

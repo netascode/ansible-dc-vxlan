@@ -26,7 +26,6 @@
     schema: "{{ schema_path }}"
     mdata: "{{ data_path }}"
     rules: "{{ rules_path }}"
-  register: model_data_vxlan
   vars:
     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
     rules_path: "{{ role_path }}/files/rules/required_rules/"
@@ -36,7 +35,7 @@
   cisco.nac_dc_vxlan.common.prepare_service_model:
     inventory_hostname: "{{ inventory_hostname }}"
     hostvars: "{{ hostvars }}"
-    model_data: "{{ model_data_vxlan['data'] }}"
+    model_data: "{{ model_data['data'] }}"
     default_values: "{{ defaults }}"
     templates_path: "{{ role_path }}/../dtc/common/templates/"
   register: smd
