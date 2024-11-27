@@ -32,7 +32,7 @@
   when: MD_Extended.vxlan.fabric_type == 'MSD'
 
 - name: Import Role Tasks for VxLAN Fabric
-  ansible.builtin.import_tasks: sub_main.yml
+  ansible.builtin.import_tasks: sub_main_vxlan.yml
   tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric_type == 'VXLAN_EVPN'
   # Problems with lower versions of python and ansible
@@ -62,3 +62,7 @@
     stage: role_validate_completed
   register: run_map
   delegate_to: localhost
+
+- debug: msg="{{ MD }}"
+
+- debug: msg="{{ MD_Extended }}"

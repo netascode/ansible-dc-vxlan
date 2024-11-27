@@ -31,25 +31,25 @@
     rules_path: "{{ role_path }}/files/rules/required_rules/msd/"
   delegate_to: localhost
 
-- name: Prepare Service Model
-  cisco.nac_dc_vxlan.common.prepare_service_model:
-    inventory_hostname: "{{ inventory_hostname }}"
-    hostvars: "{{ hostvars }}"
-    model_data: "{{ model_data['data'] }}"
-    default_values: "{{ defaults }}"
-    templates_path: "{{ role_path }}/../dtc/common/templates/"
-  register: smd
-  delegate_to: localhost
+# - name: Prepare Service Model
+#   cisco.nac_dc_vxlan.common.prepare_service_model:
+#     inventory_hostname: "{{ inventory_hostname }}"
+#     hostvars: "{{ hostvars }}"
+#     model_data: "{{ model_data['data'] }}"
+#     default_values: "{{ defaults }}"
+#     templates_path: "{{ role_path }}/../dtc/common/templates/"
+#   register: smd
+#   delegate_to: localhost
 
-- name: Store Golden Service Model Data
-  ansible.builtin.set_fact:
-    MD: "{{ smd['model_golden'] }}"
-  delegate_to: localhost
+# - name: Store Golden Service Model Data
+#   ansible.builtin.set_fact:
+#     MD: "{{ smd['model_golden'] }}"
+#   delegate_to: localhost
 
-- name: Store Extended Service Model Data
-  ansible.builtin.set_fact:
-    MD_Extended: "{{ smd['model_extended'] }}"
-  delegate_to: localhost
+# - name: Store Extended Service Model Data
+#   ansible.builtin.set_fact:
+#     MD_Extended: "{{ smd['model_extended'] }}"
+#   delegate_to: localhost
 
 - name: Check Roles
   cisco.nac_dc_vxlan.common.check_roles:
@@ -82,7 +82,3 @@
 - name: Manage Current Service Model Data Files
   ansible.builtin.include_tasks: manage_model_files_current.yml
   when: check_roles['save_previous']
-
-- debug: msg="{{ MD }}"
-
-- debug: msg="{{ MD_Extended }}"
