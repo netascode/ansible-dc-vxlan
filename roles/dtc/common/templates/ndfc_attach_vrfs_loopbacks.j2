@@ -3,8 +3,8 @@
   {
     "fabric": "{{ MD.vxlan.global.name }}",
     "vrfName": "{{ vrf["name"] }}",
-    {% for switch in MD.vxlan.topology.switches %}
-      {% if switch.management.management_ipv4_address == attach["hostname"] %}
+    {% for switch in MD_Extended.vxlan.topology.switches %}
+      {% if switch.management.management_ipv4_address == attach["mgmt_ip_address"] %}
     "serialNumber": "{{ switch.serial_number }}",
       {% endif %}
     {% endfor %}
