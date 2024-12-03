@@ -12,7 +12,11 @@ The NetAsCode VXLAN EVPN collection allows you to configure, in easy-to-understa
 
 YAML files are created that contain a pre-determined data schema which is translated into underlying Ansible modules and resources. The core Ansible Collection is open source and available. This collection is designed to be used in a CI/CD pipeline in order to drive this declarative method of configuring a VXLAN fabric.
 
-> **Note**: For complete support and additional capabilities, Cisco provides a professional services capability under the Services as Code portfolio of services which can provide feature creation, end to end support and more.
+> [!NOTE]
+> For complete support and additional capabilities, Cisco provides a
+> professional services capability under the [Services as Code](https://www.cisco.com/c/en/us/services/collateral/se/services-as-code-aag.html)
+> portfolio of services which can provide feature creation, end to end support
+> and more.
 
 ## Understanding our Ansible Roles
 
