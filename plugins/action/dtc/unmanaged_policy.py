@@ -96,7 +96,8 @@ class ActionModule(ActionBase):
                 dm_policy_switch = next(
                     (
                         dm_policy_switch for dm_policy_switch in dm_policy_switches
-                        if dm_policy_switch["mgmt_ip_address"] == dm_management_ipv4_address or dm_policy_switch["mgmt_ip_address"] == dm_management_ipv6_address
+                        if dm_policy_switch["mgmt_ip_address"] == dm_management_ipv4_address or
+                           dm_policy_switch["mgmt_ip_address"] == dm_management_ipv6_address
                     )
                 )
 
