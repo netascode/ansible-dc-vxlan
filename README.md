@@ -100,7 +100,7 @@ This will clone the example repository into the directory `nac-vxlan`. Next dele
 
 #### Step 2 - Create the Virtual Environment with pyenv
 
-In this directory create a new virtual environment and install a Python version of your choice. At the time of this writing, a commonly used version is Python version 3.10.13. Command pyenv install 3.10.13 will install this version. For detailed instructions please visit the [pyenv](https://github.com/pyenv/pyenv) site.
+In this directory create a new virtual environment and install a Python version of your choice. At the time writing, Python version 3.10.13 is commonly used. Command `pyenv install 3.10.13` will install this version. For detailed instructions please visit the [pyenv](https://github.com/pyenv/pyenv) site.
 
 
 ```bash
@@ -109,7 +109,7 @@ pyenv virtualenv <python_version> nac-ndfc
 pyenv local nac-ndfc
 ```
 
-Executing command pyenv local nac-ndfc sets the environment so that whenever the directory is entered it will change into the right virtual environment.
+Executing command `pyenv local nac-ndfc` sets the environment so that whenever the directory is entered it will change into the right virtual environment.
 
 #### Step 3 - Install Ansible and Additional Required Tools
 
