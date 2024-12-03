@@ -31,7 +31,7 @@
 
 - name: Create NDFC MSD Fabric
   ansible.builtin.import_tasks: msd/fabric.yml
-  # when:
-  #   - MD_Extended.vxlan.global is defined
-    # - changes_detected_fabric
+  when:
+    - MD_Extended.vxlan.multisite is defined
+    - changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
