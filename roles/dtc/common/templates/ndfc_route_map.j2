@@ -271,6 +271,14 @@ route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq
                                     {% elif igp | length > 0 %}
   set extcommunity cost {{ igp | join(" ")}}
                                     {% endif %}
+                                {% elif set["extended_community"]["evpn_rmac"] is defined %}
+  set extcommunity evpn rmac {{ set["extended_community"]["evpn_rmac"] | hwaddr('cisco') }}
+                                {% elif set["extended_community"]["rt"] is defined %}
+                                    {% if set["extended_community"]["rt"]["additive"] is defined and set["extended_community"]["rt"]["additive"] is true%}
+  set extcommunity rt {{ set["extended_community"]["rt"]["rt_list"] | join(" ") }} additive
+                                    {% else %}
+  set extcommunity rt {{ set["extended_community"]["rt"]["rt_list"] | join(" ") }}
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                             {% if set["forwarding_address"] is defined and set["forwarding_address"] is true %}
