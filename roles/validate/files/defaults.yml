@@ -210,16 +210,6 @@ factory_defaults:
           distance: 110
           bfd:
             enabled: false
-          default_information_originate:
-            always: false
-          nssa:
-            default_information_originate: false
-            no_redistribution: false
-            no_summary: false
-            translate:
-              always: false
-              supress_fa: false
-              never: false
         bgp:
           best_path_as_path_relax: false
           graceful_restart: true
@@ -281,3 +271,17 @@ factory_defaults:
               route_reflector_client: false
               default_originate: false
               next_hop_self: false
+    multisite:
+      anycast_gateway_mac: 20:20:00:00:00:aa
+      vtep_loopback_id: 100
+      vtep_loopback_ip_range: 10.10.0.0/24
+      dci_subnet_range: 10.10.1.0/24
+      dci_subnet_mask: 30
+      bgw_ip_tag: 54321
+      overlay_ifc: direct_to_bgws
+      underlay_autoconfig: false
+      enable_bgp_send_community: false
+      enable_bgp_log_neighbor_change: false
+      enable_bgp_bfd: false
+      delay_restore: 300
+      enable_bgp_password: false
