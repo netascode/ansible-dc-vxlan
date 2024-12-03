@@ -21,10 +21,28 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.create]
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Calling MSD Role - [cisco.nac_dc_vxlan.dtc.create]           +"
-      - "----------------------------------------------------------------"
-  tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
+- ansible.builtin.fail: msg="Service Model Not Defined.  Role cisco.nac_dc_vxlan.validate Must Be Called First"
+  when: MD is undefined
+  delegate_to: localhost
+
+# --------------------------------------------------------------------
+# Remove all files from the previous run if run_map requires it
+# --------------------------------------------------------------------
+- name: Cleanup Files from Previous Run if run_map requires it
+  ansible.builtin.include_tasks: cleanup_files.yml
+  when:
+    - not run_map_read_result.diff_run or ((force_run_all is defined) and (force_run_all is true|bool))
+
+# --------------------------------------------------------------------
+# Build Create Fabric parameter List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric Create Parameters
+  ansible.builtin.include_tasks: msd/ndfc_fabric.yml
+
+# --------------------------------------------------------------------
+# Build NDFC Child Fabric Inventory List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Child Fabric Inventory List From Template
+  ansible.builtin.include_tasks: msd/ndfc_children.yml

@@ -22,16 +22,16 @@
 ---
 - debug: msg="{{ nac_tags.all }}"
 
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main_common.yml
+- name: Import Common Pre Role Tasks
+  ansible.builtin.import_tasks: sub_main_common_pre.yml
   tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
 
-- name: Import Role Tasks for MSD Fabric
+- name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric_type == 'MSD'
 
-- name: Import Role Tasks for VxLAN Fabric
+- name: Import VxLAN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric_type == 'VXLAN_EVPN'
@@ -56,6 +56,10 @@
   #   - role_create
   #   - role_deploy
   #   - role_remove
+
+- name: Import Common Post Role Tasks
+  ansible.builtin.import_tasks: sub_main_common_post.yml
+  tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Mark Stage Role Validate Completed
   cisco.nac_dc_vxlan.common.run_map:

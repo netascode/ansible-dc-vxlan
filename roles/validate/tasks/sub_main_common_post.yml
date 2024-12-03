@@ -21,16 +21,34 @@
 
 ---
 
-- name: Manage Fabric Entry Point
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD.vxlan.name }}"
-      - "----------------------------------------------------------------"
+- name: Check Roles
+  cisco.nac_dc_vxlan.common.check_roles:
+    role_list: "{{ role_names }}"
+  register: check_roles
+  delegate_to: localhost
 
-- name: Manage fabric {{ MD.vxlan.name }} in NDFC
-  cisco.dcnm.dcnm_fabric:
-    state: merged
-    config:
-    - FABRIC_NAME: "{{ MD.vxlan.name }}"
-      FABRIC_TYPE: VXLAN_EVPN_MSD
+- name: Read Run Map From Previous Run
+  cisco.nac_dc_vxlan.common.read_run_map:
+    model_data: "{{ MD_Extended }}"
+  register: run_map_read_result
+  delegate_to: localhost
+
+- name: Debug Run Map Read Result
+  ansible.builtin.debug:
+    msg: "{{ run_map_read_result }}"
+  delegate_to: localhost
+
+- name: Initialize Run Map
+  cisco.nac_dc_vxlan.common.run_map:
+    model_data: "{{ MD_Extended }}"
+    stage: starting_execution
+  register: run_map
+  delegate_to: localhost
+
+- name: Manage Previous Service Model Data Files
+  ansible.builtin.include_tasks: manage_model_files_previous.yml
+  when: check_roles['save_previous']
+
+- name: Manage Current Service Model Data Files
+  ansible.builtin.include_tasks: manage_model_files_current.yml
+  when: check_roles['save_previous']

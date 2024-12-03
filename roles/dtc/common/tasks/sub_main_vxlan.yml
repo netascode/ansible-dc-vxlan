@@ -38,119 +38,119 @@
 # --------------------------------------------------------------------
 
 - name: Build Fabric Create Parameters
-  ansible.builtin.include_tasks: ndfc_fabric.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_fabric.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Switch Inventory List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Switch Inventory List From Template
-  ansible.builtin.include_tasks: ndfc_inventory.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_inventory.yml
 
 # --------------------------------------------------------------------
 # Build Fabric intra links for vpc peering From Template
 # --------------------------------------------------------------------
 
 - name: Build Intra Fabric Links From Template
-  ansible.builtin.include_tasks: ndfc_link_vpc_peering.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_link_vpc_peering.yml
 
 # --------------------------------------------------------------------
 # Build vPC Peering parameter List From Template
 # --------------------------------------------------------------------
 
 - name: Build vPC Peering Parameters
-  ansible.builtin.include_tasks: ndfc_vpc_peering.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_vpc_peering.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric VRFs Attach List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric VRFs Attach List From Template
-  ansible.builtin.include_tasks: ndfc_vrfs.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_vrfs.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Networks Attach List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Networks Attach List From Template
-  ansible.builtin.include_tasks: ndfc_networks.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_networks.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Loopback Interfaces List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Loopback Interfaces List From Template
-  ansible.builtin.include_tasks: ndfc_interface_loopback.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_interface_loopback.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Access Port-Channel Interfaces List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Access Port-Channel Interfaces List From Template
-  ansible.builtin.include_tasks: ndfc_interface_access_po.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_interface_access_po.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
-  ansible.builtin.include_tasks: ndfc_interface_trunk_po.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_interface_trunk_po.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Interface Routed List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Interface Routed List From Template
-  ansible.builtin.include_tasks: ndfc_interface_routed.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_interface_routed.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Sub-Interface Routed List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Sub-Interface Routed List From Template
-  ansible.builtin.include_tasks: ndfc_sub_interface_routed.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_sub_interface_routed.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Routed Port-Channel Interface List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Routed Port-Channel Interface List From Template
-  ansible.builtin.include_tasks: ndfc_interface_po_routed.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_interface_po_routed.yml
 
 # --------------------------------------------------------------------
 # Build Trunk Interfaces List From Template
 # --------------------------------------------------------------------
 
 - name: Build Trunk Interfaces List From Template
-  ansible.builtin.include_tasks: ndfc_interface_trunk.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_interface_trunk.yml
 
 # --------------------------------------------------------------------
 # Build Access Interfaces List From Template
 # --------------------------------------------------------------------
 
 - name: Build Access Interfaces List From Template
-  ansible.builtin.include_tasks: ndfc_interface_access.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_interface_access.yml
 
 # --------------------------------------------------------------------
 # Build Fabric interface VPC List From Template
 # --------------------------------------------------------------------
 
 - name: Build Fabric interface VPC List From Template
-  ansible.builtin.include_tasks: ndfc_interface_vpc.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_interface_vpc.yml
 
 # --------------------------------------------------------------------
 # Build Fabric interface all List From Template
 # --------------------------------------------------------------------
 
 - name: Build Fabric interface All List From Template
-  ansible.builtin.include_tasks: ndfc_interface_all.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_interface_all.yml
 
 # --------------------------------------------------------------------
 # Build Fabric Policy List From Template
 # --------------------------------------------------------------------
 
 - name: Build Fabric Policy List From Template
-  ansible.builtin.include_tasks: ndfc_policy.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_policy.yml
 
 - name: Run Diff Flags
   ansible.builtin.debug:

@@ -21,7 +21,7 @@
 
 ---
 
-- name: Perform Required Syntax and Semantic Model Validation
+- name: Perform Required Syntax and Semantic Model Validation for MSD Fabric
   cisco.nac_dc_vxlan.common.nac_dc_validate:
     schema: "{{ schema_path }}"
     mdata: "{{ data_path }}"
@@ -30,55 +30,3 @@
     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
     rules_path: "{{ role_path }}/files/rules/required_rules/msd/"
   delegate_to: localhost
-
-# - name: Prepare Service Model
-#   cisco.nac_dc_vxlan.common.prepare_service_model:
-#     inventory_hostname: "{{ inventory_hostname }}"
-#     hostvars: "{{ hostvars }}"
-#     model_data: "{{ model_data['data'] }}"
-#     default_values: "{{ defaults }}"
-#     templates_path: "{{ role_path }}/../dtc/common/templates/"
-#   register: smd
-#   delegate_to: localhost
-
-# - name: Store Golden Service Model Data
-#   ansible.builtin.set_fact:
-#     MD: "{{ smd['model_golden'] }}"
-#   delegate_to: localhost
-
-# - name: Store Extended Service Model Data
-#   ansible.builtin.set_fact:
-#     MD_Extended: "{{ smd['model_extended'] }}"
-#   delegate_to: localhost
-
-- name: Check Roles
-  cisco.nac_dc_vxlan.common.check_roles:
-    role_list: "{{ role_names }}"
-  register: check_roles
-  delegate_to: localhost
-
-- name: Read Run Map From Previous Run
-  cisco.nac_dc_vxlan.common.read_run_map:
-    model_data: "{{ MD_Extended }}"
-  register: run_map_read_result
-  delegate_to: localhost
-
-- name: Debug Run Map Read Result
-  ansible.builtin.debug:
-    msg: "{{ run_map_read_result }}"
-  delegate_to: localhost
-
-- name: Initialize Run Map
-  cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ MD_Extended }}"
-    stage: starting_execution
-  register: run_map
-  delegate_to: localhost
-
-- name: Manage Previous Service Model Data Files
-  ansible.builtin.include_tasks: manage_model_files_previous.yml
-  when: check_roles['save_previous']
-
-- name: Manage Current Service Model Data Files
-  ansible.builtin.include_tasks: manage_model_files_current.yml
-  when: check_roles['save_previous']
