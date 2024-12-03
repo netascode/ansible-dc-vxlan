@@ -28,7 +28,11 @@
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "{{ MD.vxlan.global.name }}_ndfc_fabric.yml"
+    file_name: >-
+      {% if MD.vxlan.name is defined and MD.vxlan.name %}
+        {{ MD.vxlan.name }}_ndfc_fabric.yml
+      {% elif MD.vxlan.global.name is defined and MD.vxlan.global.name %}
+        {{ MD.vxlan.global.name }}_ndfc_fabric.yml
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
@@ -59,7 +63,7 @@
 
 - ansible.builtin.set_fact:
     fabric_config: "{{ lookup('file', file_name) | from_yaml }}"
-  when: MD.vxlan.global
+  when: MD.vxlan.global or MD.vxlan.multisite
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files

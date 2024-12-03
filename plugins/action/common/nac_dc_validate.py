@@ -30,7 +30,6 @@ from ansible.errors import AnsibleError
 
 try:
     import iac_validate.validator
-    from iac_validate.yaml import load_yaml_files
     from iac_validate.cli.options import DEFAULT_SCHEMA
 except ImportError as imp_exc:
     IAC_VALIDATE_IMPORT_ERROR = imp_exc

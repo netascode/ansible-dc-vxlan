@@ -58,13 +58,16 @@ class ActionModule(ActionBase):
         if mdata and not os.path.exists(mdata):
             results['failed'] = True
             results['msg'] = "The data directory ({0}) for this fabric does not appear to exist!".format(mdata)
+
             return results
+
         if len(os.listdir(mdata)) == 0:
             results['failed'] = True
             results['msg'] = "The data directory ({0}) for this fabric is empty!".format(mdata)
+
             return results
 
-        # Return Schema Validated Model Data
+        # Return Merged Model Data
         results['data'] = load_yaml_files([mdata])
 
         return results
