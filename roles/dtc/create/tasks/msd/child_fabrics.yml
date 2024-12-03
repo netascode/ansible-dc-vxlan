@@ -21,14 +21,22 @@
 
 ---
 
-- name: Manage Fabric Entry Point
+- name: Manage Child Fabrics Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
       - "+     Manage Fabric {{ MD.vxlan.name }}"
       - "----------------------------------------------------------------"
 
-- name: Manage Fabric {{ MD.vxlan.name }} in NDFC
-  cisco.dcnm.dcnm_fabric:
-    state: merged
-    config: "{{ fabric_config }}"
+- name: Get Fabric Association Data from NDFC
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
+  register: fabric_associations
+
+- name: Move Child Fabrics To Fabric - {{ MD.vxlan.name }}
+  cisco.nac_dc_vxlan.dtc.move_child_fabrics:
+    fabric_associations: "{{ fabric_associations }}"
+    parent_fabric_name: "{{ MD_Extended.vxlan.name }}"
+    child_fabrics: "{{ MD_Extended.vxlan.multisite.child_fabrics }}"
+  when: fabric_associations is defined

@@ -25,9 +25,12 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Calling MSD Role - [cisco.nac_dc_vxlan.dtc.create]           +"
+      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.create]           +"
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
+
+- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+  tags: "{{ nac_tags.create }}"
 
 - name: Create NDFC MSD Fabric
   ansible.builtin.import_tasks: msd/fabric.yml
@@ -35,3 +38,10 @@
     - MD_Extended.vxlan.multisite is defined
     - changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
+
+- name: Manage NDFC MSD Fabric Child Fabrics
+  ansible.builtin.import_tasks: msd/child_fabrics.yml
+  # when:
+  #   - MD_Extended.vxlan.topology.switches | length > 0
+  #   - changes_detected_inventory
+  # tags: "{{ nac_tags.create_switches }}"
