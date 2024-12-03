@@ -7,9 +7,9 @@
         {% if policy_name.name == mac_list.name %}
             {% for entry in mac_list["entries"] %}
                 {% if "mac_mask" in entry %}
-mac-list {{ mac_list.name }} seq {{ entry.seq_number }} {{ entry.operation }} {{ entry.mac }} {{ entry.mac_mask }}
+mac-list {{ mac_list.name }} seq {{ entry.seq_number }} {{ entry.operation }} {{ entry.mac | hwaddr('cisco') }} {{ entry.mac_mask | hwaddr('cisco')}}
                 {% else %}
-mac-list {{ mac_list.name }} seq {{ entry.seq_number }} {{ entry.operation }} {{ entry.mac }} ffff.ffff.ffff
+mac-list {{ mac_list.name }} seq {{ entry.seq_number }} {{ entry.operation }} {{ entry.mac | hwaddr('cisco') }} ffff.ffff.ffff
                 {% endif%}
             {% endfor %}
         {% endif %}
