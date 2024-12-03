@@ -28,7 +28,7 @@
       - "+     Manage Fabric {{ MD.vxlan.name }}"
       - "----------------------------------------------------------------"
 
-- name: Manage fabric {{ MD.vxlan.name }} in NDFC
+- name: Manage Fabric {{ MD.vxlan.name }} in NDFC
   cisco.dcnm.dcnm_fabric:
     state: merged
     config:
