@@ -1,0 +1,12 @@
+{# Auto-generated NDFC MSD DCI config data structure for fabric {{ vxlan.name }} #}
+    BORDER_GWY_CONNECTIONS: {{ vxlan.multisite.overlay_ifc | default(defaults.vxlan.multisite.overlay_ifc) }}
+    MS_UNDERLAY_AUTOCONFIG: {{ vxlan.multisite.underlay_autoconfig | default(defaults.vxlan.multisite.underlay_autoconfig) }}
+    ENABLE_BGP_SEND_COMM: {{ vxlan.multisite.enable_bgp_send_community | default(defaults.vxlan.multisite.enable_bgp_send_community) }}
+    ENABLE_BGP_LOG_NEIGHBOR_CHANGE: {{ vxlan.multisite.enable_bgp_log_neighbor_change | default(defaults.vxlan.multisite.enable_bgp_log_neighbor_change) }}
+    ENABLE_BGP_BFD: {{ vxlan.multisite.enable_bgp_bfd | default(defaults.vxlan.multisite.enable_bgp_bfd) }}
+    DELAY_RESTORE: {{ vxlan.multisite.delay_restore | default(defaults.vxlan.multisite.delay_restore) }}
+    MS_IFC_BGP_PASSWORD_ENABLE: {{ vxlan.multisite.enable_bgp_password | default(defaults.vxlan.multisite.enable_bgp_password) }}
+{% if vxlan.multisite.enable_bgp_password is defined and vxlan.multisite.enable_bgp_password %}
+    MS_IFC_BGP_PASSWORD: {{ vxlan.multisite.bgp_password }}
+    MS_IFC_BGP_AUTH_KEY_TYPE: {{ vxlan.multisite.bgp_auth_key_type | default(defaults.vxlan.multisite.bgp_auth_key_type) }}
+{% endif %}

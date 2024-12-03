@@ -31,6 +31,4 @@
 - name: Manage Fabric {{ MD.vxlan.name }} in NDFC
   cisco.dcnm.dcnm_fabric:
     state: merged
-    config:
-    - FABRIC_NAME: "{{ MD.vxlan.name }}"
-      FABRIC_TYPE: VXLAN_EVPN_MSD
+    config: "{{ fabric_config }}"

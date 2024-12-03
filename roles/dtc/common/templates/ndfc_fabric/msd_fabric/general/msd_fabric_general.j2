@@ -1,0 +1,6 @@
+{# Auto-generated NDFC MSD General config data structure for fabric {{ vxlan.name }} #}
+  ENABLE_PVLAN: false
+  ANYCAST_GW_MAC: {{ vxlan.multisite.anycast_gateway_mac | default(defaults.vxlan.multisite.anycast_gateway_mac) }}
+  MS_LOOPBACK_ID: {{ vxlan.multisite.loopback_id | default(defaults.vxlan.multisite.loopback_id) }}
+  BGW_ROUTING_TAG: {{ vxlan.multisite.bgw_ip_tag | default(defaults.vxlan.multisite.bgw_ip_tag) }}
+{# #}
