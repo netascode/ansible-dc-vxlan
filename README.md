@@ -267,10 +267,14 @@ variables also configured as environment variables.
 > credentials are not stored in plain text in the repository. Accidentally
 > including your credentials in a repository is very hard to remove. Hence, the
 > usage of environment variables is recommended as a starting point.
-
-Also, if you plan to eventually utilize a pipeline, the environment variables can be set in the pipeline configuration in a secure manner that is not exposed to the repository.
-
-The usage of [Ansible vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html) is also possible to encrypt the contents of the connection file or simply encrypt the variables.
+>
+> Also, if you plan to eventually utilize a pipeline, the environment variables
+> can be set in the pipeline configuration in a secure manner that is not
+> exposed to the repository.
+>
+> The usage of [Ansible vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html)
+> is also possible to encrypt the contents of the connection file or simply
+> encrypt the variables.
 
 #### Step 3 - Set Environment Variables
 
