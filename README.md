@@ -65,7 +65,10 @@ policy_delete_mode: false
 
 ### Advantages of the Roles in the Workflow
 
-These roles when run in sequence (validate, create, deploy, remove) are designed to build out the entire fabric and can be executed by a pipeline.  The roles can also be run in isolation by simply commenting out the roles that are not required during testing and fabric buildout to validate incremental changes.
+These roles when run in sequence (`validate`, `create`, `deploy`, `remove`) are
+designed to build out the entire fabric and can be executed by a pipeline.  The
+roles can also be run in isolation by simply commenting out the roles that are
+not required during testing and fabric buildout to validate incremental changes.
 
 ## Control Variables
 
