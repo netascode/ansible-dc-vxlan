@@ -93,11 +93,21 @@ The default settings can be overridden in `group_vars`.
 
 ### Set Environment for the Collection
 
-Installation of a Python virtual environment is needed in order to install the collection and its requirements. We recommend [pyenv](https://github.com/pyenv/pyenv) which provides a robust Python virtual environment capability that also allows for management of different Python versions. The following instructions are detailed around using pyenv. For pipeline execution please refer to the pipeline section which is documented at container level.
+Installation of a Python virtual environment is needed in order to install the
+collection and its requirements. We recommend [pyenv](https://github.com/pyenv/pyenv)
+which provides a robust Python virtual environment capability that also allows
+for management of different Python versions. The following instructions are
+detailed around using pyenv. For pipeline execution please refer to the pipeline
+section which is documented at container level.
 
 #### Step 1 - Installing the Example Repository
 
-To simplify getting started with this collection we provide you with an [example repository](https://github.com/netascode/ansible-dc-vxlan-example). Simply clone this repo from GitHub to create the required skeleton, including examples for pipelines. Cloaning the repository requires the installation of [git client](https://git-scm.com/downloads) which is available for all platforms.
+To simplify getting started with this collection we provide you with an
+[example repository](https://github.com/netascode/ansible-dc-vxlan-example).
+Simply clone this repo from GitHub to create the required skeleton, including
+examples for pipelines. Cloning the repository requires the installation of
+[git client](https://git-scm.com/downloads) which is available for all
+platforms.
 
 Run the following command in the location of interest.
 
