@@ -167,7 +167,7 @@ collections_path = ./collections/ansible_collections/
 
 #### Step 5 - Change Ansible Callbacks
 
-If you wish to add any ansible callbacks ( the listed below expand on displaying time execution ) you can add the following to the ansible.cfg file:
+If you wish to add any ansible callbacks (those listed below expand on displaying time execution) you can add the following to the ansible.cfg file:
 
 ```ini
 callback_whitelist=ansible.posix.timer,ansible.posix.profile_tasks,ansible.posix.profile_roles
