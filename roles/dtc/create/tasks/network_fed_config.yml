@@ -31,14 +31,6 @@
 # Manage Network Configuration on NDFC
 # --------------------------------------------------------------------
 
-- name: Debug Network Payload
-  debug:
-    var: network
-
-- name: Debug Network Payload
-  debug:
-    var: fed_networks_existing.response.DATA
-
 - name: Get Existing Network ID for Federated Fabric
   set_fact:
     network_id_list: "{{ fed_networks_existing | json_query(network_query) }}"

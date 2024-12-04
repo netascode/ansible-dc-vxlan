@@ -32,10 +32,6 @@
 # Manage VRF Configuration on NDFC
 # --------------------------------------------------------------------
 
-- name: Debug VRF Payload
-  debug:
-    var: vrf
-
 - name: Get existing VRFs in Federated Fabric
   cisco.dcnm.dcnm_rest:
       method: GET

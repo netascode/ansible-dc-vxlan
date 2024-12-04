@@ -1,5 +1,5 @@
 [
-  {% for attach in MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict[vrf["attach_group"]] %}
+  {% for attach in MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict[vrf["vrf_attach_group"]] %}
   {
 
     "vrfName": "{{ vrf["name"] }}",
