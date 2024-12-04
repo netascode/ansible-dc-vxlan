@@ -59,7 +59,9 @@ link_vpc_delete_mode: false
 policy_delete_mode: false
 ```
 
-**Note:** These variables are set to `false` by default to avoid accidental removal of configuration from NDFC that might impact the network.
+> [!WARNING]
+> These variables are set to `false` by default to avoid accidental removal of
+> configuration from NDFC that might impact the network.
 
 ### Advantages of the Roles in the Workflow
 
@@ -318,7 +320,11 @@ The first role is `cisco.nac_dc_vxlan.validate` which is going to validate the d
 The subsequent roles are the `cisco.nac_dc_vxlan.dtc.create`, `cisco.nac_dc_vxlan.dtc.deploy`, and `cisco.nac_dc_vxlan.dtc.remove` roles. These roles are the primary roles that will invoke changes in NDFC as described earlier.
 
 
-> **Note**: For your safety as indicated ealier, the `remove` role also requires setting some variables to `true` under the `group_vars` directory. This is to avoid accidental removal of configuration from NDFC that might impact the network. This will be covered in more detail below.
+> [!WARNING]
+> For your safety as indicated [earlier](#remove-role), the `remove` role also
+> requires setting some variables to `true` under the `group_vars` directory.
+> This is to avoid accidental removal of configuration from NDFC that might
+> impact the network. This will be covered in more detail below.
 
 The playbook can be configured to execute only the roles that are required. For example, as you are building your data model and familiarizing yourself with the collection, you may comment out the `deploy` and `remove` roles and only execute the `validate` and `create` roles. This provides a quick way to make sure that the data model is structured correctly.
 
