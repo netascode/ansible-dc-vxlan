@@ -19,22 +19,25 @@
 #
 # SPDX-License-Identifier: MIT
 
----
 
-- name: Import Role Tasks Data Center VXLAN EVPN
-  ansible.builtin.import_tasks: sub_main.yml
-  when:
-    - changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy or changes_detected_fabric_links or changes_detected_edge_connections
-    - MD.vxlan.global.fabric_type == 'VXLAN_EVPN'
+class PreparePlugin:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        self.keys = []
 
-- name: Import Role Tasks External Fabric
-  ansible.builtin.import_tasks: sub_main_external.yml
-  when:
-    - changes_detected_inventory or changes_detected_interfaces or changes_detected_policy or changes_detected_edge_connections
-    - MD.vxlan.global.fabric_type == 'External'
+    def prepare(self):
+        model_data = self.kwargs['results']['model_extended']
 
-- name: Mark Stage Role Create Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    stage: role_create_completed
-  register: run_map
-  delegate_to: localhost
+        # Ensure that vrf_lite's switches are mapping to their respective
+        # management IP address from topology switches
+        topology_switches = model_data['vxlan']['topology']['switches']
+        for link in model_data['vxlan']['topology']['edge_connections']:
+            if any(sw['name'] == link['source_device'] for sw in topology_switches):
+                found_switch = next((item for item in topology_switches if item["name"] == link['source_device']))
+                if found_switch.get('management').get('management_ipv4_address'):
+                    link['source_device_ip'] = found_switch['management']['management_ipv4_address']
+                elif found_switch.get('management').get('management_ipv6_address'):
+                    link['source_device_ip'] = found_switch['management']['management_ipv6_address']
+
+        self.kwargs['results']['model_extended'] = model_data
+        return self.kwargs['results']

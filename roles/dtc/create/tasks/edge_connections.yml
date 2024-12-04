@@ -21,20 +21,20 @@
 
 ---
 
-- name: Import Role Tasks Data Center VXLAN EVPN
-  ansible.builtin.import_tasks: sub_main.yml
-  when:
-    - changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy or changes_detected_fabric_links or changes_detected_edge_connections
-    - MD.vxlan.global.fabric_type == 'VXLAN_EVPN'
-
-- name: Import Role Tasks External Fabric
-  ansible.builtin.import_tasks: sub_main_external.yml
-  when:
-    - changes_detected_inventory or changes_detected_interfaces or changes_detected_policy or changes_detected_edge_connections
-    - MD.vxlan.global.fabric_type == 'External'
-
-- name: Mark Stage Role Create Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    stage: role_create_completed
-  register: run_map
-  delegate_to: localhost
+- name: Manage Fabric Inter Fabric Links Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage Inter Fabric Links {{ MD.vxlan.global.name }}"
+      - "----------------------------------------------------------------"
+# --------------------------------------------------------------------
+# Manage VRF Configuration on NDFC
+# --------------------------------------------------------------------
+- name: Manage NDFC Inter Fabric Links
+  cisco.dcnm.dcnm_policy:
+    fabric: "{{ MD.vxlan.global.name }}"
+    config: "{{ edge_connections }}"
+    use_desc_as_key: true
+    deploy: false
+    state: merged
+  register: manage_edge_connections_result
