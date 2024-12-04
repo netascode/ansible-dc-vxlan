@@ -257,7 +257,16 @@ ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
 
 ```
 
-This file is going to contain the connection parameters for reachability to the NDFC controller. The `ansible_user`, and `ansible_password` are set to establish connection to the NDFC controller. For the devices, you will set separate variables also configured as environment variables. The usage of environment variables is done for security reasons, so that the credentials are not stored in plain text in the repository. Accidentally including your credentials in a repository is very hard to remove. Hence, the usage of environment variables is recommended as a starting point.
+This file is going to contain the connection parameters for reachability to the
+NDFC controller. The `ansible_user`, and `ansible_password` are set to establish
+connection to the NDFC controller. For the devices, you will set separate
+variables also configured as environment variables.
+
+> [!IMPORTANT]
+> The usage of environment variables is done for security reasons, so that the
+> credentials are not stored in plain text in the repository. Accidentally
+> including your credentials in a repository is very hard to remove. Hence, the
+> usage of environment variables is recommended as a starting point.
 
 Also, if you plan to eventually utilize a pipeline, the environment variables can be set in the pipeline configuration in a secure manner that is not exposed to the repository.
 
