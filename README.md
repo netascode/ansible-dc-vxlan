@@ -228,7 +228,10 @@ The collection is **pre-built** to utilize the `group_vars` and `host_vars` matc
 
 #### Step 1 - Update the Inventory File
 
-In the provided `inventory.yaml` file on the root directory, update the `ansible_host` variable to point to your NDFC controller by replacing `"{{ lookup('ansible.builtin.env', 'ND_HOST') }}"` with the IP address of the NDFC controller or setting the ```ND_HOST``` environment variable as described in Step 3.
+In the provided `inventory.yaml` file in the project's root directory, update
+the `ansible_host` variable to point to your NDFC controller by replacing `"{{ lookup('ansible.builtin.env', 'ND_HOST') }}"` with the IP address of the
+NDFC controller or setting the ```ND_HOST``` environment variable as described
+in Step 3.
 
 
 #### Step 2 - Configure Ansible Connection File
