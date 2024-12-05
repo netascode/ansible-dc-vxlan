@@ -21,12 +21,12 @@
 
 ---
 
-- name: Import Role Tasks for MSD Fabric
-  ansible.builtin.import_tasks: sub_main_msd.yml
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric_type == 'MSD'
-
 - name: Import Role Tasks for VXLAN Fabric
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric_type == 'VXLAN_EVPN'
+
+- name: Import Role Tasks for MSD Fabric
+  ansible.builtin.import_tasks: sub_main_msd.yml
+  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
+  when: MD_Extended.vxlan.fabric_type == 'MSD'

@@ -127,6 +127,55 @@ class PreparePlugin:
         # Fabric Overlay List Defaults
         # --------------------------------------------------------------------
 
+        # Check vxlan.overlay list elements
+        parent_keys = ['vxlan', 'overlay']
+        dm_check = data_model_key_check(self.model_data, parent_keys)
+        if 'overlay' in dm_check['keys_not_found'] or 'overlay_services' in dm_check['keys_no_data']:
+            self.model_data['vxlan']['overlay'] = {'vrfs': []}
+            self.model_data['vxlan']['overlay'] = {'vrf_attach_groups': []}
+            self.model_data['vxlan']['overlay'] = {'networks': []}
+            self.model_data['vxlan']['overlay'] = {'network_attach_groups': []}
+
+        # Check vxlan.overlay_services.vrfs list element
+        target_key = 'vrfs'
+        self.set_list_default(parent_keys, target_key)
+
+        # Check vxlan.overlay.vrf_attach_groups list element
+        target_key = 'vrf_attach_groups'
+        self.set_list_default(parent_keys, target_key)
+
+        # Check vxlan.overlay.vrf_attach_groups[index].switches list elements
+        list_index = 0
+        for group in self.model_data['vxlan']['overlay']['vrf_attach_groups']:
+            dm_check = data_model_key_check(group, ['switches'])
+            if 'switches' in dm_check['keys_not_found'] or \
+               'switches' in dm_check['keys_no_data']:
+                self.model_data['vxlan']['overlay']['vrf_attach_groups'][list_index]['switches'] = []
+
+            list_index += 1
+
+        # Check vxlan.overlay.networks list element
+        target_key = 'networks'
+        self.set_list_default(parent_keys, target_key)
+
+        # Check vxlan.overlay.network_attach_groups list element
+        target_key = 'network_attach_groups'
+        self.set_list_default(parent_keys, target_key)
+
+        # Check vxlan.overlay.network_attach_groups[index].switches list elements
+        list_index = 0
+        for group in self.model_data['vxlan']['overlay']['network_attach_groups']:
+            dm_check = data_model_key_check(group, ['switches'])
+            if 'switches' in dm_check['keys_not_found'] or \
+               'switches' in dm_check['keys_no_data']:
+                self.model_data['vxlan']['overlay']['network_attach_groups'][list_index]['switches'] = []
+
+            list_index += 1
+
+        # --------------------------------------------------------------------
+        # Fabric Overlay List Defaults - Backwards Compatibility
+        # --------------------------------------------------------------------
+
         # Check vxlan.overlay_services list elements
         parent_keys = ['vxlan', 'overlay_services']
         dm_check = data_model_key_check(self.model_data, parent_keys)

@@ -3,17 +3,19 @@
 {#- DO NOT EDIT MANUALLY #}
 
 {% set vxlan = MD_Extended.vxlan %}
+{% if vxlan.global is defined %}
 {% set global = vxlan.global %}
-{% set fabric_type = vxlan.global.fabric_type | default('VXLAN_EVPN') %}
-{% if fabric_type == 'VXLAN_EVPN' or vxlan.fabric_type == 'VXLAN_EVPN' %}
+{% endif %}
+{% set fabric_type = vxlan.fabric_type | default('VXLAN_EVPN') %}
+{% if fabric_type == 'VXLAN_EVPN' %}
 
 {# Include NDFC DC VXLAN EVPN Base Template #}
 {% include '/ndfc_fabric/dc_vxlan_fabric/dc_vxlan_fabric_base.j2' %}
 
-{% elif vxlan.fabric_type == 'MSD'%}
+{% elif fabric_type == 'MSD'%}
 
 {# Include NDFC MSD Base Template #}
-{% include '/ndfc_fabric/msd/msd_fabric_base.j2' %}
+{% include '/ndfc_fabric/msd_fabric/msd_fabric_base.j2' %}
 
 {% else %}
 

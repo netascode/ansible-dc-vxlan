@@ -14,6 +14,12 @@ class Rule:
         vrf_attach_groups = None
 
         switch_keys = ['vxlan', 'topology', 'switches']
+        network_keys = ['vxlan', 'overlay', 'networks']
+        vrf_keys = ['vxlan', 'overlay', 'vrfs']
+        network_attach_keys = ['vxlan', 'overlay', 'network_attach_groups']
+        vrf_attach_keys = ['vxlan', 'overlay', 'vrf_attach_groups']
+
+        # For backwards compatibility
         network_keys = ['vxlan', 'overlay_services', 'networks']
         vrf_keys = ['vxlan', 'overlay_services', 'vrfs']
         network_attach_keys = ['vxlan', 'overlay_services', 'network_attach_groups']
@@ -26,6 +32,41 @@ class Rule:
         if not switches:
             # No switches defined in the service model, no reason to continue
             return results
+
+        check = cls.data_model_key_check(inventory, network_keys)
+        if 'networks' in check['keys_data']:
+            sm_networks = cls.safeget(inventory, network_keys)
+
+        check = cls.data_model_key_check(inventory, vrf_keys)
+        if 'vrfs' in check['keys_data']:
+            sm_vrfs = cls.safeget(inventory, vrf_keys)
+
+        check = cls.data_model_key_check(inventory, vrf_attach_keys)
+        if 'vrf_attach_groups' in check['keys_data']:
+            vrf_attach_groups = cls.safeget(inventory, vrf_attach_keys)
+
+        check = cls.data_model_key_check(inventory, network_attach_keys)
+        if 'network_attach_groups' in check['keys_data']:
+            network_attach_groups = cls.safeget(inventory, network_attach_keys)
+
+        # Ensure Network is not referencing a VRF that is not defined in the service model
+        results = cls.cross_reference_vrfs_nets(sm_vrfs, sm_networks, results)
+
+        if sm_vrfs and vrf_attach_groups:
+            results = cls.cross_reference_switches(vrf_attach_groups, switches, 'vrf', results)
+        if sm_networks and network_attach_groups:
+            results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
+
+        # For backwards compatibility
+        sm_networks = None
+        sm_vrfs = None
+        network_attach_groups = None
+        vrf_attach_groups = None
+        
+        network_keys = ['vxlan', 'overlay_services', 'networks']
+        vrf_keys = ['vxlan', 'overlay_services', 'vrfs']
+        network_attach_keys = ['vxlan', 'overlay_services', 'network_attach_groups']
+        vrf_attach_keys = ['vxlan', 'overlay_services', 'vrf_attach_groups']
 
         check = cls.data_model_key_check(inventory, network_keys)
         if 'networks' in check['keys_data']:
@@ -94,11 +135,11 @@ class Rule:
         for net in sm_networks:
             if net.get("vrf_name") is not None:
                 if net.get("vrf_name") not in vrf_names:
-                    msg1 = "Network ({0}) is referencing VRF ({1})"
-                    msg2 = " which is not defined in the service model.  Add the VRF to the service model or remove the network from the service model"
-                    results.append(msg1.format(net.get("name"), net.get("vrf_name")))
-                    results.append(msg2)
-                    results.append(" and re-run the playbook")
+                    results.append(
+                        f"Network ({net.get('name')}) is referencing VRF ({net.get('vrf_name')}) "
+                        "which is not defined in the service model. Add the VRF to the service model or remove the network from the service model "
+                        "and re-run the playbook."
+                    )
 
         return results
 
@@ -113,6 +154,6 @@ class Rule:
                             if not any(s.get('management').get('management_ipv6_address') == switch.get("hostname") for s in switches):
                                 ag = attach_group.get("name")
                                 hn = switch.get("hostname")
-                                results.append("{0} attach group {1} hostname {2} does not match any switch in the topology".format(target, ag, hn))
+                                results.append(f"{target} attach group {ag} hostname {hn} does not match any switch in the topology.")
 
         return results

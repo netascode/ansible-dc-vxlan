@@ -22,19 +22,9 @@
 ---
 - debug: msg="{{ nac_tags.all }}"
 
-- name: Import Common Pre Role Tasks
-  ansible.builtin.import_tasks: sub_main_common_pre.yml
+- name: Import Role Tasks
+  ansible.builtin.import_tasks: sub_main.yml
   tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
-
-- name: Import MSD Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_msd.yml
-  tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric_type == 'MSD'
-
-- name: Import VxLAN Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_vxlan.yml
-  tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric_type == 'VXLAN_EVPN'
   # Problems with lower versions of python and ansible
   # Python 3.9.16 and Ansible 7.3.0 (Ansible-Core 2.14.4)
   # Could ignore errors and try again with tags specified as below as a work around ...
@@ -57,16 +47,8 @@
   #   - role_deploy
   #   - role_remove
 
-- name: Import Common Post Role Tasks
-  ansible.builtin.import_tasks: sub_main_common_post.yml
-  tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
-
 - name: Mark Stage Role Validate Completed
   cisco.nac_dc_vxlan.common.run_map:
     stage: role_validate_completed
   register: run_map
   delegate_to: localhost
-
-- debug: msg="{{ MD }}"
-
-- debug: msg="{{ MD_Extended }}"

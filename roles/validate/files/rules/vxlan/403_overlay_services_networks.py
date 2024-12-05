@@ -21,8 +21,10 @@ class Rule:
                     fabric_trm_status = inventory["vxlan"]["underlay"]["multicast"].get("trm_enable", False)
 
         if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("overlay_services", None):
-                if inventory["vxlan"].get("overlay_services").get("networks", None):
+            if inventory["vxlan"].get("overlay", None) or inventory["vxlan"].get("overlay_services", None):
+                if inventory["vxlan"].get("overlay").get("networks", None):
+                    networks = inventory["vxlan"]["overlay"]["networks"]
+                elif inventory["vxlan"].get("overlay_services").get("networks", None):
                     networks = inventory["vxlan"]["overlay_services"]["networks"]
 
         for network in networks:
@@ -30,7 +32,7 @@ class Rule:
             if current_network_netflow_status is not None:
                 if fabric_netflow_status is False and current_network_netflow_status is True:
                     results.append(
-                        f"For vxlan.overlay_services.networks.{network['name']}.netflow_enable to be enabled, "
+                        f"For vxlan.overlay.networks.{network['name']}.netflow_enable to be enabled, "
                         f"first vxlan.global.netflow.enable must be enabled (true)."
                     )
                     break
@@ -39,8 +41,8 @@ class Rule:
                 current_network_netflow_monitor = network.get("vlan_netflow_monitor", None)
                 if current_network_netflow_monitor is None:
                     results.append(
-                        f"When vxlan.overlay_services.networks.{network['name']}.netflow_enable is enabled, "
-                        f"then vxlan.overlay_services.networks.{network['name']}.vlan_netflow_monitor must be set "
+                        f"When vxlan.overlay.networks.{network['name']}.netflow_enable is enabled, "
+                        f"then vxlan.overlay.networks.{network['name']}.vlan_netflow_monitor must be set "
                         "to a valid value from vxlan.global.netflow."
                     )
                     break
@@ -49,7 +51,7 @@ class Rule:
             if current_network_trm_status is not None:
                 if fabric_trm_status is False and current_network_trm_status is True:
                     results.append(
-                        f"For vxlan.overlay_services.networks.{network['name']}.trm_enable to be enabled, "
+                        f"For vxlan.overlay.networks.{network['name']}.trm_enable to be enabled, "
                         f"first vxlan.underlay.multicast.trm_enable must be enabled (true)."
                     )
                     break

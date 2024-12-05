@@ -33,6 +33,7 @@
         {{ MD.vxlan.name }}_ndfc_fabric.yml
       {% elif MD.vxlan.global.name is defined and MD.vxlan.global.name %}
         {{ MD.vxlan.global.name }}_ndfc_fabric.yml
+      {% endif %}
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists

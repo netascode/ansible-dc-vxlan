@@ -29,6 +29,7 @@ from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleError
 
 try:
+    from iac_validate.yaml import load_yaml_files
     import iac_validate.validator
     from iac_validate.cli.options import DEFAULT_SCHEMA
 except ImportError as imp_exc:
@@ -37,6 +38,7 @@ else:
     IAC_VALIDATE_IMPORT_ERROR = None
 
 import os
+from ...plugin_utils.helper_functions import data_model_key_check
 
 display = Display()
 
@@ -77,18 +79,64 @@ class ActionModule(ActionBase):
         if schema == '':
             schema = DEFAULT_SCHEMA
 
-        validator = iac_validate.validator.Validator(schema, rules)
-        if schema:
-            validator.validate_syntax([mdata])
-        if rules:
-            validator.validate_semantics([mdata])
+        rules_list = []
+        if rules and task_vars['role_path'] in rules:
+            # Load in-memory data model using iac-validate
+            # Perform the load in this if block to avoid loading the data model multiple times when custom enhanced rules are provided
+            results['data'] = load_yaml_files([mdata])
 
-        msg = ""
-        for error in validator.errors:
-            msg += error + "\n"
+            # Introduce common directory to the rules list by default once vrf and network rules are updated
+            # rules_to_run.append(f'{rules}common')
+            parent_keys = ['vxlan', 'fabric']
+            check = data_model_key_check(results['data'], parent_keys)
+            if 'fabric' in check['keys_found'] and 'fabric' in check['keys_data']:
+                if 'type' in results['data']['vxlan']['fabric']:
+                    if results['data']['vxlan']['fabric']['type'] in ('VXLAN_EVPN'):
+                        rules_list.append(f'{rules}vxlan/')
+                    elif results['data']['vxlan']['fabric']['type'] in ('MSD', 'MCF'):
+                        rules_list.append(f'{rules}multisite/')
+                    else:
+                        results['failed'] = True
+                        results['msg'] = f"vxlan.fabric.type {results['data']['vxlan']['fabric']['type']} is not a supported fabric type."
+                else:
+                    results['failed'] = True
+                    results['msg'] = "vxlan.fabric.type is not defined in the data model."
+            else:
+                # This else block is to be removed after the deprecation of vxlan.global.fabric_type
+                parent_keys = ['vxlan', 'global']
+                check = data_model_key_check(results['data'], parent_keys)
+                if 'global' in check['keys_found'] and 'global' in check['keys_data']:
+                    if 'fabric_type' in results['data']['vxlan']['global']:
+                        display.deprecated("Attempting to use vxlan.global.fabric_type due to vxlan.fabric.type not being found. vxlan.global.fabric_type is being deprecated. Please use vxlan.fabric.type.")
+                        
+                        if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN'):
+                            rules_list.append(f'{rules}vxlan/')
+                        elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCF'):
+                            rules_list.append(f'{rules}multisite/')
+                        else:
+                            results['failed'] = True
+                            results['msg'] = f"vxlan.fabric.type {results['data']['vxlan']['global']['fabric_type']} is not a supported fabric type."
+                    else:
+                        results['failed'] = True
+                        results['msg'] = "vxlan.fabric.type is not defined in the data model."
+        else:
+            # Else block to pickup custom enhanced rules provided by the user
+            rules_list.append(f'{rules}')
 
-        if msg:
-            results['failed'] = True
-            results['msg'] = msg
+        for rules_item in rules_list:
+            validator = iac_validate.validator.Validator(schema, rules_item)
+            if schema:
+                validator.validate_syntax([mdata])
+            if rules_item:
+                validator.validate_semantics([mdata])
+
+            msg = ""
+            for error in validator.errors:
+                msg += error + "\n"
+
+            if msg:
+                results['failed'] = True
+                results['msg'] = msg
+                break
 
         return results
