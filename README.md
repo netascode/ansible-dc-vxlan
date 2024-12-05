@@ -369,11 +369,12 @@ To speed up execution when only certain roles need to be run the following role 
 
 The validate role will automatically run if tags `role_create, role_deploy, role_remove` are specified.
 
-Example: Selectively Run `cisco.nac_dc_vxlan.create` role alone
-
-```bash
-ansible-playbook -i inventory.yaml vxlan.yaml --tags role_create
-```
+> [!TIP]
+> Example: Selectively run `cisco.nac_dc_vxlan.create` role alone.
+>
+> ```bash
+> ansible-playbook -i inventory.yaml vxlan.yaml --tags role_create
+> ```
 
 **Selective Execution based on Model Changes**
 
