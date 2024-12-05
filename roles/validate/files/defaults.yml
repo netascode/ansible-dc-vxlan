@@ -35,6 +35,8 @@ factory_defaults:
         advertise_pip: false
         advertise_pip_border_only: true
         domain_id_range: 1-1000
+        fabric_vpc_qos: false
+        fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
       spanning_tree:
         root_bridge_protocol: unmanaged
         vlan_range: 
@@ -46,6 +48,10 @@ factory_defaults:
         bridge_priority: 0
       netflow:
         enable: false
+      ptp:
+        ptp_enable: false
+      enable_nxapi: true
+      enable_nxapi_http: true
     topology:
       switches:
         routing_loopback_id: 0
