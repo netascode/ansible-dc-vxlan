@@ -43,7 +43,12 @@ class ActionModule(ActionBase):
                     (existing_link['sw1-info']['sw-sys-name'] == link['src_device'] and
                      existing_link['sw1-info']['if-name'] == link['src_interface'] and
                      existing_link['sw2-info']['sw-sys-name'] == link['dst_device'] and
-                     existing_link['sw2-info']['if-name'] == link['dst_interface'])):
+                     existing_link['sw2-info']['if-name'] == link['dst_interface']) or
+                    (existing_link['sw1-info']['sw-sys-name'] == link['dst_device'] and
+                     existing_link['sw1-info']['if-name'] == link['dst_interface'] and
+                     existing_link['sw2-info']['sw-sys-name'] == link['src_device'] and
+                     existing_link['sw2-info']['if-name'] == link['src_interface'])
+                     ):
                     not_required_links.append(link)
         results['not_required_links'] = not_required_links
 
