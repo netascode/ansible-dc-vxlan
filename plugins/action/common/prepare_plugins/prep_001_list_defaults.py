@@ -52,7 +52,6 @@ class PreparePlugin:
     # used by other plugins without having to check if the key exists.
     def prepare(self):
         self.model_data = self.kwargs['results']['model_extended']
-
         # --------------------------------------------------------------------
         # Fabric Global List Defaults
         # --------------------------------------------------------------------
@@ -74,6 +73,8 @@ class PreparePlugin:
         # Check vxlan.topology list elements
         parent_keys = ['vxlan', 'topology']
         dm_check = data_model_key_check(self.model_data, parent_keys)
+        if 'topology' in dm_check['keys_not_found']:
+            self.model_data['vxlan']['topology'] = {}
         if 'topology' in dm_check['keys_no_data']:
             self.model_data['vxlan']['topology'] = {'edge_connections': []}
             self.model_data['vxlan']['topology'] = {'fabric_links': []}
