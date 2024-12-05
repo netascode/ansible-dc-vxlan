@@ -50,6 +50,8 @@ factory_defaults:
         enable: false
       ptp:
         ptp_enable: false
+        ptp_domain_id: 0
+        ptp_lb_id: 0
       enable_nxapi: true
       enable_nxapi_http: true
     topology:

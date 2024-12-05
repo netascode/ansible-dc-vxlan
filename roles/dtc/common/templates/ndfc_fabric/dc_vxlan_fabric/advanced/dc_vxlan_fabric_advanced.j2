@@ -5,8 +5,8 @@
   AAA_REMOTE_IP_ENABLED: False
   FEATURE_PTP: {{ global.ptp.ptp_enable | default(defaults.vxlan.global.ptp.ptp_enable) }}
 {% if global.ptp.ptp_enable is defined and global.ptp.ptp_enable == 'true' %}
-  PTP_DOMAIN_ID: {{ global.ptp.ptp_domain_id }}
-  PTP_LB_ID: {{ global.ptp.ptp_lb_id }}
+  PTP_DOMAIN_ID: {{ global.ptp.ptp_domain_id | default(defaults.vxlan.global.ptp_domain_id) }}
+  PTP_LB_ID: {{ global.ptp.ptp_lb_id | default(defaults.vxlan.global.ptp.ptp_lb_id) }}
   PTP_VLAN_ID: {{ global.ptp.ptp_vlan_id }}
 {% endif %}
   ENABLE_NXAPI: {{ global.enable_nxapi | default(defaults.vxlan.global.enable_nxapi) }}
