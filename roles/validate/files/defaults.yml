@@ -272,16 +272,21 @@ factory_defaults:
               default_originate: false
               next_hop_self: false
     multisite:
+      enable_ipv6_underlay: false
       anycast_gateway_mac: 20:20:00:00:00:aa
       vtep_loopback_id: 100
-      vtep_loopback_ip_range: 10.10.0.0/24
-      dci_subnet_range: 10.10.1.0/24
-      dci_subnet_mask: 30
+      ipv4_vtep_loopback_range: 10.10.0.0/24
+      ipv4_dci_subnet_range: 10.10.1.0/24
+      ipv4_dci_subnet_mask: 30
+      ipv6_vtep_loopback_range: fd00::a10:0/120
+      ipv6_dci_subnet_range: fd00::a11:0/120
+      ipv6_dci_subnet_mask: 126
       bgw_ip_tag: 54321
-      overlay_ifc: direct_to_bgws
-      underlay_autoconfig: false
+      overlay_ifc: Direct_To_BGWS
+      underlay_autoconfig: true
       enable_bgp_send_community: false
       enable_bgp_log_neighbor_change: false
       enable_bgp_bfd: false
       delay_restore: 300
-      enable_bgp_password: false
+      enable_ebgp_password: false
+      enable_trm: false
