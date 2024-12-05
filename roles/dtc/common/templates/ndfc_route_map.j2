@@ -38,9 +38,9 @@ route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq
                             {% if match["as_path_list"] is defined %}
   match as-path {{ match["as_path_list"] }}
                             {% endif %}
-                            {% if match["as_numbers"] is defined %}
+                            {% if match["as_number"] is defined %}
                                 {% set asnumber = [] %}
-                                {% for as in match["as_numbers"] %}
+                                {% for as in match["as_number"] %}
                                     {% if as["from"] is defined and as["to"] is defined %}
                                         {% set _ = asnumber.append(as["from"]~ "-" ~as["to"])%}
                                     {% elif as["from"] is defined %}
@@ -49,8 +49,8 @@ route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq
                                 {% endfor %}
   match as-number {{ asnumber | join(", ") }}
                             {% endif %}
-                            {% if match["interfaces"] is defined %}
-  match interface {{ match["interfaces"] | join(" ") }}
+                            {% if match["interface"] is defined %}
+  match interface {{ match["interface"] | join(" ") }}
                             {% endif %}
                             {% if match["metric"] is defined %}
                                 {% if match["metric"]["deviation_operator"] is defined %}
@@ -68,8 +68,8 @@ route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq
                             {% if match["source_protocol"] is defined %}
   match source-protocol {{ match["source_protocol"] }}
                             {% endif %}
-                            {% if match["tags"] is defined %}
-  match tag {{ match["tags"] | join (" ") }}
+                            {% if match["tag"] is defined %}
+  match tag {{ match["tag"] | join (" ") }}
                             {% endif %}
                             {% if match["ipv4"] is defined %}
                                 {% if match["ipv4"]["address_prefix_list"] is defined %}
@@ -177,16 +177,16 @@ route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq
                                 {% if community_asn | length > 0 %}
                                     {% set _= community_options.append(community_asn | join(" ")) %}
                                 {% endif %}
-                                {% if 'no_export' in set["community"] %}
+                                {% if 'no-export' in set["community"] %}
                                     {% set _ = community_options.append("no-export") %}
                                 {% endif %}
-                                {% if 'no_advertise' in set["community"] %}
+                                {% if 'no-advertise' in set["community"] %}
                                     {% set _ = community_options.append("no-advertise") %}
                                 {% endif %}
-                                {% if 'local_as' in set["community"] %}
+                                {% if 'local-as' in set["community"] %}
                                     {% set _ = community_options.append("local-AS") %}
                                 {% endif %}
-                                {% if 'graceful_shutdown' in set["community"] %}
+                                {% if 'graceful-shutdown' in set["community"] %}
                                     {% set _ = community_options.append("graceful-shutdown") %}
                                 {% endif %}
                                 {% if 'blackhole' in set["community"] %}
@@ -230,8 +230,8 @@ route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq
                                             {% elif transitive["transitive"] is false %}
                                                 {% set _ = ext_4byte_option.append("non-transitive") %}
                                             {% endif %}
-                                            {% if transitive["community"] %}
-                                                {% set _ = ext_4byte_option.append(transitive["community"]) %}
+                                            {% if transitive["extended_community"] %}
+                                                {% set _ = ext_4byte_option.append(transitive["extended_community"]) %}
                                             {% endif %}
                                         {% endfor %}
                                         {% if set["extended_community"]["4byteas_generic"]["option"] is defined and
@@ -243,10 +243,10 @@ route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq
                                 {% endif %}
                                 {# extcommunity w/ color #}
                                 {% if set["extended_community"]["color"] is defined %}
-                                    {% if set["extended_community"]["color"]["color_community"] is defined and set["extended_community"]["color"]["co_flag"] is defined %}
-  set extcommunity color {{ set["extended_community"]["color"]["color_community"] }} co-flag {{ set["extended_community"]["color"]["co_flag"]}}
-                                    {% elif set["extended_community"]["color"]["color_community"] is defined %}
-  set extcommunity color {{ set["extended_community"]["color"]["color_community"] }}
+                                    {% if set["extended_community"]["color"]["color"] is defined and set["extended_community"]["color"]["co_flag"] is defined %}
+  set extcommunity color {{ set["extended_community"]["color"]["color"] }} co-flag {{ set["extended_community"]["color"]["co_flag"]}}
+                                    {% elif set["extended_community"]["color"]["color"] is defined %}
+  set extcommunity color {{ set["extended_community"]["color"]["color"] }}
                                     {% endif %}
                                 {% endif %}
                                 {# extcommunity w/ cost #}
@@ -255,9 +255,9 @@ route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq
                                         {% set igp = [] %}
                                     {% for cost in set["extended_community"]["cost"] %}
                                         {% if cost["community_id"] is defined and cost["cost"] is defined %}
-                                            {% if cost["type_cost"] is defined and cost["type_cost"] == 'pre-bestpath' %}
+                                            {% if cost["type"] is defined and cost["type"] == 'pre-bestpath' %}
                                                 {% set _ = prebestpath.append("pre-bestpath " ~ cost["community_id"] ~ " " ~ cost["cost"])%}
-                                            {% elif cost["type_cost"] is defined and cost["type_cost"] == 'igp' %}
+                                            {% elif cost["type"] is defined and cost["type"] == 'igp' %}
                                                 {% set _ = igp.append("igp " ~ cost["community_id"] ~ " " ~ cost["cost"]) %}
                                             {% else %}
                                                 {% set _ = igp.append("igp " ~ cost["community_id"] ~ " " ~ cost["cost"]) %}

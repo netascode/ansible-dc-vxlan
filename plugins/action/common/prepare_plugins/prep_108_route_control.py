@@ -69,9 +69,9 @@ class PreparePlugin:
                                     # Rewrite match interface based on CLI
                                     # Order is not important, only the case
                                     # Example: CLI match interface Ethernet1/10 loopback100 Null0 port-channel100
-                                    if "interfaces" in option_match:
-                                        option_match["interfaces"] = self.rewrite_match_interface(
-                                            option_match["interfaces"])
+                                    if "interface" in option_match:
+                                        option_match["interface"] = self.rewrite_match_interface(
+                                            option_match["interface"])
                             if "set" in entry:
                                 for option_set in entry["set"]:
                                     # Rewrite route-map IP Precedence number to string
