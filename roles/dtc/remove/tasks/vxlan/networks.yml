@@ -18,15 +18,28 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
-
 ---
 
-- name: Perform Required Syntax and Semantic Model Validation for VXLAN Fabric
-  cisco.nac_dc_vxlan.common.nac_dc_validate:
-    schema: "{{ schema_path }}"
-    mdata: "{{ data_path }}"
-    rules: "{{ rules_path }}"
+- ansible.builtin.debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
+  when:
+    - switch_list.response.DATA | length > 0
+    - (network_delete_mode is defined) and (network_delete_mode is true|bool)
+
+- name: Remove Unmanaged Fabric Networks
+  cisco.dcnm.dcnm_network:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: overridden
+    config: "{{ net_config }}"
   vars:
-    data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-    rules_path: "{{ role_path }}/files/rules/"
-  delegate_to: localhost
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
+  when:
+    - switch_list.response.DATA | length > 0
+    - (network_delete_mode is defined) and (network_delete_mode is true|bool)
+
+- ansible.builtin.debug:
+    msg:
+      - "---------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Fabric Networks task because network_delete_mode flag is set to False  +"
+      - "---------------------------------------------------------------------------------------------------------------"
+  when: not ((network_delete_mode is defined) and (network_delete_mode is true|bool))

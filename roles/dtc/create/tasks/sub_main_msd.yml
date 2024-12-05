@@ -35,8 +35,8 @@
 - name: Create NDFC MSD Fabric
   ansible.builtin.import_tasks: msd/fabric.yml
   when:
-    - MD_Extended.vxlan.name is defined
-    - MD_Extended.vxlan.fabric_type == "MSD"
+    - MD_Extended.vxlan.fabric.name is defined
+    - MD_Extended.vxlan.fabric.type == "MSD"
     - changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 

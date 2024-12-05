@@ -164,7 +164,7 @@ factory_defaults:
         isis: false
         authentication_enable: false
         authentication_key_id: 100
-    overlay_services:
+    overlay:
       vrfs:
         vrf_description: "Configured by Ansible NetAsCode"
         vrf_intf_desc: "Configured by Ansible NetAsCode"

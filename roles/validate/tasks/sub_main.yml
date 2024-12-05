@@ -107,8 +107,6 @@
   register: smd
   delegate_to: localhost
 
-- ansible.builtin.meta: end_play
-
 - name: Store Golden Service Model Data
   ansible.builtin.set_fact:
     MD: "{{ smd['model_golden'] }}"

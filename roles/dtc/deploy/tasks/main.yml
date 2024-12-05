@@ -28,6 +28,7 @@
 
 - name: Mark Stage Role Deploy Completed
   cisco.nac_dc_vxlan.common.run_map:
+    model_data: "{{ MD_Extended }}"
     stage: role_deploy_completed
   register: run_map
   delegate_to: localhost

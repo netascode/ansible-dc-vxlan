@@ -21,18 +21,19 @@
 
 ---
 
-- name: Import MSD Role Tasks
+- name: Import VXLAN Role Tasks
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   when:
-   - MD_Extended.vxlan.fabric_type == 'VXLAN_EVPN'
+   - MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
    - changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy
 
-- name: Import VxLAN Role Tasks
+- name: Import MSD Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
-  when: MD_Extended.vxlan.fabric_type == 'MSD'
+  when: MD_Extended.vxlan.fabric.type == 'MSD'
 
 - name: Mark Stage Role Create Completed
   cisco.nac_dc_vxlan.common.run_map:
+    model_data: "{{ MD_Extended }}"
     stage: role_create_completed
   register: run_map
   delegate_to: localhost

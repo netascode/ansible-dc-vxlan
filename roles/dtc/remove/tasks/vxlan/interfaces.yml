@@ -27,7 +27,7 @@
 
 - name: Remove Unmanaged Fabric Interfaces
   cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD.vxlan.global.name }}"
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden
     config: "{{ interface_all }}"
     # deploy: false

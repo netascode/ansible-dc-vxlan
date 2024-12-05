@@ -35,6 +35,8 @@
 - name: Create NDFC Fabric
   ansible.builtin.import_tasks: vxlan/fabric.yml
   when:
+    - MD_Extended.vxlan.fabric.name is defined
+    - MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
     - MD_Extended.vxlan.global is defined
     - changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"

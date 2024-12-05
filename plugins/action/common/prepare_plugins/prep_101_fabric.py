@@ -33,77 +33,72 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
 
+        # Checking for fabric key in the data model.
+        # This type of check should be done in a rule, but fabric.name and fabric.type are foundational for the collection so we need to ensure it is set.
+        # This prepare plugin also helps retain backwards compatibility with global.name and global.fabric_type keys previously used.
         parent_keys = ['vxlan', 'fabric']
         dm_check = data_model_key_check(model_data, parent_keys)
         if 'fabric' in dm_check['keys_not_found'] or 'fabric' in dm_check['keys_no_data']:
             display.deprecated(
-                "Attempting to use vxlan.global.name and vxlan.global.fabric_type due to vxlan.fabric.name and vxlan.fabric.type not being found. "
+                "Attempting to use vxlan.global.name and vxlan.global.fabric_type due to vxlan.fabric.name and vxlan.fabric.type not being defined. "
                 "vxlan.global.name and vxlan.global.fabric_type is being deprecated. Please use vxlan.fabric."
             )
 
+            parent_keys = ['vxlan', 'global']
+            dm_check = data_model_key_check(model_data, parent_keys)
+            if 'global' in dm_check['keys_found'] and 'global' in dm_check['keys_data']:
+                model_data['vxlan'].update({'fabric': {}})
+                parent_keys = ['vxlan', 'global', 'name']
+                dm_check = data_model_key_check(model_data, parent_keys)
+                if 'name' in dm_check['keys_found'] and 'name' in dm_check['keys_data']:
+                    model_data['vxlan']['fabric'].update({'name': model_data['vxlan']['global']['name']})
+                else:
+                    self.kwargs['results']['failed'] = True
+                    self.kwargs['results']['msg'] = "vxlan.global.name is not defined in the data model. Please set vxlan.fabric.name."
+
+                parent_keys = ['vxlan', 'global', 'fabric_type']
+                dm_check = data_model_key_check(model_data, parent_keys)
+                if 'fabric_type' in dm_check['keys_found'] and 'fabric_type' in dm_check['keys_data']:
+                    model_data['vxlan']['fabric'].update({'type': model_data['vxlan']['global']['fabric_type']})
+                else:
+                    self.kwargs['results']['failed'] = True
+                    self.kwargs['results']['msg'] = "vxlan.global.fabric_type is not defined in the data model. Please set vxlan.fabric.type."
+            else:
+                self.kwargs['results']['failed'] = True
+                self.kwargs['results']['msg'] = "vxlan.fabric is not set in the model data."
+
+        else:
             # Prepare the data model to ensure vxlan.fabric.name is set
-        #     global_data_check = False
-        #     parent_keys = ['vxlan', 'global']
-        #     dm_check = data_model_key_check(model_data, parent_keys)
-        #     if 'global' in dm_check['keys_found'] and 'global' in dm_check['keys_data']:
-        #         parent_keys = ['vxlan', 'global', 'name']
-        #         dm_check = data_model_key_check(model_data, parent_keys)
-        #         if 'name' in dm_check['keys_found'] and 'name' in dm_check['keys_data']:
-        #             model_data['vxlan']['fabric']['name'] = model_data['vxlan']['global']['name']
-        #         else:
-        #             global_data_check = True
+            parent_keys = ['vxlan', 'fabric', 'name']
+            dm_check = data_model_key_check(model_data, parent_keys)
+            if 'name' in dm_check['keys_no_data'] or 'name' in dm_check['keys_not_found']:
+                display.deprecated(
+                    "Attempting to use vxlan.global.name due to vxlan.fabric.name not being defined. "
+                    "vxlan.global.name is being deprecated. Please use vxlan.fabric."
+                )
+                parent_keys = ['vxlan', 'global', 'name']
+                dm_check = data_model_key_check(model_data, parent_keys)
+                if 'name' in dm_check['keys_data']:
+                    model_data['vxlan']['fabric'].update({'name': model_data['vxlan']['global']['name']})
+                else:
+                    self.kwargs['results']['failed'] = True
+                    self.kwargs['results']['msg'] = "vxlan.fabric.name is not defined in the data model."
 
-        #         parent_keys = ['vxlan', 'global', 'fabric_type']
-        #         dm_check = data_model_key_check(model_data, parent_keys)
-        #         if 'fabric_type' in dm_check['keys_found'] and 'fabric_type' in dm_check['keys_data']:
-        #             model_data['vxlan']['fabric']['type'] = model_data['vxlan']['global']['fabric_type']
-        #         else:
-        #             self.kwargs['results']['failed'] = True
-        #             self.kwargs['results']['msg'] = "vxlan.fabric is not set in the model data."
-        #             global_data_check = True
-        #     else:
-        #         self.kwargs['results']['failed'] = True
-        #         self.kwargs['results']['msg'] = "vxlan.fabric is not set in the model data."
-
-        #     if global_data_check:
-        #         self.kwargs['results']['failed'] = True
-        #         self.kwargs['results']['msg'] = "vxlan.fabric is not set in the model data."
-        # else:
-        #     parent_keys = ['vxlan', 'fabric', 'name']
-        #     dm_check = data_model_key_check(model_data, parent_keys)
-        #     if 'name' in dm_check['keys_no_data'] or 'name' in dm_check['keys_not_found']:
-        #         parent_keys = ['vxlan', 'global', 'name']
-        #         dm_check = data_model_key_check(model_data, parent_keys)
-        #         if 'name' in dm_check['keys_data']:
-        #             # Insert warning about deprecation and where found
-        #             model_data['vxlan']['fabric']['name'] = model_data['vxlan']['global']['name']
-        #         else:
-        #             self.kwargs['results']['failed'] = True
-        #             self.kwargs['results']['msg'] = "vxlan.fabric.name is not set in the model data."
-
-        #     # Prepare the data model to ensure vxlan.fabric.type is set
-        #     parent_keys = ['vxlan', 'fabric', 'type']
-        #     dm_check = data_model_key_check(model_data, parent_keys)
-        #     if 'type' in dm_check['keys_no_data'] or 'name' in dm_check['keys_not_found']:
-        #         parent_keys = ['vxlan', 'global', 'fabric_type']
-        #         dm_check = data_model_key_check(model_data, parent_keys)
-        #         if 'fabric_type' in dm_check['keys_data']:
-        #             # Insert warning about deprecation and where found
-        #             model_data['vxlan']['fabric']['type'] = model_data['vxlan']['global']['fabric_type']
-        #         else:
-        #             self.kwargs['results']['failed'] = True
-        #             self.kwargs['results']['msg'] = "vxlan.fabric.type is not set in the model data."
-
-        # 1 - no fabric key data model
-        # 2a - fabric key data model with no data (i.e. no name or type) > semantic valdiation failure with schema
-        # 2b - fabric key data model with no data (i.e. name or type) > check if we have global name and global fabric_type 
-
-
-        # insert comment to indicate this is a oneoff check for fabric key as this should really be done in a rule, 
-        # but fabric name and key are foundational for the collection so we need to ensure it is set.
-        # this prepare plugin also helps retain backwards compatibility with the global fabric name and fabric_type keys previously used.
-
-        # Prepare the data model to ensure vxlan.fabric.name is set
+            # Prepare the data model to ensure vxlan.fabric.type is set
+            parent_keys = ['vxlan', 'fabric', 'type']
+            dm_check = data_model_key_check(model_data, parent_keys)
+            if 'type' in dm_check['keys_no_data'] or 'type' in dm_check['keys_not_found']:
+                display.deprecated(
+                    "Attempting to use vxlan.global.type due to vxlan.fabric.type not being defined. "
+                    "vxlan.global.type is being deprecated. Please use vxlan.fabric."
+                )
+                parent_keys = ['vxlan', 'global', 'fabric_type']
+                dm_check = data_model_key_check(model_data, parent_keys)
+                if 'fabric_type' in dm_check['keys_data']:
+                    model_data['vxlan']['fabric'].update({'type': model_data['vxlan']['global']['fabric_type']})
+                else:
+                    self.kwargs['results']['failed'] = True
+                    self.kwargs['results']['msg'] = "vxlan.fabric.type is not defined in the data model."
 
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']

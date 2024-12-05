@@ -8,7 +8,7 @@
 {% set peer1_interface = peers['peer1_peerlink_interfaces'][interface_index] %}
 {% set peer2_interface = peers['peer2_peerlink_interfaces'][interface_index] %}
 {% if peer1_interface is defined and peer2_interface is defined %}
-- dst_fabric : {{ MD_Extended.vxlan.global.name }}
+- dst_fabric : {{ MD_Extended.vxlan.fabric.name }}
   template: int_pre_provision_intra_fabric_link
   src_interface: {{peer1_interface.name}}
   dst_interface: {{peer2_interface.name}}

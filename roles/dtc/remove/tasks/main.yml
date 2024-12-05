@@ -21,12 +21,20 @@
 
 ---
 
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main.yml
-  when: changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs or changes_detected_vpc_peering or changes_detected_link_vpc_peering or changes_detected_inventory
+- name: Import VXLAN Role Tasks
+  ansible.builtin.import_tasks: sub_main_vxlan.yml
+  when: 
+    - MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
+    - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs or changes_detected_vpc_peering or changes_detected_link_vpc_peering or changes_detected_inventory
+
+- name: Import MSD Role Tasks
+  ansible.builtin.import_tasks: sub_main_msd.yml
+  when: 
+    - MD_Extended.vxlan.fabric.type == 'MSD'
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:
+    model_data: "{{ MD_Extended }}"
     stage: role_remove_completed
   register: run_map
   delegate_to: localhost

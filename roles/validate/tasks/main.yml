@@ -49,6 +49,7 @@
 
 - name: Mark Stage Role Validate Completed
   cisco.nac_dc_vxlan.common.run_map:
+    model_data: "{{ MD_Extended }}"
     stage: role_validate_completed
   register: run_map
   delegate_to: localhost

@@ -21,9 +21,9 @@
 
 ---
 
-- name: Add NDFC Fabric Devices {{ MD.vxlan.global.name }}
+- name: Add NDFC Fabric Devices {{ MD_Extended.vxlan.fabric.name }}
   cisco.dcnm.dcnm_inventory:
-    fabric: "{{ MD.vxlan.global.name }}"
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ updated_inv_config['updated_inv_list'] }}"
     deploy: false
     save: true
