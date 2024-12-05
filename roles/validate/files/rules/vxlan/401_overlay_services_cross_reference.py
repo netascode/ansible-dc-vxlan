@@ -14,16 +14,18 @@ class Rule:
         vrf_attach_groups = None
 
         switch_keys = ['vxlan', 'topology', 'switches']
-        network_keys = ['vxlan', 'overlay', 'networks']
-        vrf_keys = ['vxlan', 'overlay', 'vrfs']
-        network_attach_keys = ['vxlan', 'overlay', 'network_attach_groups']
-        vrf_attach_keys = ['vxlan', 'overlay', 'vrf_attach_groups']
 
-        # For backwards compatibility
-        network_keys = ['vxlan', 'overlay_services', 'networks']
-        vrf_keys = ['vxlan', 'overlay_services', 'vrfs']
-        network_attach_keys = ['vxlan', 'overlay_services', 'network_attach_groups']
-        vrf_attach_keys = ['vxlan', 'overlay_services', 'vrf_attach_groups']
+        # Remove the check for overlay_services after deprecation
+        # Remove lines 21 - 23
+        overlay_key = 'overlay'
+        check = cls.data_model_key_check(inventory,  ['vxlan'])
+        if 'overlay_services' in check['keys_found'] and 'overlay_services' in check['keys_data']:
+            overlay_key = 'overlay_services'
+
+        network_keys = ['vxlan', f'{overlay_key}', 'networks']
+        vrf_keys = ['vxlan', f'{overlay_key}', 'vrfs']
+        network_attach_keys = ['vxlan', f'{overlay_key}', 'network_attach_groups']
+        vrf_attach_keys = ['vxlan', f'{overlay_key}', 'vrf_attach_groups']
 
         # Check if vrfs, network and switch data is defined in the service model
         check = cls.data_model_key_check(inventory, switch_keys)
@@ -58,39 +60,40 @@ class Rule:
             results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
 
         # For backwards compatibility
-        sm_networks = None
-        sm_vrfs = None
-        network_attach_groups = None
-        vrf_attach_groups = None
+        # Lines 54 - 88 will be removed after the deprecation in a future release
+        # sm_networks = None
+        # sm_vrfs = None
+        # network_attach_groups = None
+        # vrf_attach_groups = None
         
-        network_keys = ['vxlan', 'overlay_services', 'networks']
-        vrf_keys = ['vxlan', 'overlay_services', 'vrfs']
-        network_attach_keys = ['vxlan', 'overlay_services', 'network_attach_groups']
-        vrf_attach_keys = ['vxlan', 'overlay_services', 'vrf_attach_groups']
+        # network_keys = ['vxlan', 'overlay_services', 'networks']
+        # vrf_keys = ['vxlan', 'overlay_services', 'vrfs']
+        # network_attach_keys = ['vxlan', 'overlay_services', 'network_attach_groups']
+        # vrf_attach_keys = ['vxlan', 'overlay_services', 'vrf_attach_groups']
 
-        check = cls.data_model_key_check(inventory, network_keys)
-        if 'networks' in check['keys_data']:
-            sm_networks = cls.safeget(inventory, network_keys)
+        # check = cls.data_model_key_check(inventory, network_keys)
+        # if 'networks' in check['keys_data']:
+        #     sm_networks = cls.safeget(inventory, network_keys)
 
-        check = cls.data_model_key_check(inventory, vrf_keys)
-        if 'vrfs' in check['keys_data']:
-            sm_vrfs = cls.safeget(inventory, vrf_keys)
+        # check = cls.data_model_key_check(inventory, vrf_keys)
+        # if 'vrfs' in check['keys_data']:
+        #     sm_vrfs = cls.safeget(inventory, vrf_keys)
 
-        check = cls.data_model_key_check(inventory, vrf_attach_keys)
-        if 'vrf_attach_groups' in check['keys_data']:
-            vrf_attach_groups = cls.safeget(inventory, vrf_attach_keys)
+        # check = cls.data_model_key_check(inventory, vrf_attach_keys)
+        # if 'vrf_attach_groups' in check['keys_data']:
+        #     vrf_attach_groups = cls.safeget(inventory, vrf_attach_keys)
 
-        check = cls.data_model_key_check(inventory, network_attach_keys)
-        if 'network_attach_groups' in check['keys_data']:
-            network_attach_groups = cls.safeget(inventory, network_attach_keys)
+        # check = cls.data_model_key_check(inventory, network_attach_keys)
+        # if 'network_attach_groups' in check['keys_data']:
+        #     network_attach_groups = cls.safeget(inventory, network_attach_keys)
 
-        # Ensure Network is not referencing a VRF that is not defined in the service model
-        results = cls.cross_reference_vrfs_nets(sm_vrfs, sm_networks, results)
+        # # Ensure Network is not referencing a VRF that is not defined in the service model
+        # results = cls.cross_reference_vrfs_nets(sm_vrfs, sm_networks, results)
 
-        if sm_vrfs and vrf_attach_groups:
-            results = cls.cross_reference_switches(vrf_attach_groups, switches, 'vrf', results)
-        if sm_networks and network_attach_groups:
-            results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
+        # if sm_vrfs and vrf_attach_groups:
+        #     results = cls.cross_reference_switches(vrf_attach_groups, switches, 'vrf', results)
+        # if sm_networks and network_attach_groups:
+        #     results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
 
         return results
 
