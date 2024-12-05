@@ -37,6 +37,13 @@
   vars:
     network_query: "response.DATA[?displayName=='{{network.displayName}}'].networkId"
 
+- name: Update Network for Federated NDFCs
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/networks/{{ network.displayName }}"
+    method: "PUT"
+    json_data: "{{ network | to_json}}"
+  when: network_id_list|default(None)|length != 0
+
 - name: Configure Network for Federated NDFCs
   cisco.dcnm.dcnm_rest:
     path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/networks"

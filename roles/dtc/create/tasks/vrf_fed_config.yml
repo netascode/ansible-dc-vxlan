@@ -44,6 +44,13 @@
   vars:
     policy_query: "response.DATA[?vrfName=='{{vrf.displayName}}'].vrfName"
 
+- name: Update VRF for Federated NDFCs
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/vrfs/{{ vrf.displayName }}"
+    method: "PUT"
+    json_data: "{{ vrf | to_json}}"
+  when: vrf_exist_result|default(None)|length != 0
+
 - name: Configure VRF for Federated NDFCs
   cisco.dcnm.dcnm_rest:
     path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/vrfs"
