@@ -278,7 +278,7 @@ variables also configured as environment variables.
 
 #### Step 3 - Set Environment Variables
 
-The environment variables are set in the shell that is going to execute the playbook. The environment variables are configured via the `export` command in the shell (bash). Using this template set the environment variables to the correct credentials for the NDFC controller and the devices in the inventory on your topology.
+The environment variables are set in the shell that is going to execute the playbook. The environment variables are configured via the `export` command in the shell (bash). Using this template, set the environment variables to the correct credentials for the NDFC controller and the devices in the inventory on your topology.
 
 ```bash
 # These are the credentials for ND/NDFC
@@ -291,7 +291,7 @@ export NDFC_SW_USERNAME=admin
 export NDFC_SW_PASSWORD=Admin_123
 ```
 
-The following quickstart repository is available to provide a step by step guide for using this collection
+The following quickstart repository is available to provide a step by step guide for using this collection.
 
 [Quick Start Guide Repo](https://github.com/netascode/ansible-dc-vxlan-example)
 
