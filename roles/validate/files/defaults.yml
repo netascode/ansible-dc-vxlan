@@ -290,3 +290,13 @@ factory_defaults:
       delay_restore: 300
       enable_ebgp_password: false
       enable_trm: false
+      isn:
+        sub_int_range: 2-511
+        bootstrap:
+          enable_bootstrap: false
+          enable_inband: false
+          enable_local_dhcp_server: false
+          dhcp_version: DHCPv4
+          enable_aaa: false
+        netflow:
+          enable: false

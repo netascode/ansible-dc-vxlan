@@ -64,7 +64,9 @@
 - name: Set net_config Var
   ansible.builtin.set_fact:
     net_config: "{{ lookup('file', file_name) | from_yaml }}"
-  when: (MD_Extended.vxlan.overlay_services.networks | default([])) | length > 0
+  when: >
+    (MD_Extended.vxlan.overlay.networks | default([])) | length > 0 or
+    (MD_Extended.vxlan.overlay_services.networks | default([])) | length > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files

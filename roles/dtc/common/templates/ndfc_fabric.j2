@@ -13,7 +13,10 @@
 {# Include NDFC MSD Base Template #}
 {% include '/ndfc_fabric/msd_fabric/msd_fabric_base.j2' %}
 
-{% else %}
+{% elif vxlan.fabric.type == 'ISN'%}
 
-{# Supported fabric types are: DC VXLAN EVPN, MSD #}
+{# Include NDFC ISN Base Template #}
+{% include '/ndfc_fabric/isn_fabric/isn_fabric_base.j2' %}
+
+{# Supported fabric types are: DC VXLAN EVPN, MSD, and ISN #}
 {% endif %}

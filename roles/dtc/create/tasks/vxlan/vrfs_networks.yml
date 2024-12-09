@@ -37,11 +37,10 @@
     state: replaced
     config: "{{ vrf_config }}"
   register: manage_vrf_result
-  when:
-    - MD.vxlan.overlay_services.vrfs is defined
-    - MD.vxlan.overlay_services.vrfs
-    - changes_detected_vrfs
-
+  when: >
+    (MD_Extended.vxlan.overlay.vrfs is defined and MD_Extended.vxlan.overlay.vrfs) or
+    (MD_Extended.vxlan.overlay_services.vrfs is defined and MD_Extended.vxlan.overlay_services.vrfs) and
+    changes_detected_vrfs
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
@@ -52,7 +51,7 @@
     state: replaced
     config: "{{ net_config }}"
   register: manage_network_result
-  when:
-    - MD.vxlan.overlay_services.networks is defined
-    - MD.vxlan.overlay_services.networks
-    - changes_detected_networks
+  when: >
+    (MD_Extended.vxlan.overlay.networks is defined and MD_Extended.vxlan.overlay.networks) or
+    (MD_Extended.vxlan.overlay_services.networks is defined and MD_Extended.vxlan.overlay_services.networks) and
+    changes_detected_networks

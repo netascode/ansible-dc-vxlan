@@ -21,23 +21,28 @@
 
 ---
 
-- name: Import VXLAN Role Tasks
-  ansible.builtin.import_tasks: sub_main_vxlan.yml
-  when:
-   - MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
-   - changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy
-
-- name: Import ISN Role Tasks
-  ansible.builtin.import_tasks: sub_main_isn.yml
-  when: MD_Extended.vxlan.fabric.type == 'ISN'
-
-- name: Import MSD Role Tasks
-  ansible.builtin.import_tasks: sub_main_msd.yml
-  when: MD_Extended.vxlan.fabric.type == 'MSD'
-
-- name: Mark Stage Role Create Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ MD_Extended }}"
-    stage: role_create_completed
-  register: run_map
+- ansible.builtin.fail: msg="Service Model Not Defined. Role cisco.nac_dc_vxlan.validate Must Be Called First"
+  when: MD is undefined
   delegate_to: localhost
+
+# --------------------------------------------------------------------
+# Remove all files from the previous run if run_map requires it
+# --------------------------------------------------------------------
+- name: Cleanup Files from Previous Run if run_map requires it
+  ansible.builtin.include_tasks: cleanup_files.yml
+  when:
+    - not run_map_read_result.diff_run or ((force_run_all is defined) and (force_run_all is true|bool))
+
+# --------------------------------------------------------------------
+# Build Create Fabric Parameter List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric Create Parameters
+  ansible.builtin.include_tasks: isn/ndfc_fabric.yml
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric Switch Inventory List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Switch Inventory List From Template
+  ansible.builtin.include_tasks: isn/ndfc_inventory.yml

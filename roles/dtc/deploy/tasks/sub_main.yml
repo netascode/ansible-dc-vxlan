@@ -34,7 +34,10 @@
   cisco.dcnm.dcnm_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-  when: MD_Extended.vxlan.topology.switches | length > 0
+  when: >
+    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0) or
+    (MD_Extended.vxlan.multisite.isn.topology.switches is defined and MD_Extended.vxlan.multisite.isn.topology.switches | length > 0) or
+    MD_Extended.vxlan.fabric.type == 'MSD'
   # TODO: Need to add logic to only save if changes are made
 
 - name: Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }}
@@ -44,5 +47,8 @@
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
-  when: MD_Extended.vxlan.topology.switches | length > 0
+  when: >
+    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0) or
+    (MD_Extended.vxlan.multisite.isn.topology.switches is defined and MD_Extended.vxlan.multisite.isn.topology.switches | length > 0) or
+    MD_Extended.vxlan.fabric.type == 'MSD'
   # TODO: Need to add logic to only deploy if changes are made

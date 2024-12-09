@@ -18,17 +18,28 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
-
 ---
 
-- name: Remove Fabric Networks
-  ansible.builtin.import_tasks: msd/networks.yml
-  tags: "{{ nac_tags.remove_networks }}"
+- ansible.builtin.debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
   when:
-    - changes_detected_networks
+    - switch_list.response.DATA | length > 0
+    - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
 
-- name: Remove Fabric VRFs
-  ansible.builtin.import_tasks: msd/vrfs.yml
-  tags: "{{ nac_tags.remove_vrfs }}"
+- name: Remove Unmanaged Fabric VRFs
+  cisco.dcnm.dcnm_vrf:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: overridden
+    config: "{{ vrf_config }}"
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
   when:
-    - changes_detected_vrfs
+    - switch_list.response.DATA | length > 0
+    - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+
+- ansible.builtin.debug:
+    msg:
+      - "--------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False   +"
+      - "--------------------------------------------------------------------------------------------------------"
+  when: not ((vrf_delete_mode is defined) and (vrf_delete_mode is true|bool))

@@ -34,9 +34,12 @@
     path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
   register: fabric_associations
 
-- name: Move Child Fabrics To Fabric - {{ MD_Extended.vxlan.fabric.name }}
-  cisco.nac_dc_vxlan.dtc.move_child_fabrics:
+- ansible.builtin.debug:
+    var: fabric_associations
+
+- name: Add Child Fabrics To Fabric - {{ MD_Extended.vxlan.fabric.name }}
+  cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
     fabric_associations: "{{ fabric_associations }}"
     parent_fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
     child_fabrics: "{{ MD_Extended.vxlan.multisite.child_fabrics }}"
-  when: fabric_associations is defined
+  when: fabric_associations is defined and fabric_associations

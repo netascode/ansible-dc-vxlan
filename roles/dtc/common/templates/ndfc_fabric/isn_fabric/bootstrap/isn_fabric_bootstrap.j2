@@ -1,0 +1,19 @@
+{# Auto-generated NDFC ISN Bootstrap config data structure for fabric {{ vxlan.fabric.name }} #}
+{# Most of these features are supported only on Cisco NX-OS switches #}
+{# Some of these features are supported only on Cisco Catalyst 9000 switches #}
+{% if vxlan.multisite.isn.bootstrap is defined %}
+{% if (vxlan.multisite.isn.bootstrap.enable_bootstrap is defined and vxlan.multisite.isn.bootstrap.enable_bootstrap | bool) or defaults.vxlan.multisite.isn.bootstrap.enable_bootstrap | bool %}
+  BOOTSTRAP_ENABLE: {{ vxlan.multisite.isn.bootstrap.enable_bootstrap | default(defaults.vxlan.multisite.isn.bootstrap.enable_bootstrap) | bool }}
+  INBAND_ENABLE: {{ vxlan.multisite.isn.bootstrap.enable_inband | default(defaults.vxlan.multisite.isn.bootstrap.enable_inband) | bool }}
+  DHCP_ENABLE: {{ vxlan.multisite.isn.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.multisite.isn.bootstrap.enable_local_dhcp_server) | bool }}
+  DHCP_IPV6_ENABLE: {{ vxlan.multisite.isn.bootstrap.dhcp_version | default(defaults.vxlan.multisite.isn.bootstrap.dhcp_version) }}
+  DHCP_START: {{ vxlan.multisite.isn.bootstrap.dhcp_v4.scope_start_address }}
+  DHCP_END: {{ vxlan.multisite.isn.bootstrap.dhcp_v4.scope_end_address }}
+  MGMT_GW: {{ vxlan.multisite.isn.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
+  MGMT_PREFIX: {{ vxlan.multisite.isn.bootstrap.dhcp_v4.mgmt_prefix }}
+  BOOTSTRAP_MULTISUBNET: "{{ vxlan.multisite.isn.bootstrap.dhcp_v4.multi_subnet_scope }}"
+  ENABLE_AAA: {{ vxlan.multisite.isn.bootstrap.enable_aaa | default(defaults.vxlan.multisite.isn.bootstrap.enable_aaa) | bool }}
+{% endif %}
+{% else %}
+  BOOTSTRAP_ENABLE: false
+{% endif %}
