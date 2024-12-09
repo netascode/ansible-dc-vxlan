@@ -1,10 +1,6 @@
 {% if item.ospf is defined and item.ospf %}
 {% include 'ndfc_vrf_lite_ospf.j2' %}
 {% endif %}
-{% set bgp = {} %}
 {% if (item.bgp is defined and item.bgp) or switch_item.bgp_peers or switch_item.bgp %}
-  {% set _ = bgp.update({'enabled': true}) %}
-{% endif %}
-{% if bgp['enabled']%}
   {% include 'ndfc_vrf_lite_ebgp.j2' %}
 {% endif %}
