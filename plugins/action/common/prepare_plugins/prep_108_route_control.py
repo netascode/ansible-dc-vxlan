@@ -136,7 +136,7 @@ class PreparePlugin:
                     if "switches" == route_control:
                         for switch in model_data["vxlan"]["overlay_extensions"]["route_control"]["switches"]:
                             for sw_group in switch['groups']:
-                                unique_name = f"{switch['name']}_{sw_group}_route_control"
+                                unique_name = f"route_control_{sw_group}"
                                 group_policies = []
                                 for group_name in model_data["vxlan"]["overlay_extensions"]["route_control"]["groups"]:
                                     if sw_group == group_name["name"]:
