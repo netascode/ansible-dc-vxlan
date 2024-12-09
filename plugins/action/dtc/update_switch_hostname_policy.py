@@ -58,6 +58,7 @@ class ActionModule(ActionBase):
             switch_match = next((item for item in dm_switches if item["serial_number"] == switch_serial_number))
 
             if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match["name"]:
+                results['changed'] = True
                 policy_match["nvPairs"]["SWITCH_NAME"] = switch_match["name"]
                 policy_update.update({switch_serial_number: policy_match})
 

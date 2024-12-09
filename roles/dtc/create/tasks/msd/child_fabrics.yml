@@ -42,4 +42,5 @@
     fabric_associations: "{{ fabric_associations }}"
     parent_fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
     child_fabrics: "{{ MD_Extended.vxlan.multisite.child_fabrics }}"
+    operation: add
   when: fabric_associations is defined and fabric_associations
