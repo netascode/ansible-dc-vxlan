@@ -27,11 +27,17 @@ from ....plugin_utils.helper_functions import hostname_to_ip_mapping
 
 
 class PreparePlugin:
+    """
+    Class PreparePlugin
+    """
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.keys = []
 
     def prepare(self):
+        """
+        function to prepare data for route_control
+        """
         templates_path = self.kwargs['templates_path']
         model_data = self.kwargs['results']['model_extended']
         default_values = self.kwargs['default_values']
@@ -185,6 +191,10 @@ class PreparePlugin:
         return self.kwargs['results']
 
     def convert_port_number(self, port_number, protocol):
+        """
+        Convert TCP, UDP port number with well-know
+        """
+
         tcp = {
             7: "echo",
             9: "discard",
@@ -262,6 +272,9 @@ class PreparePlugin:
         return port_number
 
     def rewrite_match_interface(self, interfaces):
+        """
+        Rewrite interface with proper case and name
+        """
         new_interfaces = []
         for interface in interfaces:
             intf_ethernet = re.match(r'(?i)^(?:e|eth(?:ernet)?)(\d(?:\/\d+){1,2}$)', interface)
