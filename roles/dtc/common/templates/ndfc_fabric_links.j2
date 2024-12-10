@@ -13,4 +13,6 @@
     profile:
         admin_state: "{{ link.admin_state }}" 
         mtu: "{{ link.mtu }}"
+        peer1_description: "{{ link.source_description | default('') }}"
+        peer2_description: "{{ link.destination_description | default('') }}"
 {% endfor %}

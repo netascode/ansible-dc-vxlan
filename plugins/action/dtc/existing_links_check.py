@@ -31,10 +31,14 @@ display = Display()
 
 
 class ActionModule(ActionBase):
-
+    """
+    This class is used to compare the existing links with the links that you are 
+    looking to add to the fabric. If the link already exists, it will be added to
+    the not_required_links list.
+    """
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
-        existing_links = self._task.args['existing_links']['response']
+        existing_links = self._task.args['existing_links'].get('response', None)
         fabric_links = self._task.args['fabric_links']
         not_required_links = []
         for link in fabric_links:

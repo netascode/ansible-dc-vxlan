@@ -25,7 +25,7 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage VRFs and Networks Fabric {{ MD.vxlan.global.name }}"
+      - "+     Manage VRF loopbacks in {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
@@ -58,10 +58,3 @@
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD.vxlan.global.name }}/vrfs/attachments"
     method: "POST"
     json_data: "{{ attach_payload | to_json}}"
-
-- name: Clear payload
-  set_fact:
-    vrf_loopback_config: []
-    attach_payload: []
-    switches: []
-    attach_list: []
