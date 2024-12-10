@@ -90,13 +90,14 @@ class ActionModule(ActionBase):
             # If found, grab the specific entry from the policy switches data model and store
             # This stores the current switches policy group list
             if any(
-                (switch["name"] == dm_management_ipv4_address for switch in dm_policy_switches) or
-                (switch["name"] == dm_management_ipv6_address for switch in dm_policy_switches)
+                (switch["mgmt_ip_address"] == dm_management_ipv4_address for switch in dm_policy_switches) or
+                (switch["mgmt_ip_address"] == dm_management_ipv6_address for switch in dm_policy_switches)
             ):
                 dm_policy_switch = next(
                     (
                         dm_policy_switch for dm_policy_switch in dm_policy_switches
-                        if dm_policy_switch["name"] == dm_management_ipv4_address or dm_policy_switch["name"] == dm_management_ipv6_address
+                        if dm_policy_switch["mgmt_ip_address"] == dm_management_ipv4_address or
+                        dm_policy_switch["mgmt_ip_address"] == dm_management_ipv6_address
                     )
                 )
 
