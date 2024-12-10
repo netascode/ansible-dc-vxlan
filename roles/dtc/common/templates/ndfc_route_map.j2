@@ -121,12 +121,10 @@ route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq
                                     {% endif %}
   set as-path {{ options | join(" ")}}
                                 {# as-path prepend #}
+                                {% elif set["as_path"]["prepend_last_as_count"] is defined %}
+  set as-path prepend last-as {{ set["as_path"]["prepend_last_as_count"] }}
                                 {% elif set["as_path"]["prepend"] is defined %}
-                                    {% if set["as_path"]["prepend"]["last_as_path_count"] is defined %}
-  set as-path prepend last-as {{ set["as_path"]["prepend"]["last_as_path_count"] }}
-                                    {% else %}
   set as-path prepend {{ set["as_path"]["prepend"] | join(" ") }}
-                                    {% endif %}
                                 {# as-path replace #}
                                 {% elif set["as_path"]["replace"] is defined %}
                                     {# as-path replace w/ private-as #}

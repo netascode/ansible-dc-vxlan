@@ -1,4 +1,4 @@
-{# Loop though policies name for each group #}
+---
 {% for policy_types in group_item %}
     {% if "route_maps" in policy_types %}
         {% include "ndfc_route_map.j2" %}
