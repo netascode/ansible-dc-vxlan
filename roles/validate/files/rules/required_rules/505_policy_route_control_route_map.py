@@ -5,16 +5,20 @@ Validation Rules scenarios:
 3.  Route maps in the vxlan.overlay_extensions.route_control.groups.route_maps should be defined in the vxlan.overlay_extensions.route_control.route_maps
 4.  MAC list in vxlan.overlay_extensions.route_control.groups.mac_lists should be defined in vxlan.overlay_extensions.route_control.mac_lists
 5.  Standard community lists in the vxlan.overlay_extensions.route_control.groups.standard_community_lists should be defined in the
-vxlan.overlay_extensions.route_control.standard_community_lists
+    vxlan.overlay_extensions.route_control.standard_community_lists
 6.  Extended community lists in the vxlan.overlay_extensions.route_control.groups.extended_community_lists should be defined in the
-vxlan.overlay_extensions.route_control.extended_community_lists
-7.  IPv4 prefix lists in the vxlan.overlay_extensions.route_control.groups.ipv4_prefix_lists should be defined in the vxlan.overlay_extensions.route_control.ipv4_prefix_lists
+    vxlan.overlay_extensions.route_control.extended_community_lists
+7.  IPv4 prefix lists in the vxlan.overlay_extensions.route_control.groups.ipv4_prefix_lists should be defined in the
+    vxlan.overlay_extensions.route_control.ipv4_prefix_lists
 8.  IPv6 prefix lists in the vxlan.overlay_extensions.route_control.groups.ipv6_prefix_lists should be defined in the
-vxlan.overlay_extensions.route_control.ipv6_prefix_lists
-9.  IPv4 access lists in the vxlan.overlay_extensions.route_control.groups.ipv4_access_lists should be defined in the vxlan.overlay_extensions.route_control.ipv4_access_lists
+    vxlan.overlay_extensions.route_control.ipv6_prefix_lists
+9.  IPv4 access lists in the vxlan.overlay_extensions.route_control.groups.ipv4_access_lists should be defined in the
+    vxlan.overlay_extensions.route_control.ipv4_access_lists
 10. Time ranges in the vxlan.overlay_extensions.route_control.groups.time_ranges should be defined in the vxlan.overlay_extensions.route_control.time_ranges
-11. IPv4 object groups in the vxlan.overlay_extensions.route_control.groups.ipv4_object_groups should be defined in the vxlan.overlay_extensions.route_control.ipv4_object_groups
-12. IPv6 object groups in the vxlan.overlay_extensions.route_control.groups.ipv6_object_groups should be defined in the vxlan.overlay_extensions.route_control.ipv6_object_groups.
+11. IPv4 object groups in the vxlan.overlay_extensions.route_control.groups.ipv4_object_groups should be defined in the
+    vxlan.overlay_extensions.route_control.ipv4_object_groups
+12. IPv6 object groups in the vxlan.overlay_extensions.route_control.groups.ipv6_object_groups should be defined in the
+    vxlan.overlay_extensions.route_control.ipv6_object_groups.
 13. Name for each of these policies should be unique when they are consumed in a group
 14. Check if in the set_metric route map only metric bandwith is used or alternatively all the five metrics are used: bandwidth, delay, reliability, load, mtu
 15. Check if in set ip/ipv6 next-hop verify-availability route map next-hops is configured
@@ -33,8 +37,12 @@ class Rule:
     severity = "HIGH"
     results = []
 
-    route_control_objects_names = ["ip_as_path_access_lists", "route_maps", "ipv4_access_lists", "ipv6_access_lists", "ipv4_prefix_lists", "ipv6_prefix_lists",
-                                   "standard_community_lists", "extended_community_lists", "time_range", "ipv4_object_groups", "ipv6_object_groups", "mac_list"]
+    route_control_objects_names = ["ip_as_path_access_lists", "route_maps",
+                                   "mac_list", "standard_community_lists", "extended_community_lists",
+                                   "ipv4_access_lists", "ipv6_access_lists",
+                                   "ipv4_prefix_lists", "ipv6_prefix_lists",
+                                   "time_range", "ipv4_object_groups", "ipv6_object_groups"
+                                   ]
 
     @classmethod
     def match(cls, data):

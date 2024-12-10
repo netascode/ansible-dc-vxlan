@@ -1,27 +1,26 @@
----
 {% for policy_types in group_item %}
-    {% if "route_maps" in policy_types %}
-        {% include "ndfc_route_map.j2" %}
-    {% endif %}
+  {% if "route_maps" in policy_types %}
+    {% include "ndfc_route_map.j2" %}
+  {% endif %}
     {% if "ipv4_prefix_lists" in policy_types or "ipv6_prefix_lists" in policy_types  %}
-        {% include "ndfc_prefix_list.j2" %}
-    {% endif %}
-    {% if "standard_community_lists" in policy_types or "extended_community_lists" in policy_types %}
-        {% include "ndfc_community_list.j2" %}
-    {% endif %}
-    {% if "ipv4_access_lists" in policy_types or "ipv6_access_lists" in policy_types %}
-        {% include "ndfc_ip_access_list.j2" %}
-        {% endif %}
-    {% if "mac_list" in policy_types %}
-        {% include "ndfc_mac_list.j2" %}
-    {% endif %}
-    {% if "time_range" in policy_types %}
-        {% include "ndfc_time_range.j2" %}
-    {% endif %}
-    {% if "ipv4_object_groups" in policy_types or "ipv6_object_groups" in policy_types %}
-        {% include "ndfc_object_groups.j2" %}
-    {% endif %}
-    {% if "ip_as_path_access_lists" in policy_types %}
-        {% include "ndfc_ip_as_path_access_lists.j2" %}
-    {% endif %}
+      {% include "ndfc_prefix_list.j2" %}
+  {% endif %}
+  {% if "standard_community_lists" in policy_types or "extended_community_lists" in policy_types %}
+    {% include "ndfc_community_list.j2" %}
+  {% endif %}
+  {% if "ipv4_access_lists" in policy_types or "ipv6_access_lists" in policy_types %}
+    {% include "ndfc_ip_access_list.j2" %}
+  {% endif %}
+  {% if "mac_list" in policy_types %}
+    {% include "ndfc_mac_list.j2" %}
+  {% endif %}
+  {% if "time_range" in policy_types %}
+    {% include "ndfc_time_range.j2" %}
+  {% endif %}
+  {% if "ipv4_object_groups" in policy_types or "ipv6_object_groups" in policy_types %}
+    {% include "ndfc_object_groups.j2" %}
+  {% endif %}
+  {% if "ip_as_path_access_lists" in policy_types %}
+    {% include "ndfc_ip_as_path_access_lists.j2" %}
+  {% endif %}
 {% endfor %}
