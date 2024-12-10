@@ -18,6 +18,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
+from ....plugin_utils.helper_functions import hostname_to_ip_mapping
 
 
 class PreparePlugin:
@@ -51,5 +52,8 @@ class PreparePlugin:
             model_data['vxlan']['topology'][role][name][v4_key] = v4ip
             model_data['vxlan']['topology'][role][name][v6_key] = v6ip
 
+        model_data = hostname_to_ip_mapping(model_data)
+
         self.kwargs['results']['model_extended'] = model_data
+
         return self.kwargs['results']
