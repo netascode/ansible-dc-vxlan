@@ -40,6 +40,7 @@ class ActionModule(ActionBase):
         for link in fabric_links:
             for existing_link in existing_links:
                 if ('sw1-info' in existing_link and 'sw2-info' in existing_link and
+                    'sw-sys-name' in existing_link['sw1-info'] and 'sw-sys-name' in existing_link['sw2-info'] and
                     (existing_link['sw1-info']['sw-sys-name'] == link['src_device'] and
                      existing_link['sw1-info']['if-name'].lower() == link['src_interface'] and
                      existing_link['sw2-info']['sw-sys-name'] == link['dst_device'] and
