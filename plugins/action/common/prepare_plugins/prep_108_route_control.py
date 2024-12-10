@@ -18,6 +18,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
+
 import re
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader
 from ansible_collections.ansible.utils.plugins.filter import ipaddr
