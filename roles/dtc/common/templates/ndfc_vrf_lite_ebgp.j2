@@ -76,14 +76,10 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% if switch_item.bgp.address_family_ipv4_unicast.additional_paths_selection_route_map %}
       additional-paths selection route-map {{ switch_item.bgp.address_family_ipv4_unicast.additional_paths_selection_route_map }}
     {% endif %}
-    {# redistribution order: ospf, direct, static #}
     {% if switch_item.redistribution %}
       {% for switch_redist in switch_item.redistribution %}
         {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
       redistribute ospf {{ switch_redist.protocol_tag }} route-map {{ switch_redist.route_map_ipv4 }}
-      {# redistribute direct route-map fabric-rmap-redist-subnet is always pushed by ND cannot change route-map #}
-        {# {% elif switch_redist.source == 'direct' and switch_redist.route_map_ipv4 %}
-      redistribute direct route-map {{ switch_redist.route_map_ipv4 }} #}
         {% elif switch_redist.source == 'static' and switch_redist.route_map_ipv4 %}
       redistribute static route-map {{ switch_redist.route_map_ipv4 }}
         {% endif %}
@@ -110,7 +106,9 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
     {% if switch_item.redistribution %}
       {% for switch_redist in switch_item.redistribution %}
-        {% if switch_redist.source == 'static' and switch_redist.route_map_ipv6 %}
+        {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv6 %}
+      redistribute ospf {{ switch_redist.protocol_tag }} route-map {{ switch_redist.route_map_ipv6 }}
+        {% elif switch_redist.source == 'static' and switch_redist.route_map_ipv6 %}
       redistribute static route-map {{ switch_redist.route_map_ipv6 }}
         {% endif %}
       {% endfor %}
