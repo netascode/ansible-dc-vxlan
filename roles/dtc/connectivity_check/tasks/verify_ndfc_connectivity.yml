@@ -23,7 +23,10 @@
 
 - name: Verify Connection to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
   ansible.builtin.wait_for:
-    host: "{{ ansible_host }}"
+    # The ansible_host here could be an IPv4 or IPv6 address
+    # The replace filters are used to remove square brackets from IPv6 addresses
+    # Example: [2001:420:448b:8006::30] -> 2001:420:448b:8006::30
+    host: "{{ ansible_host | replace('[', '') | replace(']', '') }}"
     port: "{{ ansible_httpapi_port | default(443) }}"
     connect_timeout: 5
     delay: 0
