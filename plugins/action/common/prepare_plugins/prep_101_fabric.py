@@ -39,10 +39,12 @@ class PreparePlugin:
         parent_keys = ['vxlan', 'fabric']
         dm_check = data_model_key_check(model_data, parent_keys)
         if 'fabric' in dm_check['keys_not_found'] or 'fabric' in dm_check['keys_no_data']:
-            display.deprecated(
-                "Attempting to use vxlan.global.name and vxlan.global.fabric_type due to vxlan.fabric.name and vxlan.fabric.type not being defined. "
+            deprecated_msg = (
+                "Attempting to use vxlan.global.name and vxlan.global.fabric_type due to "
+                "vxlan.fabric.name and vxlan.fabric.type not being defined. "
                 "vxlan.global.name and vxlan.global.fabric_type is being deprecated. Please use vxlan.fabric."
             )
+            display.deprecated(msg=deprecated_msg, version="1.0.0")
 
             parent_keys = ['vxlan', 'global']
             dm_check = data_model_key_check(model_data, parent_keys)
@@ -72,10 +74,11 @@ class PreparePlugin:
             parent_keys = ['vxlan', 'fabric', 'name']
             dm_check = data_model_key_check(model_data, parent_keys)
             if 'name' in dm_check['keys_no_data'] or 'name' in dm_check['keys_not_found']:
-                display.deprecated(
+                deprecated_msg = (
                     "Attempting to use vxlan.global.name due to vxlan.fabric.name not being defined. "
                     "vxlan.global.name is being deprecated. Please use vxlan.fabric."
                 )
+                display.deprecated(msg=deprecated_msg, version="1.0.0")
                 parent_keys = ['vxlan', 'global', 'name']
                 dm_check = data_model_key_check(model_data, parent_keys)
                 if 'name' in dm_check['keys_data']:
@@ -88,10 +91,11 @@ class PreparePlugin:
             parent_keys = ['vxlan', 'fabric', 'type']
             dm_check = data_model_key_check(model_data, parent_keys)
             if 'type' in dm_check['keys_no_data'] or 'type' in dm_check['keys_not_found']:
-                display.deprecated(
+                deprecated_msg = (
                     "Attempting to use vxlan.global.type due to vxlan.fabric.type not being defined. "
                     "vxlan.global.type is being deprecated. Please use vxlan.fabric."
                 )
+                display.deprecated(msg=deprecated_msg, version="1.0.0")
                 parent_keys = ['vxlan', 'global', 'fabric_type']
                 dm_check = data_model_key_check(model_data, parent_keys)
                 if 'fabric_type' in dm_check['keys_data']:

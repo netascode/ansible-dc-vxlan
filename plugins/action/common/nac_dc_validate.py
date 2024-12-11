@@ -109,8 +109,12 @@ class ActionModule(ActionBase):
                 check = data_model_key_check(results['data'], parent_keys)
                 if 'global' in check['keys_found'] and 'global' in check['keys_data']:
                     if 'fabric_type' in results['data']['vxlan']['global']:
-                        display.deprecated("Attempting to use vxlan.global.fabric_type due to vxlan.fabric.type not being found. vxlan.global.fabric_type is being deprecated. Please use vxlan.fabric.type.")
-                        
+                        deprecated_msg = (
+                            "Attempting to use vxlan.global.fabric_type due to vxlan.fabric.type not being found. "
+                            "vxlan.global.fabric_type is being deprecated. Please use vxlan.fabric.type."
+                        )
+                        display.deprecated(msg=deprecated_msg, version='1.0.0')
+
                         if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN'):
                             rules_list.append(f'{rules}vxlan/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCF'):

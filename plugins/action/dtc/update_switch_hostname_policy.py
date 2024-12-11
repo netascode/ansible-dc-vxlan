@@ -54,7 +54,7 @@ class ActionModule(ActionBase):
                 dm_switches = model_data["vxlan"]["topology"]["switches"]
             elif model_data["vxlan"]["fabric"]["type"] in ('ISN'):
                 dm_switches = model_data["vxlan"]["multisite"]["isn"]["topology"]["switches"]
-            
+
             switch_match = next((item for item in dm_switches if item["serial_number"] == switch_serial_number))
 
             if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match["name"]:

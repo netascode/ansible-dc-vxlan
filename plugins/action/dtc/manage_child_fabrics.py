@@ -55,7 +55,7 @@ class ActionModule(ActionBase):
                         module_name="cisco.dcnm.dcnm_rest",
                         module_args={
                             "method": "POST",
-                            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdAdd",
+                            "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdAdd",
                             "json_data": json_data
                         },
                         task_vars=task_vars,
@@ -68,7 +68,7 @@ class ActionModule(ActionBase):
                         break
 
                     results['changed'] = True
-        
+
         if operation == 'remove':
             for associated_child_fabric in associated_child_fabrics:
                 if not any(associated_child_fabric == child_fabric['name'] for child_fabric in child_fabrics):
@@ -77,7 +77,7 @@ class ActionModule(ActionBase):
                         module_name="cisco.dcnm.dcnm_rest",
                         module_args={
                             "method": "POST",
-                            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdExit",
+                            "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdExit",
                             "json_data": json_data
                         },
                         task_vars=task_vars,
@@ -150,5 +150,3 @@ class ActionModule(ActionBase):
 # https://rtp-ndfc1.cisco.com/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdExit
 # POST
 # {"destFabric":"nac-msd","sourceFabric":"nac-ndfc1"}
-
-

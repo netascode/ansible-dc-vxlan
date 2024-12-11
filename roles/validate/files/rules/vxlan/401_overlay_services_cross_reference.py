@@ -18,7 +18,7 @@ class Rule:
         # Remove the check for overlay_services after deprecation
         # Remove lines 21 - 23
         overlay_key = 'overlay'
-        check = cls.data_model_key_check(inventory,  ['vxlan'])
+        check = cls.data_model_key_check(inventory, ['vxlan'])
         if 'overlay_services' in check['keys_found'] and 'overlay_services' in check['keys_data']:
             overlay_key = 'overlay_services'
 
@@ -65,7 +65,7 @@ class Rule:
         # sm_vrfs = None
         # network_attach_groups = None
         # vrf_attach_groups = None
-        
+
         # network_keys = ['vxlan', 'overlay_services', 'networks']
         # vrf_keys = ['vxlan', 'overlay_services', 'vrfs']
         # network_attach_keys = ['vxlan', 'overlay_services', 'network_attach_groups']

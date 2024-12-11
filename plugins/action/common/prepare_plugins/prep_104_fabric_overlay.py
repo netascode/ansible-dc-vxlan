@@ -34,7 +34,7 @@ class PreparePlugin:
         # Remove the check for overlay_services after deprecation
         # Remove lines 32-37
         overlay_key = 'overlay'
-        check = data_model_key_check(model_data,  ['vxlan'])
+        check = data_model_key_check(model_data, ['vxlan'])
         if 'overlay_services' in check['keys_found'] and 'overlay_services' in check['keys_data']:
             overlay_key = 'overlay_services'
 
@@ -86,7 +86,7 @@ class PreparePlugin:
                 if 'network_attach_group' in net:
                     if net.get('network_attach_group') not in net_grp_name_list:
                         del net['network_attach_group']
-        
+
         if model_data['vxlan']['fabric']['type'] in ('MSD', 'MCF'):
             # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
             # a structure that is easier to use.
