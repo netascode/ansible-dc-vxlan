@@ -27,6 +27,7 @@
             DESC: "{{ link.bgp_section.description | default ('Device ' + link.source_device + ' to Device ' + link.dest_device) }}"
             IP_MASK: {{ link.local_ip }}
             NEIGHBOR_IP: {{ link.neighbor_ip }}
+            FF_CONF: "{{ link.bgp_section.bgp_freeform }}"
             SPEED: Auto
             ADMIN_STATE: true
             BGP_PASSWORD: ""

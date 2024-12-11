@@ -5,3 +5,5 @@
   PTP_LB_ID: {{ global.ptp.ptp_lb_id | default(defaults.vxlan.global.ptp.ptp_lb_id) }}
   ENABLE_NXAPI: {{ global.enable_nxapi | default(defaults.vxlan.global.enable_nxapi) }}
   ENABLE_NXAPI_HTTP: {{ global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http ) }}
+  SNMP_SERVER_HOST_TRAP: {{ global.snmp_server_host_trap | default(defaults.vxlan.global.snmp_server_host_trap) }}
+  CDP_ENABLE: {{ global.bootstrap.cdp_enable | default(defaults.vxlan.global.bootstrap.cdp_enable) }}
