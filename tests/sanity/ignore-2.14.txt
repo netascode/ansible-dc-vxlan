@@ -1,9 +1,9 @@
 plugins/action/common/check_roles.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/nac_dc_validate.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/nac_dc_validate.py ansible-deprecated-no-collection-name # No collection name found in call to Display.deprecated or AnsibleModule.deprecate
+plugins/action/common/nac_dc_validate.py ansible-deprecated-no-collection-name: No collection name found in call to Display.deprecated or AnsibleModule.deprecate # No collection name found in call to Display.deprecated or AnsibleModule.deprecate
 plugins/action/common/prepare_plugins/prep_001_list_defaults.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_101_fabric.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_101_fabric.py ansible-deprecated-no-collection-name # No collection name found in call to Display.deprecated or AnsibleModule.deprecate
+plugins/action/common/prepare_plugins/prep_101_fabric.py ansible-deprecated-no-collection-name: No collection name found in call to Display.deprecated or AnsibleModule.deprecate # No collection name found in call to Display.deprecated or AnsibleModule.deprecate
 plugins/action/common/prepare_plugins/prep_103_topology_switches.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_104_fabric_overlay.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_105_topology_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
