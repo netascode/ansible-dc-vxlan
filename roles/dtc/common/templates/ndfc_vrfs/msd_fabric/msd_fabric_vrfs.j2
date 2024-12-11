@@ -1,0 +1,42 @@
+{# Auto-generated NDFC MSD VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
+{% if MD_Extended.vxlan.multisite.overlay.vrfs is defined and MD_Extended.vxlan.multisite.overlay.vrfs %}
+{% set vrfs = MD_Extended.vxlan.multisite.overlay.vrfs %}
+{% else %}
+{% set vrfs = [] %}
+{% endif %}
+{% for vrf in vrfs %}
+- vrf_name: {{ vrf['name'] }}
+{# ------------------------------------------------------ #}
+{# Properties Section #}
+{# ------------------------------------------------------ #}
+  vrf_id: {{ vrf['vrf_id'] | default(omit) }}
+  vlan_id: {{ vrf['vlan_id'] | default(omit) }}
+  vrf_vlan_name: {{ vrf['vrf_vlan_name'] | default(omit) }}
+  vrf_intf_desc: {{ vrf['vrf_intf_desc'] | default(defaults.vxlan.overlay.vrfs.vrf_intf_desc) }}
+  vrf_description: {{ vrf['vrf_description'] | default(defaults.vxlan.overlay.vrfs.vrf_description) }}
+  vrf_int_mtu: {{ vrf['vrf_int_mtu'] | default(defaults.vxlan.overlay.vrfs.vrf_int_mtu) }}
+  loopback_route_tag: {{ vrf['loopback_route_tag'] | default(defaults.vxlan.overlay.vrfs.loopback_route_tag) }}
+  max_bgp_paths: {{ vrf['max_bgp_paths'] | default(defaults.vxlan.overlay.vrfs.max_bgp_paths) }}
+  max_ibgp_paths: {{ vrf['max_ibgp_paths'] | default(defaults.vxlan.overlay.vrfs.max_ibgp_paths) }}
+  ipv6_linklocal_enable: {{ vrf['ipv6_linklocal_enable'] | default(defaults.vxlan.overlay.vrfs.ipv6_linklocal_enable) }}
+  disable_rt_auto: {{ vrf['disable_rt_auto'] | default(defaults.vxlan.overlay.vrfs.disable_rt_auto) }}
+  export_evpn_rt: {{ vrf['export_evpn_rt'] | default(omit) }}
+  export_vpn_rt: {{ vrf['export_vpn_rt'] | default(omit) }}
+  import_evpn_rt: {{ vrf['import_evpn_rt'] | default(omit) }}
+  import_vpn_rt: {{ vrf['import_vpn_rt'] | default(omit) }}
+  redist_direct_rmap: {{ vrf['redist_direct_routemap'] | default(defaults.vxlan.overlay.vrfs.redist_direct_routemap) }}
+{# ------------------------------------------------------ #}
+{# Attach Group Section #}
+{# ------------------------------------------------------ #}
+{% if vrf['vrf_attach_group'] is defined %}
+  attach:
+{% if MD_Extended.vxlan.multisite.overlay.vrf_attach_groups_dict is defined and MD_Extended.vxlan.multisite.overlay.vrf_attach_groups_dict %}
+{% set vrf_attach_groups_dict = MD_Extended.vxlan.multisite.overlay.vrf_attach_groups_dict %}
+{% endif %}
+{% for attach in vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
+    - ip_address: {{ msd_switches[attach['hostname']] }}
+{% endfor %}
+  deploy: false
+{% endif %}
+
+{% endfor %}

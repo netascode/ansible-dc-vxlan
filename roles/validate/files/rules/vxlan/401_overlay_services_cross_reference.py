@@ -22,10 +22,10 @@ class Rule:
         if 'overlay_services' in check['keys_found'] and 'overlay_services' in check['keys_data']:
             overlay_key = 'overlay_services'
 
-        network_keys = ['vxlan', f'{overlay_key}', 'networks']
-        vrf_keys = ['vxlan', f'{overlay_key}', 'vrfs']
-        network_attach_keys = ['vxlan', f'{overlay_key}', 'network_attach_groups']
-        vrf_attach_keys = ['vxlan', f'{overlay_key}', 'vrf_attach_groups']
+        network_keys = ['vxlan', overlay_key, 'networks']
+        vrf_keys = ['vxlan', overlay_key, 'vrfs']
+        network_attach_keys = ['vxlan', overlay_key, 'network_attach_groups']
+        vrf_attach_keys = ['vxlan', overlay_key, 'vrf_attach_groups']
 
         # Check if vrfs, network and switch data is defined in the service model
         check = cls.data_model_key_check(inventory, switch_keys)

@@ -19,23 +19,40 @@
 #
 # SPDX-License-Identifier: MIT
 
----
+from __future__ import absolute_import, division, print_function
 
-- name: Import VXLAN Role Tasks
-  ansible.builtin.import_tasks: sub_main_vxlan.yml
-  when: 
-    - MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
-    - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs or changes_detected_vpc_peering or changes_detected_link_vpc_peering or changes_detected_inventory
 
-- name: Import MSD Role Tasks
-  ansible.builtin.import_tasks: sub_main_msd.yml
-  when: 
-    - MD_Extended.vxlan.fabric.type == 'MSD'
-    - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs or changes_detected_vpc_peering or changes_detected_link_vpc_peering or changes_detected_inventory
+__metaclass__ = type
 
-- name: Mark Stage Role Remove Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ MD_Extended }}"
-    stage: role_remove_completed
-  register: run_map
-  delegate_to: localhost
+from ansible.utils.display import Display
+from ansible.plugins.action import ActionBase
+
+display = Display()
+
+
+class ActionModule(ActionBase):
+
+    def run(self, tmp=None, task_vars=None):
+        results = super(ActionModule, self).run(tmp, task_vars)
+        results['failed'] = False
+
+        parent_fabric_name = self._task.args['parent_fabric_name']
+
+        msd_inventory = self._execute_module(
+            module_name="cisco.dcnm.dcnm_inventory",
+            module_args={
+                "fabric": parent_fabric_name,
+                "state": "query"
+            },
+            task_vars=task_vars,
+            tmp=tmp
+        )
+
+        msd_switches = {}
+        for switch in msd_inventory.get('response', []):
+            msd_switches.update({switch['hostName']: switch['ipAddress']})
+            msd_switches.update({switch['ipAddress']: switch['ipAddress']})
+
+        results['msd_switches'] = msd_switches
+
+        return results

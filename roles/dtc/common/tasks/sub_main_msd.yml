@@ -46,3 +46,27 @@
 
 - name: Build NDFC Child Fabric Inventory List From Template
   ansible.builtin.include_tasks: msd/ndfc_children.yml
+
+- name: Get Switch Inventory from MSD Fabric
+  cisco.nac_dc_vxlan.dtc.map_msd_inventory:
+    parent_fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+  register: msd_inventory
+
+- name: Set MSD Switches List
+  ansible.builtin.set_fact:
+    msd_switches: "{{ msd_inventory.msd_switches }}"
+  when: msd_inventory.msd_switches is defined
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric VRFs Attach List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric VRFs Attach List From Template
+  ansible.builtin.include_tasks: msd/ndfc_vrfs.yml
+
+# --------------------------------------------------------------------
+# Build NDFC Fabric Networks Attach List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Networks Attach List From Template
+  ansible.builtin.include_tasks: msd/ndfc_networks.yml

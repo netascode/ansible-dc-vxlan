@@ -1,5 +1,5 @@
 {# Auto-generated NDFC MSD General config data structure for fabric {{ vxlan.fabric.name }} #}
-  VXLAN_UNDERLAY_IS_V6: False
+  VXLAN_UNDERLAY_IS_V6: {{ vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) }}
 {% if not vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) %}
   ENABLE_PVLAN: false
 {% endif %}

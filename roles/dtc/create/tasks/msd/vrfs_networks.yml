@@ -42,7 +42,6 @@
     - MD_Extended.vxlan.multisite.overlay.vrfs
     - changes_detected_vrfs
 
-
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
 # --------------------------------------------------------------------

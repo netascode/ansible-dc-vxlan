@@ -1,68 +1,17 @@
 ---
-# This NDFC VRFs and switch attachments config data structure is auto-generated
-# DO NOT EDIT MANUALLY
-#
-{% if MD_Extended.vxlan.overlay.vrfs is defined and MD_Extended.vxlan.overlay.vrfs %}
-{% set vrfs = MD_Extended.vxlan.overlay.vrfs %}
-{% elif MD_Extended.vxlan.overlay_services.vrfs is defined and MD_Extended.vxlan.overlay_services.vrfs %}
-{% set vrfs = MD_Extended.vxlan.overlay_services.vrfs %}
-{% endif %}
-{% for vrf in vrfs %}
-- vrf_name: {{ vrf['name'] }}
-{# ------------------------------------------------------ #}
-{# Properties Section #}
-{# ------------------------------------------------------ #}
-  vrf_id: {{ vrf['vrf_id'] | default(omit) }}
-  vlan_id: {{ vrf['vlan_id'] | default(omit) }}
-  vrf_vlan_name: {{ vrf['vrf_vlan_name'] | default(omit) }}
-  vrf_intf_desc: {{ vrf['vrf_intf_desc'] | default(defaults.vxlan.overlay.vrfs.vrf_intf_desc) }}
-  vrf_description: {{ vrf['vrf_description'] | default(defaults.vxlan.overlay.vrfs.vrf_description) }}
-  vrf_int_mtu: {{ vrf['vrf_int_mtu'] | default(defaults.vxlan.overlay.vrfs.vrf_int_mtu) }}
-  loopback_route_tag: {{ vrf['loopback_route_tag'] | default(defaults.vxlan.overlay.vrfs.loopback_route_tag) }}
-  max_bgp_paths: {{ vrf['max_bgp_paths'] | default(defaults.vxlan.overlay.vrfs.max_bgp_paths) }}
-  max_ibgp_paths: {{ vrf['max_ibgp_paths'] | default(defaults.vxlan.overlay.vrfs.max_ibgp_paths) }}
-  ipv6_linklocal_enable: {{ vrf['ipv6_linklocal_enable'] | default(defaults.vxlan.overlay.vrfs.ipv6_linklocal_enable) }}
-  adv_host_routes: {{ vrf['adv_host_routes'] | default(defaults.vxlan.overlay.vrfs.adv_host_routes) }}
-  adv_default_routes: {{ vrf['adv_default_routes'] | default(defaults.vxlan.overlay.vrfs.adv_default_routes) }}
-  static_default_route: {{ vrf['static_default_route'] | default(defaults.vxlan.overlay.vrfs.static_default_route) }}
-  bgp_password: {{ vrf['bgp_password'] | default(omit) }}
-  bgp_password_encryption_type: {{ vrf['bgp_password_encryption_type'] | default(omit) }}
-  disable_rt_auto: {{ vrf['disable_rt_auto'] | default(defaults.vxlan.overlay.vrfs.disable_rt_auto) }}
-  export_evpn_rt: {{ vrf['export_evpn_rt'] | default(omit) }}
-  export_mvpn_rt: {{ vrf['export_mvpn_rt'] | default(omit) }}
-  export_vpn_rt: {{ vrf['export_vpn_rt'] | default(omit) }}
-  import_evpn_rt: {{ vrf['import_evpn_rt'] | default(omit) }}
-  import_mvpn_rt: {{ vrf['import_mvpn_rt'] | default(omit) }}
-  import_vpn_rt: {{ vrf['import_vpn_rt'] | default(omit) }}
-  netflow_enable: {{ vrf['netflow_enable'] | default(defaults.vxlan.overlay.vrfs.netflow_enable) }}
-{% if vrf['netflow_enable'] is defined and vrf['netflow_enable'] | bool %}
-  nf_monitor: {{ vrf['netflow_monitor'] }}
-{% endif %}
-  no_rp: {{ vrf['no_rp'] | default(defaults.vxlan.overlay.vrfs.no_rp) }}
-  trm_enable: {{ vrf['trm_enable'] | default(defaults.vxlan.overlay.vrfs.trm_enable) }}
-{% if vrf['trm_enable'] is defined and vrf['trm_enable'] | bool %}
-  overlay_mcast_group: {{ vrf['overlay_multicast_group'] | default(omit) }}
-  rp_address: {{ vrf['rp_address'] | default(omit) }}
-  rp_external: {{ vrf['rp_external'] | default(omit) }}
-  rp_loopback_id: {{ vrf['rp_loopback_id'] | default(omit) }}
-  trm_bgw_msite: {{ vrf['trm_bgw_msite'] | default(defaults.vxlan.overlay.vrfs.trm_bgw_msite) }}
-  underlay_mcast_ip: {{ vrf['underlay_mcast_ip'] | default(omit) }}
-{% endif %}
-  redist_direct_rmap: {{ vrf['redist_direct_routemap'] | default(defaults.vxlan.overlay.vrfs.redist_direct_routemap) }}
-{# ------------------------------------------------------ #}
-{# Attach Group Section #}
-{# ------------------------------------------------------ #}
-{% if vrf['vrf_attach_group'] is defined %}
-  attach:
-{% if MD_Extended.vxlan.overlay.vrf_attach_groups_dict is defined and MD_Extended.vxlan.overlay.vrf_attach_groups_dict %}
-{% set vrf_attach_groups_dict = MD_Extended.vxlan.overlay.vrf_attach_groups_dict %}
-{% elif MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict is defined and MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict %}
-{% set vrf_attach_groups_dict = MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict %}
-{% endif %}
-{% for attach in vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
-    - ip_address: {{ attach['mgmt_ip_address'] }}
-{% endfor %}
-  deploy: false
-{% endif %}
+{#- This NDFC fabric vrfs config data structure is auto-generated #}
+{#- DO NOT EDIT MANUALLY #}
 
-{% endfor %}
+{% set vxlan = MD_Extended.vxlan %}
+{% if vxlan.fabric.type == 'VXLAN_EVPN' %}
+
+{# Include NDFC DC VXLAN EVPN Base Template #}
+{% include '/ndfc_vrfs/dc_vxlan_fabric/dc_vxlan_fabric_vrfs.j2' %}
+
+{% elif vxlan.fabric.type == 'MSD'%}
+
+{# Include NDFC MSD Base Template #}
+{% include '/ndfc_vrfs/msd_fabric/msd_fabric_vrfs.j2' %}
+
+{# Supported fabric types are: DC VXLAN EVPN and ISN #}
+{% endif %}

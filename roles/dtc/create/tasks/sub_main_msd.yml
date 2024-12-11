@@ -47,8 +47,8 @@
 
 - name: Manage NDFC Fabric VRFs and Networks
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
-  when: >
-    MD_Extended.vxlan.multisite.overlay is defined and
-    MD_Extended.vxlan.multisite.topology.switches | length > 0 and
-    (changes_detected_vrfs or changes_detected_networks)
+  when: 
+    - MD_Extended.vxlan.multisite.overlay is defined
+    - MD_Extended.vxlan.multisite.overlay
+    - (changes_detected_vrfs or changes_detected_networks)
   tags: "{{ nac_tags.create_vrfs_networks }}"

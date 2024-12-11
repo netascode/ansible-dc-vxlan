@@ -22,6 +22,7 @@
 # Group vPC interfaces by vpc_peers, vpc_id and switch_name
 # This helps in identifying vPC interfaces for a given vpc_peer, vpc_id and switch_name
 # Reduces the need to loop through all interfaces to find vPC interfaces in Jinja2 templates
+
 class PreparePlugin:
     def __init__(self, **kwargs):
         self.kwargs = kwargs

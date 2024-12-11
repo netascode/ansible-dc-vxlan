@@ -1,89 +1,17 @@
 ---
-# This NDFC networks and switch attachments config data structure is auto-generated
-# DO NOT EDIT MANUALLY
-#
-{% if MD_Extended.vxlan.overlay.networks is defined and MD_Extended.vxlan.overlay.networks %}
-{% set networks = MD_Extended.vxlan.overlay.networks %}
-{% elif MD_Extended.vxlan.overlay_services.networks is defined and MD_Extended.vxlan.overlay_services.networks %}
-{% set networks = MD_Extended.vxlan.overlay_services.networks %}
-{% endif %}
-{% for net in networks %}
-- net_name: {{ net['name'] }}
-{# ------------------------------------------------------ #}
-{# Properties Section #}
-{# ------------------------------------------------------ #}
-  is_l2only: {{ net['is_l2_only'] | default(defaults.vxlan.overlay.networks.is_l2_only) }}
-  vrf_name: {{ net['vrf_name'] | default(omit) }}
-  net_id: {{ net['net_id'] | default(omit) }}
-  vlan_id: {{ net['vlan_id'] | default(omit) }}
-  vlan_name: {{ net['vlan_name'] | default(omit) }}
-  gw_ip_subnet: {{ net['gw_ip_address'] | default(omit) }}
-{% if net.secondary_ip_addresses is defined %}
-{% if net.secondary_ip_addresses | length == 1 %}
-  secondary_ip_gw1: {{ net['secondary_ip_addresses'][0]['ip_address'] }}
-{% elif net.secondary_ip_addresses | length == 2 %}
-  secondary_ip_gw1: {{ net['secondary_ip_addresses'][0]['ip_address'] }}
-  secondary_ip_gw2: {{ net['secondary_ip_addresses'][1]['ip_address'] }}
-{% elif net.secondary_ip_addresses | length == 3 %}
-  secondary_ip_gw1: {{ net['secondary_ip_addresses'][0]['ip_address'] }}
-  secondary_ip_gw2: {{ net['secondary_ip_addresses'][1]['ip_address'] }}
-  secondary_ip_gw3: {{ net['secondary_ip_addresses'][2]['ip_address'] }}
-{% elif net.secondary_ip_addresses | length == 4 %}
-  secondary_ip_gw1: {{ net['secondary_ip_addresses'][0]['ip_address'] }}
-  secondary_ip_gw2: {{ net['secondary_ip_addresses'][1]['ip_address'] }}
-  secondary_ip_gw3: {{ net['secondary_ip_addresses'][2]['ip_address'] }}
-  secondary_ip_gw4: {{ net['secondary_ip_addresses'][3]['ip_address'] }}
-{% endif %}
-{% endif %}
-  arp_suppress: {{ net['arp_suppress'] | default(defaults.vxlan.overlay.networks.arp_supress) }}
-  dhcp_loopback_id: {{ net['dhcp_loopback_id'] | default(omit) }}
-{% if net.dhcp_servers is defined %}
-{% if net.dhcp_servers | length == 1 %}
-  dhcp_srvr1_ip: {{ net['dhcp_servers'][0]['ip_address'] }}
-  dhcp_srvr1_vrf: {{ net['dhcp_servers'][0]['vrf'] }}
-{% elif net.dhcp_servers | length == 2 %}
-  dhcp_srvr1_ip: {{ net['dhcp_servers'][0]['ip_address'] }}
-  dhcp_srvr1_vrf: {{ net['dhcp_servers'][0]['vrf'] }}
-  dhcp_srvr2_ip: {{ net['dhcp_servers'][1]['ip_address'] }}
-  dhcp_srvr2_vrf: {{ net['dhcp_servers'][1]['vrf'] }}
-{% elif net.dhcp_servers | length == 3 %}
-  dhcp_srvr1_ip: {{ net['dhcp_servers'][0]['ip_address'] }}
-  dhcp_srvr1_vrf: {{ net['dhcp_servers'][0]['vrf'] }}
-  dhcp_srvr2_ip: {{ net['dhcp_servers'][1]['ip_address'] }}
-  dhcp_srvr2_vrf: {{ net['dhcp_servers'][1]['vrf'] }}
-  dhcp_srvr3_ip: {{ net['dhcp_servers'][2]['ip_address'] }}
-  dhcp_srvr3_vrf: {{ net['dhcp_servers'][2]['vrf'] }}
-{% endif %}
-{% endif %}
-  gw_ipv6_subnet: {{ net['gw_ipv6_address'] | default(omit) }}
-  int_desc: {{ net['int_desc'] | default(defaults.vxlan.overlay.networks.net_description) }}
-  l3gw_on_border: {{ net['l3gw_on_border'] | default(defaults.vxlan.overlay.networks.l3gw_on_border) }}
-  mtu_l3intf: {{ net['mtu_l3intf'] | default(defaults.vxlan.overlay.networks.mtu_l3intf) }}
-{% if (MD.vxlan.underlay.general.replication_mode | lower) == 'multicast' %}
-  multicast_group_address: {{ net['multicast_group_address'] | default(defaults.vxlan.overlay.networks.multicast_group_address) }}
-{% endif %}
-  netflow_enable: {{ net['netflow_enable'] | default(defaults.vxlan.overlay.networks.netflow_enable) }}
-{% if net['netflow_enable'] is defined and net['netflow_enable'] | bool %}
-  vlan_nf_monitor: {{ net['vlan_netflow_monitor'] | default(omit) }}
-{% endif %}
-  route_target_both: {{ net['route_target_both'] | default(defaults.vxlan.overlay.networks.route_target_both) }}
-  route_tag: {{ net['route_tag'] | default(defaults.vxlan.overlay.networks.route_tag) }}
-  trm_enable: {{ net['trm_enable'] | default(defaults.vxlan.overlay.networks.trm_enable) }}
-{# ------------------------------------------------------ #}
-{# Attach Group Section #}
-{# ------------------------------------------------------ #}
-{% if net['network_attach_group'] is defined %}
-  attach:
-{% if MD_Extended.vxlan.overlay.network_attach_groups_dict is defined and MD_Extended.vxlan.overlay.network_attach_groups_dict %}
-{% set network_attach_groups_dict = MD_Extended.vxlan.overlay.network_attach_groups_dict %}
-{% elif MD_Extended.vxlan.overlay_services.network_attach_groups_dict is defined and MD_Extended.vxlan.overlay_services.network_attach_groups_dict %}
-{% set network_attach_groups_dict = MD_Extended.vxlan.overlay_services.network_attach_groups_dict %}
-{% endif %}
-{% for attach in network_attach_groups_dict[net['network_attach_group']] %}
-    - ip_address: {{ attach['mgmt_ip_address'] }}
-      ports: {{ attach['ports'] }}
-{% endfor %}
-  deploy: false
-{% endif %}
+{#- This NDFC fabric networks data structure is auto-generated #}
+{#- DO NOT EDIT MANUALLY #}
 
-{% endfor %}
+{% set vxlan = MD_Extended.vxlan %}
+{% if vxlan.fabric.type == 'VXLAN_EVPN' %}
+
+{# Include NDFC DC VXLAN EVPN Base Template #}
+{% include '/ndfc_networks/dc_vxlan_fabric/dc_vxlan_fabric_networks.j2' %}
+
+{% elif vxlan.fabric.type == 'MSD'%}
+
+{# Include NDFC MSD Base Template #}
+{% include '/ndfc_networks/msd_fabric/msd_fabric_networks.j2' %}
+
+{# Supported fabric types are: DC VXLAN EVPN and MSDs #}
+{% endif %}
