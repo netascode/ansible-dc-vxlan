@@ -39,7 +39,7 @@ factory_defaults:
         fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
       spanning_tree:
         root_bridge_protocol: unmanaged
-        vlan_range: 
+        vlan_range:
           - from: 1
             to: 3967
         mst_instance_range:
@@ -52,6 +52,9 @@ factory_defaults:
         ptp_enable: false
       enable_nxapi: true
       enable_nxapi_http: true
+      snmp_server_host_trap: true
+      bootstrap:
+        cdp_enable: false
     topology:
       switches:
         routing_loopback_id: 0
