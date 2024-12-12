@@ -90,8 +90,16 @@
 - name: Build VRFs Attach List From Template for loopback
   ansible.builtin.template:
     src: ndfc_attach_vrfs_loopbacks.j2
-    dest: "{{ role_path }}/files/{{ vrf.name }}_{{ file_name }}"
+    dest: "{{ role_path }}/files/{{ file_name }}"
   delegate_to: localhost
-  loop: "{{ MD_Extended.vxlan.overlay_services.vrfs }}"
-  loop_control:
-    loop_var: vrf
+
+- name: Create Empty vrf_config Var
+  ansible.builtin.set_fact:
+    vrf_attach_config: []
+  delegate_to: localhost
+
+- name: Set vrf_config Var
+  ansible.builtin.set_fact:
+    vrf_attach_config: "{{ lookup('file', file_name) | from_yaml }}"
+  when: (MD_Extended.vxlan.overlay_services.vrfs | default([])) | length > 0
+  delegate_to: localhost

@@ -34,7 +34,7 @@
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "{{vrf.name}}_{{ MD.vxlan.global.name }}_attach_vrfs_loopbacks.yml"
+    file_name: "{{ MD.vxlan.global.name }}_attach_vrfs_loopbacks.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
@@ -57,4 +57,4 @@
   cisco.dcnm.dcnm_rest:
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD.vxlan.global.name }}/vrfs/attachments"
     method: "POST"
-    json_data: "{{ attach_payload | to_json}}"
+    json_data: "{{ vrf_attach_config | to_json}}"
