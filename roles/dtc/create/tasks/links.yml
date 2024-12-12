@@ -21,34 +21,48 @@
 
 ---
 
-- name: Manage Fabric vPC Peers Entry Point
+- name: Manage Fabric Intra Fabric Links Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric vPC Peers {{ MD.vxlan.global.name }}"
+      - "+     Manage Fabric Links {{ MD.vxlan.global.name }}"
       - "----------------------------------------------------------------"
 
-# --------------------------------------------------------------------
-# Manage Intra Fabric Links Configuration on NDFC (prepare links for vpc peering)
-# --------------------------------------------------------------------
-
-- name: Manage Intra Fabric Links for vpc peering
+- name: Query Links - with Src & Dst Fabric
   cisco.dcnm.dcnm_links:
-    state: replaced
-    src_fabric: "{{ MD_Extended.vxlan.global.name }}"
-    config: "{{ link_vpc_peering }}"
-  vars:
-    ansible_command_timeout: 3000
-    ansible_connect_timeout: 3000
-  when: link_vpc_peering|length != 0
-
-# --------------------------------------------------------------------
-# Manage vPC Peering
-# --------------------------------------------------------------------
-
-- name: Manage vPC Peering
-  cisco.dcnm.dcnm_vpc_pair:
+    state: query # choose from [merged, replaced, deleted, query]
     src_fabric: "{{ MD.vxlan.global.name }}"
+    config:
+      - dst_fabric: "{{ MD.vxlan.global.name }}" # Destination fabric
+  register: result_links
+
+- name: Create empty result List
+  ansible.builtin.set_fact:
+    required_links: []
+
+- name: Create a list of links that already exist
+  cisco.nac_dc_vxlan.dtc.existing_links_check:
+    existing_links: "{{ result_links.response }}"
+    fabric_links: "{{ fabric_links }}"
+  register: not_required_links
+  when: result_links.response is defined
+
+# do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
+- name: Set not_required_links if result_links.response is not defined
+  ansible.builtin.set_fact:
+    not_required_links: []
+  when: result_links.response is not defined 
+
+- name: remove unwanted links from required links input
+  ansible.builtin.set_fact:
+    required_links: "{{ fabric_links | difference(not_required_links['not_required_links']) }}"
+# --------------------------------------------------------------------
+# Manage VRF Configuration on NDFC
+# --------------------------------------------------------------------
+- name: Manage NDFC Fabric Links
+  cisco.dcnm.dcnm_links:
+    src_fabric: "{{ MD.vxlan.global.name }}"
+    config: "{{ required_links }}"
     deploy: false
-    state: replaced
-    config: "{{ vpc_peering }}"
+    state: merged
+  register: manage_fabric_links_result

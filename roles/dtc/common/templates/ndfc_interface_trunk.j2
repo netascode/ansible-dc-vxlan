@@ -12,7 +12,7 @@
 {% if interface['mode'] == 'trunk' %}
 - name : {{ interface['name'] }}
   type: eth
-  switch: 
+  switch:
 {% if switch.management.management_ipv4_address is defined %}
     - {{ switch.management.management_ipv4_address}}
 {% elif (switch.management.management_ipv4_address is not defined) and (switch.management.management_ipv6_address is defined)  %}
@@ -28,6 +28,8 @@
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.spanning_tree_portfast) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_bpdu_guard) }}
     allowed_vlans: "{{ ndfc_utils.convert_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.trunk_allowed_vlans) | trim }}"
+    cmds: |2-
+      {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
 {% endif %}
 {% endfor %}

@@ -9,7 +9,10 @@
 
 {# Include NDFC DC VXLAN EVPN Base Template #}
 {% include '/ndfc_fabric/dc_vxlan_fabric/dc_vxlan_fabric_base.j2' %}
+{% elif fabric_type == 'External' %}
 
+{# Include NDFC DC VXLAN EVPN Base Template #}
+{% include '/ndfc_fabric/dc_external_fabric/dc_external_fabric_base.j2' %}
 {% else %}
 
 {# Supported fabric types are: DC VXLAN EVPN #}

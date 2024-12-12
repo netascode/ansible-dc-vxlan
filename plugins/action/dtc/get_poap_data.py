@@ -179,10 +179,10 @@ class ActionModule(ActionBase):
 
         # Instantiate POAPDevice workflow object with params
         workflow = POAPDevice(params)
-
         workflow.check_poap_supported_switches()
+        workflow.check_preprovision_supported_switches()
 
-        if workflow.poap_supported_switches:
+        if workflow.poap_supported_switches and not workflow.preprovision_supported_switches:
             workflow.refresh()
 
             if workflow.refresh_succeeded:

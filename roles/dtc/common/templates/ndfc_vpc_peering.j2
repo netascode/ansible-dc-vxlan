@@ -15,5 +15,8 @@
 {% elif MD_Extended.vxlan.topology.leaf[vpc_peer.peer2].management_ipv6_address is not none %}
   peerTwoId: {{ MD_Extended.vxlan.topology.leaf[vpc_peer.peer2].management_ipv6_address }}
 {% endif %}
+{% if vpc_peer.fabric_peering is defined %}
+  useVirtualPeerlink: {{ vpc_peer.fabric_peering }}
+{% endif %}
 {% endfor %}
 {% endif %}
