@@ -42,7 +42,7 @@ class PreparePlugin:
         model_data = self.kwargs['results']['model_extended']
         default_values = self.kwargs['default_values']
 
-        template_filename = "ndfc_route_control.j2"
+        template_filename = "ndfc_route_control/ndfc_route_control.j2"
 
         env = Environment(
             loader=FileSystemLoader(templates_path),
