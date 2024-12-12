@@ -50,6 +50,11 @@
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
+- name: debug MD_Extended.vxlan.topology.edge_connections
+  ansible.builtin.debug:
+    var: MD_Extended.vxlan.topology.edge_connections
+  delegate_to: localhost
+
 - name: Build Edge Connections
   ansible.builtin.template:
     src: ndfc_edge_connections.j2
