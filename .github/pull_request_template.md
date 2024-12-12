@@ -16,12 +16,14 @@
 
 ## Related Data Model Element
 <!-- If a new element to the data model, please specify -->
+* [ ] vxlan.fabric
 * [ ] vxlan.global
 * [ ] vxlan.topology
 * [ ] vxlan.underlay
-* [ ] vxlan.overlay_services
+* [ ] vxlan.overlay
 * [ ] vxlan.overlay_extensions
 * [ ] vxlan.policy
+* [ ] vxlan.multisite
 * [ ] defaults.vxlan
 * [ ] other
 

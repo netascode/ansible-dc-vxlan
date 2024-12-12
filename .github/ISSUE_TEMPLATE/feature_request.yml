@@ -50,12 +50,14 @@ body:
       label: Which section of the data model is the new feature related?
       multiple: false
       options:
+        - vxlan.fabric
         - vxlan.global
         - vxlan.topology
         - vxlan.underlay
-        - vxlan.overlay_services
+        - vxlan.overlay
         - vxlan.overlay_extensions
         - vxlan.policy
+        - vxlan.multisite
         - defaults.vxlan
         - other
     validations:
