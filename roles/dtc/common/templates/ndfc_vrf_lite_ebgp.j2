@@ -170,7 +170,6 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
       {% if peer.address_family_ipv4_unicast.default_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.default_originate) %}
         default-originate
       {% endif %}
-
 !
     {% endif %}
     {% if peer.address_family_ipv6_unicast %}
