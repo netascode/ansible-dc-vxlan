@@ -369,7 +369,8 @@ To speed up execution when only certain roles need to be run the following role 
 | role_deploy   | Select and run `cisco.nac_dc_vxlan.deploy` role
 | role_remove   | Select and run `cisco.nac_dc_vxlan.remove` role
 
-The validate role will automatically run if tags `role_create, role_deploy, role_remove` are specified.
+> [!NOTE]
+> The validate role will automatically run if tags `role_create, role_deploy, role_remove` are specified.
 
 > [!TIP]
 > Example: Selectively run `cisco.nac_dc_vxlan.create` role alone.
