@@ -362,10 +362,12 @@ The playbook can be configured to execute only the roles that are required. For 
 
 To speed up execution when only certain roles need to be run the following role level tags are provided:
 
- * role_validate - Select and run `cisco.nac_dc_vxlan.validate` role
- * role_create - Select and run `cisco.nac_dc_vxlan.create` role
- * role_deploy  - Select and run `cisco.nac_dc_vxlan.deploy` role
- * role_remove  - Select and run `cisco.nac_dc_vxlan.remove` role
+| Tag Name      | Description |
+| ------------- | :---------- |
+| role_validate | Select and run `cisco.nac_dc_vxlan.validate` role
+| role_create   | Select and run `cisco.nac_dc_vxlan.create` role
+| role_deploy   | Select and run `cisco.nac_dc_vxlan.deploy` role
+| role_remove   | Select and run `cisco.nac_dc_vxlan.remove` role
 
 The validate role will automatically run if tags `role_create, role_deploy, role_remove` are specified.
 
