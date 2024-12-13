@@ -78,9 +78,7 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
     {% if switch_item.redistribution %}
       {% for switch_redist in switch_item.redistribution %}
-        {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
-      redistribute ospf {{ switch_redist.protocol_tag }} route-map {{ switch_redist.route_map_ipv4 }}
-        {% elif switch_redist.source == 'static' and switch_redist.route_map_ipv4 %}
+        {% if switch_redist.source == 'static' and switch_redist.route_map_ipv4 %}
       redistribute static route-map {{ switch_redist.route_map_ipv4 }}
         {% endif %}
       {% endfor %}
@@ -106,9 +104,7 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
     {% if switch_item.redistribution %}
       {% for switch_redist in switch_item.redistribution %}
-        {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv6 %}
-      redistribute ospf {{ switch_redist.protocol_tag }} route-map {{ switch_redist.route_map_ipv6 }}
-        {% elif switch_redist.source == 'static' and switch_redist.route_map_ipv6 %}
+        {% if switch_redist.source == 'static' and switch_redist.route_map_ipv6 %}
       redistribute static route-map {{ switch_redist.route_map_ipv6 }}
         {% endif %}
       {% endfor %}
