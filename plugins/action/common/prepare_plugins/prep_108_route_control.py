@@ -21,8 +21,7 @@
 
 import re
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader
-from ansible_collections.ansible.utils.plugins.filter import ipaddr
-from ansible_collections.ansible.utils.plugins.filter import hwaddr
+from ansible_collections.ansible.utils.plugins.filter import ipaddr, hwaddr
 from ....plugin_utils.helper_functions import hostname_to_ip_mapping
 
 
@@ -42,7 +41,7 @@ class PreparePlugin:
         model_data = self.kwargs['results']['model_extended']
         default_values = self.kwargs['default_values']
 
-        template_filename = "ndfc_route_control/ndfc_route_control.j2"
+        template_filename = "ndfc_route_control.j2"
 
         env = Environment(
             loader=FileSystemLoader(templates_path),
