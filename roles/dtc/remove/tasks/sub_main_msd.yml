@@ -39,12 +39,14 @@
   register: switch_list
   tags: "{{ nac_tags.remove }}"
 
+# These are not working right... investigate
 - name: Remove Fabric Networks
   ansible.builtin.import_tasks: msd/networks.yml
   tags: "{{ nac_tags.remove_networks }}"
   when:
     - changes_detected_networks
 
+# These are not working right... investigate
 - name: Remove Fabric VRFs
   ansible.builtin.import_tasks: msd/vrfs.yml
   tags: "{{ nac_tags.remove_vrfs }}"

@@ -19,11 +19,21 @@ class Rule:
                 if inventory["vxlan"].get("underlay").get("multicast", None):
                     fabric_trm_status = inventory["vxlan"]["underlay"]["multicast"].get("trm_enable", False)
 
-            if inventory["vxlan"].get("overlay", None) or inventory["vxlan"].get("overlay_services", None):
-                if inventory["vxlan"].get("overlay").get("vrfs", None):
-                    vrfs = inventory["vxlan"]["overlay"]["vrfs"]
-                elif inventory["vxlan"].get("overlay_services").get("vrfs", None):
+            vrf_keys = ['vxlan', 'overlay', 'vrfs']
+            check = cls.data_model_key_check(inventory, vrf_keys)
+            if 'vrfs' in check['keys_data']:
+                vrfs = inventory["vxlan"]["overlay"]["vrfs"]
+            else:
+                vrf_keys = ['vxlan', 'overlay_services', 'vrfs']
+                check = cls.data_model_key_check(inventory, vrf_keys)
+                if 'vrfs' in check['keys_data']:
                     vrfs = inventory["vxlan"]["overlay_services"]["vrfs"]
+
+            # if inventory["vxlan"].get("overlay", None) or inventory["vxlan"].get("overlay_services", None):
+            #     if inventory["vxlan"].get("overlay").get("vrfs", None):
+            #         vrfs = inventory["vxlan"]["overlay"]["vrfs"]
+            #     elif inventory["vxlan"].get("overlay_services").get("vrfs", None):
+            #         vrfs = inventory["vxlan"]["overlay_services"]["vrfs"]
 
         for vrf in vrfs:
             current_vrf_netflow_status = vrf.get("netflow_enable", None)
@@ -99,3 +109,32 @@ class Rule:
                         break
 
         return results
+
+
+    @classmethod
+    def data_model_key_check(cls, tested_object, keys):
+        dm_key_dict = {'keys_found': [], 'keys_not_found': [], 'keys_data': [], 'keys_no_data': []}
+        for key in keys:
+            if tested_object and key in tested_object:
+                dm_key_dict['keys_found'].append(key)
+                tested_object = tested_object[key]
+                if tested_object:
+                    dm_key_dict['keys_data'].append(key)
+                else:
+                    dm_key_dict['keys_no_data'].append(key)
+            else:
+                dm_key_dict['keys_not_found'].append(key)
+        return dm_key_dict
+
+    @classmethod
+    def safeget(cls, dict, keys):
+        # Utility function to safely get nested dictionary values
+        for key in keys:
+            if dict is None:
+                return None
+            if key in dict:
+                dict = dict[key]
+            else:
+                return None
+
+        return dict

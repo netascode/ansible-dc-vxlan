@@ -41,6 +41,8 @@
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
+{# Don't need to attach vrfs if there are no msd_switches #}
+{% if msd_switches|length > 0 %}
 {% if net['network_attach_group'] is defined %}
   attach:
 {% if MD_Extended.vxlan.multisite.overlay.network_attach_groups_dict is defined and MD_Extended.vxlan.multisite.overlay.network_attach_groups_dict %}
@@ -51,6 +53,7 @@
       ports: {{ attach['ports'] }}
 {% endfor %}
   deploy: false
+{% endif %}
 {% endif %}
 
 {% endfor %}

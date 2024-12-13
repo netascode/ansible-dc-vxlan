@@ -31,7 +31,7 @@
   ansible.builtin.import_tasks: sub_main_msd.yml
   when: 
     - MD_Extended.vxlan.fabric.type == 'MSD'
-    - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs or changes_detected_vpc_peering or changes_detected_link_vpc_peering or changes_detected_inventory
+    # - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:

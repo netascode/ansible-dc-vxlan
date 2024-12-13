@@ -1,4 +1,6 @@
 {# Auto-generated NDFC DC VXLAN EVPN VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
+{# TODO: Remove lines 3-8.  When we get here we should be normalized around overlay, not overlay_services#}
+{% set networks = [] %}
 {% if MD_Extended.vxlan.overlay.networks is defined and MD_Extended.vxlan.overlay.networks %}
 {% set networks = MD_Extended.vxlan.overlay.networks %}
 {% elif MD_Extended.vxlan.overlay_services.networks is defined and MD_Extended.vxlan.overlay_services.networks %}

@@ -55,7 +55,6 @@
 - name: Set MSD Switches List
   ansible.builtin.set_fact:
     msd_switches: "{{ msd_inventory.msd_switches }}"
-  when: msd_inventory.msd_switches is defined
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric VRFs Attach List From Template
