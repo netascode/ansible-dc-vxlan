@@ -364,10 +364,10 @@ To speed up execution when only certain roles need to be run the following role 
 
 | Tag Name      | Description |
 | ------------- | :---------- |
-| role_validate | Select and run `cisco.nac_dc_vxlan.validate` role
-| role_create   | Select and run `cisco.nac_dc_vxlan.create` role
-| role_deploy   | Select and run `cisco.nac_dc_vxlan.deploy` role
-| role_remove   | Select and run `cisco.nac_dc_vxlan.remove` role
+| role_validate | Select and run `cisco.nac_dc_vxlan.validate` role |
+| role_create   | Select and run `cisco.nac_dc_vxlan.create` role |
+| role_deploy   | Select and run `cisco.nac_dc_vxlan.deploy` role |
+| role_remove   | Select and run `cisco.nac_dc_vxlan.remove` role |
 
 > [!NOTE]
 > The validate role will automatically run if tags `role_create, role_deploy, role_remove` are specified.
