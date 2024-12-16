@@ -40,7 +40,8 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         existing_links = self._task.args['existing_links']
         fabric_links = self._task.args['fabric_links']
-        not_required_links = []
+        required_links = []
+        links_to_be_removed = []
         filtered_existing_links = []
         for existing_link in existing_links:
             if existing_link['templateName'] == "int_pre_provision_intra_fabric_link":
@@ -56,7 +57,21 @@ class ActionModule(ActionBase):
                         existing_link['sw1-info']['if-name'] == link['dst_interface'] and
                         existing_link['sw2-info']['sw-sys-name'] == link['src_device'] and
                         existing_link['sw2-info']['if-name'] == link['src_interface'])):
-                        not_required_links.append(existing_link)
-        results['not_required_links'] = not_required_links
-        results['filtered_existing_links'] = filtered_existing_links
+                        required_links.append(existing_link)
+        for link in filtered_existing_links:
+            link_found = False
+            for required_link in required_links:
+                if link == required_link:
+                    link_found = True
+                    break
+            if not link_found:
+                links_to_be_removed.append({
+                'dst_fabric': link['fabricName'],
+                'src_device': link['sw1-info']['sw-sys-name'],
+                'src_interface': link['sw1-info']['if-name'],
+                'dst_device': link['sw2-info']['sw-sys-name'],
+                'dst_interface': link['sw2-info']['if-name']
+                })
+
+        results['links_to_be_removed'] = links_to_be_removed
         return results
