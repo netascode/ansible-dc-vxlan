@@ -33,8 +33,8 @@ display = Display()
 class ActionModule(ActionBase):
     """
     This class is used to compare the existing links with the links that you are
-    looking to add to the fabric. If the link already exists, it will be added to
-    the not_required_links list.
+    looking to remove from the fabric. If the link is not required, it will be 
+    added to links_to_be_removed list.
     """
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
