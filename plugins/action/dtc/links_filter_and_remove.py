@@ -50,13 +50,13 @@ class ActionModule(ActionBase):
                     if ('sw1-info' in existing_link and 'sw2-info' in existing_link and
                         'sw-sys-name' in existing_link['sw1-info'] and 'sw-sys-name' in existing_link['sw2-info'] and
                         (existing_link['sw1-info']['sw-sys-name'] == link['src_device'] and
-                        existing_link['sw1-info']['if-name'] == link['src_interface'] and
-                        existing_link['sw2-info']['sw-sys-name'] == link['dst_device'] and
-                        existing_link['sw2-info']['if-name'] == link['dst_interface']) or
+                         existing_link['sw1-info']['if-name'] == link['src_interface'] and
+                         existing_link['sw2-info']['sw-sys-name'] == link['dst_device'] and
+                         existing_link['sw2-info']['if-name'] == link['dst_interface']) or
                         (existing_link['sw1-info']['sw-sys-name'] == link['dst_device'] and
-                        existing_link['sw1-info']['if-name'] == link['dst_interface'] and
-                        existing_link['sw2-info']['sw-sys-name'] == link['src_device'] and
-                        existing_link['sw2-info']['if-name'] == link['src_interface'])):
+                         existing_link['sw1-info']['if-name'] == link['dst_interface'] and
+                         existing_link['sw2-info']['sw-sys-name'] == link['src_device'] and
+                         existing_link['sw2-info']['if-name'] == link['src_interface'])):
                         required_links.append(existing_link)
         for link in filtered_existing_links:
             link_found = False
