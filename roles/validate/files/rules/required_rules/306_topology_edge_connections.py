@@ -25,7 +25,7 @@ class Rule:
         if len([_dict for _dict in edge_connections if _dict not in found_edge_connections]) != 0:
 
         # [_dict for _dict in edge_connections if _dict not in found_edge_connections]
-            results.append("the follow edge connections have a source device which isn' tis topology.switches "+ str([_dict for _dict in edge_connections if _dict not in found_edge_connections]))
+            results.append("the follow edge connections have a source device which isn't in topology.switches "+ str([_dict for _dict in edge_connections if _dict not in found_edge_connections]))
             #     f"vxlan.topology.edge_connections.{found_edge_connection["source_device"]} "
             #     f"references a switch that does not exist in vxlan.topology.switches"
             # )
