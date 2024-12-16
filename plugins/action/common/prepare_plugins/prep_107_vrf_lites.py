@@ -234,7 +234,7 @@ class PreparePlugin:
                         #                   ebgp_distance: 25
                         #                   ibgp_distance: 180
                         #                   local_distance: 200
-                        if "bgp" in vrf_lite:
+                        if "bgp" in vrf_lite and vrf_lite["bgp"] is not None:
                             for af in ["address_family_ipv4_unicast", "address_family_ipv6_unicast"]:
                                 if af in vrf_lite["bgp"]:
                                     switch_bgp_af = switch.setdefault("bgp", {}).setdefault(af, {})
