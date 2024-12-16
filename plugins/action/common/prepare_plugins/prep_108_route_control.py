@@ -22,7 +22,7 @@
 import re
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader
 from ansible_collections.ansible.utils.plugins.filter import ipaddr, hwaddr
-from ....plugin_utils.helper_functions import hostname_to_ip_mapping
+from ....plugin_utils.helper_functions import hostname_to_ip_mapping, data_model_key_check
 
 
 class PreparePlugin:
@@ -54,140 +54,161 @@ class PreparePlugin:
         env.filters["hwaddr"] = hwaddr.hwaddr
         template = env.get_template(template_filename)
 
-        if "overlay_extensions" in model_data["vxlan"]:
-            if "route_control" in model_data["vxlan"]["overlay_extensions"]:
+        parent_keys = ['vxlan', 'overlay_extensions', 'route_control', 'route_maps']
+        dm_check = data_model_key_check(model_data, parent_keys)
 
-                # =================================================
-                # convert values for ACL and IP Predence, Interfaces
-                # =================================================
+        # Check Route-Maps
+        if 'route_maps' in dm_check['keys_data']:
+            self.route_maps(model_data)
 
-                for route_map in model_data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]:
-                    if "entries" in route_map:
-                        for entry in route_map["entries"]:
-                            if "match" in entry:
-                                for option_match in entry["match"]:
-                                    # Rewrite match interface based on CLI
-                                    # Order is not important, only the case
-                                    # Example: CLI match interface Ethernet1/10 loopback100 Null0 port-channel100
-                                    if "interface" in option_match:
-                                        option_match["interface"] = self.rewrite_match_interface(
-                                            option_match["interface"])
-                            if "set" in entry:
-                                for option_set in entry["set"]:
-                                    # Rewrite route-map IP Precedence number to string
-                                    # Example: set ip precedence 6 -> set ip precedence internet
-                                    precedence_translation = {
-                                        0: 'routine',
-                                        1: 'priority',
-                                        2: 'immediate',
-                                        3: 'flash',
-                                        4: 'flash-override',
-                                        5: 'critical',
-                                        6: 'internet',
-                                        7: 'network',
-                                    }
-                                    if ("ipv4" in option_set) and ("precedence" in option_set["ipv4"]):
-                                        if isinstance(option_set["ipv4"]["precedence"], int):
-                                            option_set["ipv4"]["precedence"] = precedence_translation[
-                                                option_set["ipv4"]["precedence"]]
+        # Check IPv4 ACL
+        parent_keys = ['vxlan', 'overlay_extensions', 'route_control', 'ipv4_access_lists']
+        dm_check = data_model_key_check(model_data, parent_keys)
+        if 'ipv4_access_lists' in dm_check['keys_data']:
+            self.ipv4_access_list(model_data)
 
-                                    if ("ipv6" in option_set) and ("precedence" in option_set["ipv6"]):
-                                        if isinstance(option_set["ipv6"]["precedence"], int):
-                                            option_set["ipv6"]["precedence"] = precedence_translation[
-                                                option_set["ipv6"]["precedence"]]
+        # Check IPv6 ACL
+        parent_keys = ['vxlan', 'overlay_extensions', 'route_control', 'ipv6_access_lists']
+        dm_check = data_model_key_check(model_data, parent_keys)
+        if 'ipv6_access_lists' in dm_check['keys_data']:
+            self.ipv6_access_list(model_data)
 
-                # Check IPv4 ACL
-                if "ipv4_access_lists" in model_data["vxlan"]["overlay_extensions"]["route_control"]:
-                    for ip_acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv4_access_lists"]:
-                        if "entries" in ip_acl:
-                            for entry in ip_acl["entries"]:
-                                if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp']):
-                                    if "source" in entry and "port_number" in entry["source"]:
-                                        if "port" in entry["source"]["port_number"]:
-                                            entry["source"][
-                                                "port_number"]["port"] = self.convert_port_number(
-                                                entry["source"]["port_number"]["port"], entry["protocol"])
+        parent_keys = ['vxlan', 'overlay_extensions', 'route_control']
+        dm_check = data_model_key_check(model_data, parent_keys)
+        if 'route_control' in dm_check['keys_data']:
+            for route_control in model_data["vxlan"]["overlay_extensions"]["route_control"]:
+                if "switches" == route_control:
+                    for switch in model_data["vxlan"]["overlay_extensions"]["route_control"]["switches"]:
+                        for sw_group in switch['groups']:
+                            unique_name = f"route_control_{sw_group}"
+                            group_policies = []
+                            for group_name in model_data["vxlan"]["overlay_extensions"]["route_control"]["groups"]:
+                                if sw_group == group_name["name"]:
+                                    group_policies.append(group_name)
 
-                                    if "destination" in entry and "port_number" in entry["destination"]:
-                                        if "port" in entry["destination"]["port_number"]:
-                                            entry["destination"][
-                                                "port_number"]["port"] = self.convert_port_number(
-                                                entry["destination"]["port_number"]["port"], entry["protocol"])
+                            output = template.render(
+                                MD_Extended=model_data,
+                                item=model_data["vxlan"]["overlay_extensions"]["route_control"],
+                                switch=switch['name'],
+                                group_item=group_policies,
+                                defaults=default_values)
 
-                # Check IPv6 ACL
-                if "ipv6_access_lists" in model_data["vxlan"]["overlay_extensions"]["route_control"]:
-                    for ip_acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"]:
-                        if "entries" in ip_acl:
-                            for entry in ip_acl["entries"]:
-                                if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp']):
-                                    if "source" in entry and "port_number" in entry["source"]:
-
-                                        if "port" in entry["source"]["port_number"]:
-                                            entry["source"][
-                                                "port_number"]["port"] = self.convert_port_number(
-                                                entry["source"]["port_number"]["port"], entry["protocol"])
-                                    if "destination" in entry and "port_number" in entry["destination"]:
-                                        if "port" in entry["destination"]["port_number"]:
-                                            entry["destination"][
-                                                "port_number"]["port"] = self.convert_port_number(
-                                                entry["destination"]["port_number"]["port"], entry["protocol"])
-
-                for route_control in model_data["vxlan"]["overlay_extensions"]["route_control"]:
-                    if "switches" == route_control:
-                        for switch in model_data["vxlan"]["overlay_extensions"]["route_control"]["switches"]:
-                            for sw_group in switch['groups']:
-                                unique_name = f"route_control_{sw_group}"
-                                group_policies = []
-                                for group_name in model_data["vxlan"]["overlay_extensions"]["route_control"]["groups"]:
-                                    if sw_group == group_name["name"]:
-                                        group_policies.append(group_name)
-
-                                output = template.render(
-                                    MD_Extended=model_data,
-                                    item=model_data["vxlan"]["overlay_extensions"]["route_control"],
-                                    switch=switch['name'],
-                                    group_item=group_policies,
-                                    defaults=default_values)
-
-                                new_policy = {
-                                    "name": unique_name,
-                                    "template_name": "switch_freeform",
-                                    "template_vars": {
-                                        "CONF": output
-                                    }
+                            new_policy = {
+                                "name": unique_name,
+                                "template_name": "switch_freeform",
+                                "template_vars": {
+                                    "CONF": output
                                 }
+                            }
 
-                                model_data["vxlan"]["policy"]["policies"].append(new_policy)
+                            model_data["vxlan"]["policy"]["policies"].append(new_policy)
 
-                                if any(sw['name'] == switch['name'] for sw in model_data["vxlan"]["policy"]["switches"]):
-                                    found_switch = next(([idx, i] for idx, i in enumerate(
-                                        model_data["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
-                                    if "groups" in found_switch[1].keys():
-                                        model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(
-                                            unique_name)
-                                    else:
-                                        model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [
-                                            unique_name]
+                            if any(sw['name'] == switch['name'] for sw in model_data["vxlan"]["policy"]["switches"]):
+                                found_switch = next(([idx, i] for idx, i in enumerate(
+                                    model_data["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
+                                if "groups" in found_switch[1].keys():
+                                    model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(
+                                        unique_name)
                                 else:
-                                    new_switch = {
-                                        "name": switch["name"],
-                                        "groups": [unique_name]
-                                    }
-                                    model_data["vxlan"]["policy"]["switches"].append(new_switch)
+                                    model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [
+                                        unique_name]
+                            else:
+                                new_switch = {
+                                    "name": switch["name"],
+                                    "groups": [unique_name]
+                                }
+                                model_data["vxlan"]["policy"]["switches"].append(new_switch)
 
-                                if not any(group['name'] == sw_group for group in model_data["vxlan"]["policy"]["groups"]):
-                                    new_group = {
-                                        "name": unique_name,
-                                        "policies": [
-                                            {"name": unique_name},
-                                        ],
-                                        "priority": 500
-                                    }
-                                    model_data["vxlan"]["policy"]["groups"].append(new_group)
+                            if not any(group['name'] == sw_group for group in model_data["vxlan"]["policy"]["groups"]):
+                                new_group = {
+                                    "name": unique_name,
+                                    "policies": [
+                                        {"name": unique_name},
+                                    ],
+                                    "priority": 500
+                                }
+                                model_data["vxlan"]["policy"]["groups"].append(new_group)
 
             model_data = hostname_to_ip_mapping(model_data)
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
+
+    def route_maps(self, model_data):
+        """function to rewrite parameters in route_maps"""
+        for route_map in model_data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]:
+            if "entries" in route_map:
+                for entry in route_map["entries"]:
+                    if "match" in entry:
+                        for option_match in entry["match"]:
+                            # Rewrite match interface based on CLI
+                            # Order is not important, only the case
+                            # Example: CLI match interface Ethernet1/10 loopback100 Null0 port-channel100
+                            if "interface" in option_match:
+                                option_match["interface"] = self.rewrite_match_interface(
+                                    option_match["interface"])
+                    if "set" in entry:
+                        for option_set in entry["set"]:
+                            # Rewrite route-map IP Precedence number to string
+                            # Example: set ip precedence 6 -> set ip precedence internet
+                            precedence_translation = {
+                                0: 'routine',
+                                1: 'priority',
+                                2: 'immediate',
+                                3: 'flash',
+                                4: 'flash-override',
+                                5: 'critical',
+                                6: 'internet',
+                                7: 'network',
+                            }
+                            if ("ipv4" in option_set) and ("precedence" in option_set["ipv4"]):
+                                if isinstance(option_set["ipv4"]["precedence"], int):
+                                    option_set["ipv4"]["precedence"] = precedence_translation[
+                                        option_set["ipv4"]["precedence"]]
+
+                            if ("ipv6" in option_set) and ("precedence" in option_set["ipv6"]):
+                                if isinstance(option_set["ipv6"]["precedence"], int):
+                                    option_set["ipv6"]["precedence"] = precedence_translation[
+                                        option_set["ipv6"]["precedence"]]
+
+    def ipv4_access_list(self, model_data):
+        """
+        function to rewrite parameters in IPv4 ACLs
+        """
+        for ip_acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv4_access_lists"]:
+            if "entries" in ip_acl:
+                for entry in ip_acl["entries"]:
+                    if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp']):
+                        if "source" in entry and "port_number" in entry["source"]:
+                            if "port" in entry["source"]["port_number"]:
+                                entry["source"][
+                                    "port_number"]["port"] = self.convert_port_number(
+                                    entry["source"]["port_number"]["port"], entry["protocol"])
+
+                        if "destination" in entry and "port_number" in entry["destination"]:
+                            if "port" in entry["destination"]["port_number"]:
+                                entry["destination"][
+                                    "port_number"]["port"] = self.convert_port_number(
+                                    entry["destination"]["port_number"]["port"], entry["protocol"])
+
+    def ipv6_access_list(self, model_data):
+        """
+        function to rewrite parameters in IPv6 ACLs
+        """
+        for ip_acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"]:
+            if "entries" in ip_acl:
+                for entry in ip_acl["entries"]:
+                    if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp']):
+                        if "source" in entry and "port_number" in entry["source"]:
+
+                            if "port" in entry["source"]["port_number"]:
+                                entry["source"][
+                                    "port_number"]["port"] = self.convert_port_number(
+                                    entry["source"]["port_number"]["port"], entry["protocol"])
+                        if "destination" in entry and "port_number" in entry["destination"]:
+                            if "port" in entry["destination"]["port_number"]:
+                                entry["destination"][
+                                    "port_number"]["port"] = self.convert_port_number(
+                                    entry["destination"]["port_number"]["port"], entry["protocol"])
 
     def convert_port_number(self, port_number, protocol):
         """
