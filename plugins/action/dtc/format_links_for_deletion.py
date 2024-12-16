@@ -38,21 +38,15 @@ class ActionModule(ActionBase):
     """
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
-        existing_links = self._task.args['existing_links']
-        fabric_links = self._task.args['fabric_links']
-        not_required_links = []
-        for link in fabric_links:
-            for existing_link in existing_links:
-                if ('sw1-info' in existing_link and 'sw2-info' in existing_link and
-                    'sw-sys-name' in existing_link['sw1-info'] and 'sw-sys-name' in existing_link['sw2-info'] and
-                    (existing_link['sw1-info']['sw-sys-name'] == link['src_device'] and
-                    existing_link['sw1-info']['if-name'] == link['src_interface'] and
-                    existing_link['sw2-info']['sw-sys-name'] == link['dst_device'] and
-                    existing_link['sw2-info']['if-name'] == link['dst_interface']) or
-                    (existing_link['sw1-info']['sw-sys-name'] == link['dst_device'] and
-                    existing_link['sw1-info']['if-name'] == link['dst_interface'] and
-                    existing_link['sw2-info']['sw-sys-name'] == link['src_device'] and
-                    existing_link['sw2-info']['if-name'] == link['src_interface'])):
-                    not_required_links.append(link)
-        results['not_required_links'] = not_required_links
+        required_links = self._task.args['required_links']
+        payload = []
+        for link in required_links:
+            payload.append({
+                'dst_fabric': link['fabricName'],
+                'src_device': link['sw1-info']['sw-sys-name'],
+                'src_interface': link['sw1-info']['if-name'],
+                'dst_device': link['sw2-info']['sw-sys-name'],
+                'dst_interface': link['sw2-info']['if-name']
+            })
+        results['removal_payload'] = payload
         return results
