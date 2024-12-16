@@ -66,11 +66,11 @@ class ActionModule(ActionBase):
                     break
             if not link_found:
                 links_to_be_removed.append({
-                'dst_fabric': link['fabricName'],
-                'src_device': link['sw1-info']['sw-sys-name'],
-                'src_interface': link['sw1-info']['if-name'],
-                'dst_device': link['sw2-info']['sw-sys-name'],
-                'dst_interface': link['sw2-info']['if-name']
+                 'dst_fabric': link['fabricName'],
+                 'src_device': link['sw1-info']['sw-sys-name'],
+                 'src_interface': link['sw1-info']['if-name'],
+                 'dst_device': link['sw2-info']['sw-sys-name'],
+                 'dst_interface': link['sw2-info']['if-name']
                 })
 
         results['links_to_be_removed'] = links_to_be_removed
