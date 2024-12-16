@@ -51,5 +51,4 @@
   when:
     - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
     - changes_detected_policy
-  tags:
-    - "{{ nac_tags.create_policy }}"
+  tags: "{{ nac_tags.create_policy }}"
