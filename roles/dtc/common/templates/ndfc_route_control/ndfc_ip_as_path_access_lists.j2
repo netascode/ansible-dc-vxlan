@@ -1,0 +1,17 @@
+! This NDFC Route_Control_Route_maps config data structure is auto-generated
+! DO NOT EDIT MANUALLY
+!
+!
+
+{# Get policy route-maps in groups #}
+{% for policy_name in policy_types["ip_as_path_access_lists"] %}
+    {# Get route-maps under Route_control #}
+    {% for ip_as_path_access_list in item["ip_as_path_access_lists"]%}
+        {# If policy name in Group equal to policy in Route_control #}
+        {% if policy_name["name"] == ip_as_path_access_list["name"] %}
+            {% for entry in ip_as_path_access_list["entries"] | sort(attribute='seq_number') %}
+ip as-path access-list {{ ip_as_path_access_list["name"] }} seq {{entry["seq_number"]}} {{ entry["operation"] }} "{{ entry["bgp_as_paths_regex"] }}"
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
