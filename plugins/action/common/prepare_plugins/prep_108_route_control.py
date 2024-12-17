@@ -59,19 +59,21 @@ class PreparePlugin:
 
         # Check Route-Maps
         if 'route_maps' in dm_check['keys_data']:
-            self.route_maps(model_data)
+            self.update_route_maps(model_data)
 
         # Check IPv4 ACL
         parent_keys = ['vxlan', 'overlay_extensions', 'route_control', 'ipv4_access_lists']
         dm_check = data_model_key_check(model_data, parent_keys)
         if 'ipv4_access_lists' in dm_check['keys_data']:
-            self.ipv4_access_list(model_data)
+            for acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv4_access_lists"]:
+                self.update_ip_access_lists(acl)
 
         # Check IPv6 ACL
         parent_keys = ['vxlan', 'overlay_extensions', 'route_control', 'ipv6_access_lists']
         dm_check = data_model_key_check(model_data, parent_keys)
         if 'ipv6_access_lists' in dm_check['keys_data']:
-            self.ipv6_access_list(model_data)
+            for acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"]:
+                self.update_ip_access_lists(acl)
 
         parent_keys = ['vxlan', 'overlay_extensions', 'route_control']
         dm_check = data_model_key_check(model_data, parent_keys)
@@ -133,7 +135,7 @@ class PreparePlugin:
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
 
-    def route_maps(self, model_data):
+    def update_route_maps(self, model_data):
         """function to rewrite parameters in route_maps"""
         for route_map in model_data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]:
             if "entries" in route_map:
@@ -170,47 +172,26 @@ class PreparePlugin:
                                     option_set["ipv6"]["precedence"] = precedence_translation[
                                         option_set["ipv6"]["precedence"]]
 
-    def ipv4_access_list(self, model_data):
+    def update_ip_access_lists(self, acl):
         """
-        function to rewrite parameters in IPv4 ACLs
+        function to rewrite parameters in IP ACLs
         """
-        for ip_acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv4_access_lists"]:
-            if "entries" in ip_acl:
-                for entry in ip_acl["entries"]:
-                    if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp']):
-                        if "source" in entry and "port_number" in entry["source"]:
-                            if "port" in entry["source"]["port_number"]:
-                                entry["source"][
-                                    "port_number"]["port"] = self.convert_port_number(
-                                    entry["source"]["port_number"]["port"], entry["protocol"])
+        if "entries" in acl:
+            for entry in acl["entries"]:
+                if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp']):
+                    if "source" in entry and "port_number" in entry["source"]:
 
-                        if "destination" in entry and "port_number" in entry["destination"]:
-                            if "port" in entry["destination"]["port_number"]:
-                                entry["destination"][
-                                    "port_number"]["port"] = self.convert_port_number(
-                                    entry["destination"]["port_number"]["port"], entry["protocol"])
+                        if "port" in entry["source"]["port_number"]:
+                            entry["source"][
+                                "port_number"]["port"] = self.update_port_number(
+                                entry["source"]["port_number"]["port"], entry["protocol"])
+                    if "destination" in entry and "port_number" in entry["destination"]:
+                        if "port" in entry["destination"]["port_number"]:
+                            entry["destination"][
+                                "port_number"]["port"] = self.update_port_number(
+                                entry["destination"]["port_number"]["port"], entry["protocol"])
 
-    def ipv6_access_list(self, model_data):
-        """
-        function to rewrite parameters in IPv6 ACLs
-        """
-        for ip_acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"]:
-            if "entries" in ip_acl:
-                for entry in ip_acl["entries"]:
-                    if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp']):
-                        if "source" in entry and "port_number" in entry["source"]:
-
-                            if "port" in entry["source"]["port_number"]:
-                                entry["source"][
-                                    "port_number"]["port"] = self.convert_port_number(
-                                    entry["source"]["port_number"]["port"], entry["protocol"])
-                        if "destination" in entry and "port_number" in entry["destination"]:
-                            if "port" in entry["destination"]["port_number"]:
-                                entry["destination"][
-                                    "port_number"]["port"] = self.convert_port_number(
-                                    entry["destination"]["port_number"]["port"], entry["protocol"])
-
-    def convert_port_number(self, port_number, protocol):
+    def update_port_number(self, port_number, protocol):
         """
         Convert TCP, UDP port number with well-know
         """
