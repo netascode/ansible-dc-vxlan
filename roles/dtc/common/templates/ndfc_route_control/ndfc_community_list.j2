@@ -10,7 +10,7 @@
             {# If policy name in Group equal to policy in Route_control #}
             {% if policy_name["name"] == standard_community_list["name"] %}
                 {% if "entries" in standard_community_list %}
-                    {% for entry in standard_community_list["entries"] %}
+                    {% for entry in standard_community_list["entries"] | sort(attribute='seq_number') %}
 ip community-list standard {{ standard_community_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["communities"] | join(" ") }}
                     {% endfor %}
                 {% endif %}

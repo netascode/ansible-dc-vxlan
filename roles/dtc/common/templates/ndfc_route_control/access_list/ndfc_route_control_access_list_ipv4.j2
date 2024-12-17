@@ -15,7 +15,7 @@ ip access-list {{ ipv4_access_list["name"] | lower }}
                 {% if ipv4_access_list["statistics_per_entry"] is defined and ipv4_access_list["statistics_per_entry"] is true %}
   statistics per-entry
                 {% endif %}
-                {% for entry in ipv4_access_list["entries"] %}
+                {% for entry in ipv4_access_list["entries"] | sort(attribute='seq_number') %}
                     {% if entry.remark is defined %}
   {{ entry[ "seq_number"] }} remark {{ entry[ "remark"] }}
                     {% elif entry[ "fragments"] is defined %}
@@ -26,7 +26,6 @@ ip access-list {{ ipv4_access_list["name"] | lower }}
                         {% elif entry[ "source"]["ip"] is defined %}
                             {% set source = entry[ "source"]["ip"] | ipaddr('network') ~ " " ~ entry[ "source"]["ip"] | ipaddr('hostmask') %}
                         {% elif entry[ "source"]["host"] is defined %}
-                            {# {% set source = "host " ~ entry[ "source"]["host"] | ipaddr('address') %} #}
                             {% set source = entry[ "source"]["host"] | ipaddr('address') ~ "/32"%}
                         {% elif entry[ "source"]["any"] is defined and entry[ "source"]["any"] is true %}
                             {% set source = "any" %}
@@ -49,7 +48,6 @@ ip access-list {{ ipv4_access_list["name"] | lower }}
                                 {% set destination = entry[ "destination"].ip | ipaddr('network') ~ " " ~ entry[ "destination"].ip | ipaddr('hostmask') %}
                             {% endif %}
                         {% elif entry[ "destination"].host is defined %}
-                            {# {% set destination = "host " ~ entry[ "destination"].host | ipaddr('address') %} #}
                             {% set destination = entry[ "destination"]["host"] | ipaddr('address') ~ "/32"%}
                         {% elif entry[ "destination"]["any"] is defined and entry[ "destination"]["any"] is true %}
                             {% set destination = "any" %}

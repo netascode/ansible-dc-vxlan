@@ -15,7 +15,7 @@ ipv6 access-list {{ ipv6_access_list.name }}
             {% elif ipv6_access_list["extension_header"] is defined %}
   extension-header {{ ipv6_access_list["extension_header"] }}
             {% else %}
-                {% for entry in ipv6_access_list["entries"] %}
+                {% for entry in ipv6_access_list["entries"] | sort(attribute='seq_number') %}
                     {% if entry.remark is defined %}
   {{ entry[ "seq_number"] }} remark {{ entry.remark }}
                     {% else %}

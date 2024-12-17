@@ -10,7 +10,7 @@
             {# If policy name in Group equal to policy in Route_control #}
             {% if policy_name["name"] == time_range["name"] %}
 time-range {{ time_range["name"] }}
-                {% for entry in time_range["entries"] %}
+                {% for entry in time_range["entries"] | sort(attribute='seq_number') %}
                     {% set periodic = [] %}
                     {% set absolute = [] %}
                     {% set remark = [] %}

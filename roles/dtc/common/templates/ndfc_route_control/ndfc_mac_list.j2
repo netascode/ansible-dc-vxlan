@@ -5,7 +5,7 @@
 {% for policy_name in policy_types["mac_list"] : %}
     {% for mac_list in item["mac_list"] %}
         {% if policy_name.name == mac_list.name %}
-            {% for entry in mac_list["entries"] %}
+            {% for entry in mac_list["entries"] | sort(attribute='seq_number') %}
                 {% if "mac_mask" in entry %}
 mac-list {{ mac_list.name }} seq {{ entry.seq_number }} {{ entry.operation }} {{ entry.mac | hwaddr('cisco') }} {{ entry.mac_mask | hwaddr('cisco')}}
                 {% else %}

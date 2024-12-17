@@ -10,8 +10,8 @@
             {# If policy name in Group equal to policy in Route_control #}
             {% if policy_name["name"] == ipv4_object_group["name"] %}
 object-group ip address {{ ipv4_object_group["name"] }}
-                {% for entry in ipv4_object_group["entries"] %}
-                    {% if entry["host"] is defined%}
+                {% for entry in ipv4_object_group["entries"] | sort(attribute='seq_number') %}
+                    {% if entry["host"] is defined %}
   {{ entry["seq_number"] }} host {{ entry["host"]}}
                      {% elif entry["ip"] is defined %}
   {{ entry["seq_number"] }} {{ entry["ip"] | ipaddr("net")}}
@@ -30,7 +30,7 @@ object-group ip address {{ ipv4_object_group["name"] }}
             {# If policy name in Group equal to policy in Route_control #}
             {% if policy_name["name"] == ipv6_object_group["name"] %}
 object-group ipv6 address {{ ipv6_object_group["name"] }}
-                {% for entry in ipv6_object_group["entries"] %}
+                {% for entry in ipv6_object_group["entries"] | sort(attribute='seq_number') %}
                     {% if entry["host"] is defined%}
   {{ entry["seq_number"] }} host {{ entry["host"]}}
                     {% elif entry["ip"] is defined %}
