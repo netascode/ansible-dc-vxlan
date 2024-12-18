@@ -1,5 +1,6 @@
 [
   {% for vrf in MD_Extended.vxlan.overlay_services.vrfs %}
+  {% if vrf['vrf_attach_group'] is defined %}
   {
     "vrfName": "{{ vrf["name"] }}",
     "lanAttachList": 
@@ -22,5 +23,6 @@
   {% endfor %}
     ]
   }{% if not loop.last %},{% endif %}
+  {% endif %}
   {% endfor %}
 ]

@@ -68,7 +68,7 @@
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage NDFC Fabric Intra Links
-  ansible.builtin.include_tasks: links.yml
+  ansible.builtin.import_tasks: links.yml
   when:
     - MD_Extended.vxlan.topology.fabric_links | length > 0
     - changes_detected_fabric_links
