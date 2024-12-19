@@ -21,36 +21,41 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
+- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.create]
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
+      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.create]           +"
       - "----------------------------------------------------------------"
+  tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+  tags: "{{ nac_tags.create }}"
 
-- name: Config-Save block
-  block:
-    - name: Config-Save for Fabric {{ MD.vxlan.global.name }}
-      cisco.dcnm.dcnm_rest:
-        method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
-      when: MD_Extended.vxlan.topology.switches | length > 0
-      register: config_save
-      # TODO: Need to add logic to only save if changes are made
-  
-  rescue:
-    - name: Config-Save for Fabric {{ MD.vxlan.global.name }} - Failed
-      ansible.builtin.debug:
-        msg: "{{ config_save.msg.DATA }}"
+- name: Create NDFC External Fabric
+  ansible.builtin.import_tasks: fabric_external.yml
+  when:
+    - MD_Extended.vxlan.global is defined
+    - changes_detected_fabric
+  tags: "{{ nac_tags.create_fabric }}"   
 
-- name: Deploy for Fabric {{ MD.vxlan.global.name }}
-  cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
-    method: POST
-  vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
-  when: MD_Extended.vxlan.topology.switches | length > 0
-  # TODO: Need to add logic to only deploy if changes are made
+- name: Manage NDFC Fabric Switches
+  ansible.builtin.import_tasks: devices.yml
+  when:
+    - MD_Extended.vxlan.topology.switches | length > 0
+    - changes_detected_inventory
+  tags: "{{ nac_tags.create_switches }}"
+
+- name: Manage NDFC Fabric Interfaces
+  ansible.builtin.import_tasks: interfaces.yml
+  when:
+    - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
+    - changes_detected_interfaces
+  tags: "{{ nac_tags.create_interfaces }}"
+
+- name: Manage NDFC Fabric Policies
+  ansible.builtin.import_tasks: policies.yml
+  when:
+    - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
+    - changes_detected_policy
+  tags: "{{ nac_tags.create_policy }}"
