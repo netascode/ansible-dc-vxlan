@@ -48,7 +48,18 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   {% elif item.bgp.local_as %}
     local-as {{ item.bgp.local_as }}
   {% endif %}
-  {% if switch_item.bgp.address_family_ipv4_unicast %}
+  {# Check if address_family is enabled for redistribution #}
+  {% set address_family = {'address_family_v4': false, 'address_family_v6': false } %}
+  {% if switch_item.bgp_peers is defined %}
+    {% for peer in switch_item.bgp_peers %}
+      {% if "address_family_ipv4_unicast" in peer %}
+        {% set _ = address_family.update({'address_family_v4': true}) %}
+      {% elif "address_family_ipv6_unicast" in peer %}
+        {% set _ = address_family.update({'address_family_v6': true}) %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if switch_item.bgp.address_family_ipv4_unicast or address_family["address_family_v4"] is true %}
     address-family ipv4 unicast
     {% if (switch_item.bgp.address_family_ipv4_unicast.ebgp_distance or switch_item.bgp.address_family_ipv4_unicast.ibgp_distance or switch_item.bgp.address_family_ipv4_unicast.local_distance) %}
       distance {{ switch_item.bgp.address_family_ipv4_unicast.ebgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.ebgp_distance)  }} {{ switch_item.bgp.address_family_ipv4_unicast.ibgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.ibgp_distance)  }} {{ switch_item.bgp.address_family_ipv4_unicast.local_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.local_distance) }}
@@ -67,14 +78,14 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
     {% if switch_item.redistribution %}
       {% for switch_redist in switch_item.redistribution %}
-        {% if switch_redist.source == 'static' and switch_redist.route_map %}
-      redistribute static route-map {{ switch_redist.route_map }}
+        {% if switch_redist.source == 'static' and switch_redist.route_map_ipv4 %}
+      redistribute static route-map {{ switch_redist.route_map_ipv4 }}
         {% endif %}
       {% endfor %}
     {% endif %}
 !
   {% endif %}
-  {% if switch_item.bgp.address_family_ipv6_unicast %}
+  {% if switch_item.bgp.address_family_ipv6_unicast or address_family["address_family_v6"] is true %}
     address-family ipv6 unicast
     {% if (switch_item.bgp.address_family_ipv6_unicast.ebgp_distance or switch_item.bgp.address_family_ipv6_unicast.ibgp_distance or switch_item.bgp.address_family_ipv6_unicast.local_distance) %}
       distance {{ switch_item.bgp.address_family_ipv6_unicast.ebgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.ebgp_distance)  }} {{ switch_item.bgp.address_family_ipv6_unicast.ibgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.ibgp_distance)  }} {{ switch_item.bgp.address_family_ipv6_unicast.local_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.local_distance) }}
@@ -93,8 +104,8 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% endif %}
     {% if switch_item.redistribution %}
       {% for switch_redist in switch_item.redistribution %}
-        {% if switch_redist.source == 'static' and switch_redist.route_map %}
-      redistribute static route-map {{ switch_redist.route_map }}
+        {% if switch_redist.source == 'static' and switch_redist.route_map_ipv6 %}
+      redistribute static route-map {{ switch_redist.route_map_ipv6 }}
         {% endif %}
       {% endfor %}
     {% endif %}
