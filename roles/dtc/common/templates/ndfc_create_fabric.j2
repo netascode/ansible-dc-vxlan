@@ -113,6 +113,8 @@
 {# ------------------------------------------------------ #}
 {# Underlay General Parameters                            #}
 {# ------------------------------------------------------ #}
+  ENABLE_SGT: false
+  ENABLE_PVLAN: false
   BGP_LB_ID: {{ underlay.general.underlay_routing_loopback_id | default(defaults.vxlan.underlay.general.underlay_routing_loopback_id) }}
   NVE_LB_ID: {{ underlay.general.underlay_vtep_loopback_id | default(defaults.vxlan.underlay.general.underlay_vtep_loopback_id) }}
   FABRIC_MTU: {{ underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}

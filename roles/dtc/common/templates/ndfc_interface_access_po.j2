@@ -30,6 +30,8 @@
     members: {{ interface['members'] | default(omit) }}
     access_vlan: {{ interface['access_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_bpdu_guard) }}
+    cmds: |2-
+      {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
 {% endif %}
 {% endif %}
