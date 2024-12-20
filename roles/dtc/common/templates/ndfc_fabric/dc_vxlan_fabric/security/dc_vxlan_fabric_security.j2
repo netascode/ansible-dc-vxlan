@@ -1,2 +1,4 @@
 {# Auto-generated NDFC DC VXLAN EVPN Security config data structure for fabric {{ vxlan.global.name }} #}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | bool ) %}
   ENABLE_SGT: false
+{% endif %}
