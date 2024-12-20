@@ -1,7 +1,5 @@
 {# Auto-generated NDFC DC VXLAN EVPN Replication config data structure for fabric {{ vxlan.global.name }} #}
-{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'False' %}
   REPLICATION_MODE: {{ vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title }}
-{% endif %}
 {% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
   MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.group_subnet | default(defaults.vxlan.underlay.multicast.group_subnet) }}
   RP_COUNT: {{ vxlan.underlay.multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) }}
