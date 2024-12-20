@@ -74,13 +74,11 @@ class PreparePlugin:
         # Check vxlan.topology list elements
         parent_keys = ['vxlan', 'topology']
         dm_check = data_model_key_check(self.model_data, parent_keys)
-        if 'topology' in dm_check['keys_not_found']:
-            self.model_data['vxlan']['topology'] = {}
-        if 'topology' in dm_check['keys_no_data']:
-            self.model_data['vxlan']['topology'] = {'edge_connections': []}
-            self.model_data['vxlan']['topology'] = {'fabric_links': []}
-            self.model_data['vxlan']['topology'] = {'switches': []}
-            self.model_data['vxlan']['topology'] = {'vpc_peers': []}
+        if ('topology' in dm_check['keys_no_data']) or ('topology' in dm_check['keys_not_found']):
+            self.model_data['vxlan']['topology']['edge_connections'] = []
+            self.model_data['vxlan']['topology']['fabric_links'] = []
+            self.model_data['vxlan']['topology']['switches'] = []
+            self.model_data['vxlan']['topology']['vpc_peers'] = []
 
         # Check vxlan.topology.fabric_links list element
         target_key = 'fabric_links'
@@ -133,10 +131,10 @@ class PreparePlugin:
         parent_keys = ['vxlan', 'overlay']
         dm_check = data_model_key_check(self.model_data, parent_keys)
         if 'overlay' in dm_check['keys_not_found'] or 'overlay_services' in dm_check['keys_no_data']:
-            self.model_data['vxlan']['overlay'] = {'vrfs': []}
-            self.model_data['vxlan']['overlay'] = {'vrf_attach_groups': []}
-            self.model_data['vxlan']['overlay'] = {'networks': []}
-            self.model_data['vxlan']['overlay'] = {'network_attach_groups': []}
+            self.model_data['vxlan']['overlay']['vrfs'] = []
+            self.model_data['vxlan']['overlay']['vrf_attach_groups'] = []
+            self.model_data['vxlan']['overlay']['networks'] = []
+            self.model_data['vxlan']['overlay']['network_attach_groups'] = []
 
         # Check vxlan.overlay_services.vrfs list element
         target_key = 'vrfs'
@@ -182,10 +180,10 @@ class PreparePlugin:
         parent_keys = ['vxlan', 'overlay_services']
         dm_check = data_model_key_check(self.model_data, parent_keys)
         if 'overlay_services' in dm_check['keys_not_found'] or 'overlay_services' in dm_check['keys_no_data']:
-            self.model_data['vxlan']['overlay_services'] = {'vrfs': []}
-            self.model_data['vxlan']['overlay_services'] = {'vrf_attach_groups': []}
-            self.model_data['vxlan']['overlay_services'] = {'networks': []}
-            self.model_data['vxlan']['overlay_services'] = {'network_attach_groups': []}
+            self.model_data['vxlan']['overlay_services']['vrfs'] = []
+            self.model_data['vxlan']['overlay_services']['vrf_attach_groups'] = []
+            self.model_data['vxlan']['overlay_services']['networks'] = []
+            self.model_data['vxlan']['overlay_services']['network_attach_groups'] = []
 
         # Check vxlan.overlay_services.vrfs list element
         target_key = 'vrfs'
@@ -237,10 +235,10 @@ class PreparePlugin:
         parent_keys = ['vxlan', 'multisite', 'overlay']
         dm_check = data_model_key_check(self.model_data, parent_keys)
         if 'overlay' in dm_check['keys_not_found'] or 'overlay_services' in dm_check['keys_no_data']:
-            self.model_data['vxlan']['multisite']['overlay'] = {'vrfs': []}
-            self.model_data['vxlan']['multisite']['overlay'] = {'vrf_attach_groups': []}
-            self.model_data['vxlan']['multisite']['overlay'] = {'networks': []}
-            self.model_data['vxlan']['multisite']['overlay'] = {'network_attach_groups': []}
+            self.model_data['vxlan']['multisite']['overlay']['vrfs'] = []
+            self.model_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] = []
+            self.model_data['vxlan']['multisite']['overlay']['networks'] = []
+            self.model_data['vxlan']['multisite']['overlay']['network_attach_groups'] = []
 
         # Check vxlan.multisite.overlay_services.vrfs list element
         target_key = 'vrfs'
