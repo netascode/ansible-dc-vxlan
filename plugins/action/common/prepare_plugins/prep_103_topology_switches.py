@@ -40,6 +40,7 @@ class PreparePlugin:
         model_data['vxlan']['topology']['border_super_spine'] = {}
         model_data['vxlan']['topology']['border_gateway_super_spine'] = {}
         model_data['vxlan']['topology']['tor'] = {}
+        model_data['vxlan']['topology']['core_router'] = {}
         sm_switches = model_data['vxlan']['topology']['switches']
         for switch in sm_switches:
             # Build list of switch IP's based on role keyed by switch name

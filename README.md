@@ -51,12 +51,13 @@ Inside the [example repository](https://github.com/netascode/ansible-dc-vxlan-ex
 ```yaml
 # Control Parameters for 'Remove' role tasks
 interface_delete_mode: false
-network_delete_mode: false
-vrf_delete_mode: false
 inventory_delete_mode: false
-vpc_delete_mode: false
+link_fabric_delete_mode: false
 link_vpc_delete_mode: false
+network_delete_mode: false
 policy_delete_mode: false
+vpc_delete_mode: false
+vrf_delete_mode: false
 ```
 
 > [!WARNING]
@@ -362,12 +363,15 @@ The playbook can be configured to execute only the roles that are required. For 
 
 To speed up execution when only certain roles need to be run the following role level tags are provided:
 
- * role_validate - Select and run `cisco.nac_dc_vxlan.validate` role
- * role_create - Select and run `cisco.nac_dc_vxlan.create` role
- * role_deploy  - Select and run `cisco.nac_dc_vxlan.deploy` role
- * role_remove  - Select and run `cisco.nac_dc_vxlan.remove` role
+| Tag Name      | Description |
+| ------------- | :---------- |
+| role_validate | Select and run `cisco.nac_dc_vxlan.validate` role |
+| role_create   | Select and run `cisco.nac_dc_vxlan.create` role |
+| role_deploy   | Select and run `cisco.nac_dc_vxlan.deploy` role |
+| role_remove   | Select and run `cisco.nac_dc_vxlan.remove` role |
 
-The validate role will automatically run if tags `role_create, role_deploy, role_remove` are specified.
+> [!NOTE]
+> The validate role will automatically run if tags `role_create, role_deploy, role_remove` are specified.
 
 > [!TIP]
 > Example: Selectively run `cisco.nac_dc_vxlan.create` role alone.

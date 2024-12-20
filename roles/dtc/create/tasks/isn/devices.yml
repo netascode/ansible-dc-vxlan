@@ -29,4 +29,4 @@
       - "----------------------------------------------------------------"
 
 - name: Manage Devices Discovery
-  ansible.builtin.include_tasks: devices_discovery.yml
+  ansible.builtin.import_tasks: devices_discovery.yml

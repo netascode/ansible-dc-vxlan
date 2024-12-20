@@ -4,6 +4,7 @@
 #
 #jinja2: trim_blocks: True, lstrip_blocks: False
 {% for peers in MD_Extended.vxlan.topology.vpc_peers %}
+{% if peers['peer1_peerlink_interfaces'] is defined %}
 {% for interface_index in range(peers['peer1_peerlink_interfaces']|length) %}
 {% set peer1_interface = peers['peer1_peerlink_interfaces'][interface_index] %}
 {% set peer2_interface = peers['peer2_peerlink_interfaces'][interface_index] %}
@@ -28,4 +29,5 @@
 {% endif %}
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endfor %}

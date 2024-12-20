@@ -29,7 +29,7 @@
 # Remove all files from the previous run if run_map requires it
 # --------------------------------------------------------------------
 - name: Cleanup Files from Previous Run if run_map requires it
-  ansible.builtin.include_tasks: cleanup_files.yml
+  ansible.builtin.import_tasks: cleanup_files.yml
   when:
     - not run_map_read_result.diff_run or ((force_run_all is defined) and (force_run_all is true|bool))
 
@@ -38,11 +38,11 @@
 # --------------------------------------------------------------------
 
 - name: Build Fabric Create Parameters
-  ansible.builtin.include_tasks: isn/ndfc_fabric.yml
+  ansible.builtin.import_tasks: isn/ndfc_fabric.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Switch Inventory List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Switch Inventory List From Template
-  ansible.builtin.include_tasks: isn/ndfc_inventory.yml
+  ansible.builtin.import_tasks: isn/ndfc_inventory.yml

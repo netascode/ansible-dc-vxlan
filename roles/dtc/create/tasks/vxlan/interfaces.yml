@@ -134,7 +134,7 @@
 
 # - name: Manage Interface All
 #   cisco.dcnm.dcnm_interface:
-#     fabric: "{{ MD.vxlan.global.name }}"
+#     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
 #     state: replaced
 #     config: "{{ interface_all }}"
 #   vars:

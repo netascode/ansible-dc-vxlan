@@ -19,10 +19,12 @@ plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no m
 plugins/action/dtc/verify_tags.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/diff_model_changes.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/update_switch_hostname_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/links_filter_and_remove.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/unmanaged_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/get_poap_data.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/manage_child_fabrics.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/map_msd_inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/existing_links_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtd/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/test/inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/nac_dc_validate.py import-3.10!skip

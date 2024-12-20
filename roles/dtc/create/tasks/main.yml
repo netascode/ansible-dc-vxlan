@@ -35,6 +35,12 @@
   ansible.builtin.import_tasks: sub_main_msd.yml
   when: MD_Extended.vxlan.fabric.type == 'MSD'
 
+- name: Import Role Tasks External Fabric
+  ansible.builtin.import_tasks: sub_main_external.yml
+  when:
+    - changes_detected_inventory or changes_detected_interfaces or changes_detected_policy
+    - MD_Extended.vxlan.global.fabric_type == 'External'
+
 - name: Mark Stage Role Create Completed
   cisco.nac_dc_vxlan.common.run_map:
     model_data: "{{ MD_Extended }}"
