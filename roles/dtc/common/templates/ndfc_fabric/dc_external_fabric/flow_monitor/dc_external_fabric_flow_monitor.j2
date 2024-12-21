@@ -1,4 +1,4 @@
-{# Auto-generated NDFC DC VXLAN EVPN Flow Monitor config data structure for fabric {{ vxlan.global.name }} #}
+{# Auto-generated NDFC DC VXLAN EVPN Flow Monitor config data structure for fabric {{ vxlan.fabric.name }} #}
   ENABLE_NETFLOW: {{ global.netflow.enable | default(defaults.vxlan.global.netflow.enable) }}
 {% if global.netflow.enable is defined and global.netflow.enable | bool or defaults.vxlan.global.netflow.enable | bool %}
 {% if global.netflow.exporter is defined %}

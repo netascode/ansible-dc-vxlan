@@ -50,7 +50,7 @@ EXAMPLES = r"""
 
     # - ansible.builtin.set_fact:
     #     version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>=') }}"
-    #   when: MD.vxlan.global
+    #   when: MD_Extended.vxlan.global
     #   delegate_to: localhost
 
 """
