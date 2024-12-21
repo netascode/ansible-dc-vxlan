@@ -160,7 +160,7 @@ factory_defaults:
         ipv6:
           group_subnet: ff1e::/121
           trm_enable: false
-          trm_default_group: "ff1e::"
+          trm_default_group: "ff1e::"   # Quote due to ending in colon to avoid YAML error
         underlay_primary_rp_loopback_id: 2
         underlay_backup_rp_loopback_id: 3
         underlay_second_backup_rp_loopback_id: 4
