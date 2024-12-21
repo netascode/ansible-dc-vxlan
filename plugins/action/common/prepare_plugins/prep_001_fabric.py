@@ -33,6 +33,13 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
 
+        # !!! WARNING !!!
+        # ------------------------------------------------------------------------------------------
+        # If you are debugging problems with the data model and sections are missing make sure
+        # you don't have any data files with only the toplevel vxlan: key.  This can cause problems
+        # where IaC validate removes sections of the model data, like the vxlan.underlay section
+        # ------------------------------------------------------------------------------------------
+
         # Checking for fabric key in the data model.
         # This type of check should be done in a rule, but fabric.name and fabric.type are foundational for the collection so we need to ensure it is set.
         # This prepare plugin also helps retain backwards compatibility with global.name and global.fabric_type keys previously used.
@@ -103,6 +110,20 @@ class PreparePlugin:
                 else:
                     self.kwargs['results']['failed'] = True
                     self.kwargs['results']['msg'] = "vxlan.fabric.type is not defined in the data model."
+
+
+        # Replace 'overlay_services' key with 'overlay'
+        parent_keys = ['vxlan', 'overlay_services']
+        dm_check = data_model_key_check(model_data, parent_keys)
+        if 'overlay_services' in dm_check['keys_found']:
+            deprecated_msg = (
+                "vxlan.overlay_services is being deprecated. "
+                "Please use vxlan.overlay instead"
+            )
+            display.deprecated(msg=deprecated_msg, version="1.0.0")
+            model_data['vxlan']['overlay'] = model_data['vxlan']['overlay_services']
+            del model_data['vxlan']['overlay_services']
+
 
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
