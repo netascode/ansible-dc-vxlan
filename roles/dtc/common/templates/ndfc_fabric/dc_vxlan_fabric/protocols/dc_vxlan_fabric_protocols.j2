@@ -8,7 +8,7 @@
 {% if (vxlan.underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol)) == 'ospf' %}
   OSPF_AREA_ID: {{ vxlan.underlay.ospf.area_id | default(defaults.vxlan.underlay.ospf.area_id) }}
 {% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'False' %}
-  OSPF_AUTH_ENABLE: {{ (vxlan.underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title) }}
+  OSPF_AUTH_ENABLE: {{ vxlan.underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title }}
 {% endif %}
 {% if (vxlan.underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title) == 'True' %}
   OSPF_AUTH_KEY_ID: {{ vxlan.underlay.ospf.authentication_key_id | default(defaults.vxlan.underlay.ospf.authentication_key_id) }}
@@ -19,7 +19,7 @@
 {% endif %}
 {% elif (vxlan.underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol)) == 'is-is' %}
   ISIS_LEVEL: {{ vxlan.underlay.isis.level | default(defaults.vxlan.underlay.isis.level) }}
-  ISIS_AUTH_ENABLE: {{ (vxlan.underlay.isis.authentication_enable | default(defaults.vxlan.underlay.isis.authentication_enable) | title) }}
+  ISIS_AUTH_ENABLE: {{ vxlan.underlay.isis.authentication_enable | default(defaults.vxlan.underlay.isis.authentication_enable) | title }}
 {% if (vxlan.underlay.isis.authentication_enable | default(defaults.vxlan.underlay.isis.authentication_enable) | title) == 'True' %}
   ISIS_AUTH_KEYCHAIN_NAME: {{ vxlan.underlay.isis.authentication_keychain_name | default(omit) }}
   ISIS_AUTH_KEYCHAIN_KEY_ID: {{ vxlan.underlay.isis.authentication_key_id | default(defaults.vxlan.underlay.isis.authentication_key_id) }}

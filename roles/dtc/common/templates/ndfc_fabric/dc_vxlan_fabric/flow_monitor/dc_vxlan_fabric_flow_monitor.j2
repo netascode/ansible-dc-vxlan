@@ -1,5 +1,5 @@
 {# Auto-generated NDFC DC VXLAN EVPN Flow Monitor config data structure for fabric {{ vxlan.global.name }} #}
-{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool ) %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   ENABLE_NETFLOW: {{ global.netflow.enable | default(defaults.vxlan.global.netflow.enable) }}
 {% if global.netflow.enable is defined and global.netflow.enable | ansible.builtin.bool or defaults.vxlan.global.netflow.enable | ansible.builtin.bool %}
 {% if global.netflow.exporter is defined %}
