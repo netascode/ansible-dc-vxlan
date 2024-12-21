@@ -74,7 +74,13 @@ class PreparePlugin:
         # Check vxlan.topology list elements
         parent_keys = ['vxlan', 'topology']
         dm_check = data_model_key_check(self.model_data, parent_keys)
-        if ('topology' in dm_check['keys_no_data']) or ('topology' in dm_check['keys_not_found']):
+        if 'topology' in dm_check['keys_not_found']:
+            self.model_data['vxlan']['topology'] = {}
+            self.model_data['vxlan']['topology']['edge_connections'] = []
+            self.model_data['vxlan']['topology']['fabric_links'] = []
+            self.model_data['vxlan']['topology']['switches'] = []
+            self.model_data['vxlan']['topology']['vpc_peers'] = []
+        if 'topology' in dm_check['keys_no_data']:
             self.model_data['vxlan']['topology']['edge_connections'] = []
             self.model_data['vxlan']['topology']['fabric_links'] = []
             self.model_data['vxlan']['topology']['switches'] = []
