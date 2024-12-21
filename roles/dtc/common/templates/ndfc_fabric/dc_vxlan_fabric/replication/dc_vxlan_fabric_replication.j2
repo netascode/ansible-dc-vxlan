@@ -22,7 +22,7 @@
   IPv6_MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.ipv6.group_subnet | default(defaults.vxlan.underlay.multicast.ipv6.group_subnet) }}
   ENABLE_TRMv6: {{ vxlan.underlay.multicast.ipv6.trm_enable | default(defaults.vxlan.underlay.multicast.ipv6.trm_enable) | title }}
 {% if (vxlan.underlay.multicast.ipv6.trm_enable | default(defaults.vxlan.underlay.multicast.ipv6.trm_enable) | ansible.builtin.bool) %}
-  L3VNI_IPv6_MCAST_GROUP: {{ vxlan.underlay.multicast.ipv6.trm_default_group | default(defaults.vxlan.underlay.multicast.ipv6.trm_default_group) }}
+  L3VNI_IPv6_MCAST_GROUP: "{{ vxlan.underlay.multicast.ipv6.trm_default_group | default(defaults.vxlan.underlay.multicast.ipv6.trm_default_group) }}"
 {% endif %}
 {% endif %}
 {% endif %}
