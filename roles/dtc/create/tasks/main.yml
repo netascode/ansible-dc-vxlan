@@ -50,13 +50,13 @@
     (vars_common_msd.changes_detected_networks)
 
 # Check with Matt and Pete on External Fabrics
-- name: Import Role Tasks External Fabric
-  ansible.builtin.import_tasks: sub_main_external.yml
-  when: >
-    (MD_Extended.vxlan.global.fabric_type == 'External') and
-    (changes_detected_inventory) or
-    (changes_detected_interfaces) or
-    (changes_detected_policy)
+# - name: Import Role Tasks External Fabric
+#   ansible.builtin.import_tasks: sub_main_external.yml
+#   when: >
+#     (MD_Extended.vxlan.global.fabric_type == 'External') and
+#     (changes_detected_inventory) or
+#     (changes_detected_interfaces) or
+#     (changes_detected_policy)
 
 - name: Mark Stage Role Create Completed
   cisco.nac_dc_vxlan.common.run_map:

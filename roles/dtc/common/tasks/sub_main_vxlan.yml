@@ -176,6 +176,7 @@
         changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po }}"
         changes_detected_interface_trunk: "{{ changes_detected_interface_trunk }}"
         changes_detected_interface_vpc: "{{ changes_detected_interface_vpc }}"
+        changes_detected_inventory: "{{ changes_detected_inventory }}"
         changes_detected_link_vpc_peering: "{{ changes_detected_link_vpc_peering }}"
         changes_detected_networks: "{{ changes_detected_networks }}"
         changes_detected_policy: "{{ changes_detected_policy }}"
