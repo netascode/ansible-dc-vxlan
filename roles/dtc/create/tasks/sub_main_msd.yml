@@ -37,7 +37,7 @@
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "MSD"
-    - changes_detected_fabric
+    - vars_common_msd.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
 - name: Manage NDFC MSD Fabric Child Fabrics
@@ -50,5 +50,5 @@
   when: 
     - MD_Extended.vxlan.multisite.overlay is defined
     - MD_Extended.vxlan.multisite.overlay
-    - (changes_detected_vrfs or changes_detected_networks)
+    - (vars_common_msd.changes_detected_vrfs or vars_common_msd.changes_detected_networks)
   tags: "{{ nac_tags.create_vrfs_networks }}"

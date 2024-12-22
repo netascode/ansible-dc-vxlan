@@ -65,8 +65,7 @@
   ansible.builtin.set_fact:
     vrf_config: "{{ lookup('file', file_name) | from_yaml }}"
   when: >
-    (MD_Extended.vxlan.overlay.vrfs | default([])) | length > 0 or
-    (MD_Extended.vxlan.overlay_services.vrfs | default([])) | length > 0
+    (MD_Extended.vxlan.overlay.vrfs | default([])) | length > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
@@ -104,6 +103,5 @@
   ansible.builtin.set_fact:
     vrf_attach_config: "{{ lookup('file', file_name) | from_yaml }}"
   when: >
-    (MD_Extended.vxlan.overlay.vrfs | default([])) | length > 0 or
-    (MD_Extended.vxlan.overlay_services.vrfs | default([])) | length > 0
+    (MD_Extended.vxlan.overlay.vrfs | default([])) | length > 0
   delegate_to: localhost

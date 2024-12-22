@@ -40,6 +40,14 @@ class PreparePlugin:
         # where IaC validate removes sections of the model data, like the vxlan.underlay section
         # ------------------------------------------------------------------------------------------
 
+        if not bool(model_data):
+            msg = 'Model data is empty! It is possible there is no data in host_vars or there'
+            msg += ' might be a bug in the model data.  Please check host_vars for this fabric.'
+            msg += ' Possible reasons: duplicate keys, unsupported keys, invalid yaml etc...'
+            self.kwargs['results']['failed'] = True
+            self.kwargs['results']['msg'] = msg
+            return self.kwargs['results']
+
         # Checking for fabric key in the data model.
         # This type of check should be done in a rule, but fabric.name and fabric.type are foundational for the collection so we need to ensure it is set.
         # This prepare plugin also helps retain backwards compatibility with global.name and global.fabric_type keys previously used.
@@ -112,7 +120,9 @@ class PreparePlugin:
                     self.kwargs['results']['msg'] = "vxlan.fabric.type is not defined in the data model."
 
 
-        # Replace 'overlay_services' key with 'overlay'
+        # For backwards compatibility, replace 'overlay_services' key with 'overlay'
+        # NOTE: No prepare plugin, jinja2 template or ansible task should reference 'overlay_services' after this replacement.
+        # NOTE: Rules are different since rules run BEFORE prepare plugins
         parent_keys = ['vxlan', 'overlay_services']
         dm_check = data_model_key_check(model_data, parent_keys)
         if 'overlay_services' in dm_check['keys_found']:

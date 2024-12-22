@@ -30,7 +30,7 @@
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     deploy: true
     state: overridden
-    config: "{{ vpc_peering }}"
+    config: "{{ vars_common_vxlan.vpc_peering }}"
   vars:
       ansible_command_timeout: 1000
       ansible_connect_timeout: 1000

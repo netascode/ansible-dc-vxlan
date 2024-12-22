@@ -44,14 +44,14 @@
   ansible.builtin.import_tasks: msd/networks.yml
   tags: "{{ nac_tags.remove_networks }}"
   when:
-    - changes_detected_networks
+    - vars_common_msd.changes_detected_networks
 
 # These are not working right... investigate
 - name: Remove Fabric VRFs
   ansible.builtin.import_tasks: msd/vrfs.yml
   tags: "{{ nac_tags.remove_vrfs }}"
   when:
-    - changes_detected_vrfs
+    - vars_common_msd.changes_detected_vrfs
 
 - name: Remove Child Fabrics
   ansible.builtin.import_tasks: msd/child_fabrics.yml

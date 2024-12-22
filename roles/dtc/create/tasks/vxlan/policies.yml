@@ -35,7 +35,7 @@
   cisco.dcnm.dcnm_policy:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     use_desc_as_key: true
-    config: "{{ policy_config }}"
+    config: "{{ vars_common_vxlan.policy_config }}"
     deploy: false
     state: merged
   register: manage_policies_result

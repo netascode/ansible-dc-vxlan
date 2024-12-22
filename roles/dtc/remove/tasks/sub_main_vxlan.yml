@@ -43,40 +43,40 @@
   ansible.builtin.import_tasks: vxlan/policy.yml
   tags: "{{ nac_tags.remove_policy }}"
   when:
-    - changes_detected_policy
+    - vars_common_vxlan.changes_detected_policy
 
 - name: Remove Fabric Interfaces
   ansible.builtin.import_tasks: vxlan/interfaces.yml
   tags: "{{ nac_tags.remove_interfaces }}"
   when:
-    - changes_detected_interfaces
+    - vars_common_vxlan.changes_detected_interfaces
 
 - name: Remove Fabric Networks
   ansible.builtin.import_tasks: vxlan/networks.yml
   tags: "{{ nac_tags.remove_networks }}"
   when:
-    - changes_detected_networks
+    - vars_common_vxlan.changes_detected_networks
 
 - name: Remove Fabric VRFs
   ansible.builtin.import_tasks: vxlan/vrfs.yml
   tags: "{{ nac_tags.remove_vrfs }}"
   when:
-    - changes_detected_vrfs
+    - vars_common_vxlan.changes_detected_vrfs
 
 - name: Remove Fabric Links
   ansible.builtin.import_tasks: vxlan/links.yml
   tags: "{{ nac_tags.remove_links }}"
   when:
-    - changes_detected_link_vpc_peering
+    - vars_common_vxlan.changes_detected_link_vpc_peering
 
 - name: Remove Fabric vPC Peering
   ansible.builtin.import_tasks: vxlan/vpc_peers.yml
   tags: "{{ nac_tags.remove_vpc_peers }}"
   when:
-    - changes_detected_vpc_peering
+    - vars_common_vxlan.changes_detected_vpc_peering
 
 - name: Remove Fabric Switches
   ansible.builtin.import_tasks: vxlan/switches.yml
   tags: "{{ nac_tags.remove_switches }}"
   when:
-    - changes_detected_inventory
+    - vars_common_vxlan.changes_detected_inventory

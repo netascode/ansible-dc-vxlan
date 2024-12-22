@@ -23,15 +23,24 @@
 
 - name: Import VXLAN Role Tasks
   ansible.builtin.import_tasks: sub_main_vxlan.yml
-  when: 
-    - MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
-    - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs or changes_detected_vpc_peering or changes_detected_link_vpc_peering or changes_detected_inventory
+  # Check with Matt on changes_detected_policy here
+  # Was not there previously
+  when: >
+    (MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN') and
+    (vars_common_vxlan.changes_detected_inventory) or
+    (vars_common_vxlan.changes_detected_vpc_peering) or
+    (vars_common_vxlan.changes_detected_interfaces) or
+    (vars_common_vxlan.changes_detected_link_vpc_peering) or
+    (vars_common_vxlan.changes_detected_vrfs) or
+    (vars_common_vxlan.changes_detected_networks)
+
+  # (vars_common_vxlan.changes_detected_policy)
 
 - name: Import MSD Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   when: 
     - MD_Extended.vxlan.fabric.type == 'MSD'
-    # - changes_detected_interfaces or changes_detected_networks or changes_detected_vrfs
+    # - vars_common_msd.changes_detected_interfaces or vars_common_msd.changes_detected_networks or vars_common_msd.changes_detected_vrfs
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:

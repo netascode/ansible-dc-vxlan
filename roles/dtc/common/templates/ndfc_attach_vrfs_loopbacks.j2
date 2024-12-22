@@ -1,11 +1,11 @@
 [
-  {% for vrf in MD_Extended.vxlan.overlay_services.vrfs %}
+  {% for vrf in MD_Extended.vxlan.overlay.vrfs %}
   {% if vrf['vrf_attach_group'] is defined %}
   {
     "vrfName": "{{ vrf["name"] }}",
     "lanAttachList":
     [
-  {% for attach in MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict[vrf["vrf_attach_group"]] %}
+  {% for attach in MD_Extended.vxlan.overlay.vrf_attach_groups_dict[vrf["vrf_attach_group"]] %}
   {
     "fabric": "{{ MD_Extended.vxlan.fabric.name }}",
     "vrfName": "{{ vrf["name"] }}",

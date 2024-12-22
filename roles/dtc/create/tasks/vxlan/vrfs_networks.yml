@@ -35,12 +35,25 @@
   cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
-    config: "{{ vrf_config }}"
+    config: "{{ vars_common_vxlan.vrf_config }}"
   register: manage_vrf_result
-  when: >
-    (MD_Extended.vxlan.overlay.vrfs is defined and MD_Extended.vxlan.overlay.vrfs) or
-    (MD_Extended.vxlan.overlay_services.vrfs is defined and MD_Extended.vxlan.overlay_services.vrfs) and
-    changes_detected_vrfs
+  when:
+    - MD_Extended.vxlan.overlay.vrfs is defined
+    - MD_Extended.vxlan.overlay.vrfs
+    - vars_common_vxlan.changes_detected_vrfs
+
+# --------------------------------------------------------------------
+# Manage Loopback VRF attachments on NDFC
+# --------------------------------------------------------------------
+- name: Attach VRF Loopbacks per VRF
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
+    method: "POST"
+    json_data: "{{ vars_common_vxlan.vrf_attach_config | to_json}}"
+  when:
+    - MD_Extended.vxlan.overlay.vrfs is defined
+    - MD_Extended.vxlan.overlay.vrfs
+    - vars_common_vxlan.changes_detected_vrfs
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
@@ -49,9 +62,9 @@
   cisco.dcnm.dcnm_network:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
-    config: "{{ net_config }}"
+    config: "{{ vars_common_vxlan.net_config }}"
   register: manage_network_result
-  when: >
-    (MD_Extended.vxlan.overlay.networks is defined and MD_Extended.vxlan.overlay.networks) or
-    (MD_Extended.vxlan.overlay_services.networks is defined and MD_Extended.vxlan.overlay_services.networks) and
-    changes_detected_networks
+  when:
+    - MD_Extended.vxlan.overlay.networks is defined
+    - MD_Extended.vxlan.overlay.networks
+    - vars_common_vxlan.changes_detected_networks

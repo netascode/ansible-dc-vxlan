@@ -37,12 +37,12 @@
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "ISN"
-    - changes_detected_fabric
+    - vars_common_isn.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
 - name: Manage NDFC ISN Fabric Switches
   ansible.builtin.import_tasks: isn/devices.yml
   when:
     - MD_Extended.vxlan.multisite.isn.topology.switches | length > 0
-    - changes_detected_inventory
+    - vars_common_isn.changes_detected_inventory
   tags: "{{ nac_tags.create_switches }}"

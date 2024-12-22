@@ -21,7 +21,7 @@
 
 ---
 vxlan:
-  overlay_services:
+  overlay:
     vrfs:
       - name: NetAsCodeVrf1
         vrf_id: 150001

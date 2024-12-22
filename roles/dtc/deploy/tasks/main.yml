@@ -24,7 +24,21 @@
 - name: Import Role Tasks
   ansible.builtin.import_tasks: sub_main.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
-  when: changes_detected_fabric or changes_detected_inventory or changes_detected_vpc_peering or changes_detected_interfaces or changes_detected_link_vpc_peering or changes_detected_vrfs or changes_detected_networks or changes_detected_policy or changes_detected_fabric_links
+  when: >
+    (vars_common_vxlan.changes_detected_fabric) or
+    (vars_common_vxlan.changes_detected_inventory) or
+    (vars_common_vxlan.changes_detected_vpc_peering) or
+    (vars_common_vxlan.changes_detected_interfaces) or
+    (vars_common_vxlan.changes_detected_link_vpc_peering) or
+    (vars_common_vxlan.changes_detected_vrfs) or
+    (vars_common_vxlan.changes_detected_networks) or
+    (vars_common_vxlan.changes_detected_policy) or
+    (vars_common_vxlan.changes_detected_fabric_links) or
+    (vars_common_isn.changes_detected_fabric) or
+    (vars_common_isn.changes_detected_inventory) or
+    (vars_common_msd.changes_detected_fabric) or
+    (vars_common_msd.changes_detected_vrfs) or
+    (vars_common_msd.changes_detected_networks)
 
 - name: Mark Stage Role Deploy Completed
   cisco.nac_dc_vxlan.common.run_map:

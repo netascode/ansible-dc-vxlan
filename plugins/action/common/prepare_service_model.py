@@ -54,7 +54,6 @@ class ActionModule(ActionBase):
         sm_data = self._task.args['model_data']
         # results['model_extended'] contains the data that can be extended by the plugins
         results['model_extended'] = copy.deepcopy(sm_data)
-        fabric_type = sm_data.get('vxlan').get('fabric_type', None)
 
         full_plugin_path = "ansible_collections.cisco.nac_dc_vxlan.plugins.action.common.prepare_plugins"
         glob_plugin_path = os.path.dirname(__file__) + "/prepare_plugins"
@@ -85,6 +84,11 @@ class ActionModule(ActionBase):
                 default_values=default_values,
                 templates_path=tp,
                 results=results).prepare()
+
+            if results.get('failed'):
+                # Check each plugin for failureds and break out of the loop early
+                # if a failure is encounterd.
+                break
 
         if results['failed']:
             # If there is a failure, remove the model data to make the failure message more readable

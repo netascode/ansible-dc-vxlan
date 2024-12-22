@@ -1,10 +1,7 @@
 {# Auto-generated NDFC DC VXLAN EVPN VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
-{# TODO: Remove lines 3-8.  When we get here we should be normalized around overlay, not overlay_services#}
 {% set networks = [] %}
 {% if MD_Extended.vxlan.overlay.networks is defined and MD_Extended.vxlan.overlay.networks %}
 {% set networks = MD_Extended.vxlan.overlay.networks %}
-{% elif MD_Extended.vxlan.overlay_services.networks is defined and MD_Extended.vxlan.overlay_services.networks %}
-{% set networks = MD_Extended.vxlan.overlay_services.networks %}
 {% endif %}
 {% for net in networks %}
 - net_name: {{ net['name'] }}
@@ -75,8 +72,6 @@
   attach:
 {% if MD_Extended.vxlan.overlay.network_attach_groups_dict is defined and MD_Extended.vxlan.overlay.network_attach_groups_dict %}
 {% set network_attach_groups_dict = MD_Extended.vxlan.overlay.network_attach_groups_dict %}
-{% elif MD_Extended.vxlan.overlay_services.network_attach_groups_dict is defined and MD_Extended.vxlan.overlay_services.network_attach_groups_dict %}
-{% set network_attach_groups_dict = MD_Extended.vxlan.overlay_services.network_attach_groups_dict %}
 {% endif %}
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}

@@ -31,4 +31,4 @@
 - name: Manage Fabric {{ MD_Extended.vxlan.fabric.name }} in NDFC
   cisco.dcnm.dcnm_fabric:
     state: merged
-    config: "{{ fabric_config }}"
+    config: "{{ vars_common_msd.fabric_config }}"

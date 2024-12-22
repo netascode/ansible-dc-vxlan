@@ -43,7 +43,7 @@
 - name: Create a list of links that already exist
   cisco.nac_dc_vxlan.dtc.existing_links_check:
     existing_links: "{{ result_links.response }}"
-    fabric_links: "{{ fabric_links }}"
+    fabric_links: "{{ vars_common_vxlan.fabric_links }}"
   register: not_required_links
   when: result_links.response is defined
 
@@ -55,7 +55,7 @@
 
 - name: remove unwanted links from required links input
   ansible.builtin.set_fact:
-    required_links: "{{ fabric_links | difference(not_required_links['not_required_links']) }}"
+    required_links: "{{ vars_common_vxlan.fabric_links | difference(not_required_links['not_required_links']) }}"
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
 # --------------------------------------------------------------------
