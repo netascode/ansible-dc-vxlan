@@ -51,12 +51,13 @@ Inside the [example repository](https://github.com/netascode/ansible-dc-vxlan-ex
 ```yaml
 # Control Parameters for 'Remove' role tasks
 interface_delete_mode: false
-network_delete_mode: false
-vrf_delete_mode: false
 inventory_delete_mode: false
-vpc_delete_mode: false
+link_fabric_delete_mode: false
 link_vpc_delete_mode: false
+network_delete_mode: false
 policy_delete_mode: false
+vpc_delete_mode: false
+vrf_delete_mode: false
 ```
 
 > [!WARNING]

@@ -38,8 +38,9 @@
     src_fabric: "{{ MD_Extended.vxlan.global.name }}"
     config: "{{ link_vpc_peering }}"
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
+  when: link_vpc_peering|length != 0
 
 # --------------------------------------------------------------------
 # Manage vPC Peering
