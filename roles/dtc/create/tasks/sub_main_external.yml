@@ -32,6 +32,13 @@
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
   tags: "{{ nac_tags.create }}"
 
+- name: Create NDFC External Fabric
+  ansible.builtin.import_tasks: fabric_external.yml
+  when:
+    - MD_Extended.vxlan.global is defined
+    - changes_detected_fabric
+  tags: "{{ nac_tags.create_fabric }}"   
+
 - name: Manage NDFC Fabric Switches
   ansible.builtin.import_tasks: devices.yml
   when:
@@ -51,5 +58,4 @@
   when:
     - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
     - changes_detected_policy
-  tags:
-    - "{{ nac_tags.create_policy[0] }}"
+  tags: "{{ nac_tags.create_policy }}"

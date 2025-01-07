@@ -26,24 +26,24 @@ vxlan:
       - name: NetAsCodeVrf1
         vrf_id: 150001
         vlan_id: 2001
-        attach_group: all_leaf
+        vrf_attach_group: all_leaf
 
       - name: NetAsCodeVrf2
         vrf_id: 150002
         vlan_id: 2002
-        attach_group: leaf1_leaf2
+        vrf_attach_group: leaf1_leaf2
 
       - name: NetAsCodeVrf3
         vrf_id: 150003
         vlan_id: 2003
-        attach_group: leaf1_leaf2
+        vrf_attach_group: leaf1_leaf2
 
       - name: NetAsCodeVrf4
         vrf_id: 150004
         vlan_id: 2004
         vrf_int_mtu: 9000
         loopback_route_tag: 54321
-        attach_group: leaf1_leaf2
+        vrf_attach_group: leaf1_leaf2
 
       - name: NetAsCodeVrf5
         vrf_id: 150005
@@ -51,7 +51,7 @@ vxlan:
         vrf_description: NetAsCodeVrf5_Netflow_only
         netflow_enable: true
         netflow_monitor: nac-monitor1
-        attach_group: leaf1_leaf2
+        vrf_attach_group: leaf1_leaf2
 
       - name: NetAsCodeVrf6
         vrf_id: 150006
@@ -65,7 +65,7 @@ vxlan:
         underlay_mcast_ip: 239.1.1.0
         overlay_multicast_group: 224.0.0.0/4
         trm_bgw_msite: true
-        attach_group: leaf1_leaf2
+        vrf_attach_group: leaf1_leaf2
 
       - name: NetAsCodeVrf7
         vrf_id: 150007
@@ -74,7 +74,7 @@ vxlan:
         trm_enable: true
         no_rp: true
         underlay_mcast_ip: 239.1.1.0
-        attach_group: leaf1_leaf2
+        vrf_attach_group: leaf1_leaf2
 
       - name: NetAsCodeVrf8
         vrf_id: 150008
@@ -85,7 +85,7 @@ vxlan:
         rp_address: 10.100.100.100
         underlay_mcast_ip: 239.1.1.0
         overlay_multicast_group: 224.0.0.0/4
-        attach_group: leaf1_leaf2
+        vrf_attach_group: leaf1_leaf2
 
       - name: NetAsCodeVrf9
         vrf_id: 150009
@@ -95,7 +95,7 @@ vxlan:
         max_ibgp_paths: 4
         trm_enable: false
         netflow_enable: false
-        attach_group: leaf1_leaf2
+        vrf_attach_group: leaf1_leaf2
 
       - name: NetAsCodeVrf_Default
         vrf_id: 150020
@@ -131,7 +131,7 @@ vxlan:
         trm_enable: True
         trm_bgw_msite: False
         underlay_mcast_ip: "224.1.1.1"
-        attach_group: all_leaf
+        vrf_attach_group: all_leaf
 
       - name: NetAsCodeVrf_Full
         vrf_id: 150030
@@ -166,7 +166,7 @@ vxlan:
         underlay_mcast_ip: 239.1.1.0
         overlay_multicast_group: 224.0.0.0/4
         trm_bgw_msite: False
-        attach_group: all_leaf
+        vrf_attach_group: all_leaf
 
     vrf_attach_groups:
       - name: all_leaf

@@ -2,6 +2,7 @@
 # This NDFC switch inventory config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
+{% set poap_data = poap_data['poap_data'] %}
 {% for switch in MD_Extended.vxlan.topology.switches %}
 {% if switch.management.management_ipv4_address is defined %}
 - seed_ip: {{ switch['management']['management_ipv4_address'] }}
@@ -14,15 +15,30 @@
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: {{ switch['role'] }}
   preserve_config: false
-{% if switch['poap'] is defined %}
+{% if MD_Extended.vxlan.global.bootstrap is defined %}
+{% if MD_Extended.vxlan.global.bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.global.bootstrap.enable_bootstrap %}
+{% if switch.poap is defined and switch.poap.bootstrap %}
+{% if poap_data[switch['serial_number']] is defined %}
+{% set pdata = poap_data[switch['serial_number']] %}
   poap:
-  - config_data:
-      gateway: {{ switch['management']['default_gateway_v4'] }}
-      modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
-    hostname: {{ switch['name'] }}
-    imagePolicy: ''
-    model: {{ switch['poap']['preprovision']['model']  }}
-    preprovision_serial: {{ switch['poap']['preprovision']['serial_number'] }}
-    version: {{ switch['poap']['preprovision']['version']  }}
-{% endif%}
+    - serial_number: {{ switch['serial_number'] }}
+      hostname: {{ switch['name'] }}
+      model: {{ pdata['model'] }}
+      version: {{ pdata['version'] }}
+      config_data:
+        modulesModel: {{ pdata['modulesModel'] }}
+        gateway: {{ pdata['gateway'] }}
+{% elif switch['poap']['preprovision'] is defined %}
+  poap:
+    - preprovision_serial: {{ switch['poap']['preprovision']['serial_number'] }}
+      model: {{  switch['poap']['preprovision']['model'] }}
+      version: {{ switch['poap']['preprovision']['version']  }}
+      config_data:
+        modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
+        gateway: {{ switch['management']['default_gateway_v4']  }} 
+      hostname: {{ switch['name'] }}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
 {% endfor %}

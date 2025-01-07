@@ -31,18 +31,18 @@
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
   tags: "{{ nac_tags.remove }}"
 
-- ansible.builtin.debug: msg="Query NDFC for List of Fabric Switches"
-  tags: "{{ nac_tags.remove }}"
-
-- cisco.dcnm.dcnm_rest:
+- name: Get List of Fabric Switches from NDFC
+  cisco.dcnm.dcnm_rest:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/inventory/switchesByFabric"
   register: result
   tags: "{{ nac_tags.remove }}"
 
-- name: set facts for result
-  ansible.builtin.set_fact:
-    switch_list: "{{result}}"
+- name: Remove Fabric Policy
+  ansible.builtin.import_tasks: policy.yml
+  tags: "{{ nac_tags.remove_policy }}"
+  when:
+    - changes_detected_policy
 
 - name: Remove Fabric Interfaces
   ansible.builtin.import_tasks: interfaces.yml
@@ -62,17 +62,17 @@
   when:
     - changes_detected_vrfs
 
-- name: Remove Fabric vPC Peering
-  ansible.builtin.import_tasks: vpc_peers.yml
-  tags: "{{ nac_tags.remove_vpc_peers }}"
-  when:
-    - changes_detected_vpc_peering
-
 - name: Remove Fabric Links
   ansible.builtin.import_tasks: links.yml
   tags: "{{ nac_tags.remove_links }}"
   when:
     - changes_detected_link_vpc_peering
+
+- name: Remove Fabric vPC Peering
+  ansible.builtin.import_tasks: vpc_peers.yml
+  tags: "{{ nac_tags.remove_vpc_peers }}"
+  when:
+    - changes_detected_vpc_peering
 
 - name: Remove Fabric Switches
   ansible.builtin.import_tasks: switches.yml

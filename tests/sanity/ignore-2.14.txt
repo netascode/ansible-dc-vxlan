@@ -6,21 +6,26 @@ plugins/action/common/prepare_plugins/prep_103_topology_switches.py action-plugi
 plugins/action/common/prepare_plugins/prep_104_fabric_overlay_services.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_105_topology_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_106_topology_vpc_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_107_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_107_vrf_lites.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/get_credentials.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/run_map.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/read_run_map.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/merge_defaults.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/add_device_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/verify_tags.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/diff_model_changes.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/update_switch_hostname_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/links_filter_and_remove.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/unmanaged_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/get_poap_data.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/existing_links_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtd/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/test/inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/helper_functions.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/nac_dc_validate.py import-3.10!skip
 plugins/action/test/inventory.py import-3.10!skip
 plugins/action/common/run_map.py import-3.10!skip
 plugins/action/common/read_run_map.py import-3.10!skip
 plugins/action/dtc/diff_model_changes.py import-3.10!skip
+plugins/filter/version_compare.py import-3.10!skip
