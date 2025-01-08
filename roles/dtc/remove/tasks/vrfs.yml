@@ -25,7 +25,8 @@
     - switch_list.response.DATA | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
 
-- cisco.dcnm.dcnm_vrf:
+- name: Remove Unmanaged Fabric VRFs
+  cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
     config: "{{ vrf_config }}"

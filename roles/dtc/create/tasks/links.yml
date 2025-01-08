@@ -38,15 +38,20 @@
 
 - name: Create empty result List
   ansible.builtin.set_fact:
-    not_required_links: []
     required_links: []
 
-- name: Build Switch Hostname Policy Payload from Data Model Update (WIP)
+- name: Create a list of links that already exist
   cisco.nac_dc_vxlan.dtc.existing_links_check:
-    existing_links: "{{ result_links }}"
+    existing_links: "{{ result_links.response }}"
     fabric_links: "{{ fabric_links }}"
   register: not_required_links
+  when: result_links.response is defined
+
 # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
+- name: Set not_required_links if result_links.response is not defined
+  ansible.builtin.set_fact:
+    not_required_links: []
+  when: result_links.response is not defined 
 
 - name: remove unwanted links from required links input
   ansible.builtin.set_fact:

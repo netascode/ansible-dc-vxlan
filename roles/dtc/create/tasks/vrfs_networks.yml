@@ -83,7 +83,7 @@
     - MD.vxlan.global.fabric_type == 'MFD'
 
 # --------------------------------------------------------------------
-# Manage Loopback VRF attachments on NDFC
+# Manage Loopback VRF attachments on NDFC (MFD)
 # --------------------------------------------------------------------
 - name: Attach VRF Loopbacks per VRF
   include_tasks: vrf_loopbacks.yml
@@ -92,7 +92,20 @@
   loop: "{{ MD.vxlan.overlay_services.vrfs }}"
   when:
     - MD.vxlan.overlay_services.vrfs is defined
+    - MD.vxlan.global.fabric_type == 'MFD'
+
+# Manage Loopback VRF attachments on NDFC
+# --------------------------------------------------------------------
+- name: Attach VRF Loopbacks per VRF
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD.vxlan.global.name }}/vrfs/attachments"
+    method: "POST"
+    json_data: "{{ vrf_attach_config | to_json}}"
+  when:
+    - MD.vxlan.overlay_services.vrfs is defined
+    - MD.vxlan.overlay_services.vrfs
     - changes_detected_vrfs
+    - MD.vxlan.global.fabric_type != 'MFD'
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC

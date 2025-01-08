@@ -23,6 +23,8 @@
 nac_tags:
   # All Create and Remove Tags
   all:
+    - cc_verify
+    # -------------------------
     - cr_manage_fabric
     - cr_manage_switches
     - cr_manage_vpc_peers
@@ -37,11 +39,70 @@ nac_tags:
     - rr_manage_vpc_peers
     - rr_manage_links
     - rr_manage_switches
+    - rr_manage_policy
     # -------------------------
     - role_validate
     - role_create
     - role_deploy
     - role_remove
+  # All Connectivity Check Tags
+  connectivity_check:
+    - cc_verify
+    - role_create
+    - role_deploy
+    - role_remove
+    - cr_manage_fabric
+    - cr_manage_switches
+    - cr_manage_vpc_peers
+    - cr_manage_interfaces
+    - cr_manage_vrfs_networks
+    - cr_manage_policy
+    - rr_manage_interfaces
+    - rr_manage_networks
+    - rr_manage_vrfs
+    - rr_manage_vpc_peers
+    - rr_manage_links
+    - rr_manage_switches
+    - rr_manage_policy
+  # We need the ability to pass tags to the common role but we don't need the following
+  #   - validate, cc_verify
+  common_role:
+    - role_create
+    - role_deploy
+    - role_remove
+    - cr_manage_fabric
+    - cr_manage_switches
+    - cr_manage_vpc_peers
+    - cr_manage_interfaces
+    - cr_manage_vrfs_networks
+    - cr_manage_policy
+    - rr_manage_interfaces
+    - rr_manage_networks
+    - rr_manage_vrfs
+    - rr_manage_vpc_peers
+    - rr_manage_links
+    - rr_manage_switches
+    - rr_manage_policy
+  # We need the ability to pass tags to the validate role but we don't need the following
+  #   - cc_verify
+  validate_role:
+    - role_validate
+    - role_create
+    - role_deploy
+    - role_remove
+    - cr_manage_fabric
+    - cr_manage_switches
+    - cr_manage_vpc_peers
+    - cr_manage_interfaces
+    - cr_manage_vrfs_networks
+    - cr_manage_policy
+    - rr_manage_interfaces
+    - rr_manage_networks
+    - rr_manage_vrfs
+    - rr_manage_vpc_peers
+    - rr_manage_links
+    - rr_manage_switches
+    - rr_manage_policy
   # All Create Tags
   create:
     - cr_manage_fabric
@@ -73,6 +134,7 @@ nac_tags:
     - rr_manage_vpc_peers
     - rr_manage_links
     - rr_manage_switches
+    - rr_manage_policy
   remove_interfaces:
     - rr_manage_interfaces
   remove_networks:
@@ -85,3 +147,7 @@ nac_tags:
     - rr_manage_links
   remove_switches:
     - rr_manage_switches
+  remove_policy:
+    - rr_manage_policy
+  deploy:
+    - role_deploy

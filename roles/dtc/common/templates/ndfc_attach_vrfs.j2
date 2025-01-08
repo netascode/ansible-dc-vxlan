@@ -47,12 +47,11 @@
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
-{% if vrf['attach_group'] is defined %}
+{% if vrf['vrf_attach_group'] is defined %}
   attach:
-{% for attach in MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict[vrf['attach_group']] %}
-    - ip_address: {{ attach['hostname'] }}
+{% for attach in MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
+    - ip_address: {{ attach['mgmt_ip_address'] }}
 {% endfor %}
-  deploy: false
 {% endif %}
-
+  deploy: false
 {% endfor %}

@@ -2,9 +2,10 @@
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
+{% if MD_Extended.vxlan.policy.policies | default([]) | length > 0 %}
 - switch:
 {% for switch in MD_Extended.vxlan.policy.switches %}
-    - ip: {{ switch.name }}
+    - ip: {{ switch.mgmt_ip_address }}
       policies:
 {% for group_entry in switch.groups %}
 {% set query = "[?(@.name==`" ~ group_entry ~ "`)]" %}
@@ -12,8 +13,9 @@
 {% for policy in policy_group_match.policies %}
 {% set query = "[?(@.name==`" ~ policy.name ~ "`)]" %}
 {% set policy_match = MD_Extended.vxlan.policy.policies | community.general.json_query(query) | first %}
+{% set policy_name = policy_match.name | ansible.builtin.regex_replace('\\s+', '_') %}
         - create_additional_policy: False
-          description: {{ policy_match.name }}
+          description: {{ 'nac_' + policy_name }}
 {% if (policy_match.template_name is defined and policy_match.template_name) or (policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename)) %}
           name: {{ policy_match.template_name | default(defaults.vxlan.policy.template_name) }}
 {% elif policy_match.filename is defined and policy_match.filename and ".cfg" in policy_match.filename %}
@@ -22,7 +24,10 @@
           policy_vars:
 {% if policy_match.template_vars is defined and policy_match.template_vars %}
 {% for key, value in policy_match.template_vars.items() %}
-{% if key == 'CONF' %}
+{% if key == "CONF" and policy_match.template_name != "switch_freeform" %}
+              {{ key }}: |2-
+                {{ value | indent(16) }}
+{% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
 {% else %}
@@ -30,12 +35,13 @@
 {% endif %}
 {% endfor %}
 {% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
-            {{ lookup('ansible.builtin.file', policy_match.filename) | indent(12) }}
+            {{ lookup("ansible.builtin.file", policy_match.filename) | indent(12) }}
 {% elif policy_match.filename is defined and policy_match.filename and ".cfg" in policy_match.filename %}
             CONF: |-
-              {{ lookup('ansible.builtin.file', policy_match.filename) | indent(14) | trim }}
+              {{ lookup("ansible.builtin.file", policy_match.filename) | indent(14) | trim }}
 {% endif %}
           priority: {{ policy.priority | default(policy_group_match.priority) | default(defaults.vxlan.policy.priority) }}
 {% endfor %}
 {% endfor %}
 {% endfor %}
+{% endif %}

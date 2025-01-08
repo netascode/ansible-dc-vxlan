@@ -1,0 +1,206 @@
+! This NDFC VRF-Lite eBGP config data structure is auto-generated
+! DO NOT EDIT MANUALLY
+!
+!
+{% if switch_item.bgp_peers %}
+  {% for peer in switch_item.bgp_peers %}
+    {% if peer.bfd.enabled | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.bfd.enabled) %}
+feature bfd
+    {% endif %}
+  {% endfor %}
+!
+{% endif %}
+vrf context {{ item.vrf }}
+{% if switch_item.static_routes %}
+  {% for static_route in switch_item.static_routes %}
+    {% for next_hop in static_route.next_hops %}
+      {% if static_route.route_tag %}
+  ip route {{ static_route.prefix }} {{ next_hop.ip }} tag {{ static_route.route_tag }}
+      {% else %}
+  ip route {{ static_route.prefix }} {{ next_hop.ip }}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+!
+{% endif %}
+router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
+  vrf {{ item.vrf }}
+  {% if switch_item.router_id %}
+    router-id {{ switch_item.router_id }}
+  {% endif %}
+  {% if switch_item.bgp.best_path_as_path_relax %}
+    bestpath as-path multipath-relax
+  {% elif switch_item.bgp.best_path_as_path_relax is not defined and (item.bgp.best_path_as_path_relax | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.best_path_as_path_relax)) %}
+    bestpath as-path multipath-relax
+  {% endif %}
+  {% if switch_item.bgp.graceful_restart %}
+    graceful-restart
+  {% elif switch_item.bgp.graceful_restart is not defined and (item.bgp.graceful_restart | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.graceful_restart)) %}
+    graceful-restart
+  {% endif %}
+  {% if switch_item.bgp.graceful_restart_helper %}
+    graceful-restart-helper
+  {% elif switch_item.bgp.graceful_restart_helper is not defined and (item.bgp.graceful_restart_helper | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.graceful_restart_helper)) %}
+    graceful-restart-helper
+  {% endif %}
+  {% if switch_item.bgp.local_as %}
+    local-as {{ switch_item.bgp.local_as }}
+  {% elif item.bgp.local_as %}
+    local-as {{ item.bgp.local_as }}
+  {% endif %}
+  {# Check if address_family is enabled for redistribution #}
+  {% set address_family = {'address_family_v4': false, 'address_family_v6': false } %}
+  {% if switch_item.bgp_peers is defined %}
+    {% for peer in switch_item.bgp_peers %}
+      {% if "address_family_ipv4_unicast" in peer %}
+        {% set _ = address_family.update({'address_family_v4': true}) %}
+      {% elif "address_family_ipv6_unicast" in peer %}
+        {% set _ = address_family.update({'address_family_v6': true}) %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if switch_item.bgp.address_family_ipv4_unicast or address_family["address_family_v4"] is true %}
+    address-family ipv4 unicast
+    {% if (switch_item.bgp.address_family_ipv4_unicast.ebgp_distance or switch_item.bgp.address_family_ipv4_unicast.ibgp_distance or switch_item.bgp.address_family_ipv4_unicast.local_distance) %}
+      distance {{ switch_item.bgp.address_family_ipv4_unicast.ebgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.ebgp_distance)  }} {{ switch_item.bgp.address_family_ipv4_unicast.ibgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.ibgp_distance)  }} {{ switch_item.bgp.address_family_ipv4_unicast.local_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.local_distance) }}
+    {% endif %}
+    {% if switch_item.bgp.address_family_ipv4_unicast.default_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.default_originate) %}
+      default-information originate
+    {% endif %}
+    {% if switch_item.bgp.address_family_ipv4_unicast.additional_paths_send | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.additional_paths_send) %}
+      additional-paths send
+    {% endif %}
+    {% if switch_item.bgp.address_family_ipv4_unicast.additional_paths_receive | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.additional_paths_receive) %}
+      additional-paths receive
+    {% endif %}
+    {% if switch_item.bgp.address_family_ipv4_unicast.additional_paths_selection_route_map %}
+      additional-paths selection route-map {{ switch_item.bgp.address_family_ipv4_unicast.additional_paths_selection_route_map }}
+    {% endif %}
+    {% if switch_item.redistribution %}
+      {% for switch_redist in switch_item.redistribution %}
+        {% if switch_redist.source == 'static' and switch_redist.route_map_ipv4 %}
+      redistribute static route-map {{ switch_redist.route_map_ipv4 }}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+!
+  {% endif %}
+  {% if switch_item.bgp.address_family_ipv6_unicast or address_family["address_family_v6"] is true %}
+    address-family ipv6 unicast
+    {% if (switch_item.bgp.address_family_ipv6_unicast.ebgp_distance or switch_item.bgp.address_family_ipv6_unicast.ibgp_distance or switch_item.bgp.address_family_ipv6_unicast.local_distance) %}
+      distance {{ switch_item.bgp.address_family_ipv6_unicast.ebgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.ebgp_distance)  }} {{ switch_item.bgp.address_family_ipv6_unicast.ibgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.ibgp_distance)  }} {{ switch_item.bgp.address_family_ipv6_unicast.local_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.local_distance) }}
+    {% endif %}
+    {% if switch_item.bgp.address_family_ipv6_unicast.default_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.default_originate) %}
+      default-information originate
+    {% endif %}
+    {% if switch_item.bgp.address_family_ipv6_unicast.additional_paths_send | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.additional_paths_send) %}
+      additional-paths send
+    {% endif %}
+    {% if switch_item.bgp.address_family_ipv6_unicast.additional_paths_receive | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.additional_paths_receive) %}
+      additional-paths receive
+    {% endif %}
+    {% if switch_item.bgp.address_family_ipv6_unicast.additional_paths_selection_route_map %}
+      additional-paths selection route-map {{ switch_item.bgp.address_family_ipv6_unicast.additional_paths_selection_route_map }}
+    {% endif %}
+    {% if switch_item.redistribution %}
+      {% for switch_redist in switch_item.redistribution %}
+        {% if switch_redist.source == 'static' and switch_redist.route_map_ipv6 %}
+      redistribute static route-map {{ switch_redist.route_map_ipv6 }}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+!
+  {% endif %}
+{% if switch_item.bgp_peers %}
+  {% for peer in switch_item.bgp_peers %}
+    neighbor {{ peer.address }}
+      remote-as {{ peer.remote_as }}
+    {% if peer.local_as %}
+      local-as {{ peer.local_as }} no-prepend replace-as
+    {% endif %}
+    {% if peer.description %}
+      description {{ peer.description }}
+    {% endif %}
+    {% if peer.update_source %}
+      update-source {{ peer.update_source }}
+    {% elif switch_item.loopback_id %}
+      update-source Loopback{{ switch_item.loopback_id }}
+    {% endif %}
+    {% if peer.bfd.enabled | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.bfd.enabled) %}
+      bfd
+    {% endif %}
+    {% if peer.disable_connected_check | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.disable_connected_check) %}
+      disable-connected-check
+    {% endif %}
+    {% if peer.remove_private_as_all | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.remove_private_as_all) %}
+      remove-private-as all
+    {% elif peer.remove_private_as | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.remove_private_as) %}
+      remove-private-as
+    {% endif %}
+      ebgp-multihop {{ peer.ebgp_multihop | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.ebgp_multihop) }}
+    {% if peer.password is defined %}
+      password 3 {{ peer.password }}
+    {% endif %}
+    {% if peer.address_family_ipv4_unicast %}
+      address-family ipv4 unicast
+      {% if peer.address_family_ipv4_unicast.route_map_in %}
+        route-map {{ peer.address_family_ipv4_unicast.route_map_in }} in
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.route_map_out %}
+        route-map {{ peer.address_family_ipv4_unicast.route_map_out }} out
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.weight %}
+        weight {{ peer.address_family_ipv4_unicast.weight }}
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.allow_as_in %}
+        allowas-in {{ peer.address_family_ipv4_unicast.allow_as_in_number | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv4_unicast.allow_as_in_number) }}
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.send_community | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv4_unicast.send_community) %}
+        send-community
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.send_ext_community | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv4_unicast.send_ext_community) %}
+        send-community extended
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.as_override | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.as_override) %}
+        as-override
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.next_hop_self | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.next_hop_self) %}
+        next-hop-self
+      {% endif %}
+      {% if peer.address_family_ipv4_unicast.default_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.default_originate) %}
+        default-originate
+      {% endif %}
+!
+    {% endif %}
+    {% if peer.address_family_ipv6_unicast %}
+      address-family ipv6 unicast
+      {% if peer.address_family_ipv6_unicast.route_map_in %}
+        route-map {{ peer.address_family_ipv6_unicast.route_map_in }} in
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.route_map_out %}
+        route-map {{ peer.address_family_ipv6_unicast.route_map_out }} out
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.weight %}
+        weight {{ peer.address_family_ipv6_unicast.weight }}
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.allow_as_in %}
+        allowas-in {{ peer.address_family_ipv6_unicast.allow_as_in_number | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv6_unicast.allow_as_in_number) }}
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.send_community | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv6_unicast.send_community) %}
+        send-community
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.send_ext_community | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv6_unicast.send_ext_community) %}
+        send-community extended
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.as_override| default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv6_unicast.as_override) %}
+        as-override
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.next_hop_self | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv6_unicast.next_hop_self) %}
+        next-hop-self
+      {% endif %}
+      {% if peer.address_family_ipv6_unicast.default_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.address_family_ipv6_unicast.default_originate) %}
+        default-originate
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}

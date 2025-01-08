@@ -20,13 +20,13 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- ansible.builtin.debug: msg="Removing all Unmanaged Fabric Interfaces. This could take several minutes..."
+- ansible.builtin.debug: msg="Removing Unmanaged Fabric Interfaces. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
-
-- cisco.dcnm.dcnm_interface:
+- name: Remove Unmanaged Fabric Interfaces
+  cisco.dcnm.dcnm_interface:
     fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
     config: "{{ interface_all }}"

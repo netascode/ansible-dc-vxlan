@@ -1,10 +1,16 @@
 [
-  {% for attach in MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict[vrf["attach_group"]] %}
+  {% for vrf in MD_Extended.vxlan.overlay_services.vrfs %}
+  {% if vrf['vrf_attach_group'] is defined %}
+  {
+    "vrfName": "{{ vrf["name"] }}",
+    "lanAttachList": 
+    [
+  {% for attach in MD_Extended.vxlan.overlay_services.vrf_attach_groups_dict[vrf["vrf_attach_group"]] %}
   {
     "fabric": "{{ MD.vxlan.global.name }}",
     "vrfName": "{{ vrf["name"] }}",
-    {% for switch in MD.vxlan.topology.switches %}
-      {% if switch.management.management_ipv4_address == attach["hostname"] %}
+    {% for switch in MD_Extended.vxlan.topology.switches %}
+      {% if switch.management.management_ipv4_address == attach["mgmt_ip_address"] %}
     "serialNumber": "{{ switch.serial_number }}",
       {% endif %}
     {% endfor %}
@@ -12,7 +18,11 @@
     "extensionValues": "",
     "vlan": "{{ vrf["vlan_id"] }}",
     "deployment": true,
-    "instanceValues": "{\"loopbackId\": \"{{ attach['loopback_id'] }}\", \"loopbackIpAddress\": \"{{ attach['loopback_ipv4'] | default('') }}\", \"loopbackIpV6Address\":\"{{ attach['loopback_ipv6'] | default('') }}\"}"
+    "instanceValues": "{\"loopbackId\": \"{{ attach['loopback_id'] | default('')}}\", \"loopbackIpAddress\": \"{{ attach['loopback_ipv4'] | default('') }}\", \"loopbackIpV6Address\":\"{{ attach['loopback_ipv6'] | default('') }}\"}"
   }{% if not loop.last %},{% endif %}
+  {% endfor %}
+    ]
+  }{% if not loop.last %},{% endif %}
+  {% endif %}
   {% endfor %}
 ]
