@@ -19,7 +19,7 @@
 {# Include NDFC ISN Base Template #}
 {% include '/ndfc_fabric/isn_fabric/isn_fabric_base.j2' %}
 
-{% elif vxlan.fabric_type == 'External' %}
+{% elif vxlan.fabric.type == 'External' %}
 
 {# Include NDFC External Fabric Base Template #}
 {% include '/ndfc_fabric/dc_external_fabric/dc_external_fabric_base.j2' %}
