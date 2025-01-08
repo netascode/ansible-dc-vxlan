@@ -56,7 +56,7 @@ class PreparePlugin:
                 model_data['vxlan']['topology'][role][name][v6_key] = v6ip
 
 
-        model_data = hostname_to_ip_mapping(model_data)
+            model_data = hostname_to_ip_mapping(model_data)
 
         self.kwargs['results']['model_extended'] = model_data
 
