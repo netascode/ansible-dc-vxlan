@@ -30,9 +30,9 @@
             {% endif %}
             {% endfor %}
           {% else %}
-            'ports':'{{ switch.hostname }}({{ switch.ports | join(",") }} )',
+            'ports':'{{ switch.hostname }}({{ switch.ports | join(",") }})',
             'torSwitches': null,
-            'allSwitches':'["{{ switch['hostname'] }}","{{ switch_inv.intentedpeerName }}"]'
+            'allSwitches':["{{ switch['hostname'] }}","{{ switch_inv.intentedpeerName }}"]
           {% endif %}
           {% endif %}
         {% endfor %}
