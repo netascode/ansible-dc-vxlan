@@ -1,0 +1,40 @@
+{% set poap_data = poap_data['poap_data'] %}
+{% for switch in MD_Extended.vxlan.topology.switches %}
+{% if switch.management.management_ipv4_address is defined %}
+- seed_ip: {{ switch['management']['management_ipv4_address'] }}
+{% elif switch.management.management_ipv6_address is defined %}
+- seed_ip: {{ switch['management']['management_ipv6_address'] }}
+{% endif %}
+  auth_proto: {{ MD['vxlan']['global']['auth_proto'] | default(defaults.vxlan.global.auth_proto) }}
+  user_name: PLACE_HOLDER_USERNAME
+  password: PLACE_HOLDER_PASSWORD
+  max_hops: 0 # this is the default value as it is not defined into the data model
+  role: {{ switch['role'] }}
+  preserve_config: false
+{% if MD_Extended.vxlan.global.bootstrap is defined %}
+{% if MD_Extended.vxlan.global.bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.global.bootstrap.enable_bootstrap %}
+{% if switch.poap is defined and switch.poap.bootstrap %}
+{% if poap_data[switch['serial_number']] is defined %}
+{% set pdata = poap_data[switch['serial_number']] %}
+  poap:
+    - serial_number: {{ switch['serial_number'] }}
+      hostname: {{ switch['name'] }}
+      model: {{ pdata['model'] }}
+      version: {{ pdata['version'] }}
+      config_data:
+        modulesModel: {{ pdata['modulesModel'] }}
+        gateway: {{ pdata['gateway'] }}
+{% elif switch['poap']['preprovision'] is defined %}
+  poap:
+    - preprovision_serial: {{ switch['poap']['preprovision']['serial_number'] }}
+      model: {{  switch['poap']['preprovision']['model'] }}
+      version: {{ switch['poap']['preprovision']['version']  }}
+      config_data:
+        modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
+        gateway: {{ switch['management']['default_gateway_v4']  }} 
+      hostname: {{ switch['name'] }}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}
