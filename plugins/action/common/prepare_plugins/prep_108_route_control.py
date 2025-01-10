@@ -178,7 +178,7 @@ class PreparePlugin:
         """
         if "entries" in acl:
             for entry in acl["entries"]:
-                if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp','icmp']):
+                if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp', 'icmp']):
                     if ip_version == 'ipv6' and entry['protocol'] == 'icmp':
                         proto = 'icmp6'
                     else:
