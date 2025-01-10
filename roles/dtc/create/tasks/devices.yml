@@ -29,8 +29,8 @@
       - "----------------------------------------------------------------"
 
 - name: Manage Devices Discovery
-  ansible.builtin.include_tasks: devices_discovery.yml
+  ansible.builtin.import_tasks: devices_discovery.yml
 
 # TODO: Enable This Capability
 # - name: Add Devices POAP
-#   ansible.builtin.include_tasks: devices_poap.yml
+#   ansible.builtin.import_tasks: devices_poap.yml

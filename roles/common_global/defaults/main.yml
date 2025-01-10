@@ -34,9 +34,10 @@ force_run_all: false
 
 # Parameters to enable/disable remove role tasks
 interface_delete_mode: false
-network_delete_mode: false
-vrf_delete_mode: false
 inventory_delete_mode: false
+link_fabric_delete_mode: false
 link_vpc_delete_mode: false
-vpc_delete_mode: false
+network_delete_mode: false
 policy_delete_mode: false
+vpc_delete_mode: false
+vrf_delete_mode: false
