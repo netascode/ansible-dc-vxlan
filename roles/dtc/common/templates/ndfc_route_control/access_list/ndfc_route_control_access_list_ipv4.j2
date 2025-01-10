@@ -37,6 +37,8 @@ ip access-list {{ ipv4_access_list["name"] | lower }}
                                 {% set source = source ~ " " ~ entry[ "source"]["port_number"]["operator"] ~ " " ~ entry[ "source"]["port_number"]["port"] %}
                             {% elif entry[ "source"]["port_number"]["from"] and entry[ "source"]["port_number"]["to"] %}
                                 {% set source = source ~ " range " ~ entry[ "source"]["port_number"]["from"] ~ " " ~ entry[ "source"]["port_number"]["to"] %}
+                            {% elif entry[ "source"]["port_number"]["from"] %}
+                                {% set source = source ~ " " ~ entry[ "source"]["port_number"]["operator"] ~ " " ~ entry[ "source"]["port_number"]["from"] %}
                             {% endif %}
                         {% endif %}
                         {% if entry[ "destination"].ip is defined and entry[ "destination"]["wildcard"] is defined %}
@@ -59,6 +61,15 @@ ip access-list {{ ipv4_access_list["name"] | lower }}
                                 {% set destination = destination ~ " " ~ entry[ "destination"]["port_number"]["operator"] ~ " " ~ entry[ "destination"]["port_number"]["port"] %}
                             {% elif entry[ "destination"]["port_number"]["from"] and entry[ "destination"]["port_number"]["to"] %}
                                 {% set destination = destination ~ " range " ~ entry[ "destination"]["port_number"]["from"] ~ " " ~ entry[ "destination"]["port_number"]["to"] %}
+                            {% elif entry[ "destination"]["port_number"]["from"] %}
+                                {% set destination = destination ~ " " ~ entry[ "destination"]["port_number"]["from"] %}
+                            {% endif %}
+                        {# Usecase for ICMP without operator i.e: eq, gt #}
+                        {% elif entry[ "destination"]["port_number"] is defined %}
+                            {% if entry[ "destination"]["port_number"]["port"] is defined %}
+                                {% set destination = destination ~ " " ~ entry["destination"]["port_number"]["port"] %}
+                            {% elif entry[ "destination"]["port_number"]["from"] is defined %}
+                                {% set destination = destination ~ " " ~ entry["destination"]["port_number"]["from"] %}
                             {% endif %}
                         {% endif %}
                         {% if entry[ "filtering_options"] is defined %}

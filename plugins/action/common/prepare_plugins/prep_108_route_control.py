@@ -66,14 +66,14 @@ class PreparePlugin:
         dm_check = data_model_key_check(model_data, parent_keys)
         if 'ipv4_access_lists' in dm_check['keys_data']:
             for acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv4_access_lists"]:
-                self.update_ip_access_lists(acl)
+                self.update_ip_access_lists(acl, 'ipv4')
 
         # Check IPv6 ACL
         parent_keys = ['vxlan', 'overlay_extensions', 'route_control', 'ipv6_access_lists']
         dm_check = data_model_key_check(model_data, parent_keys)
         if 'ipv6_access_lists' in dm_check['keys_data']:
             for acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"]:
-                self.update_ip_access_lists(acl)
+                self.update_ip_access_lists(acl, 'ipv6')
 
         parent_keys = ['vxlan', 'overlay_extensions', 'route_control']
         dm_check = data_model_key_check(model_data, parent_keys)
@@ -172,24 +172,45 @@ class PreparePlugin:
                                     option_set["ipv6"]["precedence"] = precedence_translation[
                                         option_set["ipv6"]["precedence"]]
 
-    def update_ip_access_lists(self, acl):
+    def update_ip_access_lists(self, acl, ip_version):
         """
         function to rewrite parameters in IP ACLs
         """
         if "entries" in acl:
             for entry in acl["entries"]:
-                if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp']):
+                if ("protocol" in entry) and (entry["protocol"] in ['tcp', 'udp','icmp']):
+                    if ip_version == 'ipv6' and entry['protocol'] == 'icmp':
+                        proto = 'icmp6'
+                    else:
+                        proto = entry['protocol']
+
                     if "source" in entry and "port_number" in entry["source"]:
 
                         if "port" in entry["source"]["port_number"]:
                             entry["source"][
                                 "port_number"]["port"] = self.update_port_number(
-                                entry["source"]["port_number"]["port"], entry["protocol"])
+                                entry["source"]["port_number"]["port"], proto)
+                        if "from" in entry["source"]["port_number"]:
+                            entry["source"][
+                                "port_number"]["from"] = self.update_port_number(
+                                entry["source"]["port_number"]["from"], proto)
+                        if "to" in entry["source"]["port_number"]:
+                            entry["source"][
+                                "port_number"]["to"] = self.update_port_number(
+                                entry["source"]["port_number"]["to"], proto)
                     if "destination" in entry and "port_number" in entry["destination"]:
                         if "port" in entry["destination"]["port_number"]:
                             entry["destination"][
                                 "port_number"]["port"] = self.update_port_number(
-                                entry["destination"]["port_number"]["port"], entry["protocol"])
+                                entry["destination"]["port_number"]["port"], proto)
+                        if "from" in entry["destination"]["port_number"]:
+                            entry["destination"][
+                                "port_number"]["from"] = self.update_port_number(
+                                entry["destination"]["port_number"]["from"], proto)
+                        if "to" in entry["destination"]["port_number"]:
+                            entry["destination"][
+                                "port_number"]["to"] = self.update_port_number(
+                                entry["destination"]["port_number"]["to"], proto)
 
     def update_port_number(self, port_number, protocol):
         """
@@ -262,6 +283,47 @@ class PreparePlugin:
             4500: "non500-isakmp",
         }
 
+        icmp = {
+            0: "echo-reply",
+            3: "unreachable",
+            4: "source-quench",
+            5: "redirect",
+            6: "alternate-address",
+            8: "echo",
+            9: "router-advertisement",
+            10: "router-solicitation",
+            11: "time-exceeded",
+            12: "parameter-problem",
+            13: "timestamp-request",
+            14: "timestamp-reply",
+            15: "information-request",
+            16: "information-reply",
+            17: "mask-request",
+            18: "mask-reply",
+            30: "traceroute",
+            31: "conversion-error",
+            32: "mobile-redirect",
+        }
+
+        icmp6 = {
+            1: "unreachable",
+            2: "packet-too-big",
+            3: "time-exceeded",
+            4: "parameter-problem",
+            128: "echo-request",
+            129: "echo-reply",
+            130: "mld-query",
+            131: "mld-report",
+            132: "mld-reduction",
+            133: "router-solicitation",
+            134: "router-advertisement",
+            135: "nd-ns",
+            136: "nd-na",
+            137: "redirect",
+            138: "router-renumbering",
+            143: "mldv2",
+        }
+
         if protocol == 'tcp':
             if port_number in tcp:
                 return tcp[port_number]
@@ -269,6 +331,14 @@ class PreparePlugin:
         elif protocol == 'udp':
             if port_number in udp:
                 return udp[port_number]
+
+        elif protocol == 'icmp':
+            if port_number in icmp:
+                return icmp[port_number]
+
+        elif protocol == 'icmp6':
+            if port_number in icmp6:
+                return icmp6[port_number]
 
         return port_number
 
