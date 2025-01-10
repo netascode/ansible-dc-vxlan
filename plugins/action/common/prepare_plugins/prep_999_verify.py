@@ -41,6 +41,10 @@ class PreparePlugin:
         fail_msg += " the data was not included in the data model."
         fail_msg += " Data Model Section: ({})"
 
+        # from pprint import pprint
+        # md = model_data
+        # pprint(md)
+
 
         # This prepare plugin serves as a final sanity check after all of the
         # previous prepare plugins have been called to transform the model data.
@@ -48,21 +52,19 @@ class PreparePlugin:
         # This plugin ensures the following:
         #   * All keys required for this collection to function are present (not accidentally overwritten)
         #   * List items that were present before the prepare plugins ran are still present
-        for key in model_keys.keys():
-            dm_check = data_model_key_check(model_data, model_keys[key])
-            # model_keys['policy.policies'] = [root_key, 'policy', 'policies', 'LIST']
-            # Get 2nd to last item from the python list above
-            # model_keys[key][-2] - Gets 'policies'
-            if model_keys[key][-2] in dm_check['keys_not_found']:
+        fabric_type = model_data['vxlan']['fabric']['type']
+        for key in model_keys[fabric_type].keys():
+            # Remove the meta_data item from model_keys entry (KEY, LIST, LIST_INDEX)
+            model_keys[fabric_type][key].pop()
+            dm_check = data_model_key_check(model_data, model_keys[fabric_type][key])
+            # Example:
+            # model_keys['VXLAN_EVPN']['policy.policies'] = [root_key, 'policy', 'policies', 'LIST']
+            #   * Get 2nd to last item from the python list above
+            #   * model_keys[key][-2] - Gets 'policies'
+            if model_keys[fabric_type][key][-2] in dm_check['keys_not_found']:
                 self.kwargs['results']['failed'] = True
-                self.kwargs['results']['msg'] = fail_msg.format(key, model_keys[key])
+                self.kwargs['results']['msg'] = fail_msg.format(key, model_keys[fabric_type][key])
                 return self.kwargs['results']
-                                            
-
-        # from pprint import pprint
-        # md = model_data
-        # import epdb ; epdb.set_trace()
-        # pprint(md)
 
         # We don't need to pass any data back in this plugin because we don't modify any data.
         return self.kwargs['results']

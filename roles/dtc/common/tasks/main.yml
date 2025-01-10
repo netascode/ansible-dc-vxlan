@@ -65,6 +65,8 @@
         changes_detected_interface_vpc: false
         changes_detected_sub_interface_routed: false
         changes_detected_policy: false
+  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
+
 
 - name: Import Role Tasks for VXLAN Fabric
   ansible.builtin.import_tasks: sub_main_vxlan.yml

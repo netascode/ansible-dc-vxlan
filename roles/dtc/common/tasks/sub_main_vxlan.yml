@@ -28,6 +28,11 @@
 # --------------------------------------------------------------------
 # Remove all files from the previous run if run_map requires it
 # --------------------------------------------------------------------
+- name: Set path_name Var
+  ansible.builtin.set_fact:
+    path_name: "{{ role_path }}/files/vxlan/{{ MD_Extended.vxlan.fabric.name }}/"
+  delegate_to: localhost
+
 - name: Cleanup Files from Previous Run if run_map requires it
   ansible.builtin.import_tasks: cleanup_files.yml
   when:

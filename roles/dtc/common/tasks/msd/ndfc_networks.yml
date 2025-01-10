@@ -28,32 +28,32 @@
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "{{ MD_Extended.vxlan.fabric.name }}_ndfc_attach_networks.yml"
+    file_name: "ndfc_attach_networks.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
   ansible.builtin.stat:
-    path: "{{ role_path }}/files/{{ file_name }}"
+    path: "{{ path_name }}{{ file_name }}"
   register: data_file_previous
   delegate_to: localhost
 
 - name: Backup Previous Data File If It Exists
   ansible.builtin.copy:
-    src: "{{ role_path }}/files/{{ file_name }}"
-    dest: "{{ role_path }}/files/{{ file_name }}.old"
+    src: "{{ path_name }}{{ file_name }}"
+    dest: "{{ path_name }}{{ file_name }}.old"
   when: data_file_previous.stat.exists
 
 - name: Delete Previous Data File If It Exists
   ansible.builtin.file:
     state: absent
-    path: "{{ role_path }}/files/{{ file_name }}"
+    path: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
 - name: Build Networks Attach List From Template
   ansible.builtin.template:
     src: ndfc_attach_networks.j2
-    dest: "{{ role_path }}/files/{{ file_name }}"
+    dest: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
 
 - name: Set net_config Var
@@ -63,14 +63,14 @@
 
 - name: Set net_config Var
   ansible.builtin.set_fact:
-    net_config: "{{ lookup('file', file_name) | from_yaml }}"
+    net_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   when: (MD_Extended.vxlan.multisite.overlay.networks | default([])) | length > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
-    file_name_previous: "{{ role_path }}/files/{{ file_name }}.old"
-    file_name_current: "{{ role_path }}/files/{{ file_name }}"
+    file_name_previous: "{{ path_name }}{{ file_name }}.old"
+    file_name_current: "{{ path_name }}{{ file_name }}"
   register: file_diff_result
   delegate_to: localhost
 

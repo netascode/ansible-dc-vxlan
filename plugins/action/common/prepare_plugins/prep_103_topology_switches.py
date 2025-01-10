@@ -29,6 +29,11 @@ class PreparePlugin:
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
+
+        # This plugin does not apply to the follwing fabric types
+        if model_data['vxlan']['fabric']['type'] in ['ISN', 'MSD', 'MCF']:
+            return self.kwargs['results']
+
         #  Loop over all the roles in vxlan.topology.switches.role
         model_data['vxlan']['topology']['spine'] = {}
         model_data['vxlan']['topology']['leaf'] = {}

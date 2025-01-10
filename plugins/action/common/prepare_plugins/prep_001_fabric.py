@@ -123,6 +123,7 @@ class PreparePlugin:
         # For backwards compatibility, replace 'overlay_services' key with 'overlay'
         # NOTE: No prepare plugin, jinja2 template or ansible task should reference 'overlay_services' after this replacement.
         # NOTE: Rules are different since rules run BEFORE prepare plugins
+        # import epdb ; epdb.set_trace()
         parent_keys = ['vxlan', 'overlay_services']
         dm_check = data_model_key_check(model_data, parent_keys)
         if 'overlay_services' in dm_check['keys_found']:
@@ -133,6 +134,11 @@ class PreparePlugin:
             display.deprecated(msg=deprecated_msg, version="1.0.0")
             model_data['vxlan']['overlay'] = model_data['vxlan']['overlay_services']
             del model_data['vxlan']['overlay_services']
+
+        parent_keys = ['vxlan', 'multisite', 'overlay']
+        dm_check = data_model_key_check(model_data, parent_keys)
+        if 'multisite' in dm_check['keys_found'] and 'overlay' in dm_check['keys_found']:
+            model_data['vxlan']['overlay'] = model_data['vxlan']['multisite']['overlay']
 
 
         self.kwargs['results']['model_extended'] = model_data

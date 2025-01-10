@@ -29,7 +29,12 @@ class PreparePlugin:
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
-        switches = model_data['vxlan']['topology']['switches']
+
+        # We don't have switches for Multisite fabrics so need special handling
+        if model_data['vxlan']['fabric']['type'] in ('MSD', 'MCF', 'ISN'):
+            switches = []
+        else:
+            switches = model_data['vxlan']['topology']['switches']
 
         if model_data['vxlan']['fabric']['type'] in ('VXLAN_EVPN'):
             # Rebuild sm_data['vxlan']['overlay']['vrf_attach_groups'] into
@@ -85,6 +90,7 @@ class PreparePlugin:
             # a structure that is easier to use.
             vrf_grp_name_list = []
             model_data['vxlan']['multisite']['overlay']['vrf_attach_groups_dict'] = {}
+            model_data['vxlan']['multisite']['overlay']['vrf_attach_switches_list'] = []
             for grp in model_data['vxlan']['multisite']['overlay']['vrf_attach_groups']:
                 model_data['vxlan']['multisite']['overlay']['vrf_attach_groups_dict'][grp['name']] = []
                 vrf_grp_name_list.append(grp['name'])
@@ -99,6 +105,11 @@ class PreparePlugin:
                         elif found_switch.get('management').get('management_ipv6_address'):
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
 
+                    # Append switch to a flat list of switches for cross comparison later when we query the
+                    # MSD fabric information.  We need to stop execution if the list returned by the MSD query
+                    # does not include one of these switches.
+                    model_data['vxlan']['multisite']['overlay']['vrf_attach_switches_list'].append(switch['hostname'])
+
             # Remove vrf_attach_group from vrf if the group_name is not defined
             for vrf in model_data['vxlan']['multisite']['overlay']['vrfs']:
                 if 'vrf_attach_group' in vrf:
@@ -109,6 +120,7 @@ class PreparePlugin:
             # a structure that is easier to use.
             net_grp_name_list = []
             model_data['vxlan']['multisite']['overlay']['network_attach_groups_dict'] = {}
+            model_data['vxlan']['multisite']['overlay']['network_attach_switches_list'] = []
             for grp in model_data['vxlan']['multisite']['overlay']['network_attach_groups']:
                 model_data['vxlan']['multisite']['overlay']['network_attach_groups_dict'][grp['name']] = []
                 net_grp_name_list.append(grp['name'])
@@ -122,6 +134,10 @@ class PreparePlugin:
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
                         elif found_switch.get('management').get('management_ipv6_address'):
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
+                    # Append switch to a flat list of switches for cross comparison later when we query the
+                    # MSD fabric information.  We need to stop execution if the list returned by the MSD query
+                    # does not include one of these switches.
+                    model_data['vxlan']['multisite']['overlay']['network_attach_switches_list'].append(switch['hostname'])
 
             # Remove network_attach_group from net if the group_name is not defined
             for net in model_data['vxlan']['multisite']['overlay']['networks']:

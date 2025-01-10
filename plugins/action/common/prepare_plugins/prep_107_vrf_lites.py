@@ -33,8 +33,12 @@ class PreparePlugin:
         self.keys = []
 
     def prepare(self):
-        templates_path = self.kwargs['templates_path']
         model_data = self.kwargs['results']['model_extended']
+
+        if model_data['vxlan']['fabric']['type'] == 'ISN':
+            return self.kwargs['results']
+
+        templates_path = self.kwargs['templates_path']
         default_values = self.kwargs['default_values']
 
         # Remove lines 41-43 after route control that includes route-maps, prefix-lists, etc is merged

@@ -37,6 +37,7 @@ class ActionModule(ActionBase):
         results['failed'] = False
 
         parent_fabric_name = self._task.args['parent_fabric_name']
+        model_data_overlay = self._task.args['model_data_overlay']
 
         msd_inventory = self._execute_module(
             module_name="cisco.dcnm.dcnm_inventory",
@@ -48,11 +49,36 @@ class ActionModule(ActionBase):
             tmp=tmp
         )
 
+        response = msd_inventory.get('response', [])
         msd_switches = {}
-        for switch in msd_inventory.get('response', []):
+
+        if isinstance(response, str):
+            if response == 'The queried switch is not part of the fabric configured':
+                results['msd_switches'] = msd_switches
+                return results
+
+        for switch in response:
             msd_switches.update({switch['hostName']: switch['ipAddress']})
             msd_switches.update({switch['ipAddress']: switch['ipAddress']})
 
-        results['msd_switches'] = msd_switches
+        # Cross reference msd_switches with the switches defined in
+        # VRF and Network attach list.
+        #
+        # Only makes sense to check this if msd_switches actually has switches.
+        if bool(msd_switches):
+            results['msg'] = []
+            for switch in model_data_overlay['vrf_attach_switches_list']:
+                if switch not in msd_switches.keys():
+                    results['failed'] = True
+                    msg = f"Switch ({switch}) defined under vxlan.multisite.overlay.vrf_attach_groups"
+                    msg += f" does not exist under this MSD fabric ({parent_fabric_name})"
+                    results['msg'].append(msg)
+            for switch in model_data_overlay['network_attach_switches_list']:
+                if switch not in msd_switches.keys():
+                    results['failed'] = True
+                    msg = f"Switch ({switch}) defined under vxlan.multisite.overlay.network_attach_groups"
+                    msg += f" does not exist under this MSD fabric ({parent_fabric_name})"
+                    results['msg'].append(msg)
 
+        results['msd_switches'] = msd_switches
         return results

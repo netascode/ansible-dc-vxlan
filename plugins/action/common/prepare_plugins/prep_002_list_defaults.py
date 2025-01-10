@@ -22,11 +22,48 @@
 from ansible.utils.display import Display
 from ....plugin_utils.helper_functions import data_model_key_check
 from ....plugin_utils.data_model_keys import model_keys
+from functools import reduce
+import operator
 
 display = Display()
 
+def getFromDict(dataDict, mapList):
+    """
+    # Summary
+
+    Get subset of a nested Dict from a list of keys
+
+    """
+    return reduce(operator.getitem, mapList, dataDict)
 
 def update_nested_dict(nested_dict, keys, new_value):
+    """
+    # Summary
+
+    Update nested dictionary element value
+
+    ## Raises
+
+    None
+
+    ## Parameters
+
+    -   nested_dict: Dictionary to be updated
+    -   keys: A list of keys to access the value
+    -   value: Update the key with this value
+
+    ## Updates
+
+    Updates nested_dict
+
+    ## Usage
+
+    ```python
+
+    update_nested_dict(self.model_data, keys, [])
+
+    ```
+    """
     if len(keys) == 1:
         nested_dict[keys[0]] = new_value
     else:
@@ -41,11 +78,91 @@ class PreparePlugin:
         self.keys = []
 
     def set_list_default(self, parent_keys, target_key):
+        """
+        # Summary
+
+        Defaults a target_key to be an empty list [] if the
+        target_key does not exist or does exist but there is no
+        data associated with the target_key.
+
+        ## Raises
+
+        None
+
+        ## Parameters
+
+        -   parent_keys: A list of parent keys
+        -   target_key: The key under the parent keys to access the list
+
+        ## Updates
+
+        Updates self.model_data
+
+        ## Usage
+
+        ```python
+        parent_keys = ['vxlan', 'global', 'dns_servers']
+        target_key = 'dns_servers'
+
+        self.set_list_default(parent_keys, target_key)
+
+        ```
+        """
         keys = parent_keys + [target_key]
         dm_check = data_model_key_check(self.model_data, keys)
         if target_key in dm_check['keys_not_found'] or \
            target_key in dm_check['keys_no_data']:
             update_nested_dict(self.model_data, keys, [])
+
+    def set_nested_list_default(self, model_data_subset, target_key):
+        """
+        # Summary
+
+        Update part of a model_data dictionary that has an arbitrary
+        list of items that needs to be set to empty list []
+
+        ## Raises
+
+        None
+
+        ## Parameters
+
+        -   model_data_subset: Model data subset entry point
+        -   target_key: The target key for each list item under the entry point
+
+        ## Updates
+
+        Updates self.model_data
+
+        ## Usage
+
+        ```python
+
+        model_data_subset = self.model_data['vxlan']['topology']['switches']
+        target_key = 'freeforms'
+
+        self.set_nested_list_default(model_data_subset, target_key)
+
+        ```
+        """
+        list_index = 0
+        for item in model_data_subset:
+            dm_check = data_model_key_check(item, [target_key])
+            if target_key in dm_check['keys_not_found'] or \
+            target_key in dm_check['keys_no_data']:
+                model_data_subset[list_index][target_key] = []
+
+            list_index += 1
+
+        # The code in this set_nested_list_default function effectively replaces this pattern:
+        #
+        # for switch in self.model_data['vxlan']['topology']['switches']:
+        #     dm_check = data_model_key_check(switch, ['freeforms'])
+        #     if 'freeforms' in dm_check['keys_not_found'] or \
+        #     'freeforms' in dm_check['keys_no_data']:
+        #         self.model_data['vxlan']['topology']['switches'][list_index]['freeforms'] = []
+
+        #     list_index += 1
 
     # The prepare method is used to default each list or nested list
     # in the model data to an empty list if the key for the list does
@@ -61,139 +178,43 @@ class PreparePlugin:
         # --------------------------------------------------------------------
         from pprint import pprint
 
-        paths = [
-            'global.dns_servers',
-            'global.ntp_servers',
-            'global.syslog_servers',
-            'global.spanning_tree',
-            'global.spanning_tree.vlan_range',
-            'global.spanning_tree.mst_instance_range',
-            'global.netflow',
-            'global.netflow.exporter',
-            'global.netflow.record',
-            'global.netflow.monitor',
-            'underlay',
-            'topology',
-            'topology.edge_connections',
-            'topology.fabric_links',
-            'topology.switches',
-            'topology.vpc_peers',
-            'overlay',
-            'overlay.vrfs',
-            'overlay.vrf_attach_groups',
-            'overlay.networks',
-            'overlay.network_attach_groups',
-            'multisite',
-            'multisite.overlay',
-            'multisite.overlay.vrfs',
-            'multisite.overlay.vrf_attach_groups',
-            'multisite.overlay.networks',
-            'multisite.overlay.network_attach_groups',
-            'policy',
-            'policy.policies',
-            'policy.groups',
-            'policy.switches'
-        ]
-        for path in paths:
+        # type: enum('VXLAN_EVPN', 'MSD', 'MCF', 'ISN')
+        fabric_type = self.model_data['vxlan']['fabric']['type']
+
+        # for path in paths:
+        for path in model_keys[fabric_type]:
             # Get all but the last 2 elements of model_keys[path]
-            path_type = model_keys[path][-1]
-            parent_keys = model_keys[path][:-2]
-            target_key = model_keys[path][-2]
+            path_type = model_keys[fabric_type][path][-1]
+            parent_keys = model_keys[fabric_type][path][:-2]
+            target_key = model_keys[fabric_type][path][-2]
             if path_type == 'KEY':
                 dm_check = data_model_key_check(self.model_data, parent_keys + [target_key])
                 if target_key in dm_check['keys_not_found'] or target_key in dm_check['keys_no_data']:
                     update_nested_dict(self.model_data, parent_keys + [target_key], {})
             if path_type == 'LIST':
                 self.set_list_default(parent_keys, target_key)
+            if path_type == 'LIST_INDEX':
+                # model_keys['VXLAN_EVPN']['topology.switches.freeform'] = [root_key, 'topology', 'switches', 'freeform', 'LIST_INDEX']
+                model_data_subset = getFromDict(self.model_data, parent_keys)
+                target_key = target_key
+                self.set_nested_list_default(model_data_subset, target_key)
 
-        # --------------------------------------------------------------------
-        # The following sections deal with more difficult nexted list
-        # structures where there is a list_index in the middle of the dict.
-        # There may be a way to reduce the amount of code but for now leaving
-        # it as is.
-        # --------------------------------------------------------------------
 
-        # --------------------------------------------------------------------
-        # Fabric Topology Switches Freeforms List Defaults
-        # --------------------------------------------------------------------
-
-        # Check vxlan.topology.switches[index].freeforms list elements
-        list_index = 0
-        for switch in self.model_data['vxlan']['topology']['switches']:
-            dm_check = data_model_key_check(switch, ['freeforms'])
-            if 'freeforms' in dm_check['keys_not_found'] or \
-               'freeforms' in dm_check['keys_no_data']:
-                self.model_data['vxlan']['topology']['switches'][list_index]['freeforms'] = []
-
-            list_index += 1
-
-        # --------------------------------------------------------------------
-        # Fabric Topology Switches Interfaces List Defaults
-        # --------------------------------------------------------------------
-
-        # Check vxlan.topology.switches[index].interfaces list elements
-        list_index = 0
-        for switch in self.model_data['vxlan']['topology']['switches']:
-            dm_check = data_model_key_check(switch, ['interfaces'])
-            if 'interfaces' in dm_check['keys_not_found'] or 'interfaces' in dm_check['keys_no_data']:
-                self.model_data['vxlan']['topology']['switches'][list_index]['interfaces'] = []
-
-            list_index += 1
-
-        # --------------------------------------------------------------------
-        # Fabric Overlay vrf and network attach group List Defaults
-        # --------------------------------------------------------------------
-
-        # Check vxlan.overlay.vrf_attach_groups[index].switches list elements
-        list_index = 0
-        for group in self.model_data['vxlan']['overlay']['vrf_attach_groups']:
-            dm_check = data_model_key_check(group, ['switches'])
-            if 'switches' in dm_check['keys_not_found'] or \
-               'switches' in dm_check['keys_no_data']:
-                self.model_data['vxlan']['overlay']['vrf_attach_groups'][list_index]['switches'] = []
-
-            list_index += 1
-
-        # Check vxlan.overlay.network_attach_groups[index].switches list elements
-        list_index = 0
-        for group in self.model_data['vxlan']['overlay']['network_attach_groups']:
-            dm_check = data_model_key_check(group, ['switches'])
-            if 'switches' in dm_check['keys_not_found'] or \
-               'switches' in dm_check['keys_no_data']:
-                self.model_data['vxlan']['overlay']['network_attach_groups'][list_index]['switches'] = []
-
-            list_index += 1
-
-        # Check vxlan.multisite.overlay.vrf_attach_groups[index].switches list elements
-        list_index = 0
-        for group in self.model_data['vxlan']['multisite']['overlay']['vrf_attach_groups']:
-            dm_check = data_model_key_check(group, ['switches'])
-            if 'switches' in dm_check['keys_not_found'] or \
-               'switches' in dm_check['keys_no_data']:
-                self.model_data['vxlan']['multisite']['overlay']['vrf_attach_groups'][list_index]['switches'] = []
-
-            list_index += 1
-
-        # Check vxlan.multisite.overlay.network_attach_groups[index].switches list elements
-        list_index = 0
-        for group in self.model_data['vxlan']['multisite']['overlay']['network_attach_groups']:
-            dm_check = data_model_key_check(group, ['switches'])
-            if 'switches' in dm_check['keys_not_found'] or \
-               'switches' in dm_check['keys_no_data']:
-                self.model_data['vxlan']['multisite']['overlay']['network_attach_groups'][list_index]['switches'] = []
-
-            list_index += 1
-
-        # Before returning check to see if global or underlay data is present and
-        # generate a warning if they are empty.  There might actualy be data but
-        # one of the other model files might have a bug or everything except the
-        # top level vxlan key is commented out.
-        if not bool(self.model_data['vxlan']['underlay']):
-            msg = '((vxlan.underlay)) data is empty! Check your host_vars model data.'
-            display.warning(msg=msg, formatted=True)
-        if not bool(self.model_data['vxlan']['global']):
-            msg = '((vxlan.global)) data is empty! Check your host_vars model data.'
-            display.warning(msg=msg, formatted=True)
+        # Quick Sanity Check:
+        #
+        # For Fabric Type: VXLAN_EVPN or External
+        #  * Check for existence of global or underlay data
+        #
+        # There might actualy be data but one of the other model files might
+        # have a bug or everything except the top level vxlan key is commented out.
+        if fabric_type in ['VXLAN_EVPN', 'External']:
+            fn = self.model_data['vxlan']['fabric']['name']
+            if not bool(self.model_data['vxlan'].get('underlay')):
+                msg = "((vxlan.underlay)) data is empty! Check your host_vars model data for fabric {fn}."
+                display.warning(msg=msg, formatted=True)
+            if not bool(self.model_data['vxlan'].get('global')):
+                msg = "((vxlan.global)) data is empty! Check your host_vars model data for fabric {fn}."
+                display.warning(msg=msg, formatted=True)
 
         self.kwargs['results']['model_extended'] = self.model_data
         return self.kwargs['results']
