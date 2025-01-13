@@ -40,9 +40,9 @@
 
 - name: Check if VRF Exists
   set_fact:
-    vrf_exist_result: "{{ dcnm_vrf_existing | json_query(policy_query) }}"
+    vrf_exist_result: "{{ dcnm_vrf_existing | json_query(vrf_query) }}"
   vars:
-    policy_query: "response.DATA[?vrfName=='{{vrf.displayName}}'].vrfName"
+    vrf_query: "response.DATA[?vrfName=='{{vrf.displayName}}'].vrfName"
 
 - name: Update VRF for Federated NDFCs
   cisco.dcnm.dcnm_rest:
