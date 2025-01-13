@@ -38,9 +38,16 @@
 
 - name: Import MSD Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
-  when: 
-    - MD_Extended.vxlan.fabric.type == 'MSD'
-    # - vars_common_msd.changes_detected_interfaces or vars_common_msd.changes_detected_networks or vars_common_msd.changes_detected_vrfs
+  when: >
+    (MD_Extended.vxlan.fabric.type == 'MSD') and
+    (vars_common_msd.changes_detected_vrfs) or
+    (vars_common_msd.changes_detected_networks)
+
+- name: Import ISN Role Tasks
+  ansible.builtin.import_tasks: sub_main_isn.yml
+  when: >
+    (MD_Extended.vxlan.fabric.type == 'ISN') and
+    (vars_common_isn.changes_detected_inventory)
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:
