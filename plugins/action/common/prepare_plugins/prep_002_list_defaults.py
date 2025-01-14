@@ -178,7 +178,6 @@ class PreparePlugin:
         # --------------------------------------------------------------------
         from pprint import pprint
 
-        # type: enum('VXLAN_EVPN', 'MSD', 'MCF', 'ISN')
         fabric_type = self.model_data['vxlan']['fabric']['type']
 
         # for path in paths:

@@ -59,7 +59,7 @@ class PreparePlugin:
                 "vxlan.fabric.name and vxlan.fabric.type not being defined. "
                 "vxlan.global.name and vxlan.global.fabric_type is being deprecated. Please use vxlan.fabric."
             )
-            display.deprecated(msg=deprecated_msg, version="1.0.0")
+            display.deprecated(msg=deprecated_msg, version="1.0.0", collection_name='cisco.nac_dc_vxlan')
 
             parent_keys = ['vxlan', 'global']
             dm_check = data_model_key_check(model_data, parent_keys)
@@ -93,7 +93,7 @@ class PreparePlugin:
                     "Attempting to use vxlan.global.name due to vxlan.fabric.name not being defined. "
                     "vxlan.global.name is being deprecated. Please use vxlan.fabric."
                 )
-                display.deprecated(msg=deprecated_msg, version="1.0.0")
+                display.deprecated(msg=deprecated_msg, version="1.0.0", collection_name='cisco.nac_dc_vxlan')
                 parent_keys = ['vxlan', 'global', 'name']
                 dm_check = data_model_key_check(model_data, parent_keys)
                 if 'name' in dm_check['keys_data']:
@@ -110,7 +110,7 @@ class PreparePlugin:
                     "Attempting to use vxlan.global.type due to vxlan.fabric.type not being defined. "
                     "vxlan.global.type is being deprecated. Please use vxlan.fabric."
                 )
-                display.deprecated(msg=deprecated_msg, version="1.0.0")
+                display.deprecated(msg=deprecated_msg, version="1.0.0", collection_name='cisco.nac_dc_vxlan')
                 parent_keys = ['vxlan', 'global', 'fabric_type']
                 dm_check = data_model_key_check(model_data, parent_keys)
                 if 'fabric_type' in dm_check['keys_data']:
@@ -118,7 +118,6 @@ class PreparePlugin:
                 else:
                     self.kwargs['results']['failed'] = True
                     self.kwargs['results']['msg'] = "vxlan.fabric.type is not defined in the data model."
-
 
         # For backwards compatibility, replace 'overlay_services' key with 'overlay'
         # NOTE: No prepare plugin, jinja2 template or ansible task should reference 'overlay_services' after this replacement.
@@ -131,7 +130,7 @@ class PreparePlugin:
                 "vxlan.overlay_services is being deprecated. "
                 "Please use vxlan.overlay instead"
             )
-            display.deprecated(msg=deprecated_msg, version="1.0.0")
+            display.deprecated(msg=deprecated_msg, version="1.0.0", collection_name='cisco.nac_dc_vxlan')
             model_data['vxlan']['overlay'] = model_data['vxlan']['overlay_services']
             del model_data['vxlan']['overlay_services']
 
@@ -139,7 +138,6 @@ class PreparePlugin:
         dm_check = data_model_key_check(model_data, parent_keys)
         if 'multisite' in dm_check['keys_found'] and 'overlay' in dm_check['keys_found']:
             model_data['vxlan']['overlay'] = model_data['vxlan']['multisite']['overlay']
-
 
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
