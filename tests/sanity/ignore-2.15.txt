@@ -1,14 +1,13 @@
 plugins/action/common/check_roles.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/nac_dc_validate.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/nac_dc_validate.py ansible-deprecated-no-collection-name
-plugins/action/common/prepare_plugins/prep_001_list_defaults.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_101_fabric.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_101_fabric.py ansible-deprecated-no-collection-name
+plugins/action/common/prepare_plugins/prep_001_fabric.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_002_list_defaults.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_103_topology_switches.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_104_fabric_overlay.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_105_topology_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_106_topology_vpc_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_107_vrf_lites.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_999_verify.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/get_credentials.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/run_map.py action-plugin-docs # action plugin has no matching module to provide documentation
