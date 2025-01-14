@@ -50,6 +50,7 @@ Inside the [example repository](https://github.com/netascode/ansible-dc-vxlan-ex
 
 ```yaml
 # Control Parameters for 'Remove' role tasks
+child_fabric_delete_mode: false
 interface_delete_mode: false
 inventory_delete_mode: false
 link_fabric_delete_mode: false
@@ -85,6 +86,7 @@ The following control variables are available in this collection.
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
 | `vpc_delete_mode` | Remove vpc pair state as part of the remove role | `false` |
 | `policy_delete_mode` | Remove policy state as part of the remove role | `false` |
+| `child_fabric_delete_mode` | Remove child fabric from MSD|MCF fabric as part of the remove role | `false` |
 
 These variables are described in more detail in different sections of this document.
 

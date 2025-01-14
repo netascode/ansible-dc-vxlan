@@ -31,6 +31,9 @@
     method: GET
     path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
   register: fabric_associations
+  when:
+    - MD_Extended.vxlan.multisite.child_fabrics is defined
+    - (child_fabric_delete_mode is defined) and (child_fabric_delete_mode is true|bool)
 
 - name: Remove Unmanaged Child Fabrics from NDFC
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
@@ -38,4 +41,14 @@
     parent_fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
     child_fabrics: "{{ MD_Extended.vxlan.multisite.child_fabrics }}"
     operation: remove
-  when: fabric_associations is defined and fabric_associations
+  when:
+    - fabric_associations is defined and fabric_associations
+    - (child_fabric_delete_mode is defined) and (child_fabric_delete_mode is true|bool)
+
+
+- ansible.builtin.debug:
+    msg:
+      - "---------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Child Fabrics task because child_fabric_delete_mode flag is set to False           +"
+      - "---------------------------------------------------------------------------------------------------------------"
+  when: not ((child_fabric_delete_mode is defined) and (child_fabric_delete_mode is true|bool))
