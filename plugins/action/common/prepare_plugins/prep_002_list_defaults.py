@@ -27,6 +27,7 @@ import operator
 
 display = Display()
 
+
 def getFromDict(dataDict, mapList):
     """
     # Summary
@@ -35,6 +36,7 @@ def getFromDict(dataDict, mapList):
 
     """
     return reduce(operator.getitem, mapList, dataDict)
+
 
 def update_nested_dict(nested_dict, keys, new_value):
     """
@@ -148,8 +150,7 @@ class PreparePlugin:
         list_index = 0
         for item in model_data_subset:
             dm_check = data_model_key_check(item, [target_key])
-            if target_key in dm_check['keys_not_found'] or \
-            target_key in dm_check['keys_no_data']:
+            if target_key in dm_check['keys_not_found'] or target_key in dm_check['keys_no_data']:
                 model_data_subset[list_index][target_key] = []
 
             list_index += 1
@@ -195,9 +196,7 @@ class PreparePlugin:
             if path_type == 'LIST_INDEX':
                 # model_keys['VXLAN_EVPN']['topology.switches.freeform'] = [root_key, 'topology', 'switches', 'freeform', 'LIST_INDEX']
                 model_data_subset = getFromDict(self.model_data, parent_keys)
-                target_key = target_key
                 self.set_nested_list_default(model_data_subset, target_key)
-
 
         # Quick Sanity Check:
         #
