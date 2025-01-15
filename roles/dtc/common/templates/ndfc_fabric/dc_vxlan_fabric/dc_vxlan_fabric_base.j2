@@ -2,7 +2,7 @@
 {% import 'ndfc_utils.j2' as ndfc_utils with context %}
 - FABRIC_NAME: {{ vxlan.fabric.name }}
   FABRIC_TYPE: {{ vxlan.fabric.type }}
-  DEPLOY: True
+  DEPLOY: False
 
 {# Include NDFC DC VXLAN EVPN General Template #}
 {% include '/ndfc_fabric/dc_vxlan_fabric/general/dc_vxlan_fabric_general.j2' %}
