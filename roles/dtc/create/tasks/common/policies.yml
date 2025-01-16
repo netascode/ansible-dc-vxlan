@@ -21,12 +21,35 @@
 
 ---
 
-- name: Manage Devices Entry Point
+- name: Choose vars_common Based On Fabric Type
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_msd }}"
+  when: MD_Extended.vxlan.fabric.type == "MSD"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_isn }}"
+  when: MD_Extended.vxlan.fabric.type == "ISN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_external }}"
+  when: MD_Extended.vxlan.fabric.type == "External"
+
+- name: Manage Policies Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Devices Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Policies Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Manage Devices Discovery
-  ansible.builtin.import_tasks: devices_discovery.yml
+# --------------------------------------------------------------------
+# Manage VRF Configuration on NDFC
+# --------------------------------------------------------------------
+- name: Manage NDFC Fabric Policies
+  cisco.dcnm.dcnm_policy:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    use_desc_as_key: true
+    config: "{{ vars_common_local.policy_config }}"
+    deploy: false
+    state: merged
+  register: manage_policies_result

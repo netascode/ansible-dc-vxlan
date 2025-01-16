@@ -33,7 +33,7 @@
   tags: "{{ nac_tags.create }}"
 
 - name: Create NDFC MSD Fabric
-  ansible.builtin.import_tasks: msd/fabric.yml
+  ansible.builtin.import_tasks: common/fabric.yml
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "MSD"
@@ -45,7 +45,7 @@
   when:
     - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
 
-- name: Manage NDFC Fabric VRFs and Networks
+- name: Manage NDFC MSD Fabric VRFs and Networks
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
   when: 
     - MD_Extended.vxlan.multisite.overlay is defined

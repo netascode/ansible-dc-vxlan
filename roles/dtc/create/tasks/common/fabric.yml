@@ -21,12 +21,28 @@
 
 ---
 
-- name: Manage Devices Entry Point
+- name: Choose vars_common Based On Fabric Type
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_msd }}"
+  when: MD_Extended.vxlan.fabric.type == "MSD"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_isn }}"
+  when: MD_Extended.vxlan.fabric.type == "ISN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_external }}"
+  when: MD_Extended.vxlan.fabric.type == "External"
+
+- name: Manage Fabric Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Devices Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Manage Devices Discovery
-  ansible.builtin.import_tasks: devices_discovery.yml
+- name: Manage fabric {{ MD_Extended.vxlan.fabric.name }} in NDFC
+  cisco.dcnm.dcnm_fabric:
+    state: merged
+    config: "{{ vars_common_local.fabric_config }}"

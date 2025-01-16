@@ -43,47 +43,47 @@
 # --------------------------------------------------------------------
 
 - name: Build Fabric Create Parameters
-  ansible.builtin.import_tasks: external/ndfc_fabric.yml
+  ansible.builtin.import_tasks: common/ndfc_fabric.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Switch Inventory List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Switch Inventory List From Template
-  ansible.builtin.import_tasks: external/ndfc_inventory.yml
+  ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
 - name: Build NDFC Interface Access Po List From Template
-  ansible.builtin.import_tasks: external/ndfc_interface_access_po.yml
+  ansible.builtin.import_tasks: common/ndfc_interface_access_po.yml
 
 - name: Build NDFC Interface Access List From Template
-  ansible.builtin.import_tasks: external/ndfc_interface_access.yml
+  ansible.builtin.import_tasks: common/ndfc_interface_access.yml
 
 - name: Build NDFC Interface Loopback List From Template
-  ansible.builtin.import_tasks: external/ndfc_interface_loopback.yml
+  ansible.builtin.import_tasks: common/ndfc_interface_loopback.yml
 
 - name: Build NDFC Interface Po Routed List From Template
-  ansible.builtin.import_tasks: external/ndfc_interface_po_routed.yml
+  ansible.builtin.import_tasks: common/ndfc_interface_po_routed.yml
 
 - name: Build NDFC Interface Routed List From Template
-  ansible.builtin.import_tasks: external/ndfc_interface_routed.yml
+  ansible.builtin.import_tasks: common/ndfc_interface_routed.yml
 
 - name: Build NDFC Interface Trunk Po List From Template
-  ansible.builtin.import_tasks: external/ndfc_interface_trunk_po.yml
+  ansible.builtin.import_tasks: common/ndfc_interface_trunk_po.yml
 
 - name: Build NDFC Interface Trunk List From Template
-  ansible.builtin.import_tasks: external/ndfc_interface_trunk.yml
+  ansible.builtin.import_tasks: common/ndfc_interface_trunk.yml
 
 - name: Build NDFC Interface VPC List From Template
-  ansible.builtin.import_tasks: external/ndfc_interface_vpc.yml
+  ansible.builtin.import_tasks: common/ndfc_interface_vpc.yml
 
 - name: Build NDFC Sub Interface Routed List From Template
-  ansible.builtin.import_tasks: external/ndfc_sub_interface_routed.yml
+  ansible.builtin.import_tasks: common/ndfc_sub_interface_routed.yml
 
 - name: Build NDFC Interface all List From Template
-  ansible.builtin.import_tasks: external/ndfc_interface_all.yml
+  ansible.builtin.import_tasks: common/ndfc_interface_all.yml
 
 - name: Build NDFC Policy List From Template
-  ansible.builtin.import_tasks: external/ndfc_policy.yml 
+  ansible.builtin.import_tasks: common/ndfc_policy.yml 
 
 
 # --------------------------------------------------------------------

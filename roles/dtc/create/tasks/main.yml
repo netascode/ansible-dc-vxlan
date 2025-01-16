@@ -39,7 +39,9 @@
   when: >
     (MD_Extended.vxlan.fabric.type == 'ISN') and
     (vars_common_isn.changes_detected_fabric) or
-    (vars_common_isn.changes_detected_inventory)
+    (vars_common_isn.changes_detected_inventory) or
+    (vars_common_isn.changes_detected_interfaces) or
+    (vars_common_isn.changes_detected_policy)
 
 - name: Import MSD Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml

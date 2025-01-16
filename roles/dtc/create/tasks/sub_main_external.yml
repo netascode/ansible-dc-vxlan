@@ -41,22 +41,22 @@
     - vars_common_external.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
-- name: Manage NDFC Fabric Switches
-  ansible.builtin.import_tasks: external/devices.yml
+- name: Manage NDFC External Fabric Switches
+  ansible.builtin.import_tasks: common/devices.yml
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
     - vars_common_external.changes_detected_inventory
   tags: "{{ nac_tags.create_switches }}"
 
-- name: Manage NDFC Fabric Interfaces
-  ansible.builtin.import_tasks: external/interfaces.yml
+- name: Manage NDFC External Fabric Interfaces
+  ansible.builtin.import_tasks: common/interfaces.yml
   when:
     - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
     - vars_common_external.changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
 
-- name: Manage NDFC Fabric Policies
-  ansible.builtin.import_tasks: external/policies.yml
+- name: Manage NDFC External Fabric Policies
+  ansible.builtin.import_tasks: common/policies.yml
   when:
     - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
     - vars_common_external.changes_detected_policy
