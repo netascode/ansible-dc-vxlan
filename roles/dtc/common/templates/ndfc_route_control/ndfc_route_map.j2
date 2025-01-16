@@ -1,0 +1,28 @@
+! This NDFC Route_Control_Route_maps config data structure is auto-generated
+! DO NOT EDIT MANUALLY
+!
+!
+    {# Get policy route-maps in groups #}
+    {% for policy_name in policy_types["route_maps"] %}
+    {# Get route-maps under Route_control #}
+        {% for route_map in item["route_maps"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == route_map["name"] %}
+                {% for entry in route_map["entries"] | sort(attribute='seq_number') %}
+route-map {{ route_map["name"] | lower }} {{ entry["operation"] }} {{ entry["seq_number"] }}
+                    {% if entry["description"] is defined %}
+  description {{ entry["description"] }}
+                    {% endif %}
+                    {% if entry["match"] is defined %}
+                        {% include "ndfc_route_control/route_map/ndfc_route_control_route_map_match.j2" %}
+                    {% endif %}
+                    {% if entry["continue"] is defined %}
+  continue {{ entry["continue"] }}
+                    {% endif %}
+                    {% if entry["set"] is defined %}
+                        {% include "ndfc_route_control/route_map/ndfc_route_control_route_map_set.j2" %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
