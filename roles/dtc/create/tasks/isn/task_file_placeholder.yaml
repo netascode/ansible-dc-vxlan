@@ -19,18 +19,7 @@
 #
 # SPDX-License-Identifier: MIT
 
----
-
-- name: Manage Devices Entry Point
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Manage Devices Fabric {{ MD_Extended.vxlan.fabric.name }}"
-      - "----------------------------------------------------------------"
-
-- name: Manage Devices Discovery
-  ansible.builtin.import_tasks: devices_discovery.yml
-
-# TODO: Enable This Capability
-# - name: Add Devices POAP
-#   ansible.builtin.import_tasks: devices_poap.yml
+# This is a placeholder file for future expansion of ISN fabric type
+# capabilities if needed.
+#
+# Tasks in this file are intended to override tasks under common

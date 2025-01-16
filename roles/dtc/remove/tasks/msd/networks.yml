@@ -23,7 +23,7 @@
 - ansible.builtin.debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
-    - (network_delete_mode is defined) and (network_delete_mode is true|bool)
+    - (multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true|bool)
 
 - name: Remove Unmanaged Fabric Networks
   cisco.dcnm.dcnm_network:
@@ -35,11 +35,11 @@
       ansible_connect_timeout: 3000
   when:
     - switch_list.response.DATA | length > 0
-    - (network_delete_mode is defined) and (network_delete_mode is true|bool)
+    - (multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true|bool)
 
 - ansible.builtin.debug:
     msg:
       - "---------------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Fabric Networks task because network_delete_mode flag is set to False  +"
+      - "+ SKIPPING Remove Unmanaged Fabric Networks task because multisite_network_delete_mode flag is set to False   +"
       - "---------------------------------------------------------------------------------------------------------------"
-  when: not ((network_delete_mode is defined) and (network_delete_mode is true|bool))
+  when: not ((multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true|bool))

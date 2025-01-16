@@ -19,16 +19,7 @@
 #
 # SPDX-License-Identifier: MIT
 
----
-
-- name: Manage Fabric Entry Point
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
-      - "----------------------------------------------------------------"
-
-- name: Manage Fabric {{ MD_Extended.vxlan.fabric.name }} in NDFC
-  cisco.dcnm.dcnm_fabric:
-    state: merged
-    config: "{{ vars_common_isn.fabric_config }}"
+# This is a placeholder file for future expansion of ISN fabric type
+# capabilities if needed.
+#
+# Tasks in this file are intended to override tasks under common

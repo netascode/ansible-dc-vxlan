@@ -38,6 +38,8 @@ interface_delete_mode: false
 inventory_delete_mode: false
 link_fabric_delete_mode: false
 link_vpc_delete_mode: false
+multisite_network_delete_mode: false
+multisite_vrf_delete_mode: false
 network_delete_mode: false
 policy_delete_mode: false
 vpc_delete_mode: false
