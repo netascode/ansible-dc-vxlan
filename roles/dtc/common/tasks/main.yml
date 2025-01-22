@@ -51,6 +51,10 @@
         changes_detected_fabric: false
         changes_detected_vrfs: false
         changes_detected_networks: false
+    vars_common_mfd:
+        changes_detected_fabric: false
+        changes_detected_vrfs: false
+        changes_detected_networks: false
     vars_common_external:
         changes_detected_inventory: false
         changes_detected_fabric: false
@@ -82,6 +86,11 @@
   ansible.builtin.import_tasks: sub_main_msd.yml
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric.type == 'MSD'
+
+- name: Import Role Tasks for MSD Fabric
+  ansible.builtin.import_tasks: sub_main_mfd.yml
+  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
+  when: MD_Extended.vxlan.fabric.type == 'MFD'
 
 - name: Import Role Tasks for MSD Fabric
   ansible.builtin.import_tasks: sub_main_external.yml

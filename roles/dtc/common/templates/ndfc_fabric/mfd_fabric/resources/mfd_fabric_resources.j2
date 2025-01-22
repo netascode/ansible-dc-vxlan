@@ -2,7 +2,10 @@
 {% if not defaults.vxlan.multisite.enable_ipv6_underlay %}
   LOOPBACK100_IP_RANGE: {{ vxlan.multisite.ipv4_vtep_loopback_range | default(defaults.vxlan.multisite.ipv4_vtep_loopback_range) }}
   DCI_SUBNET_RANGE: {{ vxlan.multisite.ipv4_dci_subnet_range | default(defaults.vxlan.multisite.ipv4_dci_subnet_range) }}
-  DCI_SUBNET_TARGET_MASK: {{ vxlan.multisite.ipv4_dci_subnet_range | default(defaults.vxlan.multisite.ipv4_dci_subnet_mask) }}
+  DCI_SUBNET_TARGET_MASK: "{{ vxlan.multisite.ipv4_dci_subnet_mask | default(defaults.vxlan.multisite.ipv4_dci_subnet_mask) }}"
+  LOOPBACK100_IPV6_RANGE: ""
+  V6_DCI_SUBNET_RANGE: ""
+  V6_DCI_SUBNET_TARGET_MASK: ""
 {% else %}
   LOOPBACK100_IPV6_RANGE: {{ vxlan.multisite.ipv6_vtep_loopback_range | default(defaults.vxlan.multisite.ipv6_vtep_loopback_range) }}
   V6_DCI_SUBNET_RANGE: {{ vxlan.multisite.ipv6_dci_subnet_range | default(defaults.vxlan.multisite.ipv6_dci_subnet_range) }}

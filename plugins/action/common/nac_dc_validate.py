@@ -93,7 +93,7 @@ class ActionModule(ActionBase):
                 if 'type' in results['data']['vxlan']['fabric']:
                     if results['data']['vxlan']['fabric']['type'] in ('VXLAN_EVPN'):
                         rules_list.append(f'{rules}vxlan/')
-                    elif results['data']['vxlan']['fabric']['type'] in ('MSD', 'MCF'):
+                    elif results['data']['vxlan']['fabric']['type'] in ('MSD', 'MFD'):
                         rules_list.append(f'{rules}multisite/')
                     elif results['data']['vxlan']['fabric']['type'] in ('ISN', 'External'):
                         rules_list.append(f'{rules}isn/')
@@ -117,10 +117,10 @@ class ActionModule(ActionBase):
 
                         if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN'):
                             rules_list.append(f'{rules}vxlan/')
-                        elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCF'):
+                        elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MFD'):
                             rules_list.append(f'{rules}multisite/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('ISN', 'External'):
-                            rules_list.append(f'{rules}isn/')                        
+                            rules_list.append(f'{rules}isn/')
                         else:
                             results['failed'] = True
                             results['msg'] = f"vxlan.fabric.type {results['data']['vxlan']['global']['fabric_type']} is not a supported fabric type."

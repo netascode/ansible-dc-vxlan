@@ -11,4 +11,10 @@
 {% if vxlan.multisite.enable_ebgp_password | default(defaults.vxlan.multisite.enable_ebgp_password) %}
   MS_IFC_BGP_PASSWORD: {{ vxlan.multisite.ebgp_password }}
   MS_IFC_BGP_AUTH_KEY_TYPE: {{ vxlan.multisite.ebgp_password_encryption_type | default(defaults.vxlan.multisite.ebgp_password_encryption_type) }}
+{% else %}
+  MS_IFC_BGP_PASSWORD: ""
+  MS_IFC_BGP_AUTH_KEY_TYPE: ""
+  MS_IFC_BGP_PASSWORD_ENABLE_PREV: ""
+  MS_IFC_BGP_AUTH_KEY_TYPE_PREV: ""
+  MS_IFC_BGP_PASSWORD_PREV: ""
 {% endif %}

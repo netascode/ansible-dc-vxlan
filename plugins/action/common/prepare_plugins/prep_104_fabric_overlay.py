@@ -31,7 +31,7 @@ class PreparePlugin:
         model_data = self.kwargs['results']['model_extended']
 
         # We don't have switches for Multisite fabrics so need special handling
-        if model_data['vxlan']['fabric']['type'] in ('MSD', 'MCF', 'ISN'):
+        if model_data['vxlan']['fabric']['type'] in ('MSD', 'MFD', 'ISN'):
             switches = []
         else:
             switches = model_data['vxlan']['topology']['switches']
@@ -85,7 +85,7 @@ class PreparePlugin:
                     if net.get('network_attach_group') not in net_grp_name_list:
                         del net['network_attach_group']
 
-        if model_data['vxlan']['fabric']['type'] in ('MSD', 'MCF'):
+        if model_data['vxlan']['fabric']['type'] in ('MSD', 'MFD'):
             # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
             # a structure that is easier to use.
             vrf_grp_name_list = []
