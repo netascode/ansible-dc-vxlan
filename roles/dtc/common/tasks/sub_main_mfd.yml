@@ -49,21 +49,21 @@
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Switch inventory
-  ansible.builtin.include_tasks: mfd/ndfc_get_inventory.yml
+  ansible.builtin.import_tasks: mfd/ndfc_get_inventory.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric VRFs Attach List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric VRFs Attach List From Template
-  ansible.builtin.include_tasks: mfd/ndfc_vrfs.yml
+  ansible.builtin.import_tasks: mfd/ndfc_vrfs.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Networks Attach List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Networks Attach List From Template
-  ansible.builtin.include_tasks: mfd/ndfc_networks.yml
+  ansible.builtin.import_tasks: mfd/ndfc_networks.yml
 
 - name: Set facts for missed changes_detected flags for Federated Fabric
   ansible.builtin.set_fact:
@@ -75,9 +75,9 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
-      - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
-      - "+     Networks Changes Detected -             [ {{ vars_common_msd.changes_detected_networks }} ]"
+      - "+     Fabric Changes Detected -               [ {{ vars_common_mfd.changes_detected_fabric }} ]"
+      - "+     VRFs Changes Detected -                 [ {{ vars_common_mfd.changes_detected_vrfs }} ]"
+      - "+     Networks Changes Detected -             [ {{ vars_common_mfd.changes_detected_networks }} ]"
       - "+     ----- Run Map -----"
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
