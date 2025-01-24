@@ -62,7 +62,7 @@
 
 - name: Set vrf_config Var
   ansible.builtin.set_fact:
-    vrf_config: "{{ lookup('file', path_name + file_nam) | from_yaml }}"
+    vrf_config: "{{ lookup('file', path_name + file_name ) | from_yaml }}"
   when: (MD_Extended.vxlan.multisite.overlay.vrfs | default([])) | length > 0
   delegate_to: localhost
 

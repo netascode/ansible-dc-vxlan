@@ -34,3 +34,4 @@
     path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/members'
     json_data: '{{ child | to_json }}'
   register: post_result
+  failed_when: false

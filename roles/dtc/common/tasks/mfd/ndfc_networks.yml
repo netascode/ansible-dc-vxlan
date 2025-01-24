@@ -103,7 +103,7 @@
 
 - name: Set network_switches Var
   ansible.builtin.set_fact:
-    network_switches: "{{ lookup('file', file_name2) | from_yaml }}"
-    network_switches_ports: "{{ lookup('file', file_name) | from_yaml }}"
+    network_switches: "{{ lookup('file', path_name + file_name2) | from_yaml }}"
+    network_switches_ports: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   when: (MD_Extended.vxlan.overlay.networks | default([])) | length > 0
   delegate_to: localhost
