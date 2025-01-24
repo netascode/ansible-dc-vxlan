@@ -45,6 +45,13 @@
   ansible.builtin.import_tasks: mfd/ndfc_fabric.yml
 
 # --------------------------------------------------------------------
+# Build Create Fabric Children Parameter List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric Create Parameters
+  ansible.builtin.import_tasks: mfd/ndfc_children.yml
+
+# --------------------------------------------------------------------
 # Build NDFC Fabric Get Switch Inventory when Federated Fabric
 # --------------------------------------------------------------------
 

@@ -21,52 +21,16 @@
 
 ---
 
-- name: Manage Fabric Entry Point
+- name: Manage Fabric Children Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric Children {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
-
-- name: Check if fabric MFD {{ MD_Extended.vxlan.fabric.name }} exists in NDFC
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}"
-  register: get_result
-  failed_when: false
-
-- name: Set payload
-  set_fact:
-    payload:
-      templateName: "MSD_Fabric"
-      fabricName: "{{ MD_Extended.vxlan.fabric.name }}"
-      fabricType: "MFD"
-      fabricTechnology: "VXLANFabric"
-      nvPairs: "{{ fabric_config }}"
-
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (PUT)
-  cisco.dcnm.dcnm_rest:
-    method: PUT
-    path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}'
-    json_data: '{{ payload | to_json }}'
-  when:
-    - get_result.response is defined
-    - get_result.response.RETURN_CODE == 200
-  register: put_result
 
 - name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (POST)
   cisco.dcnm.dcnm_rest:
-    method: POST
-    path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics'
-    json_data: '{{ payload | to_json }}'
-  when: get_result.response is not defined
+    method: PUT
+    path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/members'
+    json_data: '{{ child | to_json }}'
   register: post_result
-
-- ansible.builtin.debug:
-    var: fabric_children
-
-- name: Add Child Fabrics To Fabric - {{ MD_Extended.vxlan.fabric.name }}
-  include_tasks: child_fabrics.yml
-  loop: "{{ fabric_children }}"
-  loop_control:
-    loop_var: child

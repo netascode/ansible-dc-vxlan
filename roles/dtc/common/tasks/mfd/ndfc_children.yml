@@ -57,10 +57,21 @@
     dest: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
 
-https://10.2.0.70/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/fed_svs_vxlan2/member
+- ansible.builtin.set_fact:
+    fabric_children: "{{ lookup('file', path_name + file_name) | from_yaml }}"
+  delegate_to: localhost
 
-{
-  "operation": "add",
-  "clusterName": "ND-Cluster1",
-  "fabricName": "test2"
-}
+- name: Diff Previous and Current Data Files
+  cisco.nac_dc_vxlan.dtc.diff_model_changes:
+    file_name_previous: "{{ path_name }}{{ file_name }}.old"
+    file_name_current: "{{ path_name }}{{ file_name }}"
+  register: file_diff_result
+  delegate_to: localhost
+
+- name: Set File Change Flag Based on File Diff Result
+  ansible.builtin.set_fact:
+    changes_detected_fabric: true
+  delegate_to: localhost
+  when:
+    - file_diff_result.file_data_changed
+    - check_roles['save_previous']
