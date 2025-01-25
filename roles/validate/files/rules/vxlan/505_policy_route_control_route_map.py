@@ -49,7 +49,7 @@ class Rule:
         """
         function used by iac-validate
         """
-        route_control = []
+        route_control = {}
         topology_switches = []
         switch_policy = []
         route_maps = []
@@ -94,7 +94,9 @@ class Rule:
         )
 
         # Check route maps integrity
-        if data["vxlan"].get("overlay_extensions").get("route_control").get("route_maps", None):
+        rm_keys = ['overlay_extensions', 'route_control', 'route_maps']
+        check = cls.data_model_key_check(data["vxlan"], rm_keys)
+        if 'route_maps' in check['keys_data']:
             route_maps = data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]
             cls.check_route_maps(
                 route_maps
@@ -321,3 +323,32 @@ class Rule:
                         cls.results.append(
                             "For vxlan.overlay_extensions.route_control.route_maps.entries.set.metric to be enabled, " +
                             metric + " should be set in the metric.")
+
+
+    @classmethod
+    def data_model_key_check(cls, tested_object, keys):
+        dm_key_dict = {'keys_found': [], 'keys_not_found': [], 'keys_data': [], 'keys_no_data': []}
+        for key in keys:
+            if tested_object and key in tested_object:
+                dm_key_dict['keys_found'].append(key)
+                tested_object = tested_object[key]
+                if tested_object:
+                    dm_key_dict['keys_data'].append(key)
+                else:
+                    dm_key_dict['keys_no_data'].append(key)
+            else:
+                dm_key_dict['keys_not_found'].append(key)
+        return dm_key_dict
+
+    @classmethod
+    def safeget(cls, dict, keys):
+        # Utility function to safely get nested dictionary values
+        for key in keys:
+            if dict is None:
+                return None
+            if key in dict:
+                dict = dict[key]
+            else:
+                return None
+
+        return dict

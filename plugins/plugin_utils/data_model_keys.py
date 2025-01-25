@@ -60,6 +60,10 @@ model_keys['VXLAN_EVPN']['overlay.networks'] = [root_key, 'overlay', 'networks',
 model_keys['VXLAN_EVPN']['overlay.network_attach_groups'] = [root_key, 'overlay', 'network_attach_groups', 'LIST']
 model_keys['VXLAN_EVPN']['overlay.network_attach_groups.switches'] = [root_key, 'overlay', 'network_attach_groups', 'switches', 'LIST_INDEX']
 # ---
+model_keys['VXLAN_EVPN']['overlay_extensions'] = [root_key, 'overlay_extensions', 'KEY']
+model_keys['VXLAN_EVPN']['overlay_extensions.route_control'] = [root_key, 'overlay_extensions', 'route_control', 'KEY']
+model_keys['VXLAN_EVPN']['overlay_extensions.route_control.route_maps'] = [root_key, 'overlay_extensions', 'route_control', 'route_maps', 'LIST']
+# ---
 model_keys['VXLAN_EVPN']['policy'] = [root_key, 'policy', 'KEY']
 model_keys['VXLAN_EVPN']['policy.policies'] = [root_key, 'policy', 'policies', 'LIST']
 model_keys['VXLAN_EVPN']['policy.groups'] = [root_key, 'policy', 'groups', 'LIST']
