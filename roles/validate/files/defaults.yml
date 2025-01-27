@@ -113,8 +113,6 @@ factory_defaults:
         routing_protocol: ospf
         enable_ipv6_underlay: false
         replication_mode: multicast
-        fabric_interface_numbering: p2p
-        subnet_mask: 30
         manual_underlay_allocation: false
         underlay_routing_loopback_id: 0
         underlay_vtep_loopback_id: 1
@@ -124,6 +122,8 @@ factory_defaults:
         layer2_host_interfacde_mtu: 9216
         unshut_host_interfaces: true
       ipv4:
+        fabric_interface_numbering: p2p
+        subnet_mask: 30
         underlay_routing_loopback_ip_range: 10.2.0.0/22
         underlay_vtep_loopback_ip_range: 10.3.0.0/22
         underlay_rp_loopback_ip_range: 10.254.254.0/24
@@ -131,6 +131,10 @@ factory_defaults:
       ipv6:
         enable_ipv6_link_local_address: true
         underlay_subnet_mask: 126
+        underlay_routing_loopback_ip_range: fd00::a02:0/119
+        underlay_vtep_loopback_ip_range: fd00::a03:0/118
+        underlay_rp_loopback_ip_range: fd00::254:254:0/118
+        underlay_subnet_ip_range: fd00::a04:0/112
       ospf:
         area_id: 0.0.0.0
         authentication_enable: false
@@ -146,12 +150,17 @@ factory_defaults:
         authentication_enable: false
         authentication_key_type: 3
       multicast:
-        group_subnet: 239.1.1.0/25
         rendezvous_points: 2
         rp_mode: asm
         underlay_rp_loopback_id: 254
-        trm_enable: false
-        trm_default_group: 239.1.1.0
+        ipv4:
+          group_subnet: 239.1.1.0/25
+          trm_enable: false
+          trm_default_group: 239.1.1.0
+        ipv6:
+          group_subnet: ff1e::/121
+          trm_enable: false
+          trm_default_group: "ff1e::"   # Quote due to ending in colon to avoid YAML error
         underlay_primary_rp_loopback_id: 2
         underlay_backup_rp_loopback_id: 3
         underlay_second_backup_rp_loopback_id: 4
