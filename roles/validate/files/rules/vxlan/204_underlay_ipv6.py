@@ -41,7 +41,7 @@ class Rule:
                 (enable_ipv6_underlay)
             ):
                 results.append(
-                    f"vxlan.global.netflow.enable should not be configured when "
+                    "vxlan.global.netflow.enable should not be configured when "
                     "vxlan.underlay.general.enable_ipv6_underlay is configured as true. "
                 )
 
