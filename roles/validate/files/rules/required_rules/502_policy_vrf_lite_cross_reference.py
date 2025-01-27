@@ -75,8 +75,8 @@ class Rule:
                             topology_switches,
                             static_routes_compliance,
                         )
-
-        cls.check_route_compliance_across_policies(static_routes_compliance)
+        # TODO rewrite route compliances to support IPv4 and IPv6
+        # cls.check_route_compliance_across_policies(static_routes_compliance)
 
         return cls.results
 
@@ -204,14 +204,24 @@ class Rule:
 
         # Check Static routes
         if "static_routes" in switch_policy:
-            static_routes_compliance.append(
-                {
-                    "policy": policy["name"],
-                    "vrf": policy["vrf"],
-                    "switch": switch_policy["name"],
-                    "prefix": switch_policy["static_routes"],
-                }
-            )
+            if "static_ipv4" in switch_policy["static_routes"]:
+                static_routes_compliance.append(
+                    {
+                        "policy": policy["name"],
+                        "vrf": policy["vrf"],
+                        "switch": switch_policy["name"],
+                        "prefix": switch_policy["static_routes"]["static_ipv4"],
+                    }
+                )
+            if "static_ipv6" in switch_policy["static_routes"]:
+                static_routes_compliance.append(
+                    {
+                        "policy": policy["name"],
+                        "vrf": policy["vrf"],
+                        "switch": switch_policy["name"],
+                        "prefix": switch_policy["static_routes"]["static_ipv6"],
+                    }
+                )
 
     @classmethod
     def check_switch_in_topology(cls, switch, topology_switches, policy):
@@ -341,6 +351,8 @@ class Rule:
                     f"static_routers is defined without paramater."
                 )
 
+        # print(good_route)
+
         # Compare routes
         for index in range(len(good_route) - 1):
             for index2 in range(index + 1, len(good_route)):
@@ -355,16 +367,12 @@ class Rule:
                         if prefix_to_be_compared["prefix"] in prefixes_for_comparison:
                             # Find the prefix to compare route_tag and Next_hops
                             for pref_for_comparison in good_route[index2]["prefix"]:
-                                if (
-                                    prefix_to_be_compared["prefix"]
-                                    == pref_for_comparison["prefix"]
-                                ):
+                                if ( prefix_to_be_compared["prefix"] == pref_for_comparison["prefix"]):
+                                    print(prefix_to_be_compared)
+                                    print(pref_for_comparison)
                                     # Check if route_tag exist if equal
-                                    if (
-                                        "route_tag" in prefix_to_be_compared
-                                        and "route_tag" in pref_for_comparison
-                                        and prefix_to_be_compared["route_tag"]
-                                        == pref_for_comparison["route_tag"]
+                                    if ( "route_tag" in prefix_to_be_compared and "route_tag" in pref_for_comparison and
+                                        prefix_to_be_compared["route_tag"] == pref_for_comparison["route_tag"]
                                     ):
                                         next_hops_to_be_compared = sorted(
                                             [
@@ -395,6 +403,8 @@ class Rule:
                                                 f"{good_route[index2]['switch']}.static_routes.{pref_for_comparison['prefix']}.{next_hops_for_comparison}"
                                             )
                                         break
+                                    elif ("route_tag" not in prefix_to_be_compared and "route_tag" not in pref_for_comparison):
+                                        pass
                                     else:
                                         cls.results.append(
                                             f"vxlan.overlay_extensions.vrf_lites.{good_route[index]['policy']}.switches."
