@@ -33,27 +33,27 @@
 
 - name: set filename for federated
   set_fact:
-    file_name: "{{ MD.vxlan.global.name }}_fed_attach_vrfs.yml"
+    file_name: "ndfc_fed_attach_vrfs.yml"
   when:
-    - MD.vxlan.overlay_services.vrfs is defined
+    - MD.vxlan.multisite.overlay.vrfs is defined
     - changes_detected_vrfs
     - MD.vxlan.fabric.type == 'MFD'
 
 - name: load VRF federated details from file
   ansible.builtin.set_fact:
-    fed_vrf_config: "{{ lookup('file', role_path + '/../common/files/' + file_name) | from_json }}"
+    fed_vrf_config: "{{ lookup('file', role_path + '/../common/files/mfd/{{ MD_Extended.vxlan.fabric.name }}/' + file_name) | from_json }}"
   when:
-    - MD.vxlan.overlay_services.vrfs is defined
+    - MD.vxlan.multisite.overlay.vrfs is defined
     - changes_detected_vrfs
     - MD.vxlan.fabric.type == 'MFD'
 
 - name: Get existing VRFs in Federated Fabric
   cisco.dcnm.dcnm_rest:
     method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.global.name }}/vrfs"
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.fabric.name }}/vrfs"
   register: dcnm_vrf_existing
   when:
-    - MD.vxlan.overlay_services.vrfs is defined
+    - MD.vxlan.multisite.overlay.vrfs is defined
     - changes_detected_vrfs
     - MD.vxlan.fabric.type == 'MFD'
 
@@ -63,9 +63,9 @@
   loop_control:
     loop_var: vrf
   when:
-    - MD.vxlan.overlay_services.vrfs is defined
+    - MD.vxlan.multisite.overlay.vrfs is defined
     - changes_detected_vrfs
-    - MD.vxlan.global.fabric.type == 'MFD'
+    - MD.vxlan.fabric.type == 'MFD'
 
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC (MFD)
@@ -74,9 +74,9 @@
   include_tasks: vrf_loopbacks.yml
   loop_control:
     loop_var: vrf
-  loop: "{{ MD.vxlan.overlay_services.vrfs }}"
+  loop: "{{ MD.vxlan.multisite.overlay.vrfs }}"
   when:
-    - MD.vxlan.overlay_services.vrfs is defined
+    - MD.vxlan.multisite.overlay.vrfs is defined
     - MD.vxlan.fabric.type == 'MFD'
 
 # --------------------------------------------------------------------
@@ -85,10 +85,10 @@
 - name: Query existing network.switches_to_attach.split in Federated Fabric
   cisco.dcnm.dcnm_rest:
     method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{MD.vxlan.global.name}}/networks"
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{MD.vxlan.fabric.name}}/networks"
   register: fed_networks_existing
   when:
-    - MD.vxlan.overlay_services.networks is defined
+    - MD.vxlan.multisite.overlay.networks is defined
     - changes_detected_networks
     - MD.vxlan.fabric.type == 'MFD'
 
@@ -99,7 +99,7 @@
     loop_var: network
   when:
     - MD.vxlan.fabric.type == 'MFD'
-    - MD.vxlan.overlay_services.networks is defined
+    - MD.vxlan.multisite.overlay.networks is defined
     - changes_detected_networks
 
 - name: Attach switches for all networks
@@ -109,7 +109,7 @@
     json_data: "{{ network_switches | to_json}}"
   when:
     - MD.vxlan.fabric.type == 'MFD'
-    - MD.vxlan.overlay_services.networks is defined
+    - MD.vxlan.multisite.overlay.networks is defined
     - changes_detected_networks
 
 - name: Attach network to switches and ports for all networks
@@ -119,5 +119,5 @@
     json_data: "{{ network_switches_ports | to_json}}"
   when:
     - MD.vxlan.fabric.type == 'MFD'
-    - MD.vxlan.overlay_services.networks is defined
+    - MD.vxlan.multisite.overlay.networks is defined
     - changes_detected_networks
