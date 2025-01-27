@@ -23,7 +23,7 @@
 - ansible.builtin.debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
-    - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+    - (multisite_vrf_delete_mode is defined) and (multisite_vrf_delete_mode is true|bool)
 
 - name: Remove Unmanaged Fabric VRFs
   cisco.dcnm.dcnm_vrf:
@@ -35,11 +35,11 @@
       ansible_connect_timeout: 3000
   when:
     - switch_list.response.DATA | length > 0
-    - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+    - (multisite_vrf_delete_mode is defined) and (multisite_vrf_delete_mode is true|bool)
 
 - ansible.builtin.debug:
     msg:
-      - "--------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False   +"
-      - "--------------------------------------------------------------------------------------------------------"
-  when: not ((vrf_delete_mode is defined) and (vrf_delete_mode is true|bool))
+      - "------------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged MultiSite Fabric VRFs task because multisite_vrf_delete_mode flag is set to False    +"
+      - "------------------------------------------------------------------------------------------------------------------"
+  when: not ((multisite_vrf_delete_mode is defined) and (multisite_vrf_delete_mode is true|bool))

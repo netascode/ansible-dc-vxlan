@@ -113,7 +113,7 @@ class ActionModule(ActionBase):
                             "Attempting to use vxlan.global.fabric_type due to vxlan.fabric.type not being found. "
                             "vxlan.global.fabric_type is being deprecated. Please use vxlan.fabric.type."
                         )
-                        display.deprecated(msg=deprecated_msg, version='1.0.0')
+                        display.deprecated(msg=deprecated_msg, version='1.0.0', collection_name='cisco.nac_dc_vxlan')
 
                         if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN'):
                             rules_list.append(f'{rules}vxlan/')

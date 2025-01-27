@@ -31,7 +31,6 @@ class PreparePlugin:
         self.kwargs = kwargs
         self.keys = []
 
-
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
         self.kwargs['results']['failed'] = False
@@ -40,11 +39,6 @@ class PreparePlugin:
         fail_msg += " There is either a bug in one of the prepare plugins or"
         fail_msg += " the data was not included in the data model."
         fail_msg += " Data Model Section: ({})"
-
-        # from pprint import pprint
-        # md = model_data
-        # pprint(md)
-
 
         # This prepare plugin serves as a final sanity check after all of the
         # previous prepare plugins have been called to transform the model data.

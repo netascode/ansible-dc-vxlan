@@ -43,7 +43,7 @@
 # --------------------------------------------------------------------
 
 - name: Build Fabric Create Parameters
-  ansible.builtin.import_tasks: msd/ndfc_fabric.yml
+  ansible.builtin.import_tasks: common/ndfc_fabric.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Child Fabric Inventory List From Template

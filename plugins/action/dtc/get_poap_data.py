@@ -174,8 +174,8 @@ class ActionModule(ActionBase):
         params = {}
         params['model_data'] = self._task.args["model_data"]
 
-        if params['model_data']['vxlan']['fabric']['type'] == 'ISN':
-            return results
+        # if params['model_data']['vxlan']['fabric']['type'] == 'ISN':
+        #     return results
 
         params['action_plugin'] = self._execute_module
         params['task_vars'] = task_vars

@@ -110,7 +110,6 @@ class Rule:
 
         return results
 
-
     @classmethod
     def data_model_key_check(cls, tested_object, keys):
         dm_key_dict = {'keys_found': [], 'keys_not_found': [], 'keys_data': [], 'keys_no_data': []}

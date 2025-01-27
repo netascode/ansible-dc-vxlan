@@ -1,0 +1,43 @@
+! This NDFC Route_Control_Object_Groups config data structure is auto-generated
+! DO NOT EDIT MANUALLY
+!
+!
+{% if policy_types["ipv4_object_groups"] is defined %}
+    {# Get policy ipv4 object groups in groups #}
+    {% for policy_name in policy_types["ipv4_object_groups"] %}
+    {# Get ipv4 object group under Route_control #}
+        {% for ipv4_object_group in item["ipv4_object_groups"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == ipv4_object_group["name"] %}
+object-group ip address {{ ipv4_object_group["name"] }}
+                {% for entry in ipv4_object_group["entries"] | sort(attribute='seq_number') %}
+                    {% if entry["host"] is defined %}
+  {{ entry["seq_number"] }} host {{ entry["host"]}}
+                     {% elif entry["ip"] is defined %}
+  {{ entry["seq_number"] }} {{ entry["ip"] | ipaddr("net")}}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endif %}
+
+{% if policy_types["ipv6_object_groups"] is defined %}
+    {# Get policy ipv4 object groups in groups #}
+    {% for policy_name in policy_types["ipv6_object_groups"] %}
+        {# Get ipv4 object group under Route_control #}
+        {% for ipv6_object_group in item["ipv6_object_groups"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == ipv6_object_group["name"] %}
+object-group ipv6 address {{ ipv6_object_group["name"] }}
+                {% for entry in ipv6_object_group["entries"] | sort(attribute='seq_number') %}
+                    {% if entry["host"] is defined%}
+  {{ entry["seq_number"] }} host {{ entry["host"]}}
+                    {% elif entry["ip"] is defined %}
+  {{ entry["seq_number"] }} {{ entry["ip"] | ipaddr("net")}}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endif %}

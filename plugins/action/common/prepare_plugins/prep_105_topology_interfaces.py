@@ -38,7 +38,6 @@ class PreparePlugin:
         if model_data['vxlan']['fabric']['type'] in ['ISN', 'MSD', 'MFD']:
             return self.kwargs['results']
 
-
         model_data['vxlan']['topology']['interfaces'] = {}
         model_data['vxlan']['topology']['interfaces']['modes'] = {}
 
