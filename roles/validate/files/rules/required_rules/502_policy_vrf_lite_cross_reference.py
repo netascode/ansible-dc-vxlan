@@ -45,18 +45,12 @@ class Rule:
         static_routes_compliance = []
 
         # Get fabric switches
-        if data.get("vxlan"):
-            if data["vxlan"].get("topology"):
-                if data.get("vxlan").get("topology").get("switches"):
-                    topology_switches = (
-                        data.get("vxlan").get("topology").get("switches")
-                    )
+        if data.get("vxlan", {}).get("topology", {}).get("switches") is not None:
+            topology_switches = data["vxlan"]["topology"]["switches"]
 
         # Get vrf-lites policies
-        if data.get("vxlan", None):
-            if data["vxlan"].get("overlay_extensions", None):
-                if data["vxlan"].get("overlay_extensions").get("vrf_lites", None):
-                    vrf_lites = data["vxlan"]["overlay_extensions"]["vrf_lites"]
+        if data.get("vxlan", {}).get("overlay_extensions", {}).get("vrf_lites") is not None:
+            vrf_lites = data["vxlan"]["overlay_extensions"]["vrf_lites"]
 
         # Check Global Level
         for policy in vrf_lites:
@@ -75,8 +69,7 @@ class Rule:
                             topology_switches,
                             static_routes_compliance,
                         )
-        # TODO rewrite route compliances to support IPv4 and IPv6
-        # cls.check_route_compliance_across_policies(static_routes_compliance)
+        cls.check_route_compliance_across_policies(static_routes_compliance)
 
         return cls.results
 
@@ -85,7 +78,7 @@ class Rule:
         """
         Check if OSPF and BGP is enabled in the global policy
         """
-        if "ospf" in policy and "bgp" in policy:
+        if {"ospf", "bgp"}.issubset(policy):
             cls.results.append(
                 f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf, "
                 f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.bgp. "
@@ -98,33 +91,29 @@ class Rule:
         """
         Check OSPF Process
         """
-        if policy.get("ospf"):
-            if not policy["ospf"].get("process"):
-                cls.results.append(
-                    f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf.process. "
-                    f"OSPF process is not defined."
-                )
+        if policy.get("ospf") and not policy["ospf"].get("process"):
+            cls.results.append(
+                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf.process. "
+                f"OSPF process is not defined."
+            )
 
     @classmethod
     def check_global_ospf_area(cls, policy):
         """
         Check OSPF if backbone area is standard
         """
-        if policy.get("ospf"):
-            if policy["ospf"].get("areas"):
-                for area in policy["ospf"]["areas"]:
-                    if "id" in area and area.get("area_type"):
-                        # Check if AREA 0 is not standard
-                        if (area["id"] == 0 or area["id"] == "0.0.0.0") and (
-                            area["area_type"] != "standard"
-                        ):
-                            cls.results.append(
-                                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf.areas.id.0. "
-                                f"area_type is defined to {area['area_type']}. "
-                                "Backbone area is always standard"
-                            )
-                        elif area["area_type"] == "nssa":
-                            cls.check_global_ospf_nssa(area, policy["name"])
+        if policy.get("ospf") and not policy["ospf"].get("areas"):
+            for area in policy["ospf"]["areas"]:
+                if "id" in area and area.get("area_type"):
+                    # Check if AREA 0 is not standard
+                    if area["id"] in (0, "0.0.0.0") and area["area_type"] != "standard":
+                        cls.results.append(
+                            f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf.areas.id.0. "
+                            f"area_type is defined to {area['area_type']}. "
+                            "Backbone area is always standard"
+                        )
+                    elif area["area_type"] == "nssa":
+                        cls.check_global_ospf_nssa(area, policy["name"])
 
     @classmethod
     def check_global_ospf_nssa(cls, area, policy):
@@ -204,24 +193,13 @@ class Rule:
 
         # Check Static routes
         if "static_routes" in switch_policy:
-            if "static_ipv4" in switch_policy["static_routes"]:
-                static_routes_compliance.append(
+            static_routes_compliance.append(
                     {
                         "policy": policy["name"],
                         "vrf": policy["vrf"],
                         "switch": switch_policy["name"],
-                        "prefix": switch_policy["static_routes"]["static_ipv4"],
-                    }
-                )
-            if "static_ipv6" in switch_policy["static_routes"]:
-                static_routes_compliance.append(
-                    {
-                        "policy": policy["name"],
-                        "vrf": policy["vrf"],
-                        "switch": switch_policy["name"],
-                        "prefix": switch_policy["static_routes"]["static_ipv6"],
-                    }
-                )
+                        "prefix": switch_policy["static_routes"],
+                    })
 
     @classmethod
     def check_switch_in_topology(cls, switch, topology_switches, policy):
@@ -328,98 +306,64 @@ class Rule:
         """
         Check routes compliance across policies
         """
-        good_route = []
-        for route in routes:
-            if route["prefix"] is not None:
-                # Check if route contain mandatory parameter: prefix, next_hop for each prefix
-                bad_route = False
-                for index in range(len(route["prefix"])):
-                    if ("prefix" not in route["prefix"][index]) or (
-                        "next_hops" not in route["prefix"][index]
-                    ):
-                        cls.results.append(
-                            f"vxlan.overlay_extensions.vrf_lites.{route['policy']}.switches.{route['switch']}.static_routes. "
-                            f"prefix or next_hops is not defined. {route['prefix'][index]}"
-                        )
-                        bad_route = True
-                if bad_route is False:
-                    good_route.append(route)
-            # Else no parameter found
-            else:
-                cls.results.append(
-                    f"vxlan.overlay_extensions.vrf_lites.{route['policy']}.switches.{route['switch']}.static_routes. "
-                    f"static_routers is defined without paramater."
-                )
 
-        # print(good_route)
-
-        # Compare routes
-        for index in range(len(good_route) - 1):
-            for index2 in range(index + 1, len(good_route)):
-                if (good_route[index]["vrf"] == good_route[index2]["vrf"]) and (
-                    good_route[index]["switch"] == good_route[index2]["switch"]
-                ):
-                    # Check prefixes are equal
-                    for prefix_to_be_compared in good_route[index]["prefix"]:
-                        prefixes_for_comparison = [
-                            sub["prefix"] for sub in good_route[index2]["prefix"]
-                        ]
-                        if prefix_to_be_compared["prefix"] in prefixes_for_comparison:
-                            # Find the prefix to compare route_tag and Next_hops
-                            for pref_for_comparison in good_route[index2]["prefix"]:
-                                if ( prefix_to_be_compared["prefix"] == pref_for_comparison["prefix"]):
-                                    print(prefix_to_be_compared)
-                                    print(pref_for_comparison)
-                                    # Check if route_tag exist if equal
-                                    if ( "route_tag" in prefix_to_be_compared and "route_tag" in pref_for_comparison and
-                                        prefix_to_be_compared["route_tag"] == pref_for_comparison["route_tag"]
-                                    ):
-                                        next_hops_to_be_compared = sorted(
-                                            [
-                                                sub["ip"]
-                                                for sub in prefix_to_be_compared[
-                                                    "next_hops"
-                                                ]
-                                            ]
-                                        )
-                                        next_hops_for_comparison = sorted(
-                                            [
-                                                sub["ip"]
-                                                for sub in pref_for_comparison[
-                                                    "next_hops"
-                                                ]
-                                            ]
-                                        )
-                                        # Check if next_hops are equal for the same prefix.
-                                        if (
-                                            next_hops_to_be_compared
-                                            != next_hops_for_comparison
-                                        ):
-                                            cls.results.append(
-                                                f"vxlan.overlay_extensions.vrf_lites.{good_route[index]['policy']}.switches."
-                                                f"{good_route[index]['switch']}.static_routes.{prefix_to_be_compared['prefix']}.{next_hops_to_be_compared} "
-                                                f"Static routes are not consistent across policies. next_hop are different in "
-                                                f"vxlan.overlay_extensions.vrf_lites.{good_route[index2]['policy']}.switches."
-                                                f"{good_route[index2]['switch']}.static_routes.{pref_for_comparison['prefix']}.{next_hops_for_comparison}"
-                                            )
-                                        break
-                                    elif ("route_tag" not in prefix_to_be_compared and "route_tag" not in pref_for_comparison):
-                                        pass
-                                    else:
-                                        cls.results.append(
-                                            f"vxlan.overlay_extensions.vrf_lites.{good_route[index]['policy']}.switches."
-                                            f"{good_route[index]['switch']}.static_routes.{prefix_to_be_compared['prefix']}. "
-                                            f"Static routes are not consistent across policies. route_tag are different in "
-                                            f"vxlan.overlay_extensions.vrf_lites.{good_route[index2]['policy']}.switches."
-                                            f"{good_route[index2]['switch']}.static_routes.{prefixes_for_comparison}"
-                                        )
-                                        break
+        def sort_prefixes_and_next_hops(data_input):
+            """
+            Sort prefixes and next_hops
+            """
+            for item in data_input:
+                # Sort static_ipv4 prefixes
+                if 'static_ipv4' in item['prefix']:
+                    for static_ipv4_entry in item['prefix']['static_ipv4']:
+                        # Sort next_hops by 'ip'
+                        if "next_hops" in static_ipv4_entry:
+                            static_ipv4_entry['next_hops'] = sorted(
+                                static_ipv4_entry['next_hops'],
+                                key=lambda x: x['ip']
+                            )
                         else:
                             cls.results.append(
-                                f"vxlan.overlay_extensions.vrf_lites.{good_route[index]['policy']}.switches."
-                                f"{good_route[index]['switch']}.static_routes.{prefix_to_be_compared['prefix']}. "
-                                f"Static routes are not consistent across policies. Prefix not found in "
-                                f"vxlan.overlay_extensions.vrf_lites.{good_route[index2]['policy']}.switches."
-                                f"{good_route[index2]['switch']}.static_routes.{prefixes_for_comparison}"
+                    f"vxlan.overlay_extensions.vrf_lites.{item['policy']}.switches.{item['switch']}"
+                    f".static_routes.static_ipv4.{static_ipv4_entry} "
+                    f"next_hops is not defined."
+                )
+
+                    # Sort static_ipv4 by 'prefix'
+                    item['prefix']['static_ipv4'] = sorted(
+                        item['prefix']['static_ipv4'],
+                        key=lambda x: x['prefix']
+                    )
+                # Sort static_ipv6 prefixes
+                if 'static_ipv6' in item['prefix']:
+                    for static_ipv6_entry in item['prefix']['static_ipv6']:
+                        # Sort next_hops by 'ip'
+                        if "next_hops" in static_ipv6_entry:
+                            static_ipv6_entry['next_hops'] = sorted(
+                                static_ipv6_entry['next_hops'],
+                                key=lambda x: x['ip']
                             )
-                            break
+                        else:
+                            cls.results.append(
+                    f"vxlan.overlay_extensions.vrf_lites.{item['policy']}.switches.{item['switch']}"
+                    f".static_routes.static_ipv6.{static_ipv6_entry} "
+                    f"next_hops is not defined."
+                )
+
+                    # Sort static_ipv6 by 'prefix'
+                    item['prefix']['static_ipv6'] = sorted(
+                        item['prefix']['static_ipv6'],
+                        key=lambda x: x['prefix']
+                    )
+
+            return data_input
+
+        sorted_data = sort_prefixes_and_next_hops(routes)
+
+        for data in sorted_data:
+            for data2 in sorted_data:
+                if data['vrf'] == data2['vrf'] and data['switch'] == data2['switch']:
+                    if data['prefix'] != data2['prefix']:
+                        cls.results.append(
+                    f"vxlan.overlay_extensions.vrf_lites.{data['policy']} and vxlan.overlay_extensions.vrf_lites.{data2['policy']} "
+                    f"use the same VRF and switch with different static routes"
+                        )
