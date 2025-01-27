@@ -194,12 +194,12 @@ class Rule:
         # Check Static routes
         if "static_routes" in switch_policy:
             static_routes_compliance.append(
-                    {
-                        "policy": policy["name"],
-                        "vrf": policy["vrf"],
-                        "switch": switch_policy["name"],
-                        "prefix": switch_policy["static_routes"],
-                    })
+                {
+                    "policy": policy["name"],
+                    "vrf": policy["vrf"],
+                    "switch": switch_policy["name"],
+                    "prefix": switch_policy["static_routes"],
+                })
 
     @classmethod
     def check_switch_in_topology(cls, switch, topology_switches, policy):
@@ -323,10 +323,10 @@ class Rule:
                             )
                         else:
                             cls.results.append(
-                    f"vxlan.overlay_extensions.vrf_lites.{item['policy']}.switches.{item['switch']}"
-                    f".static_routes.static_ipv4.{static_ipv4_entry} "
-                    f"next_hops is not defined."
-                )
+                                f"vxlan.overlay_extensions.vrf_lites.{item['policy']}.switches.{item['switch']}"
+                                f".static_routes.static_ipv4.{static_ipv4_entry} "
+                                f"next_hops is not defined."
+                            )
 
                     # Sort static_ipv4 by 'prefix'
                     item['prefix']['static_ipv4'] = sorted(
@@ -344,10 +344,10 @@ class Rule:
                             )
                         else:
                             cls.results.append(
-                    f"vxlan.overlay_extensions.vrf_lites.{item['policy']}.switches.{item['switch']}"
-                    f".static_routes.static_ipv6.{static_ipv6_entry} "
-                    f"next_hops is not defined."
-                )
+                                f"vxlan.overlay_extensions.vrf_lites.{item['policy']}.switches.{item['switch']}"
+                                f".static_routes.static_ipv6.{static_ipv6_entry} "
+                                f"next_hops is not defined."
+                            )
 
                     # Sort static_ipv6 by 'prefix'
                     item['prefix']['static_ipv6'] = sorted(
@@ -364,6 +364,6 @@ class Rule:
                 if data['vrf'] == data2['vrf'] and data['switch'] == data2['switch']:
                     if data['prefix'] != data2['prefix']:
                         cls.results.append(
-                    f"vxlan.overlay_extensions.vrf_lites.{data['policy']} and vxlan.overlay_extensions.vrf_lites.{data2['policy']} "
-                    f"use the same VRF and switch with different static routes"
+                            f"vxlan.overlay_extensions.vrf_lites.{data['policy']} and vxlan.overlay_extensions.vrf_lites.{data2['policy']} "
+                            f"use the same VRF and switch with different static routes"
                         )
