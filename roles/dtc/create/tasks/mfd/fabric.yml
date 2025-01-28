@@ -44,7 +44,7 @@
       fabricTechnology: "VXLANFabric"
       nvPairs: "{{ fabric_config }}"
 
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (PUT)
+- name: Manage fabric federated {{ MD_Extended.vxlan.fabric.name }} in NDFC (PUT)
   cisco.dcnm.dcnm_rest:
     method: PUT
     path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}'
@@ -54,7 +54,7 @@
     - get_result.response.RETURN_CODE == 200
   register: put_result
 
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (POST)
+- name: Manage fabric federated {{ MD_Extended.vxlan.fabric.name }} in NDFC (POST)
   cisco.dcnm.dcnm_rest:
     method: POST
     path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics'
