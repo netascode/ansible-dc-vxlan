@@ -1,0 +1,68 @@
+! This NDFC Route_Control_TimeRange config data structure is auto-generated
+! DO NOT EDIT MANUALLY
+!
+!
+{% if policy_types["time_range"] is defined %}
+    {# Get policy time range in groups #}
+    {% for policy_name in policy_types["time_range"] %}
+    {# Get Time-Range under Route_control #}
+        {% for time_range in item["time_range"]%}
+            {# If policy name in Group equal to policy in Route_control #}
+            {% if policy_name["name"] == time_range["name"] %}
+time-range {{ time_range["name"] }}
+                {% for entry in time_range["entries"] | sort(attribute='seq_number') %}
+                    {% set periodic = [] %}
+                    {% set absolute = [] %}
+                    {% set remark = [] %}
+                    {% set cli = [] %}
+                    {% if entry.remark is defined %}
+                        {% set _ = remark.append("remark " ~ entry["remark"]) %}
+                    {# absolute usecase #}
+                    {% elif entry["absolute"] is defined %}
+                        {% set _ = absolute.append("absolute") %}
+                        {# if start #}
+                        {% if entry["absolute"]["start_hours"] is defined %}
+                            {% set start = [] %}
+                            {% set _ = start.append("%02.f" | format(entry["absolute"]["start_hours"])) %}
+                            {% set _ = start.append(":%02.f" | format(entry["absolute"]["start_minutes"] | default(0))) %}
+                            {% set _ = start.append(":%02.f" | format(entry["absolute"]["start_seconds"] | default(0))) %}
+                            {% set _ = absolute.append("start " ~ start | join("") ~ " " ~ entry["absolute"]["start_day"] ~ " " ~
+                        entry["absolute"]["start_month"] | title ~ " " ~ entry["absolute"]["start_year"]) %}
+                        {% endif %}
+                        {# if end #}
+                        {% if entry["absolute"]["end_hours"] is defined %}
+                            {% set end = [] %}
+                            {% set _ = end.append("%02.f" | format(entry["absolute"]["end_hours"])) %}
+                            {% set _ = end.append(":%02.f" | format(entry["absolute"]["end_minutes"] | default(0))) %}
+                            {% set _ = end.append(":%02.f" | format(entry["absolute"]["end_seconds"] | default(0))) %}
+                            {% set _ = absolute.append("end " ~ end | join("") ~ " " ~ entry["absolute"]["end_day"] ~ " " ~
+                        entry["absolute"]["end_month"] | title ~ " " ~ entry["absolute"]["end_year"]) %}
+                        {% endif %}
+                    {# periodic usecase #}
+                    {% elif entry["periodic"] is defined %}
+                        {% set _ = periodic.append("periodic") %}
+                        {# if start #}
+                        {% set _ = periodic.append(entry["periodic"]["day"] | join(" ")) %}
+                        {% if entry["periodic"]["start_hours"] is defined %}
+                            {% set start = [] %}
+                            {% set _ = start.append("%02.f" | format(entry["periodic"]["start_hours"])) %}
+                            {% set _ = start.append(":%02.f" | format(entry["periodic"]["start_minutes"] | default(0))) %}
+                            {% set _ = start.append(":%02.f" | format(entry["periodic"]["start_seconds"] | default(0))) %}
+                            {% set _ = periodic.append(start | join("")) %}
+                        {% endif %}
+                        {# if end #}
+                        {% if entry["periodic"]["end_hours"] is defined %}
+                            {% set end = [] %}
+                            {% set _ = end.append("%02.f" | format(entry["periodic"]["end_hours"])) %}
+                            {% set _ = end.append(":%02.f" | format(entry["periodic"]["end_minutes"] | default(0))) %}
+                            {% set _ = end.append(":%02.f" | format(entry["periodic"]["end_seconds"] | default(0))) %}
+                            {% set _ = periodic.append("to " ~ end | join("")) %}
+                        {% endif %}
+                    {% endif %}
+                    {% set cli = (remark + periodic + absolute ) | join(" ") %}
+  {{ entry["seq_number"] }} {{ cli }}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endif %}

@@ -1,0 +1,296 @@
+                        {% for set in entry["set"] %}
+                            {# as-path #}
+                            {% if set["as_path"] is defined %}
+                                {% if set["as_path"]["tag"] is defined and set["as_path"]["tag"] is true %}
+  set as-path tag
+                                {% elif set["as_path"]["none"] is defined and set["as_path"]["none"] is true %}
+  set as-path none
+                                {% elif set["as_path"]["local_as"] is defined or set["as_path"]["remote_as"] is defined %}
+                                    {% set options = [] %}
+                                    {% if set["as_path"]["local_as"] is true %}
+                                        {% set _ = options.append("local-as")%}
+                                    {% endif %}
+                                    {% if set["as_path"]["remote_as"] is true %}
+                                        {% set _ = options.append("remote-as")%}
+                                    {% endif %}
+                                    {% if set["as_path"]["as_number"] is defined %}
+                                        {% for as in set["as_path"]["as_number"]%}
+                                            {% set _ = options.append(as) %}
+                                        {% endfor %}
+                                    {% endif %}
+  set as-path {{ options | join(" ")}}
+                                {# as-path prepend #}
+                                {% elif set["as_path"]["prepend_last_as_count"] is defined %}
+  set as-path prepend last-as {{ set["as_path"]["prepend_last_as_count"] }}
+                                {% elif set["as_path"]["prepend"] is defined %}
+  set as-path prepend {{ set["as_path"]["prepend"] | join(" ") }}
+                                {# as-path replace #}
+                                {% elif set["as_path"]["replace"] is defined %}
+                                    {# as-path replace w/ private-as #}
+                                    {% if set["as_path"]["replace"]["private_as"] is defined %}
+                                        {% if set["as_path"]["replace"]["private_as"] is true %}
+  set as-path replace private-as
+                                        {% elif set["as_path"]["replace"]["private_as"] == 'none' %}
+  set as-path replace private-as with none
+                                        {% elif set["as_path"]["replace"]["private_as"] == 'remote-as' %}
+  set as-path replace private-as with remote-as
+                                        {% else %}
+  set as-path replace private-as with {{ set["as_path"]["replace"]["private_as"] }}
+                                        {% endif %}
+                                    {# as-path replace w/o private-as #}
+                                    {% elif set["as_path"]["replace"] is defined and set["as_path"]["as_number"] is defined%}
+                                        {% if set["as_path"]["replace"]["as_number"] is defined and set["as_path"]["replace"]["as_number"] == 'none' %}
+  set as-path replace {{ set["as_path"]["as_number"] | join(" ") }} with none
+                                        {% elif set["as_path"]["replace"]["as_number"] is defined and set["as_path"]["replace"]["as_number"] == 'remote-as' %}
+  set as-path replace {{ set["as_path"]["as_number"] | join(" ") }} with remote-as
+                                        {% elif set["as_path"]["replace"]["as_number"] is defined %}
+  set as-path replace {{ set["as_path"]["as_number"] | join(" ") }} with {{ set["as_path"]["replace"]["as_number"] }}
+                                        {% else %}
+  set as-path replace {{ set["as_path"]["replace"]["as_number"] | join(" ") }}
+                                        {% endif %}
+                                    {% endif %}
+                                {# if only as-number #}
+                                {% elif set["as_path"]["as_number"] is defined %}
+  set as-path {{ set["as_path"]["as_number"] | join(" ")}}
+                                {% endif %}
+                            {% endif %}
+                            {# delete keyword doesn't exist #}
+                            {% if set["community_list"] is defined %}
+  set comm-list {{ set["community_list"] }} delete
+                            {% endif %}
+                            {% if set["community"] is defined %}
+                                {# used to order options properly in CLI #}
+                                {# set community internet 65000:42 65000:43 no-export no-advertise local-AS graceful-shutdown blackhole additive #}
+                                {% set community_asn = [] %}
+                                {% for asn in set["community"] %}
+                                    {% if asn not in ['internet','no-export','no-advertise','local-as','graceful-shutdown','blackhole','additive'] %}
+                                        {% set _ = community_asn.append(asn) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% set community_options = [] %}
+                                {% if 'internet' in set["community"] %}
+                                    {% set _ = community_options.append("internet") %}
+                                {% endif %}
+                                {% if community_asn | length > 0 %}
+                                    {% set _= community_options.append(community_asn | join(" ")) %}
+                                {% endif %}
+                                {% if 'no-export' in set["community"] %}
+                                    {% set _ = community_options.append("no-export") %}
+                                {% endif %}
+                                {% if 'no-advertise' in set["community"] %}
+                                    {% set _ = community_options.append("no-advertise") %}
+                                {% endif %}
+                                {% if 'local-as' in set["community"] %}
+                                    {% set _ = community_options.append("local-AS") %}
+                                {% endif %}
+                                {% if 'graceful-shutdown' in set["community"] %}
+                                    {% set _ = community_options.append("graceful-shutdown") %}
+                                {% endif %}
+                                {% if 'blackhole' in set["community"] %}
+                                    {% set _ = community_options.append("blackhole") %}
+                                {% endif %}
+                                {% if 'additive' in set["community"] %}
+                                    {% set _ = community_options.append("additive") %}
+                                {% endif %}
+  set community {{ community_options | join(" ") }}
+                            {% endif %}
+                            {% if set["dampening"] is defined %}
+  set dampening {{ set["dampening"]["half_life"] }} {{ set["dampening"]["reuse_penalty"] }} {{ set["dampening"]["suppress_penalty"] }} {{ set["dampening"]["max_suppress_time"] }}
+                            {% endif %}
+                            {% if set["distance"] is defined %}
+                                {% if set["distance"]["igp_ebgp"] is defined and set["distance"]["internal"] is defined and set["distance"]["local"] is defined %}
+  set distance {{ set["distance"]["igp_ebgp"] }} {{ set["distance"]["internal"] }} {{ set["distance"]["local"] }}
+                                {% elif set["distance"]["igp_ebgp"] is defined and set["distance"]["internal"] is defined %}
+  set distance {{ set["distance"]["igp_ebgp"] }} {{ set["distance"]["internal"] }}
+                                {% elif set["distance"]["igp_ebgp"] is defined and set["distance"]["internal"] is defined %}
+  set distance {{ set["distance"]["igp_ebgp"] }}
+                                {% endif %}
+                            {% endif %}
+                            {% if set["evpn"] is defined and set["evpn"]["gateway_ip"] is defined %}
+  set evpn gateway-ip {{ set["evpn"]["gateway_ip"] }}
+                            {% endif %}
+                            {% if set["extended_community_list"] is defined %}
+  set extcomm-list {{ set["extended_community_list"]}} delete
+                            {% endif %}
+                            {% if set["extended_community"] is defined %}
+                                {% if set["extended_community"]["4byteas_generic"] is defined %}
+                                    {% set ext_4byte_option = [] %}
+                                    {# additive or none #}
+                                    {% if set["extended_community"]["4byteas_generic"]["option"] is defined and set["extended_community"]["4byteas_generic"]["transitivity"] is not defined %}
+                                        {% set _ = ext_4byte_option.append(set["extended_community"]["4byteas_generic"]["option"]) %}
+                                    {% endif %}
+                                    {# transitive or none + communities #}
+                                    {% if set["extended_community"]["4byteas_generic"]["transitivity"] is defined %}
+                                        {% for transitive in set["extended_community"]["4byteas_generic"]["transitivity"] %}
+                                            {% if transitive["transitive"] is true %}
+                                                {% set _ = ext_4byte_option.append("transitive") %}
+                                            {% elif transitive["transitive"] is false %}
+                                                {% set _ = ext_4byte_option.append("non-transitive") %}
+                                            {% endif %}
+                                            {% if transitive["extended_community"] %}
+                                                {% set _ = ext_4byte_option.append(transitive["extended_community"]) %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if set["extended_community"]["4byteas_generic"]["option"] is defined and
+                                        set["extended_community"]["4byteas_generic"]["option"] == 'additive' %}
+                                            {% set _ = ext_4byte_option.append('additive') %}
+                                        {% endif %}
+                                    {% endif %}
+  set extcommunity 4byteas-generic {{ ext_4byte_option | join(" ")}}
+                                {% endif %}
+                                {# extcommunity w/ color #}
+                                {% if set["extended_community"]["color"] is defined %}
+                                    {% if set["extended_community"]["color"]["color"] is defined and set["extended_community"]["color"]["co_flag"] is defined %}
+  set extcommunity color {{ set["extended_community"]["color"]["color"] }} co-flag {{ set["extended_community"]["color"]["co_flag"]}}
+                                    {% elif set["extended_community"]["color"]["color"] is defined %}
+  set extcommunity color {{ set["extended_community"]["color"]["color"] }}
+                                    {% endif %}
+                                {% endif %}
+                                {# extcommunity w/ cost #}
+                                {% if set["extended_community"]["cost"] is defined %}
+                                        {% set prebestpath = [] %}
+                                        {% set igp = [] %}
+                                    {% for cost in set["extended_community"]["cost"] %}
+                                        {% if cost["community_id"] is defined and cost["cost"] is defined %}
+                                            {% if cost["type"] is defined and cost["type"] == 'pre-bestpath' %}
+                                                {% set _ = prebestpath.append("pre-bestpath " ~ cost["community_id"] ~ " " ~ cost["cost"])%}
+                                            {% elif cost["type"] is defined and cost["type"] == 'igp' %}
+                                                {% set _ = igp.append("igp " ~ cost["community_id"] ~ " " ~ cost["cost"]) %}
+                                            {% else %}
+                                                {% set _ = igp.append("igp " ~ cost["community_id"] ~ " " ~ cost["cost"]) %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if prebestpath | length > 0 and igp | length > 0 %}
+  set extcommunity cost {{ prebestpath | join(" ") }} {{ igp | join(" ")}}
+                                    {% elif prebestpath | length > 0 %}
+  set extcommunity cost {{ prebestpath | join(" ") }}
+                                    {% elif igp | length > 0 %}
+  set extcommunity cost {{ igp | join(" ")}}
+                                    {% endif %}
+                                {% elif set["extended_community"]["evpn_rmac"] is defined %}
+  set extcommunity evpn rmac {{ set["extended_community"]["evpn_rmac"] | hwaddr('cisco') }}
+                                {% elif set["extended_community"]["rt"] is defined %}
+                                    {% if set["extended_community"]["rt"]["additive"] is defined and set["extended_community"]["rt"]["additive"] is true%}
+  set extcommunity rt {{ set["extended_community"]["rt"]["rt_list"] | join(" ") }} additive
+                                    {% else %}
+  set extcommunity rt {{ set["extended_community"]["rt"]["rt_list"] | join(" ") }}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                            {% if set["forwarding_address"] is defined and set["forwarding_address"] is true %}
+  set forwarding-address
+                            {% endif %}
+                            {% if set["interface"] is defined %}
+  set interface Null0
+                            {% endif %}
+                            {% if set["level"] is defined %}
+  set level {{ set["level"] }}
+                            {% endif %}
+                            {% if set["local_preference"] is defined %}
+  set local-preference {{ set["local_preference"] }}
+                            {% endif %}
+                            {% if set["metric_type"] is defined %}
+  set metric-type {{ set["metric_type"] }}
+                            {% endif %}
+                            {% if set["metric"] is defined %}
+                                {% if set["metric"] | length == 5 %}
+  set metric {{ set["metric"]["bandwidth"] }} {{ set["metric"]["delay"] }} {{ set["metric"]["reliability"] }} {{ set["metric"]["load"] }} {{ set["metric"]["mtu"]}}
+                                {% elif set["metric"]["bandwidth"] is defined %}
+  set metric {{ set["metric"]["bandwidth"] }}
+                                {% endif %}
+                            {% endif %}
+                            {% if set["nssa_only"] is defined and set["nssa_only"] is true %}
+  set nssa-only
+                            {% endif %}
+                            {% if set["origin"] is defined %}
+  set origin {{ set["origin"] }}
+                            {% endif %}
+                            {% if set["path_selection"] is defined %}
+  set path-selection {{ set["path_selection"] }} advertise
+                            {% endif %}
+                            {% if set["tag"] is defined %}
+  set tag {{ set["tag"] }}
+                            {% endif %}
+                            {% if set["weight"] is defined %}
+  set weight {{ set["weight"] }}
+                            {% endif %}
+                            {% if set["ipv4"] is defined %}
+                                {% if set["ipv4"]["precedence"] is defined %}
+  set ip precedence {{ set["ipv4"]["precedence"] }}
+                                {% endif %}
+                                {% if set["ipv4"]["address_prefix_list"] is defined %}
+  set ip address prefix-list {{ set["ipv4"]["address_prefix_list"] }}
+                                {% endif %}
+                                {% if set["ipv4"]["next_hop"] is defined %}
+                                    {% if set["ipv4"]["next_hop"]["peer_address"] is defined and set["ipv4"]["next_hop"]["peer_address"] is true %}
+  set ip next-hop peer-address
+                                    {% elif set["ipv4"]["next_hop"]["redist_unchanged"] is defined and set["ipv4"]["next_hop"]["redist_unchanged"] is true %}
+  set ip next-hop redist-unchanged
+                                    {% elif set["ipv4"]["next_hop"]["unchanged"] is defined and set["ipv4"]["next_hop"]["unchanged"] is true %}
+  set ip next-hop unchanged
+                                    {% else %}
+                                        {% set nh_options = [] %}
+                                        {% if set["ipv4"]["next_hop"]["verify_availability"] is defined and set["ipv4"]["next_hop"]["verify_availability"] is true %}
+                                            {% set _ = nh_options.append("verify-availability")%}
+                                        {% endif %}
+                                        {% if set["ipv4"]["next_hop"]["address"] is defined %}
+                                            {% set _ = nh_options.append(set["ipv4"]["next_hop"]["address"] | ipaddr('address')) %}
+                                        {% endif %}
+                                        {% if set["ipv4"]["next_hop"]["drop_on_fail"] is defined or set["ipv4"]["next_hop"]["load_share"] is defined or
+                                        set["ipv4"]["next_hop"]["force_order"] is defined %}
+                                            {% if set["ipv4"]["next_hop"]["load_share"] is true %}
+                                                {% set _ = nh_options.append("load-share")%}
+                                            {% endif %}
+                                            {% if set["ipv4"]["next_hop"]["force_order"] is true %}
+                                                {% set _ = nh_options.append("force-order")%}
+                                            {% endif %}
+                                            {% if set["ipv4"]["next_hop"]["drop_on_fail"] is true %}
+                                                {% set _ = nh_options.append("drop-on-fail")%}
+                                            {% endif %}
+                                        {% endif %}
+  set ip next-hop {{ nh_options | join(" ") }}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                            {% if set["ipv6"] is defined %}
+                                {% if set["ipv6"]["precedence"] is defined %}
+  set ipv6 precedence {{ set["ipv6"]["precedence"] }}
+                                {% endif %}
+                                {% if set["ipv6"]["address_prefix_list"] is defined %}
+  set ipv6 address prefix-list {{ set["ipv6"]["address_prefix_list"] }}
+                                {% endif %}
+                                {% if set["ipv6"]["next_hop"] is defined %}
+                                    {% if set["ipv6"]["next_hop"]["peer_address"] is defined and set["ipv6"]["next_hop"]["peer_address"] is true %}
+  set ipv6 next-hop peer-address
+                                    {% elif set["ipv6"]["next_hop"]["redist_unchanged"] is defined and set["ipv6"]["next_hop"]["redist_unchanged"] is true
+                                    %}
+  set ipv6 next-hop redist-unchanged
+                                    {% elif set["ipv6"]["next_hop"]["unchanged"] is defined and set["ipv6"]["next_hop"]["unchanged"] is true %}
+  set ipv6 next-hop unchanged
+                                    {% else %}
+                                        {% set nh_options = [] %}
+                                        {% if set["ipv6"]["next_hop"]["verify_availability"] is defined and set["ipv6"]["next_hop"]["verify_availability"] is
+                                        true %}
+                                            {% set _ = nh_options.append("verify-availability")%}
+                                        {% endif %}
+                                        {% if set["ipv6"]["next_hop"]["address"] is defined %}
+                                            {% set _ = nh_options.append(set["ipv6"]["next_hop"]["address"] | ipaddr('address')) %}
+                                        {% endif %}
+                                        {% if set["ipv6"]["next_hop"]["drop_on_fail"] is defined or set["ipv6"]["next_hop"]["load_share"] is defined or
+                                        set["ipv6"]["next_hop"]["force_order"] is defined %}
+                                        {% if set["ipv6"]["next_hop"]["load_share"] is true %}
+                                            {% set _ = nh_options.append("load-share")%}
+                                        {% endif %}
+                                        {% if set["ipv6"]["next_hop"]["force_order"] is true %}
+                                            {% set _ = nh_options.append("force-order")%}
+                                        {% endif %}
+                                        {% if set["ipv6"]["next_hop"]["drop_on_fail"] is true %}
+                                            {% set _ = nh_options.append("drop-on-fail")%}
+                                        {% endif %}
+                                    {% endif %}
+  set ipv6 next-hop {{ nh_options | join(" ") }}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
