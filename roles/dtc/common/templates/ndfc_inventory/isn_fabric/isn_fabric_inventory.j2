@@ -1,6 +1,6 @@
 {# Auto-generated NDFC ISN Inventory config data structure for fabric {{ vxlan.fabric.name }} #}
 {% set poap_data = poap_data['poap_data'] %}
-{% for switch in MD_Extended.vxlan.multisite.isn.topology.switches %}
+{% for switch in MD_Extended.vxlan.topology.switches %}
 {% if switch.management.management_ipv4_address is defined %}
 - seed_ip: {{ switch['management']['management_ipv4_address'] }}
 {% elif switch.management.management_ipv6_address is defined %}
@@ -13,8 +13,8 @@
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: core_router
   preserve_config: true
-{% if MD_Extended.vxlan.multisite.isn.bootstrap is defined %}
-{% if MD_Extended.vxlan.multisite.isn.bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.multisite.isn.bootstrap.enable_bootstrap %}
+{% if MD_Extended.vxlan.topology.bootstrap is defined %}
+{% if MD_Extended.vxlan.topology.bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.topology.bootstrap.enable_bootstrap %}
 {% if switch.poap is defined and switch.poap.bootstrap %}
 {% if poap_data[switch['serial_number']] is defined %}
 {% set pdata = poap_data[switch['serial_number']] %}

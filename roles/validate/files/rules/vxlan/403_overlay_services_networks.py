@@ -21,7 +21,6 @@ class Rule:
         # if 'enable' in check['keys_data']:
         #     fabric_netflow_status = cls.safeget(inventory, netflow_keys)
 
-
         if inventory.get("vxlan", None):
             if inventory["vxlan"].get("underlay", None):
                 if inventory["vxlan"].get("underlay").get("multicast", None):

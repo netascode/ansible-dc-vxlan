@@ -35,6 +35,7 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
+        results['child_fabrics_moved'] = False
 
         fabric_associations = self._task.args['fabric_associations'].get('response').get('DATA')
         parent_fabric_name = self._task.args['parent_fabric_name']
@@ -66,6 +67,14 @@ class ActionModule(ActionBase):
                         results['failed'] = True
                         results['msg'] = f"{add_fabric_result['msg']['MESSAGE']}: {add_fabric_result['msg']['DATA']}"
                         break
+
+                    # If a child fabric is successfully added under an MSD fabric set a flag
+                    # indicating this so that it can be used later to prevent managing VRFs
+                    # and Networks.  If we dont prevent this then the VRFs and Networks could
+                    # be removed as part of moving the child fabric.
+                    #
+                    # TBD: This flag is not actually being used currently.  Discuss with team.
+                    results['child_fabrics_moved'] = True
 
                     results['changed'] = True
 

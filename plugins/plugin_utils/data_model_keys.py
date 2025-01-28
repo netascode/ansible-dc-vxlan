@@ -30,6 +30,7 @@ root_key = 'vxlan'
 # type: enum('VXLAN_EVPN', 'MSD', 'MCF', 'ISN')
 model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MFD': {}, 'ISN': {}}
 
+
 # VXLAN_EVPN KEYS
 
 model_keys['VXLAN_EVPN']['global'] = [root_key, 'global', 'KEY']
@@ -62,10 +63,29 @@ model_keys['VXLAN_EVPN']['overlay.networks'] = [root_key, 'overlay', 'networks',
 model_keys['VXLAN_EVPN']['overlay.network_attach_groups'] = [root_key, 'overlay', 'network_attach_groups', 'LIST']
 model_keys['VXLAN_EVPN']['overlay.network_attach_groups.switches'] = [root_key, 'overlay', 'network_attach_groups', 'switches', 'LIST_INDEX']
 # ---
+model_keys['VXLAN_EVPN']['overlay_extensions'] = [root_key, 'overlay_extensions', 'KEY']
+model_keys['VXLAN_EVPN']['overlay_extensions.route_control'] = [root_key, 'overlay_extensions', 'route_control', 'KEY']
+model_keys['VXLAN_EVPN']['overlay_extensions.route_control.route_maps'] = [root_key, 'overlay_extensions', 'route_control', 'route_maps', 'LIST']
+# ---
 model_keys['VXLAN_EVPN']['policy'] = [root_key, 'policy', 'KEY']
 model_keys['VXLAN_EVPN']['policy.policies'] = [root_key, 'policy', 'policies', 'LIST']
 model_keys['VXLAN_EVPN']['policy.groups'] = [root_key, 'policy', 'groups', 'LIST']
 model_keys['VXLAN_EVPN']['policy.switches'] = [root_key, 'policy', 'switches', 'LIST']
+
+# ISN KEYS
+
+model_keys['ISN']['topology'] = [root_key, 'topology', 'KEY']
+model_keys['ISN']['topology.edge_connections'] = [root_key, 'topology', 'edge_connections', 'LIST']
+model_keys['ISN']['topology.fabric_links'] = [root_key, 'topology', 'fabric_links', 'LIST']
+model_keys['ISN']['topology.switches'] = [root_key, 'topology', 'switches', 'LIST']
+model_keys['ISN']['topology.switches.freeform'] = [root_key, 'topology', 'switches', 'freeform', 'LIST_INDEX']
+model_keys['ISN']['topology.switches.interfaces'] = [root_key, 'topology', 'switches', 'interfaces', 'LIST_INDEX']
+model_keys['ISN']['topology.vpc_peers'] = [root_key, 'topology', 'vpc_peers', 'LIST']
+# ---
+model_keys['ISN']['policy'] = [root_key, 'policy', 'KEY']
+model_keys['ISN']['policy.policies'] = [root_key, 'policy', 'policies', 'LIST']
+model_keys['ISN']['policy.groups'] = [root_key, 'policy', 'groups', 'LIST']
+model_keys['ISN']['policy.switches'] = [root_key, 'policy', 'switches', 'LIST']
 
 # MSD KEYS
 
@@ -93,9 +113,3 @@ model_keys['MFD']['multisite.overlay.networks'] = [root_key, 'multisite', 'overl
 model_keys['MFD']['multisite.overlay.network_attach_groups'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'LIST']
 model_keys['MFD']['multisite.overlay.network_attach_groups.switches'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'switches', 'LIST_INDEX']
 
-# ISN KEYS
-
-# ---
-model_keys['ISN']['multisite.isn'] = [root_key, 'multisite', 'isn', 'KEY']
-model_keys['ISN']['multisite.isn.topology'] = [root_key, 'multisite', 'isn', 'topology', 'KEY']
-model_keys['ISN']['multisite.isn.topology.switches'] = [root_key, 'multisite', 'isn', 'topology', 'switches', 'LIST']
