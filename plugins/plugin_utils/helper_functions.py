@@ -24,7 +24,7 @@
 #
 # For example in prepare_serice_model.py we can do the following:
 #  from ..helper_functions import do_something
-
+import re
 
 def data_model_key_check(tested_object, keys):
     """
