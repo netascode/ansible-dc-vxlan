@@ -1,8 +1,7 @@
 ---
-# This NDFC links for vPC Peering is auto-generated
+# This NDFC fabric links config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-#jinja2: trim_blocks: True, lstrip_blocks: False
 {% for link in MD_Extended.vxlan.topology.fabric_links %}
   - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     src_interface: "{{ link.source_interface }}"
