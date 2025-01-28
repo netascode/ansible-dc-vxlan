@@ -21,286 +21,285 @@
 
 ---
 factory_defaults:
-  defaults:
-    vxlan:
-      global:
-        route_reflectors: 2
-        anycast_gateway_mac: 20:20:00:00:00:aa
-        auth_proto: MD5
-        vpc:
-          peer_link_vlan: 3600
-          peer_keep_alive: management
-          auto_recovery_time: 360
-          delay_restore_time: 150
-          peer_link_port_channel_id: 500
-          advertise_pip: false
-          advertise_pip_border_only: true
-          domain_id_range: 1-1000
-        spanning_tree:
-          root_bridge_protocol: unmanaged
-          vlan_range: 
-            - from: 1
-              to: 3967
-          mst_instance_range:
-            - from: 0
-              to: 0
-          bridge_priority: 0
-        netflow:
-          enable: false
-      topology:
-        switches:
-          routing_loopback_id: 0
-          vtep_loopback_id: 1
-          interfaces:
-            topology_switch_access_interface:
-              description: "NetAsCode Access Interface"
-              mtu: jumbo
-              speed: auto
-              enabled: true
-              access_vlan: 1
-              spanning_tree_portfast: true
-              enable_bpdu_guard: true
-            topology_switch_trunk_interface:
-              description: "NetAsCode Trunk Interface"
-              mtu: jumbo
-              speed: auto
-              enabled: true
-              trunk_allowed_vlans: none
-              spanning_tree_portfast: true
-              enable_bpdu_guard: true
-            topology_switch_access_po_interface:
-              description: "NetAsCode Access PO Interface"
-              mtu: jumbo
-              speed: auto
-              enabled: true
-              access_vlan: 1
-              pc_mode: active
-              spanning_tree_portfast: true
-              enable_bpdu_guard: true
-            topology_switch_trunk_po_interface:
-              description: "NetAsCode Trunk PO Interface"
-              mtu: jumbo
-              speed: auto
-              enabled: true
-              trunk_allowed_vlans: none
-              pc_mode: active
-              spanning_tree_portfast: true
-              enable_bpdu_guard: true
-            topology_switch_routed_interface:
-              description: "NetAsCode Routed Interface"
-              mtu: 9216
-              speed: auto
-              enabled: true
-            topology_switch_routed_sub_interface:
-              description: "NetAsCode Routed Sub Interface"
-              mtu: 9216
-              speed: auto
-              enabled: true
-            topology_switch_routed_po_interface:
-              description: "NetAsCode Routed PO Interface"
-              mtu: 9216
-              speed: auto
-              enabled: true
-              pc_mode: active
-            topology_switch_loopback_interface:
-              description: "NetAsCode Loopback Interface"
-              enabled: true
-        vpc_peers:
-          domain_id: 1
-        fabric_links:
-        edge_connections:
-      underlay:
-        general:
-          routing_protocol: ospf
-          enable_ipv6_underlay: false
-          replication_mode: multicast
-          fabric_interface_numbering: p2p
-          subnet_mask: 30
-          manual_underlay_allocation: false
-          underlay_routing_loopback_id: 0
-          underlay_vtep_loopback_id: 1
-          underlay_routing_protocol_tag: UNDERLAY
-          underlay_rp_loopback_id: 254
-          intra_fabric_interface_mtu: 9216
-          layer2_host_interfacde_mtu: 9216
-          unshut_host_interfaces: true
-        ipv4:
-          underlay_routing_loopback_ip_range: 10.2.0.0/22
-          underlay_vtep_loopback_ip_range: 10.3.0.0/22
-          underlay_rp_loopback_ip_range: 10.254.254.0/24
-          underlay_subnet_ip_range: 10.4.0.0/16
-        ipv6:
-          enable_ipv6_link_local_address: true
-          underlay_subnet_mask: 126
+  vxlan:
+    global:
+      route_reflectors: 2
+      anycast_gateway_mac: 20:20:00:00:00:aa
+      auth_proto: MD5
+      vpc:
+        peer_link_vlan: 3600
+        peer_keep_alive: management
+        auto_recovery_time: 360
+        delay_restore_time: 150
+        peer_link_port_channel_id: 500
+        advertise_pip: false
+        advertise_pip_border_only: true
+        domain_id_range: 1-1000
+      spanning_tree:
+        root_bridge_protocol: unmanaged
+        vlan_range: 
+          - from: 1
+            to: 3967
+        mst_instance_range:
+          - from: 0
+            to: 0
+        bridge_priority: 0
+      netflow:
+        enable: false
+    topology:
+      switches:
+        routing_loopback_id: 0
+        vtep_loopback_id: 1
+        interfaces:
+          topology_switch_access_interface:
+            description: "NetAsCode Access Interface"
+            mtu: jumbo
+            speed: auto
+            enabled: true
+            access_vlan: 1
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+          topology_switch_trunk_interface:
+            description: "NetAsCode Trunk Interface"
+            mtu: jumbo
+            speed: auto
+            enabled: true
+            trunk_allowed_vlans: none
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+          topology_switch_access_po_interface:
+            description: "NetAsCode Access PO Interface"
+            mtu: jumbo
+            speed: auto
+            enabled: true
+            access_vlan: 1
+            pc_mode: active
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+          topology_switch_trunk_po_interface:
+            description: "NetAsCode Trunk PO Interface"
+            mtu: jumbo
+            speed: auto
+            enabled: true
+            trunk_allowed_vlans: none
+            pc_mode: active
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+          topology_switch_routed_interface:
+            description: "NetAsCode Routed Interface"
+            mtu: 9216
+            speed: auto
+            enabled: true
+          topology_switch_routed_sub_interface:
+            description: "NetAsCode Routed Sub Interface"
+            mtu: 9216
+            speed: auto
+            enabled: true
+          topology_switch_routed_po_interface:
+            description: "NetAsCode Routed PO Interface"
+            mtu: 9216
+            speed: auto
+            enabled: true
+            pc_mode: active
+          topology_switch_loopback_interface:
+            description: "NetAsCode Loopback Interface"
+            enabled: true
+      vpc_peers:
+        domain_id: 1
+      fabric_links:
+      edge_connections:
+    underlay:
+      general:
+        routing_protocol: ospf
+        enable_ipv6_underlay: false
+        replication_mode: multicast
+        fabric_interface_numbering: p2p
+        subnet_mask: 30
+        manual_underlay_allocation: false
+        underlay_routing_loopback_id: 0
+        underlay_vtep_loopback_id: 1
+        underlay_routing_protocol_tag: UNDERLAY
+        underlay_rp_loopback_id: 254
+        intra_fabric_interface_mtu: 9216
+        layer2_host_interfacde_mtu: 9216
+        unshut_host_interfaces: true
+      ipv4:
+        underlay_routing_loopback_ip_range: 10.2.0.0/22
+        underlay_vtep_loopback_ip_range: 10.3.0.0/22
+        underlay_rp_loopback_ip_range: 10.254.254.0/24
+        underlay_subnet_ip_range: 10.4.0.0/16
+      ipv6:
+        enable_ipv6_link_local_address: true
+        underlay_subnet_mask: 126
+      ospf:
+        area_id: 0.0.0.0
+        authentication_enable: false
+        authentication_key_id: 127
+      isis:
+        level: level-2
+        network_point_to_point: true
+        authentication_enable: false
+        authentication_key_id: 127
+        overload_bit: true
+        overload_bit_elapsed_time: 60
+      bgp:
+        authentication_enable: false
+        authentication_key_type: 3
+      multicast:
+        group_subnet: 239.1.1.0/25
+        rendezvous_points: 2
+        rp_mode: asm
+        underlay_rp_loopback_id: 254
+        trm_enable: false
+        trm_default_group: 239.1.1.0
+        underlay_primary_rp_loopback_id: 2
+        underlay_backup_rp_loopback_id: 3
+        underlay_second_backup_rp_loopback_id: 4
+        underlay_third_backup_rp_loopback_id: 5
+      bfd:
+        enable: false
+        ibgp: false
+        ospf: false
+        pim: false
+        isis: false
+        authentication_enable: false
+        authentication_key_id: 100
+    overlay:
+      vrfs:
+        vrf_description: "Configured by Ansible NetAsCode"
+        vrf_intf_desc: "Configured by Ansible NetAsCode"
+        vrf_int_mtu: 9216
+        loopback_route_tag: 12345
+        max_bgp_paths: 1
+        max_ibgp_paths: 2
+        ipv6_linklocal_enable: true
+        adv_host_routes: false
+        adv_default_routes: true
+        static_default_route: true
+        disable_rt_auto: false
+        netflow_enable: false
+        no_rp: false
+        rp_external: false
+        redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
+        trm_enable: false
+        trm_bgw_msite: false
+      networks:
+        net_description: "Configured by Ansible NetAsCode"
+        is_l2_only: false
+        arp_supress: false
+        l3gw_on_border: false
+        mtu_l3intf: 9216
+        multicast_group_address: 239.1.1.1
+        netflow_enable: false
+        route_target_both: false
+        route_tag: 12345
+        trm_enable: false
+      vrf_attach_groups:
+        switches: []
+      network_attach_groups:
+        switches: []
+    policy:
+      template_name: switch_freeform
+      priority: 500
+    overlay_extensions:
+      vrf_lites:
         ospf:
-          area_id: 0.0.0.0
-          authentication_enable: false
-          authentication_key_id: 127
-        isis:
-          level: level-2
-          network_point_to_point: true
-          authentication_enable: false
-          authentication_key_id: 127
-          overload_bit: true
-          overload_bit_elapsed_time: 60
-        bgp:
-          authentication_enable: false
-          authentication_key_type: 3
-        multicast:
-          group_subnet: 239.1.1.0/25
-          rendezvous_points: 2
-          rp_mode: asm
-          underlay_rp_loopback_id: 254
-          trm_enable: false
-          trm_default_group: 239.1.1.0
-          underlay_primary_rp_loopback_id: 2
-          underlay_backup_rp_loopback_id: 3
-          underlay_second_backup_rp_loopback_id: 4
-          underlay_third_backup_rp_loopback_id: 5
-        bfd:
-          enable: false
-          ibgp: false
-          ospf: false
-          pim: false
-          isis: false
-          authentication_enable: false
-          authentication_key_id: 100
-      overlay:
-        vrfs:
-          vrf_description: "Configured by Ansible NetAsCode"
-          vrf_intf_desc: "Configured by Ansible NetAsCode"
-          vrf_int_mtu: 9216
-          loopback_route_tag: 12345
-          max_bgp_paths: 1
-          max_ibgp_paths: 2
-          ipv6_linklocal_enable: true
-          adv_host_routes: false
-          adv_default_routes: true
-          static_default_route: true
-          disable_rt_auto: false
-          netflow_enable: false
-          no_rp: false
-          rp_external: false
-          redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
-          trm_enable: false
-          trm_bgw_msite: false
-        networks:
-          net_description: "Configured by Ansible NetAsCode"
-          is_l2_only: false
-          arp_supress: false
-          l3gw_on_border: false
-          mtu_l3intf: 9216
-          multicast_group_address: 239.1.1.1
-          netflow_enable: false
-          route_target_both: false
-          route_tag: 12345
-          trm_enable: false
-        vrf_attach_groups:
-          switches: []
-        network_attach_groups:
-          switches: []
-      policy:
-        template_name: switch_freeform
-        priority: 500
-      overlay_extensions:
-        vrf_lites:
-          ospf:
-            areas:
-              area_type: standard
-            default_area: 0
-            distance: 110
-            bfd:
-              enabled: false
-            default_information_originate:
+          areas:
+            area_type: standard
+          default_area: 0
+          distance: 110
+          bfd:
+            enabled: false
+          default_information_originate:
+            always: false
+          nssa:
+            default_information_originate: false
+            no_redistribution: false
+            no_summary: false
+            translate:
               always: false
-            nssa:
-              default_information_originate: false
-              no_redistribution: false
-              no_summary: false
-              translate:
-                always: false
-                supress_fa: false
-                never: false
-          bgp:
-            best_path_as_path_relax: false
-            graceful_restart: true
-            graceful_restart_helper: false
-            address_family_ipv4_unicast:
-              additional_paths_receive: false
-              additional_paths_send: false
-              default_originate: false
-              ebgp_distance: 20
-              ibgp_distance: 200
-              local_distance: 220
-            address_family_ipv6_unicast:
-              additional_paths_receive: false
-              additional_paths_send: false
-              default_originate: false
-              ebgp_distance: 20
-              ibgp_distance: 200
-              local_distance: 220
-          switches:
-            interfaces:
-              ospf:
-                auth_type: none
-                auth_key_id: 0
-                cost: 1
-                passive_interface: false
-                mtu_ignore: false
-                advertise_subnet: false
-                bfd:
-                  enabled: false
-                hello_interval: 10
-                dead_interval: 40
-                network_type: broadcast
-                priority: 1
-                lsa_retransmit_interval: 5
-                lsa_transmit_delay: 1
-            bgp_peers:
-              next_hop_self: false
+              supress_fa: false
+              never: false
+        bgp:
+          best_path_as_path_relax: false
+          graceful_restart: true
+          graceful_restart_helper: false
+          address_family_ipv4_unicast:
+            additional_paths_receive: false
+            additional_paths_send: false
+            default_originate: false
+            ebgp_distance: 20
+            ibgp_distance: 200
+            local_distance: 220
+          address_family_ipv6_unicast:
+            additional_paths_receive: false
+            additional_paths_send: false
+            default_originate: false
+            ebgp_distance: 20
+            ibgp_distance: 200
+            local_distance: 220
+        switches:
+          interfaces:
+            ospf:
+              auth_type: none
+              auth_key_id: 0
+              cost: 1
+              passive_interface: false
+              mtu_ignore: false
+              advertise_subnet: false
               bfd:
                 enabled: false
-              disable_connected_check: false
-              remove_private_as: false
-              remove_private_as_all: false
-              ebgp_multihop: 2
-              address_family_ipv4_unicast:
-                send_community: false
-                send_ext_community: false
-                allow_as_in: false
-                allow_as_in_number: 3
-                as_override: false
-                route_reflector_client: false
-                default_originate: false
-                next_hop_self: false
-              address_family_ipv6_unicast:
-                send_community: false
-                send_ext_community: false
-                allow_as_in: false
-                allow_as_in_number: 3
-                as_override: false
-                route_reflector_client: false
-                default_originate: false
-                next_hop_self: false
-      multisite:
-        enable_ipv6_underlay: false
-        anycast_gateway_mac: 20:20:00:00:00:aa
-        vtep_loopback_id: 100
-        bgw_ip_tag: 54321
-        ipv4_vtep_loopback_range: 10.10.0.0/24
-        ipv6_vtep_loopback_range: fd00::a10:0/120
-        overlay_dci:
-          deployment_method: Direct_To_BGWS
-          ipv4_dci_subnet_range: 10.10.1.0/24
-          ipv4_dci_subnet_mask: 30
-          ipv6_dci_subnet_range: fd00::a11:0/120
-          ipv6_dci_subnet_mask: 126
-          underlay_autoconfig: true      
-          enable_bgp_send_community: false
-          enable_bgp_log_neighbor_change: false
-          enable_bgp_bfd: false
-          delay_restore: 300
-          enable_ebgp_password: false
-          enable_trm: false
-        isn:
-          sub_int_range: 2-511
+              hello_interval: 10
+              dead_interval: 40
+              network_type: broadcast
+              priority: 1
+              lsa_retransmit_interval: 5
+              lsa_transmit_delay: 1
+          bgp_peers:
+            next_hop_self: false
+            bfd:
+              enabled: false
+            disable_connected_check: false
+            remove_private_as: false
+            remove_private_as_all: false
+            ebgp_multihop: 2
+            address_family_ipv4_unicast:
+              send_community: false
+              send_ext_community: false
+              allow_as_in: false
+              allow_as_in_number: 3
+              as_override: false
+              route_reflector_client: false
+              default_originate: false
+              next_hop_self: false
+            address_family_ipv6_unicast:
+              send_community: false
+              send_ext_community: false
+              allow_as_in: false
+              allow_as_in_number: 3
+              as_override: false
+              route_reflector_client: false
+              default_originate: false
+              next_hop_self: false
+    multisite:
+      enable_ipv6_underlay: false
+      anycast_gateway_mac: 20:20:00:00:00:aa
+      vtep_loopback_id: 100
+      bgw_ip_tag: 54321
+      ipv4_vtep_loopback_range: 10.10.0.0/24
+      ipv6_vtep_loopback_range: fd00::a10:0/120
+      overlay_dci:
+        deployment_method: Direct_To_BGWS
+        ipv4_dci_subnet_range: 10.10.1.0/24
+        ipv4_dci_subnet_mask: 30
+        ipv6_dci_subnet_range: fd00::a11:0/120
+        ipv6_dci_subnet_mask: 126
+        underlay_autoconfig: true      
+        enable_bgp_send_community: false
+        enable_bgp_log_neighbor_change: false
+        enable_bgp_bfd: false
+        delay_restore: 300
+        enable_ebgp_password: false
+        enable_trm: false
+      isn:
+        sub_int_range: 2-511
