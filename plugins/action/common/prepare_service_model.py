@@ -86,7 +86,7 @@ class ActionModule(ActionBase):
                 results=results).prepare()
 
             if results.get('failed'):
-                # Check each plugin for failureds and break out of the loop early
+                # Check each plugin for failures and break out of the loop early
                 # if a failure is encounterd.
                 break
 
