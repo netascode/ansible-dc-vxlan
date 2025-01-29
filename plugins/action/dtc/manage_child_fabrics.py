@@ -26,6 +26,7 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+from ...plugin_utils.helper_functions import ndfc_get_fabric_attributes
 
 display = Display()
 
@@ -36,6 +37,7 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
         results['child_fabrics_moved'] = False
+        results['child_fabric_attributes'] = {}
 
         fabric_associations = self._task.args['fabric_associations'].get('response').get('DATA')
         parent_fabric_name = self._task.args['parent_fabric_name']
@@ -47,6 +49,8 @@ class ActionModule(ActionBase):
         for fabric in fabric_associations:
             if fabric.get('fabricParent') == parent_fabric_name:
                 associated_child_fabrics.append(fabric.get('fabricName'))
+
+                results['child_fabric_attributes'][fabric['fabricName']] = ndfc_get_fabric_attributes(self, task_vars, tmp, fabric['fabricName'])
 
         if operation == 'add':
             for fabric in child_fabrics:
@@ -78,6 +82,8 @@ class ActionModule(ActionBase):
 
                     results['changed'] = True
 
+                    results['child_fabric_attributes'][fabric] = ndfc_get_fabric_attributes(self, task_vars, tmp, fabric)
+
         if operation == 'remove':
             for associated_child_fabric in associated_child_fabrics:
                 if not any(associated_child_fabric == child_fabric['name'] for child_fabric in child_fabrics):
@@ -99,6 +105,8 @@ class ActionModule(ActionBase):
                         break
 
                     results['changed'] = True
+
+                    results['child_fabric_attributes'].pop(associated_child_fabric)
 
         return results
 

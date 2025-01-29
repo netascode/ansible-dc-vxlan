@@ -164,3 +164,33 @@ def ndfc_get_nac_switch_policy_using_desc(self, task_vars, tmp, switch_serial_nu
     ]
 
     return policy_match
+
+def ndfc_get_fabric_attributes(self, task_vars, tmp, fabric):
+    """
+    Get NDFC fabric attributes.
+
+    :Parameters:
+        :self: Ansible action plugin instance object.
+        :task_vars (dict): Ansible task vars.
+        :tmp (None, optional): Ansible tmp object. Defaults to None via Action Plugin.
+        :fabric (str): The fabric name to be retrieved.
+
+    :Returns:
+        :fabric_attributes: The NDFC fabric attributes data for the given fabric.
+
+    :Raises:
+        N/A
+    """
+    fabric_response = self._execute_module(
+        module_name="cisco.dcnm.dcnm_rest",
+        module_args={
+            "method": "GET",
+            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}",
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+
+    fabric_attributes = fabric_response['response']['DATA']['nvPairs']
+
+    return fabric_attributes
