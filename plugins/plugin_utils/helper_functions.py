@@ -165,6 +165,7 @@ def ndfc_get_nac_switch_policy_using_desc(self, task_vars, tmp, switch_serial_nu
 
     return policy_match
 
+
 def ndfc_get_fabric_attributes(self, task_vars, tmp, fabric):
     """
     Get NDFC fabric attributes.

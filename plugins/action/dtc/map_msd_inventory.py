@@ -62,8 +62,6 @@ class ActionModule(ActionBase):
             msd_switches.update({switch['ipAddress']: switch['ipAddress']})
             msd_switches.update({switch['fabricName']: switch['fabricName']})
 
-        import epdb; epdb.st()
-
         # Cross reference msd_switches with the switches defined in
         # VRF and Network attach list.
         #
