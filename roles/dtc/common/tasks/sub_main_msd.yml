@@ -71,8 +71,8 @@
 - name: Build NDFC Fabric VRFs Attach List From Template
   ansible.builtin.import_tasks: msd/ndfc_vrfs.yml
 
-- name: Build NDFC Fabric VRFs Attach List From Template
-  ansible.builtin.import_tasks: msd/ndfc_child_fabric_vrfs.yml
+# - name: Build NDFC Fabric VRFs Attach List From Template
+#   ansible.builtin.import_tasks: msd/ndfc_child_fabric_vrfs.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Networks Attach List From Template
