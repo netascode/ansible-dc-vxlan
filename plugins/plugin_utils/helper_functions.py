@@ -195,3 +195,41 @@ def ndfc_get_fabric_attributes(self, task_vars, tmp, fabric):
     fabric_attributes = fabric_response['response']['DATA']['nvPairs']
 
     return fabric_attributes
+
+
+def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
+    """
+    Get NDFC fabric switches.
+
+    :Parameters:
+        :self: Ansible action plugin instance object.
+        :task_vars (dict): Ansible task vars.
+        :tmp (None, optional): Ansible tmp object. Defaults to None via Action Plugin.
+        :fabric (str): The fabric name to be retrieved.
+
+    :Returns:
+        :fabric_switches: The NDFC fabric switches data for the given fabric.
+
+    :Raises:
+        N/A
+    """
+    fabric_response = self._execute_module(
+        module_name="cisco.dcnm.dcnm_inventory",
+        module_args={
+            "fabric": fabric,
+            "state": "query"
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+
+    fabric_switches = []
+    for fabric_switch in fabric_response['response']:
+        fabric_switches.append(
+            {
+                'hostname': fabric_switch['hostName'],
+                'mgmt_ip_address': fabric_switch['ipAddress']
+            }
+        )
+
+    return fabric_switches
