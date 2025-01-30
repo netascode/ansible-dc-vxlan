@@ -37,6 +37,11 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
+        results['current_associated_child_fabrics'] = []
+        results['child_fabrics_to_be_removed'] = []
+        results['child_fabrics_to_be_associated'] = []
+        results['end_state_associated_child_fabrics'] = []
+        results['child_fabrics_data'] = {}
 
         model_data = self._task.args["model_data"]
         parent_fabric = self._task.args["parent_fabric"]
