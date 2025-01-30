@@ -47,13 +47,13 @@ class ActionModule(ActionBase):
         # Therefore, we need to get the fabric associations response and filter out the fabrics that are not associated with the parent fabric (MSD)
         msd_fabric_associations = self._execute_module(
             module_name="cisco.dcnm.dcnm_rest",
-                module_args={
-                    "method": "GET",
-                    "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations",
-                },
-                task_vars=task_vars,
-                tmp=tmp
-            )
+            module_args={
+                "method": "GET",
+                "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations",
+            },
+            task_vars=task_vars,
+            tmp=tmp
+        )
 
         # Build a list of child fabrics that are associated with the parent fabric (MSD)
         associated_child_fabrics = []
@@ -77,12 +77,12 @@ class ActionModule(ActionBase):
         for fabric in child_fabrics:
             if fabric.get('name') not in associated_child_fabrics:
                 child_fabrics_to_be_associated.append(fabric.get('name'))
-        
+
         results['child_fabrics_to_be_associated'] = child_fabrics_to_be_associated
 
         # Merge the lists of currently associated child fabrics and child fabrics to be associated
         # The assumption here is that the child fabric(s) that will be associated with the parent fabric (MSD)
-        # in the create role will either be sucessful and we have the prepared data to work with or 
+        # in the create role will either be sucessful and we have the prepared data to work with or
         # the association will fail, resulting in runtime execution stopping, thus it doens't matter what prepared data we have.
         associated_child_fabrics = associated_child_fabrics + child_fabrics_to_be_associated
 
@@ -112,7 +112,7 @@ class ActionModule(ActionBase):
                 for child_fabric in child_fabrics_data.keys():
                     for sw in child_fabrics_data[child_fabric]['switches']:
                         if switch['hostname'] == sw['hostname']:
-                                switch['mgmt_ip_address'] = sw['mgmt_ip_address']
+                            switch['mgmt_ip_address'] = sw['mgmt_ip_address']
 
                 # Append switch to a flat list of switches for cross comparison later when we query the
                 # MSD fabric information.  We need to stop execution if the list returned by the MSD query
@@ -140,7 +140,7 @@ class ActionModule(ActionBase):
                 for child_fabric in child_fabrics_data.keys():
                     for sw in child_fabrics_data[child_fabric]['switches']:
                         if switch['hostname'] == sw['hostname']:
-                                switch['mgmt_ip_address'] = sw['mgmt_ip_address']
+                            switch['mgmt_ip_address'] = sw['mgmt_ip_address']
                 # Append switch to a flat list of switches for cross comparison later when we query the
                 # MSD fabric information.  We need to stop execution if the list returned by the MSD query
                 # does not include one of these switches.

@@ -81,7 +81,7 @@ class ActionModule(ActionBase):
 
                 results['changed'] = True
 
-                    # associated_child_fabrics.append(fabric['name'])
+                # associated_child_fabrics.append(fabric['name'])
 
         if state == 'absent':
             for fabric in child_fabrics:
