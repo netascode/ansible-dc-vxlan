@@ -37,7 +37,6 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
-        results['md_msite'] = {}
 
         model_data = self._task.args["model_data"]
         parent_fabric = self._task.args["parent_fabric"]
@@ -89,6 +88,8 @@ class ActionModule(ActionBase):
         # Can probably remove this as I don't think it will be used
         results['end_state_associated_child_fabrics'] = associated_child_fabrics
 
+        # Get the fabric attributes and switches for each child fabric
+        # These queries are potentially trying to get data for a fabric that is not associated with the parent fabric (MSD) yet
         child_fabrics_data = {}
         for fabric in associated_child_fabrics:
             child_fabrics_data.update({fabric: {}})

@@ -26,8 +26,6 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-from ...plugin_utils.helper_functions import ndfc_get_fabric_attributes
-from ...plugin_utils.helper_functions import ndfc_get_fabric_switches
 
 display = Display()
 
