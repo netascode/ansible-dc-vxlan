@@ -1,28 +1,42 @@
+# This NDFC VRF loopback config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% if MD_Extended.vxlan.overlay.vrfs is defined and MD_Extended.vxlan.overlay.vrfs %}
 [
-  {% for vrf in MD_Extended.vxlan.overlay.vrfs %}
-  {% if vrf['vrf_attach_group'] is defined %}
+{% for vrf in MD_Extended.vxlan.overlay.vrfs %}
+{% if vrf['vrf_attach_group'] is defined %}
   {
     "vrfName": "{{ vrf["name"] }}",
     "lanAttachList":
     [
-  {% for attach in MD_Extended.vxlan.overlay.vrf_attach_groups_dict[vrf["vrf_attach_group"]] %}
-  {
-    "fabric": "{{ MD_Extended.vxlan.fabric.name }}",
-    "vrfName": "{{ vrf["name"] }}",
-    {% for switch in MD_Extended.vxlan.topology.switches %}
-      {% if switch.management.management_ipv4_address == attach["mgmt_ip_address"] %}
-    "serialNumber": "{{ switch.serial_number }}",
-      {% endif %}
-    {% endfor %}
-    "freeformConfig": "",
-    "extensionValues": "",
-    "vlan": "{{ vrf["vlan_id"] }}",
-    "deployment": true,
-    "instanceValues": "{\"loopbackId\": \"{{ attach['loopback_id'] | default('')}}\", \"loopbackIpAddress\": \"{{ attach['loopback_ipv4'] | default('') }}\", \"loopbackIpV6Address\":\"{{ attach['loopback_ipv6'] | default('') }}\"}"
-  }{% if not loop.last %},{% endif %}
-  {% endfor %}
+{% for attach in MD_Extended.vxlan.overlay.vrf_attach_groups_dict[vrf["vrf_attach_group"]] %}
+      {
+        "fabric": "{{ MD_Extended.vxlan.fabric.name }}",
+        "vrfName": "{{ vrf["name"] }}",
+{% for switch in MD_Extended.vxlan.topology.switches %}
+{% if switch.management.management_ipv4_address is defined %}
+{% set switch_mgmt_ip_address = switch.management.management_ipv4_address %}
+{% elif switch.management.management_ipv6_address is defined %}
+{% set switch_mgmt_ip_address = switch.management.management_ipv6_address %}
+{% endif %}
+{% if switch_mgmt_ip_address == attach["mgmt_ip_address"] %}
+        "serialNumber": "{{ switch.serial_number }}",
+{% endif %}
+{% endfor %}
+        "freeformConfig": "",
+        "extensionValues": "",
+        "vlan": "{{ vrf["vlan_id"] }}",
+        "deployment": true,
+        "instanceValues": "{\"loopbackId\": \"{{ attach['loopback_id'] | default('')}}\", \"loopbackIpAddress\": \"{{ attach['loopback_ipv4'] | default('') }}\", \"loopbackIpV6Address\":\"{{ attach['loopback_ipv6'] | default('') }}\"}"
+      }{% if not loop.last %},{% endif %}
+{# Empty space needed to prettify and correctly represent the comma in a list continuation #}
+
+{% endfor %}
     ]
   }{% if not loop.last %},{% endif %}
-  {% endif %}
-  {% endfor %}
+{# Empty space needed to prettify and correctly represent the comma in a list continuation #}
+
+{% endif %}
+{% endfor %}
 ]
+{% endif %}
