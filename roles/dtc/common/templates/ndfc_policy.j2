@@ -36,7 +36,9 @@
 {% endfor %}
 {% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
 {% set raw_yaml_content = lookup('ansible.builtin.file', policy_match.filename) %}
-{% set cleaned_yaml_content = raw_yaml_content | replace('---\n', '') | regex_replace('\.\.\.\s*$', '') %}
+{% set cleaned_yaml_content = raw_yaml_content.lstrip('---\n') %}
+{% set cleaned_yaml_content = cleaned_yaml_content.rstrip('...\n') %}
+{% set cleaned_yaml_content = cleaned_yaml_content.rstrip('...') %}
             {{ cleaned_yaml_content | indent(12) | trim }}
 {% elif policy_match.filename is defined and policy_match.filename and ".cfg" in policy_match.filename %}
             CONF: |-
