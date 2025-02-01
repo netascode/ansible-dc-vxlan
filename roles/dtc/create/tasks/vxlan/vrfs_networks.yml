@@ -45,10 +45,10 @@
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC
 # --------------------------------------------------------------------
-- name: Attach VRF Loopbacks per VRF
+- name: Attach Loopbacks to VRFs
   cisco.dcnm.dcnm_rest:
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
-    method: "POST"
+    method: POST
     json_data: "{{ vars_common_vxlan.vrf_attach_config | to_json}}"
   when:
     - MD_Extended.vxlan.overlay.vrfs is defined

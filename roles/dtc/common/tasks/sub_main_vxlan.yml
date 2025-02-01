@@ -57,14 +57,14 @@
 # --------------------------------------------------------------------
 
 - name: Build Intra Fabric Links From Template
-  ansible.builtin.import_tasks: common/ndfc_link_vpc_peering.yml
+  ansible.builtin.import_tasks: common/ndfc_vpc_fabric_peering_links.yml
 
 # --------------------------------------------------------------------
 # Build vPC Peering parameter List From Template
 # --------------------------------------------------------------------
 
 - name: Build vPC Peering Parameters
-  ansible.builtin.import_tasks: common/ndfc_vpc_peering.yml
+  ansible.builtin.import_tasks: common/ndfc_vpc_peering_pairs.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric VRFs Attach List From Template

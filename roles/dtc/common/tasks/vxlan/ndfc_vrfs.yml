@@ -90,7 +90,7 @@
 
 - name: Build VRFs Attach List From Template for loopback
   ansible.builtin.template:
-    src: ndfc_attach_vrfs_loopbacks.j2
+    src: ndfc_vrfs/ndfc_attach_vrfs_loopbacks.j2
     dest: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
 

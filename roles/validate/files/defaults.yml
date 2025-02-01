@@ -219,6 +219,16 @@ factory_defaults:
           distance: 110
           bfd:
             enabled: false
+          default_information_originate:
+            always: false
+          nssa:
+            default_information_originate: false
+            no_redistribution: false
+            no_summary: false
+            translate:
+              always: false
+              supress_fa: false
+              never: false
         bgp:
           best_path_as_path_relax: false
           graceful_restart: true
@@ -284,28 +294,21 @@ factory_defaults:
       enable_ipv6_underlay: false
       anycast_gateway_mac: 20:20:00:00:00:aa
       vtep_loopback_id: 100
-      ipv4_vtep_loopback_range: 10.10.0.0/24
-      ipv4_dci_subnet_range: 10.10.1.0/24
-      ipv4_dci_subnet_mask: 30
-      ipv6_vtep_loopback_range: fd00::a10:0/120
-      ipv6_dci_subnet_range: fd00::a11:0/120
-      ipv6_dci_subnet_mask: 126
       bgw_ip_tag: 54321
-      overlay_ifc: Direct_To_BGWS
-      underlay_autoconfig: true
-      enable_bgp_send_community: false
-      enable_bgp_log_neighbor_change: false
-      enable_bgp_bfd: false
-      delay_restore: 300
-      enable_ebgp_password: false
-      enable_trm: false
+      ipv4_vtep_loopback_range: 10.10.0.0/24
+      ipv6_vtep_loopback_range: fd00::a10:0/120
+      overlay_dci:
+        deployment_method: Direct_To_BGWS
+        ipv4_dci_subnet_range: 10.10.1.0/24
+        ipv4_dci_subnet_mask: 30
+        ipv6_dci_subnet_range: fd00::a11:0/120
+        ipv6_dci_subnet_mask: 126
+        underlay_autoconfig: true      
+        enable_bgp_send_community: false
+        enable_bgp_log_neighbor_change: false
+        enable_bgp_bfd: false
+        delay_restore: 300
+        enable_ebgp_password: false
+        enable_trm: false
       isn:
         sub_int_range: 2-511
-        bootstrap:
-          enable_bootstrap: false
-          enable_inband: false
-          enable_local_dhcp_server: false
-          dhcp_version: DHCPv4
-          enable_aaa: false
-        netflow:
-          enable: false

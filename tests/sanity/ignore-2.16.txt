@@ -15,6 +15,7 @@ plugins/action/common/run_map.py action-plugin-docs # action plugin has no match
 plugins/action/common/read_run_map.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/merge_defaults.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/add_device_check.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/prepare_msite.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/verify_tags.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/diff_model_changes.py action-plugin-docs # action plugin has no matching module to provide documentation

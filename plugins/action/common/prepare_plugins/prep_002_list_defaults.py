@@ -177,8 +177,6 @@ class PreparePlugin:
         # --------------------------------------------------------------------
         # Fabric Global List Defaults
         # --------------------------------------------------------------------
-        from pprint import pprint
-
         fabric_type = self.model_data['vxlan']['fabric']['type']
 
         # for path in paths:
