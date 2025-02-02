@@ -13,8 +13,8 @@ class Rule:
             check = cls.data_model_key_check(inventory, ['vxlan', child_fabric_supported_key])
             if child_fabric_supported_key in check['keys_found']:
                 results.append(
-                        f"Key '{child_fabric_supported_key}' is supported via child fabric(s) respective host_vars data model file(s)."
-                    )
+                    f"Key '{child_fabric_supported_key}' "is supported via child fabric(s) respective host_vars data model file(s)."
+                )
 
                 return results
 
