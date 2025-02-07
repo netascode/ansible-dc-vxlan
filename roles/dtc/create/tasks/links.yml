@@ -44,25 +44,16 @@
   cisco.nac_dc_vxlan.dtc.existing_links_check:
     existing_links: "{{ result_links.response }}"
     fabric_links: "{{ fabric_links }}"
-  register: not_required_links
+  register: required_links
   when: result_links.response is defined
 
-# do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
-- name: Set not_required_links if result_links.response is not defined
-  ansible.builtin.set_fact:
-    not_required_links: []
-  when: result_links.response is not defined 
-
-- name: remove unwanted links from required links input
-  ansible.builtin.set_fact:
-    required_links: "{{ fabric_links | difference(not_required_links['not_required_links']) }}"
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
 # --------------------------------------------------------------------
 - name: Manage NDFC Fabric Links
   cisco.dcnm.dcnm_links:
     src_fabric: "{{ MD.vxlan.global.name }}"
-    config: "{{ required_links }}"
+    config: "{{ required_links['required_links'] }}"
     deploy: false
     state: merged
   register: manage_fabric_links_result

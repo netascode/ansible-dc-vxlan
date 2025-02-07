@@ -35,7 +35,8 @@
       version: {{ switch['poap']['preprovision']['version']  }}
       config_data:
         modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
-        gateway: {{ switch['management']['default_gateway_v4']  }} 
+        gateway: {{ switch['management']['default_gateway_v4']  }}
+        breakout: {{ switch['poap']['preprovision']['breakout'] | default('') }}
       hostname: {{ switch['name'] }}
 {% endif %}
 {% endif %}

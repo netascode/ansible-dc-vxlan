@@ -31,7 +31,7 @@
             {{ key }}: |-
               {{ value | indent(14) }}
 {% else %}
-              {{ key }}: {{ value | to_nice_yaml(indent=2) | indent(10) | trim }}
+              {{ key }}: {{ value | to_nice_yaml(indent=2) | replace('...','') | indent(10) | trim }}
 {% endif %}
 {% endfor %}
 {% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
