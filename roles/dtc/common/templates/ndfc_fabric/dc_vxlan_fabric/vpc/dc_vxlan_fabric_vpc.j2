@@ -15,3 +15,4 @@
 {% if (global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) == 'False' %}
   ADVERTISE_PIP_ON_BORDER: {{ global.vpc.advertise_pip_border_only | default(defaults.vxlan.global.vpc.advertise_pip_border_only) | title }}
 {% endif %}
+  VPC_ENABLE_IPv6_ND_SYNC: {{ global.vpc.enable_ipv6_nd_sync | default(defaults.vxlan.global.vpc.enable_ipv6_nd_sync) }}
