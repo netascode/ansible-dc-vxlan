@@ -12,7 +12,7 @@
   ENABLE_NXAPI: {{ global.enable_nxapi | default(defaults.vxlan.global.enable_nxapi) }}
   ENABLE_NXAPI_HTTP: {{ global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http ) }}
 {% if global.bootstrap is defined and global.bootstrap.cdp_enable is defined %}
-  CDP_ENABLE: global.bootstrap.cdp_enable
+  CDP_ENABLE: {{ global.bootstrap.cdp_enable }}
 {% endif %}
   SNMP_SERVER_HOST_TRAP: {{ global.snmp_server_host_trap | default(defaults.vxlan.global.snmp_server_host_trap) }}
   FABRIC_MTU: {{ vxlan.underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
