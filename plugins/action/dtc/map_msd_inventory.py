@@ -60,6 +60,7 @@ class ActionModule(ActionBase):
         for switch in response:
             msd_switches.update({switch['hostName']: switch['ipAddress']})
             msd_switches.update({switch['ipAddress']: switch['ipAddress']})
+            msd_switches.update({switch['fabricName']: switch['fabricName']})
 
         # Cross reference msd_switches with the switches defined in
         # VRF and Network attach list.

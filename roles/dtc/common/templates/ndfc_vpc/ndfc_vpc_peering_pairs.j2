@@ -1,8 +1,7 @@
 ---
-# This NDFC vPC Peering config data structure is auto-generated
+# This NDFC vPC Peering config data structure for vPC pairs is auto-generated
 # DO NOT EDIT MANUALLY
 #
-
 {% if MD_Extended.vxlan.topology.vpc_peers is defined and MD_Extended.vxlan.topology.vpc_peers is not none %}
 {% for vpc_peer in MD_Extended.vxlan.topology.vpc_peers %}
 {% if MD_Extended.vxlan.topology.leaf[vpc_peer.peer1].management_ipv4_address is not none %}

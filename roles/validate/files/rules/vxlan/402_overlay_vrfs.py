@@ -29,12 +29,6 @@ class Rule:
                 if 'vrfs' in check['keys_data']:
                     vrfs = inventory["vxlan"]["overlay_services"]["vrfs"]
 
-            # if inventory["vxlan"].get("overlay", None) or inventory["vxlan"].get("overlay_services", None):
-            #     if inventory["vxlan"].get("overlay").get("vrfs", None):
-            #         vrfs = inventory["vxlan"]["overlay"]["vrfs"]
-            #     elif inventory["vxlan"].get("overlay_services").get("vrfs", None):
-            #         vrfs = inventory["vxlan"]["overlay_services"]["vrfs"]
-
         for vrf in vrfs:
             current_vrf_netflow_status = vrf.get("netflow_enable", None)
             if current_vrf_netflow_status is not None:

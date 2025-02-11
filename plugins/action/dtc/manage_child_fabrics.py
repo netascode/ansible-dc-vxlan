@@ -36,69 +36,76 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
         results['child_fabrics_moved'] = False
+        # results['associated_child_fabrics'] = []
 
-        fabric_associations = self._task.args['fabric_associations'].get('response').get('DATA')
-        parent_fabric_name = self._task.args['parent_fabric_name']
+        # fabric_associations = self._task.args['fabric_associations'].get('response').get('DATA')
+        parent_fabric = self._task.args['parent_fabric']
         child_fabrics = self._task.args['child_fabrics']
-        operation = self._task.args['operation']
+        state = self._task.args['state']
 
         # Build a list of child fabrics that are associated with the parent fabric
-        associated_child_fabrics = []
-        for fabric in fabric_associations:
-            if fabric.get('fabricParent') == parent_fabric_name:
-                associated_child_fabrics.append(fabric.get('fabricName'))
+        # associated_child_fabrics = []
+        # for fabric in fabric_associations:
+        #     if fabric.get('fabricParent') == parent_fabric_name:
+        #         associated_child_fabrics.append(fabric.get('fabricName'))
 
-        if operation == 'add':
+        if state == 'present':
             for fabric in child_fabrics:
-                if fabric.get('name') not in associated_child_fabrics:
-                    json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric_name, fabric.get('name'))
-                    add_fabric_result = self._execute_module(
-                        module_name="cisco.dcnm.dcnm_rest",
-                        module_args={
-                            "method": "POST",
-                            "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdAdd",
-                            "json_data": json_data
-                        },
-                        task_vars=task_vars,
-                        tmp=tmp
-                    )
+                # if fabric.get('name') not in associated_child_fabrics:
+                json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric, fabric)
+                add_fabric_result = self._execute_module(
+                    module_name="cisco.dcnm.dcnm_rest",
+                    module_args={
+                        "method": "POST",
+                        "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdAdd",
+                        "json_data": json_data
+                    },
+                    task_vars=task_vars,
+                    tmp=tmp
+                )
 
-                    if add_fabric_result.get('failed'):
-                        results['failed'] = True
-                        results['msg'] = f"{add_fabric_result['msg']['MESSAGE']}: {add_fabric_result['msg']['DATA']}"
-                        break
+                if add_fabric_result.get('failed'):
+                    results['failed'] = True
+                    results['msg'] = f"{add_fabric_result['msg']['MESSAGE']}: {add_fabric_result['msg']['DATA']}"
+                    break
 
-                    # If a child fabric is successfully added under an MSD fabric set a flag
-                    # indicating this so that it can be used later to prevent managing VRFs
-                    # and Networks.  If we dont prevent this then the VRFs and Networks could
-                    # be removed as part of moving the child fabric.
-                    #
-                    # TBD: This flag is not actually being used currently.  Discuss with team.
-                    results['child_fabrics_moved'] = True
+                # If a child fabric is successfully added under an MSD fabric set a flag
+                # indicating this so that it can be used later to prevent managing VRFs
+                # and Networks.  If we dont prevent this then the VRFs and Networks could
+                # be removed as part of moving the child fabric.
+                #
+                # TBD: This flag is not actually being used currently.  Discuss with team.
+                results['child_fabrics_moved'] = True
 
-                    results['changed'] = True
+                results['changed'] = True
 
-        if operation == 'remove':
-            for associated_child_fabric in associated_child_fabrics:
-                if not any(associated_child_fabric == child_fabric['name'] for child_fabric in child_fabrics):
-                    json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric_name, associated_child_fabric)
-                    remove_fabric_result = self._execute_module(
-                        module_name="cisco.dcnm.dcnm_rest",
-                        module_args={
-                            "method": "POST",
-                            "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdExit",
-                            "json_data": json_data
-                        },
-                        task_vars=task_vars,
-                        tmp=tmp
-                    )
+                # associated_child_fabrics.append(fabric['name'])
 
-                    if remove_fabric_result.get('failed'):
-                        results['failed'] = True
-                        results['msg'] = f"{remove_fabric_result['msg']['MESSAGE']}: {remove_fabric_result['msg']['DATA']}"
-                        break
+        if state == 'absent':
+            for fabric in child_fabrics:
+                # if not any(associated_child_fabric == child_fabric['name'] for child_fabric in child_fabrics):
+                json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric, fabric)
+                remove_fabric_result = self._execute_module(
+                    module_name="cisco.dcnm.dcnm_rest",
+                    module_args={
+                        "method": "POST",
+                        "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdExit",
+                        "json_data": json_data
+                    },
+                    task_vars=task_vars,
+                    tmp=tmp
+                )
 
-                    results['changed'] = True
+                if remove_fabric_result.get('failed'):
+                    results['failed'] = True
+                    results['msg'] = f"{remove_fabric_result['msg']['MESSAGE']}: {remove_fabric_result['msg']['DATA']}"
+                    break
+
+                results['changed'] = True
+
+        #             results['associated_child_fabrics'].pop(associated_child_fabric)
+
+        # results['associated_child_fabrics'] = associated_child_fabrics
 
         return results
 
