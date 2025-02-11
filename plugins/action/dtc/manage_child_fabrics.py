@@ -36,22 +36,13 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
         results['child_fabrics_moved'] = False
-        # results['associated_child_fabrics'] = []
 
-        # fabric_associations = self._task.args['fabric_associations'].get('response').get('DATA')
         parent_fabric = self._task.args['parent_fabric']
         child_fabrics = self._task.args['child_fabrics']
         state = self._task.args['state']
 
-        # Build a list of child fabrics that are associated with the parent fabric
-        # associated_child_fabrics = []
-        # for fabric in fabric_associations:
-        #     if fabric.get('fabricParent') == parent_fabric_name:
-        #         associated_child_fabrics.append(fabric.get('fabricName'))
-
         if state == 'present':
             for fabric in child_fabrics:
-                # if fabric.get('name') not in associated_child_fabrics:
                 json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric, fabric)
                 add_fabric_result = self._execute_module(
                     module_name="cisco.dcnm.dcnm_rest",
@@ -79,11 +70,8 @@ class ActionModule(ActionBase):
 
                 results['changed'] = True
 
-                # associated_child_fabrics.append(fabric['name'])
-
         if state == 'absent':
             for fabric in child_fabrics:
-                # if not any(associated_child_fabric == child_fabric['name'] for child_fabric in child_fabrics):
                 json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric, fabric)
                 remove_fabric_result = self._execute_module(
                     module_name="cisco.dcnm.dcnm_rest",
@@ -102,10 +90,6 @@ class ActionModule(ActionBase):
                     break
 
                 results['changed'] = True
-
-        #             results['associated_child_fabrics'].pop(associated_child_fabric)
-
-        # results['associated_child_fabrics'] = associated_child_fabrics
 
         return results
 
