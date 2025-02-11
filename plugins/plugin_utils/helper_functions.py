@@ -165,8 +165,71 @@ def ndfc_get_nac_switch_policy_using_desc(self, task_vars, tmp, switch_serial_nu
 
     return policy_match
 
-def normalise_int_lists(data):
-    for interface in data:
-        if interface.startswith('Ethernet','ethernet','Eth','eth','E','e'):
-            interface = "Ethernet" + re.split(r'(?=\d)', interface, 1)[1]       
-    return data
+
+def ndfc_get_fabric_attributes(self, task_vars, tmp, fabric):
+    """
+    Get NDFC fabric attributes.
+
+    :Parameters:
+        :self: Ansible action plugin instance object.
+        :task_vars (dict): Ansible task vars.
+        :tmp (None, optional): Ansible tmp object. Defaults to None via Action Plugin.
+        :fabric (str): The fabric name to be retrieved.
+
+    :Returns:
+        :fabric_attributes: The NDFC fabric attributes data for the given fabric.
+
+    :Raises:
+        N/A
+    """
+    fabric_response = self._execute_module(
+        module_name="cisco.dcnm.dcnm_rest",
+        module_args={
+            "method": "GET",
+            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}",
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+
+    fabric_attributes = fabric_response['response']['DATA']['nvPairs']
+
+    return fabric_attributes
+
+
+def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
+    """
+    Get NDFC fabric switches.
+
+    :Parameters:
+        :self: Ansible action plugin instance object.
+        :task_vars (dict): Ansible task vars.
+        :tmp (None, optional): Ansible tmp object. Defaults to None via Action Plugin.
+        :fabric (str): The fabric name to be retrieved.
+
+    :Returns:
+        :fabric_switches: The NDFC fabric switches data for the given fabric.
+
+    :Raises:
+        N/A
+    """
+    fabric_response = self._execute_module(
+        module_name="cisco.dcnm.dcnm_inventory",
+        module_args={
+            "fabric": fabric,
+            "state": "query"
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+
+    fabric_switches = []
+    for fabric_switch in fabric_response['response']:
+        fabric_switches.append(
+            {
+                'hostname': fabric_switch['hostName'],
+                'mgmt_ip_address': fabric_switch['ipAddress']
+            }
+        )
+
+    return fabric_switches

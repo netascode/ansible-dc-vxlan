@@ -37,12 +37,12 @@
 
 - name: Remove Unmanaged Child Fabrics from NDFC
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
-    fabric_associations: "{{ fabric_associations }}"
-    parent_fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-    child_fabrics: "{{ MD_Extended.vxlan.multisite.child_fabrics }}"
-    operation: remove
+    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    child_fabrics: "{{ MD_Msite.child_fabrics_to_be_removed }}"
+    state: absent
   when:
-    - fabric_associations is defined and fabric_associations
+    - MD_Msite.child_fabrics_to_be_removed is defined
+    - MD_Msite.child_fabrics_to_be_removed
     - (child_fabric_delete_mode is defined) and (child_fabric_delete_mode is true|bool)
 
 

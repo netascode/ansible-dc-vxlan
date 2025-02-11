@@ -1,6 +1,6 @@
 {# Auto-generated NDFC MSD General config data structure for fabric {{ vxlan.fabric.name }} #}
   VXLAN_UNDERLAY_IS_V6: {{ vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) }}
-{% if not vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) %}
+{% if (vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false %}
   ENABLE_PVLAN: false
 {% endif %}
   ANYCAST_GW_MAC: {{ vxlan.multisite.anycast_gateway_mac | default(defaults.vxlan.multisite.anycast_gateway_mac) }}

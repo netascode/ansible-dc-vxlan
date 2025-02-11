@@ -23,12 +23,12 @@
 
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
-    changes_detected_vpc_peering: false
+    changes_detected_link_vpc_peering: false
   delegate_to: localhost
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "ndfc_vpc_peering.yml"
+    file_name: "ndfc_link_vpc_peering.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
@@ -50,20 +50,20 @@
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
-- name: Build vPC Peering
+- name: Build Links for VPC Peering
   ansible.builtin.template:
-    src: ndfc_vpc_peering.j2
+    src: ndfc_vpc/ndfc_vpc_fabric_peering_links.j2
     dest: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
 
-- name: Set vpc_peering Var default
+- name: Set link_vpc_peering Var default
   ansible.builtin.set_fact:
-    vpc_peering: []
+    link_vpc_peering: []
   delegate_to: localhost
 
-- name: Set vpc_peering Var
+- name: Set link_vpc_peering Var
   ansible.builtin.set_fact:
-    vpc_peering: "{{ lookup('file', path_name + file_name) | from_yaml }}"
+    link_vpc_peering: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   when: MD_Extended.vxlan.topology.vpc_peers | length > 0
   delegate_to: localhost
 
@@ -76,7 +76,7 @@
 
 - name: Set File Change Flag Based on File Diff Result
   ansible.builtin.set_fact:
-    changes_detected_vpc_peering: true
+    changes_detected_link_vpc_peering: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed
