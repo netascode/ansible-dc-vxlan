@@ -43,6 +43,13 @@
     (vars_common_msd.changes_detected_vrfs) or
     (vars_common_msd.changes_detected_networks)
 
+- name: Import MFD Role Tasks
+  ansible.builtin.import_tasks: sub_main_mfd.yml
+  when: >
+    (MD_Extended.vxlan.fabric.type == 'MFD') and
+    (vars_common_mfd.changes_detected_vrfs) or
+    (vars_common_mfd.changes_detected_networks)
+
 - name: Import ISN Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
   when: >
