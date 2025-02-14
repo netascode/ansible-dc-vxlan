@@ -43,6 +43,28 @@
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
+# Manage Interface Trunk Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Trunk
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: replaced
+    config: "{{ vars_common_local.interface_trunk }}"
+  when: MD_Extended.vxlan.topology.interfaces.modes.trunk.count > 0
+
+# --------------------------------------------------------------------
+# Manage Interface Access Routed Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Access
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: replaced
+    config: "{{ vars_common_local.interface_access }}"
+  when: MD_Extended.vxlan.topology.interfaces.modes.access.count > 0
+
+# --------------------------------------------------------------------
 # Manage Interface Access Portchannel Configuration on NDFC
 # --------------------------------------------------------------------
 
@@ -107,28 +129,6 @@
     state: replaced
     config: "{{ vars_common_local.int_loopback_config }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0
-
-  # --------------------------------------------------------------------
-# Manage Interface Trunk Configuration on NDFC
-# --------------------------------------------------------------------
-
-- name: Manage Interface Trunk
-  cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_local.interface_trunk }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.trunk.count > 0
-
-# --------------------------------------------------------------------
-# Manage Interface Access Routed Configuration on NDFC
-# --------------------------------------------------------------------
-
-- name: Manage Interface Access
-  cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_local.interface_access }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.access.count > 0
 
 # --------------------------------------------------------------------
 # Manage interface vPC Configuration on NDFC

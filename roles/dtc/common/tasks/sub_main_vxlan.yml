@@ -165,6 +165,13 @@
   ansible.builtin.import_tasks: common/ndfc_fabric_links.yml
 
 # --------------------------------------------------------------------
+# Build Edge Connections List From Template
+# --------------------------------------------------------------------
+
+- name: Edge Connections List From Template
+  ansible.builtin.import_tasks: ndfc_edge_connections.yml
+
+# --------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere
 # --------------------------------------------------------------------
 - name: Save Local Variables With Namespace Context
@@ -172,6 +179,7 @@
     vars_common_vxlan:
         changes_detected_fabric: "{{ changes_detected_fabric }}"
         changes_detected_fabric_links: "{{ changes_detected_fabric_links }}"
+        changes_detected_edge_connections: "{{ changes_detected_edge_connections }}"
         changes_detected_interface_access_po: "{{ changes_detected_interface_access_po }}"
         changes_detected_interface_access: "{{ changes_detected_interface_access }}"
         changes_detected_interfaces: "{{ changes_detected_interfaces }}"
@@ -190,6 +198,7 @@
         changes_detected_vrfs: "{{ changes_detected_vrfs }}"
         fabric_config: "{{ fabric_config }}"
         fabric_links: "{{ fabric_links }}"
+        edge_connections: "{{ edge_connections }}"
         interface_access_po: "{{ interface_access_po }}"
         interface_access: "{{ interface_access }}"
         interface_all: "{{ interface_all }}"
@@ -236,6 +245,7 @@
       - "+     Networks Changes Detected -             [ {{ vars_common_vxlan.changes_detected_networks }} ]"
       - "+     Policy Changes Detected -               [ {{ vars_common_vxlan.changes_detected_policy }} ]"
       - "+     Fabric Links Changes Detected -         [ {{ vars_common_vxlan.changes_detected_fabric_links }} ]"
+      - "+     Edge Connections Changes Detected -     [ {{ vars_common_vxlan.changes_detected_edge_connections }} ]"
       - "+     ----- Run Map -----"
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
