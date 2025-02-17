@@ -34,20 +34,22 @@
 # Given that the MSD instance is the source of truth for the child fabric state, we cannot pre-process all the
 # VRFs and Networks data in the dtc.common role. We must wait until the child fabric state is available.
 # The first availability of the child fabric state for VRFs and Networks is here, but we still need to pre-process
-# the VRFs and Networks data before we can build the configuration. 
+# the VRFs and Networks data before we can build the configuration.
 # While not ideal and while this is not done directly in the common role, maintaining our pre-processing file strucutre can
 # be done by importing specific tasks files from dtc.common here. This is done in the two following tasks for VRFs and Networks.
 # Once done, the deteced state changes are added to the vars_common_msd dictionary initially created in dtc.common when
 # pre-processing is done for the MSD fabric itself (and child fabrics when functionality is added).
-- name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
-  ansible.builtin.import_role:
-    name: dtc.common
-    tasks_from: msd/ndfc_vrfs.yml
 
-- name: Run dtc.common.tasks.msd.ndfc_networks.yml
-  ansible.builtin.import_role:
-    name: dtc.common
-    tasks_from: msd/ndfc_networks.yml
+# These Don't exist. Commenting out for now
+# - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
+#   ansible.builtin.import_role:
+#     name: dtc.common
+#     tasks_from: msd/ndfc_vrfs.yml
+
+# - name: Run dtc.common.tasks.msd.ndfc_networks.yml
+#   ansible.builtin.import_role:
+#     name: dtc.common
+#     tasks_from: msd/ndfc_networks.yml
 
 # --------------------------------------------------------------------
 # Update Local Variables To NameSpace Dict For Use Elsewhere

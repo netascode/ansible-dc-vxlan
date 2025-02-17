@@ -118,7 +118,8 @@ class PreparePlugin:
                 else:
                     self.kwargs['results']['failed'] = True
                     self.kwargs['results']['msg'] = "vxlan.fabric.type is not defined in the data model."
-
+            model_data['vxlan']['global']['name'] = model_data['vxlan']['fabric']['name']
+            model_data['vxlan']['global']['fabric_type'] = model_data['vxlan']['fabric']['type']
         # For backwards compatibility, replace 'overlay_services' key with 'overlay'
         # NOTE: No prepare plugin, jinja2 template or ansible task should reference 'overlay_services' after this replacement.
         # NOTE: Rules are different since rules run BEFORE prepare plugins

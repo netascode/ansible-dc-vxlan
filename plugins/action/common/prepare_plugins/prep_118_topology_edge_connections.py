@@ -19,22 +19,25 @@
 #
 # SPDX-License-Identifier: MIT
 
----
 
-- name: Manage Fabric Inter Fabric Links Entry Point
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Manage Inter Fabric Links {{ MD_Extended.vxlan.fabric.name }}"
-      - "----------------------------------------------------------------"
-# --------------------------------------------------------------------
-# Manage Edge Connection Configuration on NDFC
-# --------------------------------------------------------------------
-- name: Manage NDFC Inter Fabric Links
-  cisco.dcnm.dcnm_policy:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ edge_connections }}"
-    use_desc_as_key: true
-    deploy: false
-    state: merged
-  register: manage_edge_connections_result
+class PreparePlugin:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        self.keys = []
+
+    def prepare(self):
+        model_data = self.kwargs['results']['model_extended']
+
+        # Ensure that vrf_lite's switches are mapping to their respective
+        # management IP address from topology switches
+        topology_switches = model_data['vxlan']['topology']['switches']
+        for link in model_data['vxlan']['topology']['edge_connections']:
+            if any(sw['name'] == link['source_device'] for sw in topology_switches):
+                found_switch = next((item for item in topology_switches if item["name"] == link['source_device']))
+                if found_switch.get('management').get('management_ipv4_address'):
+                    link['source_device_ip'] = found_switch['management']['management_ipv4_address']
+                elif found_switch.get('management').get('management_ipv6_address'):
+                    link['source_device_ip'] = found_switch['management']['management_ipv6_address']
+
+        self.kwargs['results']['model_extended'] = model_data
+        return self.kwargs['results']

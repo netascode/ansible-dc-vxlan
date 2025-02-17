@@ -24,7 +24,7 @@
     mode: fabric
 {% endif %}
     int_vrf: {{ interface.vrf | default(omit) }}
-    description: {{ interface.description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.description) }}
+    description: "{{ interface.description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.description) }}"
     admin_state: {{ interface.enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.enabled) }}
     ipv4_addr: {{ interface.ipv4_address | default(omit) }}
     ipv6_addr: {{ interface.ipv6_address | default(omit) }}

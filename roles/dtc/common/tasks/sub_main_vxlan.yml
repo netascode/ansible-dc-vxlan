@@ -169,7 +169,7 @@
 # --------------------------------------------------------------------
 
 - name: Edge Connections List From Template
-  ansible.builtin.import_tasks: ndfc_edge_connections.yml
+  ansible.builtin.import_tasks: common/ndfc_edge_connections.yml
 
 # --------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere

@@ -8,19 +8,19 @@
     - ip: {{ link.source_device_ip }}
       policies:
         - create_additional_policy: False
-          description: {{ 'nac_bgp_peer_template_dci_underlay_jython_' + link.source_device + '_' + link.dest_device }}
+          description: {{ 'edge_bgp_peer_template_dci_underlay_jython_' + link.source_device + '_' + link.dest_device }}
           name: bgp_peer_template_dci_underlay_jython
           policy_vars:
             BGP_PASSWORD: "{{ link.bgp_section.bgp_password | default('') }}"
             BGP_PASSWORD_ENABLE: "{{ link.bgp_section.bgp_password_enable | default('true') }}"
-            TEMPLATE_NAME: {{ MD.vxlan.global.name + '-' + link.dest_fabric + '-IPV4-EBGP' }}
+            TEMPLATE_NAME: {{ MD_Extended.vxlan.global.name + '-' + link.dest_fabric + '-IPV4-EBGP' }}
             NEIGHBOR_ASN: "{{ link.bgp_section.neighbor_asn }}"
             OVERRIDE_LOCAL_ASN: false
             CONF: |2-
               {{ link.bgp_section.peer_template_freeform | default('') | indent(14, false)}}
           priority: 475
         - create_additional_policy: False
-          description: {{ 'nac_ebgp_underlay_dci_template_' + link.source_device + '_' + link.dest_device }}
+          description: {{ 'edge_ebgp_underlay_dci_template_' + link.source_device + '_' + link.dest_device }}
           name: ebgp_underlay_dci_template
           policy_vars:
             INTF_NAME: {{ link.source_interface }}
@@ -38,10 +38,10 @@
             ROUTING_TAG: "{{ link.bgp_section.routing_tag | default('') }}"
             SERIAL_NUMBER: ""
             asn: "{{ MD_Extended.vxlan.global.bgp_asn }}"
-            BGP_TEMPLATE_NAME: {{ MD.vxlan.global.name + '-' + link.dest_fabric + '-IPV4-EBGP' }}
+            BGP_TEMPLATE_NAME: {{ MD_Extended.vxlan.global.name + '-' + link.dest_fabric + '-IPV4-EBGP' }}
             INTF_CONF: |2-
               {{ link.bgp_section.interface_freeform | default('') | indent(14, false)}}
-            FABRIC_NAME: {{ MD.vxlan.global.name }}
+            FABRIC_NAME: {{ MD_Extended.vxlan.global.name }}
           priority: 500
 {% endfor %}
 {% endif %}

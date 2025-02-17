@@ -134,7 +134,7 @@
       - "----------------------------------------------------------------"
       - "+     Fabric Changes Detected -               [ {{ vars_common_external.changes_detected_fabric }} ]"
       - "+     Inventory Changes Detected -            [ {{ vars_common_external.changes_detected_inventory }} ]"
-      - "+     Edge Connections Changes Detected -     [ {{ vars_common_vxlan.changes_detected_edge_connections }} ]"
+      - "+     Edge Connections Changes Detected -     [ {{ vars_common_external.changes_detected_edge_connections }} ]"
       - "+     ----- Interfaces -----"
       - "+     Interface Access Changes Detected -     [ {{ vars_common_external.changes_detected_interface_access }} ]"
       - "+     Interface Access PO Changes Detected -  [ {{ vars_common_external.changes_detected_interface_access_po }} ]"
