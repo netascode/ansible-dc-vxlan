@@ -4,3 +4,6 @@
 {% if (item.bgp is defined and item.bgp) or switch_item.bgp_peers or switch_item.bgp %}
   {% include 'ndfc_vrf_lite/ndfc_vrf_lite_ebgp.j2' %}
 {% endif %}
+{% if switch_item.static_routes %}
+  {% include 'ndfc_vrf_lite/ndfc_vrf_lite_static.j2' %}
+{% endif %}
