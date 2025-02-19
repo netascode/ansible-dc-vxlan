@@ -71,6 +71,7 @@
     changes_detected_interface_trunk: "{{ changes_detected_interface_trunk | default(false) }}"
     changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po | default(false) }}"
     changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed | default(false) }}"
+    changes_detected_edge_connections: "{{ changes_detected_edge_connections | default(false) }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:
