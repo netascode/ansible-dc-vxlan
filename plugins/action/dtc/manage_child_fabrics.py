@@ -34,6 +34,7 @@ class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
+        results['changed'] = False
         results['failed'] = False
         results['child_fabrics_moved'] = False
 

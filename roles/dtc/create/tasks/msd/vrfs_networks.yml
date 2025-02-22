@@ -54,7 +54,7 @@
 # --------------------------------------------------------------------
 - name: Update Local Variables With Namespace Context
   ansible.builtin.set_fact:
-    vars_common_msd: "{{ vars_common_msd | combine(update_data) }}"
+    vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
   vars:
     update_data:
         changes_detected_vrfs: "{{ changes_detected_vrfs }}"
@@ -82,7 +82,8 @@
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
 # --------------------------------------------------------------------
-- name: Manage NDFC Fabric VRFs
+# The cisco.dcnm.dcnm_vrf module works for MSD fabrics to create and update VRFs.
+- name: Manage NDFC MSD Fabric VRFs
   cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
@@ -92,6 +93,62 @@
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
     - MD_Extended.vxlan.multisite.overlay.vrfs
     - vars_common_msd.changes_detected_vrfs
+
+# This is a test
+- name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
+  ansible.builtin.import_role:
+    name: dtc.common
+    tasks_from: msd/ndfc_child_vrfs.yml
+
+# --------------------------------------------------------------------
+# Update Local Variables To NameSpace Dict For Use Elsewhere
+# --------------------------------------------------------------------
+- name: Update Local Variables With Namespace Context
+  ansible.builtin.set_fact:
+    vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
+  vars:
+    update_data:
+        changes_detected_child_vrfs: "{{ changes_detected_vrfs }}"
+        # changes_detected_child_networks: "{{ changes_detected_networks }}"
+        child_vrf_config: "{{ vrf_config }}"
+        # child_net_config: "{{ net_config }}"
+        # Check with Matt and Pete on how to handle this for MSD
+        # vrf_attach_config: "{{ vrf_attach_config }}"
+
+- name: Run Diff Flags
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
+      - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
+      # - "+     Networks Changes Detected -             [ {{ vars_common_msd.changes_detected_networks }} ]"
+      - "+     Child VRFs Changes Detected -           [ {{ vars_common_msd.changes_detected_child_vrfs }} ]"
+      # - "+     Child Networks Changes Detected -       [ {{ vars_common_msd.changes_detected_child_networks }} ]"
+      - "+     ----- Run Map -----"
+      - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
+      - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
+      - "----------------------------------------------------------------"
+
+# cisco.dcnm.dcnm_vrf does not work with child fabrics eveb though a PUT operation is handled it does not appear to be the same. 
+# Further investigation is needed to determine why the module does not work with child fabrics.
+# We need to use the REST API to manage child fabric VRFs directly using a PUT operation.
+
+# - name: Manage NDFC Fabric VRFs
+#   cisco.dcnm.dcnm_vrf:
+#     fabric: nac-fabric1
+#     state: merged
+#     config: "{{ vars_common_msd.child_vrf_config }}"
+#   register: manage_vrf_result
+#   when:
+#     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
+#     - MD_Extended.vxlan.multisite.overlay.vrfs
+#     - vars_common_msd.changes_detected_child_vrfs
+
+- name: Manage NDFC Child Fabric VRFs
+  cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
+    msite_data: "{{ MD_Multisite}}"
+
+- ansible.builtin.meta: end_play
 
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC

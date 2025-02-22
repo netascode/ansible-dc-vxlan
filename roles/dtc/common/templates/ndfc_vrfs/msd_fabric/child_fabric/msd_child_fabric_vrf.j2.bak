@@ -1,0 +1,17 @@
+{# Auto-generated NDFC VXLAN EVPN MSD Child Fabric VRF config data structure for fabric {{ current_fabric }} #}
+{
+    "fabric": "nac-fabric1",
+    "vrfName": "NaC-VRF02",
+    "enforce": null,
+    "defaultSGTag": null,
+    "vrfTemplate": "Default_VRF_Universal",
+    "vrfExtensionTemplate": "Default_VRF_Extension_Universal",
+    "vrfTemplateConfig": {{ vrf_vars.vrf_updated_config_template | ansible.builtin.to_nice_json }},
+    "tenantName": null,
+    "vrfId": 150002,
+    "serviceVrfTemplate": null,
+    "source": null,
+    "hierarchicalKey": "nac-fabric1",
+    "vrfVlanId": "2002",
+    "displayName": "NaC-VRF02"
+}
