@@ -52,7 +52,7 @@ factory_defaults:
       ptp:
         ptp_enable: false
       enable_nxapi: true
-      enable_nxapi_http: true
+      enable_nxapi_http: false
       snmp_server_host_trap: true
       bootstrap:
         cdp_enable: false
