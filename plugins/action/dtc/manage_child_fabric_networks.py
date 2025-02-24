@@ -54,8 +54,15 @@ class ActionModule(ActionBase):
         child_fabrics = msite_data['child_fabrics_data']
 
         for network in networks:
-            network_attach_group_switches = [network_attach_groups_dict['switches'] for network_attach_groups_dict in network_attach_groups_dict if network_attach_groups_dict['name'] == network['network_attach_group']][0]
-            network_attach_group_switches_mgmt_ip_addresses = [network_attach_group_switch['mgmt_ip_address'] for network_attach_group_switch in network_attach_group_switches]
+            network_attach_group_switches = [
+                network_attach_groups_dict['switches'] 
+                for network_attach_groups_dict in network_attach_groups_dict 
+                if network_attach_groups_dict['name'] == network['network_attach_group']
+            ][0]
+            network_attach_group_switches_mgmt_ip_addresses = [
+                network_attach_group_switch['mgmt_ip_address'] 
+                for network_attach_group_switch in network_attach_group_switches
+            ]
 
             for child_fabric in child_fabrics.keys():
                 child_fabric_attributes = child_fabrics[child_fabric]['attributes']
@@ -150,8 +157,7 @@ class ActionModule(ActionBase):
                     #         "METHOD": "PUT",
                     #         "REQUEST_PATH": "https://10.15.0.110:443/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/nac-fabric1/vrfs/NaC-VRF01",
                     #         "MESSAGE": "OK",
-                    #         "DATA": {
-                                
+                    #         "DATA": {     
                     #         }
                     #     },
                     #     "invocation": {
@@ -196,6 +202,6 @@ class ActionModule(ActionBase):
                     if ndfc_net_update.get('msg'):
                         if ndfc_net_update['msg']['RETURN_CODE'] != 200:
                             results['failed'] = True
-                            results['msg'] = f"For fabric {child_fabric}; {ndfc_net_update['msg']['DATA']['message']} Please revisit the configuration data model for fabric {child_fabric} and enable the required feature(s) in the fabric settings."
+                            results['msg'] = f"For fabric {child_fabric}; {ndfc_net_update['msg']['DATA']['message']}"
 
         return results
