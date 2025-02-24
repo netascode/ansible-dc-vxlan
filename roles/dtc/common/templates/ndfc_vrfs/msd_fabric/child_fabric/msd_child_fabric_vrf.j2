@@ -28,7 +28,7 @@
       "bgpPassword": vrf_vars.bgp_password | default(vrf_vars.bgpPassword),
       "bgpPasswordKeyType": vrf_vars.bgp_password_encryption_type | default(vrf_vars.bgpPasswordKeyType),
       "ENABLE_NETFLOW": vrf_vars.enable_netflow if vrf_vars.enable_netflow is defined else vrf_vars.ENABLE_NETFLOW,
-      "NETFLOW_MONITOR": vrf_vars.netflow_monitor | default(vrf_vars.NETFLOW_MONITOR) if (vrf_vars.enable_netflow is defined and vrf_vars.enable_netflow) else vrf_vars.NETFLOW_MONITOR,
+      "NETFLOW_MONITOR": vrf_vars.netflow_monitor if (vrf_vars.enable_netflow is defined and vrf_vars.enable_netflow) else vrf_vars.NETFLOW_MONITOR,
       "trmEnabled": vrf_vars.trm_enable if vrf_vars.trm_enable is defined else vrf_vars.trmEnabled,
       "loopbackNumber": vrf_vars.rp_loopback_id | default(vrf_vars.loopbackNumber) if ((vrf_vars.no_rp is defined and not vrf_vars.no_rp | default(vrf_vars.isRPAbsent)) or (vrf_vars.rp_external is defined and not vrf_vars.rp_external | default(vrf_vars.isRPExternal))) else vrf_vars.loopbackNumber,
       "rpAddress": vrf_vars.rp_address | default(vrf_vars.rpAddress) if (vrf_vars.no_rp is defined and not vrf_vars.no_rp) else vrf_vars.rpAddress,
