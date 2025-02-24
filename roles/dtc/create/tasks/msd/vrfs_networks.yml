@@ -94,40 +94,40 @@
     - MD_Extended.vxlan.multisite.overlay.vrfs
     - vars_common_msd.changes_detected_vrfs
 
-# This is a test
-- name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
-  ansible.builtin.import_role:
-    name: dtc.common
-    tasks_from: msd/ndfc_child_vrfs.yml
+# # This is a test
+# - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
+#   ansible.builtin.import_role:
+#     name: dtc.common
+#     tasks_from: msd/ndfc_child_vrfs.yml
 
-# --------------------------------------------------------------------
-# Update Local Variables To NameSpace Dict For Use Elsewhere
-# --------------------------------------------------------------------
-- name: Update Local Variables With Namespace Context
-  ansible.builtin.set_fact:
-    vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
-  vars:
-    update_data:
-        changes_detected_child_vrfs: "{{ changes_detected_vrfs }}"
-        # changes_detected_child_networks: "{{ changes_detected_networks }}"
-        child_vrf_config: "{{ vrf_config }}"
-        # child_net_config: "{{ net_config }}"
-        # Check with Matt and Pete on how to handle this for MSD
-        # vrf_attach_config: "{{ vrf_attach_config }}"
+# # --------------------------------------------------------------------
+# # Update Local Variables To NameSpace Dict For Use Elsewhere
+# # --------------------------------------------------------------------
+# - name: Update Local Variables With Namespace Context
+#   ansible.builtin.set_fact:
+#     vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
+#   vars:
+#     update_data:
+#         changes_detected_child_vrfs: "{{ changes_detected_vrfs }}"
+#         # changes_detected_child_networks: "{{ changes_detected_networks }}"
+#         child_vrf_config: "{{ vrf_config }}"
+#         # child_net_config: "{{ net_config }}"
+#         # Check with Matt and Pete on how to handle this for MSD
+#         # vrf_attach_config: "{{ vrf_attach_config }}"
 
-- name: Run Diff Flags
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
-      - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
-      # - "+     Networks Changes Detected -             [ {{ vars_common_msd.changes_detected_networks }} ]"
-      - "+     Child VRFs Changes Detected -           [ {{ vars_common_msd.changes_detected_child_vrfs }} ]"
-      # - "+     Child Networks Changes Detected -       [ {{ vars_common_msd.changes_detected_child_networks }} ]"
-      - "+     ----- Run Map -----"
-      - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
-      - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
-      - "----------------------------------------------------------------"
+# - name: Run Diff Flags
+#   ansible.builtin.debug:
+#     msg:
+#       - "----------------------------------------------------------------"
+#       - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
+#       - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
+#       # - "+     Networks Changes Detected -             [ {{ vars_common_msd.changes_detected_networks }} ]"
+#       - "+     Child VRFs Changes Detected -           [ {{ vars_common_msd.changes_detected_child_vrfs }} ]"
+#       # - "+     Child Networks Changes Detected -       [ {{ vars_common_msd.changes_detected_child_networks }} ]"
+#       - "+     ----- Run Map -----"
+#       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
+#       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
+#       - "----------------------------------------------------------------"
 
 # cisco.dcnm.dcnm_vrf does not work with child fabrics eveb though a PUT operation is handled it does not appear to be the same. 
 # Further investigation is needed to determine why the module does not work with child fabrics.
@@ -168,7 +168,7 @@
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
 # --------------------------------------------------------------------
-- name: Manage NDFC Fabric Networks
+- name: Manage NDFC MSD Fabric Networks
   cisco.dcnm.dcnm_network:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
@@ -178,3 +178,7 @@
     - MD_Extended.vxlan.multisite.overlay.networks is defined
     - MD_Extended.vxlan.multisite.overlay.networks
     - vars_common_msd.changes_detected_networks
+
+# - name: Manage NDFC Child Fabric Networks
+#   cisco.nac_dc_vxlan.dtc.manage_child_fabric_networks:
+#     msite_data: "{{ MD_Multisite}}"

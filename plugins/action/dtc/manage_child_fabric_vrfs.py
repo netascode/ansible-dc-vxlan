@@ -35,7 +35,6 @@ import json
 display = Display()
 
 # Path to Jinja template files relative to create role
-MSD_CHILD_FABRIC_VRF_TEMPLATE_CONFIG = "/../common/templates/ndfc_vrfs/msd_fabric/child_fabric/msd_child_fabric_vrf_template_config.j2"
 MSD_CHILD_FABRIC_VRF_TEMPLATE = "/../common/templates/ndfc_vrfs/msd_fabric/child_fabric/msd_child_fabric_vrf.j2"
 
 
@@ -59,14 +58,10 @@ class ActionModule(ActionBase):
 
             for child_fabric in child_fabrics.keys():
                 child_fabric_attributes = child_fabrics[child_fabric]['attributes']
-                # child_fabrics['nac-fabric1']['attributes']['ENABLE_TRM']
                 child_fabric_switches = child_fabrics[child_fabric]['switches']
-                # child_fabrics['nac-fabric1']['switches']
                 child_fabric_switches_mgmt_ip_addresses = [child_fabric_switch['mgmt_ip_address'] for child_fabric_switch in child_fabric_switches]
 
                 is_intersection = set(vrf_attach_group_switches_mgmt_ip_addresses).intersection(set(child_fabric_switches_mgmt_ip_addresses))
-
-                # import epdb; epdb.st()
 
                 if is_intersection:
                     # Need to clean these up and make them more dynamic
@@ -105,60 +100,16 @@ class ActionModule(ActionBase):
                     ndfc_vrf_response_data = ndfc_vrf['response']['DATA']
                     ndfc_vrf_vrf_template_config = json.loads(ndfc_vrf_response_data['vrfTemplateConfig'])
 
-                    # Define local variables specific to the action plugin
-                    # local_vars = {
-                    #     'local_var1': 'value1',
-                    #     'local_var2': 'value2',
-                    #     # Add more local variables as needed
-                    # }
-                    existing_vrf_config = ndfc_vrf_vrf_template_config
-
                     # Combine task_vars with local_vars for template rendering
                     vrf_vars = {}
                     vrf_vars.update({'vrf_vars': {}})
-                    vrf_vars['vrf_vars'] = {**vrf, **existing_vrf_config}
-                    # vrf_vars['vrf_vars'].update({'current': vrfs})
-                    # vrf_vars['vrf_vars'].update({'existing': ndfc_vrf_vrf_template_config})
-
-                    # Define the path to your Jinja template file
-                    # template_file = self._task.args.get('src')
-
-                    role_path = task_vars.get('role_path')
-
-                    # template_path = role_path + MSD_CHILD_FABRIC_VRF_TEMPLATE_CONFIG
-                    # vrf_template_config_path = role_path + MSD_CHILD_FABRIC_VRF_TEMPLATE_CONFIG
-                    # vrf_vars.update({'vrf_template_config_path': vrf_template_config_path})
-
-                    # Load the template content
-                    # template_content = self._loader.get_real_file(role_path + MSD_CHILD_FABRIC_VRF_TEMPLATE_CONFIG)
-
-                    # Attempt to find and read the template file
-                    # try:
-                    #     template_full_path = self._find_needle('templates', template_path)
-                    #     with open(template_full_path, 'r') as template_file:
-                    #         template_content = template_file.read()
-                    # except (IOError, AnsibleFileNotFound) as e:
-                    #     return {'failed': True, 'msg': f"Template file not found or unreadable: {str(e)}"}
-
-                    # # Create a Templar instance
-                    # templar = Templar(loader=self._loader, variables=vrf_vars)
-
-                    # # Render the template with the combined variables
-                    # rendered_content = templar.template(variable=template_content, convert_bare=True, preserve_trailing_newlines=False, escape_backslashes=False, convert_data=False)
-                    # json_dict = json.dumps(rendered_content)
-                    # escaped_json_string = json_dict.replace('"', '\\"')
-
-                    # rendered_json = templar.environment.filters['to_nice_json'](rendered_content)
-
-                    # json_str = json.dumps(rendered_content)
-                    # escaped_json_str = re.sub(r'"', r'\"', json_str)
+                    vrf_vars['vrf_vars'] = {**vrf, **ndfc_vrf_vrf_template_config}
 
                     vrf_vars.update({'fabric_name': ndfc_vrf_response_data['fabric']})
-                    # vrf_vars.update({'vrf_updated_config_template': rendered_content})
-
-                    template_path = role_path + MSD_CHILD_FABRIC_VRF_TEMPLATE
 
                     # Attempt to find and read the template file
+                    role_path = task_vars.get('role_path')
+                    template_path = role_path + MSD_CHILD_FABRIC_VRF_TEMPLATE
                     try:
                         template_full_path = self._find_needle('templates', template_path)
                         with open(template_full_path, 'r') as template_file:
@@ -166,27 +117,12 @@ class ActionModule(ActionBase):
                     except (IOError, AnsibleFileNotFound) as e:
                         return {'failed': True, 'msg': f"Template file not found or unreadable: {str(e)}"}
 
-                    # # Create a Templar instance
+                    # Create a Templar instance
                     templar = Templar(loader=self._loader, variables=vrf_vars)
 
-                    # # Render the template with the combined variables
+                    # Render the template with the combined variables
                     rendered_content = templar.template(template_content)
-                    # rendered_content = templar.template(variable=template_content, convert_bare=True, preserve_trailing_newlines=False, escape_backslashes=False, convert_data=False)
-                    # rendered_json = json.dumps(rendered_content['vrfTemplateConfig'])
-                    # escaped_json_string = rendered_json.replace('"', '\\"')
-                    # rendered_content['vrfTemplateConfig'] = escaped_json_string
                     rendered_to_nice_json = templar.environment.filters['to_nice_json'](rendered_content)
-
-                    # escaped_json_string = '"' + rendered_json.replace('"', '\\"') + '"'
-
-                    # json_string = json.dumps(rendered_content['vrfTemplateConfig'])
-                    # escaped_json_string = json_string.replace('"', '\\"')
-                    # final_output = f'"{escaped_json_string}"'
-
-                    # from ansible.plugins.loader import lookup_loader
-                    # template_lookup = lookup_loader.get('ansible.builtin.template', loader=self._loader, templar=self._templar)
-                    # rendered_content = template_lookup.run([template_path], variables=vrf_vars, task_vars=task_vars)
-                    # escaped_string = rendered_content.replace('"', r'\"')
 
                     ndfc_vrf_update = self._execute_module(
                         module_name="cisco.dcnm.dcnm_rest",
@@ -253,9 +189,7 @@ class ActionModule(ActionBase):
                     if ndfc_vrf_update.get('msg'):
                         if ndfc_vrf_update['msg']['RETURN_CODE'] != 200:
                             results['failed'] = True
-                            results['msg'] = f"For fabric {child_fabric}; {ndfc_vrf_update['msg']['DATA']['message']} Please revisit the configuration data model for fabric {child_fabric} and enable the required feature(s) in the fabric settings."
+                            results['msg'] = f"For fabric {child_fabric}; {ndfc_vrf_update['msg']['DATA']['message']}"
 
-                    # # Use the file lookup plugin to read the contents of the file
-                    # file_content = self._loader.lookup_loader.get('file', loader=self._loader).run([file_path], variables=task_vars)
 
         return results
