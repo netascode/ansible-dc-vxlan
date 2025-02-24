@@ -53,8 +53,15 @@ class ActionModule(ActionBase):
         child_fabrics = msite_data['child_fabrics_data']
 
         for vrf in vrfs:
-            vrf_attach_group_switches = [vrf_attach_group_dict['switches'] for vrf_attach_group_dict in vrf_attach_groups_dict if vrf_attach_group_dict['name'] == vrf['vrf_attach_group']][0]
-            vrf_attach_group_switches_mgmt_ip_addresses = [vrf_attach_group_switch['mgmt_ip_address'] for vrf_attach_group_switch in vrf_attach_group_switches]
+            vrf_attach_group_switches = [
+                vrf_attach_group_dict['switches']
+                for vrf_attach_group_dict in vrf_attach_groups_dict
+                if vrf_attach_group_dict['name'] == vrf['vrf_attach_group']
+            ][0]
+            vrf_attach_group_switches_mgmt_ip_addresses = [
+                vrf_attach_group_switch['mgmt_ip_address']
+                for vrf_attach_group_switch in vrf_attach_group_switches
+            ]
 
             for child_fabric in child_fabrics.keys():
                 child_fabric_attributes = child_fabrics[child_fabric]['attributes']
@@ -78,8 +85,9 @@ class ActionModule(ActionBase):
 
                     if vrf.get('trm_enable'):
                         if child_fabric_attributes['ENABLE_TRM'] == 'false':
-                            error_msg = (f"For fabric {child_fabric}; TRM is not enabled in the fabric settings. "
-                                         "To enable TRM in VRF, you need to first enable it in the fabric settings."
+                            error_msg = (
+                                f"For fabric {child_fabric}; TRM is not enabled in the fabric settings. "
+                                "To enable TRM in VRF, you need to first enable it in the fabric settings."
                             )
                             display.error(error_msg)
                             results['failed'] = True
@@ -89,8 +97,9 @@ class ActionModule(ActionBase):
                     # Need to check data model and support for enabling TRMv6 in the fabric settings
                     # if vrf.get('trm_enable'):
                     #     if child_fabric_attributes['ENABLE_TRMv6'] == 'false':
-                    #         error_msg = (f"For fabric {child_fabric}; TRMv6 is not enabled in the fabric settings. "
-                    #                      "To enable TRMv6 in VRF, you need to first enable it in the fabric settings."
+                    #         error_msg = (
+                    #             f"For fabric {child_fabric}; TRMv6 is not enabled in the fabric settings. "
+                    #             "To enable TRMv6 in VRF, you need to first enable it in the fabric settings."
                     #         )
                     #         display.error(error_msg)
                     #         results['failed'] = True

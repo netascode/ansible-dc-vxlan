@@ -88,8 +88,9 @@ class ActionModule(ActionBase):
 
                     if network.get('trm_enable'):
                         if child_fabric_attributes['ENABLE_TRM'] == 'false':
-                            error_msg = (f"For fabric {child_fabric}; TRM is not enabled in the fabric settings. "
-                                         "To enable TRM in Network, you need to first enable it in the fabric settings."
+                            error_msg = (
+                                f"For fabric {child_fabric}; TRM is not enabled in the fabric settings. "
+                                "To enable TRM in Network, you need to first enable it in the fabric settings."
                             )
                             display.error(error_msg)
                             results['failed'] = True
@@ -99,8 +100,9 @@ class ActionModule(ActionBase):
                     # Need to check data model and support for enabling TRMv6 in the fabric settings
                     # if network.get('trm_enable'):
                     #     if child_fabric_attributes['ENABLE_TRMv6'] == 'false':
-                    #         error_msg = (f"For fabric {child_fabric}; TRMv6 is not enabled in the fabric settings. "
-                    #                      "To enable TRMv6 in Network, you need to first enable it in the fabric settings."
+                    #         error_msg = (
+                    #             f"For fabric {child_fabric}; TRMv6 is not enabled in the fabric settings. "
+                    #             "To enable TRMv6 in Network, you need to first enable it in the fabric settings."
                     #         )
                     #         display.error(error_msg)
                     #         results['failed'] = True
