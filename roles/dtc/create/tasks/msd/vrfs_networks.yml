@@ -148,7 +148,7 @@
   cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
     msite_data: "{{ MD_Multisite}}"
 
-- ansible.builtin.meta: end_play
+# - ansible.builtin.meta: end_play
 
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC
