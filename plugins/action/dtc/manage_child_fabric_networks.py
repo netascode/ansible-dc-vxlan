@@ -180,7 +180,6 @@ class ActionModule(ActionBase):
                         #         "REQUEST_PATH": "https://10.15.0.110:443/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/nac-fabric1/networks/NaC-Net01", # noqa: E501
                         #         "MESSAGE": "OK",
                         #         "DATA": {
-                                
                         #         }
                         #     },
                         #     "invocation": {
