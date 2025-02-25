@@ -44,6 +44,7 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['changed'] = False
         results['failed'] = False
+        results['child_fabrics_changed'] = []
 
         msite_data = self._task.args["msite_data"]
 
@@ -69,8 +70,6 @@ class ActionModule(ActionBase):
                 child_fabric_switches_mgmt_ip_addresses = [child_fabric_switch['mgmt_ip_address'] for child_fabric_switch in child_fabric_switches]
 
                 is_intersection = set(network_attach_group_switches_mgmt_ip_addresses).intersection(set(child_fabric_switches_mgmt_ip_addresses))
-
-                # import epdb; epdb.st()
 
                 if is_intersection:
                     # Need to clean these up and make them more dynamic
@@ -119,98 +118,112 @@ class ActionModule(ActionBase):
                     )
 
                     ndfc_net_response_data = ndfc_net['response']['DATA']
-                    ndfc_net_net_template_config = json.loads(ndfc_net_response_data['networkTemplateConfig'])
+                    ndfc_net_template_config = json.loads(ndfc_net_response_data['networkTemplateConfig'])
 
-                    # Combine task_vars with local_vars for template rendering
-                    net_vars = {}
-                    net_vars.update({'vrf_vars': {}})
-                    net_vars['net_vars'] = {**network, **ndfc_net_net_template_config}
+                    # Check for differences between the data model and the template config from NDFC for the
+                    # attributes that are configurable by the user in a child fabric.
+                    # Note: This excludes IPv6 related attributes at this time as they are not yet supported fully in the data model.
+                    if (
+                        (ndfc_net_template_config['loopbackId'] != network.get('dhcp_loopback_id', "")) or
+                        (ndfc_net_template_config['ENABLE_NETFLOW'] != str(network.get('netflow_enable', False)).lower()) or
+                        (ndfc_net_template_config['VLAN_NETFLOW_MONITOR'] != network.get('vlan_netflow_monitor', "")) or
+                        (ndfc_net_template_config['trmEnabled'] != str(network.get('trm_enable', False)).lower())
+                    ):
+                        results['child_fabrics_changed'].append(child_fabric)
 
-                    role_path = task_vars.get('role_path')
+                        # Combine task_vars with local_vars for template rendering
+                        net_vars = {}
+                        net_vars.update({'fabric_name': ndfc_net_response_data['fabric']})
+                        net_vars.update({'network_name': ndfc_net_response_data['networkName']})
+                        net_vars.update(
+                            {
+                                'ndfc': ndfc_net_template_config,
+                                'dm': network
+                            },
+                        )
 
-                    net_vars.update({'fabric_name': ndfc_net_response_data['fabric']})
+                        role_path = task_vars.get('role_path')
+                        template_path = role_path + MSD_CHILD_FABRIC_NETWORK_TEMPLATE
 
-                    template_path = role_path + MSD_CHILD_FABRIC_NETWORK_TEMPLATE
+                        # Attempt to find and read the template file
+                        try:
+                            template_full_path = self._find_needle('templates', template_path)
+                            with open(template_full_path, 'r') as template_file:
+                                template_content = template_file.read()
+                        except (IOError, AnsibleFileNotFound) as e:
+                            return {'failed': True, 'msg': f"Template file not found or unreadable: {str(e)}"}
 
-                    # Attempt to find and read the template file
-                    try:
-                        template_full_path = self._find_needle('templates', template_path)
-                        with open(template_full_path, 'r') as template_file:
-                            template_content = template_file.read()
-                    except (IOError, AnsibleFileNotFound) as e:
-                        return {'failed': True, 'msg': f"Template file not found or unreadable: {str(e)}"}
+                        # Create a Templar instance
+                        templar = Templar(loader=self._loader, variables=net_vars)
 
-                    # Create a Templar instance
-                    templar = Templar(loader=self._loader, variables=net_vars)
+                        # Render the template with the combined variables
+                        rendered_content = templar.template(template_content)
+                        rendered_to_nice_json = templar.environment.filters['to_nice_json'](rendered_content)
 
-                    # Render the template with the combined variables
-                    rendered_content = templar.template(template_content)
-                    rendered_to_nice_json = templar.environment.filters['to_nice_json'](rendered_content)
+                        ndfc_net_update = self._execute_module(
+                            module_name="cisco.dcnm.dcnm_rest",
+                            module_args={
+                                "method": "PUT",
+                                "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks/{network['name']}",
+                                "data": rendered_to_nice_json
+                            },
+                            task_vars=task_vars,
+                            tmp=tmp
+                        )
 
-                    ndfc_net_update = self._execute_module(
-                        module_name="cisco.dcnm.dcnm_rest",
-                        module_args={
-                            "method": "PUT",
-                            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks/{network['name']}",
-                            "data": rendered_to_nice_json
-                        },
-                        task_vars=task_vars,
-                        tmp=tmp
-                    )
+                        # Successful response:
+                        # {
+                        #     "changed": false,
+                        #     "response": {
+                        #         "RETURN_CODE": 200,
+                        #         "METHOD": "PUT",
+                        #         "REQUEST_PATH": "https://10.15.0.110:443/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/nac-fabric1/networks/NaC-Net01", # noqa: E501
+                        #         "MESSAGE": "OK",
+                        #         "DATA": {
+                                
+                        #         }
+                        #     },
+                        #     "invocation": {
+                        #         "module_args": {
+                        #         "method": "PUT",
+                        #         "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/nac-fabric1/networks/NaC-Net01", # noqa: E501
+                        #         "data": "{\n    \"displayName\": \"NaC-Net01\",\n    \"fabric\": \"nac-fabric1\",\n    \"hierarchicalKey\": \"nac-fabric1\",\n    \"networkExtensionTemplate\": \"Default_Network_Extension_Universal\",\n    \"networkId\": \"130001\",\n    \"networkName\": \"NaC-Net01\",\n    \"networkTemplate\": \"Default_Network_Universal\",\n    \"networkTemplateConfig\": \" {\\'vrfName\\': \\'NaC-VRF01\\', \\'networkName\\': \\'NaC-Net01\\', \\'vlanId\\': \\'2301\\', \\'vlanName\\': \\'NaC-Net01_vlan2301\\', \\'segmentId\\': \\'130001\\', \\'intfDescription\\': \\'Configured by Ansible NetAsCode\\', \\'gatewayIpAddress\\': \\'192.168.1.1/24\\', \\'gatewayIpV6Address\\': \\'\\', \\'mtu\\': \\'9216\\', \\'isLayer2Only\\': \\'false\\', \\'suppressArp\\': \\'false\\', \\'mcastGroup\\': \\'239.1.1.1\\', \\'tag\\': \\'12345\\', \\'secondaryGW1\\': \\'\\', \\'secondaryGW2\\': \\'\\', \\'secondaryGW3\\': \\'\\', \\'secondaryGW4\\': \\'\\', \\'loopbackId\\': \\'\\', \\'dhcpServerAddr1\\': \\'\\', \\'vrfDhcp\\': \\'\\', \\'dhcpServerAddr2\\': \\'\\', \\'vrfDhcp2\\': \\'\\', \\'dhcpServerAddr3\\': \\'\\', \\'vrfDhcp3\\': \\'\\', \\'ENABLE_NETFLOW\\': \\'false\\', \\'SVI_NETFLOW_MONITOR\\': \\'\\', \\'VLAN_NETFLOW_MONITOR\\': \\'\\', \\'enableIR\\': \\'false\\', \\'trmEnabled\\': True, \\'igmpVersion\\': \\'2\\', \\'trmV6Enabled\\': \\'\\', \\'rtBothAuto\\': \\'false\\', \\'enableL3OnBorder\\': \\'false\\', \\'enableL3OnBorderVpcBgw\\': \\'false\\', \\'nveId\\': \\'1\\', \\'type\\': \\'Normal\\'}\",\n    \"type\": \"Normal\",\n    \"vrf\": \"NaC-VRF01\"\n}" # noqa: E501
+                        #         }
+                        #     },
+                        #     "_ansible_parsed": true
+                        # }
+                        if ndfc_net_update.get('response'):
+                            if ndfc_net_update['response']['RETURN_CODE'] == 200:
+                                results['changed'] = True
 
-                    # Successful response:
-                    # {
-                    #     "changed": false,
-                    #     "response": {
-                    #         "RETURN_CODE": 200,
-                    #         "METHOD": "PUT",
-                    #         "REQUEST_PATH": "https://10.15.0.110:443/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/nac-fabric1/vrfs/NaC-VRF01", # noqa: E501
-                    #         "MESSAGE": "OK",
-                    #         "DATA": {
-                    #         }
-                    #     },
-                    #     "invocation": {
-                    #         "module_args": {
-                    #             "method": "PUT",
-                    #             "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/nac-fabric1/vrfs/NaC-VRF01", # noqa: E501
-                    #             "data": "{\n    \"displayName\": \"NaC-VRF01\",\n    \"fabric\": \"nac-fabric1\",\n    \"hierarchicalKey\": \"nac-fabric1\",\n    \"vrfExtensionTemplate\": \"Default_VRF_Extension_Universal\",\n    \"vrfId\": \"150001\",\n    \"vrfName\": \"NaC-VRF01\",\n    \"vrfTemplate\": \"Default_VRF_Universal\",\n    \"vrfTemplateConfig\": \"{\\'asn\\': \\'65001\\', \\'nveId\\': \\'1\\', \\'vrfName\\': \\'NaC-VRF01\\', \\'vrfSegmentId\\': \\'150001\\', \\'vrfVlanId\\': \\'2001\\', \\'vrfVlanName\\': \\'\\', \\'vrfDescription\\': \\'Configured by Ansible NetAsCode\\', \\'vrfIntfDescription\\': \\'Configured by Ansible NetAsCode\\', \\'mtu\\': \\'9216\\', \\'tag\\': \\'12345\\', \\'vrfRouteMap\\': \\'FABRIC-RMAP-REDIST-SUBNET\\', \\'v6VrfRouteMap\\': \\'\\', \\'maxBgpPaths\\': \\'1\\', \\'maxIbgpPaths\\': \\'2\\', \\'ipv6LinkLocalFlag\\': \\'true\\', \\'enableL3VniNoVlan\\': \\'false\\', \\'enableBgpBestPathEcmp\\': \\'false\\', \\'advertiseHostRouteFlag\\': \\'false\\', \\'advertiseDefaultRouteFlag\\': \\'true\\', \\'configureStaticDefaultRouteFlag\\': \\'true\\', \\'bgpPassword\\': \\'\\', \\'bgpPasswordKeyType\\': \\'3\\', \\'ENABLE_NETFLOW\\': \\'false\\', \\'NETFLOW_MONITOR\\': \\'\\', \\'trmEnabled\\': True, \\'loopbackNumber\\': 1002, \\'rpAddress\\': \\'100.100.100.1\\', \\'isRPAbsent\\': False, \\'isRPExternal\\': False, \\'L3VniMcastGroup\\': \\'239.1.1.0\\', \\'multicastGroup\\': \\'224.0.0.0/4\\', \\'trmV6Enabled\\': \\'false\\', \\'rpV6Address\\': \\'\\', \\'isV6RPAbsent\\': \\'false\\', \\'isV6RPExternal\\': \\'false\\', \\'ipv6MulticastGroup\\': \\'\\', \\'disableRtAuto\\': \\'false\\', \\'routeTargetImport\\': \\'\\', \\'routeTargetExport\\': \\'\\', \\'routeTargetImportEvpn\\': \\'\\', \\'routeTargetExportEvpn\\': \\'\\', \\'routeTargetImportMvpn\\': \\'\\', \\'routeTargetExportMvpn\\': \\'\\', \\'mvpnInterAs\\': \\'false\\', \\'trmBGWMSiteEnabled\\': True}\",\n    \"vrfVlanId\": \"2001\"\n}" # noqa: E501
-                    #         }
-                    #     },
-                    #     "_ansible_parsed": true
-                    # }
-
-                    if ndfc_net_update.get('response'):
-                        if ndfc_net_update['response']['RETURN_CODE'] == 200:
-                            results['changed'] = True
-
-                    # Failed response:
-                    # {
-                    #     "failed": true,
-                    #     "msg":{
-                    #         "RETURN_CODE": 400,
-                    #         "METHOD": "PUT",
-                    #         "REQUEST_PATH": "https://10.15.0.110:443/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/nac-fabric2/vrfs/NaC-VRF01", # noqa: E501
-                    #         "MESSAGE": "Bad Request",
-                    #         "DATA": {
-                    #             "path": "/rest/top-down/fabrics/nac-fabric2/vrfs/NaC-VRF01",
-                    #             "Error": "Bad Request Error",
-                    #             "message": "TRM is not enabled in the fabric settings. To enable TRM in VRF, you need to first enable it in the fabric settings.", # noqa: E501
-                    #             "timestamp": "2025-02-24 13:49:41.024",
-                    #             "status": "400"
-                    #         }
-                    #     },
-                    #     "invocation": {
-                    #         "module_args": {
-                    #             "method": "PUT",
-                    #             "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/nac-fabric2/vrfs/NaC-VRF01", # noqa: E501
-                    #             "data": "{\n    \"displayName\": \"NaC-VRF01\",\n    \"fabric\": \"nac-fabric2\",\n    \"hierarchicalKey\": \"nac-fabric2\",\n    \"vrfExtensionTemplate\": \"Default_VRF_Extension_Universal\",\n    \"vrfId\": \"150001\",\n    \"vrfName\": \"NaC-VRF01\",\n    \"vrfTemplate\": \"Default_VRF_Universal\",\n    \"vrfTemplateConfig\": \"{\\'asn\\': \\'65002\\', \\'nveId\\': \\'1\\', \\'vrfName\\': \\'NaC-VRF01\\', \\'vrfSegmentId\\': \\'150001\\', \\'vrfVlanId\\': \\'2001\\', \\'vrfVlanName\\': \\'\\', \\'vrfDescription\\': \\'Configured by Ansible NetAsCode\\', \\'vrfIntfDescription\\': \\'Configured by Ansible NetAsCode\\', \\'mtu\\': \\'9216\\', \\'tag\\': \\'12345\\', \\'vrfRouteMap\\': \\'FABRIC-RMAP-REDIST-SUBNET\\', \\'v6VrfRouteMap\\': \\'\\', \\'maxBgpPaths\\': \\'1\\', \\'maxIbgpPaths\\': \\'2\\', \\'ipv6LinkLocalFlag\\': \\'true\\', \\'enableL3VniNoVlan\\': \\'false\\', \\'enableBgpBestPathEcmp\\': \\'false\\', \\'advertiseHostRouteFlag\\': \\'false\\', \\'advertiseDefaultRouteFlag\\': \\'true\\', \\'configureStaticDefaultRouteFlag\\': \\'true\\', \\'bgpPassword\\': \\'\\', \\'bgpPasswordKeyType\\': \\'3\\', \\'ENABLE_NETFLOW\\': \\'false\\', \\'NETFLOW_MONITOR\\': \\'\\', \\'trmEnabled\\': True, \\'loopbackNumber\\': 1002, \\'rpAddress\\': \\'100.100.100.1\\', \\'isRPAbsent\\': False, \\'isRPExternal\\': False, \\'L3VniMcastGroup\\': \\'239.1.1.0\\', \\'multicastGroup\\': \\'224.0.0.0/4\\', \\'trmV6Enabled\\': \\'false\\', \\'rpV6Address\\': \\'\\', \\'isV6RPAbsent\\': \\'false\\', \\'isV6RPExternal\\': \\'false\\', \\'ipv6MulticastGroup\\': \\'\\', \\'disableRtAuto\\': \\'false\\', \\'routeTargetImport\\': \\'\\', \\'routeTargetExport\\': \\'\\', \\'routeTargetImportEvpn\\': \\'\\', \\'routeTargetExportEvpn\\': \\'\\', \\'routeTargetImportMvpn\\': \\'\\', \\'routeTargetExportMvpn\\': \\'\\', \\'mvpnInterAs\\': \\'false\\', \\'trmBGWMSiteEnabled\\': True}\",\n    \"vrfVlanId\": \"2001\"\n}" # noqa: E501
-                    #         }
-                    #     },
-                    #     "_ansible_parsed": true
-                    # }
-                    if ndfc_net_update.get('msg'):
-                        if ndfc_net_update['msg']['RETURN_CODE'] != 200:
-                            results['failed'] = True
-                            results['msg'] = f"For fabric {child_fabric}; {ndfc_net_update['msg']['DATA']['message']}"
+                        # Failed response:
+                        # {
+                        #     "failed": true,
+                        #     "msg": {
+                        #         "RETURN_CODE": 500,
+                        #         "METHOD": "PUT",
+                        #         "REQUEST_PATH": "https://10.15.0.110:443/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/nac-fabric1/networks/NaC-Net01", # noqa: E501
+                        #         "MESSAGE": "Internal Server Error",
+                        #         "DATA": {
+                        #             "path": "/rest/top-down/fabrics/nac-fabric1/networks/NaC-Net01",
+                        #             "Error": "Internal Server Error",
+                        #             "message": "Netflow not enabled in Fabric Settings",
+                        #             "timestamp": "2025-02-25 21:54:26.633",
+                        #             "status": "500"
+                        #         }
+                        #     },
+                        #     "invocation": {
+                        #         "module_args": {
+                        #             "method": "PUT",
+                        #             "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/nac-fabric1/networks/NaC-Net01", # noqa: E501
+                        #             "data": "{\n    \"displayName\": \"NaC-Net01\",\n    \"fabric\": \"nac-fabric1\",\n    \"hierarchicalKey\": \"nac-fabric1\",\n    \"networkExtensionTemplate\": \"Default_Network_Extension_Universal\",\n    \"networkId\": \"130001\",\n    \"networkName\": \"NaC-Net01\",\n    \"networkTemplate\": \"Default_Network_Universal\",\n    \"networkTemplateConfig\": \" {\\'vrfName\\': \\'NaC-VRF01\\', \\'networkName\\': \\'NaC-Net01\\', \\'vlanId\\': \\'2301\\', \\'vlanName\\': \\'NaC-Net01_vlan2301\\', \\'segmentId\\': \\'130001\\', \\'intfDescription\\': \\'Configured by Ansible NetAsCode\\', \\'gatewayIpAddress\\': \\'192.168.1.1/24\\', \\'gatewayIpV6Address\\': \\'\\', \\'mtu\\': \\'9216\\', \\'isLayer2Only\\': \\'false\\', \\'suppressArp\\': \\'false\\', \\'mcastGroup\\': \\'239.1.1.1\\', \\'tag\\': \\'12345\\', \\'secondaryGW1\\': \\'\\', \\'secondaryGW2\\': \\'\\', \\'secondaryGW3\\': \\'\\', \\'secondaryGW4\\': \\'\\', \\'loopbackId\\': \\'\\', \\'dhcpServerAddr1\\': \\'\\', \\'vrfDhcp\\': \\'\\', \\'dhcpServerAddr2\\': \\'\\', \\'vrfDhcp2\\': \\'\\', \\'dhcpServerAddr3\\': \\'\\', \\'vrfDhcp3\\': \\'\\', \\'ENABLE_NETFLOW\\': True, \\'SVI_NETFLOW_MONITOR\\': \\'\\', \\'VLAN_NETFLOW_MONITOR\\': \\'blah\\', \\'enableIR\\': \\'false\\', \\'trmEnabled\\': True, \\'igmpVersion\\': \\'2\\', \\'trmV6Enabled\\': \\'\\', \\'rtBothAuto\\': \\'false\\', \\'enableL3OnBorder\\': \\'false\\', \\'enableL3OnBorderVpcBgw\\': \\'false\\', \\'nveId\\': \\'1\\', \\'type\\': \\'Normal\\'}\",\n    \"type\": \"Normal\",\n    \"vrf\": \"NaC-VRF01\"\n}" # noqa: E501
+                        #         }
+                        #     },
+                        #     "_ansible_parsed": true
+                        # }
+                        if ndfc_net_update.get('msg'):
+                            if ndfc_net_update['msg']['RETURN_CODE'] != 200:
+                                results['failed'] = True
+                                results['msg'] = f"For fabric {child_fabric}; {ndfc_net_update['msg']['DATA']['message']}"
 
         return results
