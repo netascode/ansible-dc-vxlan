@@ -46,6 +46,7 @@ class PreparePlugin:
         model_data['vxlan']['topology']['border_gateway_super_spine'] = {}
         model_data['vxlan']['topology']['tor'] = {}
         model_data['vxlan']['topology']['core_router'] = {}
+        model_data['vxlan']['topology']['switch_resource'] = {}
         sm_switches = model_data['vxlan']['topology']['switches']
         for switch in sm_switches:
             # Build list of switch IP's based on role keyed by switch name
@@ -58,6 +59,12 @@ class PreparePlugin:
             v6ip = switch.get('management').get(v6_key)
             model_data['vxlan']['topology'][role][name][v4_key] = v4ip
             model_data['vxlan']['topology'][role][name][v6_key] = v6ip
+            serial_number = switch.get('serial_number')
+            model_data['vxlan']['topology']['switch_resource'][name] = {}
+            serial_number_key = 'serial_number'
+            model_data['vxlan']['topology']['switch_resource'][name][serial_number_key] = serial_number
+            model_data['vxlan']['topology']['switch_resource'][name][v4_key] = v4ip
+            model_data['vxlan']['topology']['switch_resource'][name][v6_key] = v6ip
 
         model_data = hostname_to_ip_mapping(model_data)
 
