@@ -47,17 +47,6 @@ class ActionModule(ActionBase):
         dm_policy_groups = model_data["vxlan"]["policy"]["groups"]
         dm_policy_switches = model_data["vxlan"]["policy"]["switches"]
 
-        # Build list of VRF Lites from data model if entries exist
-        # Used to exclude matching on VRF Lites as part of the unmanaged policies
-        vrf_lites = []
-        if model_data["vxlan"].get("overlay_extensions", None):
-            if model_data["vxlan"]["overlay_extensions"].get("vrf_lites", None):
-                dm_vrf_lites = model_data["vxlan"]["overlay_extensions"]["vrf_lites"]
-                for dm_vrf_lite in dm_vrf_lites:
-                    for dm_vrf_lite_switch in dm_vrf_lite["switches"]:
-                        unique_name = f"nac_{dm_vrf_lite['name']}_{dm_vrf_lite_switch['name']}"
-                        vrf_lites.append(unique_name)
-
         # For each switch current_sw_policies will be used to store a list of policies currently associated to the switch
         # For each switch that has unmanaged policies, the switch IP address and the list of unmanaged policies will be stored
         # This default dict is the start of what is required for the NDFC policy module
@@ -125,7 +114,7 @@ class ActionModule(ActionBase):
             # This check uses the prepended "nac_"
             # Additionally, as of now, check no matching policy is from the VRF Lite policy of the data model
             if any(
-                ((ndfc_policy_with_nac_desc["description"] not in current_sw_policies) and (ndfc_policy_with_nac_desc["description"] not in vrf_lites))
+                (ndfc_policy_with_nac_desc["description"] not in current_sw_policies)
                 for ndfc_policy_with_nac_desc in ndfc_policies_with_nac_desc
             ):
                 # If found, do the following:
@@ -167,7 +156,7 @@ class ActionModule(ActionBase):
                         "description": ndfc_policy_with_nac_desc["description"]
                     }
                     for ndfc_policy_with_nac_desc in ndfc_policies_with_nac_desc
-                    if ((ndfc_policy_with_nac_desc["description"] not in current_sw_policies) and (ndfc_policy_with_nac_desc["description"] not in vrf_lites))
+                    if (ndfc_policy_with_nac_desc["description"] not in current_sw_policies)
                 ]
 
                 # Update the dictionary entry for the last switch with the expected policies key the NDFC policy module expects

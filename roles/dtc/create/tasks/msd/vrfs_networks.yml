@@ -105,6 +105,7 @@
 - name: Manage NDFC Child Fabric VRFs
   cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
     msite_data: "{{ MD_Multisite}}"
+  register: child_fabric_vrf_results
 
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC
@@ -138,3 +139,7 @@
 # - name: Manage NDFC Child Fabric Networks
 #   cisco.nac_dc_vxlan.dtc.manage_child_fabric_networks:
 #     msite_data: "{{ MD_Multisite}}"
+#   register: child_fabric_network_results
+
+- ansible.builtin.set_fact:
+    child_fabrics_vrfs_networks_changed: "{{ child_fabric_vrf_results.child_fabrics_changed }}"
