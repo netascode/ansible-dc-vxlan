@@ -52,7 +52,7 @@
 
 - name: Build VRFs Attach List From Template
   ansible.builtin.template:
-    src: ndfc_attach_vrfs.j2
+    src: "{{ role_path }}/../common/templates/ndfc_attach_vrfs.j2"
     dest: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
 

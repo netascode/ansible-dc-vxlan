@@ -35,8 +35,7 @@ import json
 display = Display()
 
 # Path to Jinja template files relative to create role
-MSD_CHILD_FABRIC_VRF_TEMPLATE_CONFIG = "/../common/templates/ndfc_vrfs/msd_fabric/child_fabric/msd_child_fabric_vrf_template_config.j2"
-MSD_CHILD_FABRIC_VRF_TEMPLATE = "/../common/templates/ndfc_vrfs/msd_fabric/child_fabric/msd_child_fabric_vrf.j2"
+MSD_CHILD_FABRIC_NETWORK_TEMPLATE = "/../common/templates/ndfc_networks/msd_fabric/child_fabric/msd_child_fabric_network.j2"
 
 
 class ActionModule(ActionBase):
@@ -122,18 +121,16 @@ class ActionModule(ActionBase):
                     ndfc_net_response_data = ndfc_net['response']['DATA']
                     ndfc_net_net_template_config = json.loads(ndfc_net_response_data['networkTemplateConfig'])
 
-                    existing_net_config = ndfc_net_net_template_config
-
                     # Combine task_vars with local_vars for template rendering
                     net_vars = {}
                     net_vars.update({'vrf_vars': {}})
-                    net_vars['net_vars'] = {**network, **existing_net_config}
+                    net_vars['net_vars'] = {**network, **ndfc_net_net_template_config}
 
                     role_path = task_vars.get('role_path')
 
                     net_vars.update({'fabric_name': ndfc_net_response_data['fabric']})
 
-                    template_path = role_path + MSD_CHILD_FABRIC_VRF_TEMPLATE
+                    template_path = role_path + MSD_CHILD_FABRIC_NETWORK_TEMPLATE
 
                     # Attempt to find and read the template file
                     try:
