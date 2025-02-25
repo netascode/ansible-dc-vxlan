@@ -26,8 +26,6 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-from ansible.template import Templar
-from ansible.errors import AnsibleFileNotFound
 
 
 display = Display()
@@ -43,7 +41,6 @@ class ActionModule(ActionBase):
         fabrics = self._task.args["fabrics"]
 
         for fabric in fabrics:
-        
             ndfc_deploy = self._execute_module(
                 module_name="cisco.dcnm.dcnm_rest",
                 module_args={
