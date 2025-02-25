@@ -19,6 +19,21 @@ feature ospf
 feature bfd
 !
 {% endif %}
+vrf context {{ item.vrf }}
+  {% if switch_item.static_routes %}
+    {% for static_route in switch_item.static_routes %}
+      {% for next_hop in static_route.next_hops %}
+        {% if static_route.route_tag is defined and static_route.route_tag %}
+  ip route {{ static_route.prefix }} {{ next_hop.ip }} tag {{ static_route.route_tag }}
+        {% else %}
+  ip route {{ static_route.prefix }} {{ next_hop.ip }}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  {% endif %}
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
 !
 router ospf {{ item.ospf['process'] }}
   vrf {{ item.vrf }}

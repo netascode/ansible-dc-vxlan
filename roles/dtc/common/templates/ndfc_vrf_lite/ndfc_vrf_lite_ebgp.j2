@@ -10,7 +10,19 @@ feature bfd
   {% endfor %}
 !
 {% endif %}
-
+vrf context {{ item.vrf }}
+{% if switch_item.static_routes %}
+  {% for static_route in switch_item.static_routes %}
+    {% for next_hop in static_route.next_hops %}
+      {% if static_route.route_tag %}
+  ip route {{ static_route.prefix }} {{ next_hop.ip }} tag {{ static_route.route_tag }}
+      {% else %}
+  ip route {{ static_route.prefix }} {{ next_hop.ip }}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+!
+{% endif %}
 router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   vrf {{ item.vrf }}
   {% if switch_item.router_id %}

@@ -46,30 +46,3 @@
   cisco.dcnm.dcnm_fabric:
     state: merged
     config: "{{ vars_common_local.fabric_config }}"
-
-# Add Anycast RP after creating Fabric when manual_underlay_allocation is True.
-# This task will allocate the IP address used for the Anycast RP.
-#
-# Schema example:
-# ---
-# vxlan:
-#   underlay:
-#     general:
-#       anycast_rp: ip(required=False)
-
-- name: Create ANYCAST_RP {{ myvxlan.underlay.general.anycast_rp }} for {{ MD_Extended.vxlan.fabric.name }} in NDFC
-  cisco.dcnm.dcnm_resource_manager:
-    state: merged
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config:
-      - entity_name: "ANYCAST_RP"
-        pool_type: "IP"
-        pool_name: "ANYCAST_RP_IP_POOL"
-        scope_type: "fabric"
-        resource: "{{ myvxlan.underlay.general.anycast_rp }}"
-  when: MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined and MD_Extended.vxlan.underlay.general.manual_underlay_allocation == True
-  vars:
-    myvxlan:
-      underlay:
-        general:
-          anycast_rp: 30.250.250.254

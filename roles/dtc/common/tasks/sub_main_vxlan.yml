@@ -53,13 +53,6 @@
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
 # --------------------------------------------------------------------
-# Build Fabric resources List From Template
-# --------------------------------------------------------------------
-
-- name: Build Fabric resource List From Template
-  ansible.builtin.import_tasks: common/ndfc_fabric_resources.yml
-
-# --------------------------------------------------------------------
 # Build Fabric intra links for vpc peering From Template
 # --------------------------------------------------------------------
 
@@ -192,7 +185,6 @@
         changes_detected_link_vpc_peering: "{{ changes_detected_link_vpc_peering }}"
         changes_detected_networks: "{{ changes_detected_networks }}"
         changes_detected_policy: "{{ changes_detected_policy }}"
-        changes_detected_resource_manager: "{{ changes_detected_resource_manager }}"
         changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed }}"
         changes_detected_vpc_peering: "{{ changes_detected_vpc_peering }}"
         changes_detected_vrfs: "{{ changes_detected_vrfs }}"

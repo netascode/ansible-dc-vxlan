@@ -88,7 +88,7 @@ class POAPDevice:
     def check_preprovision_supported_switches(self) -> None:
         """
         ### Summary
-        Set self.preprovision_supported_switches to (True) if switches have
+        Set self.poap_supported_switches to (True) if switches have
         preprovision config enabled in the data model.
 
         """
@@ -186,8 +186,7 @@ class ActionModule(ActionBase):
         workflow.check_poap_supported_switches()
         workflow.check_preprovision_supported_switches()
 
-        # if workflow.poap_supported_switches and not workflow.preprovision_supported_switches:
-        if workflow.poap_supported_switches:
+        if workflow.poap_supported_switches and not workflow.preprovision_supported_switches:
             workflow.refresh()
 
             if workflow.refresh_succeeded:
@@ -212,11 +211,7 @@ class ActionModule(ActionBase):
                 # Since POAP is enabled on at least one device in the service
                 # model then we should not continue until we have POAP data
                 # from NDFC
-                # If POAP is enabled but all switches are already started, poap_data will be empty.
-                # In that case, we should ignored and continue the workflow.
-                # We can also check if the switch is already in the fabric and just ignore bootstrap for this switch in check_poap_supported_switches().
-                # We don't expect bootstrap in the data model, because bootstrap was already done.
-                # results['failed'] = True
+                results['failed'] = True
                 msg = "POAP is enabled on at least one switch in the service model but "
                 msg += "POAP bootstrap data is not yet available from NDFC. "
                 msg += "To disable poap on a device set (poap.boostrap) to (False) under (vxlan.topology.switches)"

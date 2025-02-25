@@ -35,29 +35,17 @@
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
-# Change save: false to avoid recalculate and deploy for manual resource allocation
-# Loopback interfaces should be allocated discovery before recalculate
 - name: Add NDFC Fabric Devices {{ MD_Extended.vxlan.fabric.name }}
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_local.updated_inv_config['updated_inv_list'] }}"
     deploy: false
-    save: false
+    save: true
     state: merged
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
   when: MD_Extended.vxlan.topology.switches | length > 0
-
-# Add Loopback (Routing, VTEP, P2P)
-# variable resource_config has been set during validation task.
-# This task is skipped if manual_underlay_allocation is not true.
-- name: Add resources from Data Model when underlay is manual
-  cisco.dcnm.dcnm_resource_manager:
-    state: merged
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ resource_config }}"
-  when: MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined and MD_Extended.vxlan.underlay.general.manual_underlay_allocation == True
 
 - name: Create List of Switch Serial Numbers from Data Model
   ansible.builtin.set_fact:
