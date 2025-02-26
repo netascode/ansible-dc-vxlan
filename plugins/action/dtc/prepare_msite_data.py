@@ -37,15 +37,11 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
-        results['current_associated_child_fabrics'] = []
-        results['child_fabrics_to_be_removed'] = []
-        results['child_fabrics_to_be_associated'] = []
-        results['end_state_associated_child_fabrics'] = []
         results['child_fabrics_data'] = {}
+        results['overlay_attach_groups'] = {}
 
         model_data = self._task.args["model_data"]
         parent_fabric = self._task.args["parent_fabric"]
-        child_fabrics = self._task.args["child_fabrics"]
 
         # This is actaully not an accurrate API endpoint as it returns all fabrics in NDFC, not just the fabrics associated with MSD
         # Therefore, we need to get the fabric associations response and filter out the fabrics that are not associated with the parent fabric (MSD)
@@ -64,34 +60,6 @@ class ActionModule(ActionBase):
         for fabric in msd_fabric_associations.get('response').get('DATA'):
             if fabric.get('fabricParent') == parent_fabric:
                 associated_child_fabrics.append(fabric.get('fabricName'))
-
-        # Can probably remove this as I don't think it will be used
-        results['current_associated_child_fabrics'] = associated_child_fabrics
-
-        # Build a list of child fabrics that are to be removed from the parent fabric (MSD)
-        child_fabrics_list = [child_fabric['name'] for child_fabric in child_fabrics]
-        child_fabrics_to_be_removed = []
-        child_fabric_to_be_removed = [fabric for fabric in associated_child_fabrics if fabric not in child_fabrics_list]
-        child_fabrics_to_be_removed = child_fabrics_to_be_removed + child_fabric_to_be_removed
-
-        results['child_fabrics_to_be_removed'] = child_fabrics_to_be_removed
-
-        # Build a list of desired child fabrics that are not associated with the parent fabric (MSD)
-        child_fabrics_to_be_associated = []
-        for fabric in child_fabrics:
-            if fabric.get('name') not in associated_child_fabrics:
-                child_fabrics_to_be_associated.append(fabric.get('name'))
-
-        results['child_fabrics_to_be_associated'] = child_fabrics_to_be_associated
-
-        # Merge the lists of currently associated child fabrics and child fabrics to be associated
-        # The assumption here is that the child fabric(s) that will be associated with the parent fabric (MSD)
-        # in the create role will either be sucessful and we have the prepared data to work with or
-        # the association will fail, resulting in runtime execution stopping, thus it doens't matter what prepared data we have.
-        associated_child_fabrics = associated_child_fabrics + child_fabrics_to_be_associated
-
-        # Can probably remove this as I don't think it will be used
-        results['end_state_associated_child_fabrics'] = associated_child_fabrics
 
         # Get the fabric attributes and switches for each child fabric
         # These queries are potentially trying to get data for a fabric that is not associated with the parent fabric (MSD) yet

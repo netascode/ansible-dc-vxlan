@@ -42,18 +42,15 @@
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
 {# Don't need to attach vrfs if there are no msd_switches #}
-{% if msd_switches|length > 0 %}
 {% if net['network_attach_group'] is defined %}
   attach:
-{% if MD_Extended.vxlan.multisite.overlay.network_attach_groups_dict is defined and MD_Extended.vxlan.multisite.overlay.network_attach_groups_dict %}
-{% set network_attach_groups_dict = MD_Extended.vxlan.multisite.overlay.network_attach_groups_dict %}
+{% if MD_Multisite.overlay_attach_groups.network_attach_groups_dict is defined and MD_Multisite.overlay_attach_groups.network_attach_groups_dict %}
+{% set network_attach_groups_dict = MD_Multisite.overlay_attach_groups.network_attach_groups_dict %}
 {% endif %}
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
-    - ip_address: {{ msd_switches[attach['hostname']] }}
+    - ip_address: {{ attach['mgmt_ip_address'] }}
       ports: {{ attach['ports'] }}
 {% endfor %}
   deploy: false
 {% endif %}
-{% endif %}
-
 {% endfor %}

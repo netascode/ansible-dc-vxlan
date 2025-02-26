@@ -20,12 +20,12 @@
 #    - VRF / Network problem when child fabrics moved under MSD but MSD level VRF/Net model data is empty
 #      (Result is all VRF/Networks are removed after they get moved under MSD - can be controlled with flag)
 
-- name: Prepare Multisite Data
-  cisco.nac_dc_vxlan.dtc.prepare_msite:
+- name: Prepare Multisite Add and Remove Child Fabric Data
+  cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data:
     model_data: "{{ MD_Extended }}"
     parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     child_fabrics: "{{ MD_Extended.vxlan.multisite.child_fabrics }}"
   when: 
     - MD_Extended.vxlan.multisite.child_fabrics is defined
     - MD_Extended.vxlan.multisite.child_fabrics
-  register: MD_Msite
+  register: MD_Multisite_Child_Fabrics

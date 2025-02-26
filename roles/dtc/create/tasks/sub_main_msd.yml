@@ -45,10 +45,16 @@
   when:
     - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
 
+- name: Prepare Multisite Data
+  cisco.nac_dc_vxlan.dtc.prepare_msite_data:
+    model_data: "{{ MD_Extended }}"
+    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+  register: MD_Multisite
+
 - name: Manage NDFC MSD Fabric VRFs and Networks
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
   when: 
     - MD_Extended.vxlan.multisite.overlay is defined
     - MD_Extended.vxlan.multisite.overlay
-    - (vars_common_msd.changes_detected_vrfs or vars_common_msd.changes_detected_networks)
+    # - (vars_common_msd.changes_detected_vrfs or vars_common_msd.changes_detected_networks)
   tags: "{{ nac_tags.create_vrfs_networks }}"

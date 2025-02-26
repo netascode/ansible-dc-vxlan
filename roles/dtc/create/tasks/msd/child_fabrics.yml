@@ -28,41 +28,10 @@
       - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-# - name: Get Fabric Association Data from NDFC
-#   cisco.dcnm.dcnm_rest:
-#     method: GET
-#     path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
-#   register: fabric_associations
-
-# - ansible.builtin.debug:
-#     var: fabric_associations
-
 - name: Add Child Fabrics To Fabric - {{ MD_Extended.vxlan.fabric.name }}
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
     parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    child_fabrics: "{{ MD_Msite.child_fabrics_to_be_associated }}"
+    child_fabrics: "{{ MD_Multisite_Child_Fabrics.to_be_added }}"
     state: present
-  when: 
-    - MD_Msite.child_fabrics_to_be_associated is defined
-    - MD_Msite.child_fabrics_to_be_associated
-  # register: managed_child_fabrics
-
-# - name: Set Associated Child Fabric Attribute Data
-#   ansible.builtin.set_fact:
-#     associated_child_fabric_data: "{{ child_fabric_results.child_fabric_data }}"
-#   when: child_fabric_results is defined and child_fabric_results
-
-# - ansible.builtin.debug:
-#     var: managed_child_fabrics
-
-# - name: Prepare Multisite Data
-#   cisco.nac_dc_vxlan.dtc.prepare_msite:
-#     model_data: "{{ MD_Extended }}"
-#     associated_child_fabrics: "{{ managed_child_fabrics.associated_child_fabrics }}"
-#   when: managed_child_fabrics.associated_child_fabrics is defined and managed_child_fabrics.associated_child_fabrics
-#   register: MD_Msite
-
-# - ansible.builtin.debug:
-#     var: MD_Msite
-
-# - ansible.builtin.meta: end_play
+  when:
+    - MD_Multisite_Child_Fabrics.to_be_added is defined and MD_Multisite_Child_Fabrics.to_be_added | length > 0

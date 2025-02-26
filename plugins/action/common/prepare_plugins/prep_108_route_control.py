@@ -103,7 +103,8 @@ class PreparePlugin:
                                 }
                             }
 
-                            model_data["vxlan"]["policy"]["policies"].append(new_policy)
+                            if not any(policy['name'] == unique_name for policy in model_data["vxlan"]["policy"]["policies"]):
+                                model_data["vxlan"]["policy"]["policies"].append(new_policy)
 
                             if any(sw['name'] == switch['name'] for sw in model_data["vxlan"]["policy"]["switches"]):
                                 found_switch = next(([idx, i] for idx, i in enumerate(
@@ -121,7 +122,7 @@ class PreparePlugin:
                                 }
                                 model_data["vxlan"]["policy"]["switches"].append(new_switch)
 
-                            if not any(group['name'] == sw_group for group in model_data["vxlan"]["policy"]["groups"]):
+                            if not any(group['name'] == unique_name for group in model_data["vxlan"]["policy"]["groups"]):
                                 new_group = {
                                     "name": unique_name,
                                     "policies": [

@@ -39,9 +39,11 @@
 - name: Import MSD Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   when: >
-    (MD_Extended.vxlan.fabric.type == 'MSD') and
-    (vars_common_msd.changes_detected_vrfs) or
-    (vars_common_msd.changes_detected_networks)
+    MD_Extended.vxlan.fabric.type == 'MSD'
+  # when: >
+  #   (MD_Extended.vxlan.fabric.type == 'MSD') and
+  #   (vars_common_msd.changes_detected_vrfs) or
+  #   (vars_common_msd.changes_detected_networks)
 
 - name: Import ISN Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
