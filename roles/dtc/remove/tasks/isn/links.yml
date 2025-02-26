@@ -39,7 +39,6 @@
 #     - switch_list.response.DATA | length > 0
 #     - (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
 
-
 - block:
   - ansible.builtin.debug: msg="Removing Unmanaged Fabric Links. This could take several minutes..."
 

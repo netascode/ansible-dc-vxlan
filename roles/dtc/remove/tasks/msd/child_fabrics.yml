@@ -26,15 +26,6 @@
     - MD_Extended.vxlan.multisite.child_fabrics is defined
     - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
 
-# - name: Get Fabric Association Data from NDFC
-#   cisco.dcnm.dcnm_rest:
-#     method: GET
-#     path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
-#   register: fabric_associations
-#   when:
-#     - MD_Extended.vxlan.multisite.child_fabrics is defined
-#     - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
-
 - name: Remove Unmanaged Child Fabrics from NDFC
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
     parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
