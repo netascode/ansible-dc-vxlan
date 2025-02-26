@@ -31,9 +31,6 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
 
-        # if model_data['vxlan']['fabric']['type'] == 'ISN':
-        #     return self.kwargs['results']
-
         # Check if vxlan.topology is defined
         if model_data.get('vxlan').get('topology') is not None:
             model_data['vxlan']['topology'] = model_data.get('vxlan').get('topology', {})
