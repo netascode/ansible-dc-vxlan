@@ -1,8 +1,8 @@
-{# Auto-generated NDFC DC VXLAN EVPN Base config data structure for fabric {{ vxlan.global.name }} #}
+{# Auto-generated NDFC DC VXLAN EVPN Base config data structure for fabric {{ vxlan.fabric.name }} #}
 {% import 'ndfc_utils.j2' as ndfc_utils with context %}
-- FABRIC_NAME: {{ global.name }}
-  FABRIC_TYPE: {{ fabric_type }}
-  DEPLOY: True
+- FABRIC_NAME: {{ vxlan.fabric.name }}
+  FABRIC_TYPE: {{ vxlan.fabric.type }}
+  DEPLOY: False
 
 {# Include NDFC DC VXLAN EVPN General Template #}
 {% include '/ndfc_fabric/dc_vxlan_fabric/general/dc_vxlan_fabric_general.j2' %}

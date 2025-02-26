@@ -1,0 +1,57 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+---
+
+- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.remove]
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.remove]           +"
+      - "----------------------------------------------------------------"
+  tags: "{{ nac_tags.remove }}" # Tags defined in roles/common_global/vars/main.yml
+
+- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+  tags: "{{ nac_tags.remove }}"
+
+- name: Get List of Fabric Switches from NDFC
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
+  register: switch_list
+  tags: "{{ nac_tags.remove }}"
+
+- name: Remove Fabric Policy
+  ansible.builtin.import_tasks: common/policy.yml
+  tags: "{{ nac_tags.remove_policy }}"
+  when:
+    - vars_common_external.changes_detected_policy
+
+- name: Remove Fabric Interfaces
+  ansible.builtin.import_tasks: common/interfaces.yml
+  tags: "{{ nac_tags.remove_interfaces }}"
+  when:
+    - vars_common_external.changes_detected_interfaces
+
+- name: Remove Fabric Switches
+  ansible.builtin.import_tasks: common/switches.yml
+  tags: "{{ nac_tags.remove_switches }}"
+  when:
+    - vars_common_external.changes_detected_inventory

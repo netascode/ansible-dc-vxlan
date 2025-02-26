@@ -1,0 +1,19 @@
+{# Auto-generated NDFC ISN Base config data structure for fabric {{ vxlan.fabric.name }} #}
+- FABRIC_NAME: {{ vxlan.fabric.name }}
+  FABRIC_TYPE: ISN
+  DEPLOY: False
+
+{# Include NDFC ISN General Template #}
+{% include '/ndfc_fabric/isn_fabric/general/isn_fabric_general.j2' %}
+
+{# Include NDFC ISN Advanced Template #}
+{% include '/ndfc_fabric/isn_fabric/advanced/isn_fabric_advanced.j2' %}
+
+{# Include NDFC ISN Resources Template #}
+{% include '/ndfc_fabric/isn_fabric/resources/isn_fabric_resources.j2' %}
+
+{# Include NDFC ISN Bootstrap Template #}
+{% include '/ndfc_fabric/isn_fabric/bootstrap/isn_fabric_bootstrap.j2' %}
+
+{# Include NDFC ISN Flow Monitor Template #}
+{% include '/ndfc_fabric/isn_fabric/flow_monitor/isn_fabric_flow_monitor.j2' %}
