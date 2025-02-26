@@ -57,7 +57,7 @@
   - name: Create a list of links that already exist
     cisco.nac_dc_vxlan.dtc.links_filter_and_remove:
       existing_links: "{{ result_links.response }}"
-      fabric_links: "{{ vars_common_vxlan.fabric_links }}"
+      fabric_links: "{{ vars_common_isn.fabric_links }}"
     register: links_to_be_removed
     when: result_links.response is defined
 
