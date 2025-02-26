@@ -24,7 +24,7 @@
 - ansible.builtin.debug: msg="Removing Unmanaged Child Fabrics. This could take several minutes..."
   when:
     - MD_Extended.vxlan.multisite.child_fabrics is defined
-    - (child_fabric_delete_mode is defined) and (child_fabric_delete_mode is true|bool)
+    - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
 
 # - name: Get Fabric Association Data from NDFC
 #   cisco.dcnm.dcnm_rest:
@@ -33,7 +33,7 @@
 #   register: fabric_associations
 #   when:
 #     - MD_Extended.vxlan.multisite.child_fabrics is defined
-#     - (child_fabric_delete_mode is defined) and (child_fabric_delete_mode is true|bool)
+#     - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
 
 - name: Remove Unmanaged Child Fabrics from NDFC
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
@@ -43,11 +43,11 @@
   when:
     - MD_Multisite_Child_Fabrics.to_be_removed is defined
     - MD_Multisite_Child_Fabrics.to_be_removed
-    - (child_fabric_delete_mode is defined) and (child_fabric_delete_mode is true|bool)
+    - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
 
 - ansible.builtin.debug:
     msg:
       - "---------------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Child Fabrics task because child_fabric_delete_mode flag is set to False           +"
+      - "+ SKIPPING Remove Unmanaged Child Fabrics task because multisite_child_fabric_delete_mode flag is set to False           +"
       - "---------------------------------------------------------------------------------------------------------------"
-  when: not ((child_fabric_delete_mode is defined) and (child_fabric_delete_mode is true|bool))
+  when: not ((multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool))
