@@ -50,11 +50,9 @@ class ActionModule(ActionBase):
         # Iterate over each item in the data list
         for item in edge_connections:
             ip = item['ip']
-            
             # If the IP is not already a key in the dictionary, add it with an empty list
             if ip not in restructured_edge_connections:
                 restructured_edge_connections[ip] = []
-            
             # Iterate over each policy and collect the descriptions
             for policy in item['policies']:
                 description = policy['description']
@@ -70,20 +68,14 @@ class ActionModule(ActionBase):
             # Also if a match, set the IP mgmt information for the current switch found
             
             for ip in restructured_edge_connections:
-
                 if ndfc_sw["ipAddress"] == ip:
                     # print(ndfc_sw)
-
-                # Query NDFC for the current switch's serial number to get back any policy that exists for that switch
-                # with the description prepended with "nac_"
+                    # Query NDFC for the current switch's serial number to get back any policy that exists for that switch
+                    # with the description prepended with "nac_"
                     ndfc_policies_with_edge_desc = ndfc_get_switch_policy_using_desc(self, task_vars, tmp, ndfc_sw["serialNumber"], "edge_")
-
                     # print(ndfc_policies_with_edge_desc)
                     for policy in ndfc_policies_with_edge_desc:
-                        print(policy['description']) 
-                        print(restructured_edge_connections[ip])
                         if policy['description'] not in restructured_edge_connections[ip]:
-
                             unmanaged_edge_connections[0]["switch"].append(
                                 {
                                     "ip": ip
@@ -91,40 +83,31 @@ class ActionModule(ActionBase):
                             )
                             # Grab the last index of a switch added
                             last_idx = len(unmanaged_edge_connections[0]["switch"]) - 1
-
                             # Since initially found there is indeed an unmananged policy, build a list of unmanaged policy
                             _unmanaged_edge_connections = [
                                 {
                                     "name": policy["policyId"],
                                     "description": policy["description"]
                                 }
-
                             ]
-
                             # Update the dictionary entry for the last switch with the expected policies key the NDFC policy module expects
                             unmanaged_edge_connections[0]["switch"][last_idx].update(
                                 {
                                     "policies": _unmanaged_edge_connections
                                 }
                             )
-
-
                 # Currently, check two things to determine an unmanaged policy:
                 # Check no matching policy in the data model against the policy returned from NDFC for the current switch
                 # This check uses the prepended "nac_"
                 # Additionally, as of now, check no matching policy is from the VRF Lite policy of the data model
-                
-
                         # If found, do the following:
                         # Update Ansible result status
                         # Add the switch to unmanaged_policies payload
                         # Get the last index of where the switch was added
                         # Build specific unmanaged policy entry
                         # Add unmanaged policy entry to last switch added to list
-
                         # Update Ansible for a configuration change
                             results['changed'] = True
-
                         # Update unmanaged_policies with the IP address of the switch that now has unmanaged policy
                         # The NDFC policy module can take a list of various dictionaries with the switch key previously being pre-stored
                         # Given this, each update the switch element with a new switch entry is the zeroth reference location always in unmanaged_policies

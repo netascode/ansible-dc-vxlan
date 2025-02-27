@@ -8,6 +8,7 @@ plugins/action/common/prepare_plugins/prep_105_topology_interfaces.py action-plu
 plugins/action/common/prepare_plugins/prep_106_topology_vpc_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_107_vrf_lites.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_108_route_control.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_118_topology_edge_connections.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_999_verify.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/get_credentials.py action-plugin-docs # action plugin has no matching module to provide documentation
@@ -28,6 +29,7 @@ plugins/action/dtc/diff_model_changes.py action-plugin-docs # action plugin has 
 plugins/action/dtc/update_switch_hostname_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/links_filter_and_remove.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/unmanaged_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/unmanaged_edge_connections.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/get_poap_data.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/map_msd_inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/existing_links_check.py action-plugin-docs # action plugin has no matching module to provide documentation
