@@ -23,6 +23,7 @@ Added
     * Support for ISN Child Fabric
     * Support for MSD Parent Fabric
     * Support for new multisite child fabric, vrf and network delete mode protection flags
+    * Only MSD is supported for MultiSite deployments.  MFD will be supported in a future release.
 * NEW Feature: Support for managing inter-fabric links and External fabrics with ansible tag support to limit execution
 * Enhanced data model validation and preprocessing
 * Added new model keys for defining fabric ``name`` and ``type``
@@ -34,13 +35,13 @@ Example:
     vxlan:
         fabric:
             name: nac-fabric1
-            type: VXLAN_EVPN
+            type: VXLAN_EVPN # Other allowed fabric types: MSD, ISN, External
         global:
             # name: nac-fabric1
             # fabric_type: VXLAN_EVPN
 
 
-The ``name`` and ``fabric` keys under ``vxlan.global`` are still supported but will be deprecated in future releases.
+The ``name`` and ``fabric`` keys under ``vxlan.global`` are still supported but will be deprecated in future releases.
 
 Modified
 --------
