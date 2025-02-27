@@ -66,7 +66,7 @@ class ActionModule(ActionBase):
             # Check if the serial number from NDFC matches any serial number for a switch in the data model
             # If found, grab the specific switch entry from the data model
             # Also if a match, set the IP mgmt information for the current switch found
-            
+
             for ip in restructured_edge_connections:
                 if ndfc_sw["ipAddress"] == ip:
                     # print(ndfc_sw)
