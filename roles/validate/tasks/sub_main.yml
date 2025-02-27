@@ -30,7 +30,7 @@
 
 - ansible.builtin.debug: msg="Role Path - {{ role_path }}"
 
-- ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
+- ansible.builtin.debug: msg="Playbook Directory - {{ playbook_dir }}"
 
 - name: Validate NDFC Service Model Data
   ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
@@ -70,7 +70,7 @@
     mdata: "{{ data_path }}"
     rules: "{{ enhanced_rules_path }}"
   vars:
-    data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+    data_path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
   when: enhanced_rules_path is defined and enhanced_rules_path
   delegate_to: localhost
 
