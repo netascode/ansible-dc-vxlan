@@ -26,7 +26,7 @@
 #  from ..helper_functions import do_something
 
 root_key = 'vxlan'
-model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MCF': {}, 'ISN': {}}
+model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MCF': {}, 'ISN': {}, 'External': {}}
 
 # VXLAN_EVPN KEYS
 
