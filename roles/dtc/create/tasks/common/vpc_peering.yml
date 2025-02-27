@@ -1,0 +1,68 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+---
+
+- name: Choose vars_common Based On Fabric Type
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_msd }}"
+  when: MD_Extended.vxlan.fabric.type == "MSD"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_isn }}"
+  when: MD_Extended.vxlan.fabric.type == "ISN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_external }}"
+  when: MD_Extended.vxlan.fabric.type == "External"
+
+- name: Manage Fabric vPC Peers Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage Fabric vPC Peers {{ MD_Extended.vxlan.fabric.name }}"
+      - "----------------------------------------------------------------"
+
+# --------------------------------------------------------------------
+# Manage Intra Fabric Links Configuration on NDFC (prepare links for vpc peering)
+# --------------------------------------------------------------------
+
+- name: Manage Intra Fabric Links for vpc peering
+  cisco.dcnm.dcnm_links:
+    state: replaced
+    src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    config: "{{ vars_common_local.link_vpc_peering }}"
+  vars:
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
+  when: link_vpc_peering|length != 0
+
+# --------------------------------------------------------------------
+# Manage vPC Peering
+# --------------------------------------------------------------------
+
+- name: Manage vPC Peering
+  cisco.dcnm.dcnm_vpc_pair:
+    src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    deploy: false
+    state: replaced
+    config: "{{ vars_common_local.vpc_peering }}"

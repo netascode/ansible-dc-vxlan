@@ -21,7 +21,7 @@
 
 ---
 vxlan:
-  overlay_services:
+  overlay:
     vrfs: []
 
     vrf_attach_groups: []

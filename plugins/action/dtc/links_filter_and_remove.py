@@ -40,11 +40,13 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         existing_links = self._task.args['existing_links']
         fabric_links = self._task.args['fabric_links']
+
         required_links = []
         links_to_be_removed = []
         filtered_existing_links = []
         for existing_link in existing_links:
-            if existing_link['templateName'] == "int_pre_provision_intra_fabric_link":
+            # Cannot assume the existing_link has the 'templateName' key so use get for safety
+            if existing_link.get('templateName') == "int_pre_provision_intra_fabric_link":
                 filtered_existing_links.append(existing_link)
                 for link in fabric_links:
                     if ('sw1-info' in existing_link and 'sw2-info' in existing_link and

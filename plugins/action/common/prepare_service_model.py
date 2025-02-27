@@ -85,6 +85,11 @@ class ActionModule(ActionBase):
                 templates_path=tp,
                 results=results).prepare()
 
+            if results.get('failed'):
+                # Check each plugin for failures and break out of the loop early
+                # if a failure is encounterd.
+                break
+
         if results['failed']:
             # If there is a failure, remove the model data to make the failure message more readable
             results_copy = results.copy()
