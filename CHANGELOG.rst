@@ -8,6 +8,46 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.4.0`_
+=====================
+
+**Release Date:** ``2025-02-28``
+
+Added
+-----
+
+* NEW Feature: Support for data model defined policy based VRF-LITE
+* NEW Feature: Support for data model defined policy based Route-Control
+* NEW Feature: Support for Multi-Site Domain (MSD)
+    * Support for VXLAN Child Fabric
+    * Support for ISN Child Fabric
+    * Support for MSD Parent Fabric
+    * Support for new multisite child fabric, vrf and network delete mode protection flags
+* NEW Feature: Support for managing inter-fabric links and External fabrics with ansible tag support to limit execution
+* Enhanced data model validation and preprocessing
+* Added new model keys for defining fabric ``name`` and ``type``
+
+Example:
+
+.. code-block:: yaml
+
+    vxlan:
+        fabric:
+            name: nac-fabric1
+            type: VXLAN_EVPN
+        global:
+            # name: nac-fabric1
+            # fabric_type: VXLAN_EVPN
+
+
+The ``name`` and ``fabric` keys under ``vxlan.global`` are still supported but will be deprecated in future releases.
+
+Modified
+--------
+
+* Updated model key ``vxlan.overlay_services`` to be ``vxlan.overlay`` (backwards compatible)
+
+
 `0.3.0`_
 =====================
 
@@ -102,6 +142,7 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.4.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.3.0...0.4.0
 .. _0.3.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.2.0...0.3.0
 .. _0.2.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.1.0...0.2.0
 .. _0.1.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.1.0...0.1.0
