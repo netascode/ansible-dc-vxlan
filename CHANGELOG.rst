@@ -47,6 +47,24 @@ Modified
 
 * Updated model key ``vxlan.overlay_services`` to be ``vxlan.overlay`` (backwards compatible)
 
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/234
+* https://github.com/netascode/ansible-dc-vxlan/issues/235
+* https://github.com/netascode/ansible-dc-vxlan/issues/236
+* https://github.com/netascode/ansible-dc-vxlan/issues/237
+* https://github.com/netascode/ansible-dc-vxlan/issues/243
+* https://github.com/netascode/ansible-dc-vxlan/issues/246
+* https://github.com/netascode/ansible-dc-vxlan/issues/252
+* https://github.com/netascode/ansible-dc-vxlan/issues/253
+* https://github.com/netascode/ansible-dc-vxlan/issues/256
+* https://github.com/netascode/ansible-dc-vxlan/issues/259
+* https://github.com/netascode/ansible-dc-vxlan/issues/265
+* https://github.com/netascode/ansible-dc-vxlan/issues/270
+* https://github.com/netascode/ansible-dc-vxlan/issues/272
+* https://github.com/netascode/ansible-dc-vxlan/issues/276
+
 
 `0.3.0`_
 =====================
