@@ -26,7 +26,7 @@ Role: [cisco.nac_dc_vxlan.validate](https://github.com/netascode/ansible-dc-vxla
 
 The `validate` role ensures that the data model is correct and that the data model can be processed by the subsequent roles. The validate role reads all the files in the `host_vars` directory and creates a single data model in memory for execution.
 
-As part of the VXLAN as Code service from Cisco, you will also be able to utilize the semantic validation feature to make sure that the data model matches the intended expected values. This is a powerful feature that allows you to ensure that the data model is correct before it is deployed to the network. Additonally the validate role allows creation of rules that can be used to prevent operators from making specific configurations that are not allowed in the network. These can be as simple as enforcing proper naming conventions to more complex rules for interconnectivity issues that should be avoided. These rules are coded in Python and can be constructed as part of the Services as Code offer. 
+As part of the VXLAN as Code service from Cisco, you will also be able to utilize the semantic validation feature to make sure that the data model matches the intended expected values. This is a powerful feature that allows you to ensure that the data model is correct before it is deployed to the network. Additonally the validate role allows creation of rules that can be used to prevent operators from making specific configurations that are not allowed in the network. These can be as simple as enforcing proper naming conventions to more complex rules for interconnectivity issues that should be avoided. These rules are coded in Python and can be constructed as part of the Services as Code offer.
 
 ### Create Role
 
@@ -49,8 +49,7 @@ The `remove` role removes state from the NDFC controller and the devices managed
 Inside the [example repository](https://github.com/netascode/ansible-dc-vxlan-example) under `group_vars/ndfc` is a file called `ndfc.yaml` that contains the variables:
 
 ```yaml
-# Control Parameters for 'Remove' role tasks
-child_fabric_delete_mode: false
+# Control Parameters for 'Remove' role tasks in VXLAN EVPN fabric
 interface_delete_mode: false
 inventory_delete_mode: false
 link_fabric_delete_mode: false
@@ -61,6 +60,11 @@ network_delete_mode: false
 policy_delete_mode: false
 vpc_delete_mode: false
 vrf_delete_mode: false
+
+# Control Parameters for 'Remove' role tasks in Multisite fabric
+multisite_child_fabric_delete_mode: false
+multisite_network_delete_mode: false
+multisite_vrf_delete_mode: false
 ```
 
 > [!WARNING]
@@ -81,10 +85,11 @@ The following control variables are available in this collection.
 | Variable | Description | Default Value |
 | -------- | ------- | ------- |
 | `child_fabric_delete_mode` | Remove child fabric from MSD|MCF fabric as part of the remove role | `false` |
-| `force_run_all` | Force all roles in the collection to run | `false` | 
+| `force_run_all` | Force all roles in the collection to run | `false` |
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
+| `multisite_child_fabric_delete_mode` | Remove child fabric from MSD|MCF fabric as part of the remove role | `false` |
 | `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD and MCF) fabrics | `false` |
 | `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD and MCF) fabrics | `false` |
 | `network_delete_mode` | Remove network state as part of the remove role | `false` |
@@ -162,7 +167,7 @@ If you wish to install the galaxy collection inside the repository you are creat
 ansible-galaxy collection install -p collections/ansible_collections/ -r requirements.yaml
 ```
 
-The `ansible.cfg` file needs to be configured to point to the location of the collection. 
+The `ansible.cfg` file needs to be configured to point to the location of the collection.
 
 This is the path for all the python modules and libraries of the virtual environment that were created. If you look in that directory, you will find the collections package locations. Here is the base ansible.cfg, you will need to adjust the collections_path to your environment paths:
 
@@ -184,7 +189,7 @@ bin_ansible_callbacks = True
 
 #### Step 6 - Verify the Installation
 
-Verify that the ansible configuration file is being read and all the paths are correct inside of this virtual environment. 
+Verify that the ansible configuration file is being read and all the paths are correct inside of this virtual environment.
 
 ```bash
 ansible --version

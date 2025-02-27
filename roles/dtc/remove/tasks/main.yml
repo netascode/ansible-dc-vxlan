@@ -27,14 +27,13 @@
   # Was not there previously
   when: >
     (MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN') and
-    (vars_common_vxlan.changes_detected_inventory) or
-    (vars_common_vxlan.changes_detected_vpc_peering) or
-    (vars_common_vxlan.changes_detected_interfaces) or
-    (vars_common_vxlan.changes_detected_link_vpc_peering) or
-    (vars_common_vxlan.changes_detected_vrfs) or
-    (vars_common_vxlan.changes_detected_networks)
-
-  # (vars_common_vxlan.changes_detected_policy)
+    (vars_common_vxlan.changes_detected_fabric_links or
+    vars_common_vxlan.changes_detected_interfaces or
+    vars_common_vxlan.changes_detected_inventory or
+    vars_common_vxlan.changes_detected_networks or
+    vars_common_vxlan.changes_detected_policy or
+    vars_common_vxlan.changes_detected_vpc_peering or
+    vars_common_vxlan.changes_detected_vrfs)
 
 - name: Import MSD Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
@@ -54,7 +53,18 @@
   ansible.builtin.import_tasks: sub_main_isn.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'ISN') and
-    (vars_common_isn.changes_detected_inventory)
+    (vars_common_isn.changes_detected_fabric_links or
+    vars_common_isn.changes_detected_interfaces or
+    vars_common_isn.changes_detected_inventory or
+    vars_common_isn.changes_detected_policy)
+
+- name: Import External Role Tasks
+  ansible.builtin.import_tasks: sub_main_external.yml
+  when: >
+    (MD_Extended.vxlan.fabric.type == 'External') and
+    (vars_common_external.changes_detected_interfaces or
+    vars_common_external.changes_detected_inventory or
+    vars_common_external.changes_detected_policy)
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:

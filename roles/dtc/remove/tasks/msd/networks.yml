@@ -22,8 +22,32 @@
 
 - ansible.builtin.debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
   when:
-    - switch_list.response.DATA | length > 0
     - (multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true|bool)
+
+- name: Run dtc.common.tasks.msd.ndfc_networks.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_networks.yml"
+
+# --------------------------------------------------------------------
+# Update Local Variables To NameSpace Dict For Use Elsewhere
+# --------------------------------------------------------------------
+- name: Update Local Variables With Namespace Context
+  ansible.builtin.set_fact:
+    vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
+  vars:
+    update_data:
+        changes_detected_networks: "{{ changes_detected_networks }}"
+        net_config: "{{ net_config }}"
+
+- name: Run Diff Flags
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
+      - "+     Networks Changes Detected -             [ {{ vars_common_msd.changes_detected_networks }} ]"
+      - "+     ----- Run Map -----"
+      - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
+      - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
+      - "----------------------------------------------------------------"
 
 - name: Remove Unmanaged Fabric Networks
   cisco.dcnm.dcnm_network:
@@ -34,8 +58,9 @@
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
   when:
-    - switch_list.response.DATA | length > 0
-    - (multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true|bool)
+    - multisite_network_delete_mode is defined
+    - multisite_network_delete_mode is true | bool
+    - vars_common_msd.changes_detected_networks
 
 - ansible.builtin.debug:
     msg:

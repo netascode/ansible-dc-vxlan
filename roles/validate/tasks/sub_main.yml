@@ -60,7 +60,7 @@
     rules: "{{ rules_path }}"
   register: model_data
   vars:
-    data_path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
+    data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
     rules_path: "{{ role_path }}/files/rules/"
   delegate_to: localhost
 
@@ -119,7 +119,7 @@
 
 - name: Check Roles
   cisco.nac_dc_vxlan.common.check_roles:
-    role_list: "{{ role_names }}"
+    role_list: "{{ ansible_play_role_names }}"
   register: check_roles
   delegate_to: localhost
 

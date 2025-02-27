@@ -31,11 +31,15 @@
             {{ key }}: |-
               {{ value | indent(14) }}
 {% else %}
-              {{ key }}: {{ value | to_nice_yaml(indent=2) | indent(10) | trim }}
+              {{ key }}: {{ value | indent(12) | trim }}
 {% endif %}
 {% endfor %}
 {% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
-            {{ lookup("ansible.builtin.file", policy_match.filename) | indent(12) }}
+{% set raw_yaml_content = lookup('ansible.builtin.file', policy_match.filename) %}
+{% set cleaned_yaml_content = raw_yaml_content.lstrip('---\n') %}
+{% set cleaned_yaml_content = cleaned_yaml_content.rstrip('...\n') %}
+{% set cleaned_yaml_content = cleaned_yaml_content.rstrip('...') %}
+            {{ cleaned_yaml_content | indent(12) | trim }}
 {% elif policy_match.filename is defined and policy_match.filename and ".cfg" in policy_match.filename %}
             CONF: |-
               {{ lookup("ansible.builtin.file", policy_match.filename) | indent(14) | trim }}

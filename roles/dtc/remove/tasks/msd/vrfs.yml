@@ -22,8 +22,32 @@
 
 - ansible.builtin.debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
   when:
-    - switch_list.response.DATA | length > 0
     - (multisite_vrf_delete_mode is defined) and (multisite_vrf_delete_mode is true|bool)
+
+- name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
+
+# --------------------------------------------------------------------
+# Update Local Variables To NameSpace Dict For Use Elsewhere
+# --------------------------------------------------------------------
+- name: Update Local Variables With Namespace Context
+  ansible.builtin.set_fact:
+    vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
+  vars:
+    update_data:
+        changes_detected_vrfs: "{{ changes_detected_vrfs }}"
+        vrf_config: "{{ vrf_config }}"
+
+- name: Run Diff Flags
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
+      - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
+      - "+     ----- Run Map -----"
+      - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
+      - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
+      - "----------------------------------------------------------------"
 
 - name: Remove Unmanaged Fabric VRFs
   cisco.dcnm.dcnm_vrf:
@@ -34,8 +58,9 @@
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
   when:
-    - switch_list.response.DATA | length > 0
-    - (multisite_vrf_delete_mode is defined) and (multisite_vrf_delete_mode is true|bool)
+   - multisite_vrf_delete_mode is defined
+   - multisite_vrf_delete_mode is true | bool
+   - vars_common_msd.changes_detected_vrfs
 
 - ansible.builtin.debug:
     msg:

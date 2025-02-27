@@ -31,8 +31,8 @@
 {# ------------------------------------------------------ #}
 {% if vrf['vrf_attach_group'] is defined %}
   attach:
-{% if MD_Msite.overlay_attach_groups.vrf_attach_groups_dict is defined and MD_Msite.overlay_attach_groups.vrf_attach_groups_dict %}
-{% set vrf_attach_groups_dict = MD_Msite.overlay_attach_groups.vrf_attach_groups_dict %}
+{% if MD_Multisite.overlay_attach_groups.vrf_attach_groups_dict is defined and MD_Multisite.overlay_attach_groups.vrf_attach_groups_dict %}
+{% set vrf_attach_groups_dict = MD_Multisite.overlay_attach_groups.vrf_attach_groups_dict %}
 {% endif %}
 {% for attach in vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
