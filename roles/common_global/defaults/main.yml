@@ -34,7 +34,7 @@ force_run_all: false
 
 # Parameters to enable/disable remove role tasks
 child_fabric_delete_mode: false
-edge_connections_delete_mode: true
+edge_connections_delete_mode: false
 interface_delete_mode: false
 inventory_delete_mode: false
 link_fabric_delete_mode: false
