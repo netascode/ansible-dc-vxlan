@@ -30,8 +30,13 @@
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
+{% elif key == "BGP_ASN" %}
+            {{ key }}: "{{ value | string | indent(12) | trim }}"
+{% elif value is iterable and '\n' in value %}
+            {{ key }}: |-
+              {{ value | indent(14) }}
 {% else %}
-              {{ key }}: {{ value | string | indent(12) | trim }}
+            {{ key }}: {{ value | string | indent(12) | trim }}
 {% endif %}
 {% endfor %}
 {% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
