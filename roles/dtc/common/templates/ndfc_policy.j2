@@ -30,6 +30,8 @@
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
+{% elif key == "BGP_ASN" %}
+            {{ key }}: "{{ value | string | indent(12) | trim }}"
 {% elif value is iterable and '\n' in value %}
             {{ key }}: |-
               {{ value | indent(14) }}
