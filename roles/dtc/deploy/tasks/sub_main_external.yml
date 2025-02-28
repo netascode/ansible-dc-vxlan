@@ -37,10 +37,10 @@
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       when: >
-        (MD_Extended.vxlan.fabric.type == 'External' and
-        (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0))
+        (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
       # TODO: Need to add logic to only save if changes are made
-
+      register: config_save
+      
   rescue:
     - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
       ansible.builtin.debug:
@@ -54,6 +54,5 @@
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
   when: >
-    (MD_Extended.vxlan.fabric.type == 'External' and
-    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0))
+    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
   # TODO: Need to add logic to only deploy if changes are made

@@ -26,7 +26,7 @@
 #  from ..helper_functions import do_something
 
 root_key = 'vxlan'
-model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MCF': {}, 'ISN': {}}
+model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MCF': {}, 'ISN': {}, 'External': {}}
 
 # VXLAN_EVPN KEYS
 
@@ -83,6 +83,21 @@ model_keys['ISN']['policy'] = [root_key, 'policy', 'KEY']
 model_keys['ISN']['policy.policies'] = [root_key, 'policy', 'policies', 'LIST']
 model_keys['ISN']['policy.groups'] = [root_key, 'policy', 'groups', 'LIST']
 model_keys['ISN']['policy.switches'] = [root_key, 'policy', 'switches', 'LIST']
+
+# External KEYS
+
+model_keys['External']['topology'] = [root_key, 'topology', 'KEY']
+model_keys['External']['topology.edge_connections'] = [root_key, 'topology', 'edge_connections', 'LIST']
+model_keys['External']['topology.fabric_links'] = [root_key, 'topology', 'fabric_links', 'LIST']
+model_keys['External']['topology.switches'] = [root_key, 'topology', 'switches', 'LIST']
+model_keys['External']['topology.switches.freeform'] = [root_key, 'topology', 'switches', 'freeform', 'LIST_INDEX']
+model_keys['External']['topology.switches.interfaces'] = [root_key, 'topology', 'switches', 'interfaces', 'LIST_INDEX']
+model_keys['External']['topology.vpc_peers'] = [root_key, 'topology', 'vpc_peers', 'LIST']
+# ---
+model_keys['External']['policy'] = [root_key, 'policy', 'KEY']
+model_keys['External']['policy.policies'] = [root_key, 'policy', 'policies', 'LIST']
+model_keys['External']['policy.groups'] = [root_key, 'policy', 'groups', 'LIST']
+model_keys['External']['policy.switches'] = [root_key, 'policy', 'switches', 'LIST']
 
 # MSD KEYS
 
