@@ -30,9 +30,7 @@
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
-{% elif key == "BGP_ASN" %}
-            {{ key }}: "{{ value | indent(12) | trim }}"
-{% elif '\n' in value %}
+{% elif value.count('\n') > 1 %}
             {{ key }}: |-
               {{ value | indent(14) }}
 {% else %}
