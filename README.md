@@ -86,9 +86,9 @@ The following control variables are available in this collection.
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
-| `multisite_child_fabric_delete_mode` | Remove child fabric from MSD|MCF fabric as part of the remove role | `false` |
-| `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD and MCF) fabrics | `false` |
-| `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD and MCF) fabrics | `false` |
+| `multisite_child_fabric_delete_mode` | Remove child fabric from MSD|MFD fabric as part of the remove role | `false` |
+| `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
+| `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
 | `network_delete_mode` | Remove network state as part of the remove role | `false` |
 | `policy_delete_mode` | Remove policy state as part of the remove role | `false` |
 | `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
@@ -409,6 +409,16 @@ This capability is not available under the following conditions:
 ### See Also
 
 * [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
+
+## Multi-Site Domain for VXLAN BGP EVPN Fabrics
+A Multi-Site Domain (MSD) is a multifabric container that is created to manage multiple member fabrics. An MSD is a single point of control for definition of overlay networks and VRFs that are shared across member fabrics. When you move fabrics (that are designated to be part of the multifabric overlay network domain) under the MSD as member fabrics, the member fabrics share the networks and VRFs created at the MSD-level. This way, you can consistently provision network and VRFs for different fabrics, at one go. It significantly reduces the time and complexity involving multiple fabric provisionings.
+
+### To configure and manage MSD fabrics with VXLAN as Code, you should use the following workflow:
+1. Create each member/child fabric that will be managed by MSD using the normal data models for each fabric (or use a combined data model with all child fabrics)
+2. Create the MSD fabric. In the data model set the fabric type to MSD and specify each child fabric that will be managed.
+   Reference the [VXLAN Data Model](https://netascode.cisco.com/data_model/vxlan/overview)
+> [!NOTE]
+> Any additional changes can be done using the MSD fabric data model or on an individual fabric basis using the respective playbooks.
 
 ## Contributing to this Collection
 
