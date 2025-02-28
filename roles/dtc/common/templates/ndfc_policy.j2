@@ -30,12 +30,12 @@
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
-{% elif ("." in value | string | trim) or (":" in value | string | trim) %}
+{% elif ("." in value | string) or (":" in value | string) %}
               {{ key }}: |-
-                "{{ value | string | indent(10) | trim }}"
+                "{{ value | string | indent(10) }}"
 {% else %}
               {{ key }}: |-
-                {{ value | string | indent(10) | trim }}
+                {{ value | string | indent(10) }}
 {% endif %}
 {% endfor %}
 {% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
