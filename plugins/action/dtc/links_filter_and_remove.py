@@ -67,6 +67,12 @@ class ActionModule(ActionBase):
                     link_found = True
                     break
             if not link_found:
+                # The theory here is that links without a fabricName are links that are
+                # automatically created by the system and should not be removed.
+                #
+                # TODO: This is a guess and should be confirmed.
+                if link.get('fabricName') is None:
+                    continue
                 links_to_be_removed.append({
                     'dst_fabric': link['fabricName'],
                     'src_device': link['sw1-info']['sw-sys-name'],
