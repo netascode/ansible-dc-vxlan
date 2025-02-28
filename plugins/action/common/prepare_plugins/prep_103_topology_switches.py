@@ -19,7 +19,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from ....plugin_utils.helper_functions import hostname_to_ip_mapping
+from ....plugin_utils.helper_functions import hostname_to_ip_mapping, data_model_key_check
 
 
 class PreparePlugin:
@@ -31,8 +31,10 @@ class PreparePlugin:
         model_data = self.kwargs['results']['model_extended']
 
         # This plugin does not apply to the follwing fabric types
-        if model_data['vxlan']['fabric']['type'] in ['MSD', 'MCF']:
+        if model_data['vxlan']['fabric']['type'] in ['MSD', 'MFD']:
             return self.kwargs['results']
+        else:
+            switches = model_data['vxlan']['topology']['switches']
 
         #  Loop over all the roles in vxlan.topology.switches.role
         model_data['vxlan']['topology']['spine'] = {}
@@ -60,6 +62,92 @@ class PreparePlugin:
             model_data['vxlan']['topology'][role][name][v6_key] = v6ip
 
         model_data = hostname_to_ip_mapping(model_data)
+
+        # Check for vpc_peers in the data model
+        # If found, update the data model with the management IP address of the peer switches
+        # for templating later.
+        vpc_peers_keys = ['vxlan', 'topology', 'vpc_peers']
+        dm_check = data_model_key_check(model_data, vpc_peers_keys)
+        if 'vpc_peers' in dm_check['keys_found'] and 'vpc_peers' in dm_check['keys_data']:
+            vpc_peers_pairs = model_data['vxlan']['topology']['vpc_peers']
+
+            # Before:
+            # 'vpc_peers': [
+            #     {
+            #         'domain_id': 1,
+            #         'fabric_peering': True,
+            #         'peer1': 'nac-leaf1',
+            #         'peer2': 'nac-leaf2',
+            #     },
+            #     {
+            #         'fabric_peering': False,
+            #         'peer1': 'nac-leaf3',
+            #         'peer1_peerlink_interfaces': [
+            #             {
+            #                 'name': 'Ethernet1/4'
+            #             },
+            #             {
+            #                 'name': 'Ethernet1/5'
+            #             }
+            #         ],
+            #         'peer2': 'nac-leaf4',
+            #         'peer2_peerlink_interfaces': [
+            #             {
+            #                 'name': 'Ethernet1/4'
+            #             },
+            #             {
+            #                 'name': 'Ethernet1/5'
+            #             }
+            #         ]
+            #     }
+            # ]
+            # After:
+            # 'vpc_peers': [
+            #     {
+            #         'domain_id': 1,
+            #         'fabric_peering': True,
+            #         'peer1': 'nac-leaf1',
+            #         'peer1_mgmt_ip_address': '10.15.33.13',
+            #         'peer2': 'nac-leaf2',
+            #         'peer2_mgmt_ip_address': '10.15.33.14'
+            #     },
+            #     {
+            #         'fabric_peering': False,
+            #         'peer1': 'nac-leaf3',
+            #         'peer1_mgmt_ip_address': '10.15.33.15',
+            #         'peer1_peerlink_interfaces': [
+            #             {
+            #                 'name': 'Ethernet1/4'
+            #             },
+            #             {
+            #                 'name': 'Ethernet1/5'
+            #             }
+            #         ],
+            #         'peer2': 'nac-leaf4',
+            #         'peer2_mgmt_ip_address': '10.15.33.16',
+            #         'peer2_peerlink_interfaces': [
+            #             {
+            #                 'name': 'Ethernet1/4'
+            #             },
+            #             {
+            #                 'name': 'Ethernet1/5'
+            #             }
+            #         ]
+            #     }
+            # ]
+            for vpc_peers_pair in vpc_peers_pairs:
+                if any(sw['name'] == vpc_peers_pair['peer1'] for sw in switches):
+                    found_switch = next((item for item in switches if item["name"] == vpc_peers_pair['peer1']))
+                    if found_switch.get('management').get('management_ipv4_address'):
+                        vpc_peers_pair['peer1_mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
+                    elif found_switch.get('management').get('management_ipv6_address'):
+                        vpc_peers_pair['peer1_mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
+                if any(sw['name'] == vpc_peers_pair['peer2'] for sw in switches):
+                    found_switch = next((item for item in switches if item["name"] == vpc_peers_pair['peer2']))
+                    if found_switch.get('management').get('management_ipv4_address'):
+                        vpc_peers_pair['peer2_mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
+                    elif found_switch.get('management').get('management_ipv6_address'):
+                        vpc_peers_pair['peer2_mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
 
         self.kwargs['results']['model_extended'] = model_data
 

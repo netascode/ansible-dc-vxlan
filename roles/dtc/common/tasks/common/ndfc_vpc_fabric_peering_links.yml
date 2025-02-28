@@ -50,7 +50,7 @@
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
-- name: Build Links for VPC Peering
+- name: Build Links for vPC Peering
   ansible.builtin.template:
     src: ndfc_vpc/ndfc_vpc_fabric_peering_links.j2
     dest: "{{ path_name }}{{ file_name }}"
