@@ -39,6 +39,12 @@
   register: switch_list
   tags: "{{ nac_tags.remove }}"
 
+- name: Remove Edge Connections
+  ansible.builtin.import_tasks: edge_connections.yml
+  tags: "{{ nac_tags.remove_edge_connections }}"
+  when:
+    - changes_detected_edge_connections
+
 - name: Remove Fabric Policy
   ansible.builtin.import_tasks: policy.yml
   tags: "{{ nac_tags.remove_policy }}"
@@ -67,7 +73,7 @@
   ansible.builtin.import_tasks: links.yml
   tags: "{{ nac_tags.remove_links }}"
   when:
-    - changes_detected_link_vpc_peering
+    - changes_detected_link_vpc_peering or changes_detected_fabric_links
 
 - name: Remove Fabric vPC Peering
   ansible.builtin.import_tasks: vpc_peers.yml

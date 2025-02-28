@@ -25,7 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
-from ...plugin_utils.helper_functions import ndfc_get_nac_switch_policy_using_desc
+from ...plugin_utils.helper_functions import ndfc_get_switch_policy_using_desc
 
 
 class ActionModule(ActionBase):
@@ -118,7 +118,7 @@ class ActionModule(ActionBase):
 
             # Query NDFC for the current switch's serial number to get back any policy that exists for that switch
             # with the description prepended with "nac_"
-            ndfc_policies_with_nac_desc = ndfc_get_nac_switch_policy_using_desc(self, task_vars, tmp, ndfc_sw_serial_number)
+            ndfc_policies_with_nac_desc = ndfc_get_switch_policy_using_desc(self, task_vars, tmp, ndfc_sw_serial_number, "nac_")
 
             # Currently, check two things to determine an unmanaged policy:
             # Check no matching policy in the data model against the policy returned from NDFC for the current switch

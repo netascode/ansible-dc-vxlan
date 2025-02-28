@@ -44,7 +44,7 @@ class ActionModule(ActionBase):
         links_to_be_removed = []
         filtered_existing_links = []
         for existing_link in existing_links:
-            if existing_link['templateName'] == "int_pre_provision_intra_fabric_link":
+            if existing_link.get('templateName') == "int_pre_provision_intra_fabric_link" or existing_link.get('templateName') == "int_intra_fabric_num_link":
                 filtered_existing_links.append(existing_link)
                 for link in fabric_links:
                     if ('sw1-info' in existing_link and 'sw2-info' in existing_link and

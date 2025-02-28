@@ -30,6 +30,7 @@
     state: replaced
     src_fabric: "{{ MD_Extended.vxlan.global.name }}"
     config: "{{ link_vpc_peering }}"
+    deploy: false
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000

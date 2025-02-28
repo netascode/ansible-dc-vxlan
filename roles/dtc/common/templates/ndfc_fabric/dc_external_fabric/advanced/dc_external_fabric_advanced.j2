@@ -7,5 +7,5 @@
   ENABLE_NXAPI_HTTP: {{ global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http ) }}
   SNMP_SERVER_HOST_TRAP: {{ global.snmp_server_host_trap | default(defaults.vxlan.global.snmp_server_host_trap) }}
 {% if global.bootstrap is defined and global.bootstrap.cdp_enable is defined %}
-  CDP_ENABLE: global.bootstrap.cdp_enable
+  CDP_ENABLE: {{ global.bootstrap.cdp_enable }}
 {% endif %}

@@ -28,7 +28,7 @@
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD.vxlan.global.name }}"
     config: "{{ updated_inv_config['updated_inv_list'] }}"
-    deploy: true
+    deploy: false
     save: true
     state: overridden
   vars:

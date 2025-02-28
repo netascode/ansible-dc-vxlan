@@ -30,6 +30,7 @@
     fabric: "{{ MD.vxlan.global.name }}"
     state: overridden
     config: "{{ vrf_config }}"
+    deploy: false
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
