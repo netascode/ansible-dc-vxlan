@@ -34,8 +34,8 @@
               {{ key }}: |-
                 "{{ value | string | indent(10) | trim }}"
 {% else %}
-              {{ key }}: |-
-                {{ value | indent(12) }}
+            {{ key }}: |-
+              {{ value | indent(12) }}
 {% endif %}
 {% endfor %}
 {% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
