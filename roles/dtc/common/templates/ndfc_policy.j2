@@ -31,10 +31,10 @@
             {{ key }}: |-
               {{ value | indent(14) }}
 {% elif ("." in value | string) or (":" in value | string) %}
-              {{ key }}: |-
+              {{ key }}: |
                 "{{ value | string | indent(10) }}"
 {% else %}
-              {{ key }}: |-
+              {{ key }}: |
                 {{ value | string | indent(10) }}
 {% endif %}
 {% endfor %}
