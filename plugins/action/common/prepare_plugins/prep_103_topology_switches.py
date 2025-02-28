@@ -148,7 +148,7 @@ class PreparePlugin:
                         vpc_peers_pair['peer2_mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
                     elif found_switch.get('management').get('management_ipv6_address'):
                         vpc_peers_pair['peer2_mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
-            
+
         self.kwargs['results']['model_extended'] = model_data
 
         return self.kwargs['results']
