@@ -33,9 +33,11 @@
 {% elif ("." in value | string | trim) or (":" in value | string | trim) %}
               {{ key }}: |-
                 "{{ value | string | indent(10) | trim }}"
-{% else %}
+{% if '\n' in value %}
             {{ key }}: |-
-              {{ value | indent(12) }}
+              {{ value | indent(14) }}
+{% else %}
+            {{ key }}: {{ value | indent(14) | trim }}
 {% endif %}
 {% endfor %}
 {% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
