@@ -1,10 +1,9 @@
 # This NDFC VRF loopback config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% if MD_Extended.vxlan.overlay.vrfs is defined and MD_Extended.vxlan.overlay.vrfs %}
 [
-{% for vrf in MD_Extended.vxlan.overlay.vrfs %}
-{% if vrf['vrf_attach_group'] is defined %}
+  {% for vrf in MD_Extended.vxlan.overlay.vrfs %}
+  {% if vrf['vrf_attach_group'] is defined %}
   {
     "vrfName": "{{ vrf["name"] }}",
     "lanAttachList":

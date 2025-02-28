@@ -119,7 +119,7 @@
 
 - name: Check Roles
   cisco.nac_dc_vxlan.common.check_roles:
-    role_list: "{{ role_names }}"
+    role_list: "{{ ansible_play_role_names }}"
   register: check_roles
   delegate_to: localhost
 

@@ -27,5 +27,4 @@
     child_fabrics: "{{ MD_Extended.vxlan.multisite.child_fabrics }}"
   when: 
     - MD_Extended.vxlan.multisite.child_fabrics is defined
-    - MD_Extended.vxlan.multisite.child_fabrics
   register: MD_Multisite_Child_Fabrics

@@ -18,7 +18,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
-
 ---
 
 - name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.remove]
