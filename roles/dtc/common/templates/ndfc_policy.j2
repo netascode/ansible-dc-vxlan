@@ -30,9 +30,8 @@
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
-{% elif ("." in value | string | trim) or (":" in value | string | trim) %}
-              {{ key }}: |-
-                "{{ value | string | indent(10) | trim }}"
+{% elif key == "BGP_ASN" %}
+              {{ key }}: "{{ value | indent(12) | trim }}"
 {% elif '\n' in value %}
             {{ key }}: |-
               {{ value | indent(14) }}
