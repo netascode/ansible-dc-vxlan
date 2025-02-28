@@ -31,7 +31,7 @@
             {{ key }}: |-
               {{ value | indent(14) }}
 {% elif key == "BGP_ASN" %}
-              {{ key }}: "{{ value | indent(12) | trim }}"
+            {{ key }}: "{{ value | indent(12) | trim }}"
 {% elif '\n' in value %}
             {{ key }}: |-
               {{ value | indent(14) }}
