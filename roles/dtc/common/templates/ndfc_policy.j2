@@ -30,7 +30,7 @@
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
-{% elif value.count('\n') > 1 %}
+{% elif value is not iterable and value.count('\n') > 1 %}
             {{ key }}: |-
               {{ value | indent(14) }}
 {% else %}
