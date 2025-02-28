@@ -30,7 +30,7 @@
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
-{% elif ("." in value) or ":" in value %}
+{% elif ("." in value) or (":" in value) %}
               {{ key }}: "{{ value | string | indent(12) | trim }}"
 {% else %}
               {{ key }}: {{ value | string | indent(12) | trim }}
