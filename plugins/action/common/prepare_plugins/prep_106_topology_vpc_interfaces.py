@@ -22,6 +22,7 @@
 # Group vPC interfaces by vpc_peers, vpc_id and switch_name
 # This helps in identifying vPC interfaces for a given vpc_peer, vpc_id and switch_name
 # Reduces the need to loop through all interfaces to find vPC interfaces in Jinja2 templates
+
 class PreparePlugin:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
@@ -29,6 +30,7 @@ class PreparePlugin:
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
+
         # Check if vxlan.topology is defined
         if model_data.get('vxlan').get('topology') is not None:
             model_data['vxlan']['topology'] = model_data.get('vxlan').get('topology', {})

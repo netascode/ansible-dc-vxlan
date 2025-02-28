@@ -20,7 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 nac_tags:
   # All Create and Remove Tags
   all:
@@ -32,6 +31,7 @@ nac_tags:
     - cr_manage_interfaces
     - cr_manage_vrfs_networks
     - cr_manage_policy
+    - cr_manage_links
     # -------------------------
     - rr_manage_interfaces
     - rr_manage_networks
@@ -111,6 +111,7 @@ nac_tags:
     - cr_manage_interfaces
     - cr_manage_vrfs_networks
     - cr_manage_policy
+    - cr_manage_links
   create_fabric:
     - cr_manage_fabric
   create_switches:
@@ -123,6 +124,8 @@ nac_tags:
     - cr_manage_vrfs_networks
   create_policy:
     - cr_manage_policy
+  create_links:
+    - cr_manage_links
   # All Remove Tags
   remove:
     - rr_manage_interfaces

@@ -1,0 +1,17 @@
+---
+# This NDFC fabric links config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% for link in MD_Extended.vxlan.topology.fabric_links %}
+  - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    src_interface: "{{ link.source_interface }}"
+    dst_interface: "{{ link.dest_interface }}"
+    src_device: "{{ link.source_device }}"
+    dst_device: "{{ link.dest_device }}"
+    template: "{{ link.template }}"
+    profile:
+        admin_state: "{{ link.admin_state }}"
+        mtu: "{{ link.mtu }}"
+        peer1_description: "{{ link.source_description | default('') }}"
+        peer2_description: "{{ link.destination_description | default('') }}"
+{% endfor %}

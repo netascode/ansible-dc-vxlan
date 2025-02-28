@@ -1,0 +1,33 @@
+{# Auto-generated NDFC ISN Inventory config data structure for fabric {{ vxlan.fabric.name }} #}
+{% set poap_data = poap_data['poap_data'] %}
+{% for switch in MD_Extended.vxlan.topology.switches %}
+{% if switch.management.management_ipv4_address is defined %}
+- seed_ip: {{ switch['management']['management_ipv4_address'] }}
+{% elif switch.management.management_ipv6_address is defined %}
+- seed_ip: {{ switch['management']['management_ipv6_address'] }}
+{% endif %}
+  deviceType: NX-OS
+  auth_proto: {{ MD['vxlan']['global']['auth_proto'] | default(defaults.vxlan.global.auth_proto) }}
+  user_name: PLACE_HOLDER_USERNAME
+  password: PLACE_HOLDER_PASSWORD
+  max_hops: 0 # this is the default value as it is not defined into the data model
+  role: core_router
+  preserve_config: true
+{% if MD_Extended.vxlan.topology.bootstrap is defined %}
+{% if MD_Extended.vxlan.topology.bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.topology.bootstrap.enable_bootstrap %}
+{% if switch.poap is defined and switch.poap.bootstrap %}
+{% if poap_data[switch['serial_number']] is defined %}
+{% set pdata = poap_data[switch['serial_number']] %}
+  poap:
+    - serial_number: {{ switch['serial_number'] }}
+      hostname: {{ switch['name'] }}
+      model: {{ pdata['model'] }}
+      version: {{ pdata['version'] }}
+      config_data:
+        modulesModel: {{ pdata['modulesModel'] }}
+        gateway: {{ pdata['gateway'] }}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}

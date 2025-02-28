@@ -61,10 +61,10 @@
   register: model_data
   vars:
     data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
-    rules_path: "{{ role_path }}/files/rules/required_rules/"
+    rules_path: "{{ role_path }}/files/rules/"
   delegate_to: localhost
 
-- name: Perform Enhanced Syntax and Semantic Model Validation
+- name: Perform Custom Enhanced Syntax and Semantic Model Validation
   cisco.nac_dc_vxlan.common.nac_dc_validate:
     schema: "{{ schema_path }}"
     mdata: "{{ data_path }}"
@@ -102,6 +102,8 @@
     inventory_hostname: "{{ inventory_hostname }}"
     hostvars: "{{ hostvars }}"
     model_data: "{{ model_data['data'] }}"
+    default_values: "{{ defaults }}"
+    templates_path: "{{ role_path }}/../dtc/common/templates/"
   register: smd
   delegate_to: localhost
 
@@ -117,7 +119,7 @@
 
 - name: Check Roles
   cisco.nac_dc_vxlan.common.check_roles:
-    role_list: "{{ role_names }}"
+    role_list: "{{ ansible_play_role_names }}"
   register: check_roles
   delegate_to: localhost
 
@@ -140,9 +142,9 @@
   delegate_to: localhost
 
 - name: Manage Previous Service Model Data Files
-  ansible.builtin.include_tasks: manage_model_files_previous.yml
+  ansible.builtin.import_tasks: manage_model_files_previous.yml
   when: check_roles['save_previous']
 
 - name: Manage Current Service Model Data Files
-  ansible.builtin.include_tasks: manage_model_files_current.yml
+  ansible.builtin.import_tasks: manage_model_files_current.yml
   when: check_roles['save_previous']

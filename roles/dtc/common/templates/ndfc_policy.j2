@@ -5,7 +5,7 @@
 {% if MD_Extended.vxlan.policy.policies | default([]) | length > 0 %}
 - switch:
 {% for switch in MD_Extended.vxlan.policy.switches %}
-    - ip: {{ switch.name }}
+    - ip: {{ switch.mgmt_ip_address }}
       policies:
 {% for group_entry in switch.groups %}
 {% set query = "[?(@.name==`" ~ group_entry ~ "`)]" %}
@@ -30,12 +30,21 @@
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
+{% elif key == "BGP_ASN" %}
+            {{ key }}: "{{ value | string | indent(12) | trim }}"
+{% elif value is iterable and '\n' in value %}
+            {{ key }}: |-
+              {{ value | indent(14) }}
 {% else %}
-              {{ key }}: {{ value | to_nice_yaml(indent=2) | indent(10) | trim }}
+            {{ key }}: {{ value | string | indent(12) | trim }}
 {% endif %}
 {% endfor %}
 {% elif policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename) %}
-            {{ lookup("ansible.builtin.file", policy_match.filename) | indent(12) }}
+{% set raw_yaml_content = lookup('ansible.builtin.file', policy_match.filename) %}
+{% set cleaned_yaml_content = raw_yaml_content.lstrip('---\n') %}
+{% set cleaned_yaml_content = cleaned_yaml_content.rstrip('...\n') %}
+{% set cleaned_yaml_content = cleaned_yaml_content.rstrip('...') %}
+            {{ cleaned_yaml_content | indent(12) | trim }}
 {% elif policy_match.filename is defined and policy_match.filename and ".cfg" in policy_match.filename %}
             CONF: |-
               {{ lookup("ansible.builtin.file", policy_match.filename) | indent(14) | trim }}

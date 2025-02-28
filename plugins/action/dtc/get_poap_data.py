@@ -66,7 +66,7 @@ class POAPDevice:
         self.task_vars = params['task_vars']
         self.tmp = params['tmp']
 
-        self.fabric_name = self.model_data['vxlan']['global']['name']
+        self.fabric_name = self.model_data['vxlan']['fabric']['name']
         self.switches = self.model_data['vxlan']['topology']['switches']
         self.poap_supported_switches = False
         self.preprovision_supported_switches = False
@@ -173,16 +173,17 @@ class ActionModule(ActionBase):
         # Get data from Ansible task parameters
         params = {}
         params['model_data'] = self._task.args["model_data"]
+
         params['action_plugin'] = self._execute_module
         params['task_vars'] = task_vars
         params['tmp'] = tmp
 
         # Instantiate POAPDevice workflow object with params
         workflow = POAPDevice(params)
-
         workflow.check_poap_supported_switches()
+        workflow.check_preprovision_supported_switches()
 
-        if workflow.poap_supported_switches:
+        if workflow.poap_supported_switches and not workflow.preprovision_supported_switches:
             workflow.refresh()
 
             if workflow.refresh_succeeded:

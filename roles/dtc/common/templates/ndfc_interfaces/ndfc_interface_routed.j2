@@ -1,0 +1,42 @@
+---
+# This NDFC routed interface data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+
+{% for switch in MD_Extended.vxlan.topology.switches %}
+{% if switch.interfaces is defined %}
+{% for interface in switch['interfaces'] %}
+{% if interface['mode'] == 'routed' %}
+- name : {{ interface['name'] }}
+  type: eth
+  switch:
+{% if switch.management.management_ipv4_address is defined %}
+    - {{ switch.management.management_ipv4_address}}
+{% elif (switch.management.management_ipv4_address is not defined) and (switch.management.management_ipv6_address is defined)  %}
+    - {{ switch.management.management_ipv6_address}}
+{% endif %}
+  deploy: false
+  profile:
+    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enabled) }}
+    mode: 'routed'
+{% if interface['ipv4_address'] is defined %}
+{% set ipv4_address__mask = interface['ipv4_address'].split('/') %}
+    ipv4_addr: {{ ipv4_address__mask[0] | default(omit) }}
+    ipv4_mask_len: {{ ipv4_address__mask[1] | default(omit) }}
+{% endif %}
+{% if interface['ipv6_address'] is defined %}
+{% set ipv6_address__mask = interface['ipv6_address'].split('/') %}
+    ipv6_addr: {{ ipv6_address__mask[0] | default(omit) }}
+    ipv6_mask_len: {{ ipv6_address__mask[1] | default(omit) }}
+{% endif %}
+    description: {{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.description) }}
+    route_tag: {{ interface['ipv4_route_tag'] | default(omit) }}
+    int_vrf: {{ interface['vrf'] | default(omit) }}
+    mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.mtu) }}
+    speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.speed) }}
+    cmds: |2-
+      {{ interface['freeform_config'] | default('') | indent(6, false) }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}

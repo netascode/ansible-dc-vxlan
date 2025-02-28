@@ -21,39 +21,39 @@
 
 ---
 
-- name: "Check Roles"
+- name: Check Roles
   cisco.nac_dc_vxlan.common.check_roles:
-    role_list: "{{ role_names }}"
+    role_list: "{{ ansible_play_role_names }}"
   register: check_roles
   delegate_to: localhost
 
 # Check if golden and extended service model data files exist from previous runs
 - name: Stat the Golden Service Model Data
-  ansible.builtin.stat: path="{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_golden.json"
+  ansible.builtin.stat: path="{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_golden.json"
   register: golden_stat
   delegate_to: localhost
 
 - name: Stat the Extended Service Model Data
-  ansible.builtin.stat: path="{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_extended.json"
+  ansible.builtin.stat: path="{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_extended.json"
   register: extended_stat
   delegate_to: localhost
 
 # Read and store previous golden service model data into a variable called 'smd_golden_previous'
 - name: Read Previous Golden Service Model Data from Host
   ansible.builtin.include_vars:
-    file: "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_golden.json"
+    file: "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_golden.json"
   register: smd_golden_previous
   when: golden_stat.stat.exists and check_roles['save_previous']
   delegate_to: localhost
 
 # Rename golden file from previous run to append '_previous' to the filename
 - name: Move Golden Service Model Data Previous
-  ansible.builtin.command: mv "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_golden.json" "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_golden_previous.json"
+  ansible.builtin.command: mv "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_golden.json" "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_golden_previous.json"
   when: golden_stat.stat.exists and check_roles['save_previous']
   delegate_to: localhost
 
 # Rename extended file from previous run to append '_previous' to the filename
 - name: Move Extended Service Model Data Previous
-  ansible.builtin.command: mv "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_extended.json" "{{ role_path }}/files/{{ MD.vxlan.global.name }}_service_model_extended_previous.json"
+  ansible.builtin.command: mv "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_extended.json" "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_extended_previous.json"
   when: extended_stat.stat.exists and check_roles['save_previous']
   delegate_to: localhost

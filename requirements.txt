@@ -1,5 +1,6 @@
 requests
-iac-validate==0.2.5
-iac-test==0.2.5
+iac-validate==0.2.6
+iac-test==0.2.6
 macaddress
+netaddr
 packaging==24.1

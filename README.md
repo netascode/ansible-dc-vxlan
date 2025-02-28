@@ -8,11 +8,15 @@ This approach allows for consistent and repeatable configuration of VXLAN fabric
 
 Infrastructure as code (IaC) is a DevOps methodology that uses code to manage and provision IT infrastructure, bypassing manual procedures. IaC uses a descriptive coding language to automate the provisioning of servers, operating systems, network devices and more.
 
-The NetAsCode VXLAN EVPN collection allows you to configure, in easy-to-understand YAML, data structures describing the configuration state of a VXLAN fabric for [Cisco Nexus](https://www.cisco.com/site/us/en/products/networking/cloud-networking-switches/index.html) datacenters and then deploys this state using Ansible and the [Cisco Nexus Dashboard](https://www.cisco.com/site/us/en/products/networking/cloud-networking/nexus-platform/index.html). With little to no knowledge about automation, you can use this collection to instantiate a VXLAN EVPN fabric.
+In easy-to-understand YAML the NetAsCode VXLAN EVPN collection allows you to configure data structures describing the configuration state of a VXLAN fabric for [Cisco Nexus](https://www.cisco.com/site/us/en/products/networking/cloud-networking-switches/index.html) datacenters and then deploys this state using Ansible and the [Cisco Nexus Dashboard](https://www.cisco.com/site/us/en/products/networking/cloud-networking/nexus-platform/index.html). With little to no knowledge about automation, you can use this collection to instantiate a VXLAN EVPN fabric.
 
 YAML files are created that contain a pre-determined data schema which is translated into underlying Ansible modules and resources. The core Ansible Collection is open source and available. This collection is designed to be used in a CI/CD pipeline in order to drive this declarative method of configuring a VXLAN fabric.
 
-> **Note**: For complete support and additional capabilities, Cisco provides a professional services capability under the Services as Code portfolio of services which can provide feature creation, end to end support and more.
+> [!NOTE]
+> For complete support and additional capabilities, Cisco provides a
+> professional services capability under the [Services as Code](https://www.cisco.com/c/en/us/services/collateral/se/services-as-code-aag.html)
+> portfolio of services which can provide feature creation, end to end support
+> and more.
 
 ## Understanding our Ansible Roles
 
@@ -20,7 +24,7 @@ YAML files are created that contain a pre-determined data schema which is transl
 
 Role: [cisco.nac_dc_vxlan.validate](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/validate/README.md)
 
-The `validate` role ensures that the data model is correct and that the data model can be processed by the subsequent roles. The validate role reads all the files in the `host_vars` directory and create a single data model in memory for execution.
+The `validate` role ensures that the data model is correct and that the data model can be processed by the subsequent roles. The validate role reads all the files in the `host_vars` directory and creates a single data model in memory for execution.
 
 As part of the VXLAN as Code service from Cisco, you will also be able to utilize the semantic validation feature to make sure that the data model matches the intended expected values. This is a powerful feature that allows you to ensure that the data model is correct before it is deployed to the network. Additonally the validate role allows creation of rules that can be used to prevent operators from making specific configurations that are not allowed in the network. These can be as simple as enforcing proper naming conventions to more complex rules for interconnectivity issues that should be avoided. These rules are coded in Python and can be constructed as part of the Services as Code offer. 
 
@@ -40,26 +44,37 @@ The `deploy` role deploys the fabric state created using the Create role to the 
 
 Role: [cisco.nac_dc_vxlan.dtc.remove](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/remove/README.md)
 
-The `remove` role removes state from the NDFC controller and the devices managed by the NDFC controller. When the collection discoveres managed state in NDFC that is not defined the the data model it gets removed by this role.  For this reason this role requires the following variables to be set to `true` under the `group_vars` directory. This avoids accidental removal of configuration from NDFC that might impact the network. The `remove` role has a dependency on the `validate` role.
+The `remove` role removes state from the NDFC controller and the devices managed by the NDFC controller. When the collection discovers managed state in NDFC that is not defined the the data model it gets removed by this role.  For this reason this role requires the following variables to be set to `true` under the `group_vars` directory. This avoids accidental removal of configuration from NDFC that might impact the network. The `remove` role has a dependency on the `validate` role.
 
 Inside the [example repository](https://github.com/netascode/ansible-dc-vxlan-example) under `group_vars/ndfc` is a file called `ndfc.yaml` that contains the variables:
 
 ```yaml
-# Control Parameters for 'Remove' role tasks
+# Control Parameters for 'Remove' role tasks in VXLAN EVPN fabric
 interface_delete_mode: false
-network_delete_mode: false
-vrf_delete_mode: false
 inventory_delete_mode: false
-vpc_delete_mode: false
+link_fabric_delete_mode: false
 link_vpc_delete_mode: false
+network_delete_mode: false
 policy_delete_mode: false
+vpc_delete_mode: false
+vrf_delete_mode: false
+
+# Control Parameters for 'Remove' role tasks in Multisite fabric
+multisite_child_fabric_delete_mode: false
+multisite_network_delete_mode: false
+multisite_vrf_delete_mode: false
 ```
 
-**Note:** These variables are set to `false` by default to avoid accidental removal of configuration from NDFC that might impact the network.
+> [!WARNING]
+> These variables are set to `false` by default to avoid accidental removal of
+> configuration from NDFC that might impact the network.
 
 ### Advantages of the Roles in the Workflow
 
-These roles when run in sequence (validate, create, deploy, remove) are designed to build out the entire fabric and can be executed by a pipeline.  The roles can also be run in isolation by simply commenting out the roles that are not required during testing and fabric buildout to validate incremental changes.
+These roles when run in sequence (`validate`, `create`, `deploy`, `remove`) are
+designed to build out the entire fabric and can be executed by a pipeline.  The
+roles can also be run in isolation by simply commenting out the roles that are
+not required during testing and fabric buildout to validate incremental changes.
 
 ## Control Variables
 
@@ -69,12 +84,15 @@ The following control variables are available in this collection.
 | -------- | ------- | ------- |
 | `force_run_all` | Force all roles in the collection to run | `false` | 
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
-| `network_delete_mode` | Remove network state as part of the remove role | `false` |
-| `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
-| `vpc_delete_mode` | Remove vpc pair state as part of the remove role | `false` |
+| `multisite_child_fabric_delete_mode` | Remove child fabric from MSD/MFD fabric as part of the remove role | `false` |
+| `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
+| `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
+| `network_delete_mode` | Remove network state as part of the remove role | `false` |
 | `policy_delete_mode` | Remove policy state as part of the remove role | `false` |
+| `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
+| `vpc_delete_mode` | Remove vpc pair state as part of the remove role | `false` |
 
 These variables are described in more detail in different sections of this document.
 
@@ -84,11 +102,21 @@ The default settings can be overridden in `group_vars`.
 
 ### Set Environment for the Collection
 
-Installation of a Python virtual environment is needed in order to install the collection and it's requirements. We recommend [pyenv](https://github.com/pyenv/pyenv) which provides a robust Python virtual environment capability that also allows for management of different Python versions. The following instructions are detailed around using pyenv. For pipeline execution please refer to the pipeline section which is documented at container level.
+Installation of a Python virtual environment is needed in order to install the
+collection and its requirements. We recommend [pyenv](https://github.com/pyenv/pyenv)
+which provides a robust Python virtual environment capability that also allows
+for management of different Python versions. The following instructions are
+detailed around using pyenv. For pipeline execution please refer to the pipeline
+section which is documented at container level.
 
 #### Step 1 - Installing the Example Repository
 
-To simplify getting started with this collection we provide you with an [example repository](https://github.com/netascode/ansible-dc-vxlan-example). Simply clone this repo from GitHub to create the required skeleton, including examples for pipelines. Cloaning the repository requires the installation of [git client](https://git-scm.com/downloads) which is available for all platforms.
+To simplify getting started with this collection we provide you with an
+[example repository](https://github.com/netascode/ansible-dc-vxlan-example).
+Simply clone this repo from GitHub to create the required skeleton, including
+examples for pipelines. Cloning the repository requires the installation of
+[git client](https://git-scm.com/downloads) which is available for all
+platforms.
 
 Run the following command in the location of interest.
 
@@ -100,7 +128,7 @@ This will clone the example repository into the directory `nac-vxlan`. Next dele
 
 #### Step 2 - Create the Virtual Environment with pyenv
 
-In this directory create a new virtual environment and install a Python version of your choice. At the time of this writting, a commonly used version is Python version 3.10.13. Command pyenv install 3.10.13 will install this version. For detailed instructions please visit the [pyenv](https://github.com/pyenv/pyenv) site.
+In this directory create a new virtual environment and install a Python version of your choice. At the time writing, Python version 3.10.13 is commonly used. Command `pyenv install 3.10.13` will install this version. For detailed instructions please visit the [pyenv](https://github.com/pyenv/pyenv) site.
 
 
 ```bash
@@ -109,7 +137,7 @@ pyenv virtualenv <python_version> nac-ndfc
 pyenv local nac-ndfc
 ```
 
-Executing command pyenv local nac-ndfc sets the environment so that whenever the directory is entered it will change into the right virtual environment.
+Executing command `pyenv local nac-ndfc` sets the environment so that whenever the directory is entered it will change into the right virtual environment.
 
 #### Step 3 - Install Ansible and Additional Required Tools
 
@@ -148,7 +176,7 @@ collections_path = ./collections/ansible_collections/
 
 #### Step 5 - Change Ansible Callbacks
 
-If you wish to add any ansible callbacks ( the listed below expand on displaying time execution ) you can add the following to the ansible.cfg file:
+If you wish to add any ansible callbacks (those listed below expand on displaying time execution) you can add the following to the ansible.cfg file:
 
 ```ini
 callback_whitelist=ansible.posix.timer,ansible.posix.profile_tasks,ansible.posix.profile_roles
@@ -202,14 +230,17 @@ graph
   nac-ndfc1-->data_model_files
 ```
 
-The data model is **required** to exist under the `host_vars` directory structure. The inventory file is organizing how the variables are read through both the group_vars and the host_vars. Under the group_vars is where you will set the `connection.yaml` file that has the credentials of the NDFC controller. Under the `host_vars` is where we will place the inventory.
+The data model is **required** to exist under the `host_vars` directory structure. The inventory file organizes how the variables are read through both the group_vars and the host_vars. Under the group_vars is where you will set the `connection.yaml` file that has the credentials of the NDFC controller. Under the `host_vars` is where we will place the inventory.
 
-The collection is **pre-built** to utilize the `group_vars` and `host_vars` matching what is already constructed in the repository. Currently this methodology is a 1:1 relationship between code repository and NDFC fabric. For more complex environments, the inventory file can be expanded to include multiple groups and hosts including the usage of multi-site fabrics, explained in a separate document.
+The collection is **pre-built** to utilize the `group_vars` and `host_vars` matching what is already constructed in the repository. Currently this methodology is a 1:1 relationship between code repository and NDFC fabric. For more complex environments, the inventory file can be expanded to include multiple groups and hosts including the usage of multi-site fabrics as explained in a separate document.
 
 
 #### Step 1 - Update the Inventory File
 
-In the provided `inventory.yaml` file on the root directory, update the `ansible_host` variable to point to your NDFC controller by replacing `"{{ lookup('ansible.builtin.env', 'ND_HOST') }}"` with the IP address of the NDFC controller or setting the ```ND_HOST``` environment variable as described in Step 3.
+In the provided `inventory.yaml` file in the project's root directory, update
+the `ansible_host` variable to point to your NDFC controller by replacing `"{{ lookup('ansible.builtin.env', 'ND_HOST') }}"` with the IP address of the
+NDFC controller or setting the ```ND_HOST``` environment variable as described
+in Step 3.
 
 
 #### Step 2 - Configure Ansible Connection File
@@ -235,15 +266,28 @@ ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
 
 ```
 
-This file is going to contain the connection parameters for reachability to the NDFC controller. The `ansible_user`, and `ansible_password` are set to establish connection to the NDFC controller. For the devices, you will set separate variables also configured as environment variables. The usage of environment variables is done for security reasons, so that the credentials are not stored in plain text in the repository. Accidentally including your credentials in a repository is very hard to remove. Hence, the usage of environment variables is recommended as a starting point.
+This file is going to contain the connection parameters for reachability to the
+NDFC controller. The `ansible_user`, and `ansible_password` are set to establish
+connection to the NDFC controller. For the devices, you will set separate
+variables also configured as environment variables.
 
-Also, if you plan to eventually utilize a pipeline, the environment variables can be set in the pipeline configuration in a secure manner that is not exposed to the repository.
-
-The usage of [Ansible vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html) is also possible to encrypt the contents of the connection file or simply encrypt the variables.
+> [!IMPORTANT]
+> The usage of environment variables is done for security reasons, so that the
+> credentials are not stored in plain text in the repository. Accidentally
+> including your credentials in a repository is very hard to remove. Hence, the
+> usage of environment variables is recommended as a starting point.
+>
+> Also, if you plan to eventually utilize a pipeline, the environment variables
+> can be set in the pipeline configuration in a secure manner that is not
+> exposed to the repository.
+>
+> The usage of [Ansible vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html)
+> is also possible to encrypt the contents of the connection file or simply
+> encrypt the variables.
 
 #### Step 3 - Set Environment Variables
 
-The environment variables are set in the shell that is going to execute the playbook. The environment variables are configured via the `export` command in the shell (bash). Using this template set the environment variables to the correct credentials for the NDFC controller and the devices in the inventory on your topology.
+The environment variables are set in the shell that is going to execute the playbook. The environment variables are configured via the `export` command in the shell (bash). Using this template, set the environment variables to the correct credentials for the NDFC controller and the devices in the inventory on your topology.
 
 ```bash
 # These are the credentials for ND/NDFC
@@ -256,7 +300,7 @@ export NDFC_SW_USERNAME=admin
 export NDFC_SW_PASSWORD=Admin_123
 ```
 
-The following quickstart repository is available to provide a step by step guide for using this collection
+The following quickstart repository is available to provide a step by step guide for using this collection.
 
 [Quick Start Guide Repo](https://github.com/netascode/ansible-dc-vxlan-example)
 
@@ -314,7 +358,11 @@ The first role is `cisco.nac_dc_vxlan.validate` which is going to validate the d
 The subsequent roles are the `cisco.nac_dc_vxlan.dtc.create`, `cisco.nac_dc_vxlan.dtc.deploy`, and `cisco.nac_dc_vxlan.dtc.remove` roles. These roles are the primary roles that will invoke changes in NDFC as described earlier.
 
 
-> **Note**: For your safety as indicated ealier, the `remove` role also requires setting some variables to `true` under the `group_vars` directory. This is to avoid accidental removal of configuration from NDFC that might impact the network. This will be covered in more detail below.
+> [!WARNING]
+> For your safety as indicated [earlier](#remove-role), the `remove` role also
+> requires setting some variables to `true` under the `group_vars` directory.
+> This is to avoid accidental removal of configuration from NDFC that might
+> impact the network. This will be covered in more detail below.
 
 The playbook can be configured to execute only the roles that are required. For example, as you are building your data model and familiarizing yourself with the collection, you may comment out the `deploy` and `remove` roles and only execute the `validate` and `create` roles. This provides a quick way to make sure that the data model is structured correctly.
 
@@ -323,18 +371,22 @@ The playbook can be configured to execute only the roles that are required. For 
 
 To speed up execution when only certain roles need to be run the following role level tags are provided:
 
- * role_validate - Select and run `cisco.nac_dc_vxlan.validate` role
- * role_create - Select and run `cisco.nac_dc_vxlan.create` role
- * role_deploy  - Select and run `cisco.nac_dc_vxlan.deploy` role
- * role_remove  - Select and run `cisco.nac_dc_vxlan.remove` role
+| Tag Name      | Description |
+| ------------- | :---------- |
+| role_validate | Select and run `cisco.nac_dc_vxlan.validate` role |
+| role_create   | Select and run `cisco.nac_dc_vxlan.create` role |
+| role_deploy   | Select and run `cisco.nac_dc_vxlan.deploy` role |
+| role_remove   | Select and run `cisco.nac_dc_vxlan.remove` role |
 
-The validate role will automatically run if tags `role_create, role_deploy, role_remove` are specified.
+> [!NOTE]
+> The validate role will automatically run if tags `role_create, role_deploy, role_remove` are specified.
 
-Example: Selectively Run `cisco.nac_dc_vxlan.create` role alone
-
-```bash
-ansible-playbook -i inventory.yaml vxlan.yaml --tags role_create
-```
+> [!TIP]
+> Example: Selectively run `cisco.nac_dc_vxlan.create` role alone.
+>
+> ```bash
+> ansible-playbook -i inventory.yaml vxlan.yaml --tags role_create
+> ```
 
 **Selective Execution based on Model Changes**
 
@@ -358,6 +410,16 @@ This capability is not available under the following conditions:
 
 * [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
 
+## Multi-Site Domain for VXLAN BGP EVPN Fabrics
+A Multi-Site Domain (MSD) is a multifabric container that is created to manage multiple member fabrics. An MSD is a single point of control for definition of overlay networks and VRFs that are shared across member fabrics. When you move fabrics (that are designated to be part of the multifabric overlay network domain) under the MSD as member fabrics, the member fabrics share the networks and VRFs created at the MSD-level. This way, you can consistently provision network and VRFs for different fabrics, at one go. It significantly reduces the time and complexity involving multiple fabric provisionings.
+
+### To configure and manage MSD fabrics with VXLAN as Code, you should use the following workflow:
+1. Create each member/child fabric that will be managed by MSD using the normal data models for each fabric (or use a combined data model with all child fabrics)
+2. Create the MSD fabric. In the data model set the fabric type to MSD and specify each child fabric that will be managed.
+   Reference the [VXLAN Data Model](https://netascode.cisco.com/data_model/vxlan/overview)
+> [!NOTE]
+> Any additional changes can be done using the MSD fabric data model or on an individual fabric basis using the respective playbooks.
+
 ## Contributing to this Collection
 
 Ongoing development efforts and contributions to this collection are focused on new roles when needed and enhancements to current roles.
@@ -378,7 +440,7 @@ We welcome community contributions to this collection. If you find problems, ple
 
 MIT License
 
-Copyright (c) 2024 Cisco and/or its affiliates.
+Copyright (c) 2024-2025 Cisco and/or its affiliates.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

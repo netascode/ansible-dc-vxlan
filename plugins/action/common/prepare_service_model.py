@@ -47,6 +47,8 @@ class ActionModule(ActionBase):
         # Get Data from Ansible Task
         ihn = self._task.args['inventory_hostname']
         hvs = self._task.args['hostvars']
+        tp = self._task.args['templates_path']
+        default_values = self._task.args['default_values']
 
         # sm_data contains the golden untouched model data
         sm_data = self._task.args['model_data']
@@ -77,7 +79,16 @@ class ActionModule(ActionBase):
                 results['msg'] = f"Plugin {plugin_name} must have a list of keys"
             # Call each plugin in a loop
             results = dict_of_plugins[plugin_name].PreparePlugin(
-                host_name=ihn, hostvars=hvs, results=results).prepare()
+                host_name=ihn,
+                hostvars=hvs,
+                default_values=default_values,
+                templates_path=tp,
+                results=results).prepare()
+
+            if results.get('failed'):
+                # Check each plugin for failures and break out of the loop early
+                # if a failure is encounterd.
+                break
 
         if results['failed']:
             # If there is a failure, remove the model data to make the failure message more readable

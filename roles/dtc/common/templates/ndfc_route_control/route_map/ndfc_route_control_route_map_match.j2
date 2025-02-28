@@ -1,0 +1,80 @@
+                        {% for match in entry["match"] %}
+                            {% if match["route_types"] is defined %}
+  match route-type {{ match["route_types"] | join(" ") }}
+                            {% endif %}
+                            {% if match["community_list"] is defined %}
+                                {% if match["community_list"]["community"] is defined and match["community_list"]["exact_match"] is defined %}
+  match community {{ match["community_list"]["community"] }} exact-match
+                                {% elif match["community_list"]["community"] is defined %}
+  match community {{ match["community_list"]["community"] }}
+                                {% endif %}
+                            {% endif %}
+                            {% if match["extended_community_list"] is defined %}
+                                {% if match["extended_community_list"]["community"] is defined and match["extended_community_list"]["exact_match"] is defined %}
+  match extcommunity {{ match["extended_community_list"]["community"] }} exact-match
+                                {% elif match["extended_community_list"]["community"] is defined %}
+  match extcommunity {{ match["extended_community_list"]["community"] }}
+                                {% endif %}
+                            {% endif %}
+                            {% if match["evpn_route_types"] is defined %}
+  match evpn route-type {{ match["evpn_route_types"] | unique | join (" ")}}
+                            {% endif %}
+                            {% if match["as_path_list"] is defined %}
+  match as-path {{ match["as_path_list"] }}
+                            {% endif %}
+                            {% if match["as_number"] is defined %}
+                                {% set asnumber = [] %}
+                                {% for as in match["as_number"] %}
+                                    {% if as["from"] is defined and as["to"] is defined %}
+                                        {% set _ = asnumber.append(as["from"]~ "-" ~as["to"])%}
+                                    {% elif as["from"] is defined %}
+                                        {% set _ = asnumber.append(as["from"]) %}
+                                    {% endif %}
+                                {% endfor %}
+  match as-number {{ asnumber | join(", ") }}
+                            {% endif %}
+                            {% if match["interface"] is defined %}
+  match interface {{ match["interface"] | join(" ") }}
+                            {% endif %}
+                            {% if match["metric"] is defined %}
+                                {% if match["metric"]["deviation_operator"] is defined %}
+  match metric {{ match["metric"]["metric"] }} {{ match["metric"]["deviation_operator"] }} {{ match["metric"]["deviation_value"] }}
+                                {% else %}
+  match metric {{ match["metric"]["metric"] }}
+                                {% endif %}
+                            {% endif %}
+                            {% if match["mac_list"] is defined %}
+  match mac-list {{ match["mac_list"] }}
+                            {% endif %}
+                            {% if match["ospf_area"] is defined %}
+  match ospf-area {{ match["ospf_area"] }}
+                            {% endif %}
+                            {% if match["source_protocol"] is defined %}
+  match source-protocol {{ match["source_protocol"] }}
+                            {% endif %}
+                            {% if match["tag"] is defined %}
+  match tag {{ match["tag"] | join (" ") }}
+                            {% endif %}
+                            {% if match["ipv4"] is defined %}
+                                {% if match["ipv4"]["address_prefix_list"] is defined %}
+  match ip address prefix-list {{ match["ipv4"]["address_prefix_list"] | join(" ") }}
+                                {% endif %}
+                                {% if match["ipv4"]["next_hop_prefix_list"] is defined %}
+  match ip next-hop prefix-list {{ match["ipv4"]["next_hop_prefix_list"] | join(" ") }}
+                                {% endif %}
+                                {% if match["ipv4"]["route_src_prefix_list"] is defined %}
+  match ip route-source prefix-list {{ match["ipv4"]["route_src_prefix_list"] | join(" ") }}
+                                {% endif %}
+                            {% endif %}
+                            {% if match["ipv6"] is defined %}
+                                {% if match["ipv6"]["address_prefix_list"] is defined %}
+  match ip address prefix-list {{ match["ipv6"]["address_prefix_list"] | join(" ") }}
+                                {% endif %}
+                                {% if match["ipv6"]["next_hop_prefix_list"] is defined %}
+  match ip next-hop prefix-list {{ match["ipv6"]["next_hop_prefix_list"] | join(" ") }}
+                                {% endif %}
+                                {% if match["ipv6"]["route_src_prefix_list"] is defined %}
+  match ip route-source prefix-list {{ match["ipv6"]["route_src_prefix_list"] | join(" ") }}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
