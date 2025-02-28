@@ -33,7 +33,7 @@
 {% elif ("." in value | string | trim) or (":" in value | string | trim) %}
               {{ key }}: |-
                 "{{ value | string | indent(10) | trim }}"
-{% if '\n' in value %}
+{% elif '\n' in value %}
             {{ key }}: |-
               {{ value | indent(14) }}
 {% else %}
