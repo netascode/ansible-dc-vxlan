@@ -1,5 +1,13 @@
 {# Auto-generated NDFC MSD DCI config data structure for fabric {{ vxlan.fabric.name }} #}
   BORDER_GWY_CONNECTIONS: {{ vxlan.multisite.overlay_dci.deployment_method | default(defaults.vxlan.multisite.overlay_dci.deployment_method) }}
+{% if ( (vxlan.multisite.overlay_dci.deployment_method | default(defaults.vxlan.multisite.overlay_dci.deployment_method) == 'Centralized_To_Route_Server') and (vxlan.multisite.overlay_dci.route_server is defined and vxlan.multisite.overlay_dci.route_server) ) %}
+  RP_SERVER_IP: "{{ vxlan.multisite.overlay_dci.route_server.peers | map(attribute='ip_address') | list | join(", ") | trim }}"
+  BGP_RP_ASN: "{{ vxlan.multisite.overlay_dci.route_server.peers | map(attribute='bgp_asn') | list | join(", ") | trim }}"
+  ENABLE_RS_REDIST_DIRECT: {{ vxlan.multisite.overlay_dci.route_server.redistribute_direct | default(defaults.vxlan.multisite.overlay_dci.route_server.redistribute_direct) }}
+{% if vxlan.multisite.overlay_dci.route_server.redistribute_direct | default(defaults.vxlan.multisite.overlay_dci.route_server.redistribute_direct) %}
+  RS_ROUTING_TAG: {{ vxlan.multisite.overlay_dci.route_server.ip_tag | default(defaults.vxlan.multisite.overlay_dci.route_server.ip_tag) }}
+{% endif %}
+{% endif %}
   MS_UNDERLAY_AUTOCONFIG: {{ vxlan.multisite.overlay_dci.underlay_autoconfig | default(defaults.vxlan.multisite.overlay_dci.underlay_autoconfig) }}
 {% if (vxlan.multisite.overlay_dci.underlay_autoconfig | default(defaults.vxlan.multisite.overlay_dci.underlay_autoconfig) | ansible.builtin.bool) is sameas false %}
   ENABLE_BGP_SEND_COMM: {{ vxlan.multisite.overlay_dci.enable_bgp_send_community | default(defaults.vxlan.multisite.overlay_dci.enable_bgp_send_community) }}
