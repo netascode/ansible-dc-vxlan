@@ -127,7 +127,8 @@ class ActionModule(ActionBase):
                         (ndfc_net_template_config['loopbackId'] != network.get('dhcp_loopback_id', "")) or
                         (ndfc_net_template_config['ENABLE_NETFLOW'] != str(network.get('netflow_enable', False)).lower()) or
                         (ndfc_net_template_config['VLAN_NETFLOW_MONITOR'] != network.get('vlan_netflow_monitor', "")) or
-                        (ndfc_net_template_config['trmEnabled'] != str(network.get('trm_enable', False)).lower())
+                        (ndfc_net_template_config['trmEnabled'] != str(network.get('trm_enable', False)).lower()) or
+                        (ndfc_net_template_config['mcastGroup'] != network.get('multicast_group_address'))
                     ):
                         results['child_fabrics_changed'].append(child_fabric)
 
