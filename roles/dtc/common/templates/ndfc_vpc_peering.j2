@@ -5,27 +5,15 @@
 
 {% if MD.vxlan.topology.vpc_peers is defined and MD.vxlan.topology.vpc_peers is not none %}
 {% for vpc_peer in MD.vxlan.topology.vpc_peers %}
-{% if MD_Extended.vxlan.topology.leaf is defined and vpc_peer.peer1 in MD_Extended.vxlan.topology.leaf %}
 {% if MD_Extended.vxlan.topology.leaf[vpc_peer.peer1].management_ipv4_address is not none %}
 - peerOneId: {{ MD_Extended.vxlan.topology.leaf[vpc_peer.peer1].management_ipv4_address }}
 {% elif MD_Extended.vxlan.topology.leaf[vpc_peer.peer1].management_ipv6_address is not none %}
 - peerOneId: {{ MD_Extended.vxlan.topology.leaf[vpc_peer.peer1].management_ipv6_address }}
-{% else %}
-- peerOneId: {{ vpc_peer.peer1 }}
 {% endif %}
-{% else %}
-- peerOneId: {{ vpc_peer.peer1 }}
-{% endif %}
-{% if MD_Extended.vxlan.topology.leaf is defined and vpc_peer.peer2 in MD_Extended.vxlan.topology.leaf %}
 {% if MD_Extended.vxlan.topology.leaf[vpc_peer.peer2].management_ipv4_address is not none %}
   peerTwoId: {{ MD_Extended.vxlan.topology.leaf[vpc_peer.peer2].management_ipv4_address }}
 {% elif MD_Extended.vxlan.topology.leaf[vpc_peer.peer2].management_ipv6_address is not none %}
   peerTwoId: {{ MD_Extended.vxlan.topology.leaf[vpc_peer.peer2].management_ipv6_address }}
-{% else %}
-  peerTwoId: {{ vpc_peer.peer2 }}
-{% endif %}
-{% else %}
-  peerTwoId: {{ vpc_peer.peer2 }}
 {% endif %}
 {% if vpc_peer.fabric_peering is defined %}
   useVirtualPeerlink: {{ vpc_peer.fabric_peering }}
