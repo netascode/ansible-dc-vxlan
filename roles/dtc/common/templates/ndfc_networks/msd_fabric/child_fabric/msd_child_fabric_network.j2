@@ -18,7 +18,7 @@
         "mtu": ndfc.mtu,
         "isLayer2Only": ndfc.isLayer2Only,
         "suppressArp": ndfc.suppressArp,
-        "mcastGroup": ndfc.mcastGroup,
+        "mcastGroup": dm.multicast_group_address | default(ndfc.mcastGroup),
         "tag": ndfc.tag,
         "secondaryGW1": ndfc.secondaryGW1,
         "secondaryGW2": ndfc.secondaryGW2,

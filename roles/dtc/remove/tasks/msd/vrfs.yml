@@ -35,7 +35,7 @@
     vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
   vars:
     update_data:
-        changes_detected_vrfs: "{{ changes_detected_vrfs }}"
+        changes_detected_vrfs: "{{ changes_detected_vrfs if vars_common_msd.changes_detected_vrfs is not defined else vars_common_msd.changes_detected_vrfs }}"
         vrf_config: "{{ vrf_config }}"
 
 - name: Run Diff Flags
@@ -52,8 +52,8 @@
 - name: Remove Unmanaged Fabric VRFs
   cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: overridden
     config: "{{ vars_common_msd.vrf_config }}"
+    state: overridden
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
