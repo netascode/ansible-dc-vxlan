@@ -18,7 +18,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
-
 ---
 
 - ansible.builtin.fail: msg="Service Model Not Defined. Role cisco.nac_dc_vxlan.validate Must Be Called First"
