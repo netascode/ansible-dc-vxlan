@@ -290,6 +290,9 @@ factory_defaults:
       ipv6_vtep_loopback_range: fd00::a10:0/120
       overlay_dci:
         deployment_method: Direct_To_BGWS
+        route_server:
+          redistribute_direct: false
+          ip_tag: 54321
         ipv4_dci_subnet_range: 10.10.1.0/24
         ipv4_dci_subnet_mask: 30
         ipv6_dci_subnet_range: fd00::a11:0/120
