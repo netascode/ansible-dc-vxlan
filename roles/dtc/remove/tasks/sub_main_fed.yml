@@ -45,13 +45,13 @@
     switch_list: "{{result}}"
 
 - name: Remove Fabric Networks
-  ansible.builtin.import_tasks: networks.yml
+  ansible.builtin.import_tasks: networks_fed.yml
   tags: "{{ nac_tags.remove_networks }}"
   when:
     - changes_detected_networks
 
 - name: Remove Fabric VRFs
-  ansible.builtin.import_tasks: vrfs.yml
+  ansible.builtin.import_tasks: vrfs_fed.yml
   tags: "{{ nac_tags.remove_vrfs }}"
   when:
     - changes_detected_vrfs

@@ -1,7 +1,8 @@
 [
 {% for network in MD_Extended.vxlan.overlay_services.networks %}
+{% if network['network_attach_group'] is defined %}
   {% for attach_group in MD_Extended.vxlan.overlay_services.network_attach_groups %}
-    {% if network.network_attach_group == attach_group.name %}
+    {% if network.network_attach_group is defined and network.network_attach_group == attach_group.name %}
       {% for switch in attach_group['switches'] %}
       {
       'networkName':'{{ network['name'] }}',
@@ -46,5 +47,6 @@
     {% endif %}
   {% endfor %}
   {% if not loop.last %},{% endif %}
+{% endif %}
 {% endfor %}
 ]
