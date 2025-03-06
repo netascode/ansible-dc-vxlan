@@ -167,6 +167,6 @@ def ndfc_get_switch_policy_using_desc(self, task_vars, tmp, switch_serial_number
 
 def normalise_int_lists(data):
     for interface in data:
-        if interface.startswith('Ethernet','ethernet','Eth','eth','E','e'):
+        if interface.startswith(('Ethernet','ethernet','Eth','eth','E','e')):
             interface = "Ethernet" + re.split(r'(?=\d)', interface, 1)[1]       
     return data
