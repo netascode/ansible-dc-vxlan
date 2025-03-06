@@ -107,7 +107,6 @@ class ActionModule(ActionBase):
                                     else:
                                         instanceValues['deviceSupportL3VniNoVlan'] = "false"
                                     normal_model_data.append({"fabric":switch_entry['fabricName'],'deployment': deployment,'vrfName':vrf['name'],'serialNumber':switch_entry['serialNumber']})
-            print(normal_model_data)
             difference = [item for item in normal_ndfc_data if item not in normal_model_data]
 
             # Restructure the difference data
