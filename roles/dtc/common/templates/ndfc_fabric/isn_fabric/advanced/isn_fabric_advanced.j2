@@ -7,4 +7,6 @@
   AAA_REMOTE_IP_ENABLED: false
   INBAND_MGMT: false
   FEATURE_PTP: false
+  ENABLE_NXAPI: {{ vxlan.global.enable_nxapi | default(defaults.vxlan.global.enable_nxapi) }}
+  ENABLE_NXAPI_HTTP: {{ vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http ) }}
 {# #}
