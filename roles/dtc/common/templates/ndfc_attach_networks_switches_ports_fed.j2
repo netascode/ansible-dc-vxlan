@@ -1,7 +1,8 @@
 [
-{% for network in MD_Extended.vxlan.multisite.overlay.networks %}
-  {% for attach_group in MD_Extended.vxlan.multisite.overlay.network_attach_groups %}
-    {% if network.network_attach_group == attach_group.name %}
+{% for network in MD_Extended.vxlan.overlay_services.networks %}
+{% if network['network_attach_group'] is defined %}
+  {% for attach_group in MD_Extended.vxlan.overlay_services.network_attach_groups %}
+    {% if network.network_attach_group is defined and network.network_attach_group == attach_group.name %}
       {% for switch in attach_group['switches'] %}
       {
       'networkName':'{{ network['name'] }}',
@@ -18,7 +19,7 @@
             {% set torString = '' %}
             {% set torPortString = '' %}
             {% for tor in switch.tors %}
-            {% if loop.last %}
+            {% if loop.last %} 
               {% set torString = torString ~ tor.hostname  %}
               {% set torPortString = torPortString ~  ' ' ~ tor.hostname ~ '(' ~ tor.ports | join(",") ~ ')' %}
               'allSwitches':'["{{ switch['hostname'] }}","{{ switch_inv.intentedpeerName }}","{{ torString }}"]',
@@ -37,8 +38,8 @@
           {% endif %}
         {% endfor %}
 
-
-
+ 
+ 
 
       }
       {% if not loop.last %},{% endif %}
@@ -46,5 +47,6 @@
     {% endif %}
   {% endfor %}
   {% if not loop.last %},{% endif %}
+{% endif %}
 {% endfor %}
 ]

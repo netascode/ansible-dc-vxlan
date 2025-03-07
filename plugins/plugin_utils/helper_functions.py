@@ -233,3 +233,9 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
         )
 
     return fabric_switches
+
+def normalise_int_lists(data):
+    for interface in data:
+        if interface.startswith(('Ethernet','ethernet','Eth','eth','E','e')):
+            interface = "Ethernet" + re.split(r'(?=\d)', interface, 1)[1]
+    return data
