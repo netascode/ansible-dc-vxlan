@@ -99,11 +99,11 @@ class ActionModule(ActionBase):
                                     instanceValues = {}
                                     instanceValues['deviceSupportL3VniNoVlan'] = "false"
                                     # if switch['loopback_id'] != "":
-                                    if switch.get('loopback_ipv4') != "":
+                                    if switch.get('loopback_ipv4',"") != "":
                                         instanceValues['loopbackIpV6Address'] = ""
-                                        instanceValues['loopbackId'] = switch['loopback_id']
+                                        instanceValues['loopbackId'] = switch.get('loopback_id',"")
                                         instanceValues['deviceSupportL3VniNoVlan'] = "false"
-                                        instanceValues['loopbackIpAddress'] = switch['loopback_ipv4']
+                                        instanceValues['loopbackIpAddress'] = switch.get('loopback_ipv4',"")
                                     else:
                                         instanceValues['deviceSupportL3VniNoVlan'] = "false"
                                     normal_model_data.append({"fabric":switch_entry['fabricName'],'deployment': deployment,'vrfName':vrf['name'],'serialNumber':switch_entry['serialNumber']})
