@@ -26,6 +26,10 @@ factory_defaults:
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
+      enable_nxapi_http: false
+      enable_nxapi_https: true
+      nxapi_http_port: 80
+      nxapi_https_port: 443
       vpc:
         peer_link_vlan: 3600
         peer_keep_alive: management
@@ -290,6 +294,9 @@ factory_defaults:
       ipv6_vtep_loopback_range: fd00::a10:0/120
       overlay_dci:
         deployment_method: Direct_To_BGWS
+        route_server:
+          redistribute_direct: false
+          ip_tag: 54321
         ipv4_dci_subnet_range: 10.10.1.0/24
         ipv4_dci_subnet_mask: 30
         ipv6_dci_subnet_range: fd00::a11:0/120
