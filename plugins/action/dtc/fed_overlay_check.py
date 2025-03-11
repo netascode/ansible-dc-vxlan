@@ -96,16 +96,6 @@ class ActionModule(ActionBase):
                         for switch in vrf_attach_group['switches']:
                             for switch_entry in switch_data:
                                 if switch['hostname'] == switch_entry['logicalName']:
-                                    instanceValues = {}
-                                    instanceValues['deviceSupportL3VniNoVlan'] = "false"
-                                    # if switch['loopback_id'] != "":
-                                    if switch.get('loopback_ipv4',"") != "":
-                                        instanceValues['loopbackIpV6Address'] = ""
-                                        instanceValues['loopbackId'] = switch.get('loopback_id',"")
-                                        instanceValues['deviceSupportL3VniNoVlan'] = "false"
-                                        instanceValues['loopbackIpAddress'] = switch.get('loopback_ipv4',"")
-                                    else:
-                                        instanceValues['deviceSupportL3VniNoVlan'] = "false"
                                     normal_model_data.append({"fabric":switch_entry['fabricName'],'deployment': deployment,'vrfName':vrf['name'],'serialNumber':switch_entry['serialNumber']})
             difference = [item for item in normal_ndfc_data if item not in normal_model_data]
 
