@@ -47,12 +47,20 @@
     - (config_save.response.RETURN_CODE != 200)
     - ('Switch(es) are either reloading or not reachable' not in error_msg)
 
+- name: Extract serial numbers from switches_in_fabric
+  set_fact:
+    serial_numbers: "{{ switches_in_fabric | json_query('[*].serialNumber') }}"
 
-- name: Deploy for Fabric {{ MD.vxlan.global.name }}
+- name: Join serial numbers into a comma-separated list
+  set_fact:
+    serial_numbers_str: "{{ serial_numbers | join(',') }}"
+
+- name: Deploy for Federated Overlay
   cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-deploy?forceShowRun=false"
     method: POST
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-deploy/{{ serial_numbers_str }}?forceShowRun=false"
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
-  # TODO: Need to add logic to only deploy if changes are made
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
+
+

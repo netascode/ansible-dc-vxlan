@@ -11,7 +11,7 @@
           {% if switch_inv.logicalName == switch['hostname'] %}
           'switchIP':'{{ switch_inv.ipAddress }}',
           'switchSN':'{{ switch_inv.serialNumber }}',
-          'peerSwitchName':'{{ switch_inv.intentedpeerName }}',
+          'peerSwitchName':'{{ switch_inv.intentedpeerName | default("")}}',
           'fabricName':'{{ switch_inv.fabricName }}',
           'clusterName':'{{ switch_inv.clusterName }}',
           'ndfcIpAddress':'{{ switch_inv.clusterIp }}',

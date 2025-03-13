@@ -104,6 +104,7 @@
     method: "POST"
     json_data: "{{ vrf_attach_config | to_json}}"
   when:
+    - vrf_attach_config is defined
     - MD.vxlan.overlay_services.vrfs is defined
     - MD.vxlan.overlay_services.vrfs
     - changes_detected_vrfs
@@ -151,8 +152,9 @@
   cisco.dcnm.dcnm_rest:
     path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/networks/attachments"
     method: "POST"
-    json_data: "{{ network_switches | to_json}}"
+    json_data: "{{ network_switches | to_json}}"  
   when:
+    - network_switches is defined
     - MD.vxlan.global.fabric_type == 'MFD'
     - MD.vxlan.overlay_services.networks is defined
     - changes_detected_networks
@@ -163,6 +165,7 @@
     method: "POST"
     json_data: "{{ network_switches_ports | to_json}}"
   when:
+    - network_switches_ports is defined
     - MD.vxlan.global.fabric_type == 'MFD'
     - MD.vxlan.overlay_services.networks is defined
     - changes_detected_networks
