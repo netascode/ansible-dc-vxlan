@@ -42,25 +42,35 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
       - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
       - "+     ----- Run Map -----"
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
       - "----------------------------------------------------------------"
 
+# - name: Remove Unmanaged Fabric VRFs
+#   cisco.dcnm.dcnm_vrf:
+#     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+#     config: "{{ vars_common_msd.vrf_config }}"
+#     state: overridden
+#   vars:
+#       ansible_command_timeout: 3000
+#       ansible_connect_timeout: 3000
+#   when:
+#    - multisite_vrf_delete_mode is defined
+#    - multisite_vrf_delete_mode is true | bool
+#    - vars_common_msd.changes_detected_vrfs
+
 - name: Remove Unmanaged Fabric VRFs
-  cisco.dcnm.dcnm_vrf:
+  cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ vars_common_msd.vrf_config }}"
-    state: overridden
-  vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
+    msite_data: "{{ MD_Multisite}}"
+    state: absent
+  register: child_fabric_vrf_results
   when:
-   - multisite_vrf_delete_mode is defined
-   - multisite_vrf_delete_mode is true | bool
-   - vars_common_msd.changes_detected_vrfs
+    - multisite_vrf_delete_mode is defined
+    - multisite_vrf_delete_mode is true | bool
+    - vars_common_msd.changes_detected_vrfs
 
 - ansible.builtin.debug:
     msg:
