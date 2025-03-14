@@ -56,7 +56,7 @@
 # Build Fabric intra links for vpc peering From Template
 # --------------------------------------------------------------------
 
-- name: Build Intra Fabric Links From Template
+- name: Build vPC Intra Fabric Links From Template
   ansible.builtin.import_tasks: common/ndfc_vpc_fabric_peering_links.yml
 
 # --------------------------------------------------------------------

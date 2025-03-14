@@ -12,20 +12,8 @@
   template: int_pre_provision_intra_fabric_link
   src_interface: {{peer1_interface.name}}
   dst_interface: {{peer2_interface.name}}
-  src_device:
-{% set switch = MD_Extended.vxlan.topology.leaf[peers.peer1] %}
-{% if switch.management_ipv4_address is defined %}
-    {{ switch.management_ipv4_address}}
-{% elif (switch.management_ipv4_address is not defined) and (switch.management_ipv6_address is defined)  %}
-    {{ switch.management_ipv6_address}}
-{% endif %}
-  dst_device:
-{% set switch = MD_Extended.vxlan.topology.leaf[peers.peer2] %}
-{% if switch.management_ipv4_address is defined %}
-    {{ switch.management_ipv4_address}}
-{% elif (switch.management_ipv4_address is not defined) and (switch.management_ipv6_address is defined)  %}
-    {{ switch.management_ipv6_address}}
-{% endif %}
+  src_device: {{ peers.peer1_mgmt_ip_address }}
+  dst_device: {{ peers.peer2_mgmt_ip_address }}
 {% endif %}
 {% endfor %}
 {% endif %}
