@@ -41,6 +41,7 @@
     - MD_Extended.vxlan.overlay.vrfs is defined
     - MD_Extended.vxlan.overlay.vrfs
     - vars_common_vxlan.changes_detected_vrfs
+    - not is_active_child_fabric
 
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC
@@ -54,6 +55,7 @@
     - MD_Extended.vxlan.overlay.vrfs is defined
     - MD_Extended.vxlan.overlay.vrfs
     - vars_common_vxlan.changes_detected_vrfs
+    - not is_active_child_fabric
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
@@ -68,3 +70,6 @@
     - MD_Extended.vxlan.overlay.networks is defined
     - MD_Extended.vxlan.overlay.networks
     - vars_common_vxlan.changes_detected_networks
+    - not is_active_child_fabric
+
+- ansible.builtin.meta: end_play
