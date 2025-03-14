@@ -26,6 +26,10 @@ factory_defaults:
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
+      enable_nxapi_http: false
+      nxapi_http_port: 80
+      enable_nxapi_https: true
+      nxapi_https_port: 443
       vpc:
         peer_link_vlan: 3600
         peer_keep_alive: management
