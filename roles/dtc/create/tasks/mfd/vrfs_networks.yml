@@ -108,6 +108,7 @@
     method: "POST"
     json_data: "{{ network_switches | to_json}}"
   when:
+    - network_switches is defined
     - MD.vxlan.fabric.type == 'MFD'
     - MD.vxlan.multisite.overlay.networks is defined
     - changes_detected_networks
@@ -118,6 +119,7 @@
     method: "POST"
     json_data: "{{ network_switches_ports | to_json}}"
   when:
+    - network_switches_ports is defined
     - MD.vxlan.fabric.type == 'MFD'
     - MD.vxlan.multisite.overlay.networks is defined
     - changes_detected_networks

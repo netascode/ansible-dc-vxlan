@@ -47,13 +47,14 @@ class ActionModule(ActionBase):
         normal_ndfc_data = []
         restructured_data = []
         deployment = False
+        deploy_payload = []
         #normalise data for comparison
         if check_type == 'network_attach':
-            for attached_network in ndfc_data: 
+            for attached_network in ndfc_data:
                 for network_attached_group in attached_network['lanAttachList']:
                     if network_attached_group['isLanAttached'] == True:
                         normal_ndfc_data.append({'networkName': network_attached_group['networkName'],'switchName': network_attached_group['switchName'],'serialNumber':network_attached_group['switchSerialNo'],'portNames':network_attached_group['portNames'], "deployment":deployment, "fabric":network_attached_group['fabricName']})
-            for network in model_data['vxlan']['overlay_services']['networks']: 
+            for network in model_data['vxlan']['overlay_services']['networks']:
                 for network_attach_group in model_data['vxlan']['overlay_services']['network_attach_groups']:
                     if network.get('network_attach_group') == network_attach_group['name']:
                         for switch in network_attach_group['switches']:
@@ -65,14 +66,17 @@ class ActionModule(ActionBase):
             # Restructure in case of just port removal
             for item in difference:
                 if item['portNames'] != "":
-                    for network in model_data['vxlan']['overlay_services']['networks']: 
+                    for network in model_data['vxlan']['overlay_services']['networks']:
                         for network_attach_group in model_data['vxlan']['overlay_services']['network_attach_groups']:
                             if network.get('network_attach_group') == network_attach_group['name'] and item['networkName'] == network['name']:
                                 for switch in network_attach_group['switches']:
                                     if switch['hostname'] == item['switchName']:
                                         port_difference = [port for port in item['portNames'].split(',') if port not in switch['ports']]
-                                        item['switchPorts'] = switch['ports'][0]
-                                        item['detachSwitchPorts'] = port_difference[0]
+                                        if switch.get('ports'):
+                                            item['switchPorts'] = ",".join(switch['ports'])
+                                        else:
+                                            item['switchPorts'] = ""
+                                        item['detachSwitchPorts'] = ",".join(port_difference)
                                         item['deployment'] = True
                                         item.pop('portNames')
             # Restructure the difference data into payload format
@@ -82,11 +86,12 @@ class ActionModule(ActionBase):
                 if network_name not in network_dict:
                     network_dict[network_name] = {'networkName': network_name, 'lanAttachList': []}
                 network_dict[network_name]['lanAttachList'].append(item)
+                deploy_payload.append(item['serialNumber'])
             restructured_data = list(network_dict.values())
 
 
         elif check_type == 'vrf_attach':
-            for attached_vrf in ndfc_data: 
+            for attached_vrf in ndfc_data:
                 for vrf_attached_group in attached_vrf['lanAttachList']:
                     if vrf_attached_group['isLanAttached'] == True:
                         normal_ndfc_data.append({"fabric":vrf_attached_group['fabricName'],'deployment': deployment, 'vrfName': vrf_attached_group['vrfName'],'serialNumber':vrf_attached_group['switchSerialNo']})
@@ -96,16 +101,6 @@ class ActionModule(ActionBase):
                         for switch in vrf_attach_group['switches']:
                             for switch_entry in switch_data:
                                 if switch['hostname'] == switch_entry['logicalName']:
-                                    instanceValues = {}
-                                    instanceValues['deviceSupportL3VniNoVlan'] = "false"
-                                    # if switch['loopback_id'] != "":
-                                    if switch.get('loopback_ipv4') != "":
-                                        instanceValues['loopbackIpV6Address'] = ""
-                                        instanceValues['loopbackId'] = switch['loopback_id']
-                                        instanceValues['deviceSupportL3VniNoVlan'] = "false"
-                                        instanceValues['loopbackIpAddress'] = switch['loopback_ipv4']
-                                    else:
-                                        instanceValues['deviceSupportL3VniNoVlan'] = "false"
                                     normal_model_data.append({"fabric":switch_entry['fabricName'],'deployment': deployment,'vrfName':vrf['name'],'serialNumber':switch_entry['serialNumber']})
             difference = [item for item in normal_ndfc_data if item not in normal_model_data]
 
@@ -116,6 +111,7 @@ class ActionModule(ActionBase):
                 if vrf_name not in vrf_dict:
                     vrf_dict[vrf_name] = {'vrfName': vrf_name, 'lanAttachList': []}
                 vrf_dict[vrf_name]['lanAttachList'].append(item)
+                deploy_payload.append(item['serialNumber'])
             restructured_data = list(vrf_dict.values())
 
         elif check_type == 'network':
@@ -133,5 +129,6 @@ class ActionModule(ActionBase):
             vrf_difference = [vrf for vrf in normal_ndfc_data if vrf not in normal_model_data]
             restructured_data = vrf_difference
         results['payload'] = restructured_data
+        results['deploy_payload'] = set(deploy_payload)
+
         return results
-    
