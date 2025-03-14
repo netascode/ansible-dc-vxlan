@@ -1,5 +1,5 @@
 {# Auto-generated NDFC DC VXLAN EVPN Base config data structure for fabric {{ vxlan.fabric.name }} #}
-{% import 'ndfc_utils.j2' as ndfc_utils with context %}
+{% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 - FABRIC_NAME: {{ vxlan.fabric.name }}
   FABRIC_TYPE: {{ vxlan.fabric.type }}
   DEPLOY: False

@@ -42,7 +42,6 @@ factory_defaults:
             to: 3967
         mst_instance_range:
           - from: 0
-            to: 0
         bridge_priority: 0
       netflow:
         enable: false
