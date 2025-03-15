@@ -117,7 +117,7 @@ body:
     id: ansible-collection-versions
     attributes:
       label: Ansible Collection Versions
-      description: Please provide your Ansible Collection versions used when encountering this issue from ```ansible-galaxy collection list```
+      description: Please provide your Ansible Collection versions if this requires some new collection or updated version from ```ansible-galaxy collection list```
       placeholder: ansible-galaxy collection list
       render: shell
     validations:
