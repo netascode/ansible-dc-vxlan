@@ -62,10 +62,10 @@ class PreparePlugin:
                                             model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')] = interface  # noqa: E501
 
                                             if switch.get('management').get('management_ipv4_address'):
-                                                model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')].update({'mgmt_ip_address': switch.get('management').get('management_ipv4_address')})
+                                                model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')].update({'mgmt_ip_address': switch.get('management').get('management_ipv4_address')})  # noqa: E501
                                             elif switch.get('management').get('management_ipv6_address'):
-                                                model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')].update({'mgmt_ip_address': switch.get('management').get('management_ipv6_address')})
-    
+                                                model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')].update({'mgmt_ip_address': switch.get('management').get('management_ipv6_address')})  # noqa: E501
+
         # Update model_extended with updated model_data
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
