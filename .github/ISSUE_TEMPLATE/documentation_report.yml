@@ -78,7 +78,7 @@ body:
     id: ansible-version
     attributes:
       label: Ansible Version
-      description: Please provide your Ansible version used when encountering this issue
+      description: Please provide your Ansible version used when encountering this issue from ```ansible --version```
       placeholder: ansible --version
       render: shell
     validations:
@@ -88,7 +88,7 @@ body:
     id: ansible-collection-versions
     attributes:
       label: Ansible Collection Versions
-      description: Please provide your Ansible Collection versions used when encountering this issue
+      description: Please provide your Ansible Collection versions used when encountering this issue from ```ansible-galaxy collection list```
       placeholder: ansible-galaxy collection list
       render: shell
     validations:
