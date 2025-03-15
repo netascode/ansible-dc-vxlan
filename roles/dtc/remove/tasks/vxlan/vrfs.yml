@@ -24,6 +24,7 @@
   when:
     - switch_list.response.DATA | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+    - not is_active_child_fabric
 
 - name: Remove Unmanaged Fabric VRFs
   cisco.dcnm.dcnm_vrf:
@@ -36,6 +37,7 @@
   when:
     - switch_list.response.DATA | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+    - not is_active_child_fabric
 
 - ansible.builtin.debug:
     msg:

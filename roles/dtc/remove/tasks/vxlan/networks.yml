@@ -24,6 +24,7 @@
   when:
     - switch_list.response.DATA | length > 0
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
+    - not is_active_child_fabric
 
 - name: Remove Unmanaged Fabric Networks
   cisco.dcnm.dcnm_network:
@@ -36,6 +37,7 @@
   when:
     - switch_list.response.DATA | length > 0
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
+    - not is_active_child_fabric
 
 - ansible.builtin.debug:
     msg:
