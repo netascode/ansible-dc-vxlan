@@ -57,20 +57,3 @@
   ansible.builtin.set_fact:
     ndfc_version: "{{ ndfc_version.response.DATA.version }}"
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-
-- name: Get MSD Fabric Associations
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
-  register: ndfc_msd_fabric_associations
-  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-
-- name: Find Fabric by Name
-  ansible.builtin.set_fact:
-    selected_fabric: "{{ ndfc_msd_fabric_associations['response']['DATA'] | json_query(query) }}"
-  vars:
-    query: "[?fabricName=='{{ inventory_hostname }}']"
-
-- name: Set MSD Check
-  ansible.builtin.set_fact:
-    is_active_child_fabric: "{{ true if selected_fabric[0]['fabricParent'] != 'None' else false }}"

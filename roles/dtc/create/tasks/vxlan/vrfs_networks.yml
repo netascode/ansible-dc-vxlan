@@ -28,6 +28,22 @@
       - "+     Manage VRFs and Networks Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
+- name: Get MSD Fabric Associations
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
+  register: ndfc_msd_fabric_associations
+
+- name: Find Fabric by Name
+  ansible.builtin.set_fact:
+    selected_fabric: "{{ ndfc_msd_fabric_associations['response']['DATA'] | json_query(query) }}"
+  vars:
+    query: "[?fabricName=='{{ MD_Extended.vxlan.fabric.name }}']"
+
+- name: Set MSD Check
+  ansible.builtin.set_fact:
+    is_active_child_fabric: "{{ true if selected_fabric[0]['fabricParent'] != 'None' else false }}"
+
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
 # --------------------------------------------------------------------
