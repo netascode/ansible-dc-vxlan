@@ -28,8 +28,6 @@ from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 
 
-import json
-
 display = Display()
 
 
