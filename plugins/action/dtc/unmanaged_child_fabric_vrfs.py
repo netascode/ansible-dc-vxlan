@@ -93,5 +93,7 @@ class ActionModule(ActionBase):
                     results['failed'] = True
                     results['msg'] = f"{ndfc_deleted_vrfs['msg']}"
                     return results
+            else:
+                results['changed'] = True
 
         return results
