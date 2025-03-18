@@ -62,10 +62,9 @@
 #    - vars_common_msd.changes_detected_vrfs
 
 - name: Remove Unmanaged Fabric VRFs
-  cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
+  cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_vrfs:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     msite_data: "{{ MD_Multisite}}"
-    state: absent
   register: child_fabric_vrf_results
   when:
     - multisite_vrf_delete_mode is defined
