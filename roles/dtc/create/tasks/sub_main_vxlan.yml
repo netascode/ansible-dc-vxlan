@@ -57,16 +57,16 @@
 
 - name: Config-Save block to propagate vPC changes to the fabric
   block:
-    - name: Config-Save for Fabric {{ MD.vxlan.global.name }}
+    - name: Config-Save for Fabric {{ MD.vxlan.fabric.name }}
       cisco.dcnm.dcnm_rest:
         method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.global.name }}/config-save"
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.fabric.name }}/config-save"
       when: MD_Extended.vxlan.topology.switches | length > 0
       register: config_save
       # TODO: Need to add logic to only save if changes are made
 
   rescue:
-    - name: Config-Save for Fabric {{ MD.vxlan.global.name }} - Failed
+    - name: Config-Save for Fabric {{ MD.vxlan.fabric.name }} - Failed
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
 
