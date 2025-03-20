@@ -54,6 +54,25 @@ class ActionModule(ActionBase):
             tmp=tmp
         )
 
+        # Failed query:
+        # {
+        #     "failed": true,
+        #     "msg": "Fabric fabric missing on DCNM or does not have any switches",
+        #     "invocation": {
+        #         "module_args": {
+        #             "fabric":"fabric",
+        #             "state":"query",
+        #             "config":"None"
+        #         }
+        #     },
+        #     "_ansible_parsed": true
+        # }
+        if ndfc_networks.get('failed'):
+            if ndfc_networks['failed']:
+                results['failed'] = True
+                results['msg'] = f"{ndfc_networks['msg']}"
+                return results
+
         # Successful query:
         # {
         #     "changed": false,
@@ -134,25 +153,6 @@ class ActionModule(ActionBase):
         if ndfc_networks.get('response'):
             ndfc_network_names = [ndfc_network['parent']['networkName'] for ndfc_network in ndfc_networks['response']]
 
-        # Failed query:
-        # {
-        #     "failed": true,
-        #     "msg": "Fabric fabric missing on DCNM or does not have any switches",
-        #     "invocation": {
-        #         "module_args": {
-        #             "fabric":"fabric",
-        #             "state":"query",
-        #             "config":"None"
-        #         }
-        #     },
-        #     "_ansible_parsed": true
-        # }
-        if ndfc_networks.get('failed'):
-            if ndfc_networks['failed']:
-                results['failed'] = True
-                results['msg'] = f"{ndfc_networks['msg']}"
-                return results
-
         # Take the difference between the networks in the data model and the networks in NDFC
         # If the network is in NDFC but not in the data model, delete it
         diff_ndfc_network_names = [ndfc_network_name for ndfc_network_name in ndfc_network_names if ndfc_network_name not in network_names]
@@ -178,6 +178,7 @@ class ActionModule(ActionBase):
                 tmp=tmp
             )
 
+            # See above for failed query example
             if ndfc_deleted_networks.get('failed'):
                 if ndfc_deleted_networks['failed']:
                     results['failed'] = True

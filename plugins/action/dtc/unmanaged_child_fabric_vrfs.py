@@ -47,24 +47,110 @@ class ActionModule(ActionBase):
         ndfc_vrfs = self._execute_module(
             module_name="cisco.dcnm.dcnm_vrf",
             module_args={
-                "fabric": fabric,
+                "fabric": "fabric",
                 "state": "query"
             },
             task_vars=task_vars,
             tmp=tmp
         )
 
-        if ndfc_vrfs.get('response'):
-            ndfc_vrf_names = [ndfc_vrf['parent']['vrfName'] for ndfc_vrf in ndfc_vrfs['response']]
-
+        # Failed query:
+        # {
+        #     "failed": true,
+        #     "msg": "Fabric fabric missing on DCNM or does not have any switches",
+        #     "invocation": {
+        #         "module_args": {
+        #             "fabric":"fabric",
+        #             "state":"query",
+        #             "config":"None"
+        #         }
+        #     },
+        #     "_ansible_parsed": true
+        # }
         if ndfc_vrfs.get('failed'):
             if ndfc_vrfs['failed']:
                 results['failed'] = True
                 results['msg'] = f"{ndfc_vrfs['msg']}"
                 return results
 
-        # Take the difference between the networks in the data model and the networks in NDFC
-        # If the network is in NDFC but not in the data model, delete it
+        # Successful query:
+        # {
+        #   "changed": false,
+        #   "diff":[],
+        #   "response": [
+        #       {
+        #         "parent": {
+        #             "fabric": "nac-msd1",
+        #             "vrfName": "NaC-VRF01",
+        #             "enforce": "None",
+        #             "defaultSGTag": "None",
+        #             "vrfTemplate": "Default_VRF_Universal",
+        #             "vrfExtensionTemplate": "Default_VRF_Extension_Universal",
+        #             "vrfTemplateConfig": "{\"routeTargetExportEvpn\":\"\",\"routeTargetImport\":\"\",\"vrfVlanId\":\"2001\",\"vrfDescription\":\"Configured by Ansible NetAsCode\",\"disableRtAuto\":\"false\",\"vrfSegmentId\":\"150001\",\"maxBgpPaths\":\"1\",\"maxIbgpPaths\":\"2\",\"routeTargetExport\":\"\",\"ipv6LinkLocalFlag\":\"true\",\"mtu\":\"9216\",\"vrfRouteMap\":\"FABRIC-RMAP-REDIST-SUBNET\",\"vrfVlanName\":\"\",\"tag\":\"12345\",\"nveId\":\"1\",\"vrfIntfDescription\":\"Configured by Ansible NetAsCode\",\"vrfName\":\"NaC-VRF01\",\"routeTargetImportEvpn\":\"\"}", # noqa: E501
+        #             "tenantName": "None",
+        #             "id": 813,
+        #             "vrfId": 150001,
+        #             "serviceVrfTemplate": "None",
+        #             "source": "None",
+        #             "vrfStatus": "DEPLOYED",
+        #             "hierarchicalKey": "nac-msd1"
+        #       },
+        #       "attach":[
+        #         {
+        #           "vrfName": "NaC-VRF01",
+        #           "templateName": "Default_VRF_Universal",
+        #           "switchDetailsList": [{
+        #                 "switchName": "nac-s1-leaf1",
+        #                 "vlan": 2001,
+        #                 "serialNumber": "952DTHDC6DE",
+        #                 "peerSerialNumber": "9BQPNWEB31K",
+        #                 "extensionValues": "",
+        #                 "extensionPrototypeValues": [],
+        #                 "islanAttached": true,
+        #                 "lanAttachedState": "DEPLOYED",
+        #                 "errorMessage": "None",
+        #                 "instanceValues": "{\"loopbackIpV6Address\":\"\",\"loopbackId\":\"\",\"deviceSupportL3VniNoVlan\":\"false\",\"switchRouteTargetImportEvpn\":\"\",\"loopbackIpAddress\":\"\",\"switchRouteTargetExportEvpn\":\"\"}", # noqa: E501
+        #                 "freeformConfig": "",
+        #                 "role": "leaf",
+        #                 "vlanModifiable": true,
+        #                 "showVlan": true
+        #             },
+        #             {
+        #               "switchName": "nac-s1-leaf2",
+        #               "vlan": 2001,
+        #               "serialNumber": "9BQPNWEB31K",
+        #               "peerSerialNumber": "952DTHDC6DE",
+        #               "extensionValues": "",
+        #               "extensionPrototypeValues": [],
+        #               "islanAttached": true,
+        #               "lanAttachedState": "DEPLOYED",
+        #               "errorMessage": "None",
+        #               "instanceValues": "{\"loopbackIpV6Address\":\"\",\"loopbackId\":\"\",\"deviceSupportL3VniNoVlan\":\"false\",\"switchRouteTargetImportEvpn\":\"\",\"loopbackIpAddress\":\"\",\"switchRouteTargetExportEvpn\":\"\"}", # noqa: E501
+        #               "freeformConfig": "",
+        #               "role": "leaf",
+        #               "vlanModifiable": true,
+        #               "showVlan": true
+        #             }
+        #           ]
+        #         }
+        #       ]
+        #     }
+        #   ],
+        #   "invocation": {
+        #     "module_args":
+        #     {
+        #       "fabric": "nac-msd1",
+        #       "state": "query",
+        #       "config": "None"
+        #     }
+        #   },
+        #   "_ansible_parsed": true
+        # }
+        if ndfc_vrfs.get('response'):
+            ndfc_vrf_names = [ndfc_vrf['parent']['vrfName'] for ndfc_vrf in ndfc_vrfs['response']]
+
+        # Take the difference between the vrfs in the data model and the vrfs in NDFC
+        # If the vrf is in NDFC but not in the data model, delete it
         diff_ndfc_vrf_names = [ndfc_vrf_name for ndfc_vrf_name in ndfc_vrf_names if ndfc_vrf_name not in vrf_names]
 
         if diff_ndfc_vrf_names:
@@ -88,6 +174,7 @@ class ActionModule(ActionBase):
                 tmp=tmp
             )
 
+            # See above for failed query example
             if ndfc_deleted_vrfs.get('failed'):
                 if ndfc_deleted_vrfs['failed']:
                     results['failed'] = True
