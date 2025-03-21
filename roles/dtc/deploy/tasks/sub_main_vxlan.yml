@@ -40,8 +40,7 @@
       when: >
         (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
       # TODO: Need to add logic to only save if changes are made
-      register: config_save
-      
+
   rescue:
     - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
       ansible.builtin.debug:
