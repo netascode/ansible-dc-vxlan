@@ -50,10 +50,10 @@ factory_defaults:
       netflow:
         enable: false
       ptp:
-        ptp_enable: false
+        enable: false
       snmp_server_host_trap: true
       bootstrap:
-        cdp_enable: false
+        enable_cdp_mgmt: false
     topology:
       switches:
         routing_loopback_id: 0
@@ -298,11 +298,14 @@ factory_defaults:
       ipv6_vtep_loopback_range: fd00::a10:0/120
       overlay_dci:
         deployment_method: Direct_To_BGWS
+        route_server:
+          redistribute_direct: false
+          ip_tag: 54321
         ipv4_dci_subnet_range: 10.10.1.0/24
         ipv4_dci_subnet_mask: 30
         ipv6_dci_subnet_range: fd00::a11:0/120
         ipv6_dci_subnet_mask: 126
-        underlay_autoconfig: true      
+        underlay_autoconfig: true
         enable_bgp_send_community: false
         enable_bgp_log_neighbor_change: false
         enable_bgp_bfd: false
