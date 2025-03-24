@@ -28,21 +28,31 @@
       - "+     Manage VRFs and Networks Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Get MSD Fabric Associations
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
-  register: ndfc_msd_fabric_associations
+- name: Check If Current Fabric Is An Active Multisite Fabric
+  block:
+    - name: Get Multisite Fabric Associations
+      cisco.dcnm.dcnm_rest:
+        method: GET
+        path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
+      register: ndfc_msd_fabric_associations
 
-- name: Find Fabric by Name
-  ansible.builtin.set_fact:
-    selected_fabric: "{{ ndfc_msd_fabric_associations['response']['DATA'] | json_query(query) }}"
-  vars:
-    query: "[?fabricName=='{{ MD_Extended.vxlan.fabric.name }}']"
+    - name: Find Current Fabric by Name In Multisite Associations
+      ansible.builtin.set_fact:
+        selected_fabric: "{{ ndfc_msd_fabric_associations['response']['DATA'] | json_query(query) }}"
+      vars:
+        query: "[?fabricName=='{{ MD_Extended.vxlan.fabric.name }}']"
 
-- name: Set MSD Check
-  ansible.builtin.set_fact:
-    is_active_child_fabric: "{{ true if selected_fabric[0]['fabricParent'] != 'None' else false }}"
+    - name: Set Multisite Check for Current Fabric
+      ansible.builtin.set_fact:
+        is_active_child_fabric: "{{ true if selected_fabric[0]['fabricParent'] != 'None' else false }}"
+  when: is_active_child_fabric is not defined
+
+- name: Fail If Current Fabric is Part of Multisite And Attempting to Manage VRFs
+  ansible.builtin.fail:
+    msg: VRFs cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
+  when:
+    - is_active_child_fabric
+    - vars_common_vxlan.vrf_config | length > 0
 
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
@@ -73,6 +83,13 @@
     - vars_common_vxlan.changes_detected_vrfs
     - not is_active_child_fabric
 
+- name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
+  ansible.builtin.fail:
+    msg: Networks cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
+  when:
+    - is_active_child_fabric
+    - vars_common_vxlan.net_config | length > 0
+
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
 # --------------------------------------------------------------------
@@ -87,5 +104,3 @@
     - MD_Extended.vxlan.overlay.networks
     - vars_common_vxlan.changes_detected_networks
     - not is_active_child_fabric
-
-- ansible.builtin.meta: end_play
