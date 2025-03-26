@@ -21,28 +21,20 @@
 
 ---
 
-# ---------------------------------------------------
-# Ansible Execution Control Variables
-# ---------------------------------------------------
-#
-# The parameters below represent the default values for
-# this collection. These values can be overridden by the
-# user in group_vars.
+- name: Get all the switches in the Federated Fabric
+  cisco.dcnm.dcnm_rest:
+      method: GET
+      path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.fabric.name }}/inventory/switchesByFabric"
+  register: switch_results
+  delegate_to: "{{ inventory_hostname }}"
+  failed_when: false
 
-# Parameter to force all roles/sections to run
-force_run_all: false
+- name: Store switches in the fabric for Federated Fabric
+  ansible.builtin.set_fact:
+      switches_in_fabric: "{{ switch_results.response.DATA }}"
+  when: switch_results is defined and switch_results.response.DATA is defined
 
-# Parameters to enable/disable remove role tasks
-child_fabric_delete_mode: false
-interface_delete_mode: false
-inventory_delete_mode: false
-link_fabric_delete_mode: false
-link_vpc_delete_mode: false
-edge_connections_delete_mode: false
-multisite_child_fabric_delete_mode: false
-multisite_network_delete_mode: false
-multisite_vrf_delete_mode: false
-network_delete_mode: false
-policy_delete_mode: false
-vpc_delete_mode: false
-vrf_delete_mode: false
+- name: Set switches_in_fabric to empty list if no switches are found
+  ansible.builtin.set_fact:
+      switches_in_fabric: []
+  when: switch_results is not defined or switch_results.response.DATA is not defined

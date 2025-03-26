@@ -131,6 +131,7 @@ class PreparePlugin:
             )
             display.deprecated(msg=deprecated_msg, version="1.0.0", collection_name='cisco.nac_dc_vxlan')
             model_data['vxlan']['overlay'] = model_data['vxlan']['overlay_services']
+            model_data['vxlan']['multisite']['overlay'] = model_data['vxlan']['overlay_services']
             del model_data['vxlan']['overlay_services']
 
         parent_keys = ['vxlan', 'multisite', 'overlay']

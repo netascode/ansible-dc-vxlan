@@ -21,40 +21,42 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.create]
+- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.remove]
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.create]           +"
+      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.remove]           +"
       - "----------------------------------------------------------------"
-  tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
+  tags: "{{ nac_tags.remove }}" # Tags defined in roles/common_global/vars/main.yml
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
-  tags: "{{ nac_tags.create }}"
+  tags: "{{ nac_tags.remove }}"
 
-- name: Create NDFC MSD Fabric
-  ansible.builtin.import_tasks: common/fabric.yml
+- ansible.builtin.debug: msg="Query NDFC for List of Fabric Switches"
+  tags: "{{ nac_tags.remove }}"
+
+- cisco.dcnm.dcnm_rest:
+    method: GET
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.fabric.name }}/inventory/switchesByFabric"
+  register: result
+  tags: "{{ nac_tags.remove }}"
+
+- name: set facts for result
+  ansible.builtin.set_fact:
+    switch_list: "{{result}}"
+
+- name: Remove Fabric Networks
+  ansible.builtin.import_tasks: mfd/networks_fed.yml
+  tags: "{{ nac_tags.remove_networks }}"
   when:
-    - MD_Extended.vxlan.fabric.name is defined
-    - MD_Extended.vxlan.fabric.type == "MSD"
-    - vars_common_msd.changes_detected_fabric
-  tags: "{{ nac_tags.create_fabric }}"
+    - changes_detected_networks
 
-- name: Manage NDFC MSD Fabric Child Fabrics
-  ansible.builtin.import_tasks: msd/child_fabrics.yml
+- name: Remove Fabric VRFs
+  ansible.builtin.import_tasks: mfd/vrfs_fed.yml
+  tags: "{{ nac_tags.remove_vrfs }}"
   when:
-    - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
+    - changes_detected_vrfs
 
-- name: Prepare Multisite Data
-  cisco.nac_dc_vxlan.dtc.prepare_msite_data:
-    model_data: "{{ MD_Extended }}"
-    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-  register: MD_Multisite
-
-- name: Manage NDFC MSD Fabric VRFs and Networks
-  ansible.builtin.import_tasks: msd/vrfs_networks.yml
-  when:
-    - MD_Extended.vxlan.multisite.overlay is defined
-    - MD_Extended.vxlan.multisite.overlay
-    # - (vars_common_msd.changes_detected_vrfs or vars_common_msd.changes_detected_networks)
-  tags: "{{ nac_tags.create_vrfs_networks }}"
+- name: Remove Child Fabrics
+  ansible.builtin.import_tasks: mfd/child_fabrics.yml
+  # tags: "{{ nac_tags.remove_child_fabrics }}"
