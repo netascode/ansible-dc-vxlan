@@ -1,0 +1,9 @@
+[
+{% for child in MD_Extended.vxlan.multisite.child_fabrics %}
+{
+  'operation': "add",
+  'clusterName': "{{ child.cluster }}",
+  'fabricName': "{{ child.name }}"
+}{% if not loop.last %},{% endif %}
+{% endfor %}
+]

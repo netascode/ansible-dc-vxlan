@@ -1,4 +1,4 @@
-{% import 'ndfc_utils.j2' as ndfc_utils with context %}
+{% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 ---
 # This NDFC VPC interface config data structure is auto-generated
 # DO NOT EDIT MANUALLY
@@ -12,17 +12,9 @@
 {% set peer2 = switch_names[1] %}
 - name: vpc{{ vpc_id }}
   type: vpc
-  switch: 
-{% if MD_Extended.vxlan.topology.leaf[peer1].management_ipv4_address is defined %}
-    - {{ MD_Extended.vxlan.topology.leaf[peer1].management_ipv4_address }}
-{% elif MD_Extended.vxlan.topology.leaf[peer1].management_ipv6_address is defined %}
-    - {{ MD_Extended.vxlan.topology.leaf[peer1].management_ipv6_address }}
-{% endif %}
-{% if MD_Extended.vxlan.topology.leaf[peer2].management_ipv4_address is defined %}
-    - {{ MD_Extended.vxlan.topology.leaf[peer2].management_ipv4_address }}
-{% elif MD_Extended.vxlan.topology.leaf[peer2].management_ipv6_address is defined %}
-    - {{ MD_Extended.vxlan.topology.leaf[peer2].management_ipv6_address }}
-{% endif %}
+  switch:
+    - {{ switches[peer1]['mgmt_ip_address'] }}
+    - {{ switches[peer2]['mgmt_ip_address'] }}
   deploy: false
   profile:
     admin_state: {{ switches[peer1].enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled) }}
@@ -42,8 +34,8 @@
     peer2_description: "{{ switches[peer2].description | default(omit) }}"
     bpdu_guard: {{ switches[peer1].enable_bpdu_guard | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard)   }}
 {% if switches[peer1].mode == 'trunk' %}
-    peer1_allowed_vlans: "{{ ndfc_utils.convert_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
-    peer2_allowed_vlans: "{{ ndfc_utils.convert_ranges(switches[peer2].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
+    peer1_allowed_vlans: "{{ convert_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
+    peer2_allowed_vlans: "{{ convert_ranges(switches[peer2].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
 {% elif switches[peer1].mode == 'access' %}
     peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
     peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan)  }}

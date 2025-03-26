@@ -85,7 +85,7 @@ class PreparePlugin:
                     if net.get('network_attach_group') not in net_grp_name_list:
                         del net['network_attach_group']
 
-        if model_data['vxlan']['fabric']['type'] in ('MSD', 'MCF'):
+        if model_data['vxlan']['fabric']['type'] in ('MSD', 'MFD'):
             # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
             # a structure that is easier to use.
             vrf_grp_name_list = []
@@ -145,5 +145,7 @@ class PreparePlugin:
                     if net.get('network_attach_group') not in net_grp_name_list:
                         del net['network_attach_group']
 
+            model_data['vxlan']['multisite']['overlay_services'] = model_data['vxlan']['multisite']['overlay']
+            model_data['vxlan']['overlay_services'] = model_data['vxlan']['multisite']['overlay']
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']

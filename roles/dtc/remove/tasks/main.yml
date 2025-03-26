@@ -33,14 +33,22 @@
     vars_common_vxlan.changes_detected_networks or
     vars_common_vxlan.changes_detected_policy or
     vars_common_vxlan.changes_detected_vpc_peering or
-    vars_common_vxlan.changes_detected_vrfs)
+    vars_common_vxlan.changes_detected_vrfs or
+    vars_common_vxlan.changes_detected_edge_connections)
 
 - name: Import MSD Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   when: >
-    MD_Extended.vxlan.fabric.type == 'MSD'
-  # Current implementation has to leverage the changes_detected flags
-  # in the sub_main files to determine if the tasks should be run
+    (MD_Extended.vxlan.fabric.type == 'MSD') and
+    (vars_common_msd.changes_detected_vrfs) or
+    (vars_common_msd.changes_detected_networks)
+
+- name: Import MFD Role Tasks
+  ansible.builtin.import_tasks: sub_main_mfd.yml
+  when: >
+    (MD_Extended.vxlan.fabric.type == 'MFD') and
+    (vars_common_mfd.changes_detected_vrfs) or
+    (vars_common_mfd.changes_detected_networks)
 
 - name: Import ISN Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
@@ -57,7 +65,8 @@
     (MD_Extended.vxlan.fabric.type == 'External') and
     (vars_common_external.changes_detected_interfaces or
     vars_common_external.changes_detected_inventory or
-    vars_common_external.changes_detected_policy)
+    vars_common_external.changes_detected_policy or
+    vars_common_external.changes_detected_edge_connections)
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:
