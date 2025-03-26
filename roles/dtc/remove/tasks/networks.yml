@@ -36,6 +36,7 @@
   when:
     - switch_list.response.DATA | length > 0
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
+    - net_config != []
 
 - ansible.builtin.debug:
     msg:
