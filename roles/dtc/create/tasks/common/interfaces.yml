@@ -63,7 +63,7 @@
     state: replaced
     config: "{{ vars_common_local.interface_access }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.access.count > 0
-  
+
 # --------------------------------------------------------------------
 # Manage Interface Access Portchannel Configuration on NDFC
 # --------------------------------------------------------------------
