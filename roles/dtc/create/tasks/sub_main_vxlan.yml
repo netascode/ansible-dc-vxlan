@@ -55,12 +55,36 @@
     - vars_common_vxlan.changes_detected_vpc_peering
   tags: "{{ nac_tags.create_vpc_peers }}"
 
+- name: Config-Save block to propagate vPC changes to the fabric
+  block:
+    - name: Config-Save for Fabric {{ MD.vxlan.fabric.name }}
+      cisco.dcnm.dcnm_rest:
+        method: POST
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD.vxlan.fabric.name }}/config-save"
+      when: MD_Extended.vxlan.topology.switches | length > 0
+      register: config_save
+      # TODO: Need to add logic to only save if changes are made
+
+  rescue:
+    - name: Config-Save for Fabric {{ MD.vxlan.fabric.name }} - Failed
+      ansible.builtin.debug:
+        msg: "{{ config_save.msg.DATA }}"
+
+
 - name: Manage NDFC VXLAN Fabric Interfaces
   ansible.builtin.import_tasks: common/interfaces.yml
   when:
     - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
     - vars_common_vxlan.changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
+
+- name: Manage NDFC Fabric Inter Links
+  ansible.builtin.import_tasks: common/edge_connections.yml
+  when:
+    - MD_Extended.vxlan.topology.edge_connections | length > 0
+    - changes_detected_edge_connections
+  tags: "{{ nac_tags.create_links }}"
+
 
 - name: Manage NDFC VXLAN Fabric VRFs and Networks
   ansible.builtin.import_tasks: vxlan/vrfs_networks.yml

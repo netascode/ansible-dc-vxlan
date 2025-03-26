@@ -21,28 +21,20 @@
 
 ---
 
-# ---------------------------------------------------
-# Ansible Execution Control Variables
-# ---------------------------------------------------
-#
-# The parameters below represent the default values for
-# this collection. These values can be overridden by the
-# user in group_vars.
-
-# Parameter to force all roles/sections to run
-force_run_all: false
-
-# Parameters to enable/disable remove role tasks
-child_fabric_delete_mode: false
-interface_delete_mode: false
-inventory_delete_mode: false
-link_fabric_delete_mode: false
-link_vpc_delete_mode: false
-edge_connections_delete_mode: false
-multisite_child_fabric_delete_mode: false
-multisite_network_delete_mode: false
-multisite_vrf_delete_mode: false
-network_delete_mode: false
-policy_delete_mode: false
-vpc_delete_mode: false
-vrf_delete_mode: false
+- name: Manage Fabric Inter Fabric Links Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage Inter Fabric Links {{ MD_Extended.vxlan.fabric.name }}"
+      - "----------------------------------------------------------------"
+# --------------------------------------------------------------------
+# Manage Edge Connection Configuration on NDFC
+# --------------------------------------------------------------------
+- name: Manage NDFC Inter Fabric Links
+  cisco.dcnm.dcnm_policy:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    config: "{{ edge_connections }}"
+    use_desc_as_key: true
+    deploy: false
+    state: merged
+  register: manage_edge_connections_result

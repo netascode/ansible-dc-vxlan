@@ -137,6 +137,13 @@
   ansible.builtin.import_tasks: common/ndfc_fabric_links.yml
 
 # --------------------------------------------------------------------
+# Build Edge Connections List From Template
+# --------------------------------------------------------------------
+
+- name: Edge Connections List From Template
+  ansible.builtin.import_tasks: common/ndfc_edge_connections.yml
+
+# --------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere
 # --------------------------------------------------------------------
 - name: Save Local Variables With Namespace Context

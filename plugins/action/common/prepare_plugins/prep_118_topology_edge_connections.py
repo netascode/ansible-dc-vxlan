@@ -19,30 +19,25 @@
 #
 # SPDX-License-Identifier: MIT
 
----
 
-# ---------------------------------------------------
-# Ansible Execution Control Variables
-# ---------------------------------------------------
-#
-# The parameters below represent the default values for
-# this collection. These values can be overridden by the
-# user in group_vars.
+class PreparePlugin:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        self.keys = []
 
-# Parameter to force all roles/sections to run
-force_run_all: false
+    def prepare(self):
+        model_data = self.kwargs['results']['model_extended']
 
-# Parameters to enable/disable remove role tasks
-child_fabric_delete_mode: false
-interface_delete_mode: false
-inventory_delete_mode: false
-link_fabric_delete_mode: false
-link_vpc_delete_mode: false
-edge_connections_delete_mode: false
-multisite_child_fabric_delete_mode: false
-multisite_network_delete_mode: false
-multisite_vrf_delete_mode: false
-network_delete_mode: false
-policy_delete_mode: false
-vpc_delete_mode: false
-vrf_delete_mode: false
+        # Ensure that vrf_lite's switches are mapping to their respective
+        # management IP address from topology switches
+        topology_switches = model_data['vxlan']['topology']['switches']
+        for link in model_data['vxlan']['topology']['edge_connections']:
+            if any(sw['name'] == link['source_device'] for sw in topology_switches):
+                found_switch = next((item for item in topology_switches if item["name"] == link['source_device']))
+                if found_switch.get('management').get('management_ipv4_address'):
+                    link['source_device_ip'] = found_switch['management']['management_ipv4_address']
+                elif found_switch.get('management').get('management_ipv6_address'):
+                    link['source_device_ip'] = found_switch['management']['management_ipv6_address']
+
+        self.kwargs['results']['model_extended'] = model_data
+        return self.kwargs['results']
