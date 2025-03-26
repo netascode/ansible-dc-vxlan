@@ -37,23 +37,23 @@
       path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments
   register: vrfAttachmentList
 
-- name: Filter vrf attachments to be removed
+- name: Filter vrfs to be removed
   cisco.nac_dc_vxlan.dtc.fed_overlay_check:
     model_data: "{{ MD_Extended }}"
-    ndfc_data: "{{ vrfAttachmentList.response.DATA }}"
-    check_type: "vrf_attach"
-    switch_data: "{{ switch_list.response.DATA }}"
-  register: not_required_vrf_attachments
+    ndfc_data: "{{ vrfList.response.DATA }}"
+    ndfc_attachment_data: "{{ vrfAttachmentList.response.DATA }}"
+    check_type: "vrf"
+  register: not_required_vrfs
 
 - name: Remove vrf attachments
   cisco.dcnm.dcnm_rest:
       method: POST
       path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments
-      json_data: "{{ not_required_vrf_attachments.payload | to_json }}"
+      json_data: "{{ not_required_vrfs.attachments_payload | to_json }}"
   register: vrf_attachment_result
   when:
     - switch_list.response.DATA | length > 0
-    - not_required_vrf_attachments.payload | length > 0
+    - not_required_vrfs.attachments_payload | length > 0
      - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
 
 - name: Config-Save for Fabric {{ MD.vxlan.global.name }}
@@ -66,19 +66,11 @@
 - name: Deploy for vrf attachments removal
   cisco.dcnm.dcnm_rest:
        method: POST
-       path: /appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-deploy/{{not_required_vrf_attachments.deploy_payload | join(',') }}?forceShowRun=false
+       path: /appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-deploy/{{not_required_vrfs.deploy_payload | join(',') }}?forceShowRun=false
   when:
     - switch_list.response.DATA | length > 0
-    - not_required_vrf_attachments.deploy_payload | length > 0
+    - not_required_vrfs.deploy_payload | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
-
-- name: Filter vrfs to be removed
-  cisco.nac_dc_vxlan.dtc.fed_overlay_check:
-    model_data: "{{ MD_Extended }}"
-    ndfc_data: "{{ vrfList.response.DATA }}"
-    check_type: "vrf"
-    switch_data: "{{ switch_list.response.DATA }}"
-  register: not_required_vrfs
 
 - name: Remove vrfs
   cisco.dcnm.dcnm_rest:
@@ -89,7 +81,6 @@
     - switch_list.response.DATA | length > 0
     - not_required_vrfs.payload | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
-
 
 - ansible.builtin.debug:
     msg:

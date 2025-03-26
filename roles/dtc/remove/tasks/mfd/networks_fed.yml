@@ -37,23 +37,23 @@
       path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/networks/attachments
   register: networkAttachmentList
 
-- name: Filter network attachments to be removed
+- name: Filter networks to be removed
   cisco.nac_dc_vxlan.dtc.fed_overlay_check:
     model_data: "{{ MD_Extended }}"
-    ndfc_data: "{{ networkAttachmentList.response.DATA }}"
-    check_type: "network_attach"
-    switch_data: "{{ switch_list.response.DATA }}"
-  register: not_required_network_attachments
+    ndfc_data: "{{ networkList.response.DATA }}"
+    ndfc_attachment_data: "{{ networkAttachmentList.response.DATA }}"
+    check_type: "network"
+  register: not_required_networks
 
 - name: Remove network attachments
   cisco.dcnm.dcnm_rest:
       method: POST
       path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/networks/attachments
-      json_data: "{{ not_required_network_attachments.payload | to_json }}"
+      json_data: "{{ not_required_networks.attachments_payload  | to_json }}"
   register: network_attachment_result
   when:
     - switch_list.response.DATA | length > 0
-    - not_required_network_attachments.payload | length > 0
+    - not_required_networks.attachments_payload  | length > 0
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
 
 - name: Config-Save for Fabric {{ MD.vxlan.global.name }}
@@ -66,19 +66,11 @@
 - name: Deploy for network attachments removal
   cisco.dcnm.dcnm_rest:
        method: POST
-       path: /appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-deploy/{{not_required_network_attachments.deploy_payload | join(',') }}?forceShowRun=false
+       path: /appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-deploy/{{not_required_networks.deploy_payload | join(',') }}?forceShowRun=false
   when:
     - switch_list.response.DATA | length > 0
-    - not_required_network_attachments.deploy_payload | length > 0
+    - not_required_networks.deploy_payload | length > 0
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
-
-- name: Filter networks to be removed
-  cisco.nac_dc_vxlan.dtc.fed_overlay_check:
-    model_data: "{{ MD_Extended }}"
-    ndfc_data: "{{ networkList.response.DATA }}"
-    check_type: "network"
-    switch_data: "{{ switch_list.response.DATA }}"
-  register: not_required_networks
 
 - name: Remove networks
   cisco.dcnm.dcnm_rest:
