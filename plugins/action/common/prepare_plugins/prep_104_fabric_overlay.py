@@ -31,7 +31,7 @@ class PreparePlugin:
         model_data = self.kwargs['results']['model_extended']
 
         # We don't have switches for Multisite fabrics so need special handling
-        if model_data['vxlan']['fabric']['type'] in ('MSD', 'MFD', 'ISN'):
+        if model_data['vxlan']['fabric']['type'] in ('MSD', 'MFD'):
             switches = []
         else:
             switches = model_data['vxlan']['topology']['switches']

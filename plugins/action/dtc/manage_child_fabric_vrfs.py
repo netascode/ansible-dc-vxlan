@@ -124,22 +124,22 @@ class ActionModule(ActionBase):
                     # attributes that are configurable by the user in a child fabric.
                     # Note: This excludes IPv6 related attributes at this time as they are not yet supported fully in the data model.
                     if (
-                        (ndfc_vrf_template_config['advertiseHostRouteFlag'] != str(vrf.get('adv_host_routes', "")).lower()) or
-                        (ndfc_vrf_template_config['advertiseDefaultRouteFlag'] != str(vrf.get('adv_default_routes', "")).lower()) or
-                        (ndfc_vrf_template_config['configureStaticDefaultRouteFlag'] != str(vrf.get('config_static_default_route', "")).lower()) or
-                        (ndfc_vrf_template_config['bgpPassword'] != vrf.get('bgp_password', "")) or
-                        (ndfc_vrf_template_config['bgpPasswordKeyType'] != vrf.get('bgp_password_key_type', "")) or
+                        (ndfc_vrf_template_config['advertiseHostRouteFlag'] != str(vrf.get('adv_host_routes', '')).lower()) or
+                        (ndfc_vrf_template_config['advertiseDefaultRouteFlag'] != str(vrf.get('adv_default_routes', '')).lower()) or
+                        (ndfc_vrf_template_config['configureStaticDefaultRouteFlag'] != str(vrf.get('config_static_default_route', '')).lower()) or
+                        (ndfc_vrf_template_config['bgpPassword'] != vrf.get('bgp_password', '')) or
+                        (ndfc_vrf_template_config.get('bgpPasswordKeyType', '') != vrf.get('bgp_password_key_type', '')) or
                         (ndfc_vrf_template_config['ENABLE_NETFLOW'] != str(vrf.get('netflow_enable', False)).lower()) or
-                        (ndfc_vrf_template_config['NETFLOW_MONITOR'] != vrf.get('netflow_monitor', "")) or
+                        (ndfc_vrf_template_config['NETFLOW_MONITOR'] != vrf.get('netflow_monitor', '')) or
                         (ndfc_vrf_template_config['trmEnabled'] != str(vrf.get('trm_enable', False)).lower()) or
-                        (ndfc_vrf_template_config['loopbackNumber'] != vrf.get('rp_loopback_id', "")) or
-                        (ndfc_vrf_template_config['rpAddress'] != vrf.get('rp_address', "")) or
+                        (ndfc_vrf_template_config.get('loopbackNumber', '') != vrf.get('rp_loopback_id', '')) or
+                        (ndfc_vrf_template_config.get('rpAddress', '') != vrf.get('rp_address', '')) or
                         (ndfc_vrf_template_config['isRPAbsent'] != str(vrf.get('no_rp', False)).lower()) or
                         (ndfc_vrf_template_config['isRPExternal'] != str(vrf.get('rp_external', False)).lower()) or
-                        (ndfc_vrf_template_config['L3VniMcastGroup'] != vrf.get('underlay_mcast_ip', "")) or
-                        (ndfc_vrf_template_config['multicastGroup'] != vrf.get('overlay_multicast_group', "")) or
-                        (ndfc_vrf_template_config['routeTargetImportMvpn'] != vrf.get('import_mvpn_rt', "")) or
-                        (ndfc_vrf_template_config['routeTargetExportMvpn'] != vrf.get('export_mvpn_rt', ""))
+                        (ndfc_vrf_template_config.get('L3VniMcastGroup', '') != vrf.get('underlay_mcast_ip', '')) or
+                        (ndfc_vrf_template_config['multicastGroup'] != vrf.get('overlay_multicast_group', '')) or
+                        (ndfc_vrf_template_config.get('routeTargetImportMvpn', '') != vrf.get('import_mvpn_rt', '')) or
+                        (ndfc_vrf_template_config.get('routeTargetExportMvpn', '') != vrf.get('export_mvpn_rt', ''))
                     ):
                         results['child_fabrics_changed'].append(child_fabric)
 
