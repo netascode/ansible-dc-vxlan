@@ -3,20 +3,6 @@
   GRFIELD_DEBUG_FLAG: Enable
   ENABLE_PVLAN: false
   AAA_REMOTE_IP_ENABLED: False
-  FEATURE_PTP: {{ global.ptp.enable | default(defaults.vxlan.global.ptp.enable) }}
-{% if global.ptp.enable is defined and global.ptp.enable == 'true' %}
-  PTP_DOMAIN_ID: {{ global.ptp.domain_id }}
-  PTP_LB_ID: {{ global.ptp.lb_id  }}
-  PTP_VLAN_ID: {{ global.ptp.vlan_id  }}
-{% endif %}
-  ENABLE_NXAPI: {{ vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
-  NXAPI_HTTPS_PORT: {{ vxlan.global.nxapi_https_port | default(defaults.vxlan.global.nxapi_https_port) }}
-  ENABLE_NXAPI_HTTP: {{ vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) }}
-  NXAPI_HTTP_PORT: {{ vxlan.global.nxapi_http_port | default(defaults.vxlan.global.nxapi_http_port) }}
-{% if global.bootstrap is defined and global.bootstrap.enable_cdp_mgmt is defined %}
-  CDP_ENABLE: {{ global.bootstrap.enable_cdp_mgmt }}
-{% endif %}
-  SNMP_SERVER_HOST_TRAP: {{ global.snmp_server_host_trap | default(defaults.vxlan.global.snmp_server_host_trap) }}
   FABRIC_MTU: {{ vxlan.underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
   L2_HOST_INTF_MTU: {{ vxlan.underlay.general.layer2_host_interfacde_mtu | default(defaults.vxlan.underlay.general.layer2_host_interfacde_mtu) }}
   HOST_INTF_ADMIN_STATE: {{ vxlan.underlay.general.unshut_host_interfaces | default(defaults.vxlan.underlay.general.unshut_host_interfaces) }}
