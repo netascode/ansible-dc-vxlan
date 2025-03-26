@@ -10,9 +10,13 @@
   PTP_VLAN_ID: {{ global.ptp.vlan_id  }}
 {% endif %}
   ENABLE_NXAPI: {{ vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
+{% if vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) %}
   NXAPI_HTTPS_PORT: {{ vxlan.global.nxapi_https_port | default(defaults.vxlan.global.nxapi_https_port) }}
+{% endif %}
   ENABLE_NXAPI_HTTP: {{ vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) }}
+{% if vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) %}
   NXAPI_HTTP_PORT: {{ vxlan.global.nxapi_http_port | default(defaults.vxlan.global.nxapi_http_port) }}
+{% endif %} 
 {% if global.bootstrap is defined and global.bootstrap.enable_cdp_mgmt is defined %}
   CDP_ENABLE: {{ global.bootstrap.enable_cdp_mgmt }}
 {% endif %}

@@ -4,9 +4,13 @@
   PTP_DOMAIN_ID: {{ vxlan.global.ptp.domain_id | default(defaults.vxlan.global.ptp.domain_id) }}
   PTP_LB_ID: {{ vxlan.global.ptp.lb_id | default(defaults.vxlan.global.ptp.lb_id) }}
   ENABLE_NXAPI: {{ vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
+{% if vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) %}
   NXAPI_HTTPS_PORT: {{ vxlan.global.nxapi_https_port | default(defaults.vxlan.global.nxapi_https_port) }}
+{% endif %}
   ENABLE_NXAPI_HTTP: {{ vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) }}
+{% if vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) %}
   NXAPI_HTTP_PORT: {{ vxlan.global.nxapi_http_port | default(defaults.vxlan.global.nxapi_http_port) }}
+{% endif %} 
   SNMP_SERVER_HOST_TRAP: {{ vxlan.global.snmp_server_host_trap | default(defaults.vxlan.global.snmp_server_host_trap) }}
 {% if vxlan.global.bootstrap is defined and vxlan.global.bootstrap.enable_cdp_mgmt is defined %}
   CDP_ENABLE: {{ vxlan.global.bootstrap.enable_cdp_mgmt }}
