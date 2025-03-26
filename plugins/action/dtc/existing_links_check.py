@@ -40,7 +40,6 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         existing_links = self._task.args['existing_links']
         fabric_links = self._task.args['fabric_links']
-        required_links = []
         not_required_links = []
         for link in fabric_links:
             for existing_link in existing_links:
@@ -54,23 +53,6 @@ class ActionModule(ActionBase):
                      existing_link['sw1-info']['if-name'] == link['dst_interface'] and
                      existing_link['sw2-info']['sw-sys-name'] == link['src_device'] and
                      existing_link['sw2-info']['if-name'] == link['src_interface'])):
-                    if 'templateName' not in existing_link:
-                        not_required_links.append(link)
-                    elif existing_link['templateName'] == 'int_pre_provision_intra_fabric_link':
-                        required_links.append(link)
-                    elif existing_link['templateName'] == 'int_intra_fabric_num_link':
-                        link['template'] = 'int_intra_fabric_num_link'
-                        link['profile']['peer1_ipv4_addr'] = existing_link['nvPairs']['PEER1_IP']
-                        link['profile']['peer2_ipv4_addr'] = existing_link['nvPairs']['PEER2_IP']
-                        if existing_link.get('nvPairs').get('ENABLE_MACSEC'):
-                            link['profile']['enable_macsec'] = existing_link['nvPairs']['ENABLE_MACSEC']
-                        else:
-                            link['profile']['enable_macsec'] = 'false'
-                        required_links.append(link)
-                    else:
-                        not_required_links.append(link)
-            if link not in required_links and link not in not_required_links:
-                required_links.append(link)
-
-        results['required_links'] = required_links
+                    not_required_links.append(link)
+        results['not_required_links'] = not_required_links
         return results
