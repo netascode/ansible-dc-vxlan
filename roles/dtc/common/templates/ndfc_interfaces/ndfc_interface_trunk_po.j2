@@ -1,4 +1,4 @@
-{% import 'ndfc_utils.j2' as ndfc_utils with context %}
+{% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 ---
 # This NDFC trunk interface port-channel data structure is auto-generated
 # DO NOT EDIT MANUALLY
@@ -30,7 +30,7 @@
     pc_mode: {{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.pc_mode) }}
     members: {{ interface['members'] | default(omit) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard) }}
-    allowed_vlans: "{{ ndfc_utils.convert_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
+    allowed_vlans: "{{ convert_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
