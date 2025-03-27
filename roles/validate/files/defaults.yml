@@ -49,6 +49,9 @@ factory_defaults:
         bridge_priority: 0
       netflow:
         enable: false
+      bootstrap:
+        enable_bootstrap: false
+        enable_local_dhcp_server: false
     topology:
       switches:
         routing_loopback_id: 0
