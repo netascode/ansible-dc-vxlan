@@ -26,10 +26,7 @@
 #  from ..helper_functions import do_something
 
 root_key = 'vxlan'
-
-# Keys here match data model schema
-# type: enum('VXLAN_EVPN', 'MSD', 'MCF', 'ISN')
-model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MFD': {}, 'ISN': {}, 'External': {}}
+model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MCF': {}, 'ISN': {}, 'External': {}}
 
 # VXLAN_EVPN KEYS
 
@@ -112,17 +109,3 @@ model_keys['MSD']['multisite.overlay.vrf_attach_groups.switches'] = [root_key, '
 model_keys['MSD']['multisite.overlay.networks'] = [root_key, 'multisite', 'overlay', 'networks', 'LIST']
 model_keys['MSD']['multisite.overlay.network_attach_groups'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'LIST']
 model_keys['MSD']['multisite.overlay.network_attach_groups.switches'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'switches', 'LIST_INDEX']
-
-# MFD KEYS
-
-# ---
-model_keys['MFD']['multisite'] = [root_key, 'multisite', 'KEY']
-model_keys['MFD']['multisite.child_fabrics'] = [root_key, 'multisite', 'child_fabrics', 'KEY']
-model_keys['MFD']['multisite.overlay'] = [root_key, 'multisite', 'overlay', 'KEY']
-model_keys['MFD']['multisite.overlay.vrfs'] = [root_key, 'multisite', 'overlay', 'vrfs', 'LIST']
-model_keys['MFD']['multisite.overlay.vrf_attach_groups'] = [root_key, 'multisite', 'overlay', 'vrf_attach_groups', 'LIST']
-model_keys['MFD']['multisite.overlay.vrf_attach_groups.switches'] = [root_key, 'multisite', 'overlay', 'vrf_attach_groups', 'switches', 'LIST_INDEX']
-model_keys['MFD']['multisite.overlay.networks'] = [root_key, 'multisite', 'overlay', 'networks', 'LIST']
-model_keys['MFD']['multisite.overlay.network_attach_groups'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'LIST']
-model_keys['MFD']['multisite.overlay.network_attach_groups.switches'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'switches', 'LIST_INDEX']
-

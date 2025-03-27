@@ -55,15 +55,6 @@
     vars_common_msd.changes_detected_networks)
 
 - name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main_mfd.yml
-  tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
-  when: >
-    (MD_Extended.vxlan.fabric.type == 'MFD') and
-    (vars_common_mfd.changes_detected_fabric or
-    vars_common_mfd.changes_detected_vrfs or
-    vars_common_mfd.changes_detected_networks)
-
-- name: Import Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >

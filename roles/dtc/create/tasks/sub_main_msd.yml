@@ -53,7 +53,7 @@
 
 - name: Manage NDFC MSD Fabric VRFs and Networks
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
-  when:
+  when: 
     - MD_Extended.vxlan.multisite.overlay is defined
     - MD_Extended.vxlan.multisite.overlay
     # - (vars_common_msd.changes_detected_vrfs or vars_common_msd.changes_detected_networks)

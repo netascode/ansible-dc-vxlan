@@ -25,6 +25,6 @@
     model_data: "{{ MD_Extended }}"
     parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     child_fabrics: "{{ MD_Extended.vxlan.multisite.child_fabrics }}"
-  when:
+  when: 
     - MD_Extended.vxlan.multisite.child_fabrics is defined
   register: MD_Multisite_Child_Fabrics
