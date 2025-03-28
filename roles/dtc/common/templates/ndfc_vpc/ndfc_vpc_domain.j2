@@ -8,10 +8,12 @@
 {% set _ = switch_list.update({switch.name : switch.serial_number}) %}
 {% endfor -%}
 {% for vpc in vxlan.topology.vpc_peers %}
+{% if vpc.domain_id is defined %}
 - entity_name: "{{ switch_list[vpc.peer1] }}~{{ switch_list[vpc.peer2] }}"
   pool_type: "ID"
   pool_name: "VPC_DOMAIN_ID"
   scope_type: "fabric"
   resource: "{{ vpc.domain_id }}"
+{% endif %}
 {% endfor %}
 {% endif %}
