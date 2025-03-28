@@ -16,7 +16,7 @@ class Rule:
             elif inventory['vxlan']['multisite']['isn']['bootstrap']['dhcp_version'] == 'DHCPv6':
                 dhcp = 'dhcp_v6'
         else:
-            results.append(f"A vxlan.multisite.isn.bootstrap.dhcp_version is required for bootstrap in an ISN type fabric.")
+            results.append("A vxlan.multisite.isn.bootstrap.dhcp_version is required for bootstrap in an ISN type fabric.")
             return results
 
         if dhcp:
@@ -24,7 +24,7 @@ class Rule:
             check = cls.data_model_key_check(inventory, bootstrap_keys)
             if dhcp in check['keys_not_found']:
                 results.append(
-                    f"When vxlan.multisite.isn.bootstrap.dhcp_version is defined, either "
+                    "When vxlan.multisite.isn.bootstrap.dhcp_version is defined, either "
                     "vxlan.multisite.isn.bootstrap.dhcpv4 or vxlan.multisite.isn.bootstrap.dhcpv6 must be defined in the data model."
                 )
                 return results

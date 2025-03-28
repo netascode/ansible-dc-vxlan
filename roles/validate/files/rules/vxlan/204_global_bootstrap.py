@@ -16,7 +16,7 @@ class Rule:
             elif inventory['vxlan']['global']['bootstrap']['dhcp_version'] == 'DHCPv6':
                 dhcp = 'dhcp_v6'
         else:
-            results.append(f"A vxlan.global.bootstrap.dhcp_version is required for bootstrap in a VXLAN type fabric.")
+            results.append("A vxlan.global.bootstrap.dhcp_version is required for bootstrap in a VXLAN type fabric.")
             return results
 
         if dhcp:
@@ -24,7 +24,7 @@ class Rule:
             check = cls.data_model_key_check(inventory, bootstrap_keys)
             if dhcp in check['keys_not_found']:
                 results.append(
-                    f"When vxlan.global.bootstrap.dhcp_version is defined, either "
+                    "When vxlan.global.bootstrap.dhcp_version is defined, either "
                     "vxlan.global.bootstrap.dhcpv4 or vxlan.global.bootstrap.dhcpv6 must be defined in the data model."
                 )
                 return results
