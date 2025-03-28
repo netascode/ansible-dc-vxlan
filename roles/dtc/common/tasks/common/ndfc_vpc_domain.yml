@@ -67,6 +67,14 @@
   when: MD_Extended.vxlan.topology.vpc_peers | length > 0
   delegate_to: localhost
 
+- name: GET VPC DOMAIN ID
+  cisco.dcnm.dcnm_resource_manager:
+    fabric: "{{ vxlan.fabric.name }}"
+    state: query
+    config:
+      - pool_name: VPC_DOMAIN_ID
+  register: existing_vpc_domain_id
+
 - name: Check VPC DOMAIN
   cisco.nac_dc_vxlan.dtc.vpc_domain_check:
     data_source_vpc_domain: "{{ vpc_domain }}"
