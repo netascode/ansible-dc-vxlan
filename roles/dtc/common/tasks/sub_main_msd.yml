@@ -42,8 +42,8 @@
 # Build Create Fabric Parameter List From Template
 # --------------------------------------------------------------------
 
-- name: Build Fabric Create Parameters
-  ansible.builtin.import_tasks: common/ndfc_fabric.yml
+# - name: Build Fabric Create Parameters
+#   ansible.builtin.import_tasks: common/ndfc_fabric.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Child Fabric Inventory List From Template
@@ -72,7 +72,6 @@
 - name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_msd:
-        changes_detected_fabric: "{{ changes_detected_fabric }}"
         # changes_detected_vrfs: "{{ changes_detected_vrfs }}"
         # changes_detected_networks: "{{ changes_detected_networks }}"
         fabric_config: "{{ fabric_config }}"
@@ -85,7 +84,6 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
       # - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
       # - "+     Networks Changes Detected -             [ {{ vars_common_msd.changes_detected_networks }} ]"
       - "+     ----- Run Map -----"

@@ -1,0 +1,23 @@
+{# Auto-generated NDFC MSD DCI config data structure for fabric {{ vxlan.fabric.name }} #}
+  BORDER_GWY_CONNECTIONS: {{ vxlan.multisite.overlay_dci.deployment_method | default(defaults.vxlan.multisite.overlay_dci.deployment_method) }}
+{% if ( (vxlan.multisite.overlay_dci.deployment_method | default(defaults.vxlan.multisite.overlay_dci.deployment_method) == 'Centralized_To_Route_Server') and
+        (vxlan.multisite.overlay_dci.route_server is defined and vxlan.multisite.overlay_dci.route_server) ) %}
+  RP_SERVER_IP: "{{ vxlan.multisite.overlay_dci.route_server.peers | map(attribute='ip_address') | list | join(", ") | trim }}"
+  BGP_RP_ASN: "{{ vxlan.multisite.overlay_dci.route_server.peers | map(attribute='bgp_asn') | list | join(", ") | trim }}"
+  ENABLE_RS_REDIST_DIRECT: {{ vxlan.multisite.overlay_dci.route_server.redistribute_direct | default(defaults.vxlan.multisite.overlay_dci.route_server.redistribute_direct) }}
+{% if vxlan.multisite.overlay_dci.route_server.redistribute_direct | default(defaults.vxlan.multisite.overlay_dci.route_server.redistribute_direct) %}
+  RS_ROUTING_TAG: {{ vxlan.multisite.overlay_dci.route_server.ip_tag | default(defaults.vxlan.multisite.overlay_dci.route_server.ip_tag) }}
+{% endif %}
+{% endif %}
+  MS_UNDERLAY_AUTOCONFIG: {{ vxlan.multisite.overlay_dci.underlay_autoconfig | default(defaults.vxlan.multisite.overlay_dci.underlay_autoconfig) }}
+{% if (vxlan.multisite.overlay_dci.underlay_autoconfig | default(defaults.vxlan.multisite.overlay_dci.underlay_autoconfig) | ansible.builtin.bool) is sameas false %}
+  ENABLE_BGP_SEND_COMM: {{ vxlan.multisite.overlay_dci.enable_bgp_send_community | default(defaults.vxlan.multisite.overlay_dci.enable_bgp_send_community) }}
+  ENABLE_BGP_LOG_NEIGHBOR_CHANGE: {{ vxlan.multisite.overlay_dci.enable_bgp_log_neighbor_change | default(defaults.vxlan.multisite.overlay_dci.enable_bgp_log_neighbor_change) | lower }}
+  ENABLE_BGP_BFD: {{ vxlan.multisite.overlay_dci.enable_bgp_bfd | default(defaults.vxlan.multisite.overlay_dci.enable_bgp_bfd) }}
+{% endif %}
+  DELAY_RESTORE: {{ vxlan.multisite.overlay_dci.delay_restore | default(defaults.vxlan.multisite.overlay_dci.delay_restore) }}
+  MS_IFC_BGP_PASSWORD_ENABLE: {{ vxlan.multisite.overlay_dci.enable_ebgp_password | default(defaults.vxlan.multisite.overlay_dci.enable_ebgp_password) }}
+{% if vxlan.multisite.overlay_dci.enable_ebgp_password | default(defaults.vxlan.multisite.overlay_dci.enable_ebgp_password) %}
+  MS_IFC_BGP_PASSWORD: {{ vxlan.multisite.overlay_dci.ebgp_password }}
+  MS_IFC_BGP_AUTH_KEY_TYPE: {{ vxlan.multisite.overlay_dci.ebgp_password_encryption_type }}
+{% endif %}

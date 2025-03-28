@@ -1,0 +1,14 @@
+{# Auto-generated NDFC ISN Advanced config data structure for fabric {{ vxlan.fabric.name }} #}
+  POWER_REDUNDANCY_MODE: ps-redundant
+{# Not supporting these features in ISN currently #}
+{# Most of these features are supported only on Cisco NX-OS switches #}
+{# Some of these features are supported only on Cisco Catalyst 9000 switches #}
+  MPLS_HANDOFF: false
+  AAA_REMOTE_IP_ENABLED: false
+  INBAND_MGMT: false
+  FEATURE_PTP: false
+  ENABLE_NXAPI: {{ vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
+  NXAPI_HTTPS_PORT: {{ vxlan.global.nxapi_https_port | default(defaults.vxlan.global.nxapi_https_port ) }}
+  ENABLE_NXAPI_HTTP: {{ vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http ) }}
+  NXAPI_HTTP_PORT: {{ vxlan.global.nxapi_http_port | default(defaults.vxlan.global.nxapi_http_port ) }}
+{# #}

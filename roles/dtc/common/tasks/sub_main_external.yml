@@ -42,8 +42,8 @@
 # Build Create Fabric Parameter List From Template
 # --------------------------------------------------------------------
 
-- name: Build Fabric Create Parameters
-  ansible.builtin.import_tasks: common/ndfc_fabric.yml
+# - name: Build Fabric Create Parameters
+#   ansible.builtin.import_tasks: common/ndfc_fabric.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Switch Inventory List From Template
@@ -92,7 +92,6 @@
 - name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_external:
-        changes_detected_fabric: "{{ changes_detected_fabric }}"
         changes_detected_inventory: "{{ changes_detected_inventory }}"
         changes_detected_interface_access_po: "{{ changes_detected_interface_access_po }}"
         changes_detected_interface_access: "{{ changes_detected_interface_access }}"
@@ -123,7 +122,6 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Fabric Changes Detected -               [ {{ vars_common_external.changes_detected_fabric }} ]"
       - "+     Inventory Changes Detected -            [ {{ vars_common_external.changes_detected_inventory }} ]"
       - "+     ----- Interfaces -----"
       - "+     Interface Access Changes Detected -     [ {{ vars_common_external.changes_detected_interface_access }} ]"

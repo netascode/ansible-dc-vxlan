@@ -1,0 +1,17 @@
+{# Auto-generated NDFC DC VXLAN EVPN General config data structure for fabric {{ vxlan.fabric.name }} #}
+  BGP_AS: "{{ vxlan.global.bgp_asn }}"
+  UNDERLAY_IS_V6: {{ (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) }}
+{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'True' %}
+  USE_LINK_LOCAL: {{ vxlan.underlay.ipv6.enable_ipv6_link_local_address | default(defaults.vxlan.underlay.ipv6.enable_ipv6_link_local_address | title) }}
+{% if (vxlan.underlay.ipv6.enable_ipv6_link_local_address | default(defaults.vxlan.underlay.ipv6.enable_ipv6_link_local_address) | title) == 'False' %}
+  V6_SUBNET_TARGET_MASK: {{ vxlan.underlay.ipv6.underlay_subnet_mask | default(defaults.vxlan.underlay.ipv6.underlay_subnet_mask) }}
+{% endif %}
+{% endif %}
+{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'False' %}
+  FABRIC_INTERFACE_TYPE: {{ vxlan.underlay.general.fabric_interface_numbering | default(defaults.vxlan.underlay.general.fabric_interface_numbering) }}
+  SUBNET_TARGET_MASK: {{ vxlan.underlay.general.subnet_mask | default(defaults.vxlan.underlay.general.subnet_mask) }}
+{% endif %}
+  LINK_STATE_ROUTING: {{ vxlan.underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol) }}
+  RR_COUNT: {{ vxlan.global.route_reflectors | default(defaults.vxlan.global.route_reflectors) }}
+  ANYCAST_GW_MAC: {{ vxlan.global.anycast_gateway_mac | default(defaults.vxlan.global.anycast_gateway_mac) }}
+{# #}

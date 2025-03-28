@@ -32,13 +32,13 @@
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
   tags: "{{ nac_tags.create }}"
 
-- name: Create NDFC MSD Fabric
-  ansible.builtin.import_tasks: common/fabric.yml
-  when:
-    - MD_Extended.vxlan.fabric.name is defined
-    - MD_Extended.vxlan.fabric.type == "MSD"
-    - vars_common_msd.changes_detected_fabric
-  tags: "{{ nac_tags.create_fabric }}"
+# - name: Create NDFC MSD Fabric
+#   ansible.builtin.import_tasks: common/fabric.yml
+#   when:
+#     - MD_Extended.vxlan.fabric.name is defined
+#     - MD_Extended.vxlan.fabric.type == "MSD"
+#     - vars_common_msd.changes_detected_fabric
+#   tags: "{{ nac_tags.create_fabric }}"
 
 - name: Manage NDFC MSD Fabric Child Fabrics
   ansible.builtin.import_tasks: msd/child_fabrics.yml

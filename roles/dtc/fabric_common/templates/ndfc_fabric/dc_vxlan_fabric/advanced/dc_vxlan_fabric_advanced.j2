@@ -1,0 +1,19 @@
+{# Auto-generated NDFC DC VXLAN EVPN Advanced config data structure for fabric {{ vxlan.fabric.name }} #}
+  OVERLAY_MODE: cli
+  GRFIELD_DEBUG_FLAG: Enable
+  ENABLE_PVLAN: false
+  AAA_REMOTE_IP_ENABLED: False
+  FABRIC_MTU: {{ vxlan.underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
+  L2_HOST_INTF_MTU: {{ vxlan.underlay.general.layer2_host_interfacde_mtu | default(defaults.vxlan.underlay.general.layer2_host_interfacde_mtu) }}
+  HOST_INTF_ADMIN_STATE: {{ vxlan.underlay.general.unshut_host_interfaces | default(defaults.vxlan.underlay.general.unshut_host_interfaces) }}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
+  STP_ROOT_OPTION: {{ vxlan.global.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.spanning_tree.root_bridge_protocol) }}
+{% if vxlan.global.spanning_tree.root_bridge_protocol is defined and vxlan.global.spanning_tree.root_bridge_protocol != 'unmanaged' %}
+{% if (vxlan.global.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.spanning_tree.root_bridge_protocol)) == 'rpvst+' %}
+  STP_VLAN_RANGE: {{ convert_ranges(vxlan.global.spanning_tree.vlan_range, defaults.vxlan.global.spanning_tree.vlan_range) }}
+{% elif (vxlan.global.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.spanning_tree.root_bridge_protocol)) == 'mst' %}
+  MST_INSTANCE_RANGE: {{ convert_ranges(vxlan.global.spanning_tree.mst_instance_range, defaults.vxlan.global.spanning_tree.mst_instance_range) }}
+{% endif %}
+  STP_BRIDGE_PRIORITY: {{ vxlan.global.spanning_tree.bridge_priority | default(defaults.vxlan.global.spanning_tree.bridge_priority) }}
+{% endif %}
+{% endif %}
