@@ -46,7 +46,7 @@ class ActionModule(ActionBase):
                 pass
             else:
                 results['failed'] = True
-                results['msg'] = "Domain ID in NDFC: "+r_vpc["allocatedIp"]+" is different than the data source."
+                results['msg'] = "Domain ID in NDFC: " + r_vpc["allocatedIp"] + " is different than the data source."
 
         return results
 
@@ -55,7 +55,7 @@ class ActionModule(ActionBase):
             # Create reverse entity in case it was build in an other order
             # SN_A~SN_B or SN_B~SN_A
             entity_tmp = l_vpc["entity_name"].split("~")
-            rev_entity = entity_tmp[1]+"~"+entity_tmp[0]
+            rev_entity = entity_tmp[1] + "~" + entity_tmp[0]
             if l_vpc["entity_name"] == entity or rev_entity == entity:
                 return l_vpc["resource"]
         return None
