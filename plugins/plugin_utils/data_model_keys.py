@@ -39,8 +39,6 @@ model_keys['VXLAN_EVPN']['global.netflow.exporter'] = [root_key, 'global', 'netf
 model_keys['VXLAN_EVPN']['global.netflow.record'] = [root_key, 'global', 'netflow', 'record', 'LIST']
 model_keys['VXLAN_EVPN']['global.netflow.monitor'] = [root_key, 'global', 'netflow', 'monitor', 'LIST']
 model_keys['VXLAN_EVPN']['global.spanning_tree'] = [root_key, 'global', 'spanning_tree', 'KEY']
-model_keys['VXLAN_EVPN']['global.spanning_tree.vlan_range'] = [root_key, 'global', 'spanning_tree', 'vlan_range', 'LIST']
-model_keys['VXLAN_EVPN']['global.spanning_tree.mst_instance_range'] = [root_key, 'global', 'spanning_tree', 'mst_instance_range', 'LIST']
 # ---
 model_keys['VXLAN_EVPN']['underlay'] = [root_key, 'underlay', 'KEY']
 # ---

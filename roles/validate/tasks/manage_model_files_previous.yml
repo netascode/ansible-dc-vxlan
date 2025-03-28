@@ -21,12 +21,6 @@
 
 ---
 
-- name: Check Roles
-  cisco.nac_dc_vxlan.common.check_roles:
-    role_list: "{{ ansible_play_role_names }}"
-  register: check_roles
-  delegate_to: localhost
-
 # Check if golden and extended service model data files exist from previous runs
 - name: Stat the Golden Service Model Data
   ansible.builtin.stat: path="{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_golden.json"

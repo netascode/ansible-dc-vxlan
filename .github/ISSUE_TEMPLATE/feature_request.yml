@@ -35,6 +35,16 @@ body:
       required: true
 
   - type: textarea
+    id: new-feature
+    attributes:
+      label: "New feature description:"
+      description: Please provide input on the new feature required
+      placeholder: New feature description
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
     id: new-feature-role
     attributes:
       label: Would this be a new feature requiring a new role?
@@ -97,7 +107,7 @@ body:
     id: ansible-version
     attributes:
       label: Ansible Version
-      description: Please provide your Ansible version used when encountering this issue
+      description: Please provide your Ansible version used if this requires some new feature from Ansible using ```ansible --version```
       placeholder: ansible --version
       render: shell
     validations:
@@ -107,7 +117,7 @@ body:
     id: ansible-collection-versions
     attributes:
       label: Ansible Collection Versions
-      description: Please provide your Ansible Collection versions used when encountering this issue
+      description: Please provide your Ansible Collection versions if this requires some new collection or updated version from ```ansible-galaxy collection list```
       placeholder: ansible-galaxy collection list
       render: shell
     validations:
@@ -117,7 +127,7 @@ body:
     id: ndfc-version
     attributes:
       label: Cisco NDFC Version
-      description: Please provide your Cisco NDFC version used when encountering this issue
+      description: Please provide your Cisco NDFC version being used
       render: shell
     validations:
       required: false
@@ -126,7 +136,7 @@ body:
     id: nxos-version
     attributes:
       label: Cisco NX-OS Version
-      description: Please provide your Cisco NX-OS version used when encountering this issue
+      description: Please provide your Cisco NX-OS version being used
       render: shell
     validations:
       required: false
