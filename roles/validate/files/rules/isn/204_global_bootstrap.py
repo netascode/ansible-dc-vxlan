@@ -6,18 +6,30 @@ class Rule:
     @classmethod
     def match(cls, inventory):
         results = []
+        dhcp = None
 
-        # v4 bootstrap check
-        bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'dhcp_v4', 'domain_name']
+        bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'dhcp_version']
         check = cls.data_model_key_check(inventory, bootstrap_keys)
-        if 'domain_name' in check['keys_not_found']:
-            results.append("vxlan.global.bootstrap.domain_name is required for bootstrap in an ISN type fabric.")
+        if 'dhcp_version' in check['keys_found']:
+            if inventory['vxlan']['multisite']['isn']['bootstrap']['dhcp_version'] == 'DHCPv4':
+                dhcp = 'dhcp_v4'
+            elif inventory['vxlan']['multisite']['isn']['bootstrap']['dhcp_version'] == 'DHCPv6':
+                dhcp = 'dhcp_v6'
+        else:
+            results.append(f"A vxlan.multisite.isn.bootstrap.dhcp_version is required for bootstrap in an ISN or External type fabric.")
+            return results
 
-        # v6 bootstrap check
-        bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'dhcp_v6', 'domain_name']
-        check = cls.data_model_key_check(inventory, bootstrap_keys)
-        if 'domain_name' in check['keys_not_found']:
-            results.append("vxlan.global.bootstrap.domain_name is required for bootstrap in an ISN type fabric.")
+        if dhcp:
+            bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', dhcp, 'domain_name']
+            check = cls.data_model_key_check(inventory, bootstrap_keys)
+            if dhcp in check['keys_not_found']:
+                results.append(
+                    f"When vxlan.multisite.isn.bootstrap.dhcp_version is defined, either "
+                    "vxlan.multisite.isn.bootstrap.dhcpv4 or vxlan.multisite.isn.bootstrap.dhcpv6 must be defined in the data model."
+                )
+                return results
+            if 'domain_name' in check['keys_not_found']:
+                results.append(f"vxlan.multisite.isn.bootstrap.{dhcp}.domain_name is required for bootstrap in an ISN or External type fabric.")
 
         return results
 
