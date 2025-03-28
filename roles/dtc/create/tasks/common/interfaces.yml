@@ -98,7 +98,7 @@
   when: MD_Extended.vxlan.topology.interfaces.modes.routed.count > 0
 
 # --------------------------------------------------------------------
-# Manage Sub-interface Routed Configuration on NDFC
+# Manage Sub-Interface Routed Configuration on NDFC
 # --------------------------------------------------------------------
 
 - name: Manage Sub-interface Routed
@@ -109,7 +109,7 @@
   when: MD_Extended.vxlan.topology.interfaces.modes.routed_sub.count > 0
 
 # --------------------------------------------------------------------
-# Manage interface Port-Channel Routed Configuration on NDFC
+# Manage Interface Port-Channel Routed Configuration on NDFC
 # --------------------------------------------------------------------
 
 - name: Manage Interface Port-Channel Routed
@@ -120,7 +120,7 @@
   when: MD_Extended.vxlan.topology.interfaces.modes.routed_po.count > 0
 
 # --------------------------------------------------------------------
-# Manage interface Loopback Configuration on NDFC
+# Manage Interface Loopback Configuration on NDFC
 # --------------------------------------------------------------------
 
 - name: Manage NDFC Fabric Loopback
@@ -131,7 +131,7 @@
   when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0
 
 # --------------------------------------------------------------------
-# Manage interface vPC Configuration on NDFC
+# Manage Interface vPC Configuration on NDFC
 # --------------------------------------------------------------------
 
 - name: Manage NDFC Fabric vPCs
