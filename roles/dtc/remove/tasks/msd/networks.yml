@@ -35,7 +35,7 @@
     vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
   vars:
     update_data:
-        changes_detected_networks: "{{ changes_detected_networks }}"
+        changes_detected_networks: "{{ changes_detected_networks if vars_common_msd.changes_detected_networks is not defined else vars_common_msd.changes_detected_networks }}"
         net_config: "{{ net_config }}"
 
 - name: Run Diff Flags
@@ -49,14 +49,24 @@
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
       - "----------------------------------------------------------------"
 
+# - name: Remove Unmanaged Fabric Networks
+#   cisco.dcnm.dcnm_network:
+#     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+#     config: "{{ vars_common_msd.net_config }}"
+#     state: overridden
+#   vars:
+#       ansible_command_timeout: 3000
+#       ansible_connect_timeout: 3000
+#   when:
+#     - multisite_network_delete_mode is defined
+#     - multisite_network_delete_mode is true | bool
+#     - vars_common_msd.changes_detected_networks
+
 - name: Remove Unmanaged Fabric Networks
-  cisco.dcnm.dcnm_network:
+  cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_networks:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: overridden
-    config: "{{ vars_common_msd.net_config }}"
-  vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
+    msite_data: "{{ MD_Multisite}}"
+  register: child_fabric_network_results
   when:
     - multisite_network_delete_mode is defined
     - multisite_network_delete_mode is true | bool

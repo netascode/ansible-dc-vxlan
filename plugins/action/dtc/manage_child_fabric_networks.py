@@ -225,5 +225,6 @@ class ActionModule(ActionBase):
                             if ndfc_net_update['msg']['RETURN_CODE'] != 200:
                                 results['failed'] = True
                                 results['msg'] = f"For fabric {child_fabric}; {ndfc_net_update['msg']['DATA']['message']}"
+                                return results
 
         return results
