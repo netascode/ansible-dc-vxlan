@@ -84,8 +84,6 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      # - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
-      # - "+     Networks Changes Detected -             [ {{ vars_common_msd.changes_detected_networks }} ]"
       - "+     ----- Run Map -----"
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"

@@ -32,15 +32,6 @@
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
   tags: "{{ nac_tags.create }}"
 
-# - name: Create NDFC VXLAN Fabric
-#   ansible.builtin.import_tasks: common/fabric.yml
-#   when:
-#     - MD_Extended.vxlan.fabric.name is defined
-#     - MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-#     - MD_Extended.vxlan.global is defined
-#     - vars_common_vxlan.changes_detected_fabric
-#   tags: "{{ nac_tags.create_fabric }}"
-
 - name: Manage NDFC VXLAN Fabric Switches
   ansible.builtin.import_tasks: common/devices.yml
   when:

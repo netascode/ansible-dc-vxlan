@@ -45,12 +45,3 @@
   when: >
     (MD_Extended.vxlan.fabric.type == 'External') and
     (vars_fabric_common_external.changes_detected_fabric)
-
-# This likely needs to be removed and only marked complete when
-# the other create tasks are complete
-# - name: Mark Stage Role Create Completed
-#   cisco.nac_dc_vxlan.common.run_map:
-#     model_data: "{{ MD_Extended }}"
-#     stage: role_create_completed
-#   register: run_map
-#   delegate_to: localhost
