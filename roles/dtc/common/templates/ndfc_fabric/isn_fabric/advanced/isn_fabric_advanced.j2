@@ -7,12 +7,12 @@
   AAA_REMOTE_IP_ENABLED: false
   INBAND_MGMT: false
   FEATURE_PTP: false
-  ENABLE_NXAPI: {{ vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
-{% if vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) %}
-  NXAPI_HTTPS_PORT: {{ vxlan.global.nxapi_https_port | default(defaults.vxlan.global.nxapi_https_port) }}
+  ENABLE_NXAPI: {{ vxlan.multisite.isn.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
+{% if vxlan.multisite.isn.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) %}
+  NXAPI_HTTPS_PORT: {{ vxlan.multisite.isn.nxapi_https_port | default(defaults.vxlan.global.nxapi_https_port) }}
 {% endif %}
-  ENABLE_NXAPI_HTTP: {{ vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) }}
-{% if vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) %}
-  NXAPI_HTTP_PORT: {{ vxlan.global.nxapi_http_port | default(defaults.vxlan.global.nxapi_http_port) }}
+  ENABLE_NXAPI_HTTP: {{ vxlan.multisite.isn.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) }}
+{% if vxlan.multisite.isn.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) %}
+  NXAPI_HTTP_PORT: {{ vxlan.multisite.isn.nxapi_http_port | default(defaults.vxlan.global.nxapi_http_port) }}
 {% endif %} 
 {# #}
