@@ -1,0 +1,17 @@
+---
+# This NDFC config data that updates links for vPC Fabric Peering is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% if vxlan.topology.vpc_peers is defined %}
+{%- set switch_list = {} -%}
+{%- for switch in vxlan.topology.switches %}
+{% set _ = switch_list.update({switch.name : switch.serial_number}) %}
+{% endfor -%}
+{% for vpc in vxlan.topology.vpc_peers %}
+- entity_name: "{{ switch_list[vpc.peer1] }}~{{ switch_list[vpc.peer2] }}"
+  pool_type: "ID"
+  pool_name: "VPC_DOMAIN_ID"
+  scope_type: "fabric"
+  resource: "{{ vpc.domain_id }}"
+{% endfor %}
+{% endif %}
