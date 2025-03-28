@@ -46,7 +46,7 @@ class ActionModule(ActionBase):
                 pass
             else:
                 results['failed'] = True
-                results['msg'] = "Domain ID "+r_vpc["allocatedIp"]+" is different between NDFC and Data source."
+                results['msg'] = "Domain ID in NDFC: "+r_vpc["allocatedIp"]+" is different than the data source."
 
         return results
 
