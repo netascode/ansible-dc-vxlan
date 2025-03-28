@@ -36,12 +36,12 @@ factory_defaults:
         auto_recovery_time: 360
         delay_restore_time: 150
         peer_link_port_channel_id: 500
+        ipv6_nd_sync: true
         advertise_pip: false
         advertise_pip_border_only: true
         domain_id_range: 1-1000
         fabric_vpc_qos: false
         fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
-        enable_ipv6_nd_sync: true
       spanning_tree:
         root_bridge_protocol: unmanaged
         vlan_range:

@@ -34,7 +34,7 @@
 
 - name: Manage Interface Trunk
   cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD.vxlan.global.name }}"
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ interface_trunk }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.trunk.count > 0
@@ -45,7 +45,7 @@
 
 - name: Manage Interface Access
   cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD.vxlan.global.name }}"
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ interface_access }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.access.count > 0
@@ -122,7 +122,7 @@
 
 - name: Manage NDFC Fabric vPCs
   cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD.vxlan.global.name }}"
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ interface_vpc }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.access_vpc.count > 0 or MD_Extended.vxlan.topology.interfaces.modes.trunk_vpc.count > 0
