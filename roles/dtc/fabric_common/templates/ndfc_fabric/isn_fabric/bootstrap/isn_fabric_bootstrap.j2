@@ -1,19 +1,23 @@
 {# Auto-generated NDFC ISN Bootstrap config data structure for fabric {{ vxlan.fabric.name }} #}
 {# Most of these features are supported only on Cisco NX-OS switches #}
 {# Some of these features are supported only on Cisco Catalyst 9000 switches #}
-{% if vxlan.global.bootstrap is defined %}
-{% if (vxlan.global.bootstrap.enable_bootstrap is defined and vxlan.global.bootstrap.enable_bootstrap | bool) or defaults.vxlan.global.bootstrap.enable_bootstrap | bool %}
-  BOOTSTRAP_ENABLE: {{ vxlan.global.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool }}
-  INBAND_ENABLE: {{ vxlan.global.bootstrap.enable_inband | default(defaults.vxlan.global.bootstrap.enable_inband) | bool }}
-  DHCP_ENABLE: {{ vxlan.global.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool }}
-  DHCP_IPV6_ENABLE: {{ vxlan.global.bootstrap.dhcp_version | default(defaults.vxlan.global.bootstrap.dhcp_version) }}
-  DHCP_START: {{ vxlan.global.bootstrap.dhcp_v4.scope_start_address }}
-  DHCP_END: {{ vxlan.global.bootstrap.dhcp_v4.scope_end_address }}
-  MGMT_GW: {{ vxlan.global.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
-  MGMT_PREFIX: {{ vxlan.global.bootstrap.dhcp_v4.mgmt_prefix }}
-  BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.bootstrap.dhcp_v4.multi_subnet_scope }}"
-  ENABLE_AAA: {{ vxlan.global.bootstrap.enable_aaa | default(defaults.vxlan.global.bootstrap.enable_aaa) | bool }}
+{# Currently Cisco NX-OS is the supported platform with expansion capable based on demand #}
+{% if vxlan.multisite.isn.bootstrap is defined %}
+  BOOTSTRAP_ENABLE: {{ vxlan.multisite.isn.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool }}
+{% if vxlan.multisite.isn.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool %}
+  DHCP_ENABLE: {{ vxlan.multisite.isn.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool }}
+{% if vxlan.multisite.isn.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool %}
+  DHCP_IPV6_ENABLE: {{ vxlan.multisite.isn.bootstrap.dhcp_version }}
+{% if vxlan.multisite.isn.bootstrap.dhcp_version is defined and vxlan.multisite.isn.bootstrap.dhcp_version == "DHCPv4" %}
+  DHCP_START: {{ vxlan.multisite.isn.bootstrap.dhcp_v4.scope_start_address }}
+  DHCP_END: {{ vxlan.multisite.isn.bootstrap.dhcp_v4.scope_end_address }}
+  MGMT_GW: {{ vxlan.multisite.isn.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
+  MGMT_PREFIX: {{ vxlan.multisite.isn.bootstrap.dhcp_v4.mgmt_prefix }}
+  DOMAIN_NAME: "{{ vxlan.multisite.isn.bootstrap.dhcp_v4.domain_name }}"
+{% if vxlan.multisite.isn.bootstrap.dhcp_v4.multi_subnet_scope is defined %}
+  BOOTSTRAP_MULTISUBNET: "{{ vxlan.multisite.isn.bootstrap.dhcp_v4.multi_subnet_scope }}"
 {% endif %}
-{% else %}
-  BOOTSTRAP_ENABLE: false
+{% endif %}
+{% endif %}  
+{% endif %}
 {% endif %}
