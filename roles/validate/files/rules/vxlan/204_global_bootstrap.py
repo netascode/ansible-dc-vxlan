@@ -11,13 +11,13 @@ class Rule:
         bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'dhcp_v4', 'domain_name']
         check = cls.data_model_key_check(inventory, bootstrap_keys)
         if 'domain_name' in check['keys_found']:
-            results.append(f"vxlan.global.bootstrap.domain_name is not a supported settings for bootstrap in a VXLAN type fabric.")
+            results.append("vxlan.global.bootstrap.domain_name is not a supported settings for bootstrap in a VXLAN type fabric.")
 
         # v6 bootstrap check
         bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'dhcp_v6', 'domain_name']
         check = cls.data_model_key_check(inventory, bootstrap_keys)
         if 'domain_name' in check['keys_found']:
-            results.append(f"vxlan.global.bootstrap.domain_name is not a supported settings for bootstrap in a VXLAN type fabric.")
+            results.append("vxlan.global.bootstrap.domain_name is not a supported settings for bootstrap in a VXLAN type fabric.")
 
         return results
 
