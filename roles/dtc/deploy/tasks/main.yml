@@ -26,7 +26,7 @@
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN') and
-    (vars_common_vxlan.changes_detected_fabric or
+    (vars_fabric_common_vxlan.changes_detected_fabric or
     vars_common_vxlan.changes_detected_fabric_links or
     vars_common_vxlan.changes_detected_interface_access_po or
     vars_common_vxlan.changes_detected_interface_access or
@@ -50,7 +50,7 @@
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'MSD') and
-    (vars_common_msd.changes_detected_fabric or
+    (vars_fabric_common_msd.changes_detected_fabric or
     vars_common_msd.changes_detected_vrfs or
     vars_common_msd.changes_detected_networks)
 
@@ -59,7 +59,7 @@
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'ISN') and
-    (vars_common_isn.changes_detected_fabric or
+    (vars_fabric_common_isn.changes_detected_fabric or
     vars_common_isn.changes_detected_fabric_links or
     vars_common_isn.changes_detected_interface_access_po or
     vars_common_isn.changes_detected_interface_access or
@@ -79,7 +79,7 @@
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'External') and
-    (vars_common_external.changes_detected_fabric or
+    (vars_fabric_common_external.changes_detected_fabric or
     vars_common_external.changes_detected_interface_access_po or
     vars_common_external.changes_detected_interface_access or
     vars_common_external.changes_detected_interfaces or
