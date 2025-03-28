@@ -56,6 +56,8 @@ factory_defaults:
         enable: false
       snmp_server_host_trap: true
       bootstrap:
+        enable_bootstrap: false
+        enable_local_dhcp_server: false
         enable_cdp_mgmt: false
     topology:
       switches:
