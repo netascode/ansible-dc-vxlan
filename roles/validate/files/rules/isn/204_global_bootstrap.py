@@ -8,10 +8,10 @@ class Rule:
         results = []
         dhcp = None
 
-        bootstrap_keys = ['vxlan',  'multisite', 'isn', 'bootstrap', 'enable_bootstrap']
+        bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_bootstrap']
         check = cls.data_model_key_check(inventory, bootstrap_keys)
         if 'enable_bootstrap' in check['keys_found']:
-            bootstrap_keys = ['vxlan',  'multisite', 'isn', 'bootstrap', 'enable_local_dhcp_server']
+            bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_local_dhcp_server']
             check = cls.data_model_key_check(inventory, bootstrap_keys)
             if 'enable_local_dhcp_server' in check['keys_found']:
                 bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'dhcp_version']
