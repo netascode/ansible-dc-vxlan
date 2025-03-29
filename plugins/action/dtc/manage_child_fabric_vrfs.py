@@ -79,7 +79,11 @@ class ActionModule(ActionBase):
 
                     vrf_child_fabric = None
                     if vrf_child_fabrics:
-                        vrf_child_fabric = [vrf_child_fabric_dict for vrf_child_fabric_dict in vrf_child_fabrics if (vrf_child_fabric_dict['name'] == child_fabric)]
+                        vrf_child_fabric = [
+                            vrf_child_fabric_dict
+                            for vrf_child_fabric_dict in vrf_child_fabrics
+                            if (vrf_child_fabric_dict['name'] == child_fabric)
+                        ]
 
                     if vrf_child_fabric:
                         vrf_child_fabric = vrf_child_fabric[0]
@@ -142,7 +146,7 @@ class ActionModule(ActionBase):
                         if (
                             (ndfc_vrf_template_config['advertiseHostRouteFlag'] != str(vrf_child_fabric.get('adv_host_routes', '')).lower()) or
                             (ndfc_vrf_template_config['advertiseDefaultRouteFlag'] != str(vrf_child_fabric.get('adv_default_routes', '')).lower()) or
-                            (ndfc_vrf_template_config['configureStaticDefaultRouteFlag'] != str(vrf_child_fabric.get('config_static_default_route', '')).lower()) or
+                            (ndfc_vrf_template_config['configureStaticDefaultRouteFlag'] != str(vrf_child_fabric.get('config_static_default_route', '')).lower()) or     # noqa: E501
                             (ndfc_vrf_template_config['bgpPassword'] != vrf_child_fabric.get('bgp_password', '')) or
                             (ndfc_vrf_template_config.get('bgpPasswordKeyType', '') != vrf_child_fabric.get('bgp_password_key_type', '')) or
                             (ndfc_vrf_template_config['ENABLE_NETFLOW'] != str(vrf_child_fabric.get('netflow_enable', False)).lower()) or

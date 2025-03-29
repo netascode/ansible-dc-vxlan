@@ -79,7 +79,11 @@ class ActionModule(ActionBase):
 
                     network_child_fabric = None
                     if network_child_fabrics:
-                        network_child_fabric = [network_child_fabric_dict for network_child_fabric_dict in network_child_fabrics if (network_child_fabric_dict['name'] == child_fabric)]
+                        network_child_fabric = [
+                            network_child_fabric_dict
+                            for network_child_fabric_dict in network_child_fabrics
+                            if (network_child_fabric_dict['name'] == child_fabric)
+                        ]
 
                     if network_child_fabric:
                         network_child_fabric = network_child_fabric[0]
