@@ -47,7 +47,7 @@ class ActionModule(ActionBase):
         ndfc_vrfs = self._execute_module(
             module_name="cisco.dcnm.dcnm_vrf",
             module_args={
-                "fabric": "fabric",
+                "fabric": fabric,
                 "state": "query"
             },
             task_vars=task_vars,
