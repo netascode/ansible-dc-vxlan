@@ -77,21 +77,22 @@ class ActionModule(ActionBase):
 
                     is_intersection = set(network_attach_group_switches_mgmt_ip_addresses).intersection(set(child_fabric_switches_mgmt_ip_addresses))
 
-                    network_child_fabric = None
-                    if network_child_fabrics:
-                        network_child_fabric = [
-                            network_child_fabric_dict
-                            for network_child_fabric_dict in network_child_fabrics
-                            if (network_child_fabric_dict['name'] == child_fabric)
-                        ]
-
-                    if network_child_fabric:
-                        network_child_fabric = network_child_fabric[0]
-                    else:
-                        results['failed'] = True
-                        results['msg'] = f"For fabric {child_fabric} and VRF {network['name']}; child_fabrics not found in the Network configuration."
-
                     if is_intersection:
+                        # If switch intersection is found, then process the VRF configuration for the child fabric
+                        network_child_fabric = None
+                        if network_child_fabrics:
+                            network_child_fabric = [
+                                network_child_fabric_dict
+                                for network_child_fabric_dict in network_child_fabrics
+                                if (network_child_fabric_dict['name'] == child_fabric)
+                            ]
+
+                        if network_child_fabric:
+                            network_child_fabric = network_child_fabric[0]
+                        else:
+                            results['failed'] = True
+                            results['msg'] = f"For fabric {child_fabric} and VRF {network['name']}; child_fabrics not found in the Network configuration."
+
                         # Need to clean these up and make them more dynamic
                         if network_child_fabric.get('netflow_enable'):
                             if child_fabric_attributes['ENABLE_NETFLOW'] == 'false':

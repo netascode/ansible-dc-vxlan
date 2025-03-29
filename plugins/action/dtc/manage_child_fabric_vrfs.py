@@ -77,21 +77,22 @@ class ActionModule(ActionBase):
 
                     is_intersection = set(vrf_attach_group_switches_mgmt_ip_addresses).intersection(set(child_fabric_switches_mgmt_ip_addresses))
 
-                    vrf_child_fabric = None
-                    if vrf_child_fabrics:
-                        vrf_child_fabric = [
-                            vrf_child_fabric_dict
-                            for vrf_child_fabric_dict in vrf_child_fabrics
-                            if (vrf_child_fabric_dict['name'] == child_fabric)
-                        ]
-
-                    if vrf_child_fabric:
-                        vrf_child_fabric = vrf_child_fabric[0]
-                    else:
-                        results['failed'] = True
-                        results['msg'] = f"For fabric {child_fabric} and VRF {vrf['name']}; child_fabrics not found in the VRF configuration."
-
                     if is_intersection:
+                        # If switch intersection is found, then process the VRF configuration for the child fabric
+                        vrf_child_fabric = None
+                        if vrf_child_fabrics:
+                            vrf_child_fabric = [
+                                vrf_child_fabric_dict
+                                for vrf_child_fabric_dict in vrf_child_fabrics
+                                if (vrf_child_fabric_dict['name'] == child_fabric)
+                            ]
+
+                        if vrf_child_fabric:
+                            vrf_child_fabric = vrf_child_fabric[0]
+                        else:
+                            results['failed'] = True
+                            results['msg'] = f"For fabric {child_fabric} and VRF {vrf['name']}; child_fabrics not found in the VRF configuration."
+
                         # Need to clean these up and make them more dynamic
                         if vrf_child_fabric.get('netflow_enable'):
                             if child_fabric_attributes['ENABLE_NETFLOW'] == 'false':
