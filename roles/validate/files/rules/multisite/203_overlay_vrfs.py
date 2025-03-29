@@ -7,22 +7,22 @@ class Rule:
     def match(cls, inventory):
         results = []
         child_fabric_attributes = [
-            'adv_host_routes', 
-            'adv_default_routes', 
-            'static_default_route', 
-            'bgp_password', 
-            'bgp_password_encryption_type', 
-            'netflow_enable', 
+            'adv_host_routes',
+            'adv_default_routes',
+            'static_default_route',
+            'bgp_password',
+            'bgp_password_encryption_type',
+            'netflow_enable',
             'netflow_monitor',
-            'trm_enable', 
-            'trm_bgw_msite', 
-            'no_rp', 
-            'rp_external', 
-            'rp_address', 
+            'trm_enable',
+            'trm_bgw_msite',
+            'no_rp',
+            'rp_external',
+            'rp_address',
             'rp_loopback_id',
-            'underlay_mcast_ip', 
-            'overlay_multicast_group', 
-            'import_mvpn_rt', 
+            'underlay_mcast_ip',
+            'overlay_multicast_group',
+            'import_mvpn_rt',
             'export_mvpn_rt'
         ]
 

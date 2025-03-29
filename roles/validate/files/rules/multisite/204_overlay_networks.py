@@ -7,12 +7,12 @@ class Rule:
     def match(cls, inventory):
         results = []
         child_fabric_attributes = [
-            'dhcp_loopback_id', 
-            'dhcp_servers', 
-            'multicast_group_address', 
-            'trm_enable', 
-            'netflow_enable', 
-            'vlan_netflow_monitor', 
+            'dhcp_loopback_id',
+            'dhcp_servers',
+            'multicast_group_address',
+            'trm_enable',
+            'netflow_enable',
+            'vlan_netflow_monitor',
             'l3gw_on_border'
         ]
 
