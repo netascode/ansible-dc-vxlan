@@ -32,10 +32,10 @@
 
 - name: Config-Save block
   block:
-    - name: Config-Save for Fabric {{ MD.vxlan.global.name }}
+    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
       cisco.dcnm.dcnm_rest:
         method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-save"
+        path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       when: >
         MD_Extended.vxlan.fabric.type == 'MFD'
 
@@ -55,7 +55,7 @@
 - name: Deploy for Federated Overlay
   cisco.dcnm.dcnm_rest:
     method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-deploy/{{ serial_numbers_str }}?forceShowRun=false"
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy/{{ serial_numbers_str }}?forceShowRun=false"
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000

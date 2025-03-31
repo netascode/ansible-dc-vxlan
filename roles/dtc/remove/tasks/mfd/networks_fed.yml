@@ -56,10 +56,10 @@
     - not_required_networks.attachments_payload  | length > 0
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
 
-- name: Config-Save for Fabric {{ MD.vxlan.global.name }}
+- name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
   cisco.dcnm.dcnm_rest:
      method: POST
-     path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-save"
+     path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
   register: config_save
   ignore_errors: True
 

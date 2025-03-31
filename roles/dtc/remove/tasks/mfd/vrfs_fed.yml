@@ -56,17 +56,17 @@
     - not_required_vrfs.attachments_payload | length > 0
      - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
 
-- name: Config-Save for Fabric {{ MD.vxlan.global.name }}
+- name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
   cisco.dcnm.dcnm_rest:
      method: POST
-     path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-save"
+     path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
   register: config_save
   ignore_errors: True
 
 - name: Deploy for vrf attachments removal
   cisco.dcnm.dcnm_rest:
        method: POST
-       path: /appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.global.name }}/config-deploy/{{not_required_vrfs.deploy_payload | join(',') }}?forceShowRun=false
+       path: /appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy/{{not_required_vrfs.deploy_payload | join(',') }}?forceShowRun=false
   when:
     - switch_list.response.DATA | length > 0
     - not_required_vrfs.deploy_payload | length > 0
