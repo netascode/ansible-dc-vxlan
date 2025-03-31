@@ -21,34 +21,28 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.create]
+- name: Choose vars_common Based On Fabric Type
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_fabric_common_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_fabric_common_msd }}"
+  when: MD_Extended.vxlan.fabric.type == "MSD"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_fabric_common_isn }}"
+  when: MD_Extended.vxlan.fabric.type == "ISN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_fabric_common_external }}"
+  when: MD_Extended.vxlan.fabric.type == "External"
+
+- name: Manage Fabric Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.create]           +"
+      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
-  tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
-  tags: "{{ nac_tags.create }}"
-
-- name: Manage NDFC External Fabric Switches
-  ansible.builtin.import_tasks: common/devices.yml
-  when:
-    - MD_Extended.vxlan.topology.switches | length > 0
-    - vars_common_external.changes_detected_inventory
-  tags: "{{ nac_tags.create_switches }}"
-
-- name: Manage NDFC External Fabric Interfaces
-  ansible.builtin.import_tasks: common/interfaces.yml
-  when:
-    - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
-    - vars_common_external.changes_detected_interfaces
-  tags: "{{ nac_tags.create_interfaces }}"
-
-- name: Manage NDFC External Fabric Policies
-  ansible.builtin.import_tasks: common/policies.yml
-  when:
-    - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
-    - vars_common_external.changes_detected_policy
-  tags: "{{ nac_tags.create_policy }}"
+- name: Manage Fabric {{ MD_Extended.vxlan.fabric.name }} in NDFC
+  cisco.dcnm.dcnm_fabric:
+    state: merged
+    config: "{{ vars_common_local.fabric_config }}"

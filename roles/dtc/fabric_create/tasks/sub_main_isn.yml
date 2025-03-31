@@ -21,34 +21,21 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.create]
+- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.fabric_create]
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.create]           +"
+      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.fabric_create]     +"
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
   tags: "{{ nac_tags.create }}"
 
-- name: Manage NDFC External Fabric Switches
-  ansible.builtin.import_tasks: common/devices.yml
+- name: Create NDFC ISN Fabric
+  ansible.builtin.import_tasks: common/fabric.yml
   when:
-    - MD_Extended.vxlan.topology.switches | length > 0
-    - vars_common_external.changes_detected_inventory
-  tags: "{{ nac_tags.create_switches }}"
-
-- name: Manage NDFC External Fabric Interfaces
-  ansible.builtin.import_tasks: common/interfaces.yml
-  when:
-    - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
-    - vars_common_external.changes_detected_interfaces
-  tags: "{{ nac_tags.create_interfaces }}"
-
-- name: Manage NDFC External Fabric Policies
-  ansible.builtin.import_tasks: common/policies.yml
-  when:
-    - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
-    - vars_common_external.changes_detected_policy
-  tags: "{{ nac_tags.create_policy }}"
+    - MD_Extended.vxlan.fabric.name is defined
+    - MD_Extended.vxlan.fabric.type == "ISN"
+    - vars_fabric_common_isn.changes_detected_fabric
+  tags: "{{ nac_tags.create_fabric }}"

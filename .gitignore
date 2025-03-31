@@ -138,6 +138,8 @@ dmypy.json
 roles/prepare_model/files
 roles/dtc/common/files/*
 roles/dtc/create/files
+roles/dtc/fabric_common/files
+roles/dtc/fabric_create/files
 roles/dtc/deploy/files
 roles/dtc/remove/files
 roles/validate/files/schema.yaml

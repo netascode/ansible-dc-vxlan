@@ -19,15 +19,17 @@
 #
 # SPDX-License-Identifier: MIT
 
-galaxy_info:
-  author: Cisco
-  description: Role to create state within the NDFC controller.
-  license: LICENSE
-  min_ansible_version: 2.14.15
+---
 
-dependencies:
-  - cisco.nac_dc_vxlan.dtc.connectivity_check
-  - cisco.nac_dc_vxlan.validate
-  - cisco.nac_dc_vxlan.dtc.fabric_common
-  - cisco.nac_dc_vxlan.dtc.fabric_create
-  - cisco.nac_dc_vxlan.dtc.common
+- name: Delete content & directory
+  ansible.builtin.file:
+    state: absent
+    path: "{{ path_name }}"
+  delegate_to: localhost
+
+- name: Recreate the directory
+  ansible.builtin.file:
+    path: "{{ path_name }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
