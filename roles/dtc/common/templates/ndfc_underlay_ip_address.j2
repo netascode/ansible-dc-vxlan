@@ -1,0 +1,69 @@
+---
+# This NDFC policy and switch attachments config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% if vxlan.topology.underlay_ip_address is defined %}
+{% set routing_lo_id = vxlan.underlay.general.underlay_routing_loopback_id %}
+{% set vtep_lo_id = vxlan.underlay.general.underlay_vtep_loopback_id %}
+
+{% if vxlan.topology is defined %}
+{%- set switch_list = {} -%}
+{%- for switch in vxlan.topology.switches %}
+{% set _ = switch_list.update({switch.name : { 'management_ipv4_address': switch.management.management_ipv4_address, 'serial_number': switch.serial_number } }) %}
+{% endfor -%}
+{% endif %}
+{% if vxlan.topology.underlay_ip_address.underlay_routing_loopback is defined %}
+{% for switch in vxlan.topology.underlay_ip_address.underlay_routing_loopback %}
+- entity_name: "{{ switch_list[switch.switch_name].serial_number }}~loopback{{ routing_lo_id }}"
+  pool_type: IP
+  pool_name: "LOOPBACK{{ routing_lo_id }}_IP_POOL"
+  scope_type: device_interface
+  resource: "{{switch.ip}}"
+  switch:
+    - "{{ switch_list[switch.switch_name].management_ipv4_address }}"
+{% endfor %}
+{% endif %}
+
+{% if vxlan.topology.underlay_ip_address.underlay_vtep_loopback is defined %}
+{% for switch in vxlan.topology.underlay_ip_address.underlay_vtep_loopback %}
+- entity_name: "{{ switch_list[switch.switch_name].serial_number }}~loopback{{ vtep_lo_id }}"
+  pool_type: IP
+  pool_name: "LOOPBACK{{ vtep_lo_id }}_IP_POOL"
+  scope_type: device_interface
+  resource: "{{switch.ip}}"
+  switch:
+    - "{{ switch_list[switch.switch_name].management_ipv4_address }}"
+{% endfor %}
+{%endif %}
+
+{% if vxlan.topology.underlay_ip_address.fabric_links is defined %}
+{% for switch in vxlan.topology.underlay_ip_address.fabric_links %}
+- entity_name: "{{ switch_list[switch.source_device].serial_number }}~{{ switch.source_interface }}~{{ switch_list[switch.dest_device].serial_number }}~{{ switch.dest_interface }}"
+  pool_type: SUBNET
+  pool_name: "SUBNET"
+  scope_type: link
+  resource: "{{ switch.subnet }}"
+  switch:
+    - "{{ switch_list[switch.switch_name].management_ipv4_address }}"
+
+{% if switch.source_ip is defined and switch.dest_ip is defined %}
+- entity_name: "{{ switch_list[switch.source_device].serial_number }}~{{ switch.source_interface }}"
+  pool_type: IP
+  pool_name: "{{switch.subnet}}"
+  scope_type: device_interface
+  resource: "{{ switch.source_ip }}"
+  switch:
+    - "{{ switch_list[switch.source_device].management_ipv4_address }}"
+
+- entity_name: "{{ switch_list[switch.dest_device].serial_number }}~{{ switch.dest_interface }}"
+  pool_type: IP
+  pool_name: "{{switch.subnet}}"
+  scope_type: device_interface
+  resource: "{{ switch.dest_ip }}"
+  switch:
+    - "{{ switch_list[switch.dest_device].management_ipv4_address }}"
+{% endif %}
+{% endfor %}
+
+{% endif %}
+{% endif %}
