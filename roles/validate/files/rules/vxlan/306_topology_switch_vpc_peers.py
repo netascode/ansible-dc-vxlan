@@ -21,6 +21,7 @@ class Rule:
         else:
             vpc_range = "1-1000"
         vpc_range_split = vpc_range.split("-")
+        vpc_domain_list = []
 
         vpc_peers_keys = ['vxlan', 'topology', 'vpc_peers']
         dm_check = cls.data_model_key_check(inventory, vpc_peers_keys)
@@ -46,6 +47,11 @@ class Rule:
                         f"vpc domain not in range: "+vpc_range+"."
                     )
 
+                if vpc_peers_pair['domain_id'] not in vpc_domain_list:
+                    vpc_domain_list.append(vpc_peers_pair['domain_id'])
+                else:
+                    results.append(
+                        f"vxlan.topology.vpc_peers Domain ID {vpc_peers_pair['domain_id']} is duplicated.")
         return results
 
     @classmethod
