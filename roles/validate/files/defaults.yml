@@ -26,26 +26,39 @@ factory_defaults:
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
+      enable_nxapi_http: false
+      nxapi_http_port: 80
+      enable_nxapi_https: true
+      nxapi_https_port: 443
       vpc:
         peer_link_vlan: 3600
         peer_keep_alive: management
         auto_recovery_time: 360
         delay_restore_time: 150
         peer_link_port_channel_id: 500
+        ipv6_nd_sync: true
         advertise_pip: false
         advertise_pip_border_only: true
         domain_id_range: 1-1000
+        fabric_vpc_qos: false
+        fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
       spanning_tree:
         root_bridge_protocol: unmanaged
-        vlan_range: 
+        vlan_range:
           - from: 1
             to: 3967
         mst_instance_range:
           - from: 0
-            to: 0
         bridge_priority: 0
       netflow:
         enable: false
+      ptp:
+        enable: false
+      snmp_server_host_trap: true
+      bootstrap:
+        enable_bootstrap: false
+        enable_local_dhcp_server: false
+        enable_cdp_mgmt: false
     topology:
       switches:
         routing_loopback_id: 0
@@ -299,11 +312,14 @@ factory_defaults:
       ipv6_vtep_loopback_range: fd00::a10:0/120
       overlay_dci:
         deployment_method: Direct_To_BGWS
+        route_server:
+          redistribute_direct: false
+          ip_tag: 54321
         ipv4_dci_subnet_range: 10.10.1.0/24
         ipv4_dci_subnet_mask: 30
         ipv6_dci_subnet_range: fd00::a11:0/120
         ipv6_dci_subnet_mask: 126
-        underlay_autoconfig: true      
+        underlay_autoconfig: true
         enable_bgp_send_community: false
         enable_bgp_log_neighbor_change: false
         enable_bgp_bfd: false

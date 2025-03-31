@@ -46,7 +46,9 @@
 {% if ( (vxlan.underlay.bfd.enable | default(defaults.vxlan.underlay.bfd.enable) | ansible.builtin.bool) and
         (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false ) %}
   BFD_IBGP_ENABLE: {{ vxlan.underlay.bfd.ibgp | default(defaults.vxlan.underlay.bfd.ibgp) }}
+{% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
   BFD_PIM_ENABLE: {{ vxlan.underlay.bfd.pim | default(defaults.vxlan.underlay.bfd.pim) }}
+{% endif %}
   BFD_AUTH_ENABLE: {{ (vxlan.underlay.bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | title) }}
 {% if (vxlan.underlay.bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | ansible.builtin.bool) %}
   BFD_AUTH_KEY: {{ vxlan.underlay.bfd.authentication_key | default(omit) }}
