@@ -79,7 +79,7 @@ class ActionModule(ActionBase):
 
                     if is_intersection:
                         # If switch intersection is found, then process the VRF configuration for the child fabric
-                        network_child_fabric = None
+                        network_child_fabric = []
                         if network_child_fabrics:
                             network_child_fabric = [
                                 network_child_fabric_dict
@@ -87,11 +87,12 @@ class ActionModule(ActionBase):
                                 if (network_child_fabric_dict['name'] == child_fabric)
                             ]
 
-                        if network_child_fabric:
+                        if len(network_child_fabric) == 0:
+                            # There are no matching child fabrics for this Network.
+                            # Continue and process the next Network in the list.
+                            continue
+                        elif len(network_child_fabric) == 1:
                             network_child_fabric = network_child_fabric[0]
-                        else:
-                            results['failed'] = True
-                            results['msg'] = f"For fabric {child_fabric} and VRF {network['name']}; child_fabrics not found in the Network configuration."
 
                         # Need to clean these up and make them more dynamic
                         if network_child_fabric.get('netflow_enable'):
