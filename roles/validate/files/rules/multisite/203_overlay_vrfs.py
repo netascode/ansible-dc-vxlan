@@ -37,6 +37,59 @@ class Rule:
                     if attr in child_fabric_attributes:
                         results.append(cls.msg.format(vrf['name'], attr))
 
+                for child_fabric in vrf.get('child_fabrics', []):
+                    if not child_fabric.get('netflow_enable') and child_fabric.get('netflow_monitor'):
+                        results.append(
+                            f"VRF {vrf['name']} attribute 'netflow_monitor' can only be defined if 'netflow_enable' is true under the 'child_fabrics:' key."
+                        )
+
+                    if child_fabric.get('trm_enable'):
+                        current_vrf_trm_no_rp = child_fabric.get("no_rp", None)
+                        current_vrf_trm_rp_external = child_fabric.get("rp_external", None)
+                        current_vrf_trm_rp_address = child_fabric.get("rp_address", None)
+                        current_vrf_trm_rp_loopback_id = child_fabric.get("rp_loopback_id", None)
+                        current_vrf_trm_underlay_mcast_ip = child_fabric.get("underlay_mcast_ip", None)
+                        current_vrf_trm_overlay_multicast_group = child_fabric.get("overlay_multicast_group", None)
+
+                        if current_vrf_trm_no_rp and current_vrf_trm_underlay_mcast_ip is None:
+                            results.append(
+                                f"When VRF {vrf['name']} child_fabric attribute no_rp is enabled (true), "
+                                f"then attribute underlay_mcast_ip must be set."
+                            )
+                            break
+
+                        if (current_vrf_trm_no_rp and current_vrf_trm_rp_external or
+                            current_vrf_trm_no_rp and current_vrf_trm_rp_address or
+                            current_vrf_trm_no_rp and current_vrf_trm_rp_loopback_id or
+                            current_vrf_trm_no_rp and current_vrf_trm_overlay_multicast_group):
+                            results.append(
+                                f"When VRF {vrf['name']} attribute no_rp is enabled (true), "
+                                f"then attributes rp_external, rp_address, rp_loopback_id, overlay_multicast_group must be disabled (false)."
+                            )
+                            break
+
+                        if current_vrf_trm_rp_external and current_vrf_trm_rp_loopback_id:
+                            results.append(
+                                f"When VRF {vrf['name']} attribute rp_external is enabled (true), "
+                                f"then attribute rp_loopback_id must be disabled (false)."
+                            )
+                            break
+
+                        if (current_vrf_trm_rp_external and current_vrf_trm_rp_address is None or
+                                current_vrf_trm_rp_external and current_vrf_trm_underlay_mcast_ip is None):
+                            results.append(
+                                f"When VRFs {vrf['name']} attribute rp_external is enabled (true), "
+                                f"attributes rp_address and underlay_mcast_ip must be set."
+                            )
+                            break
+
+                    if not child_fabric.get('trm_enable') and child_fabric.get('trm_bgw_msite'):
+                        results.append(
+                            f"When VRFs {vrf['name']} attribute trm_bgw_msite is enabled (true), "
+                            f"attribute trm_enable must be enabled (true)."
+                        )
+                        break
+
         return results
 
     @classmethod
