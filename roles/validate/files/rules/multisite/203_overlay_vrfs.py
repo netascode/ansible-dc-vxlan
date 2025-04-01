@@ -3,6 +3,8 @@ class Rule:
     description = "Verify VRF attributes are set for multisite overlay vs standalone fabric overlay"
     severity = "HIGH"
 
+    msg = "VRF {0} attribute '{1}' must be defined under vxlan.multisite.overlay.vrfs under the 'child_fabrics:' key."
+
     @classmethod
     def match(cls, inventory):
         results = []
@@ -33,12 +35,7 @@ class Rule:
             for vrf in vrfs:
                 for attr in vrf:
                     if attr in child_fabric_attributes:
-                        results.append(
-                            f"When in a Multisite fabric, vxlan.multisite.overlay.vrfs "
-                            f"item vrf {vrf['name']} with attribute {attr} must be "
-                            f"defined under vxlan.multisite.overlay.vrfs item vrf {vrf['name']} "
-                            "under attribute child_fabrics."
-                        )
+                        results.append(cls.msg.format(vrf['name'], attr))
 
         return results
 

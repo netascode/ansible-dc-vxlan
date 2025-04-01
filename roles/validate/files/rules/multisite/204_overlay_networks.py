@@ -3,6 +3,8 @@ class Rule:
     description = "Verify Network attributes are set for multisite overlay vs standalone fabric overlay"
     severity = "HIGH"
 
+    msg = "Network {0} attribute '{1}' must be defined under vxlan.multisite.overlay.vrfs under the 'child_fabrics:' key."
+
     @classmethod
     def match(cls, inventory):
         results = []
@@ -23,12 +25,7 @@ class Rule:
             for network in networks:
                 for attr in network:
                     if attr in child_fabric_attributes:
-                        results.append(
-                            f"When in a Multisite fabric, vxlan.multisite.overlay.networks "
-                            f"item network {network['name']} with attribute {attr} must be "
-                            f"defined under vxlan.multisite.overlay.networks item network {network['name']} "
-                            "under attribute child_fabrics."
-                        )
+                        results.append(cls.msg.format(network['name'], attr))
 
         return results
 
