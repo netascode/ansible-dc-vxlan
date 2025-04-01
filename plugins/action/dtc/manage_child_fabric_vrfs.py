@@ -89,8 +89,8 @@ class ActionModule(ActionBase):
 
                         if len(vrf_child_fabric) == 0:
                             # There are no matching child fabrics for this VRF.
-                            # Continue and process the next VRF in the list.
-                            continue
+                            # Set vrf_child_fabric to empty dict for further processing.
+                            vrf_child_fabric = {}
                         elif len(vrf_child_fabric) == 1:
                             vrf_child_fabric = vrf_child_fabric[0]
 

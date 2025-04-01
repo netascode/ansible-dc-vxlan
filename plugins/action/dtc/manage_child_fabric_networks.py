@@ -89,8 +89,8 @@ class ActionModule(ActionBase):
 
                         if len(network_child_fabric) == 0:
                             # There are no matching child fabrics for this Network.
-                            # Continue and process the next Network in the list.
-                            continue
+                            # Set network_child_fabric to empty dict for further processing.
+                            network_child_fabric = {}
                         elif len(network_child_fabric) == 1:
                             network_child_fabric = network_child_fabric[0]
 
