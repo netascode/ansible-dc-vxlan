@@ -127,12 +127,8 @@ class Rule:
                     if pair in switch_interfaces:
                         switch_interfaces_pair.update({pair: switch_interfaces[pair]})
 
-                if len(switch_interfaces_pair) > 2:
-                    results.append(
-                        f"vpc_id : {vpc_id} is referenced by more than 2 switches. Switches : {', '.join(switch_interfaces_pair.keys())}"
-                    )
                 # Check if vPC id is only referenced by a single switch but must be referenced by both vPC peer switches
-                elif len(switch_interfaces_pair) > 0 and len(switch_interfaces_pair) < 2:
+                if len(switch_interfaces_pair) > 0 and len(switch_interfaces_pair) < 2:
                     results.append(
                         f"vpc_id : {vpc_id} is only referenced by a single switch {', '.join(switch_interfaces_pair.keys())} "
                         "but must be referenced by both vPC peer switches"
