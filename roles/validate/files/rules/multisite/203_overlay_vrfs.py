@@ -58,10 +58,12 @@ class Rule:
                             )
                             break
 
-                        if (current_vrf_trm_no_rp and current_vrf_trm_rp_external or
+                        if (
+                            current_vrf_trm_no_rp and current_vrf_trm_rp_external or
                             current_vrf_trm_no_rp and current_vrf_trm_rp_address or
                             current_vrf_trm_no_rp and current_vrf_trm_rp_loopback_id or
-                            current_vrf_trm_no_rp and current_vrf_trm_overlay_multicast_group):
+                            current_vrf_trm_no_rp and current_vrf_trm_overlay_multicast_group
+                        ):
                             results.append(
                                 f"When VRF {vrf['name']} attribute no_rp is enabled (true), "
                                 f"then attributes rp_external, rp_address, rp_loopback_id, overlay_multicast_group must be disabled (false)."

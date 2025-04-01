@@ -30,7 +30,8 @@ class Rule:
                 for child_fabric in network.get('child_fabrics', []):
                     if not child_fabric.get('netflow_enable') and child_fabric.get('vlan_netflow_monitor'):
                         results.append(
-                            f"Network {network['name']} attribute 'netflow_monitor' can only be defined if 'vlan_netflow_monitor' is true under the 'child_fabrics:' key."
+                            f"Network {network['name']} attribute 'netflow_monitor' can only be defined "
+                            "if 'vlan_netflow_monitor' is true under the 'child_fabrics:' key."
                         )
 
         return results
