@@ -5,9 +5,10 @@
 {% if vxlan.topology.underlay_ip_address is defined %}
 {% set routing_lo_id = vxlan.underlay.general.underlay_routing_loopback_id %}
 {% set vtep_lo_id = vxlan.underlay.general.underlay_vtep_loopback_id %}
+{%- set switch_secondary_ip = {} -%}
+{%- set switch_list = {} -%}
 
 {% if vxlan.topology is defined %}
-{%- set switch_list = {} -%}
 {%- for switch in vxlan.topology.switches %}
 {% set _ = switch_list.update({switch.name : { 'management_ipv4_address': switch.management.management_ipv4_address, 'serial_number': switch.serial_number } }) %}
 {% endfor -%}
@@ -26,6 +27,9 @@
 
 {% if vxlan.topology.underlay_ip_address.underlay_vtep_loopback is defined %}
 {% for switch in vxlan.topology.underlay_ip_address.underlay_vtep_loopback %}
+{% if switch.secondary_ip is defined %}
+{% set _ = switch_secondary_ip.update({switch.switch_name : { 'secondary': switch.secondary_ip } }) %}
+{% endif %}
 - entity_name: "{{ switch_list[switch.switch_name].serial_number }}~loopback{{ vtep_lo_id }}"
   pool_type: IP
   pool_name: "LOOPBACK{{ vtep_lo_id }}_IP_POOL"
@@ -35,6 +39,18 @@
     - "{{ switch_list[switch.switch_name].management_ipv4_address }}"
 {% endfor %}
 {%endif %}
+
+{% if vxlan.topology.vpc_peers is defined %}
+{% for peer in vxlan.topology.vpc_peers %}
+- entity_name: "{{ switch_list[peer.peer1].serial_number }}~{{ switch_list[peer.peer2].serial_number }}~loopback{{ vtep_lo_id }}"
+  pool_type: IP
+  pool_name: "LOOPBACK{{ vtep_lo_id }}_IP_POOL"
+  scope_type: device_interface
+  resource: "{{switch_secondary_ip[peer.peer1]['secondary']}}"
+  switch:
+    - "{{ switch_list[peer.peer1].management_ipv4_address }}"
+{% endfor %}
+{% endif %}
 
 {% if vxlan.topology.underlay_ip_address.fabric_links is defined %}
 {% for switch in vxlan.topology.underlay_ip_address.fabric_links %}
