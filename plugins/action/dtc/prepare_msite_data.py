@@ -66,6 +66,9 @@ class ActionModule(ActionBase):
         child_fabrics_data = {}
         for fabric in associated_child_fabrics:
             child_fabrics_data.update({fabric: {}})
+            child_fabrics_data[fabric].update(
+                {'type': [_fabric['fabricType'] for _fabric in msd_fabric_associations['response']['DATA'] if _fabric['fabricName'] == fabric][0]}
+            )
             child_fabrics_data[fabric].update({'attributes': ndfc_get_fabric_attributes(self, task_vars, tmp, fabric)})
             child_fabrics_data[fabric].update({'switches': ndfc_get_fabric_switches(self, task_vars, tmp, fabric)})
 
