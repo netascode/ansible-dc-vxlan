@@ -102,12 +102,20 @@ class Rule:
                             )
                             break
 
-                    if not child_fabric.get('trm_enable') and child_fabric.get('trm_bgw_msite'):
-                        results.append(
-                            f"When VRFs {vrf['name']} attribute trm_bgw_msite is enabled (true), "
-                            "attribute trm_enable must be enabled (true)."
-                        )
-                        break
+                    if not child_fabric.get('trm_enable'):
+                        if child_fabric.get('trm_bgw_msite'):
+                            results.append(
+                                f"When VRFs {vrf['name']} attribute trm_bgw_msite is enabled (true), "
+                                "attribute trm_enable must be enabled (true)."
+                            )
+                            break
+
+                        if child_fabric.get('import_mvpn_rt') or child_fabric.get('export_mvpn_rt'):
+                            results.append(
+                                f"When VRFs {vrf['name']} attribute import_mvpn_rt or export_mvpn_rt is enabled (true), "
+                                "attribute trm_enable must be enabled (true)."
+                            )
+                            break
 
         return results
 
