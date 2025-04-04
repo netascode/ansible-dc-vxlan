@@ -40,6 +40,8 @@ factory_defaults:
         advertise_pip_border_only: true
         domain_id_range: 1-1000
         ipv6_nd_sync: true
+        fabric_vpc_qos: false
+        fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
       spanning_tree:
         root_bridge_protocol: unmanaged
         vlan_range:
@@ -50,6 +52,9 @@ factory_defaults:
         bridge_priority: 0
       netflow:
         enable: false
+      ptp:
+        enable: false
+      snmp_server_host_trap: true
     topology:
       switches:
         routing_loopback_id: 0
@@ -111,6 +116,8 @@ factory_defaults:
       vpc_peers:
         domain_id: 1
       fabric_links:
+        mtu: 9216
+        admin_state: true
       edge_connections:
     underlay:
       general:
