@@ -120,6 +120,8 @@ factory_defaults:
       vpc_peers:
         domain_id: 1
       fabric_links:
+        mtu: 9216
+        admin_state: true
       edge_connections:
     underlay:
       general:
