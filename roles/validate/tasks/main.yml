@@ -20,6 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 ---
+
 - name: Import Role Tasks
   ansible.builtin.import_tasks: sub_main.yml
   tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
