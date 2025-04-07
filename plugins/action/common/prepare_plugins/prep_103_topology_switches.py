@@ -158,18 +158,19 @@ class PreparePlugin:
 
             # Similar before and after transformation as above with vpc_peers
             # source_device_mgmt_ip_address and dest_device_mgmt_ip_address are added to the fabric_links part of the model
-            if any(sw['name'] == fabric_links['source_device'] for sw in switches):
-                found_switch = next((item for item in switches if item["name"] == fabric_links['source_device']))
-                if found_switch.get('management').get('management_ipv4_address'):
-                    fabric_links['source_device_mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
-                elif found_switch.get('management').get('management_ipv6_address'):
-                    fabric_links['source_device_mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
-            if any(sw['name'] == fabric_links['dest_device'] for sw in switches):
-                found_switch = next((item for item in switches if item["name"] == fabric_links['dest_device']))
-                if found_switch.get('management').get('management_ipv4_address'):
-                    fabric_links['dest_device_mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
-                elif found_switch.get('management').get('management_ipv6_address'):
-                    fabric_links['dest_device_mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
+            for fabric_link in fabric_links:
+                if any(sw['name'] == fabric_link['source_device'] for sw in switches):
+                    found_switch = next((item for item in switches if item["name"] == fabric_link['source_device']))
+                    if found_switch.get('management').get('management_ipv4_address'):
+                        fabric_link['source_device_mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
+                    elif found_switch.get('management').get('management_ipv6_address'):
+                        fabric_link['source_device_mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
+                if any(sw['name'] == fabric_link['dest_device'] for sw in switches):
+                    found_switch = next((item for item in switches if item["name"] == fabric_link['dest_device']))
+                    if found_switch.get('management').get('management_ipv4_address'):
+                        fabric_link['dest_device_mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
+                    elif found_switch.get('management').get('management_ipv6_address'):
+                        fabric_link['dest_device_mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
 
         self.kwargs['results']['model_extended'] = model_data
 
