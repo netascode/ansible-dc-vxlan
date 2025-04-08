@@ -151,6 +151,7 @@
     vars_common_isn:
         changes_detected_fabric: "{{ changes_detected_fabric }}"
         changes_detected_fabric_links: "{{ changes_detected_fabric_links }}"
+        changes_detected_edge_connections: "{{ changes_detected_edge_connections }}"
         changes_detected_interface_access_po: "{{ changes_detected_interface_access_po }}"
         changes_detected_interface_access: "{{ changes_detected_interface_access }}"
         changes_detected_interfaces: "{{ changes_detected_interfaces }}"
