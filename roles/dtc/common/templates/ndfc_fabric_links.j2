@@ -4,10 +4,10 @@
 #
 {% for link in MD_Extended.vxlan.topology.fabric_links %}
   - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    src_device: "{{ link.source_device_mgmt_ip_address }}"
     src_interface: "{{ link.source_interface }}"
+    dst_device: "{{ link.dest_device_mgmt_ip_address }}"
     dst_interface: "{{ link.dest_interface }}"
-    src_device: "{{ link.source_device }}"
-    dst_device: "{{ link.dest_device }}"
     template: "{{ link.template }}"
     profile:
         admin_state: "{{ link.admin_state | default(defaults.vxlan.topology.fabric_links.admin_state) }}"
