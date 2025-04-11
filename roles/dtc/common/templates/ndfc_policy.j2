@@ -35,6 +35,8 @@
 {% elif value is iterable and '\n' in value %}
             {{ key }}: |-
               {{ value | indent(14) }}
+{% elif value == "" %}
+            {{ key }}: ""
 {% else %}
             {{ key }}: {{ value | string | indent(12) | trim }}
 {% endif %}
