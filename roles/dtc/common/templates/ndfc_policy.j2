@@ -35,7 +35,7 @@
 {% elif value is iterable and '\n' in value %}
             {{ key }}: |-
               {{ value | indent(14) }}
-{% elif value == "" %}
+{% elif value is match("(^$|^\s*$|^\"\s*\"|^\'\s*\'$)") %}
             {{ key }}: ""
 {% else %}
             {{ key }}: {{ value | string | indent(12) | trim }}
