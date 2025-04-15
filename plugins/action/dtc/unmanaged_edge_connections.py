@@ -71,10 +71,18 @@ class ActionModule(ActionBase):
                 if ndfc_sw["ipAddress"] == ip:
                     # print(ndfc_sw)
                     # Query NDFC for the current switch's serial number to get back any policy that exists for that switch
-                    # with the description prepended with "nac_"
+                    # with the description prepended with "nace_" or "edge_"
+                    # First call with "edge_" prefix for backwards compatibility
                     ndfc_policies_with_edge_desc = ndfc_get_switch_policy_using_desc(self, task_vars, tmp, ndfc_sw["serialNumber"], "edge_")
-                    # print(ndfc_policies_with_edge_desc)
-                    for policy in ndfc_policies_with_edge_desc:
+
+                    # Second call with new prefix nac edge connection prefix nace_
+                    ndfc_policies_with_nac_desc = ndfc_get_switch_policy_using_desc(self, task_vars, tmp, ndfc_sw["serialNumber"], "nace_")
+
+                    # Combine the results from both calls
+                    combined_policies = ndfc_policies_with_edge_desc + ndfc_policies_with_nac_desc
+
+                    # Use the combined results in the subsequent logic
+                    for policy in combined_policies:
                         if policy['description'] not in restructured_edge_connections[ip]:
                             unmanaged_edge_connections[0]["switch"].append(
                                 {
