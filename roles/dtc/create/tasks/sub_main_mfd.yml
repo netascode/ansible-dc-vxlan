@@ -38,10 +38,18 @@
     - changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
-# - name: Manage NDFC MFD Fabric Child Fabrics
-#   ansible.builtin.import_tasks: mfd/child_fabrics.yml
-#   when:
-#     - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
+- ansible.builtin.debug: msg="Query NDFC for List of Fabric Switches"
+  tags: "{{ nac_tags.create }}"
+
+- cisco.dcnm.dcnm_rest:
+    method: GET
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
+  register: result
+  tags: "{{ nac_tags.create }}"
+
+- name: set facts for result
+  ansible.builtin.set_fact:
+    switch_list_create: "{{result}}"
 
 - name: Manage NDFC Fabric VRFs and Networks
   ansible.builtin.import_tasks: mfd/vrfs_networks.yml
