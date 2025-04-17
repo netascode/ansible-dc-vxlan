@@ -24,7 +24,7 @@
           policy_vars:
 {% if policy_match.template_vars is defined and policy_match.template_vars %}
 {% for key, value in policy_match.template_vars.items() %}
-{% if key == "CONF" and policy_match.template_name != "switch_freeform" %}
+{% if (key == "CONF"  or key == "DOMAIN_CONF") and policy_match.template_name != "switch_freeform" %}
             {{ key }}: |2-
               {{ value | indent(14) }}
 {% elif key == "CONF" %}
