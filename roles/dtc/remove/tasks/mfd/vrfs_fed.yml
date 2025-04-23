@@ -67,6 +67,9 @@
   cisco.dcnm.dcnm_rest:
        method: POST
        path: /appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy/{{not_required_vrfs.deploy_payload | join(',') }}?forceShowRun=false
+  vars:
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
   when:
     - switch_list.response.DATA | length > 0
     - not_required_vrfs.deploy_payload | length > 0
