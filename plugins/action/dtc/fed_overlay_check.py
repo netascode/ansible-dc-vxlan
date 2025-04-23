@@ -106,10 +106,11 @@ class ActionModule(ActionBase):
             for network in network_difference:
                 for attached_network in ndfc_attachment_data:
                     for network_attached_group in attached_network['lanAttachList']:
-                        if network == attached_network['networkName'] and network_attached_group['isLanAttached'] == True:
+                        if network == attached_network['networkName'] and network == network_attached_group['networkName'] and network_attached_group['isLanAttached'] == True:
                             if network not in network_attachment_dict:
                                 network_attachment_dict[network] = {'networkName': network, 'lanAttachList': []}
                             network_attachment_dict[network]['lanAttachList'].append({'networkName': network_attached_group['networkName'],'switchName': network_attached_group['switchName'],'serialNumber':network_attached_group['switchSerialNo'],'portNames':network_attached_group['portNames'], "deployment":deployment, "fabric":network_attached_group['fabricName']})
+                            deploy_payload.append(network_attached_group['switchSerialNo'])
             restructured_attachment_data = list(network_attachment_dict.values())
 
         elif check_type == 'vrf_attach':
@@ -149,10 +150,11 @@ class ActionModule(ActionBase):
             for vrf in vrf_difference:
                 for attached_vrf in ndfc_attachment_data:
                     for vrf_attached_group in attached_vrf['lanAttachList']:
-                        if vrf == attached_vrf['vrfName'] and vrf_attached_group['isLanAttached'] == True:
+                        if vrf == attached_vrf['vrfName'] and vrf == vrf_attached_group['vrfName'] and vrf_attached_group['isLanAttached'] == True:
                             if vrf not in vrf_attachment_dict:
                                 vrf_attachment_dict[vrf] = {'vrfName': vrf, 'lanAttachList': []}
                             vrf_attachment_dict[vrf]['lanAttachList'].append({'vrfName': vrf_attached_group['vrfName'],'serialNumber':vrf_attached_group['switchSerialNo'], "deployment":deployment, "fabric":vrf_attached_group['fabricName']})
+                            deploy_payload.append(vrf_attached_group['switchSerialNo'])
             restructured_attachment_data = list(vrf_attachment_dict.values())
 
         if deploy_payload != []:
