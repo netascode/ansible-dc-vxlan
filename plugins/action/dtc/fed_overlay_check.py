@@ -54,8 +54,8 @@ class ActionModule(ActionBase):
                 for network_attached_group in attached_network['lanAttachList']:
                     if network_attached_group['isLanAttached'] == True:
                         normal_ndfc_data.append({'networkName': network_attached_group['networkName'],'switchName': network_attached_group['switchName'],'serialNumber':network_attached_group['switchSerialNo'],'portNames':network_attached_group['portNames'], "deployment":deployment, "fabric":network_attached_group['fabricName']})
-            for network in model_data['vxlan']['overlay_services']['networks']: 
-                for network_attach_group in model_data['vxlan']['overlay_services']['network_attach_groups']:
+            for network in model_data['vxlan']['multisite']['overlay']['networks']: 
+                for network_attach_group in model_data['vxlan']['multisite']['overlay']['network_attach_groups']:
                     if network.get('network_attach_group') == network_attach_group['name']:
                         for switch in network_attach_group['switches']:
                             for switch_entry in switch_data:
@@ -66,8 +66,8 @@ class ActionModule(ActionBase):
             # Restructure in case of just port removal
             for item in difference:
                 if item['portNames'] != "":
-                    for network in model_data['vxlan']['overlay_services']['networks']: 
-                        for network_attach_group in model_data['vxlan']['overlay_services']['network_attach_groups']:
+                    for network in model_data['vxlan']['multisite']['overlay']['networks']: 
+                        for network_attach_group in model_data['vxlan']['multisite']['overlay']['network_attach_groups']:
                             if network.get('network_attach_group') == network_attach_group['name'] and item['networkName'] == network['name']:
                                 for switch in network_attach_group['switches']:
                                     if switch['hostname'] == item['switchName']:
@@ -97,7 +97,7 @@ class ActionModule(ActionBase):
 
         if check_type == 'network':
             network_attachment_dict = {}
-            for network in model_data['vxlan']['overlay_services']['networks']:
+            for network in model_data['vxlan']['multisite']['overlay']['networks']:
                 normal_model_data.append(network['name'])
             for network in ndfc_data:
                 normal_ndfc_data.append(network['networkName'])
@@ -118,8 +118,8 @@ class ActionModule(ActionBase):
                 for vrf_attached_group in attached_vrf['lanAttachList']:
                     if vrf_attached_group['isLanAttached'] == True:
                         normal_ndfc_data.append({"fabric":vrf_attached_group['fabricName'],'deployment': deployment, 'vrfName': vrf_attached_group['vrfName'],'serialNumber':vrf_attached_group['switchSerialNo']})
-            for vrf in model_data['vxlan']['overlay_services']['vrfs']:
-                for vrf_attach_group in model_data['vxlan']['overlay_services']['vrf_attach_groups']:
+            for vrf in model_data['vxlan']['multisite']['overlay']['vrfs']:
+                for vrf_attach_group in model_data['vxlan']['multisite']['overlay']['vrf_attach_groups']:
                     if vrf['vrf_attach_group'] == vrf_attach_group['name']:
                         for switch in vrf_attach_group['switches']:
                             for switch_entry in switch_data:
@@ -140,7 +140,7 @@ class ActionModule(ActionBase):
 
         elif check_type == 'vrf':
             vrf_attachment_dict = {}
-            for vrf in model_data['vxlan']['overlay_services']['vrfs']:
+            for vrf in model_data['vxlan']['multisite']['overlay']['vrfs']:
                 normal_model_data.append(vrf['name'])
             for vrf in ndfc_data:
                 normal_ndfc_data.append(vrf['vrfName'])
