@@ -137,6 +137,13 @@
   ansible.builtin.import_tasks: common/ndfc_fabric_links.yml
 
 # --------------------------------------------------------------------
+# Build Edge Connections List From Template
+# --------------------------------------------------------------------
+
+- name: Edge Connections List From Template
+  ansible.builtin.import_tasks: common/ndfc_edge_connections.yml
+
+# --------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere
 # --------------------------------------------------------------------
 - name: Save Local Variables With Namespace Context
@@ -144,6 +151,7 @@
     vars_common_isn:
         changes_detected_fabric: "{{ changes_detected_fabric }}"
         changes_detected_fabric_links: "{{ changes_detected_fabric_links }}"
+        changes_detected_edge_connections: "{{ changes_detected_edge_connections }}"
         changes_detected_interface_access_po: "{{ changes_detected_interface_access_po }}"
         changes_detected_interface_access: "{{ changes_detected_interface_access }}"
         changes_detected_interfaces: "{{ changes_detected_interfaces }}"
@@ -177,23 +185,24 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Fabric Changes Detected -               [ {{ vars_common_vxlan.changes_detected_fabric }} ]"
-      - "+     Inventory Changes Detected -            [ {{ vars_common_vxlan.changes_detected_inventory }} ]"
+      - "+     Fabric Changes Detected -               [ {{ vars_common_isn.changes_detected_fabric }} ]"
+      - "+     Inventory Changes Detected -            [ {{ vars_common_isn.changes_detected_inventory }} ]"
       - "+     ----- Interfaces -----"
-      - "+     Interface vPC Changes Detected -        [ {{ vars_common_vxlan.changes_detected_interface_vpc }} ]"
-      - "+     Interface Access Changes Detected -     [ {{ vars_common_vxlan.changes_detected_interface_access }} ]"
-      - "+     Interface Access PO Changes Detected -  [ {{ vars_common_vxlan.changes_detected_interface_access_po }} ]"
-      - "+     Interface Loopback Changes Detected -   [ {{ vars_common_vxlan.changes_detected_interface_loopback }} ]"
-      - "+     Interface PO Routed Changes Detected -  [ {{ vars_common_vxlan.changes_detected_interface_po_routed }} ]"
-      - "+     Interface Routed Changes Detected -     [ {{ vars_common_vxlan.changes_detected_interface_routed }} ]"
-      - "+     Interface Trunk Changes Detected -      [ {{ vars_common_vxlan.changes_detected_interface_trunk }} ]"
-      - "+     Interface Trunk PO Changes Detected -   [ {{ vars_common_vxlan.changes_detected_interface_trunk_po }} ]"
-      - "+     Sub Interface Routed Changes Detected - [ {{ vars_common_vxlan.changes_detected_sub_interface_routed }} ]"
+      - "+     Interface vPC Changes Detected -        [ {{ vars_common_isn.changes_detected_interface_vpc }} ]"
+      - "+     Interface Access Changes Detected -     [ {{ vars_common_isn.changes_detected_interface_access }} ]"
+      - "+     Interface Access PO Changes Detected -  [ {{ vars_common_isn.changes_detected_interface_access_po }} ]"
+      - "+     Interface Loopback Changes Detected -   [ {{ vars_common_isn.changes_detected_interface_loopback }} ]"
+      - "+     Interface PO Routed Changes Detected -  [ {{ vars_common_isn.changes_detected_interface_po_routed }} ]"
+      - "+     Interface Routed Changes Detected -     [ {{ vars_common_isn.changes_detected_interface_routed }} ]"
+      - "+     Interface Trunk Changes Detected -      [ {{ vars_common_isn.changes_detected_interface_trunk }} ]"
+      - "+     Interface Trunk PO Changes Detected -   [ {{ vars_common_isn.changes_detected_interface_trunk_po }} ]"
+      - "+     Sub Interface Routed Changes Detected - [ {{ vars_common_isn.changes_detected_sub_interface_routed }} ]"
       - "+     ----- All Interfaces -----"
-      - "+     All Interfaces Changes Detected -       [ {{ vars_common_vxlan.changes_detected_interfaces }} ]"
+      - "+     All Interfaces Changes Detected -       [ {{ vars_common_isn.changes_detected_interfaces }} ]"
       - "+     ----- All Interfaces -----"
-      - "+     Policy Changes Detected -               [ {{ vars_common_vxlan.changes_detected_policy }} ]"
-      - "+     Fabric Links Changes Detected -         [ {{ vars_common_vxlan.changes_detected_fabric_links }} ]"
+      - "+     Policy Changes Detected -               [ {{ vars_common_isn.changes_detected_policy }} ]"
+      - "+     Fabric Links Changes Detected -         [ {{ vars_common_isn.changes_detected_fabric_links }} ]"
+      - "+     Edge Connection Changes Detected -      [ {{ vars_common_isn.changes_detected_edge_connections }} ]"
       - "+     ----- Run Map -----"
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
