@@ -30,6 +30,12 @@ factory_defaults:
       nxapi_http_port: 80
       enable_nxapi_https: true
       nxapi_https_port: 443
+      layer2_vni_range:
+        - from: 30000
+          to: 49000
+      layer3_vni_range:
+        - from: 50000
+          to: 59000
       vpc:
         peer_link_vlan: 3600
         peer_keep_alive: management
@@ -42,6 +48,7 @@ factory_defaults:
         domain_id_range: 1-1000
         fabric_vpc_qos: false
         fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
+        enable_ipv6_nd_sync: true
       spanning_tree:
         root_bridge_protocol: unmanaged
         vlan_range:
@@ -303,6 +310,12 @@ factory_defaults:
       bgw_ip_tag: 54321
       ipv4_vtep_loopback_range: 10.10.0.0/24
       ipv6_vtep_loopback_range: fd00::a10:0/120
+      layer2_vni_range:
+        - from: 30000
+          to: 49000
+      layer3_vni_range:
+        - from: 50000
+          to: 59000
       overlay_dci:
         deployment_method: Direct_To_BGWS
         route_server:
