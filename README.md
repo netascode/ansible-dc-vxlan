@@ -46,7 +46,7 @@ Role: [cisco.nac_dc_vxlan.dtc.remove](https://github.com/netascode/ansible-dc-vx
 
 The `remove` role removes state from the NDFC controller and the devices managed by the NDFC controller. When the collection discovers managed state in NDFC that is not defined the the data model it gets removed by this role.  For this reason this role requires the following variables to be set to `true` under the `group_vars` directory. This avoids accidental removal of configuration from NDFC that might impact the network. The `remove` role has a dependency on the `validate` role.
 
-Inside the [example repository](https://github.com/netascode/ansible-dc-vxlan-example) under `group_vars/ndfc` is a file called `ndfc.yaml` that contains the variables:
+Inside the [example repository](https://github.com/netascode/ansible-dc-vxlan-example){:target="_blank"} under `group_vars/ndfc` is a file called `ndfc.yaml` that contains the variables:
 
 ```yaml
 # Control Parameters for 'Remove' role tasks in VXLAN EVPN fabric
@@ -432,10 +432,10 @@ We welcome community contributions to this collection. If you find problems, ple
 
 ## More Information
 
-- [Cisco Nexus Dashboard and Services Deployment and Upgrade Guide](https://www.cisco.com/c/en/us/td/docs/dcn/nd/3x/deployment/cisco-nexus-dashboard-and-services-deployment-guide-321.html) 
-- [Cisco Nexus Dashboard Fabric Controller (NDFC) User Content for LAN Configuration Guide](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1222/collections/ndfc-user-content-1222-lan.html)
-- [Ansible User Guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
-- [Ansible Developer Guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
+- [Cisco Nexus Dashboard and Services Deployment and Upgrade Guide](https://www.cisco.com/c/en/us/td/docs/dcn/nd/3x/deployment/cisco-nexus-dashboard-and-services-deployment-guide-321.html){:target="_blank"}
+- [Cisco Nexus Dashboard Fabric Controller (NDFC) User Content for LAN Configuration Guide](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1222/collections/ndfc-user-content-1222-lan.html){:target="_blank"}
+- [Ansible User Guide](https://docs.ansible.com/ansible/latest/user_guide/index.html){:target="_blank"}
+- [Ansible Developer Guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html){:target="_blank"}
 
 ## Licensing
 
