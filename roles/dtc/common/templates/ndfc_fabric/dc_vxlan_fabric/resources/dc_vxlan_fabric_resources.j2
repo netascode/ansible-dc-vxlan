@@ -1,3 +1,4 @@
+{% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 {# Auto-generated NDFC DC VXLAN EVPN Resources config data structure for fabric {{ vxlan.fabric.name }} #}
   STATIC_UNDERLAY_IP_ALLOC: {{ (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title)}}
 {% if (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title) == 'False' %}
@@ -8,3 +9,5 @@
 {% endif %}
   ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
 {% endif %}
+  L2_SEGMENT_ID_RANGE: "{{ convert_ranges(vxlan.global.layer2_vni_range, defaults.vxlan.global.layer2_vni_range) | trim }}"
+  L3_PARTITION_ID_RANGE: "{{ convert_ranges(vxlan.global.layer3_vni_range, defaults.vxlan.global.layer3_vni_range) | trim }}"
