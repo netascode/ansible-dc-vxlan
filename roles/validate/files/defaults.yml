@@ -136,7 +136,7 @@ factory_defaults:
         underlay_routing_protocol_tag: UNDERLAY
         underlay_rp_loopback_id: 254
         intra_fabric_interface_mtu: 9216
-        layer2_host_interfacde_mtu: 9216
+        layer2_host_interface_mtu: 9216
         unshut_host_interfaces: true
       ipv4:
         underlay_routing_loopback_ip_range: 10.2.0.0/22
