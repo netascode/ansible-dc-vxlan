@@ -46,15 +46,18 @@ When we are considering publishing a new release, all of the following steps mus
      * Merge after approval
 
 ### Post-Merge to `main` branch:
-
-1. Create annotated git tag for the release
-     * [HowTo](https://git-scm.com/book/en/v2/Git-Basics-Tagging#Annotated-Tags)
   
 1. Draft a [new release](https://github.com/netascode/ansible-dc-vxlan/releases) on GitHub
   
-1. Merge `main` branch back into `develop` branch
+1. Merge `release branch` branch back into `main` branch
      * Resolve any merge conflicts
      * Optional: Delete release branch (May want to keep for reference)
+     * Merge `release branch` into `main` as `squash and merge`
+
+1. Investigating. Merge `main` branch back into `develop` branch
+
+1. Create annotated git tag for the release
+     * [HowTo](https://git-scm.com/book/en/v2/Git-Basics-Tagging#Annotated-Tags)
 
 ### Publish Release to Ansible Galaxy:
 
