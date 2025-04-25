@@ -1,4 +1,3 @@
-{% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 {# Auto-generated NDFC DC VXLAN EVPN Resources config data structure for fabric {{ vxlan.fabric.name }} #}
   STATIC_UNDERLAY_IP_ALLOC: {{ (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title)}}
 {% if (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title) == 'False' %}

@@ -1,4 +1,3 @@
-{% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 {# Auto-generated NDFC MSD General config data structure for fabric {{ vxlan.fabric.name }} #}
   VXLAN_UNDERLAY_IS_V6: {{ vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) }}
 {% if (vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false %}
