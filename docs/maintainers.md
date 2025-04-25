@@ -52,7 +52,7 @@ When we are considering publishing a new release, all of the following steps mus
 
 1. Draft a [new release](https://github.com/netascode/ansible-dc-vxlan/releases) on GitHub
 
-1. Investigating. Merge `main` branch back into `develop` branch
+1. Investigating. Merge `main` branch back into `develop` branch safely
 
 ### Publish Release to Ansible Galaxy:
 
