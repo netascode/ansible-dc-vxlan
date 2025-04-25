@@ -9,5 +9,5 @@
 {% endif %}
   ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
 {% endif %}
-  L2_SEGMENT_ID_RANGE: "{{ convert_ranges(vxlan.global.layer2_vni_range, defaults.vxlan.global.layer2_vni_range) | trim }}"
-  L3_PARTITION_ID_RANGE: "{{ convert_ranges(vxlan.global.layer3_vni_range, defaults.vxlan.global.layer3_vni_range) | trim }}"
+  L2_SEGMENT_ID_RANGE: "{{ (vxlan.global.layer2_vni_range.from | default(defaults.vxlan.global.layer2_vni_range.from)) ~ "-" ~ (vxlan.global.layer2_vni_range.to  | default(defaults.vxlan.global.layer2_vni_range.to))  }}"
+  L3_PARTITION_ID_RANGE: "{{ (vxlan.global.layer3_vni_range.from | default(defaults.vxlan.global.layer3_vni_range.from)) ~ "-" ~ (vxlan.global.layer3_vni_range.to | default(defaults.vxlan.global.layer3_vni_range.to))  }}"

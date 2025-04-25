@@ -31,11 +31,11 @@ factory_defaults:
       enable_nxapi_https: true
       nxapi_https_port: 443
       layer2_vni_range:
-        - from: 30000
-          to: 49000
+        from: 30000
+        to: 49000
       layer3_vni_range:
-        - from: 50000
-          to: 59000
+        from: 50000
+        to: 59000
       vpc:
         peer_link_vlan: 3600
         peer_keep_alive: management
@@ -311,11 +311,11 @@ factory_defaults:
       ipv4_vtep_loopback_range: 10.10.0.0/24
       ipv6_vtep_loopback_range: fd00::a10:0/120
       layer2_vni_range:
-        - from: 30000
-          to: 49000
+        from: 30000
+        to: 49000
       layer3_vni_range:
-        - from: 50000
-          to: 59000
+        from: 50000
+        to: 59000
       overlay_dci:
         deployment_method: Direct_To_BGWS
         route_server:
