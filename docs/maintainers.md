@@ -41,20 +41,18 @@ When we are considering publishing a new release, all of the following steps mus
       * 0.x.0 - new feature(s)
       * x.0.0 - backward-incompatible change (if unvoidable!)
 
-1. Open pull request from release branch against the `main` branch.
+1. Open pull request from release branch against the `main` branch
      * Ensure all GitHub Actions tasks have passed
-     * Merge after approval
+     * Merge `release branch` into `main` after approval as `squash and merge`
 
 ### Post-Merge to `main` branch:
 
 1. Create annotated git tag for the release
      * [HowTo](https://git-scm.com/book/en/v2/Git-Basics-Tagging#Annotated-Tags)
-  
+
 1. Draft a [new release](https://github.com/netascode/ansible-dc-vxlan/releases) on GitHub
-  
-1. Merge `main` branch back into `develop` branch
-     * Resolve any merge conflicts
-     * Optional: Delete release branch (May want to keep for reference)
+
+1. Investigating. Merge `main` branch back into `develop` branch
 
 ### Publish Release to Ansible Galaxy:
 
