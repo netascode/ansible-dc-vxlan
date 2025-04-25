@@ -43,7 +43,7 @@ When we are considering publishing a new release, all of the following steps mus
 
 1. Open pull request from release branch against the `main` branch
      * Ensure all GitHub Actions tasks have passed
-     * Merge `release branch` into `main` after approval as `squash and merge`
+     * Merge `release branch` into `main` after approval as `merge commit`
 
 ### Post-Merge to `main` branch:
 
