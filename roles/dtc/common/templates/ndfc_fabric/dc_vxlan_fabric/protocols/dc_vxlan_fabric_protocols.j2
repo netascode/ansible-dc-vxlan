@@ -48,9 +48,9 @@
 {% endif %}
 {% if (vxlan.underlay.ipv4.fabric_interface_numbering | default(defaults.vxlan.underlay.ipv4.fabric_interface_numbering) | lower) != 'unnumbered' %}
   BFD_AUTH_ENABLE: {{ (vxlan.underlay.bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | title) }}
-{% endif %}
 {% if (vxlan.underlay.bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | title) == 'True' %}
   BFD_AUTH_KEY: {{ vxlan.underlay.bfd.authentication_key | default(omit) }}
   BFD_AUTH_KEY_ID: {{ vxlan.underlay.bfd.authentication_key_id | default(defaults.vxlan.underlay.bfd.authentication_key_id) }}
+{% endif %}
 {% endif %}
 {% endif %}
