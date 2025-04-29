@@ -2,6 +2,7 @@
 {% if vxlan.global.bootstrap is defined %}
 {% if vxlan.global.bootstrap.enable_bootstrap is defined and vxlan.global.bootstrap.enable_bootstrap %}
   BOOTSTRAP_ENABLE: {{ vxlan.global.bootstrap.enable_bootstrap }}
+{% if vxlan.global.bootstrap.enable_local_dhcp_server is defined and vxlan.global.bootstrap.enable_local_dhcp_server %}
   DHCP_ENABLE: {{ vxlan.global.bootstrap.enable_local_dhcp_server }}
   DHCP_IPV6_ENABLE: {{ vxlan.global.bootstrap.dhcp_version }}
   DHCP_START: {{ vxlan.global.bootstrap.dhcp_v4.scope_start_address }}
@@ -9,6 +10,8 @@
   MGMT_GW: {{ vxlan.global.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
   MGMT_PREFIX: {{ vxlan.global.bootstrap.dhcp_v4.mgmt_prefix }}
   BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.bootstrap.dhcp_v4.multi_subnet_scope }}"
+  DOMAIN_NAME: "{{ vxlan.global.bootstrap.dhcp_v4.domain_name }}"
+{% endif %}
 {% endif %}
 {% if vxlan.global.bootstrap.enable_bootstrap is defined and not vxlan.global.bootstrap.enable_bootstrap %}
   BOOTSTRAP_ENABLE: {{ vxlan.global.bootstrap.enable_bootstrap }}
