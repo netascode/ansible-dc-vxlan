@@ -30,18 +30,25 @@ factory_defaults:
       nxapi_http_port: 80
       enable_nxapi_https: true
       nxapi_https_port: 443
+      layer2_vni_range:
+        from: 30000
+        to: 49000
+      layer3_vni_range:
+        from: 50000
+        to: 59000
       vpc:
         peer_link_vlan: 3600
         peer_keep_alive: management
         auto_recovery_time: 360
         delay_restore_time: 150
         peer_link_port_channel_id: 500
+        ipv6_nd_sync: true
         advertise_pip: false
         advertise_pip_border_only: true
         domain_id_range: 1-1000
-        ipv6_nd_sync: true
         fabric_vpc_qos: false
         fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
+        enable_ipv6_nd_sync: true
       spanning_tree:
         root_bridge_protocol: unmanaged
         vlan_range:
@@ -55,6 +62,10 @@ factory_defaults:
       ptp:
         enable: false
       snmp_server_host_trap: true
+      bootstrap:
+        enable_bootstrap: false
+        enable_local_dhcp_server: false
+        enable_cdp_mgmt: false
     topology:
       switches:
         routing_loopback_id: 0
@@ -296,15 +307,13 @@ factory_defaults:
       enable_ipv6_underlay: false
       anycast_gateway_mac: 20:20:00:00:00:aa
       vtep_loopback_id: 100
+      bgw_ip_tag: 54321
       ipv4_vtep_loopback_range: 10.10.0.0/24
       ipv4_dci_subnet_range: 10.10.1.0/24
       ipv4_dci_subnet_mask: 30
       ipv6_vtep_loopback_range: fd00::a10:0/120
       ipv6_dci_subnet_range: fd00::a11:0/120
       ipv6_dci_subnet_mask: 126
-      layer2_vni_range: 30000-49000
-      layer3_vni_range: 50000-59000
-      bgw_ip_tag: 54321
       overlay_ifc: Direct_To_BGWS
       underlay_autoconfig: true
       enable_bgp_send_community: false
@@ -343,10 +352,13 @@ factory_defaults:
           route_target_both: false
           route_tag: 12345
           trm_enable: false
-        vrf_attach_groups:
-          switches: []
-        network_attach_groups:
-          switches: []
+          net_description: "Configured by Ansible NetAsCode"
+      layer2_vni_range:
+        from: 30000
+        to: 49000
+      layer3_vni_range:
+        from: 50000
+        to: 59000
       overlay_dci:
         deployment_method: Direct_To_BGWS
         route_server:

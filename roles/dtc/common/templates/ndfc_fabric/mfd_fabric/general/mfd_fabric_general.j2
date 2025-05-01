@@ -10,8 +10,8 @@
   FF: "MSD"
   FABRIC_TYPE: "MFD"
   FABRIC_NAME: "{{ vxlan.fabric.name }}"
-  L2_SEGMENT_ID_RANGE: {{ vxlan.multisite.layer2_vni_range | default(defaults.vxlan.multisite.layer2_vni_range) }}
-  L3_PARTITION_ID_RANGE: {{ vxlan.multisite.layer3_vni_range | default(defaults.vxlan.multisite.layer3_vni_range) }}
+  L2_SEGMENT_ID_RANGE: "{{ (vxlan.multisite.layer2_vni_range.from | default(defaults.vxlan.multisite.layer2_vni_range.from)) ~ "-" ~ (vxlan.multisite.layer2_vni_range.to  | default(defaults.vxlan.multisite.layer2_vni_range.to))  }}"
+  L3_PARTITION_ID_RANGE: "{{ (vxlan.multisite.layer3_vni_range.from | default(defaults.vxlan.multisite.layer3_vni_range.from)) ~ "-" ~ (vxlan.multisite.layer3_vni_range.to | default(defaults.vxlan.multisite.layer3_vni_range.to))  }}"
   default_vrf: "Default_VRF_Universal"
   default_network: "Default_Network_Universal"
   vrf_extension_template: "Default_VRF_Extension_Universal"
