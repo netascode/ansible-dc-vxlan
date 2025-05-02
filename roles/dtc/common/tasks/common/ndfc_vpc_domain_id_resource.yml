@@ -23,12 +23,12 @@
 
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
-    changes_detected_vpc_domain: false
+    changes_detected_vpc_domain_id_resource: false
   delegate_to: localhost
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "ndfc_vpc_domain.yml"
+    file_name: "ndfc_vpc_domain_id_resource.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
@@ -50,36 +50,36 @@
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
-- name: Build vPC Domain
+- name: Build vPC Domain ID Resource
   ansible.builtin.template:
-    src: ndfc_vpc/ndfc_vpc_domain.j2
+    src: ndfc_vpc/ndfc_vpc_domain_id_resource.j2
     dest: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
 
 - name: Set vpc_domain Var default
   ansible.builtin.set_fact:
-    vpc_domain: []
+    vpc_domain_id_resource: []
   delegate_to: localhost
 
-- name: Set vpc_domain Var
+- name: Set vpc_domain_id_resource Var
   ansible.builtin.set_fact:
-    vpc_domain: "{{ lookup('file', path_name + file_name) | from_yaml }}"
+    vpc_domain_id_resource: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   when: MD_Extended.vxlan.topology.vpc_peers | length > 0
   delegate_to: localhost
 
-- name: Get vpc domain id
-  cisco.dcnm.dcnm_resource_manager:
-    fabric: "{{ vxlan.fabric.name }}"
-    state: query
-    config:
-      - pool_name: VPC_DOMAIN_ID
-  register: existing_vpc_domain_id
+# - name: Get vPC Domain ID Resources from NDFC
+#   cisco.dcnm.dcnm_resource_manager:
+#     fabric: "{{ vxlan.fabric.name }}"
+#     state: query
+#     config:
+#       - pool_name: VPC_DOMAIN_ID
+#   register: existing_vpc_domain_id_resource
 
-- name: Check vpc domain id
-  cisco.nac_dc_vxlan.dtc.vpc_domain_check:
-    data_source_vpc_domain: "{{ vpc_domain }}"
-    remote_vpc_domain: "{{ existing_vpc_domain_id.response }}"
-  delegate_to: localhost
+# - name: Check vpc domain id
+#   cisco.nac_dc_vxlan.dtc.vpc_domain_check:
+#     data_source_vpc_domain: "{{ vpc_domain }}"
+#     remote_vpc_domain: "{{ existing_vpc_domain_id.response }}"
+#   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
@@ -90,7 +90,7 @@
 
 - name: Set File Change Flag Based on File Diff Result
   ansible.builtin.set_fact:
-    changes_detected_vpc_domain: true
+    changes_detected_vpc_domain_id_resource: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

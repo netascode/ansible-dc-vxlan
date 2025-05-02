@@ -50,7 +50,7 @@
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ vars_common_local.vpc_domain }}"
+    config: "{{ vars_common_vxlan.vpc_domain_id_resource }}"
 
 # --------------------------------------------------------------------
 # Manage Intra Fabric Links Configuration on NDFC (prepare links for vpc peering)

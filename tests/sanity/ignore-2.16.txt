@@ -35,7 +35,6 @@ plugins/action/dtc/unmanaged_edge_connections.py action-plugin-docs # action plu
 plugins/action/dtc/get_poap_data.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/map_msd_inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/existing_links_check.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/dtc/vpc_domain_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtd/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/test/inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/nac_dc_validate.py import-3.10!skip
