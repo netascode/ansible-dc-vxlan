@@ -10,7 +10,6 @@
   MGMT_GW: {{ vxlan.global.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
   MGMT_PREFIX: {{ vxlan.global.bootstrap.dhcp_v4.mgmt_prefix }}
   BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.bootstrap.dhcp_v4.multi_subnet_scope }}"
-  DOMAIN_NAME: "{{ vxlan.global.bootstrap.dhcp_v4.domain_name }}"
 {% endif %}
 {% endif %}
 {% if vxlan.global.bootstrap.enable_bootstrap is defined and not vxlan.global.bootstrap.enable_bootstrap %}
