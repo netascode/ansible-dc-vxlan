@@ -128,8 +128,6 @@ factory_defaults:
         routing_protocol: ospf
         enable_ipv6_underlay: false
         replication_mode: multicast
-        fabric_interface_numbering: p2p
-        subnet_mask: 30
         manual_underlay_allocation: false
         underlay_routing_loopback_id: 0
         underlay_vtep_loopback_id: 1
@@ -139,6 +137,8 @@ factory_defaults:
         layer2_host_interface_mtu: 9216
         unshut_host_interfaces: true
       ipv4:
+        fabric_interface_numbering: p2p
+        subnet_mask: 30
         underlay_routing_loopback_ip_range: 10.2.0.0/22
         underlay_vtep_loopback_ip_range: 10.3.0.0/22
         underlay_rp_loopback_ip_range: 10.254.254.0/24
