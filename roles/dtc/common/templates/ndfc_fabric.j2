@@ -2,6 +2,7 @@
 # This NDFC fabric config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
+{% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 {% set vxlan = MD_Extended.vxlan %}
 
 {% if vxlan.fabric.type == 'VXLAN_EVPN' %}

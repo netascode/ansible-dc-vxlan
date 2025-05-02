@@ -10,12 +10,14 @@
 {% if (vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) %}
   L3VNI_MCAST_GROUP: {{ vxlan.underlay.multicast.ipv4.trm_default_group | default(defaults.vxlan.underlay.multicast.ipv4.trm_default_group) }}
 {% endif %}
+{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false %}
 {% if vxlan.underlay.multicast.rp_mode | default(defaults.vxlan.underlay.multicast.rp_mode) == 'bidir' %}
   PHANTOM_RP_LB_ID1: {{ vxlan.underlay.multicast.underlay_primary_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_primary_rp_loopback_id) }}
   PHANTOM_RP_LB_ID2: {{ vxlan.underlay.multicast.underlay_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_backup_rp_loopback_id) }}
 {% if vxlan.underlay.multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) == 4 %}
   PHANTOM_RP_LB_ID3: {{ vxlan.underlay.multicast.underlay_second_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_second_backup_rp_loopback_id) }}
   PHANTOM_RP_LB_ID4: {{ vxlan.underlay.multicast.underlay_third_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_third_backup_rp_loopback_id) }}
+{% endif %}
 {% endif %}
 {% endif %}
 {% elif (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}

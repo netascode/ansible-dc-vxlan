@@ -21,6 +21,8 @@
 
 ---
 factory_defaults:
+  ---
+defaults:
   vxlan:
     global:
       route_reflectors: 2
@@ -42,6 +44,7 @@ factory_defaults:
         domain_id_range: 1-1000
         fabric_vpc_qos: false
         fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
+        enable_ipv6_nd_sync: true
       spanning_tree:
         root_bridge_protocol: unmanaged
         vlan_range:
@@ -134,7 +137,7 @@ factory_defaults:
         underlay_routing_protocol_tag: UNDERLAY
         underlay_rp_loopback_id: 254
         intra_fabric_interface_mtu: 9216
-        layer2_host_interfacde_mtu: 9216
+        layer2_host_interface_mtu: 9216
         unshut_host_interfaces: true
       ipv4:
         fabric_interface_numbering: p2p
@@ -170,6 +173,7 @@ factory_defaults:
         underlay_rp_loopback_id: 254
         ipv4:
           group_subnet: 239.1.1.0/25
+          authentication_enable: false
           trm_enable: false
           trm_default_group: 239.1.1.0
         ipv6:
