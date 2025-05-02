@@ -41,6 +41,7 @@ class ActionModule(ActionBase):
         fabrics = self._task.args["fabrics"]
 
         for fabric in fabrics:
+            display.display(f"Executing config-deploy on Fabric: {fabric}")
             ndfc_deploy = self._execute_module(
                 module_name="cisco.dcnm.dcnm_rest",
                 module_args={

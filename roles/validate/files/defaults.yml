@@ -36,12 +36,15 @@ factory_defaults:
         auto_recovery_time: 360
         delay_restore_time: 150
         peer_link_port_channel_id: 500
+        ipv6_nd_sync: true
         advertise_pip: false
         advertise_pip_border_only: true
         domain_id_range: 1-1000
+        fabric_vpc_qos: false
+        fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
       spanning_tree:
         root_bridge_protocol: unmanaged
-        vlan_range: 
+        vlan_range:
           - from: 1
             to: 3967
         mst_instance_range:
@@ -49,6 +52,13 @@ factory_defaults:
         bridge_priority: 0
       netflow:
         enable: false
+      ptp:
+        enable: false
+      snmp_server_host_trap: true
+      bootstrap:
+        enable_bootstrap: false
+        enable_local_dhcp_server: false
+        enable_cdp_mgmt: false
     topology:
       switches:
         routing_loopback_id: 0
@@ -110,6 +120,8 @@ factory_defaults:
       vpc_peers:
         domain_id: 1
       fabric_links:
+        mtu: 9216
+        admin_state: true
       edge_connections:
     underlay:
       general:
@@ -124,7 +136,7 @@ factory_defaults:
         underlay_routing_protocol_tag: UNDERLAY
         underlay_rp_loopback_id: 254
         intra_fabric_interface_mtu: 9216
-        layer2_host_interfacde_mtu: 9216
+        layer2_host_interface_mtu: 9216
         unshut_host_interfaces: true
       ipv4:
         underlay_routing_loopback_ip_range: 10.2.0.0/22
@@ -300,7 +312,7 @@ factory_defaults:
         ipv4_dci_subnet_mask: 30
         ipv6_dci_subnet_range: fd00::a11:0/120
         ipv6_dci_subnet_mask: 126
-        underlay_autoconfig: true      
+        underlay_autoconfig: true
         enable_bgp_send_community: false
         enable_bgp_log_neighbor_change: false
         enable_bgp_bfd: false

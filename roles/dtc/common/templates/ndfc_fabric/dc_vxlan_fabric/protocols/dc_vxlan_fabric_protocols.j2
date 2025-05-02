@@ -43,10 +43,14 @@
 {% endif %}
 {% if (vxlan.underlay.bfd.enable | default(defaults.vxlan.underlay.bfd.enable) | title) == 'True' %}
   BFD_IBGP_ENABLE: {{ vxlan.underlay.bfd.ibgp | default(defaults.vxlan.underlay.bfd.ibgp) }}
+{% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
   BFD_PIM_ENABLE: {{ vxlan.underlay.bfd.pim | default(defaults.vxlan.underlay.bfd.pim) }}
+{% endif %}
+{% if (vxlan.underlay.ipv4.fabric_interface_numbering | default(defaults.vxlan.underlay.ipv4.fabric_interface_numbering) | lower) != 'unnumbered' %}
   BFD_AUTH_ENABLE: {{ (vxlan.underlay.bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | title) }}
 {% if (vxlan.underlay.bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | title) == 'True' %}
   BFD_AUTH_KEY: {{ vxlan.underlay.bfd.authentication_key | default(omit) }}
   BFD_AUTH_KEY_ID: {{ vxlan.underlay.bfd.authentication_key_id | default(defaults.vxlan.underlay.bfd.authentication_key_id) }}
+{% endif %}
 {% endif %}
 {% endif %}
