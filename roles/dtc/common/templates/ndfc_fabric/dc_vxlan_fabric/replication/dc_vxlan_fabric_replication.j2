@@ -1,4 +1,6 @@
 {# Auto-generated NDFC DC VXLAN EVPN Replication config data structure for fabric {{ vxlan.global.name }} #}
+{% if ( (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false and
+        (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') ) %}
   REPLICATION_MODE: {{ vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title }}
 {% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
   RP_COUNT: {{ vxlan.underlay.multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) }}
@@ -23,6 +25,7 @@
   ENABLE_TRMv6: {{ vxlan.underlay.multicast.ipv6.trm_enable | default(defaults.vxlan.underlay.multicast.ipv6.trm_enable) | title }}
 {% if (vxlan.underlay.multicast.ipv6.trm_enable | default(defaults.vxlan.underlay.multicast.ipv6.trm_enable) | ansible.builtin.bool) %}
   L3VNI_IPv6_MCAST_GROUP: "{{ vxlan.underlay.multicast.ipv6.trm_default_group | default(defaults.vxlan.underlay.multicast.ipv6.trm_default_group) }}"
+{% endif %}
 {% endif %}
 {% endif %}
 {% endif %}

@@ -199,6 +199,7 @@ factory_defaults:
         max_bgp_paths: 1
         max_ibgp_paths: 2
         ipv6_linklocal_enable: true
+        # ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         adv_host_routes: false
         adv_default_routes: true
         static_default_route: true
@@ -209,6 +210,9 @@ factory_defaults:
         redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         trm_enable: false
         trm_bgw_msite: false
+        # trmv6_no_rp: false
+        # trmv6_rp_external: false
+        # trmv6_enable: false
       networks:
         net_description: "Configured by Ansible NetAsCode"
         is_l2_only: false
@@ -220,6 +224,7 @@ factory_defaults:
         route_target_both: false
         route_tag: 12345
         trm_enable: false
+        # trmv6_enable: false
       vrf_attach_groups:
         switches: []
       network_attach_groups:
