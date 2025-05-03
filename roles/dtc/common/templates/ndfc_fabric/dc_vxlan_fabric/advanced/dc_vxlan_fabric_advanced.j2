@@ -26,6 +26,7 @@
   FABRIC_MTU: {{ vxlan.underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
   L2_HOST_INTF_MTU: {{ vxlan.underlay.general.layer2_host_interface_mtu | default(defaults.vxlan.underlay.general.layer2_host_interface_mtu) }}
   HOST_INTF_ADMIN_STATE: {{ vxlan.underlay.general.unshut_host_interfaces | default(defaults.vxlan.underlay.general.unshut_host_interfaces) }}
+{# NDFC version 12.2.1 has a defect in the API as it pertains to setting Spanning-Tree options and is fixed in NDFC version 12.2.2 and later #}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
   STP_ROOT_OPTION: {{ vxlan.global.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.spanning_tree.root_bridge_protocol) }}
 {% if vxlan.global.spanning_tree.root_bridge_protocol is defined and vxlan.global.spanning_tree.root_bridge_protocol != 'unmanaged' %}
