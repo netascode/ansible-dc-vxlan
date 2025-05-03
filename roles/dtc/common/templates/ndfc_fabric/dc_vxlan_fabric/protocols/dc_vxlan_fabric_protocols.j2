@@ -9,7 +9,7 @@
   OSPF_AREA_ID: {{ vxlan.underlay.ospf.area_id | default(defaults.vxlan.underlay.ospf.area_id) }}
 {% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false %}
   OSPF_AUTH_ENABLE: {{ (vxlan.underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title) }}
-{% if (vxlan.underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title) == 'True' %}
+{% if vxlan.underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | ansible.builtin.bool %}
   OSPF_AUTH_KEY_ID: {{ vxlan.underlay.ospf.authentication_key_id | default(defaults.vxlan.underlay.ospf.authentication_key_id) }}
   OSPF_AUTH_KEY: {{ vxlan.underlay.ospf.authentication_key | default(omit) }}
 {% endif %}
