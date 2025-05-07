@@ -1,8 +1,10 @@
 {# Auto-generated NDFC DC VXLAN EVPN Advanced config data structure for fabric {{ vxlan.fabric.name }} #}
   POWER_REDUNDANCY_MODE: ps-redundant
   FEATURE_PTP: {{ vxlan.global.ptp.enable | default(defaults.vxlan.global.ptp.enable) }}
-  PTP_DOMAIN_ID: {{ vxlan.global.ptp.domain_id | default(defaults.vxlan.global.ptp.domain_id) }}
-  PTP_LB_ID: {{ vxlan.global.ptp.lb_id | default(defaults.vxlan.global.ptp.lb_id) }}
+{% if vxlan.global.ptp.enable | default(defaults.vxlan.global.ptp.enable) %}
+  PTP_DOMAIN_ID: {{ vxlan.global.ptp.domain_id  }}
+  PTP_LB_ID: {{ vxlan.global.ptp.lb_id }}
+{% endif %}
   ENABLE_NXAPI: {{ vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
 {% if vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) %}
   NXAPI_HTTPS_PORT: {{ vxlan.global.nxapi_https_port | default(defaults.vxlan.global.nxapi_https_port) }}
