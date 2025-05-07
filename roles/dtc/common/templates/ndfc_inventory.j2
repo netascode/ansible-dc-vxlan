@@ -16,7 +16,6 @@
 {% elif vxlan.fabric.type == 'External' %}
 
 {# Include NDFC DC External Template #}
-{% include '/ndfc_inventory/common/fabric_inventory.j2' %}
+{% include '/ndfc_inventory/dc_external_fabric/dc_external_fabric_inventory.j2' %}
 
-{# Supported fabric types are: DC VXLAN EVPN and ISN #}
 {% endif %}

@@ -80,6 +80,7 @@
   when: >
     (MD_Extended.vxlan.fabric.type == 'External') and
     (vars_common_external.changes_detected_fabric or
+    vars_common_external.changes_detected_fabric_links or
     vars_common_external.changes_detected_interface_access_po or
     vars_common_external.changes_detected_interface_access or
     vars_common_external.changes_detected_interfaces or

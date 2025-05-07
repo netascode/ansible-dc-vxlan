@@ -56,7 +56,8 @@
   ansible.builtin.import_tasks: sub_main_external.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'External') and
-    (vars_common_external.changes_detected_interfaces or
+    (vars_common_external.changes_detected_fabric_links or
+    vars_common_external.changes_detected_interfaces or
     vars_common_external.changes_detected_inventory or
     vars_common_external.changes_detected_policy or
     vars_common_external.changes_detected_edge_connections)
