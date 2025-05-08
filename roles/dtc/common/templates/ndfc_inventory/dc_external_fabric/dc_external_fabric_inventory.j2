@@ -1,3 +1,4 @@
+{# Auto-generated NDFC DC External Inventory config data structure for fabric {{ vxlan.fabric.name }} #}
 {% set poap_data = poap_data['poap_data'] %}
 {% for switch in MD_Extended.vxlan.topology.switches %}
 {% if switch.management.management_ipv4_address is defined %}
@@ -10,7 +11,7 @@
   password: PLACE_HOLDER_PASSWORD
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: {{ switch['role'] }}
-  preserve_config: false
+  preserve_config: true
 {% if MD_Extended.vxlan.global.bootstrap is defined %}
 {% if MD_Extended.vxlan.global.bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.global.bootstrap.enable_bootstrap %}
 {% if switch.poap is defined and switch.poap.bootstrap %}
@@ -31,7 +32,7 @@
       version: {{ switch['poap']['preprovision']['version']  }}
       config_data:
         modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
-        gateway: {{ switch['management']['default_gateway_v4']  }} 
+        gateway: {{ switch['management']['default_gateway_v4']  }}
       hostname: {{ switch['name'] }}
 {% endif %}
 {% endif %}

@@ -62,6 +62,13 @@
     - vars_common_external.changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
 
+- name: Manage NDFC External Fabric Intra Links
+  ansible.builtin.import_tasks: common/links.yml
+  when:
+    - MD_Extended.vxlan.topology.fabric_links | length > 0
+    - vars_common_vxlan.changes_detected_fabric_links
+  tags: "{{ nac_tags.create_links }}"
+
 - name: Manage NDFC External Fabric Policies
   ansible.builtin.import_tasks: common/policies.yml
   when:

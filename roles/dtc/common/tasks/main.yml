@@ -69,6 +69,7 @@
     vars_common_external:
         changes_detected_inventory: false
         changes_detected_fabric: false
+        changes_detected_fabric_links: false
         changes_detected_interface_access_po: false
         changes_detected_interface_access: false
         changes_detected_interfaces: false

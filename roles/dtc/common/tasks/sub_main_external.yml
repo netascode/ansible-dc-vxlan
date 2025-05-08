@@ -83,7 +83,10 @@
   ansible.builtin.import_tasks: common/ndfc_interface_all.yml
 
 - name: Build NDFC Policy List From Template
-  ansible.builtin.import_tasks: common/ndfc_policy.yml 
+  ansible.builtin.import_tasks: common/ndfc_policy.yml
+
+- name: Build Fabric Links List From Template
+  ansible.builtin.import_tasks: common/ndfc_fabric_links.yml
 
 - name: Edge Connections List From Template
   ansible.builtin.import_tasks: common/ndfc_edge_connections.yml
@@ -95,6 +98,7 @@
   ansible.builtin.set_fact:
     vars_common_external:
         changes_detected_fabric: "{{ changes_detected_fabric }}"
+        changes_detected_fabric_links: "{{ changes_detected_fabric_links }}"
         changes_detected_inventory: "{{ changes_detected_inventory }}"
         changes_detected_edge_connections: "{{ changes_detected_edge_connections }}"
         changes_detected_interface_access_po: "{{ changes_detected_interface_access_po }}"
@@ -108,6 +112,7 @@
         changes_detected_interfaces: "{{ changes_detected_interfaces }}"
         changes_detected_policy: "{{ changes_detected_policy }}"
         fabric_config: "{{ fabric_config }}"
+        fabric_links: "{{ fabric_links }}"
         edge_connections: "{{ edge_connections }}"
         interface_access_po: "{{ interface_access_po }}"
         interface_access: "{{ interface_access }}"
@@ -143,6 +148,7 @@
       - "+     All Interfaces Changes Detected -       [ {{ vars_common_external.changes_detected_interfaces }} ]"
       - "+     ----- All Interfaces -----"
       - "+     Policy Changes Detected -               [ {{ vars_common_external.changes_detected_policy }} ]"
+      - "+     Fabric Links Changes Detected -         [ {{ vars_common_external.changes_detected_fabric_links }} ]"
       - "+     ----- Run Map -----"
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
