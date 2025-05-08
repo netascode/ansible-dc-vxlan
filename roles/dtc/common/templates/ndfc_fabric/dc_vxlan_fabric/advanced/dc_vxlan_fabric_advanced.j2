@@ -3,7 +3,7 @@
   GRFIELD_DEBUG_FLAG: Enable
   ENABLE_PVLAN: false
   AAA_REMOTE_IP_ENABLED: False
-{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   FEATURE_PTP: {{ vxlan.global.ptp.enable | default(defaults.vxlan.global.ptp.enable) }}
 {% if vxlan.global.ptp.enable is defined and vxlan.global.ptp.enable | ansible.builtin.bool %}
   PTP_DOMAIN_ID: {{ vxlan.global.ptp.domain_id }}

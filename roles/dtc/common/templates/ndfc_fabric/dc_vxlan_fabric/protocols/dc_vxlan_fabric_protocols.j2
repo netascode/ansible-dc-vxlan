@@ -2,12 +2,12 @@
   BGP_LB_ID: {{ vxlan.underlay.general.underlay_routing_loopback_id | default(defaults.vxlan.underlay.general.underlay_routing_loopback_id) }}
   NVE_LB_ID: {{ vxlan.underlay.general.underlay_vtep_loopback_id | default(defaults.vxlan.underlay.general.underlay_vtep_loopback_id) }}
   LINK_STATE_ROUTING_TAG: {{ vxlan.underlay.general.underlay_routing_protocol_tag | default(defaults.vxlan.underlay.general.underlay_routing_protocol_tag) }}
-{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   BFD_ENABLE: {{ vxlan.underlay.bfd.enable | default(defaults.vxlan.underlay.bfd.enable) }}
 {% endif %}
 {% if (vxlan.underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol)) == 'ospf' %}
   OSPF_AREA_ID: {{ vxlan.underlay.ospf.area_id | default(defaults.vxlan.underlay.ospf.area_id) }}
-{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   OSPF_AUTH_ENABLE: {{ (vxlan.underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title) }}
 {% if vxlan.underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | ansible.builtin.bool %}
   OSPF_AUTH_KEY_ID: {{ vxlan.underlay.ospf.authentication_key_id | default(defaults.vxlan.underlay.ospf.authentication_key_id) }}
@@ -19,12 +19,12 @@
 {% endif %}
 {% elif (vxlan.underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol)) == 'is-is' %}
   ISIS_LEVEL: {{ vxlan.underlay.isis.level | default(defaults.vxlan.underlay.isis.level) }}
-{# ISIS_AREA_NUM: {{ vxlan.underlay.isis.net_area_number | default(defaults.vxlan.underlay.isis.net_area_number) }} #}
+  ISIS_AREA_NUM: {{ vxlan.underlay.isis.net_area_number | default(defaults.vxlan.underlay.isis.net_area_number) }}
   ISIS_OVERLOAD_ENABLE: {{ vxlan.underlay.isis.overload_bit | default(defaults.vxlan.underlay.isis.overload_bit) }}
 {% if vxlan.underlay.isis.overload_bit | default(defaults.vxlan.underlay.isis.overload_bit) | ansible.builtin.bool %}
   ISIS_OVERLOAD_ELAPSE_TIME: {{ vxlan.underlay.isis.overload_bit_elapsed_time | default(defaults.vxlan.underlay.isis.overload_bit_elapsed_time) }}
 {% endif %}
-{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   ISIS_AUTH_ENABLE: {{ vxlan.underlay.isis.authentication_enable | default(defaults.vxlan.underlay.isis.authentication_enable) | title }}
 {% if vxlan.underlay.isis.authentication_enable | default(defaults.vxlan.underlay.isis.authentication_enable) | ansible.builtin.bool %}
   ISIS_AUTH_KEYCHAIN_NAME: {{ vxlan.underlay.isis.authentication_keychain_name | default(omit) }}
@@ -36,21 +36,21 @@
 {% endif %}
 {% endif %}
 {% endif %}
-{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   BGP_AUTH_ENABLE: {{ (vxlan.underlay.bgp.authentication_enable | default(defaults.vxlan.underlay.bgp.authentication_enable) | title) }}
 {% if vxlan.underlay.bgp.authentication_enable | default(defaults.vxlan.underlay.bgp.authentication_enable) | ansible.builtin.bool %}
   BGP_AUTH_KEY_TYPE: {{ vxlan.underlay.bgp.authentication_key_type | default(defaults.vxlan.underlay.bgp.authentication_key_type) }}
   BGP_AUTH_KEY: {{ vxlan.underlay.bgp.authentication_key | default(omit) }}
 {% endif %}
 {% endif %}
-{% if ( ((vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false) and
+{% if ( (not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool)) and
         ((vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast') ) %}
   PIM_HELLO_AUTH_ENABLE: {{ (vxlan.underlay.multicast.ipv4.authentication_enable | default(defaults.vxlan.underlay.multicast.ipv4.authentication_enable) | title) }}
 {% if vxlan.underlay.multicast.ipv4.authentication_enable | default(defaults.vxlan.underlay.multicast.ipv4.authentication_enable) | ansible.builtin.bool %}
   PIM_HELLO_AUTH_KEY: {{ vxlan.underlay.multicast.ipv4.authentication_key | default(omit) }}
 {% endif %}
 {% endif %}
-{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) is sameas false %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
 {% if vxlan.underlay.bfd.enable | default(defaults.vxlan.underlay.bfd.enable) | ansible.builtin.bool %}
   BFD_IBGP_ENABLE: {{ vxlan.underlay.bfd.ibgp | default(defaults.vxlan.underlay.bfd.ibgp) }}
 {% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}

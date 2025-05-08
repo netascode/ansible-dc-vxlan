@@ -45,6 +45,7 @@
   rp_external: {{ vrf['rp_external'] | default(omit) }}
   rp_loopback_id: {{ vrf['rp_loopback_id'] | default(omit) }}
   trm_bgw_msite: {{ vrf['trm_bgw_msite'] | default(defaults.vxlan.overlay.vrfs.trm_bgw_msite) }}
+{# Staging trmv6 attributes for later usage after low-level collection adds support. #}
 {#   trmv6_enable: {{ vrf['trmv6_enable'] | default(defaults.vxlan.overlay.vrfs.trmv6_enable) }} #}
 {#   trmv6_no_rp: {{ vrf['trmv6_no_rp'] | default(defaults.vxlan.overlay.vrfs.trmv6_no_rp) }} #}
 {#   trmv6_overlay_mcast_group: {{ vrf['trmv6_overlay_multicast_group'] | default(omit) }} #}
