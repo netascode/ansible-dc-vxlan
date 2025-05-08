@@ -85,6 +85,7 @@ The following control variables are available in this collection.
 | `force_run_all` | Force all roles in the collection to run | `false` | 
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
+| `link_fabric_delete_mode` | Remove fabric link state as part of the remove role | `false` |
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
 | `multisite_child_fabric_delete_mode` | Remove child fabric from MSD/MFD fabric as part of the remove role | `false` |
 | `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
