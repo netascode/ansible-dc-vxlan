@@ -56,12 +56,6 @@
   when:
     - vars_common_external.changes_detected_interfaces
 
-- name: Remove Fabric Links
-  ansible.builtin.import_tasks: common/links.yml
-  tags: "{{ nac_tags.remove_links }}"
-  when:
-    - vars_common_external.changes_detected_fabric_links
-
 # Feature not implemented yet, currently vars_common_external.changes_detected_vpc_peering is not being set so will
 # currently cause an undefined variable error.
 # - name: Remove Fabric vPC Peering
