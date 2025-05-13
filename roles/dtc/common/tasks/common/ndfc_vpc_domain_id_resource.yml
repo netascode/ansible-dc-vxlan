@@ -67,20 +67,6 @@
   when: MD_Extended.vxlan.topology.vpc_peers | length > 0
   delegate_to: localhost
 
-# - name: Get vPC Domain ID Resources from NDFC
-#   cisco.dcnm.dcnm_resource_manager:
-#     fabric: "{{ vxlan.fabric.name }}"
-#     state: query
-#     config:
-#       - pool_name: VPC_DOMAIN_ID
-#   register: existing_vpc_domain_id_resource
-
-# - name: Check vpc domain id
-#   cisco.nac_dc_vxlan.dtc.vpc_domain_check:
-#     data_source_vpc_domain: "{{ vpc_domain }}"
-#     remote_vpc_domain: "{{ existing_vpc_domain_id.response }}"
-#   delegate_to: localhost
-
 - name: Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"
