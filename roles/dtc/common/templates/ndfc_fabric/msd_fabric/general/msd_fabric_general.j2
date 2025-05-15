@@ -16,7 +16,7 @@
 {% if l2_vni_start is defined and l2_vni_end is not defined %}
 {% set l2_vni_range = l2_vni_start %}
 {% elif l2_vni_start is defined and l2_vni_end is defined %}
-{% set l2_vni_range = l2_vni_start ~ ' - ' ~ l2_vni_end %}
+{% set l2_vni_range = l2_vni_start ~ '-' ~ l2_vni_end %}
 {% else %}
 {% set l2_vni_range = defaults.vxlan.global.layer2_vni_range.from ~ '-' ~ defaults.vxlan.global.layer2_vni_range.to %}
 {% endif %}
@@ -30,7 +30,7 @@
 {% if l3_vni_start is defined and l3_vni_end is not defined %}
 {% set l3_vni_range = l3_vni_start %}
 {% elif l3_vni_start is defined and l3_vni_end is defined %}
-{% set l3_vni_range = l3_vni_start ~ ' - ' ~ l3_vni_end %}
+{% set l3_vni_range = l3_vni_start ~ '-' ~ l3_vni_end %}
 {% else %}
 {% set l3_vni_range = defaults.vxlan.global.layer3_vni_range.from ~ '-' ~ defaults.vxlan.global.layer3_vni_range.to %}
 {% endif %}
