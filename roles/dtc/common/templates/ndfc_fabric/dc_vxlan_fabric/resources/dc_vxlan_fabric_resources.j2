@@ -20,9 +20,59 @@
 {% endif %}
 {% endif %}
 {% endif %}
-{% set l2_vni_start = vxlan.global.layer2_vni_range.from | default(defaults.vxlan.global.layer2_vni_range.from) %}
-{% set l2_vni_end = vxlan.global.layer2_vni_range.to | default(defaults.vxlan.global.layer2_vni_range.to) %}
-  L2_SEGMENT_ID_RANGE: "{{ (vxlan.global.layer2_vni_range.from | default(defaults.vxlan.global.layer2_vni_range.from)) ~ "-" ~ (vxlan.global.layer2_vni_range.to  | default(defaults.vxlan.global.layer2_vni_range.to))  }}"
-{% set l3_vni_start = vxlan.global.layer3_vni_range.from | default(defaults.vxlan.global.layer3_vni_range.from) %}
-{% set l3_vni_end = vxlan.global.layer3_vni_range.to | default(defaults.vxlan.global.layer3_vni_range.to) %}  
-  L3_PARTITION_ID_RANGE: "{{ (vxlan.global.layer3_vni_range.from | default(defaults.vxlan.global.layer3_vni_range.from)) ~ "-" ~ (vxlan.global.layer3_vni_range.to | default(defaults.vxlan.global.layer3_vni_range.to))  }}"
+{% if vxlan.global.layer2_vni_range.from is defined %}
+{% set l2_vni_start = vxlan.global.layer2_vni_range.from %}
+{% if vxlan.global.layer2_vni_range.to is defined %}
+{% set l2_vni_end = vxlan.global.layer2_vni_range.to %}
+{% endif %}
+{% endif %}
+{% if l2_vni_start is defined and l2_vni_end is not defined %}
+{% set l2_vni_range = l2_vni_start %}
+{% elif l2_vni_start is defined and l2_vni_end is defined %}
+{% set l2_vni_range = l2_vni_start ~ ' - ' ~ l2_vni_end %}
+{% else %}
+{% set l2_vni_range = defaults.vxlan.global.layer2_vni_range.from ~ ' - ' ~ defaults.vxlan.global.layer2_vni_range.to %}
+{% endif %}
+  L2_SEGMENT_ID_RANGE: {{ l2_vni_range }}
+{% if vxlan.global.layer3_vni_range.from is defined %}
+{% set l3_vni_start = vxlan.global.layer3_vni_range.from %}
+{% if vxlan.global.layer3_vni_range.to is defined %}
+{% set l3_vni_end = vxlan.global.layer3_vni_range.to %}
+{% endif %}
+{% endif %}
+{% if l3_vni_start is defined and l3_vni_end is not defined %}
+{% set l3_vni_range = l3_vni_start %}
+{% elif l3_vni_start is defined and l3_vni_end is defined %}
+{% set l3_vni_range = l3_vni_start ~ ' - ' ~ l3_vni_end %}
+{% else %}
+{% set l3_vni_range = defaults.vxlan.global.layer3_vni_range.from ~ ' - ' ~ defaults.vxlan.global.layer3_vni_range.to %}
+{% endif %}
+  L3_PARTITION_ID_RANGE: {{ l3_vni_range }}
+{% if vxlan.global.layer2_vlan_range.from is defined %}
+{% set l2_vlan_start = vxlan.global.layer2_vlan_range.from %}
+{% if vxlan.global.layer2_vlan_range.to is defined %}
+{% set l2_vlan_end = vxlan.global.layer2_vlan_range.to %}
+{% endif %}
+{% endif %}
+{% if l2_vlan_start is defined and l2_vlan_end is not defined %}
+{% set l2_vlan_range = l2_vlan_start %}
+{% elif l2_vlan_start is defined and l2_vlan_end is defined %}
+{% set l2_vlan_range = l2_vlan_start ~ ' - ' ~ l2_vlan_end %}
+{% else %}
+{% set l2_vlan_range = defaults.vxlan.global.layer2_vlan_range.from ~ ' - ' ~ defaults.vxlan.global.layer2_vlan_range.to %}
+{% endif %}
+  NETWORK_VLAN_RANGE: {{ l2_vlan_range }}
+{% if vxlan.global.layer3_vlan_range.from is defined %}
+{% set l3_vlan_start = vxlan.global.layer3_vlan_range.from %}
+{% if vxlan.global.layer3_vlan_range.to is defined %}
+{% set l3_vlan_end = vxlan.global.layer3_vlan_range.to %}
+{% endif %}
+{% endif %}
+{% if l3_vlan_start is defined and l3_vlan_end is not defined %}
+{% set l3_vlan_range = l3_vlan_start %}
+{% elif l3_vlan_start is defined and l3_vlan_end is defined %}
+{% set l3_vlan_range = l3_vlan_start ~ ' - ' ~ l3_vlan_end %}
+{% else %}
+{% set l3_vlan_range = defaults.vxlan.global.layer3_vlan_range.from ~ ' - ' ~ defaults.vxlan.global.layer3_vlan_range.to %}
+{% endif %}
+  VRF_VLAN_RANGE: {{ l3_vlan_range }}
