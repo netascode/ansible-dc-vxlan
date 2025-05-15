@@ -37,6 +37,7 @@
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "ISN"
+    - MD_Extended.vxlan.multisite is defined
     - vars_common_isn.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
@@ -47,19 +48,19 @@
     - vars_common_isn.changes_detected_inventory
   tags: "{{ nac_tags.create_switches }}"
 
+- name: Manage NDFC Fabric Inter Links
+  ansible.builtin.import_tasks: common/edge_connections.yml
+  when:
+    - MD_Extended.vxlan.topology.edge_connections | length > 0
+    - changes_detected_edge_connections
+  tags: "{{ nac_tags.create_links }}"
+
 - name: Manage NDFC ISN Fabric Interfaces
   ansible.builtin.import_tasks: common/interfaces.yml
   when:
     - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
     - vars_common_isn.changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
-
-- name: Manage NDFC ISN Fabric Intra Links
-  ansible.builtin.import_tasks: common/links.yml
-  when:
-    - MD_Extended.vxlan.topology.fabric_links | length > 0
-    - vars_common_isn.changes_detected_fabric_links
-  tags: "{{ nac_tags.create_links }}"
 
 - name: Manage NDFC ISN Fabric Policies
   ansible.builtin.import_tasks: common/policies.yml

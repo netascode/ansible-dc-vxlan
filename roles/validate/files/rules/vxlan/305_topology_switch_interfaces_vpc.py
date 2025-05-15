@@ -118,24 +118,22 @@ class Rule:
                             vpc_interfaces_dict_parameters[vpc_id]["interfaces"][
                                 vpc_id_int
                             ][param] = interface.get(param)
+
         for vpc_id, switch_interfaces in vpc_interfaces_dict.items():
             # Check if vPC id is referenced by more than 2 switches
-            if len(switch_interfaces) > 2:
-                results.append(
-                    f"vpc_id : {vpc_id} is referenced by more than 2 switches. Switches : {', '.join(switch_interfaces.keys())}"
-                )
-            # Check if vPC id is only referenced by a single switch but must be referenced by both vPC peer switches
-            elif len(switch_interfaces) > 0 and len(switch_interfaces) < 2:
-                results.append(
-                    f"vpc_id : {vpc_id} is only referenced by a single switch {', '.join(switch_interfaces.keys())} "
-                    "but must be referenced by both vPC peer switches"
-                )
-            # Check if vPC id is only configured on vPC peers
-            else:
-                if not sorted(list(switch_interfaces.keys())) in vpc_peers_list:
+            for pairs in vpc_peers_list:
+                switch_interfaces_pair = {}
+                for pair in pairs:
+                    if pair in switch_interfaces:
+                        switch_interfaces_pair.update({pair: switch_interfaces[pair]})
+
+                # Check if vPC id is only referenced by a single switch but must be referenced by both vPC peer switches
+                if len(switch_interfaces_pair) > 0 and len(switch_interfaces_pair) < 2:
                     results.append(
-                        f"vpc_id : {vpc_id} can only be configured on vPC peers. Switches : {', '.join(switch_interfaces.keys())} are not vPC peers"
+                        f"vpc_id : {vpc_id} is only referenced by a single switch {', '.join(switch_interfaces_pair.keys())} "
+                        "but must be referenced by both vPC peer switches"
                     )
+
         for vpc_id, interfaces in vpc_interfaces_dict_parameters.items():
             # Check if vPC interfaces have same values for parameters on vpc_params_to_match list
             if len(interfaces["interfaces"]) == 2:

@@ -24,17 +24,24 @@
           policy_vars:
 {% if policy_match.template_vars is defined and policy_match.template_vars %}
 {% for key, value in policy_match.template_vars.items() %}
-{% if key == "CONF" and policy_match.template_name != "switch_freeform" %}
+{% if (key == "CONF"  or key == "DOMAIN_CONF") and policy_match.template_name != "switch_freeform" %}
             {{ key }}: |2-
               {{ value | indent(14) }}
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
+{% elif key == "BANNER" %}
+            {{ key }}: |
+              {{ value | indent(14) }}
+{% elif key in ["BANNERDELIMITER"] %}
+            {{ key }}: "{{ value }}"
 {% elif key in ["asn", "BGP_AS", "BGP_ASN", "NEIGHBOR_ASN"] %}
             {{ key }}: "{{ value | string | indent(12) | trim }}"
 {% elif value is iterable and '\n' in value %}
             {{ key }}: |-
               {{ value | indent(14) }}
+{% elif value is match("(^$|^\s*$|^\"\s*\"|^\'\s*\'$)") %}
+            {{ key }}: ""
 {% else %}
             {{ key }}: {{ value | string | indent(12) | trim }}
 {% endif %}

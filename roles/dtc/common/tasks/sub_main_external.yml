@@ -52,39 +52,89 @@
 - name: Build NDFC Fabric Switch Inventory List From Template
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
-- name: Build NDFC Interface Access Po List From Template
+# --------------------------------------------------------------------
+# Build NDFC Fabric Access Port-Channel Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Access Port-Channel Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_access_po.yml
 
-- name: Build NDFC Interface Access List From Template
+# --------------------------------------------------------------------
+# Build Access Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build Access Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_access.yml
 
-- name: Build NDFC Interface Loopback List From Template
+# --------------------------------------------------------------------
+# Build NDFC Fabric Loopback Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Loopback Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_loopback.yml
 
-- name: Build NDFC Interface Po Routed List From Template
+# --------------------------------------------------------------------
+# Build NDFC Fabric Routed Port-Channel Interface List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Routed Port-Channel Interface List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_po_routed.yml
 
-- name: Build NDFC Interface Routed List From Template
+# --------------------------------------------------------------------
+# Build NDFC Fabric Interface Routed List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Interface Routed List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_routed.yml
 
-- name: Build NDFC Interface Trunk Po List From Template
+# --------------------------------------------------------------------
+# Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_trunk_po.yml
 
-- name: Build NDFC Interface Trunk List From Template
+# --------------------------------------------------------------------
+# Build Trunk Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name:  Build Trunk Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_trunk.yml
 
-- name: Build NDFC Interface VPC List From Template
+# --------------------------------------------------------------------
+# Build Fabric interface vPC List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric interface vPC List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_vpc.yml
 
-- name: Build NDFC Sub Interface Routed List From Template
+# --------------------------------------------------------------------
+# Build NDFC Fabric Sub-Interface Routed List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Sub-Interface Routed List From Template
   ansible.builtin.import_tasks: common/ndfc_sub_interface_routed.yml
 
-- name: Build NDFC Interface all List From Template
+# --------------------------------------------------------------------
+# Build Fabric Interface All List From Template
+# --------------------------------------------------------------------
+
+- name: Build Fabric interface All List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_all.yml
 
-- name: Build NDFC Policy List From Template
-  ansible.builtin.import_tasks: common/ndfc_policy.yml 
+# --------------------------------------------------------------------
+# Build Policy List From Template
+# --------------------------------------------------------------------
 
+- name: Build NDFC Policy List From Template
+  ansible.builtin.import_tasks: common/ndfc_policy.yml
+
+# --------------------------------------------------------------------
+# Build Edge Connections List From Template
+# --------------------------------------------------------------------
+
+- name: Build Edge Connections List From Template
+  ansible.builtin.import_tasks: common/ndfc_edge_connections.yml
 
 # --------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere
@@ -94,6 +144,7 @@
     vars_common_external:
         changes_detected_fabric: "{{ changes_detected_fabric }}"
         changes_detected_inventory: "{{ changes_detected_inventory }}"
+        changes_detected_edge_connections: "{{ changes_detected_edge_connections }}"
         changes_detected_interface_access_po: "{{ changes_detected_interface_access_po }}"
         changes_detected_interface_access: "{{ changes_detected_interface_access }}"
         changes_detected_interface_loopback: "{{ changes_detected_interface_loopback }}"
@@ -105,6 +156,7 @@
         changes_detected_interfaces: "{{ changes_detected_interfaces }}"
         changes_detected_policy: "{{ changes_detected_policy }}"
         fabric_config: "{{ fabric_config }}"
+        edge_connections: "{{ edge_connections }}"
         interface_access_po: "{{ interface_access_po }}"
         interface_access: "{{ interface_access }}"
         interface_all: "{{ interface_all }}"
@@ -125,6 +177,7 @@
       - "----------------------------------------------------------------"
       - "+     Fabric Changes Detected -               [ {{ vars_common_external.changes_detected_fabric }} ]"
       - "+     Inventory Changes Detected -            [ {{ vars_common_external.changes_detected_inventory }} ]"
+      - "+     Edge Connections Changes Detected -     [ {{ vars_common_external.changes_detected_edge_connections }} ]"
       - "+     ----- Interfaces -----"
       - "+     Interface Access Changes Detected -     [ {{ vars_common_external.changes_detected_interface_access }} ]"
       - "+     Interface Access PO Changes Detected -  [ {{ vars_common_external.changes_detected_interface_access_po }} ]"

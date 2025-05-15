@@ -8,16 +8,22 @@ class Rule:
         results = []
         dhcp = None
 
-        bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'dhcp_version']
+        bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'enable_bootstrap']
         check = cls.data_model_key_check(inventory, bootstrap_keys)
-        if 'dhcp_version' in check['keys_found']:
-            if inventory['vxlan']['global']['bootstrap']['dhcp_version'] == 'DHCPv4':
-                dhcp = 'dhcp_v4'
-            elif inventory['vxlan']['global']['bootstrap']['dhcp_version'] == 'DHCPv6':
-                dhcp = 'dhcp_v6'
-        else:
-            results.append("A vxlan.global.bootstrap.dhcp_version is required for bootstrap in a VXLAN type fabric.")
-            return results
+        if 'enable_bootstrap' in check['keys_found']:
+            bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'enable_local_dhcp_server']
+            check = cls.data_model_key_check(inventory, bootstrap_keys)
+            if 'enable_local_dhcp_server' in check['keys_found']:
+                bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'dhcp_version']
+                check = cls.data_model_key_check(inventory, bootstrap_keys)
+                if 'dhcp_version' in check['keys_found']:
+                    if inventory['vxlan']['global']['bootstrap']['dhcp_version'] == 'DHCPv4':
+                        dhcp = 'dhcp_v4'
+                    elif inventory['vxlan']['global']['bootstrap']['dhcp_version'] == 'DHCPv6':
+                        dhcp = 'dhcp_v6'
+                else:
+                    results.append("A vxlan.global.bootstrap.dhcp_version is required for bootstrap in a VXLAN type fabric.")
+                    return results
 
         if dhcp:
             bootstrap_keys = ['vxlan', 'global', 'bootstrap', dhcp, 'domain_name']

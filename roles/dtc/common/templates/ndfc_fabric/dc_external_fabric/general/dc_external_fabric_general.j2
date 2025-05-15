@@ -1,4 +1,8 @@
-{# Auto-generated NDFC DC VXLAN EVPN General config data structure for fabric {{ vxlan.fabric.name }} #}
+{# Auto-generated NDFC DC External General config data structure for fabric {{ vxlan.fabric.name }} #}
   BGP_AS: "{{ vxlan.global.bgp_asn }}"
-
+{% if not (vxlan.global.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | ansible.builtin.bool) %}
+  IS_READ_ONLY: false
+{% else %}
+  IS_READ_ONLY: ""
+{% endif %}
 {# #}

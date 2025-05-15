@@ -64,7 +64,7 @@
 - name: Remove Unmanaged Fabric Networks
   cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_networks:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    msite_data: "{{ MD_Multisite}}"
+    msite_data: "{{ MD_Multisite }}"
   register: child_fabric_network_results
   when:
     - multisite_network_delete_mode is defined

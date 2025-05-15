@@ -36,6 +36,9 @@
     model_data: "{{ MD_Extended }}"
     parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
   register: MD_Multisite
+  tags: 
+    - "{{ nac_tags.remove_networks }}"
+    - "{{ nac_tags.remove_vrfs }}"
 
 - name: Remove Fabric Networks
   ansible.builtin.import_tasks: msd/networks.yml

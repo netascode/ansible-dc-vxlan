@@ -306,7 +306,7 @@ The following quickstart repository is available to provide a step by step guide
 
 This collection is intended for use with the following release versions:
 
-* `NDFC Release 12.2.1` or later.
+* `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.1` or later.
 
 <!--start requires_ansible-->
 ## Ansible Version Compatibility
@@ -408,10 +408,10 @@ This capability is not available under the following conditions:
 
 ### See Also
 
-* [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
+* [Ansible Using Collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
 
 ## Multi-Site Domain for VXLAN BGP EVPN Fabrics
-A Multi-Site Domain (MSD) is a multifabric container that is created to manage multiple member fabrics. An MSD is a single point of control for definition of overlay networks and VRFs that are shared across member fabrics. When you move fabrics (that are designated to be part of the multifabric overlay network domain) under the MSD as member fabrics, the member fabrics share the networks and VRFs created at the MSD-level. This way, you can consistently provision network and VRFs for different fabrics, at one go. It significantly reduces the time and complexity involving multiple fabric provisionings.
+A Multi-Site Domain (MSD) is a multifabric administrative domain that is created to manage multiple member fabrics. An MSD is a single point of control for definition of overlay VRFs and Networks that are shared across member fabrics. When you move fabrics under the MSD as child fabrics, the child fabrics share the VRFs and networks created at the MSD-level. This way, you can consistently provision VRFs and networks for different fabrics, at one go. It significantly reduces the time and complexity involving multiple fabric provisionings.
 
 ### To configure and manage MSD fabrics with VXLAN as Code, you should use the following workflow:
 1. Create each member/child fabric that will be managed by MSD using the normal data models for each fabric (or use a combined data model with all child fabrics)
@@ -432,9 +432,10 @@ We welcome community contributions to this collection. If you find problems, ple
 
 ## More Information
 
-- [NDFC installation and configuration guides](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1201/installation/cisco-ndfc-install-and-upgrade-guide-1201.html)
-- [Ansible User guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
-- [Ansible Developer guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
+- [Cisco Nexus Dashboard and Services Deployment and Upgrade Guide](https://www.cisco.com/c/en/us/td/docs/dcn/nd/3x/deployment/cisco-nexus-dashboard-and-services-deployment-guide-321.html) 
+- [Cisco Nexus Dashboard Fabric Controller (NDFC) User Content for LAN Configuration Guide](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1222/collections/ndfc-user-content-1222-lan.html)
+- [Ansible User Guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
+- [Ansible Developer Guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
 
 ## Licensing
 
