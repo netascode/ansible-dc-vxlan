@@ -296,7 +296,6 @@ factory_defaults:
             disable_connected_check: false
             remove_private_as: false
             remove_private_as_all: false
-            ebgp_multihop: 2
             address_family_ipv4_unicast:
               send_community: false
               send_ext_community: false
