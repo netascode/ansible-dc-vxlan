@@ -30,6 +30,18 @@ factory_defaults:
       nxapi_http_port: 80
       enable_nxapi_https: true
       nxapi_https_port: 443
+      layer2_vni_range:
+        from: 30000
+        to: 49000
+      layer3_vni_range:
+        from: 50000
+        to: 59000
+      layer2_vlan_range:
+        from: 2300
+        to: 2999
+      layer3_vlan_range:
+        from: 2000
+        to: 2299
       vpc:
         peer_link_vlan: 3600
         peer_keep_alive: management
@@ -42,6 +54,7 @@ factory_defaults:
         domain_id_range: 1-1000
         fabric_vpc_qos: false
         fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
+        enable_ipv6_nd_sync: true
       spanning_tree:
         root_bridge_protocol: unmanaged
         vlan_range:
@@ -315,6 +328,12 @@ factory_defaults:
               default_originate: false
               next_hop_self: false
     multisite:
+      layer2_vni_range:
+        from: 30000
+        to: 49000
+      layer3_vni_range:
+        from: 50000
+        to: 59000
       enable_ipv6_underlay: false
       anycast_gateway_mac: 20:20:00:00:00:aa
       vtep_loopback_id: 100
