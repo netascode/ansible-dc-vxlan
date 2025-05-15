@@ -56,12 +56,6 @@
   when:
     - vars_common_isn.changes_detected_interfaces
 
-- name: Remove Fabric Links
-  ansible.builtin.import_tasks: isn/links.yml
-  tags: "{{ nac_tags.remove_links }}"
-  when:
-    - vars_common_isn.changes_detected_fabric_links
-
 - name: Remove Fabric Switches
   ansible.builtin.import_tasks: common/switches.yml
   tags: "{{ nac_tags.remove_switches }}"
