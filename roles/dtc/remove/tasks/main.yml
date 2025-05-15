@@ -47,10 +47,10 @@
   ansible.builtin.import_tasks: sub_main_isn.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'ISN') and
-    (vars_common_isn.changes_detected_fabric_links or
-    vars_common_isn.changes_detected_interfaces or
+    (vars_common_isn.changes_detected_interfaces or
     vars_common_isn.changes_detected_inventory or
-    vars_common_isn.changes_detected_policy)
+    vars_common_isn.changes_detected_policy or
+    vars_common_external.changes_detected_edge_connections)
 
 - name: Import External Role Tasks
   ansible.builtin.import_tasks: sub_main_external.yml
