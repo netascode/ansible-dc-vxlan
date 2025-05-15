@@ -8,6 +8,49 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+
+`0.4.1`_
+=====================
+
+**Release Date:** ``2025-04-24``
+
+Added
+-----
+
+* Added ability to manage edge connections to external fabrics
+* Added support for checking if a fabric is in a multisite domain and disallow management of ``vxlan.overlay.vrfs`` and ``vxlan.overlay.networks`` under the child fabric
+
+Modified
+--------
+
+* Added various multisite fixes and introduced new ``child_fabrics`` model key under ``vxlan.multisite.overlay.vrfs`` and ``vxlan.multisite.overlay.networks`` for defining site-specific attributes
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/232
+* https://github.com/netascode/ansible-dc-vxlan/issues/274
+* https://github.com/netascode/ansible-dc-vxlan/issues/292
+* https://github.com/netascode/ansible-dc-vxlan/issues/293
+* https://github.com/netascode/ansible-dc-vxlan/issues/294
+* https://github.com/netascode/ansible-dc-vxlan/issues/295
+* https://github.com/netascode/ansible-dc-vxlan/issues/296
+* https://github.com/netascode/ansible-dc-vxlan/issues/302
+* https://github.com/netascode/ansible-dc-vxlan/issues/303
+* https://github.com/netascode/ansible-dc-vxlan/issues/308
+* https://github.com/netascode/ansible-dc-vxlan/issues/311
+* https://github.com/netascode/ansible-dc-vxlan/issues/314
+* https://github.com/netascode/ansible-dc-vxlan/issues/320
+* https://github.com/netascode/ansible-dc-vxlan/issues/325
+* https://github.com/netascode/ansible-dc-vxlan/issues/327
+* https://github.com/netascode/ansible-dc-vxlan/issues/331
+* https://github.com/netascode/ansible-dc-vxlan/issues/335
+* https://github.com/netascode/ansible-dc-vxlan/issues/336
+* https://github.com/netascode/ansible-dc-vxlan/issues/340
+* https://github.com/netascode/ansible-dc-vxlan/issues/343
+* https://github.com/netascode/ansible-dc-vxlan/issues/345
+* https://github.com/netascode/ansible-dc-vxlan/issues/355
+
 `0.4.0`_
 =====================
 
@@ -161,6 +204,7 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.4.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.0...0.4.1
 .. _0.4.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.3.0...0.4.0
 .. _0.3.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.2.0...0.3.0
 .. _0.2.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.1.0...0.2.0

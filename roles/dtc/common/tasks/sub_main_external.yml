@@ -83,7 +83,7 @@
   ansible.builtin.import_tasks: common/ndfc_interface_all.yml
 
 - name: Build NDFC Policy List From Template
-  ansible.builtin.import_tasks: common/ndfc_policy.yml 
+  ansible.builtin.import_tasks: common/ndfc_policy.yml
 
 - name: Edge Connections List From Template
   ansible.builtin.import_tasks: common/ndfc_edge_connections.yml
