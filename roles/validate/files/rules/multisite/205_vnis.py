@@ -31,9 +31,9 @@ class Rule:
                 if int(vni_start) >= int(vni_end):
                     cls.results.append(f"When defining {range_type} range, {check_key}, 'from' must be less than 'to'.")
                     return cls.results
-        else:
-            cls.results.append(f"When defining {range_type} range, {check_key}, both 'from' and 'to' must have valid data.")
-            return cls.results
+            else:
+                cls.results.append(f"When defining {range_type} range, {check_key}, both 'from' and 'to' must have valid data.")
+                return cls.results
 
     @classmethod
     def data_model_key_check(cls, tested_object, keys):
