@@ -51,8 +51,18 @@
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ underlay_ip_address }}"
+    config: "{{ vars_common_vxlan.underlay_ip_address }}"
   when: MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined and MD_Extended.vxlan.underlay.general.manual_underlay_allocation == True
+
+- name: Config-Save block
+  block:
+    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
+      cisco.dcnm.dcnm_rest:
+        method: POST
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
+      register: config_save
+      when: >
+        (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
 
 - name: Create List of Switch Serial Numbers from Data Model
   ansible.builtin.set_fact:
