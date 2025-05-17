@@ -15,6 +15,14 @@ class Rule:
         else:
             return results
 
+        dm_check = cls.data_model_key_check(inventory, ['vxlan', 'global', 'vpc', 'domain_id_range'])
+        if 'domain_id_range' in dm_check['keys_data']:
+            vpc_range = inventory['vxlan']['global']['vpc']['domain_id_range']
+        else:
+            vpc_range = "1-1000"
+        vpc_range_split = vpc_range.split("-")
+        vpc_domain_list = []
+
         vpc_peers_keys = ['vxlan', 'topology', 'vpc_peers']
         dm_check = cls.data_model_key_check(inventory, vpc_peers_keys)
         if 'vpc_peers' in dm_check['keys_found'] and 'vpc_peers' in dm_check['keys_data']:
@@ -33,6 +41,18 @@ class Rule:
                         f"vxlan.topology.vpc_peers switch {vpc_peers_pair['peer2']} not found in the topology inventory."
                     )
 
+                if 'domain_id' in vpc_peers_pair:
+                    if vpc_peers_pair['domain_id'] > int(vpc_range_split[1]) or vpc_peers_pair['domain_id'] < int(vpc_range_split[0]):
+                        results.append(
+                            f"vxlan.topology.vpc_peers Domain ID {vpc_peers_pair['domain_id']} between {vpc_peers_pair['peer1']} {vpc_peers_pair['peer2']} "
+                            f"vpc domain not in range: " + vpc_range + "."
+                        )
+
+                    if vpc_peers_pair['domain_id'] not in vpc_domain_list:
+                        vpc_domain_list.append(vpc_peers_pair['domain_id'])
+                    else:
+                        results.append(
+                            f"vxlan.topology.vpc_peers Domain ID {vpc_peers_pair['domain_id']} is duplicated.")
         return results
 
     @classmethod
