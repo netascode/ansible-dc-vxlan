@@ -16,7 +16,7 @@ class Rule:
             dm_check = cls.data_model_key_check(switch, ['poap', 'preprovision'])
             if 'preprovision' in dm_check['keys_data']:
                 dm_check = cls.data_model_key_check(switch, ['management', 'subnet_mask_ipv4'])
-                if 'subnet_mask_ipv4' in dm_check['keys_not_found'] and 'subnet_mask_ipv4' in dm_check['keys_no_data']:
+                if 'subnet_mask_ipv4' in dm_check['keys_not_found'] or 'subnet_mask_ipv4' in dm_check['keys_no_data']:
                     results.append(
                         f"vxlan.topology.switches.{switch['name']}.subnet_mask_ipv4 must be defined when preprovision is used."
                     )
