@@ -2,6 +2,7 @@
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
+{% if vxlan.underlay.general.manual_underlay_allocation is true %}
 {% set routing_lo_id = vxlan.underlay.general.underlay_routing_loopback_id %}
 {% set vtep_lo_id = vxlan.underlay.general.underlay_vtep_loopback_id %}
 {%- set switch_secondary_ip = {} -%}
@@ -82,4 +83,5 @@
 {% endif %}
 {% endfor %}
 
+{% endif %}
 {% endif %}
