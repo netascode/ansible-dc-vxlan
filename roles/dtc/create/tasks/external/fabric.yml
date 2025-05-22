@@ -52,5 +52,5 @@
     json_data: '{{ fabric_config | to_json }}'
   when: > 
     (get_result.response.DATA is not defined) or
-    (get_result.response.DATA is defined and not get_result.get('response', false) and not get_result.get('resposne').get('DATA'))
+    (get_result.response.DATA is defined and not get_result.get('response', false) and not get_result.get('response').get('DATA'))
   register: post_result
