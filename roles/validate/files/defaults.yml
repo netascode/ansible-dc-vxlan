@@ -25,7 +25,6 @@ factory_defaults:
     global:
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
-      enable_performance_monitoring: false
       auth_proto: MD5
       enable_nxapi_http: false
       nxapi_http_port: 80

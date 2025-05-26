@@ -14,5 +14,4 @@
   LINK_STATE_ROUTING: {{ vxlan.underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol) }}
   RR_COUNT: {{ vxlan.global.route_reflectors | default(defaults.vxlan.global.route_reflectors) }}
   ANYCAST_GW_MAC: {{ vxlan.global.anycast_gateway_mac | default(defaults.vxlan.global.anycast_gateway_mac) }}
-  PM_ENABLE: {{ vxlan.global.enable_performance_monitoring | default(defaults.vxlan.global.enable_performance_monitoring) }}
 {# #}
