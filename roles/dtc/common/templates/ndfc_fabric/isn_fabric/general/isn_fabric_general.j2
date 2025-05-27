@@ -5,4 +5,5 @@
 {% else %}
   IS_READ_ONLY: ""
 {% endif %}
+  PM_ENABLE: {{ vxlan.global.enable_performance_monitoring | default(defaults.vxlan.global.enable_performance_monitoring) }} 
 {# #}
