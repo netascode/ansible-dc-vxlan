@@ -42,6 +42,7 @@
     json_data: '{{ fabric_config | to_json }}'
   when:
     - get_result.response.DATA is defined
+    - get_result.response.DATA
   register: put_result
 
 - name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (POST)
@@ -49,6 +50,7 @@
     method: POST
     path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'
     json_data: '{{ fabric_config | to_json }}'
-  when:
-    - get_result.response.DATA is not defined
+  when: > 
+    (get_result.response.DATA is not defined) or
+    (get_result.response.DATA is defined and not get_result.get('response', false) and not get_result.get('response').get('DATA'))
   register: post_result
