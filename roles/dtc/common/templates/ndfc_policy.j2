@@ -30,6 +30,11 @@
 {% elif key == "CONF" %}
             {{ key }}: |-
               {{ value | indent(14) }}
+{% elif key == "BANNER" %}
+            {{ key }}: |
+              {{ value | indent(14) }}
+{% elif key in ["BANNERDELIMITER"] %}
+            {{ key }}: "{{ value }}"
 {% elif key in ["asn", "BGP_AS", "BGP_ASN", "NEIGHBOR_ASN", "COM"] %}
             {{ key }}: "{{ value | string | indent(12) | trim }}"
 {% elif value is iterable and '\n' in value %}

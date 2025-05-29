@@ -28,19 +28,6 @@
       - "+     Manage Fabric Children {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Check if fabric already a member of NDFC
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/members'
-  register: member_result
-
-- name: Set fact for existing fabric names
-  set_fact:
-    existing_fabric_names: >-
-      {{
-        member_result.response.DATA | map(attribute='fabrics') | map('dict2items') | flatten | map(attribute='key') | list
-      }}
-
 - name: Manage fabric Federated {{ MD_Extended.vxlan.fabric.name }} in NDFC (PUT)
   cisco.dcnm.dcnm_rest:
     method: PUT
