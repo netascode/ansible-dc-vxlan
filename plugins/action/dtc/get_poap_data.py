@@ -73,6 +73,7 @@ class POAPDevice:
         self.poap_data = []
         self.poap_get_method = "GET"
         self.poap_get_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{self.fabric_name}/inventory/poap"
+        self.discovered_switch_data = []
 
     def check_poap_supported_switches(self) -> None:
         """
@@ -83,6 +84,12 @@ class POAPDevice:
         """
         for switch in self.switches:
             if 'poap' in switch and switch['poap'].get('bootstrap'):
+                ip = switch['management']['management_ipv4_address']
+                role = switch['role']
+                hostname = switch['name']
+                if self._get_discovered(ip, role, hostname):
+                    # This switch is already discovered by the fabric so does not need to be POAP'd
+                    continue
                 self.poap_supported_switches = True
 
     def check_preprovision_supported_switches(self) -> None:
@@ -95,6 +102,42 @@ class POAPDevice:
         for switch in self.switches:
             if 'poap' in switch and switch['poap'].get('preprovision'):
                 self.preprovision_supported_switches = True
+
+    def refresh_discovered(self) -> None:
+        """
+        ### Summary
+        Refresh discovered device data
+
+        """
+        data = self.execute_module(
+            module_name="cisco.dcnm.dcnm_inventory",
+            module_args={
+                "fabric": self.fabric_name,
+                "state": "query",
+            },
+            task_vars=self.task_vars,
+            tmp=self.tmp
+        )
+
+        if isinstance(data.get('response'), list):
+            if len(data.get('response')) > 0:
+                self.discovered_switch_data = data['response']
+
+    def _get_discovered(self, ip, role, hostname):
+        """
+        ### Summary
+        Check if device with ip, role is already discovered
+
+        """
+        discovered = False
+        for switch in self.discovered_switch_data:
+            if switch['ipAddress'] == ip and \
+               switch['switchRole'] == role and \
+               switch['logicalName'] == hostname:
+
+                discovered = True
+
+        return discovered
 
     def refresh(self) -> None:
         """
@@ -180,6 +223,7 @@ class ActionModule(ActionBase):
 
         # Instantiate POAPDevice workflow object with params
         workflow = POAPDevice(params)
+        workflow.refresh_discovered()
         workflow.check_poap_supported_switches()
         workflow.check_preprovision_supported_switches()
 

@@ -21,16 +21,15 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   {% elif switch_item.bgp.best_path_as_path_relax is not defined and (item.bgp.best_path_as_path_relax | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.best_path_as_path_relax)) %}
     bestpath as-path multipath-relax
   {% endif %}
-  {% if switch_item.bgp.graceful_restart %}
-    graceful-restart
-  {% elif switch_item.bgp.graceful_restart is not defined and (item.bgp.graceful_restart | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.graceful_restart)) %}
-    graceful-restart
+  {% if (switch_item.bgp.graceful_restart is defined and switch_item.bgp.graceful_restart == false) or (item.bgp.graceful_restart is defined and item.bgp.graceful_restart == false) %}
+    no graceful-restart
   {% endif %}
   {% if switch_item.bgp.graceful_restart_helper %}
     graceful-restart-helper
   {% elif switch_item.bgp.graceful_restart_helper is not defined and (item.bgp.graceful_restart_helper | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.graceful_restart_helper)) %}
     graceful-restart-helper
   {% endif %}
+  {# #}
   {% if switch_item.bgp.local_as %}
     local-as {{ switch_item.bgp.local_as }}
   {% elif item.bgp.local_as %}
@@ -125,7 +124,9 @@ router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
     {% elif peer.remove_private_as | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.remove_private_as) %}
       remove-private-as
     {% endif %}
-      ebgp-multihop {{ peer.ebgp_multihop | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.ebgp_multihop) }}
+    {% if peer.ebgp_multihop is defined %}
+      ebgp-multihop {{ peer.ebgp_multihop }}
+    {% endif %}
     {% if peer.password is defined %}
       password 3 {{ peer.password }}
     {% endif %}

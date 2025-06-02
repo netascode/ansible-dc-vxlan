@@ -19,41 +19,41 @@
 #
 # SPDX-License-Identifier: MIT
 
----
-vxlan:
-  underlay:
-    general:
-      routing_protocol: is-is
-      enable_ipv6_underlay: False
-      replication_mode: ingress
-      fabric_interface_numbering: p2p
-      subnet_mask: 30
-      manual_underlay_allocation: False
-      underlay_routing_loopback_id: 0
-      underlay_vtep_loopback_id: 1
-      underlay_routing_protocol_tag: UNDERLAY
-      underlay_rp_loopback_id: 3
-      intra_fabric_interface_mtu: 9216
-      layer2_host_interface_mtu: 9216
-      unshut_host_interfaces: True
-    ipv4:
-      underlay_routing_loopback_ip_range: 10.2.0.0/22
-      underlay_vtep_loopback_ip_range: 10.3.0.0/22
-      underlay_rp_loopback_ip_range: 10.254.254.0/24
-      underlay_subnet_ip_range: 10.4.0.0/16
-    bgp:
-      authentication_enable: False
-    isis:
-      level: level-2
-      network_point_to_point: True
-      authentication_enable: False
-      authentication_key_id: 0
-      authentication_key: ""
-      overload_bit: False
-      overload_bit_elapsed_time: 5
-    bfd:
-      enable: False
-      ibgp: False
-      isis: False
-      pim: False
-      authentication_enable: False
+from __future__ import absolute_import, division, print_function
+
+
+__metaclass__ = type
+
+from ansible.utils.display import Display
+from ansible.plugins.action import ActionBase
+
+
+display = Display()
+
+
+class ActionModule(ActionBase):
+
+    def run(self, tmp=None, task_vars=None):
+        results = super(ActionModule, self).run(tmp, task_vars)
+        results['changed'] = False
+        results['failed'] = False
+
+        fabric = self._task.args["fabric"]
+
+        ndfc_response = self._execute_module(
+            module_name="cisco.dcnm.dcnm_rest",
+            module_args={
+                "method": "GET",
+                "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}/inventory/switchesByFabric",
+            },
+            task_vars=task_vars,
+            tmp=tmp
+        )
+
+        if ndfc_response['response'].get('DATA'):
+            for switch in ndfc_response['response']['DATA']:
+                if switch['ccStatus'] == 'Out-of-Sync':
+                    results['changed'] = True
+                    break
+
+        return results

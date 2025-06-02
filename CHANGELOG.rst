@@ -8,6 +8,53 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.4.2`_
+=====================
+
+**Release Date:** ``2025-06-02``
+
+Added
+-----
+
+* Added support for the following model properties:
+    - ``vxlan.multisite.layer2_vni_range``
+    - ``vxlan.multisite.layer3_vni_range``
+    - ``vxlan.global.layer2_vni_range``
+    - ``vxlan.global.layer3_vni_range``
+    - ``vxlan.global.layer2_vlan_range``
+    - ``vxlan.global.layer3_vlan_range``
+    - ``vxlan.underlay.ipv6.underlay_routing_loopback_ip_range``
+    - ``vxlan.underlay.ipv6.underlay_vtep_loopback_ip_range``
+    - ``vxlan.underlay.ipv6.underlay_rp_loopback_ip_range``
+    - ``vxlan.underlay.ipv6.underlay_subnet_ip_range``
+    - ``vxlan.underlay.multicast.ipv4.authentication_enable``
+    - ``vxlan.underlay.multicast.ipv4.authentication_key``
+    - ``vxlan.underlay.multicast.ipv6.group_subnet``
+    - ``vxlan.underlay.multicast.ipv6.trmv6_enable``
+    - ``vxlan.underlay.multicast.ipv6.trmv6_default_group``
+
+Modified
+--------
+
+* The following keys have been relocated under ``vxlan.underlay.ipv4`` and data model files will need to be updated accordingly:
+    - ``vxlan.underlay.ipv4.fabric_interface_numbering``
+    - ``vxlan.underlay.ipv4.subnet_mask``
+* The following keys have been relocated under ``vxlan.underlay.multicast.ipv4`` and data model files will need to be updated accordingly:
+    - ``vxlan.underlay.multicast.ipv4.group_subnet``
+    - ``vxlan.underlay.multicast.ipv4.trm_enable``
+    - ``vxlan.underlay.multicast.ipv4.trm_default_group``
+
+Fixed
+-----
+https://github.com/netascode/ansible-dc-vxlan/issues/239
+https://github.com/netascode/ansible-dc-vxlan/issues/262
+https://github.com/netascode/ansible-dc-vxlan/issues/349
+https://github.com/netascode/ansible-dc-vxlan/issues/350
+https://github.com/netascode/ansible-dc-vxlan/issues/352
+https://github.com/netascode/ansible-dc-vxlan/issues/371
+https://github.com/netascode/ansible-dc-vxlan/issues/373
+https://github.com/netascode/ansible-dc-vxlan/issues/380
+https://github.com/netascode/ansible-dc-vxlan/issues/386
 
 `0.4.1`_
 =====================
@@ -204,6 +251,7 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.4.2: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.1...0.4.2
 .. _0.4.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.0...0.4.1
 .. _0.4.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.3.0...0.4.0
 .. _0.3.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.2.0...0.3.0
