@@ -6,11 +6,9 @@
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   FEATURE_PTP: {{ vxlan.global.ptp.enable | default(defaults.vxlan.global.ptp.enable) }}
 {% if vxlan.global.ptp.enable is defined and vxlan.global.ptp.enable | ansible.builtin.bool %}
-  PTP_DOMAIN_ID: {{ vxlan.global.ptp.domain_id | default(defaults.vxlan.global.ptp.domain_id) }}
-  PTP_LB_ID: {{ vxlan.global.ptp.lb_id | default(defaults.vxlan.global.ptp.lb_id) }}
-{% if vxlan.global.ptp.vlan_id is defined %}
-  PTP_VLAN_ID: {{ vxlan.global.ptp.vlan_id }}
-{% endif %}
+  PTP_DOMAIN_ID: {{ vxlan.global.ptp.domain_id }}
+  PTP_LB_ID: {{ vxlan.global.ptp.lb_id  }}
+  PTP_VLAN_ID: {{ vxlan.global.ptp.vlan_id  }}
 {% endif %}
 {% endif %}
   ENABLE_NXAPI: {{ vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
