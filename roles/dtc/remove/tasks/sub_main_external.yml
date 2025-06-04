@@ -56,11 +56,11 @@
   when:
     - vars_common_external.changes_detected_interfaces
 
-- name: Remove Fabric vPC Peering
-  ansible.builtin.import_tasks: common/vpc_peers.yml
-  tags: "{{ nac_tags.remove_vpc_peers }}"
-  when:
-    - vars_common_external.changes_detected_vpc_peering
+# - name: Remove Fabric vPC Peering
+#   ansible.builtin.import_tasks: common/vpc_peers.yml
+#   tags: "{{ nac_tags.remove_vpc_peers }}"
+#   when:
+#     - vars_common_external.changes_detected_vpc_peering
 
 - name: Remove Fabric Switches
   ansible.builtin.import_tasks: common/switches.yml
