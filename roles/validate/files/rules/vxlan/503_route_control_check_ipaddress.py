@@ -2,6 +2,7 @@
 import ipaddress
 import re
 
+
 class Rule:
     """
     Class 503 - Verify IP address format for Route-Control
