@@ -14,6 +14,10 @@
   BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.bootstrap.dhcp_v4.multi_subnet_scope }}"
 {% endif %}
 {% endif %}
-{% endif %}  
+{% endif %}
+{% endif %}
+{% if vxlan.underlay.general.bootstrap_freeform is defined %}
+  BOOTSTRAP_CONF: |
+    {{ vxlan.underlay.general.bootstrap_freeform | indent(4) }}
 {% endif %}
 {% endif %}

@@ -38,3 +38,19 @@
   STP_BRIDGE_PRIORITY: {{ vxlan.global.spanning_tree.bridge_priority | default(defaults.vxlan.global.spanning_tree.bridge_priority) }}
 {% endif %}
 {% endif %}
+{% if vxlan.underlay.general.leaf_freeform is defined %}
+  EXTRA_CONF_LEAF: |
+    {{ vxlan.underlay.general.leaf_freeform | indent(4) }}
+{% endif%}
+{% if vxlan.underlay.general.spine_freeform is defined %}
+  EXTRA_CONF_SPINE: |
+    {{ vxlan.underlay.general.spine_freeform | indent(4) }}
+{% endif%}
+{% if vxlan.underlay.general.tor_freeform is defined %}
+  EXTRA_CONF_TOR: |
+    {{ vxlan.underlay.general.tor_freeform | indent(4) }}
+{% endif%}
+{% if vxlan.underlay.general.intra_fabric_link is defined %}
+  EXTRA_CONF_INTRA_LINKS: |
+    {{ vxlan.underlay.general.intra_fabric_link | indent(4) }}
+{% endif%}
