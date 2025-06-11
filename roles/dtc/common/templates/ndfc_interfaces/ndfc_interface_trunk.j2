@@ -28,6 +28,9 @@
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.spanning_tree_portfast) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_bpdu_guard) }}
     allowed_vlans: "{{ convert_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.trunk_allowed_vlans) | trim }}"
+    duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.duplex) }}
+    orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.orphan_port) }}
+    native_vlan: "{{ interface['native_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.native_vlan) }}"
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}

@@ -85,6 +85,8 @@ factory_defaults:
             access_vlan: 1
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
@@ -93,6 +95,9 @@ factory_defaults:
             trunk_allowed_vlans: none
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            native_vlan: ""
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
             mtu: jumbo
@@ -102,6 +107,8 @@ factory_defaults:
             pc_mode: active
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -111,6 +118,9 @@ factory_defaults:
             pc_mode: active
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            native_vlan: ""
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
