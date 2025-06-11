@@ -1,5 +1,5 @@
 class Rule:
-    id = "30"
+    id = "306"
     description = "Verify a vPC peer exists in the topology.switches inventory"
     severity = "HIGH"
 
@@ -15,6 +15,7 @@ class Rule:
         else:
             return results
 
+        # Set vpc_range with value in the data source or default "1-1000"
         dm_check = cls.data_model_key_check(inventory, ['vxlan', 'global', 'vpc', 'domain_id_range'])
         if 'domain_id_range' in dm_check['keys_data']:
             vpc_range = inventory['vxlan']['global']['vpc']['domain_id_range']
@@ -41,6 +42,7 @@ class Rule:
                         f"vxlan.topology.vpc_peers switch {vpc_peers_pair['peer2']} not found in the topology inventory."
                     )
 
+                # Check VPC Domain ID is in the range
                 if 'domain_id' in vpc_peers_pair:
                     if vpc_peers_pair['domain_id'] > int(vpc_range_split[1]) or vpc_peers_pair['domain_id'] < int(vpc_range_split[0]):
                         results.append(
