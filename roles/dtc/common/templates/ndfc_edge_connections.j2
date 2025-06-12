@@ -8,17 +8,26 @@
     - ip: {{ link.source_device_ip }}
       policies:
         - create_additional_policy: False
+{% if '.' in link.source_interface %}
+          description: {{ 'nace_bgp_peer_template_dci_underlay_jython_' + link.source_device + '_' + link.dest_device + '_' + link.source_interface.split('.')[1] }}
+{% else %}
           description: {{ 'nace_bgp_peer_template_dci_underlay_jython_' + link.source_device + '_' + link.dest_device }}
+{% endif %}
           name: bgp_peer_template_dci_underlay_jython
           policy_vars:
             BGP_PASSWORD: "{{ link.bgp_section.bgp_password | default('') }}"
             BGP_PASSWORD_ENABLE: {{ link.bgp_section.bgp_password_enable | default('true') }}
+{% if '.' in link.source_interface %}
+            TEMPLATE_NAME: {{ MD_Extended.vxlan.fabric.name + '-' + link.dest_fabric + '-IPV4-EBGP' + '_' + link.source_interface.split('.')[1] }}
+{% else %}
             TEMPLATE_NAME: {{ MD_Extended.vxlan.fabric.name + '-' + link.dest_fabric + '-IPV4-EBGP' }}
+{% endif %}
             NEIGHBOR_ASN: "{{ link.bgp_section.neighbor_asn }}"
             OVERRIDE_LOCAL_ASN: false
             CONF: |2-
               {{ link.bgp_section.peer_template_freeform | default('') | indent(14, false)}}
           priority: 475
+{% if '.' not in link.source_interface %}          
         - create_additional_policy: False
           description: {{ 'nace_ebgp_underlay_dci_template_' + link.source_device + '_' + link.dest_device }}
           name: ebgp_underlay_dci_template
@@ -43,5 +52,6 @@
               {{ link.bgp_section.interface_freeform | default('') | indent(14, false)}}
             FABRIC_NAME: {{ MD_Extended.vxlan.fabric.name }}
           priority: 500
+{% endif %}
 {% endfor %}
 {% endif %}

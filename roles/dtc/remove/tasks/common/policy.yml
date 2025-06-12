@@ -54,7 +54,7 @@
       fabric: "{{ MD_Extended.vxlan.fabric.name }}"
       use_desc_as_key: true
       config: "{{ unmanaged_policy_config.unmanaged_policies }}"
-      deploy: true
+      deploy: false
       state: deleted
     when: unmanaged_policy_config.unmanaged_policies | length > 0
     vars:

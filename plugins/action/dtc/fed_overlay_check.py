@@ -60,7 +60,19 @@ class ActionModule(ActionBase):
                         for switch in network_attach_group['switches']:
                             for switch_entry in switch_data:
                                 if switch['hostname'] == switch_entry['logicalName']:
-                                    normal_model_data.append({'networkName':network['name'],'switchName':switch['hostname'],'serialNumber':switch_entry['serialNumber'],'portNames':(",".join(switch['ports'])),"deployment":deployment, "fabric":switch_entry['fabricName']})
+                                    if switch.get('tors'):
+                                        main = f"{switch['hostname']}({','.join(switch['ports'])})"
+                                        # Format each tor entry
+                                        tors = ' '.join(
+                                            f"{tor['hostname']}({','.join(tor['ports'])})"
+                                            for tor in switch.get('tors', [])
+                                        )
+                                        # Combine main and tors
+                                        ports = f"{main} {tors}".strip()
+
+                                        normal_model_data.append({'networkName':network['name'],'switchName':switch['hostname'],'serialNumber':switch_entry['serialNumber'],'portNames':ports,"deployment":deployment, "fabric":switch_entry['fabricName']})
+                                    else:
+                                        normal_model_data.append({'networkName':network['name'],'switchName':switch['hostname'],'serialNumber':switch_entry['serialNumber'],'portNames':(",".join(switch['ports'])),"deployment":deployment, "fabric":switch_entry['fabricName']})
             difference = [item for item in normal_ndfc_data if item not in normal_model_data]
 
             # Restructure in case of just port removal
