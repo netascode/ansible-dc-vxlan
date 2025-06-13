@@ -1,5 +1,5 @@
 {# Auto-generated NDFC DC VXLAN EVPN Advanced config data structure for fabric {{ vxlan.fabric.name }} #}
-  OVERLAY_MODE: cli
+  OVERLAY_MODE: {{ vxlan.global.overlay_mode | default(defaults.vxlan.global.overlay_mode) }}
   GRFIELD_DEBUG_FLAG: Enable
   ENABLE_PVLAN: false
   AAA_REMOTE_IP_ENABLED: False
