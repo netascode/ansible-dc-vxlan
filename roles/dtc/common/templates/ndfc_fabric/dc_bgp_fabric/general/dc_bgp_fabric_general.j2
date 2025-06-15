@@ -1,0 +1,43 @@
+{# Auto-generated NDFC DC VXLAN EVPN General config data structure for fabric {{ vxlan.fabric.name }} #}
+  BGP_AS: "{{ vxlan.global.bgp_asn }}"
+
+{% if vxlan.underlay.bgp.asn_superspines is defined %}
+  SUPER_SPINE_BGP_AS: {{ vxlan.underlay.bgp.asn_superspines }}
+{% endif %}
+
+  BGP_AS_MODE: {{ vxlan.underlay.bgp.as_mode | default(defaults.vxlan.underlay.bgp.as_mode) }}
+
+{% set as_mode = vxlan.underlay.bgp.as_mode if vxlan.underlay.bgp.as_mode is defined else default(defaults.vxlan.underlay.bgp.as_mode) %}
+
+{% if as_mode == "Same-Tier-AS" %}
+{% if vxlan.underlay.bgp.asn_leaves is defined %}
+  LEAF_BGP_AS: {{ vxlan.underlay.bgp.asn_leaves }}
+{% endif %}
+{% if vxlan.underlay.bgp.asn_leaves is defined %}
+  BORDER_BGP_AS: {{ vxlan.underlay.bgp.asn_borders }}
+{% endif %}
+{% endif %}
+
+{% if as_mode == "Multi-AS" %}
+  ALLOW_LEAF_SAME_AS: {{ vxlan.underlay.bgp.allow_leaf_same_as | default(defaults.vxlan.underlay.bgp.allow_leaf_same_as) }}
+{% endif %}
+
+
+
+
+{#   
+  UNDERLAY_IS_V6: {{ vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title }}
+{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
+  USE_LINK_LOCAL: {{ vxlan.underlay.ipv6.enable_ipv6_link_local_address | default(defaults.vxlan.underlay.ipv6.enable_ipv6_link_local_address) | title }}
+{% if not (vxlan.underlay.ipv6.enable_ipv6_link_local_address | default(defaults.vxlan.underlay.ipv6.enable_ipv6_link_local_address) | ansible.builtin.bool) %}
+  V6_SUBNET_TARGET_MASK: {{ vxlan.underlay.ipv6.underlay_subnet_mask | default(defaults.vxlan.underlay.ipv6.underlay_subnet_mask) }}
+{% endif %}
+{% endif %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
+  FABRIC_INTERFACE_TYPE: {{ vxlan.underlay.ipv4.fabric_interface_numbering | default(defaults.vxlan.underlay.ipv4.fabric_interface_numbering) }}
+  SUBNET_TARGET_MASK: {{ vxlan.underlay.ipv4.subnet_mask | default(defaults.vxlan.underlay.ipv4.subnet_mask) }}
+{% endif %}
+  LINK_STATE_ROUTING: {{ vxlan.underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol) }}
+  RR_COUNT: {{ vxlan.global.route_reflectors | default(defaults.vxlan.global.route_reflectors) }}
+  ANYCAST_GW_MAC: {{ vxlan.global.anycast_gateway_mac | default(defaults.vxlan.global.anycast_gateway_mac) }}
+{# #}

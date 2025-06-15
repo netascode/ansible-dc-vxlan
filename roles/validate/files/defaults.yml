@@ -178,6 +178,8 @@ factory_defaults:
       bgp:
         authentication_enable: false
         authentication_key_type: 3
+        as_mode: Multi-AS
+        allow_leaf_same_as: false
       multicast:
         rendezvous_points: 2
         rp_mode: asm
