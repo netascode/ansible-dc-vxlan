@@ -149,6 +149,9 @@ factory_defaults:
         intra_fabric_interface_mtu: 9216
         layer2_host_interface_mtu: 9216
         unshut_host_interfaces: true
+        disable_rm_tag: false
+        rm_tag: 12345
+        subint_dot1q_range: 2-511
       ipv4:
         fabric_interface_numbering: p2p
         subnet_mask: 30
