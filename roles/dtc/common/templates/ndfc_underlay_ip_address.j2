@@ -19,7 +19,7 @@
 {%- for switch in vxlan.topology.switches %}
 {%- set ns = namespace(ipv4="") %}
 {%- for interface in switch.interfaces %}
-{%- if interface.name.lower() == "loopback" ~ loopback_id %}
+{%- if interface.name.lower() == "loopback" ~ loopback_id or interface.name.lower() == "lo" ~ loopback_id %}
 {%- set ns.ipv4 = interface.ipv4_address %}
 {%- endif %}
 {%- endfor %}
