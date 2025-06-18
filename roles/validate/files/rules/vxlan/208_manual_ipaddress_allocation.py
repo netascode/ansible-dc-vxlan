@@ -13,17 +13,21 @@ class Rule:
         if 'manual_underlay_allocation' not in check['keys_data']:
             # If manual_underlay_allocation key is missing, no need to proceed
             return cls.results
-
         # Check if manual_underlay_allocation is set to true
-        manual_allocation = inventory.get("vxlan").get("underlay").get("general").get("manual_underlay_allocation")
-        if manual_allocation:
+        general = cls.safeget(inventory, ['vxlan', 'underlay', 'general'])
+        if "manual_underlay_allocation" in general:
             # Check if anycast_rp is configured
-            anycast_rp = inventory.get("vxlan").get("underlay").get("multicast").get("ipv4").get("anycast_rp")
-            if not anycast_rp:
+            check = cls.data_model_key_check(inventory, ['vxlan', 'underlay', 'multicast', 'ipv4'])
+            if 'ipv4' not in check['keys_data']:
+                cls.results.append("vxlan.underlay.multicast.ipv4.anycast_rp must be configured when manual_underlay_allocation is true.")
+                return cls.results
+
+            multicast_ipv4 = cls.safeget(inventory, ['vxlan', 'underlay', 'multicast', 'ipv4'])
+            if "anycast_rp" not in multicast_ipv4:
                 cls.results.append("vxlan.underlay.multicast.ipv4.anycast_rp must be configured when manual_underlay_allocation is true.")
 
         # Extract the underlay routing loopback IDs
-        underlay_general = inventory.get("vxlan").get("underlay").get("general")
+        underlay_general = cls.safeget(inventory, ["vxlan", "underlay", "general"])
         underlay_routing_loopback_id = underlay_general.get("underlay_routing_loopback_id")
         underlay_vtep_loopback_id = underlay_general.get("underlay_vtep_loopback_id")
 
@@ -38,9 +42,13 @@ class Rule:
             return cls.results
 
         # Extract the list of switches
-        switches = inventory.get("vxlan").get("topology").get("switches")
+        switches = cls.safeget(inventory, ["vxlan", "topology", "switches"])
         for switch in switches:
             switch_name = switch.get("name")
+
+            if "interfaces" not in switch:
+                cls.results.append(f"Missing interfaces in vxlan.topology.switches.{switch_name}")
+                return cls.results
             interfaces = switch.get("interfaces")
 
             # Check for Loopback{underlay_routing_loopback_id}
@@ -71,13 +79,11 @@ class Rule:
         """
         Validates VPC peers and ensures vtep_vip is defined and unique when manual_underlay_allocation is true.
         """
-        results = []
-
         check = cls.data_model_key_check(inventory, ["vxlan", "topology", "vpc_peers"])
         if 'vpc_peers' not in check['keys_data']:
             # If switches key is missing, no need to proceed
             return cls.results
-        vpc_peers = inventory.get("vxlan").get("topology").get("vpc_peers")
+        vpc_peers = cls.safeget(inventory, ["vxlan", "topology", "vpc_peers"])
         vtep_vip_list = set()
         vpc_peers_list = []
 
@@ -112,7 +118,7 @@ class Rule:
                 # If switches key is missing, no need to proceed
                 return cls.results
 
-        fabric_links = inventory.get("vxlan").get("topology").get("fabric_links")
+        fabric_links = cls.safeget(inventory, ["vxlan", "topology", "fabric_links"])
         fabric_links_list = []
 
         for link in fabric_links:
@@ -128,8 +134,8 @@ class Rule:
                     f"Fabric link between '{source_device}' and '{dest_device}' is missing a valid IPv4 configuration."
                 )
 
-            # Check if vpc_peers is on fabric_link
-        vpc_peers = inventory.get("vxlan").get("topology").get("vpc_peers")
+        # Check if vpc_peers is on fabric_link
+        vpc_peers = cls.safeget(inventory, ["vxlan", "topology", "vpc_peers"])
         for peer in vpc_peers:
             peer1 = f"{peer.get('peer1')}-{peer.get('peer2')}"
             peer2 = f"{peer.get('peer2')}-{peer.get('peer1')}"
@@ -146,7 +152,7 @@ class Rule:
         # Create a short_name to catch both values allowed in the schema and change to lower to compare them
         short_name = loopback_name.replace("loopback", "lo")
         for interface in interfaces:
-            if interface.get("name").lower() == loopback_name.lower() or interface.get("name").lower() == short_name.lower() and interface.get("ipv4_address"):
+            if (interface.get("name").lower() == loopback_name.lower() or interface.get("name").lower() == short_name.lower())and interface.get("ipv4_address"):
                 return True
         return False
 
@@ -167,3 +173,18 @@ class Rule:
             else:
                 dm_key_dict['keys_not_found'].append(key)
         return dm_key_dict
+
+    @classmethod
+    def safeget(cls, dict, keys):
+        """
+        Utility function to safely get nested dictionary values
+        """
+        for key in keys:
+            if dict is None:
+                return None
+            if key in dict:
+                dict = dict[key]
+            else:
+                return None
+
+        return dict
