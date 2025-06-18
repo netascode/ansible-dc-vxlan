@@ -106,7 +106,7 @@ class Rule:
 
         if 'fabric_links' not in check['keys_data']:
             if vpc_peers_list:
-                cls.results.append(f"vxlan.topology.fabric_links not found but vpc_peers is not empty.")
+                cls.results.append("vxlan.topology.fabric_links not found but vpc_peers is not empty.")
                 return cls.results
             else:
             # If switches key is missing, no need to proceed
