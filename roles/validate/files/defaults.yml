@@ -72,6 +72,13 @@ factory_defaults:
         enable_bootstrap: false
         enable_local_dhcp_server: false
         enable_cdp_mgmt: false
+      enable_evpn: false
+      fhrp_protocol: hsrp
+      enable_ngoam: false
+      enable_tenant_dhcp: false
+      allow_l3vni_no_vlan: true
+      enable_l3vni_no_vlan: false
+      anycast_bgp_advertise_pip: false
     topology:
       switches:
         routing_loopback_id: 0
@@ -187,6 +194,8 @@ factory_defaults:
         rendezvous_points: 2
         rp_mode: asm
         underlay_rp_loopback_id: 254
+        mvpn_vri_id_range: '1-999'
+        enable_vri_id_realloc: false
         ipv4:
           group_subnet: 239.1.1.0/25
           authentication_enable: false
