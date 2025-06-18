@@ -47,7 +47,7 @@
     state: merged
     config: "{{ vars_common_local.fabric_config }}"
 
-- name: Create ANYCAST_RP {{ vxlan.underlay.multicast.ipv4.anycast_rp }} for {vxlan.fabric.name }} in NDFC
+- name: Create ANYCAST_RP {{ vxlan.underlay.multicast.ipv4.anycast_rp }} for {{ vxlan.fabric.name }} in NDFC
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ vxlan.fabric.name }}"
