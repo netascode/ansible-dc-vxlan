@@ -152,7 +152,8 @@ class Rule:
         # Create a short_name to catch both values allowed in the schema and change to lower to compare them
         short_name = loopback_name.replace("loopback", "lo")
         for interface in interfaces:
-            if (interface.get("name").lower() == loopback_name.lower() or interface.get("name").lower() == short_name.lower()) and interface.get("ipv4_address"):
+            intf = interface.get("name").lower()
+            if (intf == loopback_name.lower() or intf == short_name.lower()) and interface.get("ipv4_address"):
                 return True
         return False
 
