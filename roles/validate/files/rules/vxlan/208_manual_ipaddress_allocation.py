@@ -86,7 +86,7 @@ class Rule:
             vpc_peers_list.append(peer_name)
             vtep_vip = peer.get("vtep_vip", False)
             # Check if vtep_vip is defined
-            if not vtep_vip :
+            if not vtep_vip:
                 cls.results.append(f"VPC peer '{peer_name}' is missing a defined vtep_vip address.")
                 continue
 
@@ -102,7 +102,7 @@ class Rule:
         """
         Validates fabric links to ensure that IPv4 configuration is present for VPC peer connections.
         """
-        check = cls.data_model_key_check(inventory, ["vxlan", "topology" , "fabric_links"])
+        check = cls.data_model_key_check(inventory, ["vxlan", "topology", "fabric_links"])
 
         if 'fabric_links' not in check['keys_data']:
             if vpc_peers_list:
