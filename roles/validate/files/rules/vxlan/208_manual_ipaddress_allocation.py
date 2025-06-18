@@ -102,17 +102,17 @@ class Rule:
         """
         Validates fabric links to ensure that IPv4 configuration is present for VPC peer connections.
         """
-        check = cls.data_model_key_check(inventory, ["vxlan", "topology" ,"fabric_links"])
+        check = cls.data_model_key_check(inventory, ["vxlan", "topology" , "fabric_links"])
 
         if 'fabric_links' not in check['keys_data']:
             if vpc_peers_list:
                 cls.results.append("vxlan.topology.fabric_links not found but vpc_peers is not empty.")
                 return cls.results
             else:
-            # If switches key is missing, no need to proceed
+                # If switches key is missing, no need to proceed
                 return cls.results
 
-        fabric_links =  inventory.get("vxlan").get("topology").get("fabric_links")
+        fabric_links = inventory.get("vxlan").get("topology").get("fabric_links")
         fabric_links_list = []
 
         for link in fabric_links:
