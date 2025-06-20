@@ -44,7 +44,7 @@
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden
     config: "{{ vars_common_local.interface_all }}"
-    # deploy: false
+    deploy: false
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
