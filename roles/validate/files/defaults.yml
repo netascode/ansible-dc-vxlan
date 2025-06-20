@@ -87,6 +87,16 @@ factory_defaults:
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
+          topology_switch_dot1q_interface:
+            description: "NetAsCode Dot1q Interface"
+            mtu: jumbo
+            speed: auto
+            enabled: true
+            access_vlan: 1
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo

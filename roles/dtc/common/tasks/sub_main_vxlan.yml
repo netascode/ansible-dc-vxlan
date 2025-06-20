@@ -144,6 +144,13 @@
   ansible.builtin.import_tasks: common/ndfc_interface_access.yml
 
 # --------------------------------------------------------------------
+# Build Dot1q Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build Dot1q Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_dot1q.yml
+
+# --------------------------------------------------------------------
 # Build Fabric interface VPC List From Template
 # --------------------------------------------------------------------
 
@@ -203,6 +210,7 @@
         changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po }}"
         changes_detected_interface_trunk: "{{ changes_detected_interface_trunk }}"
         changes_detected_interface_vpc: "{{ changes_detected_interface_vpc }}"
+        changes_detected_interface_dot1q: "{{ changes_detected_interface_dot1q }}"
         changes_detected_inventory: "{{ changes_detected_inventory }}"
         changes_detected_link_vpc_peering: "{{ changes_detected_link_vpc_peering }}"
         changes_detected_networks: "{{ changes_detected_networks }}"
@@ -224,6 +232,7 @@
         interface_trunk_po: "{{ interface_trunk_po }}"
         interface_trunk: "{{ interface_trunk }}"
         interface_vpc: "{{ interface_vpc }}"
+        interface_dot1q: "{{ interface_dot1q }}"
         inv_config: "{{ inv_config }}"
         link_vpc_peering: "{{ link_vpc_peering }}"
         net_config: "{{ net_config }}"
