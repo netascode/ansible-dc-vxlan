@@ -172,6 +172,13 @@
   ansible.builtin.import_tasks: common/ndfc_fabric_links.yml
 
 # --------------------------------------------------------------------
+# Build Underlay resources
+# --------------------------------------------------------------------
+
+- name: Underlay resources List From Template
+  ansible.builtin.import_tasks: common/ndfc_underlay_ip_address.yml
+
+# --------------------------------------------------------------------
 # Build Edge Connections List From Template
 # --------------------------------------------------------------------
 
@@ -204,6 +211,7 @@
         changes_detected_vpc_peering: "{{ changes_detected_vpc_peering }}"
         changes_detected_vpc_domain_id_resource: "{{ changes_detected_vpc_domain_id_resource }}"
         changes_detected_vrfs: "{{ changes_detected_vrfs }}"
+        changes_detected_underlay_ip_address: "{{ changes_detected_underlay_ip_address }}"
         fabric_config: "{{ fabric_config }}"
         fabric_links: "{{ fabric_links }}"
         edge_connections: "{{ edge_connections }}"
@@ -227,7 +235,7 @@
         vpc_domain_id_resource: "{{ vpc_domain_id_resource }}"
         vrf_config: "{{ vrf_config }}"
         vrf_attach_config: "{{ vrf_attach_config }}"
-
+        underlay_ip_address: "{{ underlay_ip_address }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:
