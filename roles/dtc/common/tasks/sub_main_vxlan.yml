@@ -53,6 +53,13 @@
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
 # --------------------------------------------------------------------
+# Build vPC Domain ID Resource From Template
+# --------------------------------------------------------------------
+
+- name: Build vPC Domain ID Resource From Template
+  ansible.builtin.import_tasks: common/ndfc_vpc_domain_id_resource.yml
+
+# --------------------------------------------------------------------
 # Build Fabric intra links for vpc peering From Template
 # --------------------------------------------------------------------
 
@@ -195,6 +202,7 @@
         changes_detected_policy: "{{ changes_detected_policy }}"
         changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed }}"
         changes_detected_vpc_peering: "{{ changes_detected_vpc_peering }}"
+        changes_detected_vpc_domain_id_resource: "{{ changes_detected_vpc_domain_id_resource }}"
         changes_detected_vrfs: "{{ changes_detected_vrfs }}"
         fabric_config: "{{ fabric_config }}"
         fabric_links: "{{ fabric_links }}"
@@ -216,6 +224,7 @@
         sub_interface_routed: "{{ sub_interface_routed }}"
         updated_inv_config: "{{ updated_inv_config }}"
         vpc_peering: "{{ vpc_peering }}"
+        vpc_domain_id_resource: "{{ vpc_domain_id_resource }}"
         vrf_config: "{{ vrf_config }}"
         vrf_attach_config: "{{ vrf_attach_config }}"
 
@@ -228,6 +237,7 @@
       - "+     Inventory Changes Detected -            [ {{ vars_common_vxlan.changes_detected_inventory }} ]"
       - "+     vPC Link Peer Changes Detected -        [ {{ vars_common_vxlan.changes_detected_link_vpc_peering }} ]"
       - "+     vPC Peer Changes Detected -             [ {{ vars_common_vxlan.changes_detected_vpc_peering }} ]"
+      - "+     vPC Domain ID Detected -                [ {{ vars_common_vxlan.changes_detected_vpc_domain_id_resource }} ]"
       - "+     ----- Interfaces -----"
       - "+     Interface vPC Changes Detected -        [ {{ vars_common_vxlan.changes_detected_interface_vpc }} ]"
       - "+     Interface Access Changes Detected -     [ {{ vars_common_vxlan.changes_detected_interface_access }} ]"
