@@ -3,6 +3,7 @@
 # DO NOT EDIT MANUALLY
 #
 {% for link in MD_Extended.vxlan.topology.fabric_links %}
+{% if link.template is defined %}
   - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     src_device: "{{ link.source_device_mgmt_ip_address }}"
     src_interface: "{{ link.source_interface }}"
@@ -14,4 +15,5 @@
         mtu: "{{ link.mtu | default(defaults.vxlan.topology.fabric_links.mtu) }}"
         peer1_description: "{{ link.source_description | default('') }}"
         peer2_description: "{{ link.destination_description | default('') }}"
+{% endif %}
 {% endfor %}

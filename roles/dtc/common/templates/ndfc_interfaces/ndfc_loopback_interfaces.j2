@@ -2,10 +2,17 @@
 # This NDFC loopback interface data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
+{% set routing_lo_id =  MD_Extended.vxlan.underlay.general.underlay_routing_loopback_id %}
+{% set vtep_lo_id =  MD_Extended.vxlan.underlay.general.underlay_vtep_loopback_id %}
+
 {% for switch in MD_Extended.vxlan.topology.switches %}
 {% if switch.interfaces is defined %}
 {% for interface in switch.interfaces %}
 {% if interface.mode is defined and interface.mode in ['loopback', 'mpls_loopback', 'fabric_loopback'] %}
+{% set intf_lower = interface.name.lower() %}
+{% if not ((intf_lower == "loopback" ~ vtep_lo_id or intf_lower == "lo" ~ vtep_lo_id or
+       intf_lower == "loopback" ~ routing_lo_id or intf_lower == "lo" ~ routing_lo_id)
+       and MD_Extended.vxlan.underlay.general.manual_underlay_allocation is true) %}
 - name: {{ interface.name }}
   type: lo
   switch:
@@ -37,6 +44,7 @@
     secondary_ipv4_addr: {{ interface.secondary_ipv4_addresses[0].ip_address | default(omit) }}
     cmds: |2-
       {{ interface.freeform_config | default('') | indent(6) }}
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}
