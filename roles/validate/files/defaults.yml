@@ -67,6 +67,8 @@ factory_defaults:
         enable: false
       ptp:
         enable: false
+        domain_id: 0
+        lb_id: 0
       snmp_server_host_trap: true
       bootstrap:
         enable_bootstrap: false
