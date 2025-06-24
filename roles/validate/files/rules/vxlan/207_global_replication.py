@@ -22,9 +22,9 @@ class Rule:
         Returns True if enabled, otherwise False.
         """
         return inventory.get("vxlan", {}) \
-                   .get("underlay", {}) \
-                   .get("general", {}) \
-                   .get("enable_ipv6_underlay") is True
+            .get("underlay", {}) \
+            .get("general", {}) \
+            .get("enable_ipv6_underlay") is True
 
     @classmethod
     def match(cls, inventory):
