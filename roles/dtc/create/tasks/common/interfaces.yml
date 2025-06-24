@@ -43,6 +43,17 @@
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
+# Manage Interface Breakout Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Breakout
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: replaced
+    config: "{{ vars_common_local.interface_breakout }}"
+  # when: MD_Extended.vxlan.topology.interfaces.modes.trunk.count > 0
+
+# --------------------------------------------------------------------
 # Manage Interface Trunk Configuration on NDFC
 # --------------------------------------------------------------------
 
