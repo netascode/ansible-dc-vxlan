@@ -53,6 +53,13 @@
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
 # --------------------------------------------------------------------
+# Build vPC Domain ID Resource From Template
+# --------------------------------------------------------------------
+
+- name: Build vPC Domain ID Resource From Template
+  ansible.builtin.import_tasks: common/ndfc_vpc_domain_id_resource.yml
+
+# --------------------------------------------------------------------
 # Build Fabric intra links for vpc peering From Template
 # --------------------------------------------------------------------
 
@@ -137,6 +144,13 @@
   ansible.builtin.import_tasks: common/ndfc_interface_access.yml
 
 # --------------------------------------------------------------------
+# Build Dot1q Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build Dot1q Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_dot1q.yml
+
+# --------------------------------------------------------------------
 # Build Fabric interface VPC List From Template
 # --------------------------------------------------------------------
 
@@ -165,6 +179,13 @@
   ansible.builtin.import_tasks: common/ndfc_fabric_links.yml
 
 # --------------------------------------------------------------------
+# Build Underlay resources
+# --------------------------------------------------------------------
+
+- name: Underlay resources List From Template
+  ansible.builtin.import_tasks: common/ndfc_underlay_ip_address.yml
+
+# --------------------------------------------------------------------
 # Build Edge Connections List From Template
 # --------------------------------------------------------------------
 
@@ -189,13 +210,16 @@
         changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po }}"
         changes_detected_interface_trunk: "{{ changes_detected_interface_trunk }}"
         changes_detected_interface_vpc: "{{ changes_detected_interface_vpc }}"
+        changes_detected_interface_dot1q: "{{ changes_detected_interface_dot1q }}"
         changes_detected_inventory: "{{ changes_detected_inventory }}"
         changes_detected_link_vpc_peering: "{{ changes_detected_link_vpc_peering }}"
         changes_detected_networks: "{{ changes_detected_networks }}"
         changes_detected_policy: "{{ changes_detected_policy }}"
         changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed }}"
         changes_detected_vpc_peering: "{{ changes_detected_vpc_peering }}"
+        changes_detected_vpc_domain_id_resource: "{{ changes_detected_vpc_domain_id_resource }}"
         changes_detected_vrfs: "{{ changes_detected_vrfs }}"
+        changes_detected_underlay_ip_address: "{{ changes_detected_underlay_ip_address }}"
         fabric_config: "{{ fabric_config }}"
         fabric_links: "{{ fabric_links }}"
         edge_connections: "{{ edge_connections }}"
@@ -208,6 +232,7 @@
         interface_trunk_po: "{{ interface_trunk_po }}"
         interface_trunk: "{{ interface_trunk }}"
         interface_vpc: "{{ interface_vpc }}"
+        interface_dot1q: "{{ interface_dot1q }}"
         inv_config: "{{ inv_config }}"
         link_vpc_peering: "{{ link_vpc_peering }}"
         net_config: "{{ net_config }}"
@@ -216,9 +241,10 @@
         sub_interface_routed: "{{ sub_interface_routed }}"
         updated_inv_config: "{{ updated_inv_config }}"
         vpc_peering: "{{ vpc_peering }}"
+        vpc_domain_id_resource: "{{ vpc_domain_id_resource }}"
         vrf_config: "{{ vrf_config }}"
         vrf_attach_config: "{{ vrf_attach_config }}"
-
+        underlay_ip_address: "{{ underlay_ip_address }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:
@@ -228,6 +254,7 @@
       - "+     Inventory Changes Detected -            [ {{ vars_common_vxlan.changes_detected_inventory }} ]"
       - "+     vPC Link Peer Changes Detected -        [ {{ vars_common_vxlan.changes_detected_link_vpc_peering }} ]"
       - "+     vPC Peer Changes Detected -             [ {{ vars_common_vxlan.changes_detected_vpc_peering }} ]"
+      - "+     vPC Domain ID Detected -                [ {{ vars_common_vxlan.changes_detected_vpc_domain_id_resource }} ]"
       - "+     ----- Interfaces -----"
       - "+     Interface vPC Changes Detected -        [ {{ vars_common_vxlan.changes_detected_interface_vpc }} ]"
       - "+     Interface Access Changes Detected -     [ {{ vars_common_vxlan.changes_detected_interface_access }} ]"
