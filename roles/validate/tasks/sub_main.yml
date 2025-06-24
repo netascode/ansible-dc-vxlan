@@ -53,6 +53,9 @@
   when: enhanced_rules_path is not defined
   delegate_to: localhost
 
+- name: Dump playbook_dir location information
+  debug: msg="{{ playbook_dir }}"
+
 - name: Perform Required Syntax and Semantic Model Validation
   cisco.nac_dc_vxlan.common.nac_dc_validate:
     schema: "{{ schema_path }}"
