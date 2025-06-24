@@ -89,5 +89,16 @@ class PreparePlugin:
                         model_data['vxlan']['topology']['interfaces']['modes']['trunk']['count'] += 1
                         model_data['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
 
+            model_data['vxlan']['topology']['interfaces']['modes']['breakout'] = {}
+            model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] = 0
+
+            if switch.get('interface_breakouts'):
+                for breakout in switch.get('interface_breakouts'):
+                    if breakout.get('to'):
+                        nb_int = breakout['to'] - breakout['from']
+                        model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += nb_int + 1
+                    else:
+                        model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += 1
+
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
