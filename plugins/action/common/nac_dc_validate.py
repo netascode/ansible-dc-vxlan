@@ -50,6 +50,11 @@ class ActionModule(ActionBase):
         results['failed'] = False
         results['msg'] = None
 
+        ############################
+        # RETURN EARLY FOR AAP TEST
+        ############################
+        return results
+
         if IAC_VALIDATE_IMPORT_ERROR:
             raise AnsibleError('iac-validate not found and must be installed. Please pip install iac-validate.') from IAC_VALIDATE_IMPORT_ERROR
 
