@@ -56,7 +56,7 @@
     dest: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
 
-- name: Set interface_breakout Var
+- name: Initialize interface_breakout Var
   ansible.builtin.set_fact:
     interface_breakout: []
   delegate_to: localhost

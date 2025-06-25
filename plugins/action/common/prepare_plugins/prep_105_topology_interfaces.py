@@ -41,6 +41,10 @@ class PreparePlugin:
         model_data['vxlan']['topology']['interfaces'] = {}
         model_data['vxlan']['topology']['interfaces']['modes'] = {}
 
+        # Initialize breakout interfaces
+        model_data['vxlan']['topology']['interfaces']['modes']['breakout'] = {}
+        model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] = 0
+
         # loop through interface modes and initialize with interface count 0
         for mode in self.mode_direct:
             model_data['vxlan']['topology']['interfaces']['modes'][mode] = {}
@@ -88,9 +92,6 @@ class PreparePlugin:
                     else:
                         model_data['vxlan']['topology']['interfaces']['modes']['trunk']['count'] += 1
                         model_data['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
-
-            model_data['vxlan']['topology']['interfaces']['modes']['breakout'] = {}
-            model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] = 0
 
             if switch.get('interface_breakouts'):
                 for breakout in switch.get('interface_breakouts'):
