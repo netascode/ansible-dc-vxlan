@@ -69,10 +69,11 @@ class Rule:
         """
         # Extract module and port details from the normalized interface name
         try:
-            module, port, _ = interface_name.split("/")
-            port = int(port)
+            module, port, sub_level = interface_name.split("/")
+            port = int(port)  # Convert port to an integer
         except ValueError:
-            return False  # If the interface name is invalid, return False
+            return False  # If the interface name is invalid or port conversion fails, return False
+
 
         # Check each breakout definition
         for breakout in breakouts:
