@@ -74,7 +74,6 @@ class Rule:
         except ValueError:
             return False  # If the interface name is invalid or port conversion fails, return False
 
-
         # Check each breakout definition
         for breakout in breakouts:
             # Ensure the 'from' value is less than or equal to the 'to' value
