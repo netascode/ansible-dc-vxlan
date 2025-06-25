@@ -225,9 +225,11 @@ class ActionModule(ActionBase):
         workflow = POAPDevice(params)
         workflow.refresh_discovered()
         workflow.check_poap_supported_switches()
-        workflow.check_preprovision_supported_switches()
+        #
+        # TBD: Don't think we need this
+        # workflow.check_preprovision_supported_switches()
 
-        if workflow.poap_supported_switches and not workflow.preprovision_supported_switches:
+        if workflow.poap_supported_switches:
             workflow.refresh()
 
             if workflow.refresh_succeeded:
