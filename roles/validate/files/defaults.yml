@@ -152,6 +152,8 @@ factory_defaults:
           topology_switch_loopback_interface:
             description: "NetAsCode Loopback Interface"
             enabled: true
+        poap:
+          bootstrap: false
       vpc_peers:
         domain_id: 1
       fabric_links:
