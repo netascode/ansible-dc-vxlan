@@ -1,6 +1,6 @@
 {# Auto-generated NDFC DC VXLAN EVPN Advanced config data structure for fabric {{ vxlan.fabric.name }} #}
   OVERLAY_MODE: cli
-  GRFIELD_DEBUG_FLAG: Enable
+  GRFIELD_DEBUG_FLAG: {{ vxlan.global.greenfield_cleanup | default(defaults.vxlan.global.greenfield_cleanup) }}
   ENABLE_PVLAN: false
   AAA_REMOTE_IP_ENABLED: False
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}

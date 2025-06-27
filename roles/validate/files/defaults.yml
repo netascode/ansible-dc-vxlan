@@ -30,6 +30,7 @@ factory_defaults:
       nxapi_http_port: 80
       enable_nxapi_https: true
       nxapi_https_port: 443
+      greenfield_cleanup: Enable
       layer2_vni_range:
         from: 30000
         to: 49000
