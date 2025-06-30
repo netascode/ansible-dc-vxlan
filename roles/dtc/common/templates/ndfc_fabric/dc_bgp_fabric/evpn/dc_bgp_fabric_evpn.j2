@@ -30,34 +30,30 @@
   PHANTOM_RP_LB_ID4: {{ vxlan.underlay.multicast.underlay_third_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_third_backup_rp_loopback_id) }}
 {% endif %} #}
 {% endif %}
+
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.ipv4.group_subnet | default(defaults.vxlan.underlay.multicast.ipv4.group_subnet) }}
   ENABLE_TRM: {{ vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | title }}
-  LOOPBACK0_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_routing_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_routing_loopback_ip_range) }}
   ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
 {# NOT supported in the current implementation of dcnm_fabric module, #}
 {#{% if (vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) %}
   L3VNI_MCAST_GROUP: {{ vxlan.underlay.multicast.ipv4.trm_default_group | default(defaults.vxlan.underlay.multicast.ipv4.trm_default_group) }}
 {% endif %}#}
+
 {% elif (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   IPv6_MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.ipv6.group_subnet | default(defaults.vxlan.underlay.multicast.ipv6.group_subnet) }}
   ENABLE_TRMv6: {{ vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | title }}
-  MVPN_VRI_ID_RANGE {{ vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | title }}
   IPv6_ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv6.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_rp_loopback_ip_range) }}
 {# NOT supported in the current implementation of dcnm_fabric module, #}
 {#{% if (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool) %}
-  L3VNI_IPv6_MCAST_GROUP: "{{ vxlan.underlay.multicast.ipv6.trmv6_default_group | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_default_group) }}"
+  L3VNI_IPv6_MCAST_GROUP: "{{ vxlan.underlay.multicast.ipv6.trmv6_default_group | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_default_group) }}
+  MVPN_VRI_ID_RANGE {{ vxlan.underlay.multicast.mvpn_vri_id_range | default(defaults.vxlan.underlay.multicast.mvpn_vri_id_range) | title }}
 {% endif %}#}
-{% endif %}
 
-{% set underlay_is_v6 = vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool %}
-{% set allow_l3vni_no_vlan = vxlan.global.allow_l3vni_no_vlan | default(defaults.vxlan.global.allow_l3vni_no_vlan) | ansible.builtin.bool %}
-{% if underlay_is_v6 or allow_l3vni_no_vlan | default(false) | ansible.builtin.bool %}
-  MVPN_VRI_ID_RANGE: {{ vxlan.underlay.multicast.mvpn_vri_id_range | default(defaults.vxlan.underlay.multicast.mvpn_vri_id_range) }}
-  ENABLE_VRI_ID_REALLOC:  {{ vxlan.underlay.multicast.enable_vri_id_realloc | default(defaults.vxlan.underlay.multicast.enable_vri_id_realloc) }}
 {% endif %}
 
 {% endif %}
+
 
 
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
@@ -70,6 +66,9 @@
 {% if (vxlan.global.allow_l3vni_no_vlan | default(defaults.vxlan.global.allow_l3vni_no_vlan) | ansible.builtin.bool) %}
   ENABLE_L3VNI_NO_VLAN: {{ vxlan.global.enable_l3vni_no_vlan | default(defaults.vxlan.global.enable_l3vni_no_vlan) | title }}
 {% endif %}
+
+
+  ANYCAST_BGW_ADVERTISE_PIP: {{ vxlan.global.anycast_bgp_advertise_pip | default(defaults.vxlan.global.anycast_bgp_advertise_pip) | title }}
 
 {% if vxlan.global.layer2_vni_range.from is defined %}
 {% set l2_vni_start = vxlan.global.layer2_vni_range.from %}
@@ -99,20 +98,6 @@
 {% set l3_vni_range = defaults.vxlan.global.layer3_vni_range.from ~ '-' ~ defaults.vxlan.global.layer3_vni_range.to %}
 {% endif %}
   L3_PARTITION_ID_RANGE: {{ l3_vni_range }}
-{% if vxlan.global.layer2_vlan_range.from is defined %}
-{% set l2_vlan_start = vxlan.global.layer2_vlan_range.from %}
-{% if vxlan.global.layer2_vlan_range.to is defined %}
-{% set l2_vlan_end = vxlan.global.layer2_vlan_range.to %}
-{% endif %}
-{% endif %}
-{% if l2_vlan_start is defined and l2_vlan_end is not defined %}
-{% set l2_vlan_range = l2_vlan_start %}
-{% elif l2_vlan_start is defined and l2_vlan_end is defined %}
-{% set l2_vlan_range = l2_vlan_start ~ '-' ~ l2_vlan_end %}
-{% else %}
-{% set l2_vlan_range = defaults.vxlan.global.layer2_vlan_range.from ~ '-' ~ defaults.vxlan.global.layer2_vlan_range.to %}
-{% endif %}
-  NETWORK_VLAN_RANGE: {{ l2_vlan_range }}
 {% if vxlan.global.layer3_vlan_range.from is defined %}
 {% set l3_vlan_start = vxlan.global.layer3_vlan_range.from %}
 {% if vxlan.global.layer3_vlan_range.to is defined %}
@@ -128,6 +113,19 @@
 {% endif %}
   VRF_VLAN_RANGE: {{ l3_vlan_range }}
 
-  ANYCAST_BGW_ADVERTISE_PIP: {{ vxlan.global.anycast_bgp_advertise_pip | default(defaults.vxlan.global.anycast_bgp_advertise_pip) | title }}
 {% endif %}
 
+{% if vxlan.global.layer2_vlan_range.from is defined %}
+{% set l2_vlan_start = vxlan.global.layer2_vlan_range.from %}
+{% if vxlan.global.layer2_vlan_range.to is defined %}
+{% set l2_vlan_end = vxlan.global.layer2_vlan_range.to %}
+{% endif %}
+{% endif %}
+{% if l2_vlan_start is defined and l2_vlan_end is not defined %}
+{% set l2_vlan_range = l2_vlan_start %}
+{% elif l2_vlan_start is defined and l2_vlan_end is defined %}
+{% set l2_vlan_range = l2_vlan_start ~ '-' ~ l2_vlan_end %}
+{% else %}
+{% set l2_vlan_range = defaults.vxlan.global.layer2_vlan_range.from ~ '-' ~ defaults.vxlan.global.layer2_vlan_range.to %}
+{% endif %}
+  NETWORK_VLAN_RANGE: {{ l2_vlan_range }}

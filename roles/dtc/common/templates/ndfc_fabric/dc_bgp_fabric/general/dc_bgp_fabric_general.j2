@@ -1,4 +1,4 @@
-{# Auto-generated NDFC DC VXLAN EVPN General config data structure for fabric {{ vxlan.fabric.name }} #}
+{# Auto-generated NDFC DC BGP General config data structure for fabric {{ vxlan.fabric.name }} #}
   BGP_AS: "{{ vxlan.global.bgp_asn }}"
 
 {% if vxlan.underlay.bgp.asn_superspines is defined %}
@@ -40,7 +40,7 @@
 {% endif %}
 
   DISABLE_ROUTE_MAP_TAG: {{ vxlan.underlay.general.disable_rm_tag | default(defaults.vxlan.underlay.general.disable_rm_tag) }}
-{% if not (vxlan.underlay.general.disable_rm_tag | default(defaults.vvxlan.underlay.general.disable_rm_tag) | ansible.builtin.bool) %}
+{% if not (vxlan.underlay.general.disable_rm_tag | default(defaults.vxlan.underlay.general.disable_rm_tag) | ansible.builtin.bool) %}
   ROUTE_MAP_TAG: {{ vxlan.underlay.general.rm_tag | default(defaults.vxlan.underlay.general.rm_tag) }}
 {% endif %}
   SUBINTERFACE_RANGE: {{ vxlan.underlay.general.subint_dot1q_range | default(defaults.vxlan.underlay.general.subint_dot1q_range) }}

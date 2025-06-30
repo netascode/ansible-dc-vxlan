@@ -190,11 +190,11 @@ factory_defaults:
         authentication_key_type: 3
         as_mode: Multi-AS
         allow_leaf_same_as: false
+        max_path: 4
       multicast:
         rendezvous_points: 2
         rp_mode: asm
         underlay_rp_loopback_id: 254
-        mvpn_vri_id_range: '1-999'
         enable_vri_id_realloc: false
         ipv4:
           group_subnet: 239.1.1.0/25
