@@ -58,7 +58,7 @@ class Rule:
         # Validate the combination and add an error if the rule is violated
         if border_gateway_role and ipv6_underlay and (fabric_replication == "ingress"):
             results.append(
-                f"The switch {cls.matching_serial_number} is set to {cls.matching_role}." 
+                f"The switch {cls.matching_serial_number} is set to {cls.matching_role} role." 
             )
             results.append("For replication_mode to be set to ingress and ipv6 underlay enabled, "
                 "switches.role must NOT be set to border_gateway_spine or border_gateway.")
