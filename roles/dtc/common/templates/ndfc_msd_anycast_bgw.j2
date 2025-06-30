@@ -1,0 +1,15 @@
+# This NDFC anycast gateway structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+
+{% set anycast_lo_id = vxlan.multisite.vtep_loopback_id | default(defaults.vxlan.multisite.vtep_loopback_id) %}
+
+{% for fabric in vxlan.multisite.child_fabrics %}
+{% if fabric.anycast_bgw_ipv4 is defined %}
+- entity_name: "{{ fabric.name }}"
+  pool_type: IP
+  pool_name: "LOOPBACK{{ anycast_lo_id }}_IP_POOL"
+  scope_type: fabric
+  resource: "{{ fabric.anycast_bgw_ipv4 }}"
+{% endif %}
+{% endfor %}

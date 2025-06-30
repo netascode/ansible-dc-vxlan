@@ -35,3 +35,11 @@
     state: present
   when:
     - MD_Multisite_Child_Fabrics.to_be_added is defined and MD_Multisite_Child_Fabrics.to_be_added | length > 0
+
+- name: Create Anycast Loopback Border Gateway site in NDFC
+  cisco.dcnm.dcnm_resource_manager:
+    state: merged
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    config: "{{ vars_common_msd.msd_anycast_bgw }}"
+  when:
+    - vars_common_msd.msd_anycast_bgw | length > 0
