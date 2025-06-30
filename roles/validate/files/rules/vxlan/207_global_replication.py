@@ -8,12 +8,18 @@ class Rule:
         """
         Check if any switch in the topology has the role 'border_gateway_spine' or 'border_gateway'.
         Returns True if at least one such switch exists, otherwise False.
+        Also sets a class-level variable with the serial_number of the first matching switch.
         """
         topology = inventory.get("vxlan", {}).get("topology", {})
         switches = topology.get("switches")
         if not switches:
             return False
-        return any(switch.get("role") in ("border_gateway_spine", "border_gateway") for switch in switches)
+        for switch in switches:
+            if switch.get("role") in ("border_gateway_spine", "border_gateway"):
+                cls.matching_serial_number = switch.get("serial_number")
+                cls.matching_role = switch.get("role")
+                return True
+        return False
 
     @classmethod
     def check_ipv6_underlay(cls, inventory):
@@ -52,9 +58,9 @@ class Rule:
         # Validate the combination and add an error if the rule is violated
         if border_gateway_role and ipv6_underlay and (fabric_replication == "ingress"):
             results.append(
-                "For vxlan.underlay.general.replication_mode to be set to ingress, "
-                "vxlan.topology.switches.role must not be set to border_gateway_spine or border_gateway and "
-                "vxlan.underlay.general.enable_ipv6_underlay must not be set to true."
+                f"The switch {cls.matching_serial_number} is set to {cls.matching_role}." 
             )
+            results.append("For replication_mode to be set to ingress and ipv6 underlay enabled, "
+                "switches.role must NOT be set to border_gateway_spine or border_gateway.")
 
         return results
