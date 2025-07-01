@@ -52,9 +52,18 @@
   register: MD_Multisite
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
+- name: Create Anycast Loopback Border Gateway site in NDFC
+  cisco.dcnm.dcnm_resource_manager:
+    state: merged
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    config: "{{ vars_common_msd.msd_anycast_bgw }}"
+  when:
+    - vars_common_msd.msd_anycast_bgw | length > 0
+    - MD_Multisite.child_fabrics_allocation | length > 0
+
 - name: Manage NDFC MSD Fabric VRFs and Networks
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
-  when: 
+  when:
     - MD_Extended.vxlan.multisite.overlay is defined
     - MD_Extended.vxlan.multisite.overlay
     # - (vars_common_msd.changes_detected_vrfs or vars_common_msd.changes_detected_networks)

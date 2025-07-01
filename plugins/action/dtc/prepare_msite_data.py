@@ -39,6 +39,7 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
         results['child_fabrics_data'] = {}
+        results['child_fabrics_allocation'] = {}
         results['overlay_attach_groups'] = {}
 
         model_data = self._task.args["model_data"]
@@ -74,6 +75,14 @@ class ActionModule(ActionBase):
             child_fabrics_data[fabric].update({'switches': ndfc_get_fabric_switches(self, task_vars, tmp, fabric)})
 
         results['child_fabrics_data'] = child_fabrics_data
+
+        child_static_allocation = []
+        for fabric_key, fabric_value in child_fabrics_data.items():
+            static_ip_alloc = fabric_value.get('attributes', {}).get('STATIC_UNDERLAY_IP_ALLOC')
+            if static_ip_alloc == "true":
+                child_static_allocation.append(fabric_key)
+
+        results['child_fabrics_allocation'] = child_static_allocation
 
         # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
         # a structure that is easier to use just like MD_Extended.
