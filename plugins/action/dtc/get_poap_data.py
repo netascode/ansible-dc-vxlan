@@ -244,6 +244,9 @@ class ActionModule(ActionBase):
                 match_text = r"Please\s+enable\s+the\s+DHCP\s+in\s+Fabric\s+Settings\s+to\s+start\s+the\s+bootstrap"
                 if re.search(match_text, fail_msg, re.IGNORECASE):
                     pass
+                match_text = r"Invalid\s+Fabric"
+                if re.search(match_text, fail_msg, re.IGNORECASE):
+                    pass
                 else:
                     # Return any messages we don't recognize and fail
                     results['failed'] = True
