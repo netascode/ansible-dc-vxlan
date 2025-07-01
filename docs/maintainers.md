@@ -42,7 +42,7 @@ When we are considering publishing a new release, all of the following steps mus
       * 0.x.0 - new feature(s)
       * x.0.0 - backward-incompatible change (if unvoidable!)
   
-1. After creating the release branch edit galaxy.yml and remove the "-dev" from the version
+1. On the release branch, edit galaxy.yml and remove the "-dev" from the version
       * version: 0.4.2    (instead of version: 0.4.2-dev)
 
 1. Open pull request from release branch against the `main` branch
