@@ -19,7 +19,7 @@ Added
 * Added support for manual underlay IP address allocation
 * Added support for manually allocating vPC domain IDs
 * Added support for breakout interfaces
-* Added suppot for dot1q interface type
+* Added support for dot1q interface type
 * Added support for orphan ports, duplex, and native VLAN for interface types access, access port-channel, trunk, and trunk port-channel
 
 Modified
@@ -27,7 +27,9 @@ Modified
 
 * Updated defaults to inlcude ``domain_id`` and ``lb_id`` defaults for PTP
 * Removed the requirement to have ports defined for ```vxlan.overlay.networks.network_attach_groups`` in VXLAN fabrics
-* Updated POAP and pre-provision workflow (needs more context)
+* Updated POAP and pre-provision workflow
+    * This update allows devices to be discovered using discovery mode, poap and pre-provision workflows. Previously the solution did not allow both poap and pre-provision in the same datafile.
+    * Note: The poap.boostrap setting under the device is only used for POAP mode without pre-provision first. It is not used by a pre-provision or pre-provision + POAP workflow.
 
 Fixed
 -----
@@ -38,7 +40,6 @@ Fixed
 * https://github.com/netascode/ansible-dc-vxlan/issues/405
 * https://github.com/netascode/ansible-dc-vxlan/issues/409
 * https://github.com/netascode/ansible-dc-vxlan/issues/411
-* https://github.com/netascode/ansible-dc-vxlan/issues/415      # this was more a ndfc collection issue, remove?
 * https://github.com/netascode/ansible-dc-vxlan/issues/421
 * https://github.com/netascode/ansible-dc-vxlan/issues/424
 
