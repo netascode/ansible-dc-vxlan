@@ -2,7 +2,7 @@
 
 ![Actions Status](https://github.com/netascode/ansible-dc-vxlan/actions/workflows/main.yml/badge.svg?branch=develop)
 
-NetAsCode DC VXLAN (nac_dc_vxlan) Ansible Collection for configuring Cisco VXLAN EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a data model that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
+NetAsCode DC VXLAN (nac_dc_vxlan) Ansible Collection for configuring Cisco VXLAN EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a [data model](https://netascode.cisco.com/docs/data_models/vxlan/overview/) that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
 
 This approach allows for consistent and repeatable configuration of VXLAN fabrics and aligns with Infrastructure as Code (IaC) methodology, where the configuration state of NDFC is saved in a version control system and managed as code.
 
@@ -86,9 +86,9 @@ The following control variables are available in this collection.
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
-| `multisite_child_fabric_delete_mode` | Remove child fabric from MSD/MFD fabric as part of the remove role | `false` |
-| `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
-| `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
+| `multisite_child_fabric_delete_mode` | Remove child fabric from MSD fabric as part of the remove role | `false` |
+| `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD) fabrics | `false` |
+| `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD) fabrics | `false` |
 | `network_delete_mode` | Remove network state as part of the remove role | `false` |
 | `policy_delete_mode` | Remove policy state as part of the remove role | `false` |
 | `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
@@ -416,7 +416,7 @@ A Multi-Site Domain (MSD) is a multifabric administrative domain that is created
 ### To configure and manage MSD fabrics with VXLAN as Code, you should use the following workflow:
 1. Create each member/child fabric that will be managed by MSD using the normal data models for each fabric (or use a combined data model with all child fabrics)
 2. Create the MSD fabric. In the data model set the fabric type to MSD and specify each child fabric that will be managed.
-   Reference the [VXLAN Data Model](https://netascode.cisco.com/data_model/vxlan/overview)
+   Reference the [VXLAN MultiSite Data Model](https://netascode.cisco.com/docs/data_models/vxlan/multisite/multisite/)
 > [!NOTE]
 > Any additional changes can be done using the MSD fabric data model or on an individual fabric basis using the respective playbooks.
 

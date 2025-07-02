@@ -14,15 +14,16 @@ When we are considering publishing a new release, all of the following steps mus
 1. Update [galaxy.yml](https://github.com/netascode/ansible-dc-vxlan/blob/develop/galaxy.yml) file
     * Update Version
         ```diff
-        -  "version": "1.0.0",
-        +  "version": "1.0.1",
+        -  "version": "0.4.0-dev",
+        +  "version": "0.4.1-dev",
         ```
     * Update authors as required
     * Update dependencies as required
 
 1. Update [changelog.](https://github.com/netascode/ansible-dc-vxlan/blob/develop/CHANGELOG.rst)
      * Make sure CHANGELOG.md accurately reflects all changes since the last release
-        * Apply a search filter: `is:issue closed:>=2025-03-01`
+        * Check all issues closed with search filter: `is:issue closed:>=2025-03-01`
+        * Check all PRs merged with search filter: `is:pr merged:>=2025-03-01`
      * Add any significant changes that weren't documented in the changelog
      * Clean up any entries that are overly verbose, unclear, or otherwise could be improved
      * Indicate new support (if any)
@@ -36,10 +37,13 @@ When we are considering publishing a new release, all of the following steps mus
 1. Scrub README docs
      * Update README docs for new support and where applicable
 
-1. Pull release branch based on the `develop` branch
+1. Create a release branch based on the `develop` branch
       * 0.0.x - a bugfix release
       * 0.x.0 - new feature(s)
       * x.0.0 - backward-incompatible change (if unvoidable!)
+  
+1. On the release branch, edit galaxy.yml and remove the "-dev" from the version
+      * version: 0.4.1    (instead of version: 0.4.1-dev)
 
 1. Open pull request from release branch against the `main` branch
      * Ensure all GitHub Actions tasks have passed
@@ -47,12 +51,16 @@ When we are considering publishing a new release, all of the following steps mus
 
 ### Post-Merge to `main` branch:
 
-1. Create annotated git tag for the release
+1. git clone the repo in a new directory and create annotated git tag for the release
      * [HowTo](https://git-scm.com/book/en/v2/Git-Basics-Tagging#Annotated-Tags)
+     * git clone ....
+     * git switch main
+     * git tag -a 0.4.1 -m "Release 0.4.1"
+     * git show 0.4.1
 
 1. Draft a [new release](https://github.com/netascode/ansible-dc-vxlan/releases) on GitHub
 
-1. Investigating. Merge `main` branch back into `develop` branch safely
+1. (Investigating. Merge `main` branch back into `develop` branch safely)
 
 ### Publish Release to Ansible Galaxy:
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,14 +21,9 @@
 
 ---
 
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_interfaces: false
-  delegate_to: localhost
-
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "ndfc_interface_all.yml"
+    file_name: "ndfc_inventory_no_bootstrap.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
@@ -50,34 +45,36 @@
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
-- name: Set interface_all Var
+- name: Set Path For Inventory File Lookup
   ansible.builtin.set_fact:
-    interface_all: []
+    inv_file_path: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
 
-- name: Set interface_all Var
+- name: Build Fabric Switch Inventory List From Template
+  ansible.builtin.template:
+    src: ndfc_inventory/common/fabric_inventory_no_bootstrap.j2
+    dest: "{{ inv_file_path }}"
+  delegate_to: localhost
+
+- name: Create Empty inv_config Var
   ansible.builtin.set_fact:
-    interface_all: "{{ interface_breakout + interface_access + interface_access_po + interface_trunk + interface_trunk_po + interface_routed + interface_po_routed + sub_interface_routed + interface_vpc + int_loopback_config + interface_dot1q }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
+    inv_config_no_bootstrap: []
   delegate_to: localhost
 
-- name: Save interface_all
-  ansible.builtin.copy:
-    content: "{{ interface_all | to_nice_yaml }}"
-    dest: "{{ path_name }}{{ file_name }}"
-  delegate_to: localhost
-
-- name: Diff Previous and Current Data Files
-  cisco.nac_dc_vxlan.dtc.diff_model_changes:
-    file_name_previous: "{{ path_name }}{{ file_name }}.old"
-    file_name_current: "{{ path_name }}{{ file_name }}"
-  register: file_diff_result
-  delegate_to: localhost
-
-- name: Set File Change Flag Based on File Diff Result
+- name: Set inv_config Var
   ansible.builtin.set_fact:
-    changes_detected_interfaces: true
+    inv_config_no_bootstrap: "{{ lookup('file', path_name + file_name) | from_yaml }}"
+  when: (MD_Extended.vxlan.topology.switches | default([])) | length > 0
   delegate_to: localhost
-  when:
-    - file_diff_result.file_data_changed
-    - check_roles['save_previous']
+
+- name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
+  cisco.nac_dc_vxlan.common.get_credentials:
+    inv_list: "{{ inv_config_no_bootstrap }}"
+  register: updated_inv_config_no_bootstrap
+  no_log: true
+
+- name: Credential Retrieval Failed
+  ansible.builtin.fail:
+    msg: "{{ updated_inv_config }}"
+  when: updated_inv_config_no_bootstrap['retrieve_failed']
+  delegate_to: localhost
