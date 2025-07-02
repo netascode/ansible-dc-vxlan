@@ -14,8 +14,8 @@ When we are considering publishing a new release, all of the following steps mus
 1. Update [galaxy.yml](https://github.com/netascode/ansible-dc-vxlan/blob/develop/galaxy.yml) file
     * Update Version
         ```diff
-        -  "version": "1.0.0",
-        +  "version": "1.0.1",
+        -  "version": "0.4.0-dev",
+        +  "version": "0.4.1-dev",
         ```
     * Update authors as required
     * Update dependencies as required
@@ -43,7 +43,7 @@ When we are considering publishing a new release, all of the following steps mus
       * x.0.0 - backward-incompatible change (if unvoidable!)
   
 1. On the release branch, edit galaxy.yml and remove the "-dev" from the version
-      * version: 0.4.2    (instead of version: 0.4.2-dev)
+      * version: 0.4.1    (instead of version: 0.4.1-dev)
 
 1. Open pull request from release branch against the `main` branch
      * Ensure all GitHub Actions tasks have passed
@@ -55,8 +55,8 @@ When we are considering publishing a new release, all of the following steps mus
      * [HowTo](https://git-scm.com/book/en/v2/Git-Basics-Tagging#Annotated-Tags)
      * git clone ....
      * git switch main
-     * git tag -a 0.4.2 -m "Release 0.4.2"
-     * git show 0.4.2
+     * git tag -a 0.4.1 -m "Release 0.4.1"
+     * git show 0.4.1
 
 1. Draft a [new release](https://github.com/netascode/ansible-dc-vxlan/releases) on GitHub
 
