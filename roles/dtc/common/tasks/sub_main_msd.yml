@@ -53,11 +53,11 @@
   ansible.builtin.import_tasks: msd/ndfc_child_fabrics.yml
 
 # --------------------------------------------------------------------
-# Build NDFC Child Fabric Anycast BGW List From Template
+# Build NDFC Child Fabric BGW Anycast VIP List From Template
 # --------------------------------------------------------------------
 
-- name: Build NDFC Child Fabric Anycast BGW List From Template
-  ansible.builtin.import_tasks: msd/ndfc_anycast_bgw.yml
+- name: Build NDFC Child Fabric BGW Anycast VIP List From Template
+  ansible.builtin.import_tasks: msd/ndfc_bgw_anycast_vip.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric VRFs Attach List From Template
@@ -80,11 +80,11 @@
   ansible.builtin.set_fact:
     vars_common_msd:
         changes_detected_fabric: "{{ changes_detected_fabric }}"
-        changes_detected_anycast_bgw: "{{ changes_detected_anycast_bgw }}"
+        changes_detected_bgw_anycast_vip: "{{ changes_detected_bgw_anycast_vip }}"
         # changes_detected_vrfs: "{{ changes_detected_vrfs }}"
         # changes_detected_networks: "{{ changes_detected_networks }}"
         fabric_config: "{{ fabric_config }}"
-        msd_anycast_bgw: "{{ msd_anycast_bgw }}"
+        bgw_anycast_vip: "{{ bgw_anycast_vip }}"
         # vrf_config: "{{ vrf_config }}"
         # net_config: "{{ net_config }}"
         # Check with Matt and Pete on how to handle this for MSD
@@ -95,7 +95,7 @@
     msg:
       - "----------------------------------------------------------------"
       - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
-      - "+     Anycast Gateway Changes Detected -      [ {{ vars_common_msd.changes_detected_anycast_bgw }} ]"
+      - "+     BGW Anycast VIP Changes Detected -      [ {{ vars_common_msd.changes_detected_bgw_anycast_vip }} ]"
       # - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
       # - "+     Networks Changes Detected -             [ {{ vars_common_msd.changes_detected_networks }} ]"
       - "+     ----- Run Map -----"

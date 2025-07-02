@@ -51,6 +51,7 @@
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_vxlan.vpc_domain_id_resource }}"
+  when: vars_common_vxlan.vpc_domain_id_resource | length > 0
 
 # --------------------------------------------------------------------
 # Manage Intra Fabric Links Configuration on NDFC (prepare links for vpc peering)
