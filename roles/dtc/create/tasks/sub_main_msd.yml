@@ -59,7 +59,6 @@
     config: "{{ vars_common_msd.msd_anycast_bgw }}"
   when:
     - vars_common_msd.msd_anycast_bgw | length > 0
-    - MD_Multisite.child_fabrics_allocation | length > 0
 
 - name: Manage NDFC MSD Fabric VRFs and Networks
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
