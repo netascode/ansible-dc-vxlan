@@ -8,6 +8,40 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.4.3`_
+=====================
+
+**Release Date:** ``2025-07-02``
+
+Added
+-----
+
+* Added support for manual underlay IP address allocation
+* Added support for manually allocating vPC domain IDs
+* Added support for breakout interfaces
+* Added suppot for dot1q interface type
+* Added support for orphan ports, duplex, and native VLAN for interface types access, access port-channel, trunk, and trunk port-channel
+
+Modified
+--------
+
+* Updated defaults to inlcude ``domain_id`` and ``lb_id`` defaults for PTP
+* Removed the requirement to have ports defined for ```vxlan.overlay.networks.network_attach_groups`` in VXLAN fabrics
+* Updated POAP and pre-provision workflow (needs more context)
+
+Fixed
+-----
+* https://github.com/netascode/ansible-dc-vxlan/issues/32
+* https://github.com/netascode/ansible-dc-vxlan/issues/388
+* https://github.com/netascode/ansible-dc-vxlan/issues/391
+* https://github.com/netascode/ansible-dc-vxlan/issues/400
+* https://github.com/netascode/ansible-dc-vxlan/issues/405
+* https://github.com/netascode/ansible-dc-vxlan/issues/409
+* https://github.com/netascode/ansible-dc-vxlan/issues/411
+* https://github.com/netascode/ansible-dc-vxlan/issues/415      # this was more a ndfc collection issue, remove?
+* https://github.com/netascode/ansible-dc-vxlan/issues/421
+* https://github.com/netascode/ansible-dc-vxlan/issues/424
+
 `0.4.2`_
 =====================
 
@@ -46,15 +80,15 @@ Modified
 
 Fixed
 -----
-https://github.com/netascode/ansible-dc-vxlan/issues/239
-https://github.com/netascode/ansible-dc-vxlan/issues/262
-https://github.com/netascode/ansible-dc-vxlan/issues/349
-https://github.com/netascode/ansible-dc-vxlan/issues/350
-https://github.com/netascode/ansible-dc-vxlan/issues/352
-https://github.com/netascode/ansible-dc-vxlan/issues/371
-https://github.com/netascode/ansible-dc-vxlan/issues/373
-https://github.com/netascode/ansible-dc-vxlan/issues/380
-https://github.com/netascode/ansible-dc-vxlan/issues/386
+* https://github.com/netascode/ansible-dc-vxlan/issues/239
+* https://github.com/netascode/ansible-dc-vxlan/issues/262
+* https://github.com/netascode/ansible-dc-vxlan/issues/349
+* https://github.com/netascode/ansible-dc-vxlan/issues/350
+* https://github.com/netascode/ansible-dc-vxlan/issues/352
+* https://github.com/netascode/ansible-dc-vxlan/issues/371
+* https://github.com/netascode/ansible-dc-vxlan/issues/373
+* https://github.com/netascode/ansible-dc-vxlan/issues/380
+* https://github.com/netascode/ansible-dc-vxlan/issues/386
 
 `0.4.1`_
 =====================
@@ -251,6 +285,7 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.4.3: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.2...0.4.3
 .. _0.4.2: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.1...0.4.2
 .. _0.4.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.0...0.4.1
 .. _0.4.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.3.0...0.4.0
