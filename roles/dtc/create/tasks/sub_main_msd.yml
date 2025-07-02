@@ -57,8 +57,16 @@
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_msd.msd_anycast_bgw }}"
-  when:
-    - vars_common_msd.msd_anycast_bgw | length > 0
+  when: >
+      (MD_Multisite.child_fabrics_data
+      | dict2items
+      | selectattr('value.attributes', 'defined')
+      | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
+      | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["false", false])
+      | map(attribute='key')
+      | list 
+      | length > 0) and
+      (vars_common_msd.msd_anycast_bgw | length > 0)
 
 - name: Manage NDFC MSD Fabric VRFs and Networks
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
