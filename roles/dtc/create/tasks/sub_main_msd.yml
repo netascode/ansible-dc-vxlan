@@ -62,7 +62,7 @@
       | dict2items
       | selectattr('value.attributes', 'defined')
       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
-      | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["false", false])
+      | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["true", true])
       | map(attribute='key')
       | list 
       | length > 0) and
