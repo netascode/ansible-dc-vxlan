@@ -66,6 +66,7 @@
         changes_detected_sub_interface_routed: false
     vars_common_msd:
         changes_detected_fabric: false
+        changes_detected_bgw_anycast_vip: false
         changes_detected_vrfs: false
         changes_detected_networks: false
     vars_common_external:
