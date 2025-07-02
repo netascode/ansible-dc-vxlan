@@ -26,7 +26,7 @@ Modified
 --------
 
 * Updated defaults to include ``domain_id`` and ``lb_id`` defaults for PTP
-* Removed the requirement to have ports defined for ```vxlan.overlay.networks.network_attach_groups`` in VXLAN fabrics
+* Removed the requirement to have ports defined for ``vxlan.overlay.networks.network_attach_groups`` in VXLAN fabrics
 * Updated POAP and pre-provision workflow
     * This update allows devices to be discovered using discovery mode, poap and pre-provision workflows. Previously the solution did not allow both poap and pre-provision in the same datafile.
     * Note: The poap.boostrap setting under the device is only used for POAP mode without pre-provision first. It is not used by a pre-provision or pre-provision + POAP workflow.
