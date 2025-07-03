@@ -32,7 +32,7 @@
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard) }}
     allowed_vlans: "{{ convert_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
     duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.duplex) }}
-{% if orphan_port | default(false) %}
+{% if interface['orphan_port'] | default(false) %}
     orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.orphan_port) }}
 {% endif %}
     native_vlan: "{{ interface['native_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.native_vlan) }}"
