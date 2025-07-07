@@ -101,7 +101,15 @@ class Rule:
                 cls.results.append(f"Duplicate vtep_vip address '{vtep_vip}' found for VPC peer '{peer_name}'.")
             else:
                 vtep_vip_list.add(vtep_vip)
-        cls.validate_fabric_links(inventory, vpc_peers_list)
+
+            check = cls.data_model_key_check(inventory, ["vxlan", "underlay", "ipv4"])
+            if 'ipv4' in check['keys_data']:
+                interface_numbering = cls.safeget(inventory, ["vxlan", "underlay", "ipv4"])
+
+                # Check IP address under vxlan.topology.fabric_link only if
+                # fabric numbering is P2P or fabric peering is true
+                if peer.get("fabric_peering", None) or interface_numbering["fabric_interface_numbering"] == "p2p":
+                    cls.validate_fabric_links(inventory, vpc_peers_list)
 
     @classmethod
     def validate_fabric_links(cls, inventory, vpc_peers_list):
