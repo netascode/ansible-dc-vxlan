@@ -108,7 +108,7 @@ class Rule:
 
                 # Check IP address under vxlan.topology.fabric_link only if
                 # fabric numbering is P2P or fabric peering is false (Use Fabric Peer-Link)
-                if not peer.get("fabric_peering", None) or interface_numbering["fabric_interface_numbering"] == "p2p":
+                if peer.get("fabric_peering") is False or interface_numbering["fabric_interface_numbering"] == "p2p":
                     cls.validate_fabric_links(inventory, vpc_peers_list)
 
     @classmethod
