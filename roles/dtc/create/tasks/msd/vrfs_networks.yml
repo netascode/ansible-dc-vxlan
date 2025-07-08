@@ -104,7 +104,7 @@
 
 - name: Manage NDFC Child Fabric VRFs
   cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
-    msite_data: "{{ MD_Multisite}}"
+    msite_data: "{{ MD_Multisite }}"
   register: child_fabric_vrf_results
 
 # --------------------------------------------------------------------

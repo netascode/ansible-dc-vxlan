@@ -6,7 +6,7 @@
 {% for net in networks %}
 - net_name: {{ net['name'] }}
 {# ------------------------------------------------------ #}
-{# Properties Section #}
+{# Properties Section                                     #}
 {# ------------------------------------------------------ #}
   is_l2only: {{ net['is_l2_only'] | default(defaults.vxlan.overlay.networks.is_l2_only) }}
   vrf_name: {{ net['vrf_name'] | default(omit) }}
@@ -65,6 +65,7 @@
   route_target_both: {{ net['route_target_both'] | default(defaults.vxlan.overlay.networks.route_target_both) }}
   route_tag: {{ net['route_tag'] | default(defaults.vxlan.overlay.networks.route_tag) }}
   trm_enable: {{ net['trm_enable'] | default(defaults.vxlan.overlay.networks.trm_enable) }}
+{#  trmv6_enable: {{ net['trmv6_enable'] | default(defaults.vxlan.overlay.networks.trmv6_enable) }} #}
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
@@ -75,7 +76,9 @@
 {% endif %}
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
+{% if attach['ports'] is defined %}
       ports: {{ attach['ports'] }}
+{% endif %}
 {% endfor %}
   deploy: false
 {% endif %}

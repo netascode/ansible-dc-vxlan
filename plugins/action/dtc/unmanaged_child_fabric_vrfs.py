@@ -47,7 +47,7 @@ class ActionModule(ActionBase):
         ndfc_vrfs = self._execute_module(
             module_name="cisco.dcnm.dcnm_vrf",
             module_args={
-                "fabric": "fabric",
+                "fabric": fabric,
                 "state": "query"
             },
             task_vars=task_vars,
@@ -146,12 +146,13 @@ class ActionModule(ActionBase):
         #   },
         #   "_ansible_parsed": true
         # }
+        diff_ndfc_vrf_names = []
         if ndfc_vrfs.get('response'):
             ndfc_vrf_names = [ndfc_vrf['parent']['vrfName'] for ndfc_vrf in ndfc_vrfs['response']]
 
-        # Take the difference between the vrfs in the data model and the vrfs in NDFC
-        # If the vrf is in NDFC but not in the data model, delete it
-        diff_ndfc_vrf_names = [ndfc_vrf_name for ndfc_vrf_name in ndfc_vrf_names if ndfc_vrf_name not in vrf_names]
+            # Take the difference between the vrfs in the data model and the vrfs in NDFC
+            # If the vrf is in NDFC but not in the data model, delete it
+            diff_ndfc_vrf_names = [ndfc_vrf_name for ndfc_vrf_name in ndfc_vrf_names if ndfc_vrf_name not in vrf_names]
 
         if diff_ndfc_vrf_names:
             config = []

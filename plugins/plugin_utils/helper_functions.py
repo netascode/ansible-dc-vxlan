@@ -225,12 +225,13 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
 
     fabric_switches = []
     for fabric_switch in fabric_response['response']:
-        fabric_switches.append(
-            {
-                'hostname': fabric_switch['hostName'],
-                'mgmt_ip_address': fabric_switch['ipAddress']
-            }
-        )
+        if 'hostName' in fabric_switch:
+            fabric_switches.append(
+                {
+                    'hostname': fabric_switch['hostName'],
+                    'mgmt_ip_address': fabric_switch['ipAddress']
+                }
+            )
 
     return fabric_switches
 

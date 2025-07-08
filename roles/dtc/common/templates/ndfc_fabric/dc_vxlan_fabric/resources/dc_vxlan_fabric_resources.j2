@@ -1,13 +1,78 @@
-{# Auto-generated NDFC DC VXLAN EVPN Resources config data structure for fabric {{ vxlan.fabric.name }} #}
-  STATIC_UNDERLAY_IP_ALLOC: {{ (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title)}}
-{% if (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title) == 'False' %}
-{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title) == 'False' %}
+{# Auto-generated NDFC DC VXLAN EVPN Resources config data structure for fabric {{ vxlan.global.name }} #}
+  STATIC_UNDERLAY_IP_ALLOC: {{ vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title }}
+{% if not (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | ansible.builtin.bool) %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   LOOPBACK0_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_routing_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_routing_loopback_ip_range) }}
   LOOPBACK1_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_vtep_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_vtep_loopback_ip_range) }}
   SUBNET_RANGE: {{ vxlan.underlay.ipv4.underlay_subnet_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_subnet_ip_range) }}
-{% endif %}
+{% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
   ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
 {% endif %}
-  L2_SEGMENT_ID_RANGE: "{{ (vxlan.global.layer2_vni_range.from | default(defaults.vxlan.global.layer2_vni_range.from)) ~ "-" ~ (vxlan.global.layer2_vni_range.to  | default(defaults.vxlan.global.layer2_vni_range.to))  }}"
-  L3_PARTITION_ID_RANGE: "{{ (vxlan.global.layer3_vni_range.from | default(defaults.vxlan.global.layer3_vni_range.from)) ~ "-" ~ (vxlan.global.layer3_vni_range.to | default(defaults.vxlan.global.layer3_vni_range.to))  }}"
-  
+{% elif (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool ) %}
+  LOOPBACK0_IPV6_RANGE: {{ vxlan.underlay.ipv6.underlay_routing_loopback_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_routing_loopback_ip_range) }}
+  LOOPBACK1_IPV6_RANGE: {{ vxlan.underlay.ipv6.underlay_vtep_loopback_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_vtep_loopback_ip_range) }}
+{% if ( ((vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast') and
+        (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) ) %}
+  IPv6_ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv6.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_rp_loopback_ip_range) }}
+{% endif %}
+{% if not (vxlan.underlay.ipv6.enable_ipv6_link_local_address | default(defaults.vxlan.underlay.ipv6.enable_ipv6_link_local_address) | ansible.builtin.bool) %}
+  V6_SUBNET_RANGE: {{ vxlan.underlay.ipv6.underlay_subnet_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_subnet_ip_range) }}
+{% endif %}
+{% endif %}
+{% endif %}
+{% if vxlan.global.layer2_vni_range.from is defined %}
+{% set l2_vni_start = vxlan.global.layer2_vni_range.from %}
+{% if vxlan.global.layer2_vni_range.to is defined %}
+{% set l2_vni_end = vxlan.global.layer2_vni_range.to %}
+{% endif %}
+{% endif %}
+{% if l2_vni_start is defined and l2_vni_end is not defined %}
+{% set l2_vni_range = l2_vni_start %}
+{% elif l2_vni_start is defined and l2_vni_end is defined %}
+{% set l2_vni_range = l2_vni_start ~ '-' ~ l2_vni_end %}
+{% else %}
+{% set l2_vni_range = defaults.vxlan.global.layer2_vni_range.from ~ '-' ~ defaults.vxlan.global.layer2_vni_range.to %}
+{% endif %}
+  L2_SEGMENT_ID_RANGE: {{ l2_vni_range }}
+{% if vxlan.global.layer3_vni_range.from is defined %}
+{% set l3_vni_start = vxlan.global.layer3_vni_range.from %}
+{% if vxlan.global.layer3_vni_range.to is defined %}
+{% set l3_vni_end = vxlan.global.layer3_vni_range.to %}
+{% endif %}
+{% endif %}
+{% if l3_vni_start is defined and l3_vni_end is not defined %}
+{% set l3_vni_range = l3_vni_start %}
+{% elif l3_vni_start is defined and l3_vni_end is defined %}
+{% set l3_vni_range = l3_vni_start ~ '-' ~ l3_vni_end %}
+{% else %}
+{% set l3_vni_range = defaults.vxlan.global.layer3_vni_range.from ~ '-' ~ defaults.vxlan.global.layer3_vni_range.to %}
+{% endif %}
+  L3_PARTITION_ID_RANGE: {{ l3_vni_range }}
+{% if vxlan.global.layer2_vlan_range.from is defined %}
+{% set l2_vlan_start = vxlan.global.layer2_vlan_range.from %}
+{% if vxlan.global.layer2_vlan_range.to is defined %}
+{% set l2_vlan_end = vxlan.global.layer2_vlan_range.to %}
+{% endif %}
+{% endif %}
+{% if l2_vlan_start is defined and l2_vlan_end is not defined %}
+{% set l2_vlan_range = l2_vlan_start %}
+{% elif l2_vlan_start is defined and l2_vlan_end is defined %}
+{% set l2_vlan_range = l2_vlan_start ~ '-' ~ l2_vlan_end %}
+{% else %}
+{% set l2_vlan_range = defaults.vxlan.global.layer2_vlan_range.from ~ '-' ~ defaults.vxlan.global.layer2_vlan_range.to %}
+{% endif %}
+  NETWORK_VLAN_RANGE: {{ l2_vlan_range }}
+{% if vxlan.global.layer3_vlan_range.from is defined %}
+{% set l3_vlan_start = vxlan.global.layer3_vlan_range.from %}
+{% if vxlan.global.layer3_vlan_range.to is defined %}
+{% set l3_vlan_end = vxlan.global.layer3_vlan_range.to %}
+{% endif %}
+{% endif %}
+{% if l3_vlan_start is defined and l3_vlan_end is not defined %}
+{% set l3_vlan_range = l3_vlan_start %}
+{% elif l3_vlan_start is defined and l3_vlan_end is defined %}
+{% set l3_vlan_range = l3_vlan_start ~ '-' ~ l3_vlan_end %}
+{% else %}
+{% set l3_vlan_range = defaults.vxlan.global.layer3_vlan_range.from ~ '-' ~ defaults.vxlan.global.layer3_vlan_range.to %}
+{% endif %}
+  VRF_VLAN_RANGE: {{ l3_vlan_range }}

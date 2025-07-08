@@ -28,6 +28,7 @@ from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ...plugin_utils.helper_functions import ndfc_get_fabric_attributes
 from ...plugin_utils.helper_functions import ndfc_get_fabric_switches
+import re
 
 display = Display()
 
@@ -66,6 +67,9 @@ class ActionModule(ActionBase):
         child_fabrics_data = {}
         for fabric in associated_child_fabrics:
             child_fabrics_data.update({fabric: {}})
+            child_fabrics_data[fabric].update(
+                {'type': [_fabric['fabricType'] for _fabric in msd_fabric_associations['response']['DATA'] if _fabric['fabricName'] == fabric][0]}
+            )
             child_fabrics_data[fabric].update({'attributes': ndfc_get_fabric_attributes(self, task_vars, tmp, fabric)})
             child_fabrics_data[fabric].update({'switches': ndfc_get_fabric_switches(self, task_vars, tmp, fabric)})
 
@@ -85,7 +89,9 @@ class ActionModule(ActionBase):
             for switch in model_data['vxlan']['multisite']['overlay']['vrf_attach_groups_dict'][grp['name']]:
                 for child_fabric in child_fabrics_data.keys():
                     for sw in child_fabrics_data[child_fabric]['switches']:
-                        if switch['hostname'] == sw['hostname']:
+                        # Compare switches with regex to catch hostname when ip domain-name is configured
+                        regex_pattern = f"^{switch['hostname']}$|^{switch['hostname']}\\..*$"
+                        if re.search(regex_pattern, sw['hostname']):
                             switch['mgmt_ip_address'] = sw['mgmt_ip_address']
 
                 # Append switch to a flat list of switches for cross comparison later when we query the
@@ -113,7 +119,8 @@ class ActionModule(ActionBase):
             for switch in model_data['vxlan']['multisite']['overlay']['network_attach_groups_dict'][grp['name']]:
                 for child_fabric in child_fabrics_data.keys():
                     for sw in child_fabrics_data[child_fabric]['switches']:
-                        if switch['hostname'] == sw['hostname']:
+                        regex_pattern = f"^{switch['hostname']}$|^{switch['hostname']}\\..*$"
+                        if re.search(regex_pattern, sw['hostname']):
                             switch['mgmt_ip_address'] = sw['mgmt_ip_address']
                 # Append switch to a flat list of switches for cross comparison later when we query the
                 # MSD fabric information.  We need to stop execution if the list returned by the MSD query

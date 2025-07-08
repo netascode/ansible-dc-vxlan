@@ -26,10 +26,10 @@
 #  from ..helper_functions import do_something
 
 root_key = 'vxlan'
-
 # Keys here match data model schema
 # type: enum('VXLAN_EVPN', 'MSD', 'MCF', 'ISN')
 model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MFD': {}, 'ISN': {}, 'External': {}}
+
 
 # VXLAN_EVPN KEYS
 

@@ -95,8 +95,10 @@ class ActionModule(ActionBase):
                         rules_list.append(f'{rules}vxlan/')
                     elif results['data']['vxlan']['fabric']['type'] in ('MSD', 'MFD'):
                         rules_list.append(f'{rules}multisite/')
-                    elif results['data']['vxlan']['fabric']['type'] in ('ISN', 'External'):
+                    elif results['data']['vxlan']['fabric']['type'] in ('ISN'):
                         rules_list.append(f'{rules}isn/')
+                    elif results['data']['vxlan']['fabric']['type'] in ('External'):
+                        rules_list.append(f'{rules}external/')
                     else:
                         results['failed'] = True
                         results['msg'] = f"vxlan.fabric.type {results['data']['vxlan']['fabric']['type']} is not a supported fabric type."

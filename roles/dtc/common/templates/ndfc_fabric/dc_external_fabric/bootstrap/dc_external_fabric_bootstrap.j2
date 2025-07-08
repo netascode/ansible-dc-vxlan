@@ -1,19 +1,20 @@
-{# Auto-generated NDFC DC VXLAN EVPN Bootstrap config data structure for fabric {{ vxlan.fabric.name }} #}
+{# Auto-generated NDFC External Bootstrap config data structure for fabric {{ vxlan.fabric.name }} #}
 {% if vxlan.global.bootstrap is defined %}
-{% if vxlan.global.bootstrap.enable_bootstrap is defined and vxlan.global.bootstrap.enable_bootstrap %}
-  BOOTSTRAP_ENABLE: {{ vxlan.global.bootstrap.enable_bootstrap }}
-{% if vxlan.global.bootstrap.enable_local_dhcp_server is defined and vxlan.global.bootstrap.enable_local_dhcp_server %}
-  DHCP_ENABLE: {{ vxlan.global.bootstrap.enable_local_dhcp_server }}
+  BOOTSTRAP_ENABLE: {{ vxlan.global.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool }}
+{% if vxlan.global.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool %}
+  DHCP_ENABLE: {{ vxlan.global.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool }}
+{% if vxlan.global.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool %}
   DHCP_IPV6_ENABLE: {{ vxlan.global.bootstrap.dhcp_version }}
+{% if vxlan.global.bootstrap.dhcp_version is defined and vxlan.global.bootstrap.dhcp_version == "DHCPv4" %}
   DHCP_START: {{ vxlan.global.bootstrap.dhcp_v4.scope_start_address }}
   DHCP_END: {{ vxlan.global.bootstrap.dhcp_v4.scope_end_address }}
   MGMT_GW: {{ vxlan.global.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
   MGMT_PREFIX: {{ vxlan.global.bootstrap.dhcp_v4.mgmt_prefix }}
-  BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.bootstrap.dhcp_v4.multi_subnet_scope }}"
   DOMAIN_NAME: "{{ vxlan.global.bootstrap.dhcp_v4.domain_name }}"
+{% if vxlan.global.bootstrap.dhcp_v4.multi_subnet_scope is defined %}
+  BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.bootstrap.dhcp_v4.multi_subnet_scope }}"
 {% endif %}
 {% endif %}
-{% if vxlan.global.bootstrap.enable_bootstrap is defined and not vxlan.global.bootstrap.enable_bootstrap %}
-  BOOTSTRAP_ENABLE: {{ vxlan.global.bootstrap.enable_bootstrap }}
+{% endif %}  
 {% endif %}
 {% endif %}

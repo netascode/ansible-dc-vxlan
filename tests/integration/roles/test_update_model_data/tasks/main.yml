@@ -38,7 +38,7 @@
 
 - name: List out files in directory
   ansible.builtin.find:
-    paths: "{{ playbook_dir }}/host_vars/{{ inventory_hostname}}"
+    paths: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
   register: file_information
   delegate_to: 127.0.0.1
 

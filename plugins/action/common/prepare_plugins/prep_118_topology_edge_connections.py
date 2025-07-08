@@ -28,18 +28,22 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
 
-        if model_data['vxlan'].get('topology', None) is not None:
+        # This plugin does not apply to the follwing fabric types
+        if model_data['vxlan']['fabric']['type'] in ['MSD', 'MFD']:
+            return self.kwargs['results']
+        else:
+            switches = model_data['vxlan']['topology']['switches']
 
-            # Ensure that vrf_lite's switches are mapping to their respective
-            # management IP address from topology switches
-            topology_switches = model_data['vxlan']['topology']['switches']
-            for link in model_data['vxlan']['topology']['edge_connections']:
-                if any(sw['name'] == link['source_device'] for sw in topology_switches):
-                    found_switch = next((item for item in topology_switches if item["name"] == link['source_device']))
-                    if found_switch.get('management').get('management_ipv4_address'):
-                        link['source_device_ip'] = found_switch['management']['management_ipv4_address']
-                    elif found_switch.get('management').get('management_ipv6_address'):
-                        link['source_device_ip'] = found_switch['management']['management_ipv6_address']
+        # Ensure that edge_connection's switches are mapping to their respective
+        # management IP address from topology switches
+        topology_switches = model_data['vxlan']['topology']['switches']
+        for link in model_data['vxlan']['topology']['edge_connections']:
+            if any(sw['name'] == link['source_device'] for sw in topology_switches):
+                found_switch = next((item for item in topology_switches if item["name"] == link['source_device']))
+                if found_switch.get('management').get('management_ipv4_address'):
+                    link['source_device_ip'] = found_switch['management']['management_ipv4_address']
+                elif found_switch.get('management').get('management_ipv6_address'):
+                    link['source_device_ip'] = found_switch['management']['management_ipv6_address']
 
-            self.kwargs['results']['model_extended'] = model_data
+        self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']

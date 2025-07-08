@@ -21,6 +21,7 @@ plugins/action/dtc/prepare_msite_child_fabrics_data.py action-plugin-docs # acti
 plugins/action/dtc/prepare_msite_data.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/manage_child_fabric_vrfs.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/manage_child_fabric_networks.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/fabric_check_sync.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/fabrics_config_save.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/fabrics_deploy.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no matching module to provide documentation

@@ -29,7 +29,7 @@ class PreparePlugin:
         # interface modes which are a direct match
         self.mode_direct = ['routed', 'routed_po', 'routed_sub', 'loopback', 'fabric_loopback', 'mpls_loopback']
         # interface modes which need additional validation
-        self.mode_indirect = ['access', 'trunk', 'access_po', 'trunk_po', 'access_vpc', 'trunk_vpc', 'all']
+        self.mode_indirect = ['access', 'dot1q', 'trunk', 'access_po', 'trunk_po', 'access_vpc', 'trunk_vpc', 'all']
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
@@ -40,6 +40,10 @@ class PreparePlugin:
 
         model_data['vxlan']['topology']['interfaces'] = {}
         model_data['vxlan']['topology']['interfaces']['modes'] = {}
+
+        # Initialize breakout interfaces
+        model_data['vxlan']['topology']['interfaces']['modes']['breakout'] = {}
+        model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] = 0
 
         # loop through interface modes and initialize with interface count 0
         for mode in self.mode_direct:
@@ -72,6 +76,9 @@ class PreparePlugin:
                     else:
                         model_data['vxlan']['topology']['interfaces']['modes']['access']['count'] += 1
                         model_data['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
+                if interface.get('mode') == 'dot1q':
+                    model_data['vxlan']['topology']['interfaces']['modes']['dot1q']['count'] += 1
+                    model_data['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
                 if interface.get('mode') == 'trunk':
                     # if interface name starts with 'po' and has vpc_id, then it is a vpc trunk interface
                     if interface.get('name').lower().startswith('po') and interface.get('vpc_id'):
@@ -85,6 +92,14 @@ class PreparePlugin:
                     else:
                         model_data['vxlan']['topology']['interfaces']['modes']['trunk']['count'] += 1
                         model_data['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
+
+            if switch.get('interface_breakouts'):
+                for breakout in switch.get('interface_breakouts'):
+                    if breakout.get('to'):
+                        nb_int = breakout['to'] - breakout['from']
+                        model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += nb_int + 1
+                    else:
+                        model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += 1
 
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
