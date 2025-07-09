@@ -52,6 +52,11 @@
 - name: Build NDFC Fabric Switch Inventory List From Template
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
+# We need to also build an inventory list without bootstrap settings
+# This will be used for device removal.
+- name: Build NDFC Fabric Switch Inventory List From Template - No Bootstrap
+  ansible.builtin.import_tasks: common/ndfc_inventory_no_bootstrap.yml
+
 # --------------------------------------------------------------------
 # Build NDFC Fabric Loopback Interfaces List From Template
 # --------------------------------------------------------------------
@@ -171,6 +176,7 @@
         policy_config: "{{ policy_config }}"
         sub_interface_routed: "{{ sub_interface_routed }}"
         updated_inv_config: "{{ updated_inv_config }}"
+        updated_inv_config_no_bootstrap: "{{ updated_inv_config_no_bootstrap }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:
