@@ -17,7 +17,7 @@
 {% set intf_lower = interface.name.lower() %}
 {# Exclude Loopback when use as Routing / VTEP Loopback with manual_underlay_allocation for VXLAN_EVPN #}
 {% if is_manual_allocation is true %}
-{% if not (intf_lower == "loopback" ~ vtep_lo_id or intf_lower == "lo" ~ vtep_lo_id or intf_lower == "loopback" ~ routing_lo_id or intf_lower == "lo" ~ routing_lo_id) %}
+{% if (intf_lower == "loopback" ~ vtep_lo_id or intf_lower == "lo" ~ vtep_lo_id or intf_lower == "loopback" ~ routing_lo_id or intf_lower == "lo" ~ routing_lo_id) %}
 {% set skip = true %}
 {% endif %}
 {% endif %}
