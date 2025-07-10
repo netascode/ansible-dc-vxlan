@@ -1,0 +1,57 @@
+{# Auto-generated NDFC eBGP VXLAN EVPN Manageability config data structure for fabric {{ vxlan.fabric.name }} #}
+{% if vxlan.routed.dns_servers is defined and vxlan.routed.dns_servers %}
+{% set dns_server_ips = [] %}
+{% set dns_server_vrfs = [] %}
+{% for dns in vxlan.routed.dns_servers %}
+{% if dns.ip_address | string is defined and dns.ip_address %}
+{% set dns_ip = dns.ip_address | string %}
+{% set dns_server_ips = dns_server_ips.append(dns_ip) %}
+{% endif %}
+{% if dns.vrf | string is defined and dns.vrf %}
+{% set dns_vrf = dns.vrf  | string %}
+{% set dns_server_vrfs = dns_server_vrfs.append(dns_vrf) %}
+{% endif %}
+{% endfor %}
+  DNS_SERVER_IP_LIST: {{ dns_server_ips | join(',') | default(omit) }}
+  DNS_SERVER_VRF: {{ dns_server_vrfs | join(',') | default(omit) }}
+{% endif %}
+{% if vxlan.routed.ntp_servers is defined and vxlan.routed.ntp_servers %}
+{% set ntp_server_ips = [] %}
+{% set ntp_server_vrfs = [] %}
+{% for ntp in vxlan.routed.ntp_servers %}
+{% if ntp.ip_address is defined and ntp.ip_address %}
+{% set ntp_ip = ntp.ip_address | string %}
+{% set ntp_server_ips = ntp_server_ips.append(ntp_ip) %}
+{% endif %}
+{% if ntp.vrf is defined and ntp.vrf %}
+{% set ntp_vrf = ntp.vrf|string %}
+{% set ntp_server_vrfs = ntp_server_vrfs.append(ntp_vrf) %}
+{% endif %}
+{% endfor %}
+  NTP_SERVER_IP_LIST: {{ ntp_server_ips | join(',') | default(omit) }}
+  NTP_SERVER_VRF: {{ ntp_server_vrfs | join(',') | default(omit) }}
+{% endif %}
+{% if vxlan.routed.syslog_servers is defined and vxlan.routed.syslog_servers %}
+{% set syslog_server_ips = [] %}
+{% set syslog_server_vrfs = [] %}
+{% set syslog_server_sevs = [] %}
+{% for syslog_server in vxlan.routed.syslog_servers %}
+{% if syslog_server.ip_address is defined and syslog_server.ip_address %}
+{% set syslog_server_ip = syslog_server.ip_address | string %}
+{% set syslog_server_ips = syslog_server_ips.append(syslog_server_ip) %}
+{% endif %}
+{% if syslog_server.vrf is defined and syslog_server.vrf %}
+{% set syslog_server_vrf = syslog_server.vrf | string %}
+{% set syslog_server_vrfs = syslog_server_vrfs.append(syslog_server_vrf) %}
+{% endif %}
+{% if syslog_server.severity is defined and syslog_server.severity %}
+{% set syslog_server_sev = syslog_server.severity %}
+{% set syslog_server_sevs = syslog_server_sevs.append(syslog_server_sev) %}
+{% endif %}
+{% endfor %}
+  SYSLOG_SERVER_IP_LIST: {{ syslog_server_ips | join(',') | default(omit) }}
+{% if syslog_server_ips is defined and syslog_server_ips %}
+  SYSLOG_SERVER_VRF: {{ syslog_server_vrfs | join(',') | default(omit) }}
+  SYSLOG_SEV: {{ syslog_server_sevs | join(',') | default(omit) }}
+{% endif %}
+{% endif %}

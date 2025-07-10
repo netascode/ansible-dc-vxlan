@@ -1,0 +1,39 @@
+{# Auto-generated NDFC eBGP VXLAN EVPN Protocols config data structure for fabric {{ vxlan.fabric.name }} #}
+  BGP_LB_ID: {{ vxlan.underlay.general.underlay_routing_loopback_id | default(defaults.vxlan.underlay.general.underlay_routing_loopback_id) }}
+  NVE_LB_ID: {{ vxlan.underlay.general.underlay_vtep_loopback_id | default(defaults.vxlan.underlay.general.underlay_vtep_loopback_id) }}
+  BGP_MAX_PATH: {{ vxlan.routed.bgp_max_paths | default(defaults.vxlan.routed.bgp_max_paths) }}
+{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
+{# ANYCAST_LB_ID: #}
+{% endif %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
+  BFD_ENABLE: {{ vxlan.underlay.bfd.enable | default(defaults.vxlan.underlay.bfd.enable) }}
+{% endif %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
+  BGP_AUTH_ENABLE: {{ (vxlan.underlay.bgp.authentication_enable | default(defaults.vxlan.underlay.bgp.authentication_enable) | title) }}
+{% if vxlan.underlay.bgp.authentication_enable | default(defaults.vxlan.underlay.bgp.authentication_enable) | ansible.builtin.bool %}
+  BGP_AUTH_KEY_TYPE: {{ vxlan.underlay.bgp.authentication_key_type | default(defaults.vxlan.underlay.bgp.authentication_key_type) }}
+  BGP_AUTH_KEY: {{ vxlan.underlay.bgp.authentication_key | default(omit) }}
+{% endif %}
+{% endif %}
+{% if ( (not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool)) and
+        ((vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast') ) %}
+  PIM_HELLO_AUTH_ENABLE: {{ (vxlan.underlay.multicast.ipv4.authentication_enable | default(defaults.vxlan.underlay.multicast.ipv4.authentication_enable) | title) }}
+{% if vxlan.underlay.multicast.ipv4.authentication_enable | default(defaults.vxlan.underlay.multicast.ipv4.authentication_enable) | ansible.builtin.bool %}
+  PIM_HELLO_AUTH_KEY: {{ vxlan.underlay.multicast.ipv4.authentication_key | default(omit) }}
+{% endif %}
+{% endif %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
+{% if vxlan.underlay.bfd.enable | default(defaults.vxlan.underlay.bfd.enable) | ansible.builtin.bool %}
+  BFD_IBGP_ENABLE: {{ vxlan.underlay.bfd.ibgp | default(defaults.vxlan.underlay.bfd.ibgp) }}
+{% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
+  BFD_PIM_ENABLE: {{ vxlan.underlay.bfd.pim | default(defaults.vxlan.underlay.bfd.pim) }}
+{% endif %}
+{% if (vxlan.underlay.ipv4.fabric_interface_numbering | default(defaults.vxlan.underlay.ipv4.fabric_interface_numbering) | lower) != 'unnumbered' %}
+  BFD_AUTH_ENABLE: {{ (vxlan.underlay.bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | title) }}
+{% endif %}
+{% if vxlan.underlay.bfd.authentication_enable | default(defaults.vxlan.underlay.bfd.authentication_enable) | ansible.builtin.bool %}
+  BFD_AUTH_KEY: {{ vxlan.underlay.bfd.authentication_key | default(omit) }}
+  BFD_AUTH_KEY_ID: {{ vxlan.underlay.bfd.authentication_key_id | default(defaults.vxlan.underlay.bfd.authentication_key_id) }}
+{% endif %}
+{% endif %}
+{% endif %}
