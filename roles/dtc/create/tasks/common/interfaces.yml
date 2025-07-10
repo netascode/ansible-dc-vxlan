@@ -46,6 +46,17 @@
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
+# Manage Interface Breakout Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Breakout
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: replaced
+    config: "{{ vars_common_local.interface_breakout }}"
+  when: MD_Extended.vxlan.topology.interfaces.modes.breakout.count > 0
+
+# --------------------------------------------------------------------
 # Manage Interface Trunk Configuration on NDFC
 # --------------------------------------------------------------------
 
@@ -132,6 +143,17 @@
     state: replaced
     config: "{{ vars_common_local.int_loopback_config }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0
+
+# --------------------------------------------------------------------
+# Manage Interface Dot1q Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Dot1q
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: replaced
+    config: "{{ vars_common_local.interface_dot1q }}"
+  when: MD_Extended.vxlan.topology.interfaces.modes.dot1q.count > 0
 
 # --------------------------------------------------------------------
 # Manage Interface vPC Configuration on NDFC

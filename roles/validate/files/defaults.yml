@@ -67,6 +67,8 @@ factory_defaults:
         enable: false
       ptp:
         enable: false
+        domain_id: 0
+        lb_id: 0
       snmp_server_host_trap: true
       bootstrap:
         enable_bootstrap: false
@@ -92,6 +94,18 @@ factory_defaults:
             access_vlan: 1
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+          topology_switch_dot1q_interface:
+            description: "NetAsCode Dot1q Interface"
+            mtu: jumbo
+            speed: auto
+            enabled: true
+            access_vlan: 1
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
@@ -100,6 +114,9 @@ factory_defaults:
             trunk_allowed_vlans: none
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            native_vlan: ""
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
             mtu: jumbo
@@ -109,6 +126,8 @@ factory_defaults:
             pc_mode: active
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -118,6 +137,9 @@ factory_defaults:
             pc_mode: active
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            native_vlan: ""
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
@@ -137,6 +159,8 @@ factory_defaults:
           topology_switch_loopback_interface:
             description: "NetAsCode Loopback Interface"
             enabled: true
+        poap:
+          bootstrap: false
       vpc_peers:
         domain_id: 1
       fabric_links:
