@@ -29,13 +29,18 @@ from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleError
 
 try:
-    from iac_validate.yaml import load_yaml_files
-    import iac_validate.validator
-    from iac_validate.cli.options import DEFAULT_SCHEMA
+    # from iac_validate.yaml import load_yaml_files
+    from nac_yaml.yaml import load_yaml_files
+    # import iac_validate.validator
+    import nac_validate.validator
+    # from iac_validate.cli.options import DEFAULT_SCHEMA
+    from nac_validate.cli.defaults import DEFAULT_SCHEMA
 except ImportError as imp_exc:
-    IAC_VALIDATE_IMPORT_ERROR = imp_exc
+    # IAC_VALIDATE_IMPORT_ERROR = imp_exc
+    NAC_VALIDATE_IMPORT_ERROR = imp_exc
 else:
-    IAC_VALIDATE_IMPORT_ERROR = None
+    # IAC_VALIDATE_IMPORT_ERROR = None
+    NAC_VALIDATE_IMPORT_ERROR = None
 
 import os
 from ...plugin_utils.helper_functions import data_model_key_check
@@ -50,8 +55,11 @@ class ActionModule(ActionBase):
         results['failed'] = False
         results['msg'] = None
 
-        if IAC_VALIDATE_IMPORT_ERROR:
-            raise AnsibleError('iac-validate not found and must be installed. Please pip install iac-validate.') from IAC_VALIDATE_IMPORT_ERROR
+        # if IAC_VALIDATE_IMPORT_ERROR:
+        #     raise AnsibleError('iac-validate not found and must be installed. Please pip install iac-validate.') from IAC_VALIDATE_IMPORT_ERROR
+
+        if NAC_VALIDATE_IMPORT_ERROR:
+            raise AnsibleError('nac-validate not found and must be installed. Please pip install nac-validate.') from NAC_VALIDATE_IMPORT_ERROR
 
         schema = self._task.args.get('schema')
         rules = self._task.args.get('rules')
@@ -134,7 +142,8 @@ class ActionModule(ActionBase):
             rules_list.append(f'{rules}')
 
         for rules_item in rules_list:
-            validator = iac_validate.validator.Validator(schema, rules_item)
+            # validator = iac_validate.validator.Validator(schema, rules_item)
+            validator = nac_validate.validator.Validator(schema, rules_item)
             if schema:
                 validator.validate_syntax([mdata])
             if rules_item:
