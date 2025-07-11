@@ -29,6 +29,8 @@
     vars_common_vxlan:
         changes_detected_fabric: false
         changes_detected_fabric_links: false
+        changes_detected_edge_connections: false
+        changes_detected_interface_dot1q: false
         changes_detected_interface_access_po: false
         changes_detected_interface_access: false
         changes_detected_interfaces: false
@@ -48,6 +50,8 @@
     vars_common_isn:
         changes_detected_fabric: false
         changes_detected_fabric_links: false
+        changes_detected_edge_connections: false
+        changes_detected_interface_dot1q: false
         changes_detected_interface_access_po: false
         changes_detected_interface_access: false
         changes_detected_interfaces: false
@@ -62,11 +66,13 @@
         changes_detected_sub_interface_routed: false
     vars_common_msd:
         changes_detected_fabric: false
+        changes_detected_bgw_anycast_vip: false
         changes_detected_vrfs: false
         changes_detected_networks: false
     vars_common_external:
         changes_detected_inventory: false
         changes_detected_fabric: false
+        changes_detected_interface_dot1q: false
         changes_detected_interface_access_po: false
         changes_detected_interface_access: false
         changes_detected_interfaces: false

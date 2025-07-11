@@ -2,7 +2,7 @@
 
 ![Actions Status](https://github.com/netascode/ansible-dc-vxlan/actions/workflows/main.yml/badge.svg?branch=develop)
 
-NetAsCode DC VXLAN (nac_dc_vxlan) Ansible Collection for configuring Cisco VXLAN EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a data model that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
+NetAsCode DC VXLAN (nac_dc_vxlan) Ansible Collection for configuring Cisco VXLAN EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a [data model](https://netascode.cisco.com/docs/data_models/vxlan/overview/) that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
 
 This approach allows for consistent and repeatable configuration of VXLAN fabrics and aligns with Infrastructure as Code (IaC) methodology, where the configuration state of NDFC is saved in a version control system and managed as code.
 
@@ -86,9 +86,9 @@ The following control variables are available in this collection.
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
-| `multisite_child_fabric_delete_mode` | Remove child fabric from MSD/MFD fabric as part of the remove role | `false` |
-| `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
-| `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
+| `multisite_child_fabric_delete_mode` | Remove child fabric from MSD fabric as part of the remove role | `false` |
+| `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD) fabrics | `false` |
+| `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD) fabrics | `false` |
 | `network_delete_mode` | Remove network state as part of the remove role | `false` |
 | `policy_delete_mode` | Remove policy state as part of the remove role | `false` |
 | `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
@@ -306,7 +306,7 @@ The following quickstart repository is available to provide a step by step guide
 
 This collection is intended for use with the following release versions:
 
-* `NDFC Release 12.2.1` or later.
+* `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.1` or later.
 
 <!--start requires_ansible-->
 ## Ansible Version Compatibility
@@ -408,15 +408,15 @@ This capability is not available under the following conditions:
 
 ### See Also
 
-* [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
+* [Ansible Using Collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
 
 ## Multi-Site Domain for VXLAN BGP EVPN Fabrics
-A Multi-Site Domain (MSD) is a multifabric container that is created to manage multiple member fabrics. An MSD is a single point of control for definition of overlay networks and VRFs that are shared across member fabrics. When you move fabrics (that are designated to be part of the multifabric overlay network domain) under the MSD as member fabrics, the member fabrics share the networks and VRFs created at the MSD-level. This way, you can consistently provision network and VRFs for different fabrics, at one go. It significantly reduces the time and complexity involving multiple fabric provisionings.
+A Multi-Site Domain (MSD) is a multifabric administrative domain that is created to manage multiple member fabrics. An MSD is a single point of control for definition of overlay VRFs and Networks that are shared across member fabrics. When you move fabrics under the MSD as child fabrics, the child fabrics share the VRFs and networks created at the MSD-level. This way, you can consistently provision VRFs and networks for different fabrics, at one go. It significantly reduces the time and complexity involving multiple fabric provisionings.
 
 ### To configure and manage MSD fabrics with VXLAN as Code, you should use the following workflow:
 1. Create each member/child fabric that will be managed by MSD using the normal data models for each fabric (or use a combined data model with all child fabrics)
 2. Create the MSD fabric. In the data model set the fabric type to MSD and specify each child fabric that will be managed.
-   Reference the [VXLAN Data Model](https://netascode.cisco.com/data_model/vxlan/overview)
+   Reference the [VXLAN MultiSite Data Model](https://netascode.cisco.com/docs/data_models/vxlan/multisite/multisite/)
 > [!NOTE]
 > Any additional changes can be done using the MSD fabric data model or on an individual fabric basis using the respective playbooks.
 
@@ -432,9 +432,10 @@ We welcome community contributions to this collection. If you find problems, ple
 
 ## More Information
 
-- [NDFC installation and configuration guides](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1201/installation/cisco-ndfc-install-and-upgrade-guide-1201.html)
-- [Ansible User guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
-- [Ansible Developer guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
+- [Cisco Nexus Dashboard and Services Deployment and Upgrade Guide](https://www.cisco.com/c/en/us/td/docs/dcn/nd/3x/deployment/cisco-nexus-dashboard-and-services-deployment-guide-321.html) 
+- [Cisco Nexus Dashboard Fabric Controller (NDFC) User Content for LAN Configuration Guide](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1222/collections/ndfc-user-content-1222-lan.html)
+- [Ansible User Guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
+- [Ansible Developer Guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
 
 ## Licensing
 

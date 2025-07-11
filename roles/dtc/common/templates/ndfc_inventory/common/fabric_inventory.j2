@@ -12,9 +12,13 @@
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: {{ switch['role'] }}
   preserve_config: false
+{# ------------------------------ #}
+{# Global Bootstrap Section Start #}
 {% if MD_Extended.vxlan.global.bootstrap is defined %}
-{% if MD_Extended.vxlan.global.bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.global.bootstrap.enable_bootstrap %}
-{% if switch.poap is defined and switch.poap.bootstrap %}
+{% if MD_Extended.vxlan.global.bootstrap.enable_bootstrap | default(defaults.vxlan.global.enable_bootstrap) | ansible.builtin.bool %}
+{#     ------------------------- #}
+{#     Switch POAP Section Start #}
+{% if switch.poap is defined and (switch.poap.bootstrap | default(defaults.vxlan.topology.switches.poap.bootstrap) | ansible.builtin.bool) %}
 {% if poap_data[switch['serial_number']] is defined %}
 {% set pdata = poap_data[switch['serial_number']] %}
   poap:
@@ -25,17 +29,33 @@
       config_data:
         modulesModel: {{ pdata['modulesModel'] }}
         gateway: {{ pdata['gateway'] }}
-{% elif switch['poap']['preprovision'] is defined %}
+{% endif %}
+{% endif %}
+{#     ---------------------------------- #}
+{#     Switch POAP Section End            #}
+{##}
+{#     ---------------------------------- #}
+{#     Switch Pre-Provision Section Start #}
+{% if switch['poap']['preprovision'] is defined %}
+{% if switch['serial_number'] == switch['poap']['preprovision']['serial_number'] %}
   poap:
     - preprovision_serial: {{ switch['poap']['preprovision']['serial_number'] }}
       model: {{  switch['poap']['preprovision']['model'] }}
       version: {{ switch['poap']['preprovision']['version']  }}
       config_data:
         modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
-        gateway: {{ switch['management']['default_gateway_v4']  }}
+        gateway: {{ switch['management']['default_gateway_v4'] | ansible.utils.ipaddr('address') }}/{{ switch['management']['subnet_mask_ipv4'] }}
       hostname: {{ switch['name'] }}
+{% else %}
+  poap:
+    - serial_number: {{ switch['serial_number'] }}
+      preprovision_serial: {{ switch['poap']['preprovision']['serial_number'] }}
 {% endif %}
 {% endif %}
+{#     Switch Pre-Provision Section End   #}
+{#     ---------------------------------- #}
 {% endif %}
 {% endif %}
-{% endfor %}
+{# Global Bootstrap Section End #}
+{# ---------------------------- #}
+{% endfor %} 

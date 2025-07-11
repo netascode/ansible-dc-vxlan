@@ -30,6 +30,18 @@ factory_defaults:
       nxapi_http_port: 80
       enable_nxapi_https: true
       nxapi_https_port: 443
+      layer2_vni_range:
+        from: 30000
+        to: 49000
+      layer3_vni_range:
+        from: 50000
+        to: 59000
+      layer2_vlan_range:
+        from: 2300
+        to: 2999
+      layer3_vlan_range:
+        from: 2000
+        to: 2299
       vpc:
         peer_link_vlan: 3600
         peer_keep_alive: management
@@ -42,6 +54,7 @@ factory_defaults:
         domain_id_range: 1-1000
         fabric_vpc_qos: false
         fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
+        enable_ipv6_nd_sync: true
       spanning_tree:
         root_bridge_protocol: unmanaged
         vlan_range:
@@ -54,6 +67,8 @@ factory_defaults:
         enable: false
       ptp:
         enable: false
+        domain_id: 0
+        lb_id: 0
       snmp_server_host_trap: true
       bootstrap:
         enable_bootstrap: false
@@ -72,6 +87,18 @@ factory_defaults:
             access_vlan: 1
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+          topology_switch_dot1q_interface:
+            description: "NetAsCode Dot1q Interface"
+            mtu: jumbo
+            speed: auto
+            enabled: true
+            access_vlan: 1
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
@@ -80,6 +107,9 @@ factory_defaults:
             trunk_allowed_vlans: none
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            native_vlan: ""
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
             mtu: jumbo
@@ -89,6 +119,8 @@ factory_defaults:
             pc_mode: active
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -98,6 +130,9 @@ factory_defaults:
             pc_mode: active
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            native_vlan: ""
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
@@ -117,26 +152,30 @@ factory_defaults:
           topology_switch_loopback_interface:
             description: "NetAsCode Loopback Interface"
             enabled: true
+        poap:
+          bootstrap: false
       vpc_peers:
         domain_id: 1
       fabric_links:
+        mtu: 9216
+        admin_state: true
       edge_connections:
     underlay:
       general:
         routing_protocol: ospf
         enable_ipv6_underlay: false
         replication_mode: multicast
-        fabric_interface_numbering: p2p
-        subnet_mask: 30
         manual_underlay_allocation: false
         underlay_routing_loopback_id: 0
         underlay_vtep_loopback_id: 1
         underlay_routing_protocol_tag: UNDERLAY
         underlay_rp_loopback_id: 254
         intra_fabric_interface_mtu: 9216
-        layer2_host_interfacde_mtu: 9216
+        layer2_host_interface_mtu: 9216
         unshut_host_interfaces: true
       ipv4:
+        fabric_interface_numbering: p2p
+        subnet_mask: 30
         underlay_routing_loopback_ip_range: 10.2.0.0/22
         underlay_vtep_loopback_ip_range: 10.3.0.0/22
         underlay_rp_loopback_ip_range: 10.254.254.0/24
@@ -144,12 +183,17 @@ factory_defaults:
       ipv6:
         enable_ipv6_link_local_address: true
         underlay_subnet_mask: 126
+        underlay_routing_loopback_ip_range: fd00::a02:0/119
+        underlay_vtep_loopback_ip_range: fd00::a03:0/118
+        underlay_rp_loopback_ip_range: fd00::254:254:0/118
+        underlay_subnet_ip_range: fd00::a04:0/112
       ospf:
         area_id: 0.0.0.0
         authentication_enable: false
         authentication_key_id: 127
       isis:
         level: level-2
+        net_area_number: 001
         network_point_to_point: true
         authentication_enable: false
         authentication_key_id: 127
@@ -159,12 +203,18 @@ factory_defaults:
         authentication_enable: false
         authentication_key_type: 3
       multicast:
-        group_subnet: 239.1.1.0/25
         rendezvous_points: 2
         rp_mode: asm
         underlay_rp_loopback_id: 254
-        trm_enable: false
-        trm_default_group: 239.1.1.0
+        ipv4:
+          group_subnet: 239.1.1.0/25
+          authentication_enable: false
+          trm_enable: false
+          trm_default_group: 239.1.1.0
+        ipv6:
+          group_subnet: ff1e::/121
+          trmv6_enable: false
+          trmv6_default_group: "ff1e::"   # Quote due to ending in colon to avoid YAML error
         underlay_primary_rp_loopback_id: 2
         underlay_backup_rp_loopback_id: 3
         underlay_second_backup_rp_loopback_id: 4
@@ -186,6 +236,8 @@ factory_defaults:
         max_bgp_paths: 1
         max_ibgp_paths: 2
         ipv6_linklocal_enable: true
+        # Staging ipv6 route-map attribute for later usage after low-level collection adds support.
+        # ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         adv_host_routes: false
         adv_default_routes: true
         static_default_route: true
@@ -196,6 +248,10 @@ factory_defaults:
         redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         trm_enable: false
         trm_bgw_msite: false
+        # Staging trmv6 attributes for later usage after low-level collection adds support.
+        # trmv6_no_rp: false
+        # trmv6_rp_external: false
+        # trmv6_enable: false
       networks:
         net_description: "Configured by Ansible NetAsCode"
         is_l2_only: false
@@ -207,6 +263,8 @@ factory_defaults:
         route_target_both: false
         route_tag: 12345
         trm_enable: false
+        # Staging trmv6 attribute for later usage after low-level collection adds support.
+        # trmv6_enable: false
       vrf_attach_groups:
         switches: []
       network_attach_groups:
@@ -275,7 +333,6 @@ factory_defaults:
             disable_connected_check: false
             remove_private_as: false
             remove_private_as_all: false
-            ebgp_multihop: 2
             address_family_ipv4_unicast:
               send_community: false
               send_ext_community: false
@@ -295,6 +352,12 @@ factory_defaults:
               default_originate: false
               next_hop_self: false
     multisite:
+      layer2_vni_range:
+        from: 30000
+        to: 49000
+      layer3_vni_range:
+        from: 50000
+        to: 59000
       enable_ipv6_underlay: false
       anycast_gateway_mac: 20:20:00:00:00:aa
       vtep_loopback_id: 100

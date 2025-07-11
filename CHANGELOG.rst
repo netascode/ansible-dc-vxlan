@@ -8,6 +8,131 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.4.3`_
+=====================
+
+**Release Date:** ``2025-07-02``
+
+Added
+-----
+
+* Added support for manual underlay IP address allocation
+* Added support for manually allocating vPC domain IDs
+* Added support for breakout interfaces
+* Added support for dot1q interface type
+* Added support for orphan ports, duplex, and native VLAN for interface types access, access port-channel, trunk, and trunk port-channel
+
+Modified
+--------
+
+* Updated defaults to include ``domain_id`` and ``lb_id`` defaults for PTP
+* Removed the requirement to have ports defined for ``vxlan.overlay.networks.network_attach_groups`` in VXLAN fabrics
+* Updated POAP and pre-provision workflow
+    * This update allows devices to be discovered using discovery mode, poap and pre-provision workflows. Previously the solution did not allow both poap and pre-provision in the same datafile.
+    * Note: The poap.boostrap setting under the device is only used for POAP mode without pre-provision first. It is not used by a pre-provision or pre-provision + POAP workflow.
+
+Fixed
+-----
+* https://github.com/netascode/ansible-dc-vxlan/issues/32
+* https://github.com/netascode/ansible-dc-vxlan/issues/388
+* https://github.com/netascode/ansible-dc-vxlan/issues/391
+* https://github.com/netascode/ansible-dc-vxlan/issues/400
+* https://github.com/netascode/ansible-dc-vxlan/issues/405
+* https://github.com/netascode/ansible-dc-vxlan/issues/409
+* https://github.com/netascode/ansible-dc-vxlan/issues/411
+* https://github.com/netascode/ansible-dc-vxlan/issues/421
+* https://github.com/netascode/ansible-dc-vxlan/issues/424
+
+`0.4.2`_
+=====================
+
+**Release Date:** ``2025-06-02``
+
+Added
+-----
+
+* Added support for the following model properties:
+    - ``vxlan.multisite.layer2_vni_range``
+    - ``vxlan.multisite.layer3_vni_range``
+    - ``vxlan.global.layer2_vni_range``
+    - ``vxlan.global.layer3_vni_range``
+    - ``vxlan.global.layer2_vlan_range``
+    - ``vxlan.global.layer3_vlan_range``
+    - ``vxlan.underlay.ipv6.underlay_routing_loopback_ip_range``
+    - ``vxlan.underlay.ipv6.underlay_vtep_loopback_ip_range``
+    - ``vxlan.underlay.ipv6.underlay_rp_loopback_ip_range``
+    - ``vxlan.underlay.ipv6.underlay_subnet_ip_range``
+    - ``vxlan.underlay.multicast.ipv4.authentication_enable``
+    - ``vxlan.underlay.multicast.ipv4.authentication_key``
+    - ``vxlan.underlay.multicast.ipv6.group_subnet``
+    - ``vxlan.underlay.multicast.ipv6.trmv6_enable``
+    - ``vxlan.underlay.multicast.ipv6.trmv6_default_group``
+
+Modified
+--------
+
+* The following keys have been relocated under ``vxlan.underlay.ipv4`` and data model files will need to be updated accordingly:
+    - ``vxlan.underlay.ipv4.fabric_interface_numbering``
+    - ``vxlan.underlay.ipv4.subnet_mask``
+* The following keys have been relocated under ``vxlan.underlay.multicast.ipv4`` and data model files will need to be updated accordingly:
+    - ``vxlan.underlay.multicast.ipv4.group_subnet``
+    - ``vxlan.underlay.multicast.ipv4.trm_enable``
+    - ``vxlan.underlay.multicast.ipv4.trm_default_group``
+
+Fixed
+-----
+* https://github.com/netascode/ansible-dc-vxlan/issues/239
+* https://github.com/netascode/ansible-dc-vxlan/issues/262
+* https://github.com/netascode/ansible-dc-vxlan/issues/349
+* https://github.com/netascode/ansible-dc-vxlan/issues/350
+* https://github.com/netascode/ansible-dc-vxlan/issues/352
+* https://github.com/netascode/ansible-dc-vxlan/issues/371
+* https://github.com/netascode/ansible-dc-vxlan/issues/373
+* https://github.com/netascode/ansible-dc-vxlan/issues/380
+* https://github.com/netascode/ansible-dc-vxlan/issues/386
+
+`0.4.1`_
+=====================
+
+**Release Date:** ``2025-04-24``
+
+Added
+-----
+
+* Added ability to manage edge connections to external fabrics
+* Added support for checking if a fabric is in a multisite domain and disallow management of ``vxlan.overlay.vrfs`` and ``vxlan.overlay.networks`` under the child fabric
+
+Modified
+--------
+
+* Added various multisite fixes and introduced new ``child_fabrics`` model key under ``vxlan.multisite.overlay.vrfs`` and ``vxlan.multisite.overlay.networks`` for defining site-specific attributes
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/232
+* https://github.com/netascode/ansible-dc-vxlan/issues/274
+* https://github.com/netascode/ansible-dc-vxlan/issues/292
+* https://github.com/netascode/ansible-dc-vxlan/issues/293
+* https://github.com/netascode/ansible-dc-vxlan/issues/294
+* https://github.com/netascode/ansible-dc-vxlan/issues/295
+* https://github.com/netascode/ansible-dc-vxlan/issues/296
+* https://github.com/netascode/ansible-dc-vxlan/issues/302
+* https://github.com/netascode/ansible-dc-vxlan/issues/303
+* https://github.com/netascode/ansible-dc-vxlan/issues/308
+* https://github.com/netascode/ansible-dc-vxlan/issues/311
+* https://github.com/netascode/ansible-dc-vxlan/issues/314
+* https://github.com/netascode/ansible-dc-vxlan/issues/320
+* https://github.com/netascode/ansible-dc-vxlan/issues/325
+* https://github.com/netascode/ansible-dc-vxlan/issues/327
+* https://github.com/netascode/ansible-dc-vxlan/issues/331
+* https://github.com/netascode/ansible-dc-vxlan/issues/335
+* https://github.com/netascode/ansible-dc-vxlan/issues/336
+* https://github.com/netascode/ansible-dc-vxlan/issues/340
+* https://github.com/netascode/ansible-dc-vxlan/issues/343
+* https://github.com/netascode/ansible-dc-vxlan/issues/345
+* https://github.com/netascode/ansible-dc-vxlan/issues/355
+
 `0.4.0`_
 =====================
 
@@ -161,6 +286,9 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.4.3: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.2...0.4.3
+.. _0.4.2: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.1...0.4.2
+.. _0.4.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.0...0.4.1
 .. _0.4.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.3.0...0.4.0
 .. _0.3.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.2.0...0.3.0
 .. _0.2.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.1.0...0.2.0

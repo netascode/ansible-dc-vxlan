@@ -140,7 +140,7 @@ def ndfc_get_switch_policy_using_template(self, task_vars, tmp, switch_serial_nu
     return policy_match
 
 
-def ndfc_get_nac_switch_policy_using_desc(self, task_vars, tmp, switch_serial_number):
+def ndfc_get_switch_policy_using_desc(self, task_vars, tmp, switch_serial_number, prefix):
     """
     Get NDFC policy for a given managed switch by the switch's serial number and the prepanded string nac.
 
@@ -160,7 +160,7 @@ def ndfc_get_nac_switch_policy_using_desc(self, task_vars, tmp, switch_serial_nu
 
     policy_match = [
         item for item in policy_data["response"]["DATA"]
-        if item.get("description", None) and "nac_" in item.get("description", None) and item["source"] == ""
+        if item.get("description", None) and prefix in item.get("description", None) and item["source"] == ""
     ]
 
     return policy_match
@@ -225,11 +225,12 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
 
     fabric_switches = []
     for fabric_switch in fabric_response['response']:
-        fabric_switches.append(
-            {
-                'hostname': fabric_switch['hostName'],
-                'mgmt_ip_address': fabric_switch['ipAddress']
-            }
-        )
+        if 'hostName' in fabric_switch:
+            fabric_switches.append(
+                {
+                    'hostname': fabric_switch['hostName'],
+                    'mgmt_ip_address': fabric_switch['ipAddress']
+                }
+            )
 
     return fabric_switches

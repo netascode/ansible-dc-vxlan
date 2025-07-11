@@ -43,6 +43,17 @@
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
+# Manage Interface Breakout Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Breakout
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: replaced
+    config: "{{ vars_common_local.interface_breakout }}"
+  when: MD_Extended.vxlan.topology.interfaces.modes.breakout.count > 0
+
+# --------------------------------------------------------------------
 # Manage Interface Trunk Configuration on NDFC
 # --------------------------------------------------------------------
 
@@ -54,7 +65,7 @@
   when: MD_Extended.vxlan.topology.interfaces.modes.trunk.count > 0
 
 # --------------------------------------------------------------------
-# Manage Interface Access Routed Configuration on NDFC
+# Manage Interface Access Configuration on NDFC
 # --------------------------------------------------------------------
 
 - name: Manage Interface Access
@@ -65,10 +76,10 @@
   when: MD_Extended.vxlan.topology.interfaces.modes.access.count > 0
 
 # --------------------------------------------------------------------
-# Manage Interface Access Portchannel Configuration on NDFC
+# Manage Interface Access Port-Channel Configuration on NDFC
 # --------------------------------------------------------------------
 
-- name: Manage Access Portchannel Interface
+- name: Manage Access Port-Channel Interface
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
@@ -76,10 +87,10 @@
   when: MD_Extended.vxlan.topology.interfaces.modes.access_po.count > 0
 
 # --------------------------------------------------------------------
-# Manage Interface Trunk Portchannel Configuration on NDFC
+# Manage Interface Trunk Port-Channel Configuration on NDFC
 # --------------------------------------------------------------------
 
-- name: Manage Trunk Portchannel Interface
+- name: Manage Trunk Port-Channel Interface
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
@@ -101,7 +112,7 @@
 # Manage Sub-Interface Routed Configuration on NDFC
 # --------------------------------------------------------------------
 
-- name: Manage Sub-interface Routed
+- name: Manage Sub-Interface Routed
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
@@ -123,7 +134,7 @@
 # Manage Interface Loopback Configuration on NDFC
 # --------------------------------------------------------------------
 
-- name: Manage NDFC Fabric Loopback
+- name: Manage Interface Loopback
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
@@ -131,10 +142,21 @@
   when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0
 
 # --------------------------------------------------------------------
+# Manage Interface Dot1q Configuration on NDFC
+# --------------------------------------------------------------------
+
+- name: Manage Interface Dot1q
+  cisco.dcnm.dcnm_interface:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: replaced
+    config: "{{ vars_common_local.interface_dot1q }}"
+  when: MD_Extended.vxlan.topology.interfaces.modes.dot1q.count > 0
+
+# --------------------------------------------------------------------
 # Manage Interface vPC Configuration on NDFC
 # --------------------------------------------------------------------
 
-- name: Manage NDFC Fabric vPCs
+- name: Manage Interface vPC
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
