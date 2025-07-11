@@ -29,15 +29,21 @@ from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleError
 
 try:
-    # from iac_validate.yaml import load_yaml_files
     from nac_yaml.yaml import load_yaml_files
+except ImportError as imp_yaml_exc:
+    NAC_YAML_IMPORT_ERROR = imp_yaml_exc
+else:
+    NAC_YAML_IMPORT_ERROR = None
+
+try:
+    # from iac_validate.yaml import load_yaml_files
     # import iac_validate.validator
     import nac_validate.validator
     # from iac_validate.cli.options import DEFAULT_SCHEMA
     from nac_validate.cli.defaults import DEFAULT_SCHEMA
-except ImportError as imp_exc:
+except ImportError as imp_val_exc:
     # IAC_VALIDATE_IMPORT_ERROR = imp_exc
-    NAC_VALIDATE_IMPORT_ERROR = imp_exc
+    NAC_VALIDATE_IMPORT_ERROR = imp_val_exc
 else:
     # IAC_VALIDATE_IMPORT_ERROR = None
     NAC_VALIDATE_IMPORT_ERROR = None
@@ -55,6 +61,9 @@ class ActionModule(ActionBase):
         results['failed'] = False
         results['msg'] = None
 
+        if NAC_YAML_IMPORT_ERROR:
+            raise AnsibleError('nac-yaml not found and must be installed. Please pip install nac-yaml.') from NAC_YAML_IMPORT_ERROR
+        
         # if IAC_VALIDATE_IMPORT_ERROR:
         #     raise AnsibleError('iac-validate not found and must be installed. Please pip install iac-validate.') from IAC_VALIDATE_IMPORT_ERROR
 
