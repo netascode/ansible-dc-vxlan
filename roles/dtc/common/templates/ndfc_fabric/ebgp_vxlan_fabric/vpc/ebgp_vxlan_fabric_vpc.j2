@@ -1,0 +1,14 @@
+{# Auto-generated NDFC eBGP VXLAN EVPN vPC config data structure for fabric {{ vxlan.fabric.name }} #}
+  VPC_PEER_LINK_VLAN: {{ vxlan.routed.vpc.peer_link_vlan | default(defaults.vxlan.routed.vpc.peer_link_vlan) }}
+  VPC_PEER_KEEP_ALIVE_OPTION: {{ vxlan.routed.vpc.peer_keep_alive | default(defaults.vxlan.routed.vpc.peer_keep_alive) }}
+  VPC_AUTO_RECOVERY_TIME: {{ vxlan.routed.vpc.auto_recovery_time | default(defaults.vxlan.routed.vpc.auto_recovery_time) }}
+  VPC_DELAY_RESTORE_TIME: {{ vxlan.routed.vpc.delay_restore_time | default(defaults.vxlan.routed.vpc.delay_restore_time) }}
+  VPC_DELAY_RESTORE: {{ vxlan.routed.vpc.delay_restore_time | default(defaults.vxlan.routed.vpc.delay_restore_time) }}
+  VPC_PEER_LINK_PO: {{ vxlan.routed.vpc.peer_link_port_channel_id | default(defaults.vxlan.routed.vpc.peer_link_port_channel_id) }}
+  VPC_ENABLE_IPv6_ND_SYNC: {{ vxlan.routed.vpc.ipv6_nd_sync | default(defaults.vxlan.routed.vpc.ipv6_nd_sync) }}
+  ENABLE_FABRIC_VPC_DOMAIN_ID: False
+  VPC_DOMAIN_ID_RANGE: {{ vxlan.routed.vpc.domain_id_range | default(defaults.vxlan.routed.vpc.domain_id_range) }}
+  FABRIC_VPC_QOS: {{ vxlan.routed.vpc.fabric_vpc_qos | default(defaults.vxlan.routed.vpc.fabric_vpc_qos) }}
+{% if (vxlan.routed.vpc.fabric_vpc_qos | default(defaults.vxlan.routed.vpc.fabric_vpc_qos) | title) == 'True' %}
+  FABRIC_VPC_QOS_POLICY_NAME: {{ vxlan.routed.vpc.fabric_vpc_qos_policy_name | default(defaults.vxlan.routed.vpc.fabric_vpc_qos_policy_name) }}
+{% endif %}

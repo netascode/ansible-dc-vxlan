@@ -1,0 +1,25 @@
+{# Auto-generated NDFC eBGP VXLAN EVPN Base config data structure for fabric {{ vxlan.fabric.name }} #}
+{% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
+- FABRIC_NAME: {{ vxlan.fabric.name }}
+  FABRIC_TYPE: Easy_Fabric_eBGP
+  DEPLOY: False
+
+{# Include NDFC eBGP VXLAN EVPN General Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/general/ebgp_vxlan_fabric_general.j2' %}
+
+{# Include NDFC eBGP VXLAN EVPN vPC Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/vpc/ebgp_vxlan_fabric_vpc.j2' %}
+
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
+{# Include NDFC eBGP VXLAN EVPN Security Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/security/ebgp_vxlan_fabric_security.j2' %}
+{% endif %}
+
+{# Include NDFC eBGP VXLAN EVPN Manageability Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/manageability/ebgp_vxlan_fabric_manageability.j2' %}
+
+{# Include NDFC eBGP VXLAN EVPN Bootstrap Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/bootstrap/ebgp_vxlan_fabric_bootstrap.j2' %}
+
+{# Include NDFC eBGP VXLAN EVPN Flow Monitor Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/flow_monitor/ebgp_vxlan_fabric_flow_monitor.j2' %}

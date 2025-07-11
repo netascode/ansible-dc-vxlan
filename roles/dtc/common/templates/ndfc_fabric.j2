@@ -9,6 +9,11 @@
 {# Include NDFC DC VXLAN EVPN Base Template #}
 {% include '/ndfc_fabric/dc_vxlan_fabric/dc_vxlan_fabric_base.j2' %}
 
+{% elif vxlan.fabric.type == 'eBGP_VXLAN'%}
+
+{# Include NDFC eBGP VXLAN EVPN Base Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/ebgp_vxlan_fabric_base.j2' %}
+
 {% elif vxlan.fabric.type == 'MSD'%}
 
 {# Include NDFC MSD Base Template #}
