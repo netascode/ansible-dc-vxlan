@@ -91,6 +91,11 @@
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
 
+- name: Import Role Tasks for eBGP VXLAN Fabric
+  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
+  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
+  when: MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
+
 - name: Import Role Tasks for ISN Fabric
   ansible.builtin.import_tasks: sub_main_isn.yml
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml

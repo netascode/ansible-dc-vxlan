@@ -3,7 +3,7 @@
   SUPER_SPINE_BGP_AS: "{{ vxlan.ebgp_global.super_spine_bgp_asn | default(omit) }}"
   BGP_AS_MODE: "{{ vxlan.ebgp_global.bgp_asn_mode | default(defaults.vxlan.ebgp_global.bgp_asn_mode) }}"
 {% if vxlan.ebgp_global.bgp_asn_mode | default(defaults.vxlan.ebgp_global.bgp_asn_mode) == 'Multi-AS' %}
-  ALLOW_LEAF_SAME_AS: "{{ vxlan.ebgp_global.leaf_same_bgp_asn | default(defaults.vxlan.ebgp_global.leaf_same_bgp_asn) | title }}"
+  ALLOW_LEAF_SAME_AS: "{{ vxlan.ebgp_global.leaf_same_bgp_asn | default(defaults.vxlan.ebgp_global.leaf_same_bgp_asn) | lower }}"
 {% endif %}
 {% if vxlan.ebgp_global.bgp_asn_mode | default(defaults.vxlan.ebgp_global.bgp_asn_mode) == 'Same-Tier-AS' %}
   LEAF_BGP_AS: "{{ vxlan.ebgp_global.leaf_bgp_asn | default(omit) }}"
@@ -13,7 +13,7 @@
   STATIC_UNDERLAY_IP_ALLOC: {{ vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title }}
 {% if not (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | ansible.builtin.bool) %}
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
-  SUBNET_TARGET_MASK: "{{ vxlan.underlay.general.ipv4.subnet_mask | default(defaults.vxlan.underlay.general.ipv4.subnet_mask) }}"
+  SUBNET_TARGET_MASK: "{{ vxlan.underlay.ipv4.subnet_mask | default(defaults.vxlan.underlay.ipv4.subnet_mask) }}"
   SUBNET_RANGE: {{ vxlan.underlay.ipv4.underlay_subnet_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_subnet_ip_range) }}
 {% endif %}
   LOOPBACK0_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_routing_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_routing_loopback_ip_range) }}

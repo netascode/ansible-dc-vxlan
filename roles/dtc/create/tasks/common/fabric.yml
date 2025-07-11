@@ -24,7 +24,11 @@
 - name: Choose vars_common Based On Fabric Type
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: (MD_Extended.vxlan.fabric.type == "VXLAN_EVPN") or (MD_Extended.vxlan.fabric.type == "eBGP_VXLAN")
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+- name: Choose vars_common_ebgp_vxlan Based On Fabric Type
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: (MD_Extended.vxlan.fabric.type == "eBGP_VXLAN")
 - ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
@@ -46,6 +50,11 @@
   cisco.dcnm.dcnm_fabric:
     state: merged
     config: "{{ vars_common_local.fabric_config }}"
+
+- ansible.builtin.debug:
+    msg: "{{ vars_common_local.fabric_config }}"
+
+- ansible.builtin.meta: end_play
 
 - name: Create ANYCAST_RP {{ vxlan.underlay.multicast.ipv4.anycast_rp }} for {{ vxlan.fabric.name }} in NDFC
   cisco.dcnm.dcnm_resource_manager:
