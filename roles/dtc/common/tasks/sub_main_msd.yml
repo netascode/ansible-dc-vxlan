@@ -21,7 +21,9 @@
 
 ---
 
-- ansible.builtin.fail: msg="Service Model Not Defined. Role cisco.nac_dc_vxlan.validate Must Be Called First"
+- name: Fail if Data Model is not defined
+  ansible.builtin.fail:
+    msg: "Service Model Not Defined. Role cisco.nac_dc_vxlan.validate Must Be Called First"
   when: MD is undefined
   delegate_to: localhost
 
@@ -79,16 +81,16 @@
 - name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_msd:
-        changes_detected_fabric: "{{ changes_detected_fabric }}"
-        changes_detected_bgw_anycast_vip: "{{ changes_detected_bgw_anycast_vip }}"
-        # changes_detected_vrfs: "{{ changes_detected_vrfs }}"
-        # changes_detected_networks: "{{ changes_detected_networks }}"
-        fabric_config: "{{ fabric_config }}"
-        bgw_anycast_vip: "{{ bgw_anycast_vip }}"
-        # vrf_config: "{{ vrf_config }}"
-        # net_config: "{{ net_config }}"
-        # Check with Matt and Pete on how to handle this for MSD
-        # vrf_attach_config: "{{ vrf_attach_config }}"
+      changes_detected_fabric: "{{ changes_detected_fabric }}"
+      changes_detected_bgw_anycast_vip: "{{ changes_detected_bgw_anycast_vip }}"
+      # changes_detected_vrfs: "{{ changes_detected_vrfs }}"
+      # changes_detected_networks: "{{ changes_detected_networks }}"
+      fabric_config: "{{ fabric_config }}"
+      bgw_anycast_vip: "{{ bgw_anycast_vip }}"
+      # vrf_config: "{{ vrf_config }}"
+      # net_config: "{{ net_config }}"
+      # Check with Matt and Pete on how to handle this for MSD
+      # vrf_attach_config: "{{ vrf_attach_config }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:

@@ -57,7 +57,8 @@
     dest: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
 
-- ansible.builtin.set_fact:
+- name: Set policy_config Var
+  ansible.builtin.set_fact:
     policy_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   when: (MD_Extended.vxlan.policy.policies | default([])) | length > 0
   delegate_to: localhost
