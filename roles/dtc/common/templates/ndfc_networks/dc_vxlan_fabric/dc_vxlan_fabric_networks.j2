@@ -63,7 +63,7 @@
   vlan_nf_monitor: {{ net['vlan_netflow_monitor'] | default(omit) }}
 {% endif %}
   route_target_both: {{ net['route_target_both'] | default(defaults.vxlan.overlay.networks.route_target_both) }}
-  route_tag: {{ net['route_tag'] | default(defaults.vxlan.overlay.networks.route_tag) }}
+  routing_tag: {{ net['route_tag'] | default(defaults.vxlan.overlay.networks.route_tag) }}
   trm_enable: {{ net['trm_enable'] | default(defaults.vxlan.overlay.networks.trm_enable) }}
 {#  trmv6_enable: {{ net['trmv6_enable'] | default(defaults.vxlan.overlay.networks.trmv6_enable) }} #}
 {# ------------------------------------------------------ #}
