@@ -385,4 +385,3 @@ factory_defaults:
         bootstrap:
           enable_bootstrap: false
           enable_local_dhcp_server: false
-          enable_cdp_mgmt: false
