@@ -28,7 +28,9 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+- name: Display Device Configuration Method
+  ansible.builtin.debug:
+    msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"
 
 - name: Config-Save block
   block:
@@ -51,8 +53,8 @@
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
   when: >
     (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
   # TODO: Need to add logic to only deploy if changes are made
@@ -71,7 +73,7 @@
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       register: config_save
-      when: 
+      when:
         - MD_Extended.vxlan.topology.switches is defined
         - MD_Extended.vxlan.topology.switches | length > 0
         - results.changed
@@ -87,9 +89,9 @@
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
-  when: 
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
+  when:
     - MD_Extended.vxlan.topology.switches is defined
     - MD_Extended.vxlan.topology.switches | length > 0
     - results.changed

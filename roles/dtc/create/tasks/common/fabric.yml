@@ -21,17 +21,20 @@
 
 ---
 
-- name: Choose vars_common Based On Fabric Type
+- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
@@ -57,4 +60,6 @@
         pool_name: "ANYCAST_RP_IP_POOL"
         scope_type: "fabric"
         resource: "{{ vxlan.underlay.multicast.ipv4.anycast_rp }}"
-  when: vxlan.underlay.general.manual_underlay_allocation is defined and vxlan.underlay.general.manual_underlay_allocation == True
+  when:
+    - vxlan.underlay.general.manual_underlay_allocation is defined
+    - vxlan.underlay.general.manual_underlay_allocation

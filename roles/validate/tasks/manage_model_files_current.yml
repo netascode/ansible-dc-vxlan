@@ -26,7 +26,8 @@
   ansible.builtin.copy:
     content: "{{ MD | to_nice_json }}"
     dest: "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_golden.json"
-    force: yes
+    mode: preserve
+    force: true
   delegate_to: localhost
 
 # Copy the extended golden and extended service model data to the host
@@ -34,7 +35,8 @@
   ansible.builtin.copy:
     content: "{{ MD_Extended | to_nice_json }}"
     dest: "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_extended.json"
-    force: yes
+    mode: preserve
+    force: true
   delegate_to: localhost
 
 # Read current golden service model data into a variable called 'smd_golden_current'

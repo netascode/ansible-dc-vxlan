@@ -60,7 +60,7 @@
     (vars_common_external.changes_detected_inventory) or
     (vars_common_external.changes_detected_interfaces) or
     (vars_common_external.changes_detected_fabric) or
-    (vars_common_external.changes_detected_interface_access_po) or 
+    (vars_common_external.changes_detected_interface_access_po) or
     (vars_common_external.changes_detected_interface_access) or
     (vars_common_external.changes_detected_interface_loopback) or
     (vars_common_external.changes_detected_interface_po_routed) or
