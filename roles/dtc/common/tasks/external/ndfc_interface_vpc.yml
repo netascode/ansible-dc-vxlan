@@ -50,7 +50,7 @@
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
-- name: Build VPC interface
+- name: Build vPC interface
   ansible.builtin.template:
     src: ndfc_interface_vpc.j2
     dest: "{{ path_name }}{{ file_name }}"

@@ -50,7 +50,7 @@
     - vars_common_vxlan.changes_detected_inventory
   tags: "{{ nac_tags.create_switches }}"
 
-- name: Manage NDFC VXLAN VPC Peering
+- name: Manage NDFC VXLAN vPC Peering
   ansible.builtin.import_tasks: common/vpc_peering.yml
   when:
     - MD_Extended.vxlan.topology.vpc_peers | length > 0

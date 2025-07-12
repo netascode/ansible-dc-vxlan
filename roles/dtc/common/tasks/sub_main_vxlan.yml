@@ -165,10 +165,10 @@
   ansible.builtin.import_tasks: common/ndfc_interface_dot1q.yml
 
 # --------------------------------------------------------------------
-# Build Fabric interface VPC List From Template
+# Build Fabric interface vPC List From Template
 # --------------------------------------------------------------------
 
-- name: Build Fabric interface VPC List From Template
+- name: Build Fabric interface vPC List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_vpc.yml
 
 # --------------------------------------------------------------------
