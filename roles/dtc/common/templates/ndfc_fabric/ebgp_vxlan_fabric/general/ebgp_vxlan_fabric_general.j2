@@ -23,5 +23,8 @@
 {% endif %}
 {# DISABLE_ROUTE_MAP_TAG: #}
 {# ROUTE_MAP_TAG: #}
+{% if ( (not (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.1', '<='))) and
+        ( not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool)) ) %}
 {# SUBINTERFACE_RANGE: #}
+{% endif %}
 {# #}

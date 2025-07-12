@@ -1,4 +1,5 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN Security config data structure for fabric {{ vxlan.fabric.name }} #}
-{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
+{% if ( (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.1', '>=')) and
+        (not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool)) ) %}
   ENABLE_MACSEC: false
 {% endif %}
