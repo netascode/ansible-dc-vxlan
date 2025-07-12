@@ -54,7 +54,6 @@
   ansible.builtin.template:
     src: ndfc_attach_vrfs.j2
     dest: "{{ path_name }}{{ file_name }}"
-    mode: '0644'
   delegate_to: localhost
 
 - name: Create Empty vrf_config Var
