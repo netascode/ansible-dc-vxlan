@@ -43,7 +43,8 @@
 
 - name: Set Cisco ND Version Var
   ansible.builtin.set_fact:
-    nd_version: "{{ nd_version_response.json.major }}.{{ nd_version_response.json.minor }}.{{ nd_version_response.json.maintenance }}{{ nd_version_response.json.patch }}"
+    nd_version: >
+      "{{ nd_version_response.json.major }}.{{ nd_version_response.json.minor }}.{{ nd_version_response.json.maintenance }}{{ nd_version_response.json.patch }}"
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Get Cisco NDFC Version
