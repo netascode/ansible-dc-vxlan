@@ -36,8 +36,3 @@
     state: merged
     config: "{{ vars_common_ebgp_vxlan.fabric_config }}"
     skip_validation: true
-
-- ansible.builtin.debug:
-    msg: "{{ vars_common_ebgp_vxlan.fabric_config }}"
-
-- ansible.builtin.meta: end_play
