@@ -20,21 +20,26 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- name: Choose vars_common Based On Fabric Type
+- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
-- ansible.builtin.debug: msg="Removing Unmanaged Fabric Switches. This could take several minutes..."
+- name: Display Removing Unmanaged Fabric Switches Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged Fabric Switches. This could take several minutes..."
   when:
     - (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
 
@@ -46,12 +51,13 @@
     save: true
     state: overridden
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
   when:
     - (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
 
-- ansible.builtin.debug:
+- name: Skip Remove NDFC Fabric Devices Task If inventory_delete_mode is False
+  ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------------------------------------------------"
       - "+ SKIPPING Remove NDFC Fabric Devices task because inventory_delete_mode flag is set to False +"

@@ -21,6 +21,7 @@
 ---
 
 - name: Check If Current Fabric Is An Active Multisite Fabric
+  when: is_active_child_fabric is not defined
   block:
     - name: Get Multisite Fabric Associations
       cisco.dcnm.dcnm_rest:
@@ -30,14 +31,13 @@
 
     - name: Find Current Fabric by Name In Multisite Associations
       ansible.builtin.set_fact:
-        selected_fabric: "{{ ndfc_msd_fabric_associations['response']['DATA'] | json_query(query) }}"
+        selected_fabric: "{{ ndfc_msd_fabric_associations['response']['DATA'] | json_query(json_query) }}"
       vars:
-        query: "[?fabricName=='{{ MD_Extended.vxlan.fabric.name }}']"
+        json_query: "[?fabricName=='{{ MD_Extended.vxlan.fabric.name }}']"
 
     - name: Set Multisite Check for Current Fabric
       ansible.builtin.set_fact:
         is_active_child_fabric: "{{ true if selected_fabric[0]['fabricParent'] != 'None' else false }}"
-  when: is_active_child_fabric is not defined
 
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage VRFs
   ansible.builtin.fail:
@@ -46,7 +46,9 @@
     - is_active_child_fabric
     - vars_common_vxlan.vrf_config | length > 0
 
-- ansible.builtin.debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
+- name: Unmanaged Fabric VRFs Removal Status Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged Fabric VRFs. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
@@ -58,16 +60,17 @@
     state: overridden
     config: "{{ vars_common_vxlan.vrf_config }}"
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
   when:
     - switch_list.response.DATA | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
     - not is_active_child_fabric
 
-- ansible.builtin.debug:
+- name: Skip Remove Unmanaged Fabric VRFs Task If vrf_delete_mode is False
+  ansible.builtin.debug:
     msg:
       - "--------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False   +"
+      - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False              +"
       - "--------------------------------------------------------------------------------------------------------"
   when: not ((vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)) or is_active_child_fabric

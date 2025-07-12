@@ -20,7 +20,9 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- ansible.builtin.debug: msg="Removing Unmanaged vpc peer Links. This could take several minutes..."
+- name: Display Removing Unmanaged vPC Peer Links Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged vPC Peer Links. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
     - (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
@@ -31,49 +33,52 @@
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_vxlan.link_vpc_peering }}"
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
   when:
     - switch_list.response.DATA | length > 0
     - (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
-- block:
-  - ansible.builtin.debug: msg="Removing Unmanaged Fabric Links. This could take several minutes..."
 
-  - name: Query Links - with Src & Dst Fabric
-    cisco.dcnm.dcnm_links:
-      state: query # choose from [merged, replaced, deleted, query]
-      src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-      config:
-        - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}" # Destination fabric
-    register: result_links
-
-  - name: Create empty result List
-    ansible.builtin.set_fact:
-      required_links: []
-
-  - name: Create a list of links that already exist
-    cisco.nac_dc_vxlan.dtc.links_filter_and_remove:
-      existing_links: "{{ result_links.response }}"
-      fabric_links: "{{ vars_common_vxlan.fabric_links }}"
-    register: links_to_be_removed
-    when: result_links.response is defined
-
-  # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
-  - name: Set not_required_links if result_links.response is not defined
-    ansible.builtin.set_fact:
-      links_to_be_removed: []
-    when: result_links.response is not defined
-  # --------------------------------------------------------------------
-  # Manage VRF Configuration on NDFC
-  # --------------------------------------------------------------------
-  - name: Manage NDFC Fabric Links
-    cisco.dcnm.dcnm_links:
-      src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-      config: "{{ links_to_be_removed['links_to_be_removed'] }}"
-      deploy: false
-      state: deleted
-    register: delete_fabric_links_result
-
+- name: Unmanaged Fabric Links
   when:
     - switch_list.response.DATA | length > 0
     - (link_fabric_delete_mode is defined) and (link_fabric_delete_mode is true|bool)
+  block:
+    - name: Display Removing Unmanaged Fabric Links Message
+      ansible.builtin.debug:
+        msg: "Removing Unmanaged Fabric Links. This could take several minutes..."
+
+    - name: Query Links - with Src & Dst Fabric
+      cisco.dcnm.dcnm_links:
+        state: query # choose from [merged, replaced, deleted, query]
+        src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+        config:
+          - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}" # Destination fabric
+      register: result_links
+
+    - name: Create empty result List
+      ansible.builtin.set_fact:
+        required_links: []
+
+    - name: Create a list of links that already exist
+      cisco.nac_dc_vxlan.dtc.links_filter_and_remove:
+        existing_links: "{{ result_links.response }}"
+        fabric_links: "{{ vars_common_vxlan.fabric_links }}"
+      register: links_to_be_removed
+      when: result_links.response is defined
+
+    # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
+    - name: Set not_required_links if result_links.response is not defined
+      ansible.builtin.set_fact:
+        links_to_be_removed: []
+      when: result_links.response is not defined
+    # --------------------------------------------------------------------
+    # Manage VRF Configuration on NDFC
+    # --------------------------------------------------------------------
+    - name: Manage NDFC Fabric Links
+      cisco.dcnm.dcnm_links:
+        src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+        config: "{{ links_to_be_removed['links_to_be_removed'] }}"
+        deploy: false
+        state: deleted
+      register: delete_fabric_links_result

@@ -34,7 +34,7 @@
 # Given that the MSD instance is the source of truth for the child fabric state, we cannot pre-process all the
 # VRFs and Networks data in the dtc.common role. We must wait until the child fabric state is available.
 # The first availability of the child fabric state for VRFs and Networks is here, but we still need to pre-process
-# the VRFs and Networks data before we can build the configuration. 
+# the VRFs and Networks data before we can build the configuration.
 # While not ideal and while this is not done directly in the common role, maintaining our pre-processing file strucutre can
 # be done by importing specific tasks files from dtc.common here. This is done in the two following tasks for VRFs and Networks.
 # Once done, the deteced state changes are added to the vars_common_msd dictionary initially created in dtc.common when
@@ -65,12 +65,12 @@
     vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
   vars:
     update_data:
-        changes_detected_vrfs: "{{ changes_detected_vrfs }}"
-        changes_detected_networks: "{{ changes_detected_networks }}"
-        vrf_config: "{{ vrf_config }}"
-        net_config: "{{ net_config }}"
-        # Check with Matt and Pete on how to handle this for MSD
-        # vrf_attach_config: "{{ vrf_attach_config }}"
+      changes_detected_vrfs: "{{ changes_detected_vrfs }}"
+      changes_detected_networks: "{{ changes_detected_networks }}"
+      vrf_config: "{{ vrf_config }}"
+      net_config: "{{ net_config }}"
+      # Check with Matt and Pete on how to handle this for MSD
+      # vrf_attach_config: "{{ vrf_attach_config }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:
@@ -141,5 +141,7 @@
     msite_data: "{{ MD_Multisite }}"
   register: child_fabric_network_results
 
-- ansible.builtin.set_fact:
-    child_fabrics_vrfs_networks_changed: "{{ child_fabric_vrf_results.child_fabrics_changed | ansible.builtin.union(child_fabric_network_results.child_fabrics_changed) }}"
+- name: Update Child Fabrics VRFs and Networks Changed State
+  ansible.builtin.set_fact:
+    child_fabrics_vrfs_networks_changed: >
+      "{{ child_fabric_vrf_results.child_fabrics_changed | ansible.builtin.union(child_fabric_network_results.child_fabrics_changed) }}"

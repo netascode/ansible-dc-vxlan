@@ -21,7 +21,9 @@
 
 ---
 
-- ansible.builtin.debug: msg="Removing Unmanaged Child Fabrics. This could take several minutes..."
+- name: Display Removing Unmanaged Child Fabrics Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged Child Fabrics. This could take several minutes..."
   when:
     - MD_Extended.vxlan.multisite.child_fabrics is defined
     - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
@@ -36,9 +38,10 @@
     - MD_Multisite_Child_Fabrics.to_be_removed
     - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
 
-- ansible.builtin.debug:
+- name: Skip Remove Unmanaged Child Fabrics Task If multisite_child_fabric_delete_mode is False
+  ansible.builtin.debug:
     msg:
-      - "---------------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Child Fabrics task because multisite_child_fabric_delete_mode flag is set to False           +"
-      - "---------------------------------------------------------------------------------------------------------------"
+      - "----------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Child Fabrics task because multisite_child_fabric_delete_mode flag is set to False +"
+      - "----------------------------------------------------------------------------------------------------------------"
   when: not ((multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool))
