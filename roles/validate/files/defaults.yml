@@ -428,3 +428,6 @@ factory_defaults:
         enable_trm: false
       isn:
         sub_int_range: 2-511
+        bootstrap:
+          enable_bootstrap: false
+          enable_local_dhcp_server: false
