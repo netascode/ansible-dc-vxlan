@@ -70,6 +70,24 @@
     (vars_common_external.changes_detected_sub_interface_routed) or
     (vars_common_external.changes_detected_policy)
 
+- name: Import BGP Role Tasks
+  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
+  when: >
+    (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
+    (vars_common_ebgp_VXLAN.changes_detected_fabric) or
+    (vars_common_ebgp_VXLAN.changes_detected_inventory) or
+    (vars_common_ebgp_VXLAN.changes_detected_vpc_peering) or
+    (vars_common_ebgp_VXLAN.changes_detected_interfaces) or
+    (vars_common_ebgp_VXLAN.changes_detected_link_vpc_peering) or
+    (vars_common_ebgp_VXLAN.changes_detected_vrfs) or
+    (vars_common_ebgp_VXLAN.changes_detected_networks) or
+    (vars_common_ebgp_VXLAN.changes_detected_policy)
+
+- name: mkilar_test_create_main.yml
+  ansible.builtin.debug:
+    msg:
+    - "mkilar {{vars_common_ebgp_VXLAN.changes_detected_fabric}}"
+
 - name: Mark Stage Role Create Completed
   cisco.nac_dc_vxlan.common.run_map:
     model_data: "{{ MD_Extended }}"

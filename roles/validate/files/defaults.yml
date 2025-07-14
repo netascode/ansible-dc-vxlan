@@ -74,7 +74,7 @@ factory_defaults:
         enable_bootstrap: false
         enable_local_dhcp_server: false
         enable_cdp_mgmt: false
-    routed:
+    ebgp_global:
       bgp_asn_mode: Multi-AS
       leaf_same_bgp_asn: false
       bgp_max_paths: 4
@@ -227,6 +227,9 @@ factory_defaults:
         intra_fabric_interface_mtu: 9216
         layer2_host_interface_mtu: 9216
         unshut_host_interfaces: true
+        disable_rm_tag: false
+        rm_tag: 12345
+        subint_dot1q_range: 2-511
       ipv4:
         fabric_interface_numbering: p2p
         subnet_mask: 30
@@ -256,10 +259,14 @@ factory_defaults:
       bgp:
         authentication_enable: false
         authentication_key_type: 3
+        as_mode: Multi-AS
+        allow_leaf_same_as: false
+        max_path: 4
       multicast:
         rendezvous_points: 2
         rp_mode: asm
         underlay_rp_loopback_id: 254
+        enable_vri_id_realloc: false
         ipv4:
           group_subnet: 239.1.1.0/25
           authentication_enable: false

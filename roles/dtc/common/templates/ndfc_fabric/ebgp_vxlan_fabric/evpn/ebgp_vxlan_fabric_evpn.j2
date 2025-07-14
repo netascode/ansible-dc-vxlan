@@ -1,6 +1,6 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN config data structure for fabric {{ vxlan.fabric.name }} #}
   ENABLE_EVPN: true
-  ANYCAST_GW_MAC: {{ vxlan.routed.anycast_gateway_mac | default(defaults.vxlan.routed.anycast_gateway_mac) }}
+  ANYCAST_GW_MAC: {{ vxlan.ebgp_global.anycast_gateway_mac | default(defaults.vxlan.ebgp_global.anycast_gateway_mac) }}
   ADVERTISE_PIP_BGP: {{ (vxlan.global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) }}
 {% if not (vxlan.global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | ansible.builtin.bool) %}
   ADVERTISE_PIP_ON_BORDER: {{ vxlan.global.vpc.advertise_pip_border_only | default(defaults.vxlan.global.vpc.advertise_pip_border_only) | title }}
@@ -40,10 +40,10 @@
   IPv6_MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.ipv6.group_subnet | default(defaults.vxlan.underlay.multicast.ipv6.group_subnet) }}
 {% endif %}
 {% endif %}
-{% if vxlan.routed.layer2_vni_range.from is defined %}
-{% set l2_vni_start = vxlan.routed.layer2_vni_range.from %}
-{% if vxlan.routed.layer2_vni_range.to is defined %}
-{% set l2_vni_end = vxlan.routed.layer2_vni_range.to %}
+{% if vxlan.ebgp_global.layer2_vni_range.from is defined %}
+{% set l2_vni_start = vxlan.ebgp_global.layer2_vni_range.from %}
+{% if vxlan.ebgp_global.layer2_vni_range.to is defined %}
+{% set l2_vni_end = vxlan.ebgp_global.layer2_vni_range.to %}
 {% endif %}
 {% endif %}
 {% if l2_vni_start is defined and l2_vni_end is not defined %}
@@ -51,13 +51,13 @@
 {% elif l2_vni_start is defined and l2_vni_end is defined %}
 {% set l2_vni_range = l2_vni_start ~ '-' ~ l2_vni_end %}
 {% else %}
-{% set l2_vni_range = defaults.vxlan.routed.layer2_vni_range.from ~ '-' ~ defaults.vxlan.routed.layer2_vni_range.to %}
+{% set l2_vni_range = defaults.vxlan.ebgp_global.layer2_vni_range.from ~ '-' ~ defaults.vxlan.ebgp_global.layer2_vni_range.to %}
 {% endif %}
   L2_SEGMENT_ID_RANGE: {{ l2_vni_range }}
-{% if vxlan.routed.layer3_vni_range.from is defined %}
-{% set l3_vni_start = vxlan.routed.layer3_vni_range.from %}
-{% if vxlan.routed.layer3_vni_range.to is defined %}
-{% set l3_vni_end = vxlan.routed.layer3_vni_range.to %}
+{% if vxlan.ebgp_global.layer3_vni_range.from is defined %}
+{% set l3_vni_start = vxlan.ebgp_global.layer3_vni_range.from %}
+{% if vxlan.ebgp_global.layer3_vni_range.to is defined %}
+{% set l3_vni_end = vxlan.ebgp_global.layer3_vni_range.to %}
 {% endif %}
 {% endif %}
 {% if l3_vni_start is defined and l3_vni_end is not defined %}
@@ -65,13 +65,13 @@
 {% elif l3_vni_start is defined and l3_vni_end is defined %}
 {% set l3_vni_range = l3_vni_start ~ '-' ~ l3_vni_end %}
 {% else %}
-{% set l3_vni_range = defaults.vxlan.routed.layer3_vni_range.from ~ '-' ~ defaults.vxlan.routed.layer3_vni_range.to %}
+{% set l3_vni_range = defaults.vxlan.ebgp_global.layer3_vni_range.from ~ '-' ~ defaults.vxlan.ebgp_global.layer3_vni_range.to %}
 {% endif %}
   L3_PARTITION_ID_RANGE: {{ l3_vni_range }}
-{% if vxlan.routed.layer2_vlan_range.from is defined %}
-{% set l2_vlan_start = vxlan.routed.layer2_vlan_range.from %}
-{% if vxlan.routed.layer2_vlan_range.to is defined %}
-{% set l2_vlan_end = vxlan.routed.layer2_vlan_range.to %}
+{% if vxlan.ebgp_global.layer2_vlan_range.from is defined %}
+{% set l2_vlan_start = vxlan.ebgp_global.layer2_vlan_range.from %}
+{% if vxlan.ebgp_global.layer2_vlan_range.to is defined %}
+{% set l2_vlan_end = vxlan.ebgp_global.layer2_vlan_range.to %}
 {% endif %}
 {% endif %}
 {% if l2_vlan_start is defined and l2_vlan_end is not defined %}
@@ -79,13 +79,13 @@
 {% elif l2_vlan_start is defined and l2_vlan_end is defined %}
 {% set l2_vlan_range = l2_vlan_start ~ '-' ~ l2_vlan_end %}
 {% else %}
-{% set l2_vlan_range = defaults.vxlan.routed.layer2_vlan_range.from ~ '-' ~ defaults.vxlan.routed.layer2_vlan_range.to %}
+{% set l2_vlan_range = defaults.vxlan.ebgp_global.layer2_vlan_range.from ~ '-' ~ defaults.vxlan.ebgp_global.layer2_vlan_range.to %}
 {% endif %}
   NETWORK_VLAN_RANGE: {{ l2_vlan_range }}
-{% if vxlan.routed.layer3_vlan_range.from is defined %}
-{% set l3_vlan_start = vxlan.routed.layer3_vlan_range.from %}
-{% if vxlan.routed.layer3_vlan_range.to is defined %}
-{% set l3_vlan_end = vxlan.routed.layer3_vlan_range.to %}
+{% if vxlan.ebgp_global.layer3_vlan_range.from is defined %}
+{% set l3_vlan_start = vxlan.ebgp_global.layer3_vlan_range.from %}
+{% if vxlan.ebgp_global.layer3_vlan_range.to is defined %}
+{% set l3_vlan_end = vxlan.ebgp_global.layer3_vlan_range.to %}
 {% endif %}
 {% endif %}
 {% if l3_vlan_start is defined and l3_vlan_end is not defined %}
@@ -93,6 +93,6 @@
 {% elif l3_vlan_start is defined and l3_vlan_end is defined %}
 {% set l3_vlan_range = l3_vlan_start ~ '-' ~ l3_vlan_end %}
 {% else %}
-{% set l3_vlan_range = defaults.vxlan.routed.layer3_vlan_range.from ~ '-' ~ defaults.vxlan.routed.layer3_vlan_range.to %}
+{% set l3_vlan_range = defaults.vxlan.ebgp_global.layer3_vlan_range.from ~ '-' ~ defaults.vxlan.ebgp_global.layer3_vlan_range.to %}
 {% endif %}
   VRF_VLAN_RANGE: {{ l3_vlan_range }}

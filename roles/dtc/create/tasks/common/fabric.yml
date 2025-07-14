@@ -24,7 +24,7 @@
 - name: Choose vars_common Based On Fabric Type
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: (MD_Extended.vxlan.fabric.type == "VXLAN_EVPN") or (MD_Extended.vxlan.fabric.type == "eBGP_VXLAN")
+  when: (MD_Extended.vxlan.fabric.type == "VXLAN_EVPN")
 - ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
@@ -34,6 +34,9 @@
 - ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_VXLAN }}"
+  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Manage Fabric Entry Point
   ansible.builtin.debug:

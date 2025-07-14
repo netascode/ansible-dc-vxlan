@@ -1,7 +1,7 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN Base config data structure for fabric {{ vxlan.fabric.name }} #}
 {% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 - FABRIC_NAME: {{ vxlan.fabric.name }}
-  FABRIC_TYPE: Easy_Fabric_eBGP
+  FABRIC_TYPE: {{ vxlan.fabric.type }}
   DEPLOY: False
 
 {# Include NDFC eBGP VXLAN EVPN General Template #}

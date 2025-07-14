@@ -90,6 +90,7 @@ class ActionModule(ActionBase):
             parent_keys = ['vxlan', 'fabric']
             check = data_model_key_check(results['data'], parent_keys)
             if 'fabric' in check['keys_found'] and 'fabric' in check['keys_data']:
+                rules_list.append(f'{rules}common/')
                 if 'type' in results['data']['vxlan']['fabric']:
                     if results['data']['vxlan']['fabric']['type'] in ('VXLAN_EVPN'):
                         rules_list.append(f'{rules}vxlan/')
@@ -99,6 +100,8 @@ class ActionModule(ActionBase):
                         rules_list.append(f'{rules}isn/')
                     elif results['data']['vxlan']['fabric']['type'] in ('External'):
                         rules_list.append(f'{rules}external/')
+                    elif results['data']['vxlan']['fabric']['type'] in ('BGP', 'eBGP_VXLAN'):
+                        rules_list.append(f'{rules}ebgp_vxlan/')
                     else:
                         results['failed'] = True
                         results['msg'] = f"vxlan.fabric.type {results['data']['vxlan']['fabric']['type']} is not a supported fabric type."
