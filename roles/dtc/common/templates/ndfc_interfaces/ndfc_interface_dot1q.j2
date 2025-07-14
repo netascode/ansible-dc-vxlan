@@ -28,7 +28,7 @@
     access_vlan: {{ interface['access_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.access_vlan) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.enable_bpdu_guard) }}
     duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.duplex) }}
-{% if orphan_port | default(false) %}
+{% if interface['orphan_port'] | default(false) %}
     orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.orphan_port) }}
 {% endif %}
     cmds: |2-
