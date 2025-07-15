@@ -9,9 +9,9 @@ class Rule:
     def match(cls, inventory):
         results = []
         switches = []
-        default_routed_int_mtu = 9216 # from topology_switch_routed_interface
-        default_port_channel_mtu = 9216 # from topology_switch_routed_po_interface
-        default_sub_int_mtu = 9216 #  from topology_switch_routed_sub_interface
+        default_routed_int_mtu = 9216       # from defaults.yml, [factory_defaults][vxlan][topology][switches][interfaces][topology_switch_routed_interface]
+        default_port_channel_mtu = 9216     # from defaults.yml, [factory_defaults][vxlan][topology][switches][interfaces][topology_switch_routed_po_interface]
+        default_sub_int_mtu = 9216          # from defaults.yml, [factory_defaults][vxlan][topology][switches][interfaces][topology_switch_routed_sub_interface]
 
         switches = cls.safeget(inventory, ['vxlan', 'topology', 'switches'])
 
