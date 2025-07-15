@@ -193,7 +193,7 @@ factory_defaults:
         authentication_key_id: 127
       isis:
         level: level-2
-        net_area_number: "0001"    # Quote due to hex value
+        net_area_number: 0001
         network_point_to_point: true
         authentication_enable: false
         authentication_key_id: 127
