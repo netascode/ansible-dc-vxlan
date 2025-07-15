@@ -45,21 +45,21 @@ class Rule:
                             mtu = default_sub_int_mtu
                         sub_interfaces_mtu[sub_interface_name] = mtu
 
-                    for sub_interface_name in sub_interfaces_mtu:
-                        interface_name = sub_interface_name.split('.')[0]
-                        sub_interface_mtu = sub_interfaces_mtu[sub_interface_name]
-                        if  interface_name in interfaces_mtu:
-                            interface_mtu = interfaces_mtu[interface_name]
-                        elif 'ether' in interface_name:
-                            interface_mtu = default_routed_int_mtu
-                        else:
-                            interface_mtu = default_port_channel_mtu
+                for sub_interface_name in sub_interfaces_mtu:
+                    interface_name = sub_interface_name.split('.')[0]
+                    sub_interface_mtu = sub_interfaces_mtu[sub_interface_name]
+                    if  interface_name in interfaces_mtu:
+                        interface_mtu = interfaces_mtu[interface_name]
+                    elif 'ether' in interface_name:
+                        interface_mtu = default_routed_int_mtu
+                    else:
+                        interface_mtu = default_port_channel_mtu
 
-                        if  sub_interface_mtu > interface_mtu:
-                            results.append(
-                                f"vxlan.topology.switches.{switch['name']}.interfaces.{sub_interface_name} ({sub_interface_mtu}). "
-                                f"This interface MTU value is greater than the defined value of {interface_name} ({interface_mtu})."
-                            )
+                    if  sub_interface_mtu > interface_mtu:
+                        results.append(
+                            f"vxlan.topology.switches.{switch['name']}.interfaces.{sub_interface_name} ({sub_interface_mtu}). "
+                            f"This interface MTU value is greater than the defined value of {interface_name} ({interface_mtu})."
+                        )
 
         return results
 
