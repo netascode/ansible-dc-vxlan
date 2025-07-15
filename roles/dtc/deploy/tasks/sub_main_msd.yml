@@ -55,8 +55,9 @@
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
   when: >
-    (MD_Extended.vxlan.fabric.type == 'ISN' and (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)) or
-    MD_Extended.vxlan.fabric.type == 'MSD'
+      (MD_Extended.vxlan.fabric.type == 'MSD' and
+       MD_Extended.vxlan.topology.child_fabrics is defined and
+       MD_Extended.vxlan.topology.child_fabrics | length > 0)
   # TODO: Need to add logic to only deploy if changes are made
 
 - name: Config-Save For Child Fabrics
