@@ -19,7 +19,7 @@
 {% endif %}
 {% elif (vxlan.underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol)) == 'is-is' %}
   ISIS_LEVEL: {{ vxlan.underlay.isis.level | default(defaults.vxlan.underlay.isis.level) }}
-  ISIS_AREA_NUM: "{{ vxlan.underlay.isis.net_area_number | default(defaults.vxlan.underlay.isis.net_area_number) }}"
+  ISIS_AREA_NUM: "{{ '%04x' | format(vxlan.underlay.isis.net_area_number | default(defaults.vxlan.underlay.isis.net_area_number)) }}"
   ISIS_OVERLOAD_ENABLE: {{ vxlan.underlay.isis.overload_bit | default(defaults.vxlan.underlay.isis.overload_bit) }}
 {% if vxlan.underlay.isis.overload_bit | default(defaults.vxlan.underlay.isis.overload_bit) | ansible.builtin.bool %}
   ISIS_OVERLOAD_ELAPSE_TIME: {{ vxlan.underlay.isis.overload_bit_elapsed_time | default(defaults.vxlan.underlay.isis.overload_bit_elapsed_time) }}
