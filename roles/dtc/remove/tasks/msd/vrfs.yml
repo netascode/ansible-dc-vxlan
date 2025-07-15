@@ -70,6 +70,7 @@
     - multisite_vrf_delete_mode is defined
     - multisite_vrf_delete_mode is true | bool
     - vars_common_msd.changes_detected_vrfs
+    - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
 
 - ansible.builtin.debug:
     msg:

@@ -120,7 +120,7 @@ body:
       required: true
 
   - type: textarea
-    id: data-model
+    id: data-model-yaml
     attributes:
       label: Data Model
       description: Please provide pieces of your relevant data model that is encountering the issue
