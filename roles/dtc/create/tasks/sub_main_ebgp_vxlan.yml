@@ -37,6 +37,6 @@
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
-    - MD_Extended.vxlan.ebgp_global is defined
+    - MD_Extended.vxlan.global.ebgp is defined
     - vars_common_ebgp_vxlan.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"

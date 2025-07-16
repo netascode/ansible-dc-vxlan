@@ -23,6 +23,9 @@
 factory_defaults:
   vxlan:
     global:
+      ebgp:
+        bgp_asn_mode: Multi-AS
+        leaf_same_bgp_asn: false
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
@@ -63,52 +66,6 @@ factory_defaults:
         mst_instance_range:
           - from: 0
         bridge_priority: 0
-      netflow:
-        enable: false
-      ptp:
-        enable: false
-        domain_id: 0
-        lb_id: 0
-      snmp_server_host_trap: true
-      bootstrap:
-        enable_bootstrap: false
-        enable_local_dhcp_server: false
-        enable_cdp_mgmt: false
-    ebgp_global:
-      bgp_asn_mode: Multi-AS
-      leaf_same_bgp_asn: false
-      bgp_max_paths: 4
-      anycast_gateway_mac: 20:20:00:00:00:aa
-      auth_proto: MD5
-      enable_nxapi_http: false
-      nxapi_http_port: 80
-      enable_nxapi_https: true
-      nxapi_https_port: 443
-      layer2_vni_range:
-        from: 30000
-        to: 49000
-      layer3_vni_range:
-        from: 50000
-        to: 59000
-      layer2_vlan_range:
-        from: 2300
-        to: 2999
-      layer3_vlan_range:
-        from: 2000
-        to: 2299
-      vpc:
-        peer_link_vlan: 3600
-        peer_keep_alive: management
-        auto_recovery_time: 360
-        delay_restore_time: 150
-        peer_link_port_channel_id: 500
-        ipv6_nd_sync: true
-        advertise_pip: false
-        advertise_pip_border_only: true
-        domain_id_range: 1-1000
-        fabric_vpc_qos: false
-        fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
-        enable_ipv6_nd_sync: true
       netflow:
         enable: false
       ptp:
@@ -248,6 +205,7 @@ factory_defaults:
       bgp:
         authentication_enable: false
         authentication_key_type: 3
+        max_paths: 4  # Review
       multicast:
         rendezvous_points: 2
         rp_mode: asm

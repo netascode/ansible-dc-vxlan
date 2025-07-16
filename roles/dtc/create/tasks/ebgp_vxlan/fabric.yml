@@ -30,7 +30,7 @@
 
 # There's an issue with the controller valdiation schema for this fabric type
 # as it pertains to PIM BiDir configuration, as such, we need to skip validation.
-# We need to decide if we want to leave this or not.
+# Use skip validation: true to avoid the error.
 - name: Manage Fabric {{ MD_Extended.vxlan.fabric.name }} in NDFC
   cisco.dcnm.dcnm_fabric:
     state: merged

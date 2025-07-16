@@ -203,7 +203,7 @@ class PreparePlugin:
         #
         # There might actualy be data but one of the other model files might
         # have a bug or everything except the top level vxlan key is commented out.
-        if fabric_type in ['VXLAN_EVPN', 'External', 'eBGP_VXLAN']:
+        if fabric_type in ['VXLAN_EVPN', 'External']:
             fn = self.model_data['vxlan']['fabric']['name']
             if not bool(self.model_data['vxlan'].get('underlay')):
                 msg = "((vxlan.underlay)) data is empty! Check your host_vars model data for fabric {fn}."

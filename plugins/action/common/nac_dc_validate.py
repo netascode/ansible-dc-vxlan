@@ -91,8 +91,8 @@ class ActionModule(ActionBase):
             check = data_model_key_check(results['data'], parent_keys)
             if 'fabric' in check['keys_found'] and 'fabric' in check['keys_data']:
                 if 'type' in results['data']['vxlan']['fabric']:
-                    if results['data']['vxlan']['fabric']['type'] in ('VXLAN_EVPN', 'eBGP_VXLAN'):
-                        rules_list.append(f'{rules}vxlan/')
+                    if results['data']['vxlan']['fabric']['type'] in ('VXLAN_EVPN'):
+                        rules_list.append(f'{rules}ibgp_vxlan/')
                     elif results['data']['vxlan']['fabric']['type'] in ('MSD', 'MCF'):
                         rules_list.append(f'{rules}multisite/')
                     elif results['data']['vxlan']['fabric']['type'] in ('ISN'):
@@ -117,8 +117,8 @@ class ActionModule(ActionBase):
                         )
                         display.deprecated(msg=deprecated_msg, version='1.0.0', collection_name='cisco.nac_dc_vxlan')
 
-                        if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN', 'eBGP_VXLAN'):
-                            rules_list.append(f'{rules}vxlan/')
+                        if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN'):
+                            rules_list.append(f'{rules}ibgp_vxlan/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCF'):
                             rules_list.append(f'{rules}multisite/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('ISN', 'External'):
