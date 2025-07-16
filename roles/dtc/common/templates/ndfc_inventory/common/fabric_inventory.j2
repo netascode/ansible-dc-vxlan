@@ -45,6 +45,20 @@
       config_data:
         modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
         gateway: {{ switch['management']['default_gateway_v4'] | ansible.utils.ipaddr('address') }}/{{ switch['management']['subnet_mask_ipv4'] }}
+{% if switch.interface_breakouts is defined %}
+{% set breakout_commands = [] %}
+{% for breakout in switch.interface_breakouts %}
+{% if breakout.enable_during_bootstrap is defined and breakout.enable_during_bootstrap %}
+{% if breakout.to is defined %}
+{% set port_range = breakout.from|string + "-" + breakout.to|string %}
+{% else %}
+{% set port_range = breakout.from|string %}
+{% endif %}
+{% set _ = breakout_commands.append("interface breakout module " + breakout.module|string + " port " + port_range + " map " + breakout.map) %}
+{% endif %}
+{% endfor %}
+        breakout: "{{ breakout_commands | join('\\n') }}"
+{% endif %}
       hostname: {{ switch['name'] }}
 {% else %}
   poap:
@@ -58,4 +72,4 @@
 {% endif %}
 {# Global Bootstrap Section End #}
 {# ---------------------------- #}
-{% endfor %} 
+{% endfor %}
