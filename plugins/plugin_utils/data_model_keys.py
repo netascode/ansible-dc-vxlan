@@ -26,7 +26,7 @@
 #  from ..helper_functions import do_something
 
 root_key = 'vxlan'
-model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MCF': {}, 'ISN': {}, 'External': {},'eBGP_VXLAN': {}}
+model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MCF': {}, 'ISN': {}, 'External': {}, 'eBGP_VXLAN': {}}
 
 # VXLAN_EVPN KEYS
 
@@ -147,41 +147,3 @@ model_keys['MSD']['multisite.overlay.vrf_attach_groups.switches'] = [root_key, '
 model_keys['MSD']['multisite.overlay.networks'] = [root_key, 'multisite', 'overlay', 'networks', 'LIST']
 model_keys['MSD']['multisite.overlay.network_attach_groups'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'LIST']
 model_keys['MSD']['multisite.overlay.network_attach_groups.switches'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'switches', 'LIST_INDEX']
-
-# BGP KEYS
-model_keys['eBGP_VXLAN']['global'] = [root_key, 'global', 'KEY']
-model_keys['eBGP_VXLAN']['global.dns_servers'] = [root_key, 'global', 'dns_servers', 'LIST']
-model_keys['eBGP_VXLAN']['global.ntp_servers'] = [root_key, 'global', 'ntp_servers', 'LIST']
-model_keys['eBGP_VXLAN']['global.syslog_servers'] = [root_key, 'global', 'syslog_servers', 'LIST']
-model_keys['eBGP_VXLAN']['global.netflow'] = [root_key, 'global', 'netflow', 'KEY']
-model_keys['eBGP_VXLAN']['global.netflow.exporter'] = [root_key, 'global', 'netflow', 'exporter', 'LIST']
-model_keys['eBGP_VXLAN']['global.netflow.record'] = [root_key, 'global', 'netflow', 'record', 'LIST']
-model_keys['eBGP_VXLAN']['global.netflow.monitor'] = [root_key, 'global', 'netflow', 'monitor', 'LIST']
-model_keys['eBGP_VXLAN']['global.spanning_tree'] = [root_key, 'global', 'spanning_tree', 'KEY']
-# ---
-model_keys['eBGP_VXLAN']['underlay'] = [root_key, 'underlay', 'KEY']
-# ---
-model_keys['eBGP_VXLAN']['topology'] = [root_key, 'topology', 'KEY']
-model_keys['eBGP_VXLAN']['topology.edge_connections'] = [root_key, 'topology', 'edge_connections', 'LIST']
-model_keys['eBGP_VXLAN']['topology.fabric_links'] = [root_key, 'topology', 'fabric_links', 'LIST']
-model_keys['eBGP_VXLAN']['topology.switches'] = [root_key, 'topology', 'switches', 'LIST']
-model_keys['eBGP_VXLAN']['topology.switches.freeform'] = [root_key, 'topology', 'switches', 'freeform', 'LIST_INDEX']
-model_keys['eBGP_VXLAN']['topology.switches.interfaces'] = [root_key, 'topology', 'switches', 'interfaces', 'LIST_INDEX']
-model_keys['eBGP_VXLAN']['topology.vpc_peers'] = [root_key, 'topology', 'vpc_peers', 'LIST']
-# ---
-model_keys['eBGP_VXLAN']['overlay'] = [root_key, 'overlay', 'KEY']
-model_keys['eBGP_VXLAN']['overlay.vrfs'] = [root_key, 'overlay', 'vrfs', 'LIST']
-model_keys['eBGP_VXLAN']['overlay.vrf_attach_groups'] = [root_key, 'overlay', 'vrf_attach_groups', 'LIST']
-model_keys['eBGP_VXLAN']['overlay.vrf_attach_groups.switches'] = [root_key, 'overlay', 'vrf_attach_groups', 'switches', 'LIST_INDEX']
-model_keys['eBGP_VXLAN']['overlay.networks'] = [root_key, 'overlay', 'networks', 'LIST']
-model_keys['eBGP_VXLAN']['overlay.network_attach_groups'] = [root_key, 'overlay', 'network_attach_groups', 'LIST']
-model_keys['eBGP_VXLAN']['overlay.network_attach_groups.switches'] = [root_key, 'overlay', 'network_attach_groups', 'switches', 'LIST_INDEX']
-# ---
-model_keys['eBGP_VXLAN']['overlay_extensions'] = [root_key, 'overlay_extensions', 'KEY']
-model_keys['eBGP_VXLAN']['overlay_extensions.route_control'] = [root_key, 'overlay_extensions', 'route_control', 'KEY']
-model_keys['eBGP_VXLAN']['overlay_extensions.route_control.route_maps'] = [root_key, 'overlay_extensions', 'route_control', 'route_maps', 'LIST']
-# ---
-model_keys['eBGP_VXLAN']['policy'] = [root_key, 'policy', 'KEY']
-model_keys['eBGP_VXLAN']['policy.policies'] = [root_key, 'policy', 'policies', 'LIST']
-model_keys['eBGP_VXLAN']['policy.groups'] = [root_key, 'policy', 'groups', 'LIST']
-model_keys['eBGP_VXLAN']['policy.switches'] = [root_key, 'policy', 'switches', 'LIST']
