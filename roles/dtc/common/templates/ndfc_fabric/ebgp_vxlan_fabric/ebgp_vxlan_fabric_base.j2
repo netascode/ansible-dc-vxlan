@@ -7,13 +7,22 @@
 {# Include NDFC eBGP VXLAN EVPN General Template #}
 {% include '/ndfc_fabric/ebgp_vxlan_fabric/general/ebgp_vxlan_fabric_general.j2' %}
 
+{# Include NDFC eBGP VXLAN EVPN Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/evpn/ebgp_vxlan_fabric_evpn.j2' %}
+
 {# Include NDFC eBGP VXLAN EVPN vPC Template #}
 {% include '/ndfc_fabric/ebgp_vxlan_fabric/vpc/ebgp_vxlan_fabric_vpc.j2' %}
+
+{# Include NDFC eBGP VXLAN EVPN Protocols Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/protocols/ebgp_vxlan_fabric_protocols.j2' %}
 
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
 {# Include NDFC eBGP VXLAN EVPN Security Template #}
 {% include '/ndfc_fabric/ebgp_vxlan_fabric/security/ebgp_vxlan_fabric_security.j2' %}
 {% endif %}
+
+{# Include NDFC eBGP VXLAN EVPN Advanced Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/advanced/ebgp_vxlan_fabric_advanced.j2' %}
 
 {# Include NDFC eBGP VXLAN EVPN Manageability Template #}
 {% include '/ndfc_fabric/ebgp_vxlan_fabric/manageability/ebgp_vxlan_fabric_manageability.j2' %}

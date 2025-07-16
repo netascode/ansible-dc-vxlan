@@ -21,23 +21,6 @@
 
 ---
 
-- name: Choose vars_common Based On Fabric Type
-  ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_msd }}"
-  when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_isn }}"
-  when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_external }}"
-  when: MD_Extended.vxlan.fabric.type == "External"
-- ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_ebgp_VXLAN }}"
-  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
-
 - name: Manage Fabric Entry Point
   ansible.builtin.debug:
     msg:
@@ -45,19 +28,11 @@
       - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
+# There's an issue with the controller valdiation schema for this fabric type
+# as it pertains to PIM BiDir configuration, as such, we need to skip validation.
+# We need to decide if we want to leave this or not.
 - name: Manage Fabric {{ MD_Extended.vxlan.fabric.name }} in NDFC
   cisco.dcnm.dcnm_fabric:
     state: merged
-    config: "{{ vars_common_local.fabric_config }}"
-
-- name: Create ANYCAST_RP {{ vxlan.underlay.multicast.ipv4.anycast_rp }} for {{ vxlan.fabric.name }} in NDFC
-  cisco.dcnm.dcnm_resource_manager:
-    state: merged
-    fabric: "{{ vxlan.fabric.name }}"
-    config:
-      - entity_name: "ANYCAST_RP"
-        pool_type: "IP"
-        pool_name: "ANYCAST_RP_IP_POOL"
-        scope_type: "fabric"
-        resource: "{{ vxlan.underlay.multicast.ipv4.anycast_rp }}"
-  when: vxlan.underlay.general.manual_underlay_allocation is defined and vxlan.underlay.general.manual_underlay_allocation == True
+    config: "{{ vars_common_ebgp_vxlan.fabric_config }}"
+    skip_validation: true

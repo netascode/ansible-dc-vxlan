@@ -109,14 +109,6 @@ factory_defaults:
         fabric_vpc_qos: false
         fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
         enable_ipv6_nd_sync: true
-      # spanning_tree:
-      #   root_bridge_protocol: unmanaged
-      #   vlan_range:
-      #     - from: 1
-      #       to: 3967
-      #   mst_instance_range:
-      #     - from: 0
-      #   bridge_priority: 0
       netflow:
         enable: false
       ptp:

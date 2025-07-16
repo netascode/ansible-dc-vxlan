@@ -92,7 +92,7 @@ class ActionModule(ActionBase):
             if 'fabric' in check['keys_found'] and 'fabric' in check['keys_data']:
                 rules_list.append(f'{rules}common/')
                 if 'type' in results['data']['vxlan']['fabric']:
-                    if results['data']['vxlan']['fabric']['type'] in ('VXLAN_EVPN'):
+                    if results['data']['vxlan']['fabric']['type'] in ('VXLAN_EVPN', 'eBGP_VXLAN'):
                         rules_list.append(f'{rules}vxlan/')
                     elif results['data']['vxlan']['fabric']['type'] in ('MSD', 'MCF'):
                         rules_list.append(f'{rules}multisite/')
@@ -120,7 +120,7 @@ class ActionModule(ActionBase):
                         )
                         display.deprecated(msg=deprecated_msg, version='1.0.0', collection_name='cisco.nac_dc_vxlan')
 
-                        if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN'):
+                        if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN', 'eBGP_VXLAN'):
                             rules_list.append(f'{rules}vxlan/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCF'):
                             rules_list.append(f'{rules}multisite/')
