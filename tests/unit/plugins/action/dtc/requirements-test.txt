@@ -1,0 +1,32 @@
+# Test dependencies for DTC Action Plugin tests
+# 
+# Core testing framework
+pytest>=6.0.0
+pytest-cov>=2.12.0
+pytest-watch>=4.2.0
+pytest-mock>=3.6.0
+pytest-xdist>=2.3.0
+
+# Code quality
+black>=21.0.0
+flake8>=3.9.0
+mypy>=0.910
+bandit>=1.7.0
+
+# Documentation
+pydoc-markdown>=3.10.0
+
+# Ansible testing
+ansible-core>=2.11.0
+ansible-test>=1.0.0
+
+# Mock and testing utilities
+mock>=4.0.3
+coverage>=5.5
+freezegun>=1.2.0
+parameterized>=0.8.1
+
+# Development utilities
+watchdog>=2.1.0
+colorama>=0.4.4
+tox>=3.24.0
