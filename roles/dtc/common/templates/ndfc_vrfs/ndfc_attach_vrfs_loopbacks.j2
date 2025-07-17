@@ -22,7 +22,7 @@
         "serialNumber": "{{ switch.serial_number }}",
 {% endif %}
 {% endfor %}
-        "freeformConfig": "",
+        "freeformConfig": "{{ attach['freeform_config'] | default('') }}",
         "extensionValues": "",
         "vlan": "{{ vrf["vlan_id"] }}",
         "deployment": true,
