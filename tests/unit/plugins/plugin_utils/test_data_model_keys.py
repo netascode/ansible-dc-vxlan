@@ -5,7 +5,7 @@ Unit tests for the data_model_keys plugin_utils module.
 import sys
 import os
 import pytest
-from unittest.mock import Mock, patch
+# from unittest.mock import Mock, patch
 
 # Add plugin_utils to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'plugins', 'plugin_utils'))

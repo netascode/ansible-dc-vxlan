@@ -7,13 +7,13 @@ import os
 import pytest
 from unittest.mock import Mock, patch
 
-from packaging.version import Version
+# from packaging.version import Version
 from jinja2.runtime import Undefined
 from jinja2.exceptions import UndefinedError
 
 from ansible.errors import AnsibleFilterError, AnsibleFilterTypeError
-from ansible.module_utils.six import string_types
-from ansible.template import Templar
+# from ansible.module_utils.six import string_types
+# from ansible.template import Templar
 
 # Import the actual version_compare module
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
