@@ -1,11 +1,11 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN General config data structure for fabric {{ vxlan.fabric.name }} #}
   BGP_AS: "{{ vxlan.ebgp_global.spine_bgp_asn }}"
-  SUPER_SPINE_BGP_AS: "{{ vxlan.ebgp_global.super_spine_bgp_asn | default(omit) }}"
-  BGP_AS_MODE: "{{ vxlan.ebgp_global.bgp_asn_mode | default(defaults.vxlan.ebgp_global.bgp_asn_mode) }}"
 {% if vxlan.ebgp_global.bgp_asn_mode | default(defaults.vxlan.ebgp_global.bgp_asn_mode) == 'Multi-AS' %}
   ALLOW_LEAF_SAME_AS: "{{ vxlan.ebgp_global.leaf_same_bgp_asn | default(defaults.vxlan.ebgp_global.leaf_same_bgp_asn) | lower }}"
 {% endif %}
 {% if vxlan.ebgp_global.bgp_asn_mode | default(defaults.vxlan.ebgp_global.bgp_asn_mode) == 'Same-Tier-AS' %}
+  SUPER_SPINE_BGP_AS: "{{ vxlan.ebgp_global.super_spine_bgp_asn | default(omit) }}"
+  BGP_AS_MODE: "{{ vxlan.ebgp_global.bgp_asn_mode | default(defaults.vxlan.ebgp_global.bgp_asn_mode) }}"
   LEAF_BGP_AS: "{{ vxlan.ebgp_global.leaf_bgp_asn | default(omit) }}"
   BORDER_BGP_AS: "{{ vxlan.ebgp_global.border_bgp_asn | default(omit) }}"
 {% endif %}

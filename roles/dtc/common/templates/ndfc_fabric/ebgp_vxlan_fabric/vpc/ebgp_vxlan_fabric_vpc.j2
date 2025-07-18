@@ -2,10 +2,11 @@
   VPC_PEER_LINK_VLAN: {{ vxlan.ebgp_global.vpc.peer_link_vlan | default(defaults.vxlan.ebgp_global.vpc.peer_link_vlan) }}
   VPC_PEER_KEEP_ALIVE_OPTION: {{ vxlan.ebgp_global.vpc.peer_keep_alive | default(defaults.vxlan.ebgp_global.vpc.peer_keep_alive) }}
   VPC_AUTO_RECOVERY_TIME: {{ vxlan.ebgp_global.vpc.auto_recovery_time | default(defaults.vxlan.ebgp_global.vpc.auto_recovery_time) }}
-  {#VPC_DELAY_RESTORE_TIME is an invalid key. To be fixed or removed in future releases.
+{#VPC_DELAY_RESTORE_TIME is an invalid key. To be fixed or removed in future releases.
   VPC_DELAY_RESTORE_TIME: {{ vxlan.ebgp_global.vpc.delay_restore_time | default(defaults.vxlan.ebgp_global.vpc.delay_restore_time) }}
-  VPC_DELAY_RESTORE: {{ vxlan.ebgp_global.vpc.delay_restore_time | default(defaults.vxlan.ebgp_global.vpc.delay_restore_time) }}#}
+  VPC_DELAY_RESTORE: {{ vxlan.ebgp_global.vpc.delay_restore_time | default(defaults.vxlan.ebgp_global.vpc.delay_restore_time) }}
   VPC_PEER_LINK_PO: {{ vxlan.ebgp_global.vpc.peer_link_port_channel_id | default(defaults.vxlan.ebgp_global.vpc.peer_link_port_channel_id) }}
+#}
   VPC_ENABLE_IPv6_ND_SYNC: {{ vxlan.ebgp_global.vpc.ipv6_nd_sync | default(defaults.vxlan.ebgp_global.vpc.ipv6_nd_sync) }}
   ENABLE_FABRIC_VPC_DOMAIN_ID: False
   VPC_DOMAIN_ID_RANGE: {{ vxlan.ebgp_global.vpc.domain_id_range | default(defaults.vxlan.ebgp_global.vpc.domain_id_range) }}
