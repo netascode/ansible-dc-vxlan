@@ -67,7 +67,7 @@ model_keys['VXLAN_EVPN']['policy.policies'] = [root_key, 'policy', 'policies', '
 model_keys['VXLAN_EVPN']['policy.groups'] = [root_key, 'policy', 'groups', 'LIST']
 model_keys['VXLAN_EVPN']['policy.switches'] = [root_key, 'policy', 'switches', 'LIST']
 
-# BGP KEYS
+#eBGP_VXLAN KEYS
 model_keys['eBGP_VXLAN']['global'] = [root_key, 'global', 'KEY']
 model_keys['eBGP_VXLAN']['global.dns_servers'] = [root_key, 'global', 'dns_servers', 'LIST']
 model_keys['eBGP_VXLAN']['global.ntp_servers'] = [root_key, 'global', 'ntp_servers', 'LIST']
