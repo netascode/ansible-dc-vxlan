@@ -2,7 +2,7 @@
 Unit tests for add_device_check action plugin.
 """
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.add_device_check import ActionModule
 from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase

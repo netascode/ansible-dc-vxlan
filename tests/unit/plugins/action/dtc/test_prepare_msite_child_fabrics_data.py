@@ -1,7 +1,6 @@
 """
 Unit tests for prepare_msite_child_fabrics_data action plugin.
 """
-import pytest
 from unittest.mock import patch
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_child_fabrics_data import ActionModule

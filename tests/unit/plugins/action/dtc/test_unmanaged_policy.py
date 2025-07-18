@@ -1,8 +1,7 @@
 """
 Unit tests for unmanaged_policy action plugin.
 """
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_policy import ActionModule
 from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase

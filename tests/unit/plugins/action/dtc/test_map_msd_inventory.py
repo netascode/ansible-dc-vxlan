@@ -1,7 +1,6 @@
 """
 Unit tests for map_msd_inventory action plugin.
 """
-import pytest
 from unittest.mock import patch
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.map_msd_inventory import ActionModule

@@ -2,7 +2,7 @@
 Unit tests for fabric_check_sync action plugin.
 """
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabric_check_sync import ActionModule
 from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase

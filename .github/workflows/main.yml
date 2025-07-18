@@ -25,7 +25,7 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.10.14
       uses: actions/setup-python@v5
       with:
@@ -76,4 +76,48 @@ jobs:
 
     - name: Run sanity tests
       run: ansible-test sanity --docker --python ${{matrix.python}} -v --color --truncate 0
+      working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+
+  unit:
+    name: Unit (Ⓐ${{ matrix.ansible }})
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ansible: [2.14.15, 2.15.10, 2.16.5, 2.17.8]
+        python: ['3.10']
+    steps:
+    - name: Set up Python 3.10.14
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.10.14
+
+    - name: Upgrade pip
+      run: |
+        pip install --upgrade pip
+    - name: Install ansible-base (v${{ matrix.ansible }})
+      run: pip install https://github.com/ansible/ansible/archive/v${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+
+    - name: Download migrated collection artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: collection-${{ matrix.ansible }}
+        path: .cache/collection-tarballs
+
+    - name: Install coverage (v7.9.2)
+      run: pip install coverage==7.9.2
+
+    - name: Install pytest (v8.4.1)
+      run: pip install pytest==8.4.1
+
+    - name: Install the collection tarball
+      run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz
+
+    - name: Run unit tests
+      run: coverage run --source=. -m pytest tests/unit/. -vvvv
+      working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+
+    - name: Generate coverage report
+      run: coverage report
       working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan

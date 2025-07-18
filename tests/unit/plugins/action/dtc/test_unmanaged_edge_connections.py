@@ -1,7 +1,6 @@
 """
 Unit tests for unmanaged_edge_connections action plugin.
 """
-import pytest
 from unittest.mock import patch
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections import ActionModule

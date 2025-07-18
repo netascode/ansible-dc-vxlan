@@ -1,7 +1,6 @@
 """
 Unit tests for links_filter_and_remove action plugin.
 """
-import pytest
 from unittest.mock import patch
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.links_filter_and_remove import ActionModule

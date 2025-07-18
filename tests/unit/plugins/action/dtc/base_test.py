@@ -2,7 +2,7 @@
 Base test class for DTC action plugins.
 """
 import unittest
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import MagicMock
 import os
 import tempfile
 import shutil
@@ -12,7 +12,6 @@ from ansible.template import Templar
 from ansible.vars.manager import VariableManager
 from ansible.inventory.manager import InventoryManager
 from ansible.parsing.dataloader import DataLoader
-from ansible.executor.task_executor import TaskExecutor
 
 
 class ActionModuleTestCase(unittest.TestCase):

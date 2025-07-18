@@ -2,10 +2,8 @@
 Unit tests for diff_model_changes action plugin.
 """
 import unittest
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import patch
 import os
-import tempfile
-import hashlib
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.diff_model_changes import ActionModule
 from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase

@@ -3,7 +3,6 @@ Unit tests for get_poap_data action plugin.
 """
 import unittest
 from unittest.mock import MagicMock, patch
-import re
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.get_poap_data import ActionModule, POAPDevice
 from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase

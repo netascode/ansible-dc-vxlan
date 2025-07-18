@@ -2,7 +2,7 @@
 Unit tests for fabrics_deploy action plugin.
 """
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy import ActionModule
 from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase

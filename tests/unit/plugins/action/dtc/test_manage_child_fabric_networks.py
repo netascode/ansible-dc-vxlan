@@ -2,8 +2,7 @@
 Unit tests for manage_child_fabric_networks action plugin.
 """
 import unittest
-from unittest.mock import MagicMock, patch, mock_open
-import json
+from unittest.mock import patch, mock_open
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.manage_child_fabric_networks import ActionModule
 from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase
