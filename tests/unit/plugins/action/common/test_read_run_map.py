@@ -1,9 +1,7 @@
 """Unit tests for read_run_map action plugin."""
 
 import pytest
-from unittest.mock import MagicMock, patch, Mock, mock_open
-import copy
-import yaml
+from unittest.mock import MagicMock, patch, mock_open
 
 # Try to import from the plugins directory
 try:

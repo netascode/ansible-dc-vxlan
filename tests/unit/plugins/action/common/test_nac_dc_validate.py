@@ -1,8 +1,7 @@
 """Unit tests for nac_dc_validate action plugin."""
 
 import pytest
-from unittest.mock import MagicMock, patch, Mock
-import copy
+from unittest.mock import MagicMock, patch
 import os
 
 # Try to import from the plugins directory
