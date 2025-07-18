@@ -3,6 +3,7 @@ Unit tests for the version_compare filter plugin.
 """
 
 import sys
+import os
 import pytest
 from unittest.mock import Mock, patch
 
@@ -15,7 +16,7 @@ from ansible.module_utils.six import string_types
 from ansible.template import Templar
 
 # Import the actual version_compare module
-sys.path.insert(0, '/Users/mtarking/Documents/Development/DCN/nac-vxlan-as-code/vxlan-as-code/collections/ansible_collections/cisco/nac_dc_vxlan')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
 
 from plugins.filter.version_compare import version_compare, FilterModule
 

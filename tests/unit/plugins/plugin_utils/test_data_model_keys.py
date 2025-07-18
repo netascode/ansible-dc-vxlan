@@ -3,11 +3,12 @@ Unit tests for the data_model_keys plugin_utils module.
 """
 
 import sys
+import os
 import pytest
 from unittest.mock import Mock, patch
 
 # Add plugin_utils to Python path
-sys.path.insert(0, '/Users/mtarking/Documents/Development/DCN/nac-vxlan-as-code/vxlan-as-code/collections/ansible_collections/cisco/nac_dc_vxlan/plugins/plugin_utils')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__ ), '..', '..', '..', 'plugins', 'plugin_utils'))
 
 try:
     from data_model_keys import root_key, model_keys
@@ -16,7 +17,7 @@ except ImportError:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
         "data_model_keys",
-        "/Users/mtarking/Documents/Development/DCN/nac-vxlan-as-code/vxlan-as-code/collections/ansible_collections/cisco/nac_dc_vxlan/plugins/plugin_utils/data_model_keys.py"
+        os.path.join(os.path.dirname(__file__ ), '..', '..', '..', '..', 'plugins', 'plugin_utils', 'data_model_keys.py')
     )
     data_model_keys_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(data_model_keys_module)
