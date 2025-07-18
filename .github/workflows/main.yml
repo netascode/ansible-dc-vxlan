@@ -25,7 +25,7 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.10.14
       uses: actions/setup-python@v5
       with:
@@ -76,4 +76,12 @@ jobs:
 
     - name: Run sanity tests
       run: ansible-test sanity --docker --python ${{matrix.python}} -v --color --truncate 0
+      working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+
+    - name: Run unit tests
+      run: coverage run --source=. -m pytest tests/unit/. -vvvv
+      working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+
+    - name: Generate coverage report
+      run: coverage report
       working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
