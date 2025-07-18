@@ -75,7 +75,7 @@ class TestVersionCompareFunction:
         # packaging.version treats build metadata as part of the version for equality
         result = version_compare("1.0.0+build.1", "1.0.0+build.2", "==")
         assert result is False  # Different build metadata means not equal
-        
+
         # But the base version comparison should still work
         assert version_compare("1.0.0+build.1", "1.0.1+build.1", "<") is True
 
@@ -89,10 +89,10 @@ class TestVersionCompareFunction:
         """Test version1 type validation."""
         with pytest.raises(AnsibleFilterTypeError, match="Can only check string versions, however version1 is"):
             version_compare(123, "1.0.0", "==")
-        
+
         with pytest.raises(AnsibleFilterTypeError, match="Can only check string versions, however version1 is"):
             version_compare([], "1.0.0", "==")
-        
+
         with pytest.raises(AnsibleFilterTypeError, match="Can only check string versions, however version1 is"):
             version_compare({"version": "1.0.0"}, "1.0.0", "==")
 
@@ -100,10 +100,10 @@ class TestVersionCompareFunction:
         """Test version2 type validation."""
         with pytest.raises(AnsibleFilterTypeError, match="Can only check string versions, however version2 is"):
             version_compare("1.0.0", 123, "==")
-        
+
         with pytest.raises(AnsibleFilterTypeError, match="Can only check string versions, however version2 is"):
             version_compare("1.0.0", [], "==")
-        
+
         with pytest.raises(AnsibleFilterTypeError, match="Can only check string versions, however version2 is"):
             version_compare("1.0.0", {"version": "1.0.0"}, "==")
 
@@ -112,7 +112,7 @@ class TestVersionCompareFunction:
         # Test unsupported operator
         with pytest.raises(AnsibleFilterError, match="Unsupported operator"):
             version_compare("1.0.0", "1.0.0", "===")
-        
+
         with pytest.raises(AnsibleFilterError, match="Unsupported operator"):
             version_compare("1.0.0", "1.0.0", "~=")
 
@@ -121,11 +121,11 @@ class TestVersionCompareFunction:
         # Test with integer operator (not string_types or Undefined)
         with pytest.raises(AnsibleFilterError, match="Unsupported operator"):
             version_compare("1.0.0", "1.0.0", 123)
-        
+
         # Test with list operator (not string_types or Undefined)
         with pytest.raises(AnsibleFilterError, match="Unsupported operator"):
             version_compare("1.0.0", "1.0.0", [])
-        
+
         # Test with dict operator (not string_types or Undefined)
         with pytest.raises(AnsibleFilterError, match="Unsupported operator"):
             version_compare("1.0.0", "1.0.0", {})
@@ -133,7 +133,7 @@ class TestVersionCompareFunction:
     def test_version_compare_undefined_version1(self):
         """Test with undefined version1."""
         undefined_mock = Mock(spec=Undefined)
-        
+
         # Test that it handles Undefined properly by raising AnsibleFilterError
         with pytest.raises(AnsibleFilterError):
             version_compare(undefined_mock, "1.0.0", "==")
@@ -141,7 +141,7 @@ class TestVersionCompareFunction:
     def test_version_compare_undefined_version2(self):
         """Test with undefined version2."""
         undefined_mock = Mock(spec=Undefined)
-        
+
         # Test that it handles Undefined properly by raising AnsibleFilterError
         with pytest.raises(AnsibleFilterError):
             version_compare("1.0.0", undefined_mock, "==")
@@ -149,7 +149,7 @@ class TestVersionCompareFunction:
     def test_version_compare_undefined_operator(self):
         """Test with undefined operator."""
         undefined_mock = Mock(spec=Undefined)
-        
+
         # Test that it handles string-like Undefined properly
         with pytest.raises(AnsibleFilterError):
             version_compare("1.0.0", "1.0.0", undefined_mock)
@@ -158,7 +158,7 @@ class TestVersionCompareFunction:
         """Test with invalid version strings."""
         with pytest.raises(AnsibleFilterError, match="Unable handle version"):
             version_compare("invalid-version", "1.0.0", "==")
-        
+
         with pytest.raises(AnsibleFilterError, match="Unable handle version"):
             version_compare("1.0.0", "invalid-version", "==")
 
@@ -166,7 +166,7 @@ class TestVersionCompareFunction:
         """Test with empty version strings."""
         with pytest.raises(AnsibleFilterError, match="Unable handle version"):
             version_compare("", "1.0.0", "==")
-        
+
         with pytest.raises(AnsibleFilterError, match="Unable handle version"):
             version_compare("1.0.0", "", "==")
 
@@ -182,7 +182,7 @@ class TestVersionCompareFunction:
         with patch('plugins.filter.version_compare.Version') as mock_version:
             # Make Version constructor raise UndefinedError
             mock_version.side_effect = UndefinedError("Variable is undefined")
-            
+
             # This should trigger the UndefinedError catch block
             with pytest.raises(UndefinedError):
                 version_compare("1.0.0", "1.0.0", "==")
@@ -190,7 +190,7 @@ class TestVersionCompareFunction:
     def test_version_compare_all_operators(self):
         """Test all supported operators comprehensively."""
         operators = ['==', '!=', '>', '>=', '<', '<=']
-        
+
         for op in operators:
             # Test that each operator works without exception
             result = version_compare("1.0.0", "1.0.0", op)
@@ -200,13 +200,13 @@ class TestVersionCompareFunction:
         """Test edge cases and boundary conditions."""
         # Test with very large version numbers
         assert version_compare("999.999.999", "1.0.0", ">") is True
-        
+
         # Test with zero versions
         assert version_compare("0.0.0", "0.0.1", "<") is True
-        
+
         # Test with single digit versions
         assert version_compare("1", "2", "<") is True
-        
+
         # Test with different number of version parts
         assert version_compare("1.0", "1.0.0.0", "==") is True
 
@@ -214,7 +214,7 @@ class TestVersionCompareFunction:
         """Test compatibility with different string types."""
         # Test with unicode strings
         assert version_compare("1.0.0", "1.0.0", "==") is True
-        
+
         # Test with bytes (should fail appropriately)
         with pytest.raises(AnsibleFilterTypeError):
             version_compare(b"1.0.0", "1.0.0", "==")
@@ -232,7 +232,7 @@ class TestFilterModule:
         """Test filters method returns correct dictionary."""
         filter_module = FilterModule()
         filters = filter_module.filters()
-        
+
         assert isinstance(filters, dict)
         assert "version_compare" in filters
         assert filters["version_compare"] is version_compare
@@ -241,7 +241,7 @@ class TestFilterModule:
         """Test filter module integration with Ansible."""
         filter_module = FilterModule()
         filters = filter_module.filters()
-        
+
         # Test that the filter function works through the module
         version_compare_func = filters["version_compare"]
         result = version_compare_func("1.0.1", "1.0.0", ">")
@@ -251,15 +251,15 @@ class TestFilterModule:
         """Test integration with Ansible Templar."""
         filter_module = FilterModule()
         filters = filter_module.filters()
-        
+
         # Mock a basic templar environment
         mock_templar = Mock()
         mock_templar.environment = Mock()
         mock_templar.environment.filters = {}
-        
+
         # Add our filter to the mock environment
         mock_templar.environment.filters.update(filters)
-        
+
         # Verify the filter is available
         assert "version_compare" in mock_templar.environment.filters
 
@@ -268,11 +268,11 @@ class TestFilterModule:
         filter_module = FilterModule()
         filters = filter_module.filters()
         version_compare_func = filters["version_compare"]
-        
+
         # Test that errors from the underlying function are propagated
         with pytest.raises(AnsibleFilterTypeError):
             version_compare_func(123, "1.0.0", "==")
-        
+
         with pytest.raises(AnsibleFilterError):
             version_compare_func("1.0.0", "1.0.0", "invalid_op")
 
@@ -286,7 +286,7 @@ class TestVersionCompareIntegration:
         assert version_compare("12.2.2", "12.2.1", ">") is True
         assert version_compare("12.2.2", "12.2.2", ">=") is True
         assert version_compare("11.5.1", "12.0.0", "<") is True
-        
+
         # NDFC version comparisons (from examples in docstring)
         assert version_compare("12.2.2", "12.2.2", ">=") is True
         assert version_compare("12.2.3", "12.2.2", ">=") is True
@@ -300,10 +300,10 @@ class TestVersionCompareIntegration:
             "required_version": "1.0.1",
             "comparison_op": ">"
         }
-        
+
         result = version_compare(
-            version_vars["current_version"], 
-            version_vars["required_version"], 
+            version_vars["current_version"],
+            version_vars["required_version"],
             version_vars["comparison_op"]
         )
         assert result is True
@@ -337,13 +337,13 @@ class TestVersionCompareIntegration:
     def test_version_compare_performance(self):
         """Test performance with multiple version comparisons."""
         import time
-        
+
         # Test that version comparisons are reasonably fast
         start_time = time.time()
-        
+
         for i in range(100):
             version_compare(f"1.0.{i}", f"1.0.{i+1}", "<")
-        
+
         elapsed_time = time.time() - start_time
         assert elapsed_time < 1.0, f"Version comparisons took too long: {elapsed_time}s"
 
@@ -358,7 +358,7 @@ class TestVersionCompareIntegration:
         """Test examples from the documentation."""
         # From EXAMPLES section
         assert version_compare('1.0.2', '1.0.1', '>') is True
-        
+
         # Test the conditional example scenario
         ndfc_version = "12.2.2"
         assert version_compare(ndfc_version, '12.2.2', '>=') is True

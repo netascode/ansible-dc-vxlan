@@ -28,7 +28,7 @@ except ImportError:
     )
     helper_functions_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helper_functions_module)
-    
+
     data_model_key_check = helper_functions_module.data_model_key_check
     hostname_to_ip_mapping = helper_functions_module.hostname_to_ip_mapping
     ndfc_get_switch_policy = helper_functions_module.ndfc_get_switch_policy
@@ -51,9 +51,9 @@ class TestDataModelKeyCheck:
             }
         }
         keys = ['vxlan', 'global', 'dns_servers']
-        
+
         result = data_model_key_check(tested_object, keys)
-        
+
         assert result['keys_found'] == ['vxlan', 'global', 'dns_servers']
         assert result['keys_not_found'] == []
         assert result['keys_data'] == ['vxlan', 'global', 'dns_servers']
@@ -69,9 +69,9 @@ class TestDataModelKeyCheck:
             }
         }
         keys = ['vxlan', 'global', 'dns_servers']
-        
+
         result = data_model_key_check(tested_object, keys)
-        
+
         assert result['keys_found'] == ['vxlan', 'global', 'dns_servers']
         assert result['keys_not_found'] == []
         assert result['keys_data'] == ['vxlan', 'global']
@@ -85,9 +85,9 @@ class TestDataModelKeyCheck:
             }
         }
         keys = ['vxlan', 'global', 'dns_servers']
-        
+
         result = data_model_key_check(tested_object, keys)
-        
+
         assert result['keys_found'] == ['vxlan', 'global']
         assert result['keys_not_found'] == ['dns_servers']
         assert result['keys_data'] == ['vxlan']
@@ -97,9 +97,9 @@ class TestDataModelKeyCheck:
         """Test when no keys are found."""
         tested_object = {}
         keys = ['vxlan', 'global', 'dns_servers']
-        
+
         result = data_model_key_check(tested_object, keys)
-        
+
         assert result['keys_found'] == []
         assert result['keys_not_found'] == ['vxlan', 'global', 'dns_servers']
         assert result['keys_data'] == []
@@ -109,9 +109,9 @@ class TestDataModelKeyCheck:
         """Test with empty keys list."""
         tested_object = {'vxlan': {'global': {}}}
         keys = []
-        
+
         result = data_model_key_check(tested_object, keys)
-        
+
         assert result['keys_found'] == []
         assert result['keys_not_found'] == []
         assert result['keys_data'] == []
@@ -121,9 +121,9 @@ class TestDataModelKeyCheck:
         """Test with None tested_object."""
         tested_object = None
         keys = ['vxlan', 'global']
-        
+
         result = data_model_key_check(tested_object, keys)
-        
+
         assert result['keys_found'] == []
         assert result['keys_not_found'] == ['vxlan', 'global']
         assert result['keys_data'] == []
@@ -133,9 +133,9 @@ class TestDataModelKeyCheck:
         """Test with a single key."""
         tested_object = {'vxlan': {'data': 'test'}}
         keys = ['vxlan']
-        
+
         result = data_model_key_check(tested_object, keys)
-        
+
         assert result['keys_found'] == ['vxlan']
         assert result['keys_not_found'] == []
         assert result['keys_data'] == ['vxlan']
@@ -153,9 +153,9 @@ class TestDataModelKeyCheck:
             }
         }
         keys = ['vxlan', 'global', 'dns_servers', 'primary']
-        
+
         result = data_model_key_check(tested_object, keys)
-        
+
         assert result['keys_found'] == ['vxlan', 'global', 'dns_servers', 'primary']
         assert result['keys_not_found'] == []
         assert result['keys_data'] == ['vxlan', 'global', 'dns_servers']
@@ -193,9 +193,9 @@ class TestHostnameToIpMapping:
                 }
             }
         }
-        
+
         result = hostname_to_ip_mapping(model_data)
-        
+
         assert result['vxlan']['policy']['switches'][0]['mgmt_ip_address'] == '192.168.1.10'
         assert result['vxlan']['policy']['switches'][1]['mgmt_ip_address'] == '192.168.1.11'
 
@@ -220,9 +220,9 @@ class TestHostnameToIpMapping:
                 }
             }
         }
-        
+
         result = hostname_to_ip_mapping(model_data)
-        
+
         assert result['vxlan']['policy']['switches'][0]['mgmt_ip_address'] == '2001:db8::10'
 
     def test_hostname_to_ip_mapping_ipv4_preferred_over_ipv6(self):
@@ -247,9 +247,9 @@ class TestHostnameToIpMapping:
                 }
             }
         }
-        
+
         result = hostname_to_ip_mapping(model_data)
-        
+
         assert result['vxlan']['policy']['switches'][0]['mgmt_ip_address'] == '192.168.1.10'
 
     def test_hostname_to_ip_mapping_no_matching_topology_switch(self):
@@ -273,9 +273,9 @@ class TestHostnameToIpMapping:
                 }
             }
         }
-        
+
         result = hostname_to_ip_mapping(model_data)
-        
+
         assert 'mgmt_ip_address' not in result['vxlan']['policy']['switches'][0]
 
     def test_hostname_to_ip_mapping_no_management_ip(self):
@@ -297,9 +297,9 @@ class TestHostnameToIpMapping:
                 }
             }
         }
-        
+
         result = hostname_to_ip_mapping(model_data)
-        
+
         assert 'mgmt_ip_address' not in result['vxlan']['policy']['switches'][0]
 
     def test_hostname_to_ip_mapping_empty_switches(self):
@@ -314,9 +314,9 @@ class TestHostnameToIpMapping:
                 }
             }
         }
-        
+
         result = hostname_to_ip_mapping(model_data)
-        
+
         assert result['vxlan']['policy']['switches'] == []
 
     def test_hostname_to_ip_mapping_preserves_existing_data(self):
@@ -343,9 +343,9 @@ class TestHostnameToIpMapping:
                 }
             }
         }
-        
+
         result = hostname_to_ip_mapping(model_data)
-        
+
         assert result['vxlan']['policy']['switches'][0]['mgmt_ip_address'] == '192.168.1.10'
         assert result['vxlan']['policy']['switches'][0]['existing_field'] == 'existing_value'
 
@@ -367,13 +367,13 @@ class TestNdfc_GetSwitchPolicy:
                 ]
             }
         }
-        
+
         task_vars = {'ansible_host': 'test_host'}
         tmp = None
         switch_serial = 'ABC123'
-        
+
         result = ndfc_get_switch_policy(mock_self, task_vars, tmp, switch_serial)
-        
+
         mock_self._execute_module.assert_called_once_with(
             module_name="cisco.dcnm.dcnm_rest",
             module_args={
@@ -383,20 +383,20 @@ class TestNdfc_GetSwitchPolicy:
             task_vars=task_vars,
             tmp=tmp
         )
-        
+
         assert result['response']['DATA'][0]['serialNumber'] == 'ABC123'
 
     def test_ndfc_get_switch_policy_module_call_parameters(self):
         """Test that module is called with correct parameters."""
         mock_self = Mock()
         mock_self._execute_module.return_value = {'response': {'DATA': []}}
-        
+
         task_vars = {'test_var': 'test_value'}
         tmp = 'test_tmp'
         switch_serial = 'XYZ789'
-        
+
         ndfc_get_switch_policy(mock_self, task_vars, tmp, switch_serial)
-        
+
         expected_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches/{switch_serial}/SWITCH/SWITCH"
         mock_self._execute_module.assert_called_once_with(
             module_name="cisco.dcnm.dcnm_rest",
@@ -415,7 +415,7 @@ class TestNdfc_GetSwitchPolicyUsingTemplate:
     def test_ndfc_get_switch_policy_using_template_success(self):
         """Test successful policy retrieval using template."""
         mock_self = Mock()
-        
+
         # Mock the response from ndfc_get_switch_policy
         with patch('helper_functions.ndfc_get_switch_policy') as mock_get_policy:
             mock_get_policy.return_value = {
@@ -434,14 +434,14 @@ class TestNdfc_GetSwitchPolicyUsingTemplate:
                     ]
                 }
             }
-            
+
             task_vars = {'ansible_host': 'test_host'}
             tmp = None
             switch_serial = 'ABC123'
             template_name = 'leaf_template'
-            
+
             result = ndfc_get_switch_policy_using_template(mock_self, task_vars, tmp, switch_serial, template_name)
-            
+
             mock_get_policy.assert_called_once_with(mock_self, task_vars, tmp, switch_serial)
             assert result['serialNumber'] == 'ABC123'
             assert result['templateName'] == 'leaf_template'
@@ -450,7 +450,7 @@ class TestNdfc_GetSwitchPolicyUsingTemplate:
     def test_ndfc_get_switch_policy_using_template_not_found(self):
         """Test when template is not found."""
         mock_self = Mock()
-        
+
         with patch('helper_functions.ndfc_get_switch_policy') as mock_get_policy:
             mock_get_policy.return_value = {
                 'response': {
@@ -463,22 +463,22 @@ class TestNdfc_GetSwitchPolicyUsingTemplate:
                     ]
                 }
             }
-            
+
             task_vars = {'ansible_host': 'test_host'}
             tmp = None
             switch_serial = 'ABC123'
             template_name = 'leaf_template'
-            
+
             with pytest.raises(Exception) as exc_info:
                 ndfc_get_switch_policy_using_template(mock_self, task_vars, tmp, switch_serial, template_name)
-            
+
             assert "Policy for template leaf_template and switch ABC123 not found!" in str(exc_info.value)
             assert "Please ensure switch with serial number ABC123 is part of the fabric." in str(exc_info.value)
 
     def test_ndfc_get_switch_policy_using_template_wrong_serial(self):
         """Test when switch serial doesn't match."""
         mock_self = Mock()
-        
+
         with patch('helper_functions.ndfc_get_switch_policy') as mock_get_policy:
             mock_get_policy.return_value = {
                 'response': {
@@ -491,15 +491,15 @@ class TestNdfc_GetSwitchPolicyUsingTemplate:
                     ]
                 }
             }
-            
+
             task_vars = {'ansible_host': 'test_host'}
             tmp = None
             switch_serial = 'ABC123'
             template_name = 'leaf_template'
-            
+
             with pytest.raises(Exception) as exc_info:
                 ndfc_get_switch_policy_using_template(mock_self, task_vars, tmp, switch_serial, template_name)
-            
+
             assert "Policy for template leaf_template and switch ABC123 not found!" in str(exc_info.value)
 
 
@@ -509,7 +509,7 @@ class TestNdfc_GetSwitchPolicyUsingDesc:
     def test_ndfc_get_switch_policy_using_desc_success(self):
         """Test successful policy retrieval using description."""
         mock_self = Mock()
-        
+
         with patch('helper_functions.ndfc_get_switch_policy') as mock_get_policy:
             mock_get_policy.return_value = {
                 'response': {
@@ -531,14 +531,14 @@ class TestNdfc_GetSwitchPolicyUsingDesc:
                     ]
                 }
             }
-            
+
             task_vars = {'ansible_host': 'test_host'}
             tmp = None
             switch_serial = 'ABC123'
             prefix = 'nac'
-            
+
             result = ndfc_get_switch_policy_using_desc(mock_self, task_vars, tmp, switch_serial, prefix)
-            
+
             mock_get_policy.assert_called_once_with(mock_self, task_vars, tmp, switch_serial)
             assert len(result) == 1
             assert result[0]['templateName'] == 'leaf_template'
@@ -548,7 +548,7 @@ class TestNdfc_GetSwitchPolicyUsingDesc:
     def test_ndfc_get_switch_policy_using_desc_no_matches(self):
         """Test when no policies match the description prefix."""
         mock_self = Mock()
-        
+
         with patch('helper_functions.ndfc_get_switch_policy') as mock_get_policy:
             mock_get_policy.return_value = {
                 'response': {
@@ -563,20 +563,20 @@ class TestNdfc_GetSwitchPolicyUsingDesc:
                     ]
                 }
             }
-            
+
             task_vars = {'ansible_host': 'test_host'}
             tmp = None
             switch_serial = 'ABC123'
             prefix = 'nac'
-            
+
             result = ndfc_get_switch_policy_using_desc(mock_self, task_vars, tmp, switch_serial, prefix)
-            
+
             assert result == []
 
     def test_ndfc_get_switch_policy_using_desc_no_description(self):
         """Test when policies have no description."""
         mock_self = Mock()
-        
+
         with patch('helper_functions.ndfc_get_switch_policy') as mock_get_policy:
             mock_get_policy.return_value = {
                 'response': {
@@ -590,20 +590,20 @@ class TestNdfc_GetSwitchPolicyUsingDesc:
                     ]
                 }
             }
-            
+
             task_vars = {'ansible_host': 'test_host'}
             tmp = None
             switch_serial = 'ABC123'
             prefix = 'nac'
-            
+
             result = ndfc_get_switch_policy_using_desc(mock_self, task_vars, tmp, switch_serial, prefix)
-            
+
             assert result == []
 
     def test_ndfc_get_switch_policy_using_desc_non_empty_source(self):
         """Test that policies with non-empty source are filtered out."""
         mock_self = Mock()
-        
+
         with patch('helper_functions.ndfc_get_switch_policy') as mock_get_policy:
             mock_get_policy.return_value = {
                 'response': {
@@ -618,14 +618,14 @@ class TestNdfc_GetSwitchPolicyUsingDesc:
                     ]
                 }
             }
-            
+
             task_vars = {'ansible_host': 'test_host'}
             tmp = None
             switch_serial = 'ABC123'
             prefix = 'nac'
-            
+
             result = ndfc_get_switch_policy_using_desc(mock_self, task_vars, tmp, switch_serial, prefix)
-            
+
             assert result == []
 
 
@@ -646,13 +646,13 @@ class TestNdfc_GetFabricAttributes:
                 }
             }
         }
-        
+
         task_vars = {'ansible_host': 'test_host'}
         tmp = None
         fabric = 'test_fabric'
-        
+
         result = ndfc_get_fabric_attributes(mock_self, task_vars, tmp, fabric)
-        
+
         mock_self._execute_module.assert_called_once_with(
             module_name="cisco.dcnm.dcnm_rest",
             module_args={
@@ -662,7 +662,7 @@ class TestNdfc_GetFabricAttributes:
             task_vars=task_vars,
             tmp=tmp
         )
-        
+
         assert result['FABRIC_NAME'] == 'test_fabric'
         assert result['BGP_AS'] == '65000'
         assert result['ANYCAST_GW_MAC'] == '0000.1111.2222'
@@ -677,13 +677,13 @@ class TestNdfc_GetFabricAttributes:
                 }
             }
         }
-        
+
         task_vars = {'test_var': 'test_value'}
         tmp = 'test_tmp'
         fabric = 'production_fabric'
-        
+
         ndfc_get_fabric_attributes(mock_self, task_vars, tmp, fabric)
-        
+
         expected_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}"
         mock_self._execute_module.assert_called_once_with(
             module_name="cisco.dcnm.dcnm_rest",
@@ -716,13 +716,13 @@ class TestNdfc_GetFabricSwitches:
                 }
             ]
         }
-        
+
         task_vars = {'ansible_host': 'test_host'}
         tmp = None
         fabric = 'test_fabric'
-        
+
         result = ndfc_get_fabric_switches(mock_self, task_vars, tmp, fabric)
-        
+
         mock_self._execute_module.assert_called_once_with(
             module_name="cisco.dcnm.dcnm_inventory",
             module_args={
@@ -732,7 +732,7 @@ class TestNdfc_GetFabricSwitches:
             task_vars=task_vars,
             tmp=tmp
         )
-        
+
         assert len(result) == 2
         assert result[0]['hostname'] == 'leaf-01'
         assert result[0]['mgmt_ip_address'] == '192.168.1.10'
@@ -755,13 +755,13 @@ class TestNdfc_GetFabricSwitches:
                 }
             ]
         }
-        
+
         task_vars = {'ansible_host': 'test_host'}
         tmp = None
         fabric = 'test_fabric'
-        
+
         result = ndfc_get_fabric_switches(mock_self, task_vars, tmp, fabric)
-        
+
         assert len(result) == 1
         assert result[0]['hostname'] == 'leaf-01'
         assert result[0]['mgmt_ip_address'] == '192.168.1.10'
@@ -772,26 +772,26 @@ class TestNdfc_GetFabricSwitches:
         mock_self._execute_module.return_value = {
             'response': []
         }
-        
+
         task_vars = {'ansible_host': 'test_host'}
         tmp = None
         fabric = 'test_fabric'
-        
+
         result = ndfc_get_fabric_switches(mock_self, task_vars, tmp, fabric)
-        
+
         assert result == []
 
     def test_ndfc_get_fabric_switches_module_call_parameters(self):
         """Test that module is called with correct parameters."""
         mock_self = Mock()
         mock_self._execute_module.return_value = {'response': []}
-        
+
         task_vars = {'test_var': 'test_value'}
         tmp = 'test_tmp'
         fabric = 'production_fabric'
-        
+
         ndfc_get_fabric_switches(mock_self, task_vars, tmp, fabric)
-        
+
         mock_self._execute_module.assert_called_once_with(
             module_name="cisco.dcnm.dcnm_inventory",
             module_args={
@@ -825,13 +825,13 @@ class TestHelperFunctionsIntegration:
                 }
             }
         }
-        
+
         # Test found keys with data
         keys = ['vxlan', 'global', 'dns_servers']
         result = data_model_key_check(realistic_model, keys)
         assert result['keys_found'] == keys
         assert result['keys_data'] == keys
-        
+
         # Test found keys without data
         keys = ['vxlan', 'global', 'ntp_servers']
         result = data_model_key_check(realistic_model, keys)
@@ -875,17 +875,17 @@ class TestHelperFunctionsIntegration:
                 }
             }
         }
-        
+
         result = hostname_to_ip_mapping(realistic_model)
-        
+
         # Check that IPv4 mapping was added
         leaf_switch = next(s for s in result['vxlan']['policy']['switches'] if s['name'] == 'leaf-01')
         assert leaf_switch['mgmt_ip_address'] == '192.168.1.10'
-        
+
         # Check that IPv6 mapping was added
         spine_switch = next(s for s in result['vxlan']['policy']['switches'] if s['name'] == 'spine-01')
         assert spine_switch['mgmt_ip_address'] == '2001:db8::20'
-        
+
         # Check that existing data was preserved
         assert leaf_switch['policies'] == ['leaf_policy']
         assert spine_switch['policies'] == ['spine_policy']
