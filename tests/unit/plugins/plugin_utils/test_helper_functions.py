@@ -8,7 +8,7 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 
 # Add plugin_utils to Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__ ), '..', '..', '..', '..', 'plugins', 'plugin_utils'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'plugins', 'plugin_utils'))
 
 try:
     from helper_functions import (
@@ -25,7 +25,7 @@ except ImportError:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
         "helper_functions",
-        os.path.join(os.path.dirname(__file__ ), '..', '..', '..', '..', 'plugins', 'plugin_utils', 'helper_functions.py')
+        os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'plugins', 'plugin_utils', 'helper_functions.py')
     )
     helper_functions_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helper_functions_module)
