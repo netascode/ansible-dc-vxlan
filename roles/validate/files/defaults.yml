@@ -77,52 +77,6 @@ factory_defaults:
         enable_bootstrap: false
         enable_local_dhcp_server: false
         enable_cdp_mgmt: false
-    ebgp_global:
-      bgp_asn_mode: Multi-AS
-      leaf_same_bgp_asn: false
-      bgp_max_paths: 4
-      anycast_gateway_mac: 20:20:00:00:00:aa
-      auth_proto: MD5
-      enable_nxapi_http: false
-      nxapi_http_port: 80
-      enable_nxapi_https: true
-      nxapi_https_port: 443
-      layer2_vni_range:
-        from: 30000
-        to: 49000
-      layer3_vni_range:
-        from: 50000
-        to: 59000
-      layer2_vlan_range:
-        from: 2300
-        to: 2999
-      layer3_vlan_range:
-        from: 2000
-        to: 2299
-      vpc:
-        peer_link_vlan: 3600
-        peer_keep_alive: management
-        auto_recovery_time: 360
-        delay_restore_time: 150
-        peer_link_port_channel_id: 500
-        ipv6_nd_sync: true
-        advertise_pip: false
-        advertise_pip_border_only: true
-        domain_id_range: 1-1000
-        fabric_vpc_qos: false
-        fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
-        enable_ipv6_nd_sync: true
-      netflow:
-        enable: false
-      ptp:
-        enable: false
-        domain_id: 0
-        lb_id: 0
-      snmp_server_host_trap: true
-      bootstrap:
-        enable_bootstrap: false
-        enable_local_dhcp_server: false
-        enable_cdp_mgmt: false
     topology:
       switches:
         routing_loopback_id: 0
@@ -222,9 +176,6 @@ factory_defaults:
         intra_fabric_interface_mtu: 9216
         layer2_host_interface_mtu: 9216
         unshut_host_interfaces: true
-        disable_rm_tag: false
-        rm_tag: 12345
-        subint_dot1q_range: 2-511
       ipv4:
         fabric_interface_numbering: p2p
         subnet_mask: 30
@@ -259,7 +210,6 @@ factory_defaults:
         rendezvous_points: 2
         rp_mode: asm
         underlay_rp_loopback_id: 254
-        enable_vri_id_realloc: false
         ipv4:
           group_subnet: 239.1.1.0/25
           authentication_enable: false
