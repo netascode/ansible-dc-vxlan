@@ -90,7 +90,6 @@ class ActionModule(ActionBase):
             parent_keys = ['vxlan', 'fabric']
             check = data_model_key_check(results['data'], parent_keys)
             if 'fabric' in check['keys_found'] and 'fabric' in check['keys_data']:
-                rules_list.append(f'{rules}common/')
                 if 'type' in results['data']['vxlan']['fabric']:
                     if results['data']['vxlan']['fabric']['type'] in ('VXLAN_EVPN'):
                         rules_list.append(f'{rules}ibgp_vxlan/')
