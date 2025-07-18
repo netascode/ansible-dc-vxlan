@@ -18,29 +18,29 @@ except ImportError:
 
 class TestNacDcValidateActionModule:
     """Test the nac_dc_validate action module."""
-    
+
     def setup_method(self):
         """Set up test fixtures before each test method."""
         # Mock task
         self.mock_task = MagicMock()
         self.mock_task.action = "nac_dc_validate"
         self.mock_task.args = {}
-        
+
         # Mock other required objects
         self.mock_connection = MagicMock()
         self.mock_play_context = MagicMock()
         self.mock_loader = MagicMock()
         self.mock_templar = MagicMock()
         self.mock_shared_loader_obj = MagicMock()
-        
+
         # Mock the parent class run method to avoid async issues
         self.mock_parent_run = MagicMock(return_value={})
-        
+
     def create_action_module(self, task_args=None):
         """Create an action module instance with mocked dependencies."""
         if task_args:
             self.mock_task.args = task_args
-        
+
         with patch('ansible.plugins.action.ActionBase.run', return_value={}):
             action_module = NacDcValidateActionModule(
                 task=self.mock_task,
@@ -50,22 +50,22 @@ class TestNacDcValidateActionModule:
                 templar=self.mock_templar,
                 shared_loader_obj=self.mock_shared_loader_obj
             )
-        
+
         return action_module
-    
+
     def test_action_module_creation(self):
         """Test that the action module can be created successfully."""
         action_module = self.create_action_module()
         assert action_module is not None
         assert hasattr(action_module, 'run')
-    
+
     def test_inheritance_from_action_base(self):
         """Test that the action module inherits from ActionBase."""
         action_module = self.create_action_module()
-        
+
         from ansible.plugins.action import ActionBase
         assert isinstance(action_module, ActionBase)
-    
+
     # New comprehensive tests for missing coverage areas
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
@@ -78,7 +78,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model
         mock_data = {
             'vxlan': {
@@ -92,29 +92,29 @@ class TestNacDcValidateActionModule:
             'keys_found': ['fabric'],
             'keys_data': ['fabric']
         }
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is False
             # MCF should use multisite rules
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/multisite/')
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -126,7 +126,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model
         mock_data = {
             'vxlan': {
@@ -140,29 +140,29 @@ class TestNacDcValidateActionModule:
             'keys_found': ['fabric'],
             'keys_data': ['fabric']
         }
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is False
             # ISN should use isn rules
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/isn/')
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -174,7 +174,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model
         mock_data = {
             'vxlan': {
@@ -188,29 +188,29 @@ class TestNacDcValidateActionModule:
             'keys_found': ['fabric'],
             'keys_data': ['fabric']
         }
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is False
             # External should use external rules
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/external/')
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -223,7 +223,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model with deprecated structure
         mock_data = {
             'vxlan': {
@@ -233,36 +233,36 @@ class TestNacDcValidateActionModule:
             }
         }
         mock_load_yaml.return_value = mock_data
-        
+
         # First call returns no fabric keys, second call returns global keys
         mock_key_check.side_effect = [
             {'keys_found': [], 'keys_data': []},
             {'keys_found': ['global'], 'keys_data': ['global']}
         ]
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is False
             mock_display.deprecated.assert_called_once()
             # MCF should use multisite rules
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/multisite/')
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -275,7 +275,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model with deprecated structure
         mock_data = {
             'vxlan': {
@@ -285,36 +285,36 @@ class TestNacDcValidateActionModule:
             }
         }
         mock_load_yaml.return_value = mock_data
-        
+
         # First call returns no fabric keys, second call returns global keys
         mock_key_check.side_effect = [
             {'keys_found': [], 'keys_data': []},
             {'keys_found': ['global'], 'keys_data': ['global']}
         ]
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is False
             mock_display.deprecated.assert_called_once()
             # ISN should use isn rules
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/isn/')
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -327,7 +327,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model with deprecated structure
         mock_data = {
             'vxlan': {
@@ -337,36 +337,36 @@ class TestNacDcValidateActionModule:
             }
         }
         mock_load_yaml.return_value = mock_data
-        
+
         # First call returns no fabric keys, second call returns global keys
         mock_key_check.side_effect = [
             {'keys_found': [], 'keys_data': []},
             {'keys_found': ['global'], 'keys_data': ['global']}
         ]
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is False
             mock_display.deprecated.assert_called_once()
             # External should use isn rules in deprecated mode
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/isn/')
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -379,7 +379,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model with deprecated structure and unsupported type
         mock_data = {
             'vxlan': {
@@ -389,30 +389,30 @@ class TestNacDcValidateActionModule:
             }
         }
         mock_load_yaml.return_value = mock_data
-        
+
         # First call returns no fabric keys, second call returns global keys
         mock_key_check.side_effect = [
             {'keys_found': [], 'keys_data': []},
             {'keys_found': ['global'], 'keys_data': ['global']}
         ]
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         action_module = self.create_action_module(task_args)
         result = action_module.run(task_vars=task_vars)
-        
+
         assert result['failed'] is True
         assert 'is not a supported fabric type' in result['msg']
         mock_display.deprecated.assert_called_once()
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -425,7 +425,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model with deprecated structure but missing fabric_type
         mock_data = {
             'vxlan': {
@@ -435,31 +435,31 @@ class TestNacDcValidateActionModule:
             }
         }
         mock_load_yaml.return_value = mock_data
-        
+
         # First call returns no fabric keys, second call returns global keys
         mock_key_check.side_effect = [
             {'keys_found': [], 'keys_data': []},
             {'keys_found': ['global'], 'keys_data': ['global']}
         ]
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         action_module = self.create_action_module(task_args)
         result = action_module.run(task_vars=task_vars)
-        
+
         assert result['failed'] is True
         assert 'is not defined in the data model' in result['msg']
         # The deprecated warning is only called if fabric_type is present
         mock_display.deprecated.assert_not_called()
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -468,39 +468,39 @@ class TestNacDcValidateActionModule:
         """Test warning when rules directory contains only .gitkeep file."""
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
-        
+
         def listdir_side_effect(path):
             if 'rules' in path:
                 return ['.gitkeep']  # Only .gitkeep file
             return ['data.yaml']
-        
+
         mock_listdir.side_effect = listdir_side_effect
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/different/role/path'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.display') as mock_display:
             with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
                 mock_validator_instance = MagicMock()
                 mock_validator_instance.errors = []
                 mock_validator.return_value = mock_validator_instance
-                
+
                 action_module = self.create_action_module(task_args)
                 result = action_module.run(task_vars=task_vars)
-                
+
                 assert result['failed'] is False
                 # Should have generated warning about empty rules directory
                 mock_display.warning.assert_called()
                 warning_calls = [call.args[0] for call in mock_display.warning.call_args_list]
                 assert any('exists but is empty' in call for call in warning_calls)
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -510,31 +510,31 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         task_args = {
             'schema': None,  # No schema provided
             'rules': '/path/to/rules',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/different/role/path'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is False
             # Should not call validate_syntax since no schema
             mock_validator_instance.validate_syntax.assert_not_called()
             # Should call validate_semantics since rules exist
             mock_validator_instance.validate_semantics.assert_called_once()
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -544,31 +544,31 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',  # Provide rules path
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/different/role/path'  # Different role path so rules check fails
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is False
             # Should call validate_syntax since schema exists
             mock_validator_instance.validate_syntax.assert_called_once()
             # Should call validate_semantics since rules path is provided (custom enhanced rules)
             mock_validator_instance.validate_semantics.assert_called_once()
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -578,20 +578,20 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/different/role/path'  # Custom rules path
         }
-        
+
         # Mock multiple validator calls to test early exit
         validator_instances = []
-        
+
         def create_validator_instance(*args, **kwargs):
             instance = MagicMock()
             validator_instances.append(instance)
@@ -602,16 +602,16 @@ class TestNacDcValidateActionModule:
                 # Second validator (should not be reached)
                 instance.errors = []
             return instance
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator', side_effect=create_validator_instance):
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is True
             assert 'First error' in result['msg']
             # Should only create one validator instance due to early exit
             assert len(validator_instances) == 1
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -621,26 +621,26 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Missing required arguments
         task_args = {}
-        
+
         task_vars = {
             'role_path': '/path/to/role'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             # Should handle missing arguments gracefully
             assert isinstance(result, dict)
             assert 'failed' in result
-    
+
     @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
@@ -650,23 +650,23 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': None,  # No rules provided to avoid role_path access
             'mdata': '/path/to/data'
         }
-        
+
         action_module = self.create_action_module(task_args)
-        
+
         # Call with None task_vars - should handle gracefully
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             result = action_module.run(task_vars=None)
-            
+
             # Should not crash with None task_vars
             assert isinstance(result, dict)
             assert 'failed' in result
@@ -675,22 +675,22 @@ class TestNacDcValidateActionModule:
     def test_iac_validate_import_error(self):
         """Test handling of iac-validate import error."""
         from ansible.errors import AnsibleError
-        
+
         with patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', ImportError("iac-validate not found")):
             task_args = {
                 'schema': '/path/to/schema.yaml',
                 'rules': '/path/to/rules',
                 'mdata': '/path/to/data'
             }
-            
+
             task_vars = {
                 'role_path': '/path/to/role'
             }
-            
+
             # Mock the parent run method to bypass async issues
             with patch('ansible.plugins.action.ActionBase.run', return_value={}):
                 action_module = self.create_action_module(task_args)
-                
+
                 # Should raise AnsibleError when iac-validate is not installed
                 with pytest.raises(AnsibleError, match="iac-validate not found"):
                     action_module.run(task_vars=task_vars)
@@ -705,25 +705,25 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.side_effect = lambda path: path != ""  # Empty string doesn't exist
         mock_listdir.return_value = ['data.yaml']
-        
+
         task_args = {
             'schema': '',  # Empty string
             'rules': '/path/to/rules',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/different/role/path'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             # Should generate warning for empty schema
             mock_display.warning.assert_called()
             warning_calls = [call[0][0] for call in mock_display.warning.call_args_list]
@@ -739,25 +739,25 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.side_effect = lambda path: path != ""  # Empty string doesn't exist
         mock_listdir.return_value = ['data.yaml']
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '',  # Empty string
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/different/role/path'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             # Should generate warning for empty rules
             mock_display.warning.assert_called()
             warning_calls = [call[0][0] for call in mock_display.warning.call_args_list]
@@ -772,20 +772,20 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.side_effect = lambda path: '/path/to/data' not in path
         mock_listdir.return_value = ['data.yaml']  # For other paths
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/role'
         }
-        
+
         action_module = self.create_action_module(task_args)
         result = action_module.run(task_vars=task_vars)
-        
+
         assert result['failed'] is True
         assert 'does not appear to exist' in result['msg']
 
@@ -798,20 +798,20 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = []  # Empty directory
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/role'
         }
-        
+
         action_module = self.create_action_module(task_args)
         result = action_module.run(task_vars=task_vars)
-        
+
         assert result['failed'] is True
         assert 'is empty' in result['msg']
 
@@ -826,7 +826,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model
         mock_data = {
             'vxlan': {
@@ -840,25 +840,25 @@ class TestNacDcValidateActionModule:
             'keys_found': ['fabric'],
             'keys_data': ['fabric']
         }
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is False
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/ibgp_vxlan/')
 
@@ -874,7 +874,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model with deprecated structure
         mock_data = {
             'vxlan': {
@@ -884,31 +884,31 @@ class TestNacDcValidateActionModule:
             }
         }
         mock_load_yaml.return_value = mock_data
-        
+
         # First call returns no fabric keys, second call returns global keys
         mock_key_check.side_effect = [
             {'keys_found': [], 'keys_data': []},
             {'keys_found': ['global'], 'keys_data': ['global']}
         ]
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is False
             mock_display.deprecated.assert_called_once()
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/ibgp_vxlan/')
@@ -924,7 +924,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model with no fabric or global keys
         mock_data = {
             'vxlan': {
@@ -934,31 +934,31 @@ class TestNacDcValidateActionModule:
             }
         }
         mock_load_yaml.return_value = mock_data
-        
+
         # Both calls return no fabric/global keys
         mock_key_check.side_effect = [
             {'keys_found': [], 'keys_data': []},
             {'keys_found': [], 'keys_data': []}
         ]
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/different/role/path'  # Different path to trigger else block
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             # Should succeed as it falls back to custom enhanced rules
             assert result['failed'] is False
             # Should use custom enhanced rules path
@@ -974,25 +974,25 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         task_args = {
             'schema': '',  # Empty string should use DEFAULT_SCHEMA
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/different/role/path'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             # Should use DEFAULT_SCHEMA when schema is empty
             mock_validator.assert_called_with('/default/schema.yaml', '/path/to/rules/')
 
@@ -1005,25 +1005,25 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/different/role/path'
         }
-        
+
         with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = ['Error 1', 'Error 2']
             mock_validator.return_value = mock_validator_instance
-            
+
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
-            
+
             assert result['failed'] is True
             assert 'Error 1' in result['msg']
             assert 'Error 2' in result['msg']
@@ -1039,7 +1039,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model with no fabric or global keys
         mock_data = {
             'vxlan': {
@@ -1049,26 +1049,26 @@ class TestNacDcValidateActionModule:
             }
         }
         mock_load_yaml.return_value = mock_data
-        
+
         # First call returns no fabric keys, second call returns no global keys either
         mock_key_check.side_effect = [
             {'keys_found': [], 'keys_data': []},  # No fabric keys
             {'keys_found': [], 'keys_data': []}   # No global keys
         ]
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'  # Role path in rules to trigger main logic
         }
-        
+
         action_module = self.create_action_module(task_args)
         result = action_module.run(task_vars=task_vars)
-        
+
         # Should succeed because when no fabric/global keys are found, it just continues
         # without running any validation rules
         assert result['failed'] is False
@@ -1082,11 +1082,11 @@ class TestNacDcValidateActionModule:
                 'rules': '/path/to/rules/',
                 'mdata': '/path/to/data'
             }
-            
+
             task_vars = {
                 'role_path': '/different/role/path'
             }
-            
+
             with patch('ansible.plugins.action.ActionBase.run', return_value={}):
                 with patch('os.path.exists', return_value=True):
                     with patch('os.listdir', return_value=['data.yaml']):
@@ -1094,10 +1094,10 @@ class TestNacDcValidateActionModule:
                             mock_validator_instance = MagicMock()
                             mock_validator_instance.errors = []
                             mock_validator.return_value = mock_validator_instance
-                            
+
                             action_module = self.create_action_module(task_args)
                             result = action_module.run(task_vars=task_vars)
-                            
+
             # Should succeed without import error
             assert result['failed'] is False
 
@@ -1112,7 +1112,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model with unsupported fabric type
         mock_data = {
             'vxlan': {
@@ -1126,20 +1126,20 @@ class TestNacDcValidateActionModule:
             'keys_found': ['fabric'],
             'keys_data': ['fabric']
         }
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         action_module = self.create_action_module(task_args)
         result = action_module.run(task_vars=task_vars)
-        
+
         # Should fail with unsupported fabric type error
         assert result['failed'] is True
         assert 'is not a supported fabric type' in result['msg']
@@ -1155,7 +1155,7 @@ class TestNacDcValidateActionModule:
         mock_parent_run.return_value = {}
         mock_exists.return_value = True
         mock_listdir.return_value = ['data.yaml']
-        
+
         # Mock data model with fabric section but no type
         mock_data = {
             'vxlan': {
@@ -1169,20 +1169,20 @@ class TestNacDcValidateActionModule:
             'keys_found': ['fabric'],
             'keys_data': ['fabric']
         }
-        
+
         task_args = {
             'schema': '/path/to/schema.yaml',
             'rules': '/path/to/rules/',
             'mdata': '/path/to/data'
         }
-        
+
         task_vars = {
             'role_path': '/path/to/rules'
         }
-        
+
         action_module = self.create_action_module(task_args)
         result = action_module.run(task_vars=task_vars)
-        
+
         # Should fail with missing fabric type error
         assert result['failed'] is True
         assert 'is not defined in the data model' in result['msg']
@@ -1194,18 +1194,18 @@ class TestNacDcValidateActionModule:
         # This should already be covered by other tests, but let's be explicit
         import sys
         import importlib
-        
+
         # Temporarily remove the module to force reimport
         module_path = 'plugins.action.common.nac_dc_validate'
         if module_path in sys.modules:
             del sys.modules[module_path]
-        
+
         # Mock successful import
         with patch('plugins.action.common.nac_dc_validate.load_yaml_files'):
             with patch('plugins.action.common.nac_dc_validate.iac_validate.validator'):
                 with patch('plugins.action.common.nac_dc_validate.DEFAULT_SCHEMA', '/default/schema.yaml'):
                     # Import the module - should set IAC_VALIDATE_IMPORT_ERROR = None
                     from plugins.action.common.nac_dc_validate import IAC_VALIDATE_IMPORT_ERROR
-                    
+
                     # Should be None on successful import
                     assert IAC_VALIDATE_IMPORT_ERROR is None
