@@ -99,8 +99,6 @@ class ActionModule(ActionBase):
                         rules_list.append(f'{rules}isn/')
                     elif results['data']['vxlan']['fabric']['type'] in ('External'):
                         rules_list.append(f'{rules}external/')
-                    elif results['data']['vxlan']['fabric']['type'] in ('BGP', 'eBGP_VXLAN'):
-                        rules_list.append(f'{rules}ebgp_vxlan/')
                     else:
                         results['failed'] = True
                         results['msg'] = f"vxlan.fabric.type {results['data']['vxlan']['fabric']['type']} is not a supported fabric type."
