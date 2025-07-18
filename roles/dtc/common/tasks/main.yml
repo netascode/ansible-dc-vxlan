@@ -130,9 +130,3 @@
   ansible.builtin.import_tasks: sub_main_external.yml
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric.type == 'External'
-
-
-- name: Import Role Tasks for eBGP VXLAN Fabric
-  ansible.builtin.import_tasks: sub_main_bgp.yml
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
