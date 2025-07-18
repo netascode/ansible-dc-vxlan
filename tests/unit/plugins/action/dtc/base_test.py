@@ -76,12 +76,4 @@ class ActionModuleTestCase(unittest.TestCase):
             shared_loader_obj=None
         )
         
-        # Mock the parent run method to return basic structure
-        def mock_parent_run(*args, **kwargs):
-            return {'changed': False}
-        
-        # Patch the parent run method
-        with patch.object(action_class.__bases__[0], 'run', side_effect=mock_parent_run):
-            pass
-        
         return action_module

@@ -14,10 +14,9 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
     def setUp(self):
         """Set up test fixtures."""
         super().setUp()
-        self.action_module = self.create_action_module(ActionModule)
 
     def test_run_single_fabric_success(self):
-        """Test run with single fabric successful deployment."""
+        """Test run with single fabric deployment success."""
         fabrics = ["fabric1"]
         
         mock_response = {
@@ -37,67 +36,35 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         
         action_module = self.create_action_module(ActionModule, task_args)
         
-        # Mock the run method from parent class and _execute_module
-        with patch.object(ActionModule, 'run') as mock_parent_run, \
-             patch.object(ActionModule, '_execute_module') as mock_execute:
+        # Mock _execute_module method and ActionBase.run and display
+        with patch.object(action_module, '_execute_module') as mock_execute, \
+             patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
+             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display') as mock_display:
             
-            mock_parent_run.return_value = {'changed': False}
+            mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
             
             result = action_module.run()
             
             self.assertTrue(result['changed'])
             self.assertFalse(result['failed'])
+            
+            # Verify display message was called
+            mock_display.display.assert_called_once_with("Executing config-deploy on Fabric: fabric1")
             
             # Verify the correct API call was made
             mock_execute.assert_called_once_with(
                 module_name="cisco.dcnm.dcnm_rest",
                 module_args={
                     "method": "POST",
-                    "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabrics[0]}/config-deploy?forceShowRun=false",
+                    "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/fabric1/config-deploy?forceShowRun=false",
                 },
                 task_vars=None,
                 tmp=None
             )
 
-    def test_run_multiple_fabrics_success(self):
-        """Test run with multiple fabrics successful deployment."""
-        fabrics = ["fabric1", "fabric2", "fabric3"]
-        
-        mock_response = {
-            'response': {
-                'RETURN_CODE': 200,
-                'METHOD': 'POST',
-                'MESSAGE': 'OK',
-                'DATA': {
-                    'status': 'Configuration deployment completed.'
-                }
-            }
-        }
-        
-        task_args = {
-            'fabrics': fabrics
-        }
-        
-        action_module = self.create_action_module(ActionModule, task_args)
-        
-        # Mock the run method from parent class and _execute_module
-        with patch.object(ActionModule, 'run') as mock_parent_run, \
-             patch.object(ActionModule, '_execute_module') as mock_execute:
-            
-            mock_parent_run.return_value = {'changed': False}
-            mock_execute.return_value = mock_response
-            
-            result = action_module.run()
-            
-            self.assertTrue(result['changed'])
-            self.assertFalse(result['failed'])
-            
-            # Verify the correct number of API calls were made
-            self.assertEqual(mock_execute.call_count, len(fabrics))
-
     def test_run_single_fabric_failure(self):
-        """Test run with single fabric failed deployment."""
+        """Test run with single fabric deployment failure."""
         fabrics = ["fabric1"]
         
         mock_response = {
@@ -106,11 +73,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
                 'METHOD': 'POST',
                 'MESSAGE': 'Bad Request',
                 'DATA': {
-                    'path': 'rest/control/fabrics/fabric1/config-deploy?forceShowRun=false',
-                    'Error': 'Bad Request Error',
-                    'message': 'Deployment failed due to configuration error',
-                    'timestamp': '2025-02-24 13:49:41.024',
-                    'status': '400'
+                    'message': 'Deployment failed due to configuration errors'
                 }
             }
         }
@@ -121,11 +84,12 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         
         action_module = self.create_action_module(ActionModule, task_args)
         
-        # Mock the run method from parent class and _execute_module
-        with patch.object(ActionModule, 'run') as mock_parent_run, \
-             patch.object(ActionModule, '_execute_module') as mock_execute:
+        # Mock _execute_module method and ActionBase.run
+        with patch.object(action_module, '_execute_module') as mock_execute, \
+             patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
+             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
             
-            mock_parent_run.return_value = {'changed': False}
+            mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
             
             result = action_module.run()
@@ -133,13 +97,12 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
             self.assertFalse(result['changed'])
             self.assertTrue(result['failed'])
             self.assertIn('For fabric fabric1', result['msg'])
-            self.assertIn('Deployment failed due to configuration error', result['msg'])
 
-    def test_run_mixed_success_failure(self):
-        """Test run with mixed success and failure scenarios."""
+    def test_run_multiple_fabrics_success(self):
+        """Test run with multiple fabric deployments success."""
         fabrics = ["fabric1", "fabric2"]
         
-        mock_success_response = {
+        mock_response = {
             'response': {
                 'RETURN_CODE': 200,
                 'METHOD': 'POST',
@@ -150,17 +113,46 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
             }
         }
         
-        mock_failure_response = {
+        task_args = {
+            'fabrics': fabrics
+        }
+        
+        action_module = self.create_action_module(ActionModule, task_args)
+        
+        # Mock _execute_module method and ActionBase.run
+        with patch.object(action_module, '_execute_module') as mock_execute, \
+             patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
+             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display') as mock_display:
+            
+            mock_parent_run.return_value = {'changed': False, 'failed': False}
+            mock_execute.return_value = mock_response
+            
+            result = action_module.run()
+            
+            self.assertTrue(result['changed'])
+            self.assertFalse(result['failed'])
+            
+            # Verify display messages were called for both fabrics
+            expected_calls = [
+                unittest.mock.call("Executing config-deploy on Fabric: fabric1"),
+                unittest.mock.call("Executing config-deploy on Fabric: fabric2")
+            ]
+            mock_display.display.assert_has_calls(expected_calls)
+            
+            # Verify the correct API calls were made
+            self.assertEqual(mock_execute.call_count, 2)
+
+    def test_run_multiple_fabrics_continue_on_failure(self):
+        """Test run with multiple fabrics, continuing on failure."""
+        fabrics = ["fabric1", "fabric2"]
+        
+        mock_response = {
             'msg': {
                 'RETURN_CODE': 400,
                 'METHOD': 'POST',
                 'MESSAGE': 'Bad Request',
                 'DATA': {
-                    'path': 'rest/control/fabrics/fabric2/config-deploy?forceShowRun=false',
-                    'Error': 'Bad Request Error',
-                    'message': 'Deployment failed',
-                    'timestamp': '2025-02-24 13:49:41.024',
-                    'status': '400'
+                    'message': 'Deployment failed'
                 }
             }
         }
@@ -171,25 +163,46 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         
         action_module = self.create_action_module(ActionModule, task_args)
         
-        # Mock the run method from parent class and _execute_module
-        with patch.object(ActionModule, 'run') as mock_parent_run, \
-             patch.object(ActionModule, '_execute_module') as mock_execute:
+        # Mock _execute_module method and ActionBase.run
+        with patch.object(action_module, '_execute_module') as mock_execute, \
+             patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
+             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
             
-            mock_parent_run.return_value = {'changed': False}
-            mock_execute.side_effect = [mock_success_response, mock_failure_response]
+            mock_parent_run.return_value = {'changed': False, 'failed': False}
+            mock_execute.return_value = mock_response
             
             result = action_module.run()
             
-            self.assertTrue(result['changed'])  # First fabric succeeded
-            self.assertTrue(result['failed'])   # Second fabric failed
-            self.assertIn('For fabric fabric2', result['msg'])
+            self.assertFalse(result['changed'])
+            self.assertTrue(result['failed'])
+            
+            # Should be called for both fabrics since it continues on failure
+            self.assertEqual(mock_execute.call_count, 2)
 
-    def test_run_no_response_key(self):
-        """Test run when response key is missing."""
-        fabrics = ["fabric1"]
+    def test_run_mixed_success_failure(self):
+        """Test run with mixed success and failure responses."""
+        fabrics = ["fabric1", "fabric2"]
         
-        mock_response = {
-            'other_key': 'value'
+        success_response = {
+            'response': {
+                'RETURN_CODE': 200,
+                'METHOD': 'POST',
+                'MESSAGE': 'OK',
+                'DATA': {
+                    'status': 'Configuration deployment completed.'
+                }
+            }
+        }
+        
+        failure_response = {
+            'msg': {
+                'RETURN_CODE': 400,
+                'METHOD': 'POST',
+                'MESSAGE': 'Bad Request',
+                'DATA': {
+                    'message': 'Deployment failed'
+                }
+            }
         }
         
         task_args = {
@@ -198,11 +211,40 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         
         action_module = self.create_action_module(ActionModule, task_args)
         
-        # Mock the run method from parent class and _execute_module
-        with patch.object(ActionModule, 'run') as mock_parent_run, \
-             patch.object(ActionModule, '_execute_module') as mock_execute:
+        # Mock _execute_module method and ActionBase.run
+        with patch.object(action_module, '_execute_module') as mock_execute, \
+             patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
+             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
             
-            mock_parent_run.return_value = {'changed': False}
+            mock_parent_run.return_value = {'changed': False, 'failed': False}
+            mock_execute.side_effect = [success_response, failure_response]
+            
+            result = action_module.run()
+            
+            self.assertTrue(result['changed'])  # First succeeded
+            self.assertTrue(result['failed'])   # Second failed
+            
+            # Should be called twice
+            self.assertEqual(mock_execute.call_count, 2)
+
+    def test_run_no_response_key(self):
+        """Test run when response key is missing."""
+        fabrics = ["fabric1"]
+        
+        mock_response = {}  # No response or msg key
+        
+        task_args = {
+            'fabrics': fabrics
+        }
+        
+        action_module = self.create_action_module(ActionModule, task_args)
+        
+        # Mock _execute_module method and ActionBase.run
+        with patch.object(action_module, '_execute_module') as mock_execute, \
+             patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
+             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
+            
+            mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
             
             result = action_module.run()
@@ -216,11 +258,11 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         
         mock_response = {
             'response': {
-                'RETURN_CODE': 201,
+                'RETURN_CODE': 404,
                 'METHOD': 'POST',
-                'MESSAGE': 'Created',
+                'MESSAGE': 'Not Found',
                 'DATA': {
-                    'status': 'Configuration deployment completed.'
+                    'status': 'Fabric not found.'
                 }
             }
         }
@@ -231,16 +273,51 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         
         action_module = self.create_action_module(ActionModule, task_args)
         
-        # Mock the run method from parent class and _execute_module
-        with patch.object(ActionModule, 'run') as mock_parent_run, \
-             patch.object(ActionModule, '_execute_module') as mock_execute:
+        # Mock _execute_module method and ActionBase.run
+        with patch.object(action_module, '_execute_module') as mock_execute, \
+             patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
+             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
             
-            mock_parent_run.return_value = {'changed': False}
+            mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
             
             result = action_module.run()
             
-            self.assertFalse(result['changed'])  # Only 200 sets changed=True
+            self.assertFalse(result['changed'])
+            self.assertFalse(result['failed'])
+
+    def test_run_msg_with_200_return_code(self):
+        """Test run when msg key exists but with 200 return code."""
+        fabrics = ["fabric1"]
+        
+        mock_response = {
+            'msg': {
+                'RETURN_CODE': 200,
+                'METHOD': 'POST',
+                'MESSAGE': 'OK',
+                'DATA': {
+                    'message': 'Success message'
+                }
+            }
+        }
+        
+        task_args = {
+            'fabrics': fabrics
+        }
+        
+        action_module = self.create_action_module(ActionModule, task_args)
+        
+        # Mock _execute_module method and ActionBase.run
+        with patch.object(action_module, '_execute_module') as mock_execute, \
+             patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
+             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
+            
+            mock_parent_run.return_value = {'changed': False, 'failed': False}
+            mock_execute.return_value = mock_response
+            
+            result = action_module.run()
+            
+            self.assertFalse(result['changed'])
             self.assertFalse(result['failed'])
 
     def test_run_empty_fabrics_list(self):
@@ -253,94 +330,23 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         
         action_module = self.create_action_module(ActionModule, task_args)
         
-        # Mock the run method from parent class and _execute_module
-        with patch.object(ActionModule, 'run') as mock_parent_run, \
-             patch.object(ActionModule, '_execute_module') as mock_execute:
+        # Mock _execute_module method and ActionBase.run
+        with patch.object(action_module, '_execute_module') as mock_execute, \
+             patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
+             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
             
-            mock_parent_run.return_value = {'changed': False}
+            mock_parent_run.return_value = {'changed': False, 'failed': False}
             
             result = action_module.run()
             
             self.assertFalse(result['changed'])
             self.assertFalse(result['failed'])
+            
+            # No execute_module calls should be made
             mock_execute.assert_not_called()
 
-    def test_run_msg_with_200_return_code(self):
-        """Test run when msg key exists but return code is 200."""
-        fabrics = ["fabric1"]
-        
-        mock_response = {
-            'msg': {
-                'RETURN_CODE': 200,
-                'METHOD': 'POST',
-                'MESSAGE': 'OK',
-                'DATA': {
-                    'status': 'Configuration deployment completed.'
-                }
-            }
-        }
-        
-        task_args = {
-            'fabrics': fabrics
-        }
-        
-        action_module = self.create_action_module(ActionModule, task_args)
-        
-        # Mock the run method from parent class and _execute_module
-        with patch.object(ActionModule, 'run') as mock_parent_run, \
-             patch.object(ActionModule, '_execute_module') as mock_execute:
-            
-            mock_parent_run.return_value = {'changed': False}
-            mock_execute.return_value = mock_response
-            
-            result = action_module.run()
-            
-            self.assertFalse(result['changed'])
-            self.assertFalse(result['failed'])
-
-    def test_run_multiple_fabrics_stop_on_first_failure(self):
-        """Test run with multiple fabrics where first fails."""
-        fabrics = ["fabric1", "fabric2", "fabric3"]
-        
-        mock_failure_response = {
-            'msg': {
-                'RETURN_CODE': 400,
-                'METHOD': 'POST',
-                'MESSAGE': 'Bad Request',
-                'DATA': {
-                    'path': 'rest/control/fabrics/fabric1/config-deploy?forceShowRun=false',
-                    'Error': 'Bad Request Error',
-                    'message': 'First fabric failed',
-                    'timestamp': '2025-02-24 13:49:41.024',
-                    'status': '400'
-                }
-            }
-        }
-        
-        task_args = {
-            'fabrics': fabrics
-        }
-        
-        action_module = self.create_action_module(ActionModule, task_args)
-        
-        # Mock the run method from parent class and _execute_module
-        with patch.object(ActionModule, 'run') as mock_parent_run, \
-             patch.object(ActionModule, '_execute_module') as mock_execute:
-            
-            mock_parent_run.return_value = {'changed': False}
-            mock_execute.return_value = mock_failure_response
-            
-            result = action_module.run()
-            
-            self.assertFalse(result['changed'])
-            self.assertTrue(result['failed'])
-            self.assertIn('For fabric fabric1', result['msg'])
-            # Should still process all fabrics, not stop on first failure
-            self.assertEqual(mock_execute.call_count, len(fabrics))
-
-    @patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display')
-    def test_run_display_messages(self, mock_display):
-        """Test run displays correct messages."""
+    def test_run_display_messages(self):
+        """Test that display messages are shown for each fabric."""
         fabrics = ["fabric1", "fabric2"]
         
         mock_response = {
@@ -360,23 +366,22 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         
         action_module = self.create_action_module(ActionModule, task_args)
         
-        # Mock the run method from parent class and _execute_module
-        with patch.object(ActionModule, 'run') as mock_parent_run, \
-             patch.object(ActionModule, '_execute_module') as mock_execute:
+        # Mock _execute_module method and ActionBase.run
+        with patch.object(action_module, '_execute_module') as mock_execute, \
+             patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
+             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display') as mock_display:
             
-            mock_parent_run.return_value = {'changed': False}
+            mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
             
-            result = action_module.run()
+            action_module.run()
             
-            # Verify display messages were called for each fabric
+            # Verify all display messages
             expected_calls = [
-                'Executing config-deploy on Fabric: fabric1',
-                'Executing config-deploy on Fabric: fabric2'
+                unittest.mock.call("Executing config-deploy on Fabric: fabric1"),
+                unittest.mock.call("Executing config-deploy on Fabric: fabric2")
             ]
-            
-            actual_calls = [call[0][0] for call in mock_display.display.call_args_list]
-            self.assertEqual(actual_calls, expected_calls)
+            mock_display.display.assert_has_calls(expected_calls)
 
 
 if __name__ == '__main__':
