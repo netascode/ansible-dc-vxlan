@@ -1,4 +1,4 @@
-{# Auto-generated NDFC DC BGP Bootstrap config data structure for fabric {{ vxlan.fabric.name }} #}
+{# Auto-generated NDFC eBGP VXLAN EVPN Bootstrap config data structure for fabric {{ vxlan.fabric.name }} #}
 {% if vxlan.global.bootstrap is defined %}
   BOOTSTRAP_ENABLE: {{ vxlan.global.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool }}
 {% if vxlan.global.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool %}
@@ -14,6 +14,6 @@
   BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.bootstrap.dhcp_v4.multi_subnet_scope }}"
 {% endif %}
 {% endif %}
-{% endif %}  
+{% endif %}
 {% endif %}
 {% endif %}

@@ -23,6 +23,9 @@
 factory_defaults:
   vxlan:
     global:
+      ebgp:
+        bgp_asn_mode: Multi-AS
+        leaf_same_bgp_asn: false
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
@@ -251,9 +254,7 @@ factory_defaults:
       bgp:
         authentication_enable: false
         authentication_key_type: 3
-        as_mode: Multi-AS
-        allow_leaf_same_as: false
-        max_path: 4
+        max_paths: 4  # Review
       multicast:
         rendezvous_points: 2
         rp_mode: asm
