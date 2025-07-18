@@ -37,19 +37,19 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
                 ]
             }
         }
-        
+
         task_args = {
             'fabric_data': fabric_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 
@@ -67,19 +67,19 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
                 ]
             }
         }
-        
+
         task_args = {
             'fabric_data': fabric_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['failed'])
             self.assertIn("Data model path 'vxlan.global.auth_proto' must be defined!", result['msg'])
 
@@ -96,17 +96,17 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
                 ]
             }
         }
-        
+
         task_args = {
             'fabric_data': fabric_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             # The plugin doesn't handle None from fabric_data.get('global')
             # It will throw AttributeError when trying to call get() on None
             with self.assertRaises(AttributeError):
@@ -128,19 +128,19 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
                 ]
             }
         }
-        
+
         task_args = {
             'fabric_data': fabric_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['failed'])
             self.assertIn("Data model path 'vxlan.topology.switches.switch1.management' must be defined!", result['msg'])
 
@@ -160,19 +160,19 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
                 ]
             }
         }
-        
+
         task_args = {
             'fabric_data': fabric_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['failed'])
             self.assertIn("Data model path 'vxlan.topology.switches.switch1.role' must be defined!", result['msg'])
 
@@ -186,19 +186,19 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
                 'switches': None
             }
         }
-        
+
         task_args = {
             'fabric_data': fabric_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 
@@ -212,19 +212,19 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
                 'switches': []
             }
         }
-        
+
         task_args = {
             'fabric_data': fabric_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 
@@ -235,17 +235,17 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
                 'auth_proto': 'md5'
             }
         }
-        
+
         task_args = {
             'fabric_data': fabric_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             # The plugin doesn't handle None from fabric_data.get('topology')
             # It will throw AttributeError when trying to call get() on None
             with self.assertRaises(AttributeError):
@@ -277,19 +277,19 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
                 ]
             }
         }
-        
+
         task_args = {
             'fabric_data': fabric_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['failed'])
             # Should fail on the first error encountered (switch2 missing role)
             self.assertIn("Data model path 'vxlan.topology.switches.switch2.role' must be defined!", result['msg'])
@@ -297,7 +297,7 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
     def test_run_switches_with_different_auth_proto_values(self):
         """Test run with different auth_proto values."""
         auth_proto_values = ['md5', 'sha1', 'cleartext', None]
-        
+
         for auth_proto in auth_proto_values:
             with self.subTest(auth_proto=auth_proto):
                 fabric_data = {
@@ -314,19 +314,19 @@ class TestAddDeviceCheckActionModule(ActionModuleTestCase):
                         ]
                     }
                 }
-                
+
                 task_args = {
                     'fabric_data': fabric_data
                 }
-                
+
                 action_module = self.create_action_module(ActionModule, task_args)
-                
+
                 # Mock the run method from parent class
                 with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
                     mock_parent_run.return_value = {'changed': False}
-                    
+
                     result = action_module.run()
-                    
+
                     if auth_proto is None:
                         self.assertTrue(result['failed'])
                         self.assertIn("Data model path 'vxlan.global.auth_proto' must be defined!", result['msg'])

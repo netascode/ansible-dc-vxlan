@@ -29,20 +29,20 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'profile': {}
             }
         ]
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertEqual(result['required_links'], fabric_links)
 
     def test_run_exact_link_match_no_template(self):
@@ -59,7 +59,7 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 }
             }
         ]
-        
+
         fabric_links = [
             {
                 'src_device': 'switch1',
@@ -70,20 +70,20 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'profile': {}
             }
         ]
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             # Link should be marked as not required since it exists without template
             self.assertEqual(result['required_links'], [])
 
@@ -101,7 +101,7 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 }
             }
         ]
-        
+
         fabric_links = [
             {
                 'src_device': 'switch1',
@@ -112,20 +112,20 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'profile': {}
             }
         ]
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             # Link should be marked as not required since it exists without template
             self.assertEqual(result['required_links'], [])
 
@@ -144,7 +144,7 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'templateName': 'int_pre_provision_intra_fabric_link'
             }
         ]
-        
+
         fabric_links = [
             {
                 'src_device': 'switch1',
@@ -155,20 +155,20 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'profile': {}
             }
         ]
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             # Link should be required since it has pre-provision template
             self.assertEqual(result['required_links'], fabric_links)
 
@@ -192,7 +192,7 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 }
             }
         ]
-        
+
         fabric_links = [
             {
                 'src_device': 'switch1',
@@ -203,20 +203,20 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'profile': {}
             }
         ]
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             # Link should be required with updated template and profile
             self.assertEqual(len(result['required_links']), 1)
             link = result['required_links'][0]
@@ -244,7 +244,7 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 }
             }
         ]
-        
+
         fabric_links = [
             {
                 'src_device': 'switch1',
@@ -255,20 +255,20 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'profile': {}
             }
         ]
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             # Link should be required with updated template and profile
             self.assertEqual(len(result['required_links']), 1)
             link = result['required_links'][0]
@@ -292,7 +292,7 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'templateName': 'some_other_template'
             }
         ]
-        
+
         fabric_links = [
             {
                 'src_device': 'switch1',
@@ -303,20 +303,20 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'profile': {}
             }
         ]
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             # Link should be marked as not required since it exists with other template
             self.assertEqual(result['required_links'], [])
 
@@ -334,7 +334,7 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 }
             }
         ]
-        
+
         fabric_links = [
             {
                 'src_device': 'switch1',
@@ -345,20 +345,20 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'profile': {}
             }
         ]
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             # Link should be marked as not required due to case insensitive matching
             self.assertEqual(result['required_links'], [])
 
@@ -391,7 +391,7 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 }
             }
         ]
-        
+
         fabric_links = [
             {
                 'src_device': 'switch1',
@@ -418,23 +418,23 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'profile': {}
             }
         ]
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             # Should have 2 required links: one updated for num_link template, one new
             self.assertEqual(len(result['required_links']), 2)
-            
+
             # Check that the num_link template was applied
             num_link_found = False
             for link in result['required_links']:
@@ -443,7 +443,7 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                     self.assertEqual(link['profile']['peer1_ipv4_addr'], '192.168.1.3')
                     self.assertEqual(link['profile']['peer2_ipv4_addr'], '192.168.1.4')
                     self.assertEqual(link['profile']['enable_macsec'], 'false')
-            
+
             self.assertTrue(num_link_found)
 
     def test_run_missing_sw_info_keys(self):
@@ -460,7 +460,7 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 }
             }
         ]
-        
+
         fabric_links = [
             {
                 'src_device': 'switch1',
@@ -471,18 +471,18 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 'profile': {}
             }
         ]
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             # The plugin has a bug - it checks for key existence in the if condition
             # but then tries to access it in the or condition. This raises a KeyError.
             with self.assertRaises(KeyError):
@@ -502,22 +502,22 @@ class TestExistingLinksCheckActionModule(ActionModuleTestCase):
                 }
             }
         ]
-        
+
         fabric_links = []
-        
+
         task_args = {
             'existing_links': existing_links,
             'fabric_links': fabric_links
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertEqual(result['required_links'], [])
 
 

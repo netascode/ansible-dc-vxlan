@@ -17,7 +17,7 @@ class TestPOAPDevice(unittest.TestCase):
         self.mock_execute_module = MagicMock()
         self.mock_task_vars = {}
         self.mock_tmp = '/tmp'
-        
+
         self.params = {
             'model_data': {
                 'vxlan': {
@@ -54,7 +54,7 @@ class TestPOAPDevice(unittest.TestCase):
     def test_init_with_valid_params(self):
         """Test POAPDevice initialization with valid parameters."""
         device = POAPDevice(self.params)
-        
+
         self.assertEqual(device.fabric_name, 'test_fabric')
         self.assertEqual(len(device.switches), 2)
         self.assertEqual(device.switches[0]['name'], 'switch1')
@@ -67,7 +67,7 @@ class TestPOAPDevice(unittest.TestCase):
         """Test POAPDevice initialization with missing fabric."""
         params = self.params.copy()
         del params['model_data']['vxlan']['fabric']
-        
+
         with self.assertRaises(KeyError):
             POAPDevice(params)
 
@@ -75,7 +75,7 @@ class TestPOAPDevice(unittest.TestCase):
         """Test POAPDevice initialization with missing switches."""
         params = self.params.copy()
         del params['model_data']['vxlan']['topology']['switches']
-        
+
         with self.assertRaises(KeyError):
             POAPDevice(params)
 
@@ -85,7 +85,7 @@ class TestPOAPDevice(unittest.TestCase):
         # Mock _get_discovered to return False (switch not discovered)
         device._get_discovered = MagicMock(return_value=False)
         device.check_poap_supported_switches()
-        
+
         self.assertTrue(device.poap_supported_switches)
 
     def test_check_poap_supported_switches_no_poap_enabled(self):
@@ -94,10 +94,10 @@ class TestPOAPDevice(unittest.TestCase):
         for switch in params['model_data']['vxlan']['topology']['switches']:
             if 'poap' in switch:
                 switch['poap']['bootstrap'] = False
-        
+
         device = POAPDevice(params)
         device.check_poap_supported_switches()
-        
+
         self.assertFalse(device.poap_supported_switches)
 
     def test_check_poap_supported_switches_no_poap_key(self):
@@ -106,27 +106,27 @@ class TestPOAPDevice(unittest.TestCase):
         for switch in params['model_data']['vxlan']['topology']['switches']:
             if 'poap' in switch:
                 del switch['poap']
-        
+
         device = POAPDevice(params)
         device.check_poap_supported_switches()
-        
+
         self.assertFalse(device.poap_supported_switches)
 
     def test_check_preprovision_supported_switches_with_preprovision(self):
         """Test check_preprovision_supported_switches with preprovision enabled."""
         params = self.params.copy()
         params['model_data']['vxlan']['topology']['switches'][0]['poap']['preprovision'] = True
-        
+
         device = POAPDevice(params)
         device.check_preprovision_supported_switches()
-        
+
         self.assertTrue(device.preprovision_supported_switches)
 
     def test_check_preprovision_supported_switches_no_preprovision(self):
         """Test check_preprovision_supported_switches with no preprovision."""
         device = POAPDevice(self.params)
         device.check_preprovision_supported_switches()
-        
+
         self.assertFalse(device.preprovision_supported_switches)
 
     def test_refresh_discovered_successful(self):
@@ -140,12 +140,12 @@ class TestPOAPDevice(unittest.TestCase):
                 }
             ]
         }
-        
+
         self.mock_execute_module.return_value = mock_response
-        
+
         device = POAPDevice(self.params)
         device.refresh_discovered()
-        
+
         self.assertEqual(device.discovered_switch_data, mock_response['response'])
         self.mock_execute_module.assert_called_once_with(
             module_name="cisco.dcnm.dcnm_inventory",
@@ -160,19 +160,19 @@ class TestPOAPDevice(unittest.TestCase):
     def test_refresh_discovered_no_response(self):
         """Test refresh_discovered with no response."""
         self.mock_execute_module.return_value = {}
-        
+
         device = POAPDevice(self.params)
         device.refresh_discovered()
-        
+
         self.assertEqual(device.discovered_switch_data, [])
 
     def test_refresh_discovered_empty_response(self):
         """Test refresh_discovered with empty response."""
         self.mock_execute_module.return_value = {'response': []}
-        
+
         device = POAPDevice(self.params)
         device.refresh_discovered()
-        
+
         self.assertEqual(device.discovered_switch_data, [])
 
     def test_get_discovered_found(self):
@@ -185,7 +185,7 @@ class TestPOAPDevice(unittest.TestCase):
                 'logicalName': 'switch1'
             }
         ]
-        
+
         result = device._get_discovered('192.168.1.1', 'leaf', 'switch1')
         self.assertTrue(result)
 
@@ -193,7 +193,7 @@ class TestPOAPDevice(unittest.TestCase):
         """Test _get_discovered when switch is not found."""
         device = POAPDevice(self.params)
         device.discovered_switch_data = []
-        
+
         result = device._get_discovered('192.168.1.1', 'leaf', 'switch1')
         self.assertFalse(result)
 
@@ -207,7 +207,7 @@ class TestPOAPDevice(unittest.TestCase):
                 'logicalName': 'switch1'
             }
         ]
-        
+
         result = device._get_discovered('192.168.1.1', 'leaf', 'switch1')
         self.assertFalse(result)
 
@@ -217,43 +217,43 @@ class TestPOAPDevice(unittest.TestCase):
         # Mock _get_discovered to return True (switch already discovered)
         device._get_discovered = MagicMock(return_value=True)
         device.check_poap_supported_switches()
-        
+
         # Should remain False because discovered switches are skipped
         self.assertFalse(device.poap_supported_switches)
 
     def test_refresh_failed_response(self):
         """Test refresh method with failed response to cover elif branch."""
         device = POAPDevice(self.params)
-        
+
         # Mock execute_module to return failed response
         device.execute_module = MagicMock(return_value={
             'failed': True,
             'msg': {'DATA': 'Some error message'}
         })
-        
+
         device.refresh()
-        
+
         self.assertFalse(device.refresh_succeeded)
         self.assertEqual(device.refresh_message, 'Some error message')
 
     def test_split_string_data_json_decode_error(self):
         """Test _split_string_data with invalid JSON to cover exception handling."""
         device = POAPDevice(self.params)
-        
+
         # Test with invalid JSON data
         result = device._split_string_data('invalid json data')
-        
+
         self.assertEqual(result['gateway'], 'NOT_SET')
         self.assertEqual(result['modulesModel'], 'NOT_SET')
 
     def test_split_string_data_valid_json(self):
         """Test _split_string_data with valid JSON data."""
         device = POAPDevice(self.params)
-        
+
         # Test with valid JSON data
         valid_json = '{"gateway": "192.168.1.1/24", "modulesModel": ["N9K-X9364v", "N9K-vSUP"]}'
         result = device._split_string_data(valid_json)
-        
+
         self.assertEqual(result['gateway'], '192.168.1.1/24')
         self.assertEqual(result['modulesModel'], ['N9K-X9364v', 'N9K-vSUP'])
 
@@ -330,7 +330,7 @@ class TestGetPoapDataActionModule(ActionModuleTestCase):
                     return {'response': []}  # refresh_discovered
                 elif module_name == "cisco.dcnm.dcnm_rest":
                     return {'response': {'RETURN_CODE': 200, 'DATA': []}}  # refresh (empty POAP data)
-                
+
             mock_execute.side_effect = mock_side_effect
 
             result = action_module.run()
@@ -381,7 +381,7 @@ class TestGetPoapDataActionModule(ActionModuleTestCase):
                     return {'response': []}  # refresh_discovered
                 elif module_name == "cisco.dcnm.dcnm_rest":
                     return {'response': {'RETURN_CODE': 200, 'DATA': poap_data}}  # refresh
-                
+
             mock_execute.side_effect = mock_side_effect
 
             result = action_module.run()
@@ -443,7 +443,7 @@ class TestGetPoapDataActionModule(ActionModuleTestCase):
 
         result = action_module.run()
 
-        # Should fail because empty poap_data fails the "not results['poap_data']" check 
+        # Should fail because empty poap_data fails the "not results['poap_data']" check
         # even though the Invalid Fabric error message is ignored
         self.assertTrue(result.get('failed', False))
         self.assertIn('POAP is enabled on at least one switch', result['message'])

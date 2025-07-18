@@ -19,7 +19,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 'ipAddress': '10.1.1.1'
             }
         ]
-        
+
         edge_connections = [
             {
                 "switch": [
@@ -33,26 +33,26 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 ]
             }
         ]
-        
+
         def mock_helper_side_effect(self, task_vars, tmp, serial, prefix):
             if prefix == 'edge_':
                 return []  # No edge_ policies
             else:  # prefix == 'nace_'
                 return [{'policyId': 'POL123', 'description': 'nace_unmanaged_policy'}]
-        
+
         task_args = {
             'switch_data': switch_data,
             'edge_connections': edge_connections
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Only mock the helper function, not the parent run()
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
-            
+
             result = action_module.run()
-            
+
             # Should detect unmanaged policy and set changed=True
             self.assertTrue(result['changed'])
             self.assertIn('unmanaged_edge_connections', result)
@@ -70,7 +70,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 'ipAddress': '10.1.1.1'
             }
         ]
-        
+
         edge_connections = [
             {
                 "switch": [
@@ -84,7 +84,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 ]
             }
         ]
-        
+
         def mock_helper_side_effect(self, task_vars, tmp, serial, prefix):
             if prefix == 'edge_':
                 return []  # No edge_ policies
@@ -94,20 +94,20 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                     {'policyId': 'POL123', 'description': 'nace_test_policy_1'},
                     {'policyId': 'POL124', 'description': 'nace_test_policy_2'}
                 ]
-        
+
         task_args = {
             'switch_data': switch_data,
             'edge_connections': edge_connections
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Only mock the helper function
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['changed'])
             self.assertIn('unmanaged_edge_connections', result)
             # Should have empty switch list when no unmanaged policies
@@ -117,16 +117,16 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
         """Test run with empty edge connections."""
         switch_data = []
         edge_connections = [{"switch": []}]
-        
+
         task_args = {
             'switch_data': switch_data,
             'edge_connections': edge_connections
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         result = action_module.run()
-        
+
         self.assertFalse(result['changed'])
         self.assertIn('unmanaged_edge_connections', result)
 
@@ -138,7 +138,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 'ipAddress': '10.1.1.2'  # Different IP not in edge_connections
             }
         ]
-        
+
         edge_connections = [
             {
                 "switch": [
@@ -151,16 +151,16 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 ]
             }
         ]
-        
+
         task_args = {
             'switch_data': switch_data,
             'edge_connections': edge_connections
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         result = action_module.run()
-        
+
         self.assertFalse(result['changed'])
         self.assertEqual(len(result['unmanaged_edge_connections'][0]['switch']), 0)
 
@@ -176,7 +176,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 'ipAddress': '10.1.1.2'
             }
         ]
-        
+
         edge_connections = [
             {
                 "switch": [
@@ -195,7 +195,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 ]
             }
         ]
-        
+
         def mock_helper_side_effect(self, task_vars, tmp, serial, prefix):
             if serial == 'ABC123':
                 if prefix == 'edge_':
@@ -208,19 +208,19 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                     return []
                 else:  # prefix == 'nace_'
                     return [{'policyId': 'POL124', 'description': 'nace_policy_2'}]
-        
+
         task_args = {
             'switch_data': switch_data,
             'edge_connections': edge_connections
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             # Should have only one switch with unmanaged policies
             self.assertEqual(len(result['unmanaged_edge_connections'][0]['switch']), 1)
@@ -234,7 +234,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 'ipAddress': '10.1.1.1'
             }
         ]
-        
+
         edge_connections = [
             {
                 "switch": [
@@ -247,25 +247,25 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 ]
             }
         ]
-        
+
         def mock_helper_side_effect(self, task_vars, tmp, serial, prefix):
             if prefix == 'edge_':
                 return [{'policyId': 'POL123', 'description': 'edge_unmanaged'}]
             else:  # prefix == 'nace_'
                 return []
-        
+
         task_args = {
             'switch_data': switch_data,
             'edge_connections': edge_connections
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertEqual(result['unmanaged_edge_connections'][0]['switch'][0]['policies'][0]['description'], 'edge_unmanaged')
 
@@ -277,7 +277,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 'ipAddress': '10.1.1.1'
             }
         ]
-        
+
         edge_connections = [
             {
                 "switch": [
@@ -290,25 +290,25 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
                 ]
             }
         ]
-        
+
         def mock_helper_side_effect(self, task_vars, tmp, serial, prefix):
             if prefix == 'edge_':
                 return [{'policyId': 'POL123', 'description': 'edge_unmanaged'}]
             else:  # prefix == 'nace_'
                 return [{'policyId': 'POL124', 'description': 'nace_another_unmanaged'}]
-        
+
         task_args = {
             'switch_data': switch_data,
             'edge_connections': edge_connections
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             # Should have both unmanaged policies detected
             # Note: The plugin logic adds each unmanaged policy as a separate switch entry

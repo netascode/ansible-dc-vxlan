@@ -24,20 +24,20 @@ class TestDiffModelChangesActionModule(ActionModuleTestCase):
         # Create current file
         current_file = self.create_temp_file("current content")
         previous_file = os.path.join(self.temp_dir, "non_existent_file.txt")
-        
+
         task_args = {
             'file_name_previous': previous_file,
             'file_name_current': current_file
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['file_data_changed'])
             self.assertFalse(result.get('failed', False))
 
@@ -46,20 +46,20 @@ class TestDiffModelChangesActionModule(ActionModuleTestCase):
         content = "identical content"
         current_file = self.create_temp_file(content)
         previous_file = self.create_temp_file(content)
-        
+
         task_args = {
             'file_name_previous': previous_file,
             'file_name_current': current_file
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['file_data_changed'])
             self.assertFalse(result.get('failed', False))
             # Previous file should be deleted when files are identical
@@ -69,23 +69,23 @@ class TestDiffModelChangesActionModule(ActionModuleTestCase):
         """Test run when files are different and no normalization is needed."""
         previous_content = "previous content"
         current_content = "current content"
-        
+
         current_file = self.create_temp_file(current_content)
         previous_file = self.create_temp_file(previous_content)
-        
+
         task_args = {
             'file_name_previous': previous_file,
             'file_name_current': current_file
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['file_data_changed'])
             self.assertFalse(result.get('failed', False))
             # Previous file should still exist when files are different
@@ -95,23 +95,23 @@ class TestDiffModelChangesActionModule(ActionModuleTestCase):
         """Test run when files are identical after __omit_place_holder__ normalization."""
         previous_content = "key1: __omit_place_holder__abc123\nkey2: value2"
         current_content = "key1: __omit_place_holder__xyz789\nkey2: value2"
-        
+
         current_file = self.create_temp_file(current_content)
         previous_file = self.create_temp_file(previous_content)
-        
+
         task_args = {
             'file_name_previous': previous_file,
             'file_name_current': current_file
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['file_data_changed'])
             self.assertFalse(result.get('failed', False))
             # Previous file should be deleted when files are identical after normalization
@@ -121,23 +121,23 @@ class TestDiffModelChangesActionModule(ActionModuleTestCase):
         """Test run when files are still different after normalization."""
         previous_content = "key1: __omit_place_holder__abc123\nkey2: value2"
         current_content = "key1: __omit_place_holder__xyz789\nkey2: different_value"
-        
+
         current_file = self.create_temp_file(current_content)
         previous_file = self.create_temp_file(previous_content)
-        
+
         task_args = {
             'file_name_previous': previous_file,
             'file_name_current': current_file
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['file_data_changed'])
             self.assertFalse(result.get('failed', False))
             # Previous file should still exist when files are different
@@ -159,23 +159,23 @@ key3: __omit_place_holder__uvw000_suffix
 nested:
   key4: __omit_place_holder__rst111
 """
-        
+
         current_file = self.create_temp_file(current_content)
         previous_file = self.create_temp_file(previous_content)
-        
+
         task_args = {
             'file_name_previous': previous_file,
             'file_name_current': current_file
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['file_data_changed'])
             self.assertFalse(result.get('failed', False))
             # Previous file should be deleted when files are identical after normalization
@@ -186,18 +186,18 @@ nested:
         """Test run when file read fails."""
         current_file = self.create_temp_file("current content")
         previous_file = self.create_temp_file("previous content")
-        
+
         task_args = {
             'file_name_previous': previous_file,
             'file_name_current': current_file
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             with self.assertRaises(OSError):
                 action_module.run()
 
@@ -208,29 +208,29 @@ line2 with __omit_place_holder__abc123
 line3
 line4 with __omit_place_holder__def456
 line5"""
-        
+
         current_content = """line1
 line2 with __omit_place_holder__xyz789
 line3
 line4 with __omit_place_holder__uvw000
 line5"""
-        
+
         current_file = self.create_temp_file(current_content)
         previous_file = self.create_temp_file(previous_content)
-        
+
         task_args = {
             'file_name_previous': previous_file,
             'file_name_current': current_file
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['file_data_changed'])
             self.assertFalse(result.get('failed', False))
             # Previous file should be deleted when files are identical after normalization
@@ -240,20 +240,20 @@ line5"""
         """Test run with empty files."""
         current_file = self.create_temp_file("")
         previous_file = self.create_temp_file("")
-        
+
         task_args = {
             'file_name_previous': previous_file,
             'file_name_current': current_file
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['file_data_changed'])
             self.assertFalse(result.get('failed', False))
             # Previous file should be deleted when files are identical

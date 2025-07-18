@@ -45,7 +45,7 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         # NDFC returns policies that match the data model
         mock_ndfc_policies = [
             {
@@ -53,20 +53,20 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 "description": "nac_Test_Policy"
             }
         ]
-        
+
         task_args = {
             'switch_serial_numbers': switch_serial_numbers,
             'model_data': model_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Only mock the helper function, not the parent run()
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_policy.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.return_value = mock_ndfc_policies
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['changed'])
             self.assertIn('unmanaged_policies', result)
             self.assertEqual(result['unmanaged_policies'], [{'switch': []}])
@@ -105,7 +105,7 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         # NDFC returns policies including unmanaged ones
         mock_ndfc_policies = [
             {
@@ -117,20 +117,20 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 "description": "nac_Unmanaged_Policy"  # This is unmanaged
             }
         ]
-        
+
         task_args = {
             'switch_serial_numbers': switch_serial_numbers,
             'model_data': model_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Only mock the helper function, not the parent run()
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_policy.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.return_value = mock_ndfc_policies
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertIn('unmanaged_policies', result)
             # Should have one switch with unmanaged policies
@@ -185,7 +185,7 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         def mock_helper_side_effect(self, task_vars, tmp, serial, prefix):
             if serial == "ABC123":
                 # First switch has an unmanaged policy
@@ -198,19 +198,19 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 return [
                     {"policyId": "policy_456", "description": "nac_Policy_1"}
                 ]
-        
+
         task_args = {
             'switch_serial_numbers': switch_serial_numbers,
             'model_data': model_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_policy.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             # Should have only one switch with unmanaged policies
             self.assertEqual(len(result['unmanaged_policies'][0]['switch']), 1)
@@ -250,26 +250,26 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         mock_ndfc_policies = [
             {
                 "policyId": "policy_999",
                 "description": "nac_Unmanaged_Policy"
             }
         ]
-        
+
         task_args = {
             'switch_serial_numbers': switch_serial_numbers,
             'model_data': model_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_policy.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.return_value = mock_ndfc_policies
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertEqual(result['unmanaged_policies'][0]['switch'][0]['ip'], '2001:db8::1')
 
@@ -295,21 +295,21 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         mock_ndfc_policies = []
-        
+
         task_args = {
             'switch_serial_numbers': switch_serial_numbers,
             'model_data': model_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_policy.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.return_value = mock_ndfc_policies
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['changed'])
             self.assertEqual(result['unmanaged_policies'], [{'switch': []}])
 
@@ -333,21 +333,21 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         mock_ndfc_policies = []
-        
+
         task_args = {
             'switch_serial_numbers': switch_serial_numbers,
             'model_data': model_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_policy.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.return_value = mock_ndfc_policies
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['changed'])
             self.assertIn('unmanaged_policies', result)
 
@@ -366,16 +366,16 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         task_args = {
             'switch_serial_numbers': switch_serial_numbers,
             'model_data': model_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         result = action_module.run()
-        
+
         self.assertFalse(result['changed'])
         self.assertIn('unmanaged_policies', result)
         self.assertEqual(result['unmanaged_policies'], [{'switch': []}])
@@ -414,7 +414,7 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         # NDFC returns policy that doesn't match due to formatting
         mock_ndfc_policies = [
             {
@@ -426,19 +426,19 @@ class TestUnmanagedPolicyActionModule(ActionModuleTestCase):
                 "description": "nac_Unmanaged Policy"  # Different formatting - unmanaged
             }
         ]
-        
+
         task_args = {
             'switch_serial_numbers': switch_serial_numbers,
             'model_data': model_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_policy.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.return_value = mock_ndfc_policies
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertIn('unmanaged_policies', result)
             # Should detect the unmanaged policy due to formatting difference

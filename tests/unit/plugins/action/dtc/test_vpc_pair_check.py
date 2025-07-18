@@ -46,19 +46,19 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
                 }
             ]
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 
@@ -92,19 +92,19 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
                 }
             ]
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 
@@ -126,19 +126,19 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
                 }
             ]
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 
@@ -147,19 +147,19 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
         vpc_data = {
             'results': []
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 
@@ -172,19 +172,19 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
                 }
             ]
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 
@@ -202,19 +202,19 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
                 }
             ]
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 
@@ -260,19 +260,19 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
                 }
             ]
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 
@@ -290,17 +290,17 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
                 }
             ]
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             with self.assertRaises(KeyError):
                 action_module.run()
 
@@ -317,17 +317,17 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
                 }
             ]
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             with self.assertRaises(KeyError):
                 action_module.run()
 
@@ -340,17 +340,17 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
                 }
             ]
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             with self.assertRaises(KeyError):
                 action_module.run()
 
@@ -359,17 +359,17 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
         vpc_data = {
             'other_key': 'value'
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             with self.assertRaises(KeyError):
                 action_module.run()
 
@@ -403,19 +403,19 @@ class TestVpcPairCheckActionModule(ActionModuleTestCase):
                 }
             ]
         }
-        
+
         task_args = {
             'vpc_data': vpc_data
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock the run method from parent class
         with patch.object(ActionModule.__bases__[0], 'run') as mock_parent_run:
             mock_parent_run.return_value = {'changed': False}
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['failed'])
             self.assertNotIn('msg', result)
 

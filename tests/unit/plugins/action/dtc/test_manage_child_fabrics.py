@@ -223,7 +223,7 @@ class TestManageChildFabricsActionModule(ActionModuleTestCase):
             # Verify that _execute_module was called with correct arguments
             mock_execute.assert_called_once()
             call_args = mock_execute.call_args[1]['module_args']
-            
+
             self.assertEqual(call_args['method'], 'POST')
             self.assertEqual(call_args['path'], '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdAdd')
             expected_json = '{"destFabric":"parent-fabric","sourceFabric":"child-fabric1"}'

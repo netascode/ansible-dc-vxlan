@@ -15,7 +15,7 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
         """Set up test fixtures."""
         super().setUp()
         self.maxDiff = None
-        
+
         self.mock_task_args = {
             'fabric': 'test_fabric',
             'msite_data': {
@@ -31,15 +31,15 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
     def test_run_no_vrfs_in_ndfc(self):
         """Test run when NDFC has no VRFs."""
         action_module = self.create_action_module(ActionModule, self.mock_task_args)
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute:
             # Mock NDFC query returning no VRFs
             mock_execute.return_value = {
                 'response': []
             }
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['changed'])
             self.assertFalse(result['failed'])
             self.assertEqual(mock_execute.call_count, 1)
@@ -47,16 +47,16 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
     def test_run_ndfc_query_failed(self):
         """Test run when NDFC query fails."""
         action_module = self.create_action_module(ActionModule, self.mock_task_args)
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute:
             # Mock NDFC query failure
             mock_execute.return_value = {
                 'failed': True,
                 'msg': 'Fabric test_fabric missing on DCNM or does not have any switches'
             }
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['failed'])
             self.assertIn('Fabric test_fabric missing', result['msg'])
             self.assertEqual(mock_execute.call_count, 1)
@@ -64,7 +64,7 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
     def test_run_no_unmanaged_vrfs(self):
         """Test run when all NDFC VRFs are managed."""
         action_module = self.create_action_module(ActionModule, self.mock_task_args)
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute:
             # Mock NDFC query returning only managed VRFs
             mock_execute.return_value = {
@@ -81,9 +81,9 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
                     }
                 ]
             }
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['changed'])
             self.assertFalse(result['failed'])
             self.assertEqual(mock_execute.call_count, 1)
@@ -91,7 +91,7 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
     def test_run_with_unmanaged_vrfs_delete_success(self):
         """Test run when unmanaged VRFs are found and successfully deleted."""
         action_module = self.create_action_module(ActionModule, self.mock_task_args)
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute:
             # Mock NDFC query returning managed + unmanaged VRFs
             mock_execute.side_effect = [
@@ -120,13 +120,13 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
                     'changed': True
                 }
             ]
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertFalse(result['failed'])
             self.assertEqual(mock_execute.call_count, 2)
-            
+
             # Verify the delete call was made with correct config
             delete_call_args = mock_execute.call_args_list[1]
             delete_config = delete_call_args[1]['module_args']['config']
@@ -139,7 +139,7 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
     def test_run_with_unmanaged_vrfs_delete_failed(self):
         """Test run when unmanaged VRFs deletion fails."""
         action_module = self.create_action_module(ActionModule, self.mock_task_args)
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute:
             # Mock NDFC query returning unmanaged VRFs
             mock_execute.side_effect = [
@@ -164,9 +164,9 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
                     'msg': 'Failed to delete VRF unmanaged_vrf_1'
                 }
             ]
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['failed'])
             self.assertIn('Failed to delete VRF', result['msg'])
             self.assertEqual(mock_execute.call_count, 2)
@@ -174,15 +174,15 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
     def test_run_ndfc_vrfs_no_response_key(self):
         """Test run when NDFC query succeeds but has no response key."""
         action_module = self.create_action_module(ActionModule, self.mock_task_args)
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute:
             # Mock NDFC query without response key
             mock_execute.return_value = {
                 'changed': False
             }
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['changed'])
             self.assertFalse(result['failed'])
             self.assertEqual(mock_execute.call_count, 1)
@@ -197,9 +197,9 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute:
             # Mock NDFC query returning some VRFs
             mock_execute.side_effect = [
@@ -223,9 +223,9 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
                     'changed': True
                 }
             ]
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertFalse(result['failed'])
             self.assertEqual(mock_execute.call_count, 2)
@@ -244,9 +244,9 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute:
             # Mock NDFC query with mixed managed/unmanaged VRFs
             mock_execute.side_effect = [
@@ -280,13 +280,13 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
                     'changed': True
                 }
             ]
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertFalse(result['failed'])
             self.assertEqual(mock_execute.call_count, 2)
-            
+
             # Verify only unmanaged VRFs were marked for deletion
             delete_call_args = mock_execute.call_args_list[1]
             delete_config = delete_call_args[1]['module_args']['config']
@@ -299,7 +299,7 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
     def test_run_vrf_query_with_complex_response(self):
         """Test run with complex NDFC VRF response structure."""
         action_module = self.create_action_module(ActionModule, self.mock_task_args)
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute:
             # Mock NDFC query with complex response structure
             mock_execute.side_effect = [
@@ -346,13 +346,13 @@ class TestUnmanagedChildFabricVrfsActionModule(ActionModuleTestCase):
                     'changed': True
                 }
             ]
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertFalse(result['failed'])
             self.assertEqual(mock_execute.call_count, 2)
-            
+
             # Verify the correct VRF was marked for deletion
             delete_call_args = mock_execute.call_args_list[1]
             delete_config = delete_call_args[1]['module_args']['config']

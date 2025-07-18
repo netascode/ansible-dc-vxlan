@@ -16,10 +16,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
         """Set up test fixtures."""
         super().setUp()
         self.maxDiff = None
-        
+
         # Standard mock VRF template config JSON string that matches the test VRF config exactly
         self.standard_vrf_config = '{"ENABLE_NETFLOW": "true", "loopbackId": "100", "vrfTemplate": "Custom_VRF_Template", "advertiseHostRouteFlag": "false", "advertiseDefaultRouteFlag": "false", "configureStaticDefaultRouteFlag": "false", "bgpPassword": "", "bgpPasswordKeyType": "", "NETFLOW_MONITOR": "", "trmEnabled": "false", "loopbackNumber": "", "rpAddress": "", "isRPAbsent": "false", "isRPExternal": "false", "L3VniMcastGroup": "", "multicastGroup": "", "routeTargetImportMvpn": "", "routeTargetExportMvpn": ""}'
-        
+
         self.mock_msite_data = {
             'overlay_attach_groups': {
                 'vrfs': [
@@ -84,12 +84,12 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
             },
             'child_fabrics_data': {}
         }
-        
+
         task_args = {'msite_data': msite_data}
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         result = action_module.run()
-        
+
         self.assertFalse(result['changed'])
         self.assertFalse(result['failed'])
         self.assertEqual(result['child_fabrics_changed'], [])
@@ -103,12 +103,12 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
             },
             'child_fabrics_data': {}
         }
-        
+
         task_args = {'msite_data': msite_data}
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         result = action_module.run()
-        
+
         self.assertFalse(result['changed'])
         self.assertEqual(result['child_fabrics_changed'], [])
 
@@ -116,12 +116,12 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
         """Test run with non-Switch_Fabric type child fabrics."""
         task_args = {'msite_data': self.mock_msite_data}
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Change child fabric type to non-Switch_Fabric
         self.mock_msite_data['child_fabrics_data']['child_fabric1']['type'] = 'External'
-        
+
         result = action_module.run()
-        
+
         self.assertFalse(result['changed'])
         self.assertEqual(result['child_fabrics_changed'], [])
 
@@ -180,14 +180,14 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
         """Test run when VRF configuration needs to be updated."""
         task_args = {'msite_data': self.mock_msite_data}
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Mock template file content and path finding
         template_content = '{"vrfName": "{{ dm.name }}", "fabric": "{{ fabric_name }}"}'
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch.object(action_module, '_find_needle') as mock_find_needle, \
              patch('builtins.open', mock_open(read_data=template_content)):
-            
+
             # Mock NDFC VRF responses
             mock_execute.side_effect = [
                 # First call: get VRF (needs update)
@@ -208,11 +208,11 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
                     }
                 }
             ]
-            
+
             mock_find_needle.return_value = '/path/to/template.j2'
-            
+
             result = action_module.run(task_vars={'role_path': '/test/role'})
-            
+
             self.assertTrue(result['changed'])
             self.assertIn('child_fabric1', result['child_fabrics_changed'])
             self.assertEqual(mock_execute.call_count, 2)
@@ -221,10 +221,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
         """Test run when template file cannot be found."""
         task_args = {'msite_data': self.mock_msite_data}
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch.object(action_module, '_find_needle') as mock_find_needle:
-            
+
             # Mock NDFC get VRF response that requires update
             mock_execute.return_value = {
                 'response': {
@@ -235,13 +235,13 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
                     }
                 }
             }
-            
+
             # Mock template file not found
             from ansible.errors import AnsibleFileNotFound
             mock_find_needle.side_effect = AnsibleFileNotFound("Template not found")
-            
+
             result = action_module.run(task_vars={'role_path': '/test/role'})
-            
+
             self.assertTrue(result['failed'])
             self.assertIn('Template file not found', result['msg'])
 
@@ -249,13 +249,13 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
         """Test run when VRF update fails."""
         task_args = {'msite_data': self.mock_msite_data}
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         template_content = '{"vrfName": "{{ dm.name }}"}'
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch.object(action_module, '_find_needle') as mock_find_needle, \
              patch('builtins.open', mock_open(read_data=template_content)):
-            
+
             # Mock responses
             mock_execute.side_effect = [
                 # First call: get VRF (needs update)
@@ -278,11 +278,11 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
                     }
                 }
             ]
-            
+
             mock_find_needle.return_value = '/path/to/template.j2'
-            
+
             result = action_module.run(task_vars={'role_path': '/test/role'})
-            
+
             self.assertTrue(result['failed'])
             self.assertIn('Internal Server Error', result['msg'])
 
@@ -312,16 +312,16 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         task_args = {'msite_data': msite_data}
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         template_content = '{"vrfName": "test_vrf", "fabric": "{{ fabric_name }}"}'
-        
+
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch.object(action_module, '_find_needle') as mock_find_needle, \
              patch('builtins.open', mock_open(read_data=template_content)):
-            
+
             # Mock NDFC responses - VRF needs update due to default values
             mock_execute.side_effect = [
                 # First call: get VRF (shows config needs update with default values)
@@ -342,7 +342,7 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
                     }
                 }
             ]
-            
+
             mock_find_needle.return_value = '/path/to/template.j2'
 
             result = action_module.run(task_vars={'role_path': '/test/role'})
@@ -383,12 +383,12 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         task_args = {'msite_data': msite_data}
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         result = action_module.run()
-        
+
         self.assertFalse(result['changed'])
         self.assertEqual(result['child_fabrics_changed'], [])
 

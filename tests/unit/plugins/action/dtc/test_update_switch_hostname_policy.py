@@ -28,10 +28,10 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         switch_serial_numbers = ['ABC123']
         template_name = 'switch_freeform'
-        
+
         mock_policy = {
             'nvPairs': {
                 'SWITCH_NAME': 'old-switch-name'
@@ -39,21 +39,21 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
             'templateName': 'switch_freeform',
             'serialNumber': 'ABC123'
         }
-        
+
         task_args = {
             'model_data': model_data,
             'switch_serial_numbers': switch_serial_numbers,
             'template_name': template_name
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         # Only mock the helper function, not the parent run()
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.update_switch_hostname_policy.ndfc_get_switch_policy_using_template') as mock_helper:
             mock_helper.return_value = mock_policy
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertIn('policy_update', result)
             self.assertIn('ABC123', result['policy_update'])
@@ -76,10 +76,10 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         switch_serial_numbers = ['ABC123']
         template_name = 'switch_freeform'
-        
+
         mock_policy = {
             'nvPairs': {
                 'SWITCH_NAME': 'correct-switch-name'  # Already matches
@@ -87,20 +87,20 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
             'templateName': 'switch_freeform',
             'serialNumber': 'ABC123'
         }
-        
+
         task_args = {
             'model_data': model_data,
             'switch_serial_numbers': switch_serial_numbers,
             'template_name': template_name
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.update_switch_hostname_policy.ndfc_get_switch_policy_using_template') as mock_helper:
             mock_helper.return_value = mock_policy
-            
+
             result = action_module.run()
-            
+
             self.assertFalse(result['changed'])
             self.assertIn('policy_update', result)
             self.assertEqual(result['policy_update'], {})
@@ -126,10 +126,10 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         switch_serial_numbers = ['ABC123', 'DEF456']
         template_name = 'switch_freeform'
-        
+
         def mock_helper_side_effect(self, task_vars, tmp, switch_serial_number, template_name):
             if switch_serial_number == 'ABC123':
                 return {
@@ -143,20 +143,20 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
                     'templateName': 'switch_freeform',
                     'serialNumber': 'DEF456'
                 }
-        
+
         task_args = {
             'model_data': model_data,
             'switch_serial_numbers': switch_serial_numbers,
             'template_name': template_name
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.update_switch_hostname_policy.ndfc_get_switch_policy_using_template') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             # Should have only one switch needing update
             self.assertEqual(len(result['policy_update']), 1)
@@ -180,10 +180,10 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         switch_serial_numbers = ['ABC123']
         template_name = 'switch_freeform'
-        
+
         mock_policy = {
             'nvPairs': {
                 'SWITCH_NAME': 'old-external-switch'
@@ -191,20 +191,20 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
             'templateName': 'switch_freeform',
             'serialNumber': 'ABC123'
         }
-        
+
         task_args = {
             'model_data': model_data,
             'switch_serial_numbers': switch_serial_numbers,
             'template_name': template_name
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.update_switch_hostname_policy.ndfc_get_switch_policy_using_template') as mock_helper:
             mock_helper.return_value = mock_policy
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertIn('ABC123', result['policy_update'])
 
@@ -225,10 +225,10 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         switch_serial_numbers = ['ABC123']
         template_name = 'switch_freeform'
-        
+
         mock_policy = {
             'nvPairs': {
                 'SWITCH_NAME': 'old-isn-switch'
@@ -236,20 +236,20 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
             'templateName': 'switch_freeform',
             'serialNumber': 'ABC123'
         }
-        
+
         task_args = {
             'model_data': model_data,
             'switch_serial_numbers': switch_serial_numbers,
             'template_name': template_name
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.update_switch_hostname_policy.ndfc_get_switch_policy_using_template') as mock_helper:
             mock_helper.return_value = mock_policy
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertIn('ABC123', result['policy_update'])
 
@@ -270,10 +270,10 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         switch_serial_numbers = ['ABC123']
         template_name = 'switch_freeform'
-        
+
         mock_policy = {
             'nvPairs': {
                 'SWITCH_NAME': 'original-name'
@@ -281,20 +281,20 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
             'templateName': 'switch_freeform',
             'serialNumber': 'ABC123'
         }
-        
+
         task_args = {
             'model_data': model_data,
             'switch_serial_numbers': switch_serial_numbers,
             'template_name': template_name
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.update_switch_hostname_policy.ndfc_get_switch_policy_using_template') as mock_helper:
             mock_helper.return_value = mock_policy
-            
+
             result = action_module.run()
-            
+
             self.assertTrue(result['changed'])
             self.assertTrue(len(result['policy_update']) > 0)
 
@@ -310,20 +310,20 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         switch_serial_numbers = []
         template_name = 'switch_freeform'
-        
+
         task_args = {
             'model_data': model_data,
             'switch_serial_numbers': switch_serial_numbers,
             'template_name': template_name
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         result = action_module.run()
-        
+
         self.assertFalse(result['changed'])
         self.assertIn('policy_update', result)
         self.assertEqual(result['policy_update'], {})
@@ -345,10 +345,10 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         switch_serial_numbers = ['XYZ999']  # Not in model
         template_name = 'switch_freeform'
-        
+
         mock_policy = {
             'nvPairs': {
                 'SWITCH_NAME': 'some-name'
@@ -356,18 +356,18 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
             'templateName': 'switch_freeform',
             'serialNumber': 'XYZ999'
         }
-        
+
         task_args = {
             'model_data': model_data,
             'switch_serial_numbers': switch_serial_numbers,
             'template_name': template_name
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.update_switch_hostname_policy.ndfc_get_switch_policy_using_template') as mock_helper:
             mock_helper.return_value = mock_policy
-            
+
             # Should raise StopIteration when switch not found
             with self.assertRaises(StopIteration):
                 result = action_module.run()
@@ -384,10 +384,10 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
                 }
             }
         }
-        
+
         switch_serial_numbers = ['ABC123']
         template_name = 'switch_freeform'
-        
+
         mock_policy = {
             'nvPairs': {
                 'SWITCH_NAME': 'some-name'
@@ -395,18 +395,18 @@ class TestUpdateSwitchHostnamePolicyActionModule(ActionModuleTestCase):
             'templateName': 'switch_freeform',
             'serialNumber': 'ABC123'
         }
-        
+
         task_args = {
             'model_data': model_data,
             'switch_serial_numbers': switch_serial_numbers,
             'template_name': template_name
         }
-        
+
         action_module = self.create_action_module(ActionModule, task_args)
-        
+
         with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.update_switch_hostname_policy.ndfc_get_switch_policy_using_template') as mock_helper:
             mock_helper.return_value = mock_policy
-            
+
             # Should raise StopIteration when fabric type doesn't match supported types
             with self.assertRaises(StopIteration):
                 result = action_module.run()
