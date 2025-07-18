@@ -86,7 +86,8 @@ class ActionModule(ActionBase):
             results['data'] = load_yaml_files([mdata])
 
             # Introduce common directory to the rules list by default once vrf and network rules are updated
-            # rules_to_run.append(f'{rules}common')
+            rules_list.append(f'{rules}common/')
+
             parent_keys = ['vxlan', 'fabric']
             check = data_model_key_check(results['data'], parent_keys)
             if 'fabric' in check['keys_found'] and 'fabric' in check['keys_data']:
