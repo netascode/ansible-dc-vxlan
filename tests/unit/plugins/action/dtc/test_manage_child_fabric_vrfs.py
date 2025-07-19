@@ -47,7 +47,28 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
         self.maxDiff = None
 
         # Standard mock VRF template config JSON string that matches the test VRF config exactly
-        self.standard_vrf_config = '{"ENABLE_NETFLOW": "true", "loopbackId": "100", "vrfTemplate": "Custom_VRF_Template", "advertiseHostRouteFlag": "false", "advertiseDefaultRouteFlag": "false", "configureStaticDefaultRouteFlag": "false", "bgpPassword": "", "bgpPasswordKeyType": "", "NETFLOW_MONITOR": "", "trmEnabled": "false", "loopbackNumber": "", "rpAddress": "", "isRPAbsent": "false", "isRPExternal": "false", "L3VniMcastGroup": "", "multicastGroup": "", "routeTargetImportMvpn": "", "routeTargetExportMvpn": ""}'
+        self.standard_vrf_config = (
+            '{'
+            '"ENABLE_NETFLOW": "true", '
+            '"loopbackId": "100", '
+            '"vrfTemplate": "Custom_VRF_Template", '
+            '"advertiseHostRouteFlag": "false", '
+            '"advertiseDefaultRouteFlag": "false", '
+            '"configureStaticDefaultRouteFlag": "false", '
+            '"bgpPassword": "", '
+            '"bgpPasswordKeyType": "", '
+            '"NETFLOW_MONITOR": "", '
+            '"trmEnabled": "false", '
+            '"loopbackNumber": "", '
+            '"rpAddress": "", '
+            '"isRPAbsent": "false", '
+            '"isRPExternal": "false", '
+            '"L3VniMcastGroup": "", '
+            '"multicastGroup": "", '
+            '"routeTargetImportMvpn": "", '
+            '"routeTargetExportMvpn": ""'
+            '}'
+        )
 
         self.mock_msite_data = {
             'overlay_attach_groups': {
