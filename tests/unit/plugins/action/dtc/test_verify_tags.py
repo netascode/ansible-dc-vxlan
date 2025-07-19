@@ -4,8 +4,16 @@ Unit tests for verify_tags action plugin.
 import unittest
 from unittest.mock import patch
 
-from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.verify_tags import ActionModule
-from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase
+# Try to import from the plugins directory
+try:
+    from plugins.action.dtc.verify_tags import ActionModule
+except ImportError:
+    # Fallback for when running tests from different locations
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', '..'))
+    from plugins.action.dtc.verify_tags import ActionModule
+from .base_test import ActionModuleTestCase
 
 
 class TestVerifyTagsActionModule(ActionModuleTestCase):

@@ -3,8 +3,16 @@ Unit tests for unmanaged_edge_connections action plugin.
 """
 from unittest.mock import patch
 
-from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections import ActionModule
-from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase
+# Try to import from the plugins directory
+try:
+    from plugins.action.dtc.unmanaged_edge_connections import ActionModule
+except ImportError:
+    # Fallback for when running tests from different locations
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', '..'))
+    from plugins.action.dtc.unmanaged_edge_connections import ActionModule
+from .base_test import ActionModuleTestCase
 
 
 class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
@@ -47,7 +55,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
         action_module = self.create_action_module(ActionModule, task_args)
 
         # Only mock the helper function, not the parent run()
-        with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
+        with patch('plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
 
             result = action_module.run()
@@ -102,7 +110,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
         action_module = self.create_action_module(ActionModule, task_args)
 
         # Only mock the helper function
-        with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
+        with patch('plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
 
             result = action_module.run()
@@ -215,7 +223,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
 
         action_module = self.create_action_module(ActionModule, task_args)
 
-        with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
+        with patch('plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
 
             result = action_module.run()
@@ -260,7 +268,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
 
         action_module = self.create_action_module(ActionModule, task_args)
 
-        with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
+        with patch('plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
 
             result = action_module.run()
@@ -303,7 +311,7 @@ class TestUnmanagedEdgeConnectionsActionModule(ActionModuleTestCase):
 
         action_module = self.create_action_module(ActionModule, task_args)
 
-        with patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
+        with patch('plugins.action.dtc.unmanaged_edge_connections.ndfc_get_switch_policy_using_desc') as mock_helper:
             mock_helper.side_effect = mock_helper_side_effect
 
             result = action_module.run()

@@ -4,8 +4,16 @@ Unit tests for get_poap_data action plugin.
 import unittest
 from unittest.mock import MagicMock, patch
 
-from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.get_poap_data import ActionModule, POAPDevice
-from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase
+# Try to import from the plugins directory
+try:
+    from plugins.action.dtc.get_poap_data import ActionModule, POAPDevice
+except ImportError:
+    # Fallback for when running tests from different locations
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', '..'))
+    from plugins.action.dtc.get_poap_data import ActionModule, POAPDevice
+from .base_test import ActionModuleTestCase
 
 
 class TestPOAPDevice(unittest.TestCase):
@@ -391,7 +399,7 @@ class TestGetPoapDataActionModule(ActionModuleTestCase):
             self.assertIn('ABC123', result['poap_data'])
             self.assertEqual(result['poap_data']['ABC123']['model'], 'N9K-C9300v')
 
-    @patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.get_poap_data.POAPDevice')
+    @patch('plugins.action.dtc.get_poap_data.POAPDevice')
     def test_run_poap_supported_refresh_failed_dhcp_message(self, mock_poap_device):
         """Test run when POAP refresh fails with DHCP message."""
         model_data = {
@@ -419,7 +427,7 @@ class TestGetPoapDataActionModule(ActionModuleTestCase):
         self.assertTrue(result.get('failed', False))
         self.assertIn('Unrecognized Failure', result['message'])
 
-    @patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.get_poap_data.POAPDevice')
+    @patch('plugins.action.dtc.get_poap_data.POAPDevice')
     def test_run_poap_supported_refresh_failed_invalid_fabric(self, mock_poap_device):
         """Test run when POAP refresh fails with invalid fabric message."""
         model_data = {
@@ -447,7 +455,7 @@ class TestGetPoapDataActionModule(ActionModuleTestCase):
         self.assertTrue(result.get('failed', False))
         self.assertIn('POAP is enabled on at least one switch', result['message'])
 
-    @patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.get_poap_data.POAPDevice')
+    @patch('plugins.action.dtc.get_poap_data.POAPDevice')
     def test_run_poap_supported_refresh_failed_unrecognized_error(self, mock_poap_device):
         """Test run when POAP refresh fails with unrecognized error."""
         model_data = {

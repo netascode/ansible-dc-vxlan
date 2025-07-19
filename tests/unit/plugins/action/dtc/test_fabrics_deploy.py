@@ -4,8 +4,16 @@ Unit tests for fabrics_deploy action plugin.
 import unittest
 from unittest.mock import patch
 
-from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy import ActionModule
-from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase
+# Try to import from the plugins directory
+try:
+    from plugins.action.dtc.fabrics_deploy import ActionModule
+except ImportError:
+    # Fallback for when running tests from different locations
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', '..'))
+    from plugins.action.dtc.fabrics_deploy import ActionModule
+from .base_test import ActionModuleTestCase
 
 
 class TestFabricsDeployActionModule(ActionModuleTestCase):
@@ -39,7 +47,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         # Mock _execute_module method and ActionBase.run and display
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display') as mock_display:
+             patch('plugins.action.dtc.fabrics_deploy.display') as mock_display:
 
             mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
@@ -87,7 +95,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         # Mock _execute_module method and ActionBase.run
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
+             patch('plugins.action.dtc.fabrics_deploy.display'):
 
             mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
@@ -122,7 +130,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         # Mock _execute_module method and ActionBase.run
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display') as mock_display:
+             patch('plugins.action.dtc.fabrics_deploy.display') as mock_display:
 
             mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
@@ -166,7 +174,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         # Mock _execute_module method and ActionBase.run
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
+             patch('plugins.action.dtc.fabrics_deploy.display'):
 
             mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
@@ -214,7 +222,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         # Mock _execute_module method and ActionBase.run
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
+             patch('plugins.action.dtc.fabrics_deploy.display'):
 
             mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.side_effect = [success_response, failure_response]
@@ -242,7 +250,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         # Mock _execute_module method and ActionBase.run
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
+             patch('plugins.action.dtc.fabrics_deploy.display'):
 
             mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
@@ -276,7 +284,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         # Mock _execute_module method and ActionBase.run
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
+             patch('plugins.action.dtc.fabrics_deploy.display'):
 
             mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
@@ -310,7 +318,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         # Mock _execute_module method and ActionBase.run
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
+             patch('plugins.action.dtc.fabrics_deploy.display'):
 
             mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response
@@ -333,7 +341,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         # Mock _execute_module method and ActionBase.run
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display'):
+             patch('plugins.action.dtc.fabrics_deploy.display'):
 
             mock_parent_run.return_value = {'changed': False, 'failed': False}
 
@@ -369,7 +377,7 @@ class TestFabricsDeployActionModule(ActionModuleTestCase):
         # Mock _execute_module method and ActionBase.run
         with patch.object(action_module, '_execute_module') as mock_execute, \
              patch('ansible.plugins.action.ActionBase.run') as mock_parent_run, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_deploy.display') as mock_display:
+             patch('plugins.action.dtc.fabrics_deploy.display') as mock_display:
 
             mock_parent_run.return_value = {'changed': False, 'failed': False}
             mock_execute.return_value = mock_response

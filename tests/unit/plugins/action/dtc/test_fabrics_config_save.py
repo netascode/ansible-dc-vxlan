@@ -3,8 +3,16 @@ Unit tests for fabrics_config_save action plugin.
 """
 from unittest.mock import patch
 
-from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_config_save import ActionModule
-from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase
+# Try to import from the plugins directory
+try:
+    from plugins.action.dtc.fabrics_config_save import ActionModule
+except ImportError:
+    # Fallback for when running tests from different locations
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', '..'))
+    from plugins.action.dtc.fabrics_config_save import ActionModule
+from .base_test import ActionModuleTestCase
 
 
 class TestFabricsConfigSaveActionModule(ActionModuleTestCase):
@@ -248,7 +256,7 @@ class TestFabricsConfigSaveActionModule(ActionModuleTestCase):
             self.assertFalse(result['changed'])
             self.assertFalse(result['failed'])
 
-    @patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.fabrics_config_save.display')
+    @patch('plugins.action.dtc.fabrics_config_save.display')
     def test_run_display_messages(self, mock_display):
         """Test run displays correct messages."""
         fabrics = ["fabric1", "fabric2"]

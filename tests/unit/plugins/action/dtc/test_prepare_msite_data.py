@@ -3,8 +3,16 @@ Unit tests for prepare_msite_data action plugin.
 """
 from unittest.mock import patch
 
-from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data import ActionModule
-from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase
+# Try to import from the plugins directory
+try:
+    from plugins.action.dtc.prepare_msite_data import ActionModule
+except ImportError:
+    # Fallback for when running tests from different locations
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', '..'))
+    from plugins.action.dtc.prepare_msite_data import ActionModule
+from .base_test import ActionModuleTestCase
 
 
 class TestPrepareMsiteDataActionModule(ActionModuleTestCase):
@@ -72,8 +80,8 @@ class TestPrepareMsiteDataActionModule(ActionModuleTestCase):
 
         # Only mock external dependencies, not the parent run()
         with patch.object(ActionModule, '_execute_module') as mock_execute, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
 
             mock_execute.return_value = mock_msd_response
             mock_get_attributes.return_value = mock_fabric_attributes
@@ -138,8 +146,8 @@ class TestPrepareMsiteDataActionModule(ActionModuleTestCase):
         action_module = self.create_action_module(ActionModule, task_args)
 
         with patch.object(ActionModule, '_execute_module') as mock_execute, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
 
             mock_execute.return_value = mock_msd_response
             mock_get_attributes.return_value = mock_fabric_attributes
@@ -189,8 +197,8 @@ class TestPrepareMsiteDataActionModule(ActionModuleTestCase):
         action_module = self.create_action_module(ActionModule, task_args)
 
         with patch.object(ActionModule, '_execute_module') as mock_execute, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
 
             mock_execute.return_value = mock_msd_response
             mock_get_attributes.return_value = {}
@@ -243,8 +251,8 @@ class TestPrepareMsiteDataActionModule(ActionModuleTestCase):
         action_module = self.create_action_module(ActionModule, task_args)
 
         with patch.object(ActionModule, '_execute_module') as mock_execute, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
 
             mock_execute.return_value = mock_msd_response
             mock_get_attributes.return_value = {}
@@ -304,8 +312,8 @@ class TestPrepareMsiteDataActionModule(ActionModuleTestCase):
         action_module = self.create_action_module(ActionModule, task_args)
 
         with patch.object(ActionModule, '_execute_module') as mock_execute, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
 
             mock_execute.return_value = mock_msd_response
             mock_get_attributes.return_value = {}
@@ -373,8 +381,8 @@ class TestPrepareMsiteDataActionModule(ActionModuleTestCase):
         action_module = self.create_action_module(ActionModule, task_args)
 
         with patch.object(ActionModule, '_execute_module') as mock_execute, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
 
             mock_execute.return_value = mock_msd_response
             mock_get_attributes.return_value = {}
@@ -440,8 +448,8 @@ class TestPrepareMsiteDataActionModule(ActionModuleTestCase):
         action_module = self.create_action_module(ActionModule, task_args)
 
         with patch.object(ActionModule, '_execute_module') as mock_execute, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
-             patch('ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_attributes') as mock_get_attributes, \
+             patch('plugins.action.dtc.prepare_msite_data.ndfc_get_fabric_switches') as mock_get_switches:
 
             mock_execute.return_value = mock_msd_response
             mock_get_attributes.return_value = mock_fabric_attributes

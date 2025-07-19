@@ -4,8 +4,16 @@ Unit tests for manage_child_fabric_networks action plugin.
 import unittest
 from unittest.mock import patch, mock_open
 
-from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.manage_child_fabric_networks import ActionModule
-from ansible_collections.cisco.nac_dc_vxlan.tests.unit.plugins.action.dtc.base_test import ActionModuleTestCase
+# Try to import from the plugins directory
+try:
+    from plugins.action.dtc.manage_child_fabric_networks import ActionModule
+except ImportError:
+    # Fallback for when running tests from different locations
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', '..'))
+    from plugins.action.dtc.manage_child_fabric_networks import ActionModule
+from .base_test import ActionModuleTestCase
 
 
 class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
