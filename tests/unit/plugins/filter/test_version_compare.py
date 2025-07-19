@@ -33,32 +33,32 @@ class TestVersionCompareFunction:
         # This tests the import block and exception handling during module loading
         import builtins
         import importlib
-        
+
         # Store the original import function
         original_import = builtins.__import__
-        
+
         def mock_import(name, *args, **kwargs):
             if name == 'packaging.version':
                 raise ImportError("No module named 'packaging'")
             return original_import(name, *args, **kwargs)
-        
+
         # Mock the import and force module reload
         with patch.object(builtins, '__import__', side_effect=mock_import):
             # Remove the module from cache to force reimport
             if 'plugins.filter.version_compare' in sys.modules:
                 del sys.modules['plugins.filter.version_compare']
-            
+
             # Import the module which should trigger the ImportError handling
             import plugins.filter.version_compare as vc_module
-            
+
             # Verify that the ImportError was captured
             assert vc_module.PACKAGING_LIBRARY_IMPORT_ERROR is not None
             assert isinstance(vc_module.PACKAGING_LIBRARY_IMPORT_ERROR, ImportError)
-            
+
             # Test that version_compare raises AnsibleError when packaging is missing
             with pytest.raises(AnsibleError, match="packaging must be installed to use this filter plugin"):
                 vc_module.version_compare("1.0.0", "1.0.0", "==")
-        
+
         # Clean up - reimport the module normally
         if 'plugins.filter.version_compare' in sys.modules:
             del sys.modules['plugins.filter.version_compare']
@@ -221,7 +221,7 @@ class TestVersionCompareFunction:
         """Test UndefinedError specifically during Version() creation."""
         # Import at module level to get the right reference
         import plugins.filter.version_compare as vc_module
-        
+
         # Mock the Version constructor at the module level
         with patch.object(vc_module, 'Version') as mock_version:
             # Make Version constructor raise UndefinedError
