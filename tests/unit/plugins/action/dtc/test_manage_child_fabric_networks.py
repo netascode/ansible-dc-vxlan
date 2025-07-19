@@ -209,7 +209,13 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
                         'DATA': {
                             'fabric': 'child_fabric1',
                             'networkName': 'test_network',
-                            'networkTemplateConfig': '{"ENABLE_NETFLOW": "false", "VLAN_NETFLOW_MONITOR": "", "trmEnabled": "false", "mcastGroup": "239.1.1.2", "loopbackId": ""}'
+                            'networkTemplateConfig': (
+                                '{"ENABLE_NETFLOW": "false", '
+                                '"VLAN_NETFLOW_MONITOR": "", '
+                                '"trmEnabled": "false", '
+                                '"mcastGroup": "239.1.1.2", '
+                                '"loopbackId": ""}'
+                            )
                         }
                     }
                 },
@@ -242,7 +248,13 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
                     'DATA': {
                         'fabric': 'child_fabric1',
                         'networkName': 'test_network',
-                        'networkTemplateConfig': '{"ENABLE_NETFLOW": "true", "VLAN_NETFLOW_MONITOR": "test_monitor", "trmEnabled": "true", "mcastGroup": "239.1.1.1", "loopbackId": "100"}'
+                        'networkTemplateConfig': (
+                            '{"ENABLE_NETFLOW": "true", '
+                            '"VLAN_NETFLOW_MONITOR": "test_monitor", '
+                            '"trmEnabled": "true", '
+                            '"mcastGroup": "239.1.1.1", '
+                            '"loopbackId": "100"}'
+                        )
                     }
                 }
             }
@@ -266,7 +278,13 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
                     'DATA': {
                         'fabric': 'child_fabric1',
                         'networkName': 'test_network',
-                        'networkTemplateConfig': '{"ENABLE_NETFLOW": "false", "VLAN_NETFLOW_MONITOR": "", "trmEnabled": "false", "mcastGroup": "239.1.1.2", "loopbackId": ""}'
+                        'networkTemplateConfig': (
+                            '{"ENABLE_NETFLOW": "false", '
+                            '"VLAN_NETFLOW_MONITOR": "", '
+                            '"trmEnabled": "false", '
+                            '"mcastGroup": "239.1.1.2", '
+                            '"loopbackId": ""}'
+                        )
                     }
                 }
             }
@@ -299,7 +317,13 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
                         'DATA': {
                             'fabric': 'child_fabric1',
                             'networkName': 'test_network',
-                            'networkTemplateConfig': '{"ENABLE_NETFLOW": "false", "VLAN_NETFLOW_MONITOR": "", "trmEnabled": "false", "mcastGroup": "239.1.1.2", "loopbackId": ""}'
+                            'networkTemplateConfig': (
+                                '{"ENABLE_NETFLOW": "false", '
+                                '"VLAN_NETFLOW_MONITOR": "", '
+                                '"trmEnabled": "false", '
+                                '"mcastGroup": "239.1.1.2", '
+                                '"loopbackId": ""}'
+                            )
                         }
                     }
                 },
@@ -365,7 +389,13 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
                         'DATA': {
                             'fabric': 'child_fabric1',
                             'networkName': 'test_network',
-                            'networkTemplateConfig': '{"ENABLE_NETFLOW": "true", "VLAN_NETFLOW_MONITOR": "", "trmEnabled": "false", "mcastGroup": "", "loopbackId": ""}'
+                            'networkTemplateConfig': (
+                                '{"ENABLE_NETFLOW": "true", '
+                                '"VLAN_NETFLOW_MONITOR": "", '
+                                '"trmEnabled": "false", '
+                                '"mcastGroup": "", '
+                                '"loopbackId": ""}'
+                            )
                         }
                     }
                 },

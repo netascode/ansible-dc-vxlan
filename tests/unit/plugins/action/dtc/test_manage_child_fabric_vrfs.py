@@ -203,7 +203,26 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
                         'DATA': {
                             'fabric': 'child_fabric1',
                             'vrfName': 'test_vrf',
-                            'vrfTemplateConfig': '{"ENABLE_NETFLOW": "false", "loopbackId": "200", "vrfTemplate": "Different_Template", "advertiseHostRouteFlag": "true", "advertiseDefaultRouteFlag": "true", "configureStaticDefaultRouteFlag": "true", "bgpPassword": "old", "bgpPasswordKeyType": "old", "NETFLOW_MONITOR": "old", "trmEnabled": "true", "loopbackNumber": "old", "rpAddress": "old", "isRPAbsent": "true", "isRPExternal": "true", "L3VniMcastGroup": "old", "multicastGroup": "old", "routeTargetImportMvpn": "old", "routeTargetExportMvpn": "old"}'
+                            'vrfTemplateConfig': (
+                                '{"ENABLE_NETFLOW": "false", '
+                                '"loopbackId": "200", '
+                                '"vrfTemplate": "Different_Template", '
+                                '"advertiseHostRouteFlag": "true", '
+                                '"advertiseDefaultRouteFlag": "true", '
+                                '"configureStaticDefaultRouteFlag": "true", '
+                                '"bgpPassword": "old", '
+                                '"bgpPasswordKeyType": "old", '
+                                '"NETFLOW_MONITOR": "old", '
+                                '"trmEnabled": "true", '
+                                '"loopbackNumber": "old", '
+                                '"rpAddress": "old", '
+                                '"isRPAbsent": "true", '
+                                '"isRPExternal": "true", '
+                                '"L3VniMcastGroup": "old", '
+                                '"multicastGroup": "old", '
+                                '"routeTargetImportMvpn": "old", '
+                                '"routeTargetExportMvpn": "old"}'
+                            )
                         }
                     }
                 },
@@ -238,7 +257,26 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
                     'DATA': {
                         'fabric': 'child_fabric1',
                         'vrfName': 'test_vrf',
-                        'vrfTemplateConfig': '{"ENABLE_NETFLOW": "false", "loopbackId": "200", "vrfTemplate": "Different_Template", "advertiseHostRouteFlag": "true", "advertiseDefaultRouteFlag": "true", "configureStaticDefaultRouteFlag": "true", "bgpPassword": "old", "bgpPasswordKeyType": "old", "NETFLOW_MONITOR": "old", "trmEnabled": "true", "loopbackNumber": "old", "rpAddress": "old", "isRPAbsent": "true", "isRPExternal": "true", "L3VniMcastGroup": "old", "multicastGroup": "old", "routeTargetImportMvpn": "old", "routeTargetExportMvpn": "old"}'
+                        'vrfTemplateConfig': (
+                            '{"ENABLE_NETFLOW": "false", '
+                            '"loopbackId": "200", '
+                            '"vrfTemplate": "Different_Template", '
+                            '"advertiseHostRouteFlag": "true", '
+                            '"advertiseDefaultRouteFlag": "true", '
+                            '"configureStaticDefaultRouteFlag": "true", '
+                            '"bgpPassword": "old", '
+                            '"bgpPasswordKeyType": "old", '
+                            '"NETFLOW_MONITOR": "old", '
+                            '"trmEnabled": "true", '
+                            '"loopbackNumber": "old", '
+                            '"rpAddress": "old", '
+                            '"isRPAbsent": "true", '
+                            '"isRPExternal": "true", '
+                            '"L3VniMcastGroup": "old", '
+                            '"multicastGroup": "old", '
+                            '"routeTargetImportMvpn": "old", '
+                            '"routeTargetExportMvpn": "old"}'
+                        )
                     }
                 }
             }
@@ -271,7 +309,26 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
                         'DATA': {
                             'fabric': 'child_fabric1',
                             'vrfName': 'test_vrf',
-                            'vrfTemplateConfig': '{"ENABLE_NETFLOW": "false", "loopbackId": "200", "vrfTemplate": "Different_Template", "advertiseHostRouteFlag": "true", "advertiseDefaultRouteFlag": "true", "configureStaticDefaultRouteFlag": "true", "bgpPassword": "old", "bgpPasswordKeyType": "old", "NETFLOW_MONITOR": "old", "trmEnabled": "true", "loopbackNumber": "old", "rpAddress": "old", "isRPAbsent": "true", "isRPExternal": "true", "L3VniMcastGroup": "old", "multicastGroup": "old", "routeTargetImportMvpn": "old", "routeTargetExportMvpn": "old"}'
+                            'vrfTemplateConfig': (
+                                '{"ENABLE_NETFLOW": "false", '
+                                '"loopbackId": "200", '
+                                '"vrfTemplate": "Different_Template", '
+                                '"advertiseHostRouteFlag": "true", '
+                                '"advertiseDefaultRouteFlag": "true", '
+                                '"configureStaticDefaultRouteFlag": "true", '
+                                '"bgpPassword": "old", '
+                                '"bgpPasswordKeyType": "old", '
+                                '"NETFLOW_MONITOR": "old", '
+                                '"trmEnabled": "true", '
+                                '"loopbackNumber": "old", '
+                                '"rpAddress": "old", '
+                                '"isRPAbsent": "true", '
+                                '"isRPExternal": "true", '
+                                '"L3VniMcastGroup": "old", '
+                                '"multicastGroup": "old", '
+                                '"routeTargetImportMvpn": "old", '
+                                '"routeTargetExportMvpn": "old"}'
+                            )
                         }
                     }
                 },
@@ -337,7 +394,26 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
                         'DATA': {
                             'fabric': 'child_fabric1',
                             'vrfName': 'test_vrf',
-                            'vrfTemplateConfig': '{"ENABLE_NETFLOW": "true", "loopbackId": "", "vrfTemplate": "", "advertiseHostRouteFlag": "true", "advertiseDefaultRouteFlag": "true", "configureStaticDefaultRouteFlag": "true", "bgpPassword": "old", "bgpPasswordKeyType": "old", "NETFLOW_MONITOR": "old", "trmEnabled": "true", "loopbackNumber": "old", "rpAddress": "old", "isRPAbsent": "true", "isRPExternal": "true", "L3VniMcastGroup": "old", "multicastGroup": "old", "routeTargetImportMvpn": "old", "routeTargetExportMvpn": "old"}'
+                            'vrfTemplateConfig': (
+                                '{"ENABLE_NETFLOW": "true", '
+                                '"loopbackId": "", '
+                                '"vrfTemplate": "", '
+                                '"advertiseHostRouteFlag": "true", '
+                                '"advertiseDefaultRouteFlag": "true", '
+                                '"configureStaticDefaultRouteFlag": "true", '
+                                '"bgpPassword": "old", '
+                                '"bgpPasswordKeyType": "old", '
+                                '"NETFLOW_MONITOR": "old", '
+                                '"trmEnabled": "true", '
+                                '"loopbackNumber": "old", '
+                                '"rpAddress": "old", '
+                                '"isRPAbsent": "true", '
+                                '"isRPExternal": "true", '
+                                '"L3VniMcastGroup": "old", '
+                                '"multicastGroup": "old", '
+                                '"routeTargetImportMvpn": "old", '
+                                '"routeTargetExportMvpn": "old"}'
+                            )
                         }
                     }
                 },
