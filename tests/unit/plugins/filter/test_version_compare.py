@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 from jinja2.runtime import Undefined
 from jinja2.exceptions import UndefinedError
 
-from ansible.errors import AnsibleFilterError, AnsibleFilterTypeError
+from ansible.errors import AnsibleError, AnsibleFilterError, AnsibleFilterTypeError
 
 # Import the actual version_compare module
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
@@ -20,6 +20,49 @@ from plugins.filter.version_compare import version_compare, FilterModule
 
 class TestVersionCompareFunction:
     """Test the version_compare function directly."""
+
+    def test_version_compare_missing_packaging_library(self):
+        """Test behavior when packaging library is not available."""
+        # Mock the import error scenario
+        with patch('plugins.filter.version_compare.PACKAGING_LIBRARY_IMPORT_ERROR', ImportError("No module named 'packaging'")):
+            with pytest.raises(AnsibleError, match="packaging must be installed to use this filter plugin"):
+                version_compare("1.0.0", "1.0.0", "==")
+
+    def test_version_compare_missing_packaging_library_with_module_reload(self):
+        """Test the ImportError handling during module import."""
+        # This tests the import block and exception handling during module loading
+        import builtins
+        import importlib
+        
+        # Store the original import function
+        original_import = builtins.__import__
+        
+        def mock_import(name, *args, **kwargs):
+            if name == 'packaging.version':
+                raise ImportError("No module named 'packaging'")
+            return original_import(name, *args, **kwargs)
+        
+        # Mock the import and force module reload
+        with patch.object(builtins, '__import__', side_effect=mock_import):
+            # Remove the module from cache to force reimport
+            if 'plugins.filter.version_compare' in sys.modules:
+                del sys.modules['plugins.filter.version_compare']
+            
+            # Import the module which should trigger the ImportError handling
+            import plugins.filter.version_compare as vc_module
+            
+            # Verify that the ImportError was captured
+            assert vc_module.PACKAGING_LIBRARY_IMPORT_ERROR is not None
+            assert isinstance(vc_module.PACKAGING_LIBRARY_IMPORT_ERROR, ImportError)
+            
+            # Test that version_compare raises AnsibleError when packaging is missing
+            with pytest.raises(AnsibleError, match="packaging must be installed to use this filter plugin"):
+                vc_module.version_compare("1.0.0", "1.0.0", "==")
+        
+        # Clean up - reimport the module normally
+        if 'plugins.filter.version_compare' in sys.modules:
+            del sys.modules['plugins.filter.version_compare']
+        import plugins.filter.version_compare  # Reload normally
 
     def test_version_compare_equal(self):
         """Test equal comparison."""
@@ -176,14 +219,17 @@ class TestVersionCompareFunction:
 
     def test_version_compare_undefined_error_during_version_creation(self):
         """Test UndefinedError specifically during Version() creation."""
-        # Create a more direct test by mocking the Version constructor
-        with patch('plugins.filter.version_compare.Version') as mock_version:
+        # Import at module level to get the right reference
+        import plugins.filter.version_compare as vc_module
+        
+        # Mock the Version constructor at the module level
+        with patch.object(vc_module, 'Version') as mock_version:
             # Make Version constructor raise UndefinedError
             mock_version.side_effect = UndefinedError("Variable is undefined")
 
-            # This should trigger the UndefinedError catch block
+            # This should trigger the UndefinedError catch block which re-raises it
             with pytest.raises(UndefinedError):
-                version_compare("1.0.0", "1.0.0", "==")
+                vc_module.version_compare("1.0.0", "1.0.0", "==")
 
     def test_version_compare_all_operators(self):
         """Test all supported operators comprehensively."""

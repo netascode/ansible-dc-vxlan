@@ -120,5 +120,5 @@ jobs:
       working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
 
     - name: Generate coverage report
-      run: coverage report
+      run: coverage report --include="plugins/*"
       working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
