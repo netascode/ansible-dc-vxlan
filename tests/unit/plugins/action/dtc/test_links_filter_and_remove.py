@@ -23,8 +23,6 @@
 Unit tests for links_filter_and_remove action plugin.
 """
 
-from unittest.mock import patch
-
 # Try to import from the plugins directory
 try:
     from plugins.action.dtc.links_filter_and_remove import ActionModule
