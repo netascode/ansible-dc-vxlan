@@ -84,7 +84,7 @@
         changes_detected_interface_vpc: false
         changes_detected_sub_interface_routed: false
         changes_detected_policy: false
-    vars_common_ebgp_VXLAN:
+    vars_common_ebgp_vxlan:
         changes_detected_fabric: false
         changes_detected_fabric_links: false
         changes_detected_edge_connections: false

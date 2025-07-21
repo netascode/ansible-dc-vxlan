@@ -67,14 +67,15 @@
   # Was not there previously
   when: >
     (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
-    (vars_common_ebgp_VXLAN.changes_detected_fabric_links or
-    vars_common_ebgp_VXLAN.changes_detected_interfaces or
-    vars_common_ebgp_VXLAN.changes_detected_inventory or
-    vars_common_ebgp_VXLAN.changes_detected_networks or
-    vars_common_ebgp_VXLAN.changes_detected_policy or
-    vars_common_ebgp_VXLAN.changes_detected_vpc_peering or
-    vars_common_ebgp_VXLAN.changes_detected_vrfs or
-    vars_common_ebgp_VXLAN.changes_detected_edge_connections)
+    (vars_common_ebgp_vxlan.changes_detected_fabric_links)
+  # Additional conditions to be added when needed:
+  # vars_common_ebgp_vxlan.changes_detected_interfaces or
+  # vars_common_ebgp_vxlan.changes_detected_inventory or
+  # vars_common_ebgp_vxlan.changes_detected_networks or
+  # vars_common_ebgp_vxlan.changes_detected_policy or
+  # vars_common_ebgp_vxlan.changes_detected_vpc_peering or
+  # vars_common_ebgp_vxlan.changes_detected_vrfs or
+  # vars_common_ebgp_vxlan.changes_detected_edge_connections
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:
