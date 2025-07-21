@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -93,7 +93,7 @@ class ActionModule(ActionBase):
             if 'fabric' in check['keys_found'] and 'fabric' in check['keys_data']:
                 if 'type' in results['data']['vxlan']['fabric']:
                     if results['data']['vxlan']['fabric']['type'] in ('VXLAN_EVPN'):
-                        rules_list.append(f'{rules}vxlan/')
+                        rules_list.append(f'{rules}ibgp_vxlan/')
                     elif results['data']['vxlan']['fabric']['type'] in ('MSD', 'MCF'):
                         rules_list.append(f'{rules}multisite/')
                     elif results['data']['vxlan']['fabric']['type'] in ('ISN'):
@@ -119,7 +119,7 @@ class ActionModule(ActionBase):
                         display.deprecated(msg=deprecated_msg, version='1.0.0', collection_name='cisco.nac_dc_vxlan')
 
                         if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN'):
-                            rules_list.append(f'{rules}vxlan/')
+                            rules_list.append(f'{rules}ibgp_vxlan/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCF'):
                             rules_list.append(f'{rules}multisite/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('ISN', 'External'):
