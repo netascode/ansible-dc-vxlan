@@ -45,6 +45,7 @@
     - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
+      when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
 
 - name: Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }}
   cisco.dcnm.dcnm_rest:
