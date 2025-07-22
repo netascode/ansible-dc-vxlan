@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -57,7 +57,8 @@
     dest: "{{ path_name }}{{ file_name }}"
   delegate_to: localhost
 
-- ansible.builtin.set_fact:
+- name: Set fabric_config fact
+  ansible.builtin.set_fact:
     fabric_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   delegate_to: localhost
 
