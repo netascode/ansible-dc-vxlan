@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -33,6 +33,12 @@
     (vars_common_vxlan.changes_detected_vrfs) or
     (vars_common_vxlan.changes_detected_networks) or
     (vars_common_vxlan.changes_detected_policy)
+
+- name: Import eBGP VXLAN Role Tasks
+  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
+  when: >
+    (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
+    (vars_common_ebgp_vxlan.changes_detected_fabric)
 
 - name: Import ISN Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml

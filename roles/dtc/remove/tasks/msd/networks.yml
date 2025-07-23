@@ -73,6 +73,7 @@
     - multisite_network_delete_mode is defined
     - multisite_network_delete_mode is true | bool
     - vars_common_msd.changes_detected_networks
+    - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
 
 - name: Skip Remove Unmanaged Fabric Networks Task If multisite_network_delete_mode is False
   ansible.builtin.debug:
