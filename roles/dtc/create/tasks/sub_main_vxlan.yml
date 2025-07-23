@@ -72,7 +72,6 @@
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
 
-
 - name: Manage NDFC VXLAN Fabric Interfaces
   ansible.builtin.import_tasks: common/interfaces.yml
   when:
@@ -86,7 +85,6 @@
     - MD_Extended.vxlan.topology.edge_connections | length > 0
     - changes_detected_edge_connections
   tags: "{{ nac_tags.create_links }}"
-
 
 - name: Manage NDFC VXLAN Fabric VRFs and Networks
   ansible.builtin.import_tasks: vxlan/vrfs_networks.yml
