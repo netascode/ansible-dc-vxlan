@@ -2,54 +2,60 @@
 ! DO NOT EDIT MANUALLY
 !
 !
+{% macro render_static_route(static_route, next_hop, address_family) %}
+  {%- set static_option = [] -%}
+  {% if next_hop.track is defined %}
+    {% set _ = static_option.append("track " + next_hop.track | string ) %}
+  {% endif %}
+  {% if next_hop.name is defined %}
+    {%- set _ = static_option.append("name " + next_hop.name ) -%}
+  {% endif %}
+  {% if static_route.route_tag is defined and static_route.route_tag %}
+    {%- set _ = static_option.append("tag " + static_route.route_tag | string ) -%}
+  {% endif %}
+  {% if next_hop.route_preference is defined and next_hop.route_preference != 1 %}
+    {%- set _ = static_option.append(next_hop.route_preference | string ) -%}
+  {% endif %}
+  {% if static_option | length > 0 %}
+{{address_family}} route {{ static_route.prefix }} {{ next_hop.ip }} {{ static_option | join(" ") }}
+  {% else %}
+{{address_family}} route {{ static_route.prefix }} {{ next_hop.ip }}
+  {% endif %}
+{% endmacro %}
+
+{% if item.vrf.lower() == "default" %}
+{% if switch_item.static_routes %}
+  {% if "static_ipv4" in switch_item.static_routes %}
+    {% for static_route in switch_item.static_routes.static_ipv4 %}
+      {%- for next_hop in static_route.next_hops %}
+{{ render_static_route(static_route, next_hop, "ip") }}
+      {%- endfor %}
+    {% endfor %}
+  {% endif %}
+  {% if "static_ipv6" in switch_item.static_routes %}
+    {% for static_route in switch_item.static_routes.static_ipv6 %}
+      {%- for next_hop in static_route.next_hops %}
+{{ render_static_route(static_route, next_hop, "ipv6") }}
+      {%- endfor %}
+    {% endfor %}
+  {% endif %}
+{% endif %}
+{% else %}
 vrf context {{ item.vrf }}
   {% if switch_item.static_routes %}
     {% if "static_ipv4" in switch_item.static_routes %}
       {% for static_route in switch_item.static_routes.static_ipv4 %}
-        {% for next_hop in static_route.next_hops %}
-          {% set static_option = [] %}
-          {% if next_hop.track is defined %}
-          {% set _ = static_option.append("track " + next_hop.track | string )%}
-          {% endif %}
-          {% if next_hop.name is defined %}
-          {% set _ = static_option.append("name " + next_hop.name )%}
-          {% endif %}
-          {% if static_route.route_tag is defined and static_route.route_tag %}
-            {% set _ = static_option.append("tag " + static_route.route_tag | string )%}
-          {% endif %}
-          {% if next_hop.route_preference is defined and next_hop.route_preference != 1 %}
-          {% set _ = static_option.append(next_hop.route_preference | string )%}
-          {% endif %}
-          {% if static_option | length > 0 %}
-  ip route {{ static_route.prefix }} {{ next_hop.ip }} {{ static_option | join(" ") }}
-          {% else %}
-  ip route {{ static_route.prefix }} {{ next_hop.ip }}
-          {% endif %}
-        {% endfor %}
+        {%- for next_hop in static_route.next_hops %}
+  {{ render_static_route(static_route, next_hop, "ip") }}
+        {%- endfor %}
       {% endfor %}
     {% endif %}
     {% if "static_ipv6" in switch_item.static_routes %}
       {% for static_route in switch_item.static_routes.static_ipv6 %}
-        {% for next_hop in static_route.next_hops %}
-          {% set static_option = [] %}
-          {% if next_hop.track is defined %}
-          {% set _ = static_option.append("track " + next_hop.track | string )%}
-          {% endif %}
-          {% if next_hop.name is defined %}
-          {% set _ = static_option.append("name " + next_hop.name )%}
-          {% endif %}
-          {% if static_route.route_tag is defined and static_route.route_tag %}
-            {% set _ = static_option.append("tag " + static_route.route_tag | string )%}
-          {% endif %}
-          {% if next_hop.route_preference is defined and next_hop.route_preference != 1 %}
-          {% set _ = static_option.append(next_hop.route_preference | string )%}
-          {% endif %}
-          {% if static_option | length > 0 %}
-  ipv6 route {{ static_route.prefix }} {{ next_hop.ip }} {{ static_option | join(" ") }}
-          {% else %}
-  ipv6 route {{ static_route.prefix }} {{ next_hop.ip }}
-          {% endif %}
-        {% endfor %}
+      {%- for next_hop in static_route.next_hops %}
+  {{ render_static_route(static_route, next_hop, "ipv6") }}
+      {%- endfor %}
       {% endfor %}
     {% endif %}
   {% endif %}
+{% endif %}
