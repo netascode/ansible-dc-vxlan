@@ -9,7 +9,7 @@
     "serialNumber": "{{ switch.serialNumber }}",
       {% endif %}
     {% endfor %}
-    "freeformConfig": "{{ attach['freeform_config'] | default('') }}",
+    "freeformConfig": "{{ attach['freeform_config'] | default('') | replace('\n', '\\n') | replace('"', '\\"')}}",
     "extensionValues": "",
     "vlan": {{ vrf["vlan_id"] }},
     "deployment": true,
