@@ -4,6 +4,7 @@
 
 {% set anycast_lo_id = vxlan.multisite.vtep_loopback_id | default(defaults.vxlan.multisite.vtep_loopback_id) %}
 
+{% if vxlan.multisite.child_fabrics is defined and vxlan.multisite.child_fabrics is iterable %}
 {% for fabric in vxlan.multisite.child_fabrics %}
 {% if fabric.bgw_anycast_vip_ipv4 is defined %}
 - entity_name: "{{ fabric.name }}"
@@ -13,3 +14,4 @@
   resource: "{{ fabric.bgw_anycast_vip_ipv4 }}"
 {% endif %}
 {% endfor %}
+{% endif %}
