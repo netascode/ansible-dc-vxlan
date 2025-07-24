@@ -38,7 +38,8 @@
   ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
-    (vars_common_ebgp_vxlan.changes_detected_fabric)
+    (vars_common_ebgp_vxlan.changes_detected_fabric) or
+    (vars_common_ebgp_vxlan.changes_detected_inventory)
 
 - name: Import ISN Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml

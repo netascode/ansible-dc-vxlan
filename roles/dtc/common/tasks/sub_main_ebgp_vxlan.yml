@@ -48,12 +48,17 @@
 
 ### FOR NOW JUST CREATING THE BGP FABRIC, NO OTHER FUNCTIONALITIES ADDED
 
-# # --------------------------------------------------------------------
-# # Build NDFC Fabric Switch Inventory List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build NDFC Fabric Switch Inventory List From Template
+# --------------------------------------------------------------------
 
-# - name: Build NDFC Fabric Switch Inventory List From Template
-#   ansible.builtin.import_tasks: common/ndfc_inventory.yml
+- name: Build NDFC Fabric Switch Inventory List From Template
+  ansible.builtin.import_tasks: common/ndfc_inventory.yml
+
+# We need to also build an inventory list without bootstrap settings
+# This will be used for device removal.
+- name: Build NDFC Fabric Switch Inventory List From Template - No Bootstrap
+  ansible.builtin.import_tasks: common/ndfc_inventory_no_bootstrap.yml
 
 # # --------------------------------------------------------------------
 # # Build Fabric intra links for vpc peering From Template

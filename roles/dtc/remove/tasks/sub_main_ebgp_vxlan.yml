@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -37,6 +37,12 @@
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
   register: switch_list
   tags: "{{ nac_tags.remove }}"
+
+- name: Remove Fabric Switches
+  ansible.builtin.import_tasks: common/switches.yml
+  tags: "{{ nac_tags.remove_switches }}"
+  when:
+    - vars_common_vxlan.changes_detected_inventory
 
 # - name: Remove Edge Connections
 #   ansible.builtin.import_tasks: common/edge_connections.yml
@@ -80,8 +86,4 @@
 #   when:
 #     - vars_common_vxlan.changes_detected_vpc_peering
 
-# - name: Remove Fabric Switches
-#   ansible.builtin.import_tasks: common/switches.yml
-#   tags: "{{ nac_tags.remove_switches }}"
-#   when:
-#     - vars_common_vxlan.changes_detected_inventory
+
