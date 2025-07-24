@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -41,17 +41,20 @@
 - name: Add NDFC Fabric Devices {{ MD_Extended.vxlan.fabric.name }}
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ updated_inv_config['updated_inv_list'] }}"
+    config: "{{ inventory_config_list }}"
     deploy: false
     save: false
     state: merged
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
-  when: 
-    - MD_Extended.vxlan.topology.switches | length > 0
-    - updated_inv_config is defined
-    - updated_inv_config['updated_inv_list'] is defined
+    inventory_config_list: >-
+      {{
+        vars_common_local.updated_inv_config['updated_inv_list']
+        if (vars_common_local.updated_inv_config['updated_inv_list'] | length > 0)
+        else vars_common_local.updated_inv_config_no_bootstrap['updated_inv_list']
+      }}
+  when: MD_Extended.vxlan.topology.switches | length > 0
 
 - name: Allocate Underlay IP Address
   cisco.dcnm.dcnm_resource_manager:

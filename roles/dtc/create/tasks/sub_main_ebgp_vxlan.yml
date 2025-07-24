@@ -41,24 +41,15 @@
     - vars_common_ebgp_vxlan.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
-- name: Ensure vars_common_ebgp_vxlan has required attributes
-  ansible.builtin.set_fact:
-    vars_common_ebgp_vxlan: "{{ vars_common_ebgp_vxlan | combine({'changes_detected_inventory': true}) }}"
-  when: MD_Extended.vxlan.topology.switches | length > 0
 
-- name: Debug vars_common_ebgp_vxlan variable
-  ansible.builtin.debug:
-    var: vars_common_ebgp_vxlan
-  tags: "{{ nac_tags.create_switches }}"
-
+### FOR NOW JUST CREATING THE BGP FABRIC, NO OTHER FUNCTIONALITIES ADDED  
 - name: Manage NDFC eBGP VXLAN Fabric Switches
   ansible.builtin.import_tasks: common/devices.yml
   when:
-    - MD_Extended.vxlan.topology.switches | length > 0  
+    - MD_Extended.vxlan.topology.switches | length > 0
     - vars_common_ebgp_vxlan.changes_detected_inventory
   tags: "{{ nac_tags.create_switches }}"
 
-### FOR NOW JUST CREATING THE BGP FABRIC, NO OTHER FUNCTIONALITIES ADDED  
 # - name: Manage NDFC VXLAN VPC Peering
 #   ansible.builtin.import_tasks: common/vpc_peering.yml
 #   when:
