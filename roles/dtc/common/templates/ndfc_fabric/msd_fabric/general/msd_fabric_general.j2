@@ -8,7 +8,9 @@
   ANYCAST_GW_MAC: {{ vxlan.multisite.anycast_gateway_mac | default(defaults.vxlan.multisite.anycast_gateway_mac) }}
   MS_LOOPBACK_ID: {{ vxlan.multisite.vtep_loopback_id | default(defaults.vxlan.multisite.vtep_loopback_id) }}
   BGW_ROUTING_TAG: {{ vxlan.multisite.bgw_ip_tag | default(defaults.vxlan.multisite.bgw_ip_tag) }}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '<=') %}
   TOR_AUTO_DEPLOY: false
+{% endif %}
 {% if vxlan.global.layer2_vni_range.from is defined %}
 {% set l2_vni_start = vxlan.global.layer2_vni_range.from %}
 {% if vxlan.global.layer2_vni_range.to is defined %}
