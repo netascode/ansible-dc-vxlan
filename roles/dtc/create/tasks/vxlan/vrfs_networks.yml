@@ -31,7 +31,7 @@
 - name: Check If Current Fabric Is An Active Multisite Fabric
   block:
     - name: Get Multisite Fabric Associations
-      cisco.dcnm.dcnm_rest:
+      cisco.nd.nd_rest:
         method: GET
         path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
       register: ndfc_msd_fabric_associations
@@ -73,7 +73,7 @@
 # Manage Loopback VRF attachments on NDFC
 # --------------------------------------------------------------------
 - name: Attach Loopbacks to VRFs
-  cisco.dcnm.dcnm_rest:
+  cisco.nd.nd_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
     json_data: "{{ vars_common_vxlan.vrf_attach_config | to_json}}"

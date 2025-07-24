@@ -33,7 +33,7 @@
 - name: Config-Save block
   block:
     - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
-      cisco.dcnm.dcnm_rest:
+      cisco.nd.nd_rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       register: config_save
@@ -48,7 +48,7 @@
         msg: "{{ config_save.msg.DATA }}"
 
 - name: Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }}
-  cisco.dcnm.dcnm_rest:
+  cisco.nd.nd_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:

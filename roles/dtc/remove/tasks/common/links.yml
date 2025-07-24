@@ -58,7 +58,7 @@
     register: links_to_be_removed
     when: result_links.response is defined
 
-  # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
+  # do not delegate_to: localhost as this action plugin uses Python to execute cisco.nd.nd_rest
   - name: Set not_required_links if result_links.response is not defined
     ansible.builtin.set_fact:
       links_to_be_removed: []

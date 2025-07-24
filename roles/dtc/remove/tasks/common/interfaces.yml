@@ -54,7 +54,7 @@
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
 # - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} after removing or defaulting interfaces
-#   cisco.dcnm.dcnm_rest:
+#   cisco.nd.nd_rest:
 #     method: POST
 #     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
 #   when:
@@ -63,7 +63,7 @@
 #     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
 # - name: Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }} after removing or defaulting interfaces
-#   cisco.dcnm.dcnm_rest:
+#   cisco.nd.nd_rest:
 #     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
 #     method: POST
 #   vars:

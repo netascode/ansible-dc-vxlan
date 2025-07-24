@@ -149,7 +149,7 @@ class POAPDevice:
         self.refresh_message = None
 
         data = self.execute_module(
-            module_name="cisco.dcnm.dcnm_rest",
+            module_name="cisco.nd.nd_rest",
             module_args={
                 "method": self.poap_get_method,
                 "path": self.poap_get_path

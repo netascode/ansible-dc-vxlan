@@ -32,7 +32,7 @@
   tags: "{{ nac_tags.remove }}"
 
 - name: Get List of Fabric Switches from NDFC
-  cisco.dcnm.dcnm_rest:
+  cisco.nd.nd_rest:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
   register: switch_list

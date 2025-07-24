@@ -256,7 +256,7 @@ ansible_connection: ansible.netcommon.httpapi
 ansible_httpapi_port: 443
 ansible_httpapi_use_ssl: true
 ansible_httpapi_validate_certs: false
-ansible_network_os: cisco.dcnm.dcnm
+ansible_network_os: cisco.nd.nd
 # NDFC API Credentials
 ansible_user: "{{ lookup('env', 'ND_USERNAME') }}"
 ansible_password: "{{ lookup('env', 'ND_PASSWORD') }}"

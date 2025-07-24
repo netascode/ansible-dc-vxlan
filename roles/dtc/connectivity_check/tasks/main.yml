@@ -47,7 +47,7 @@
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Get Cisco NDFC Version
-  cisco.dcnm.dcnm_rest:
+  cisco.nd.nd_rest:
     method: GET
     path: /appcenter/cisco/ndfc/api/about/version
   register: ndfc_version

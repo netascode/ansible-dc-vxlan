@@ -97,7 +97,7 @@ def ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number):
         N/A
     """
     policy_data = self._execute_module(
-        module_name="cisco.dcnm.dcnm_rest",
+        module_name="cisco.nd.nd_rest",
         module_args={
             "method": "GET",
             "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches/{switch_serial_number}/SWITCH/SWITCH"
@@ -183,7 +183,7 @@ def ndfc_get_fabric_attributes(self, task_vars, tmp, fabric):
         N/A
     """
     fabric_response = self._execute_module(
-        module_name="cisco.dcnm.dcnm_rest",
+        module_name="cisco.nd.nd_rest",
         module_args={
             "method": "GET",
             "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}",
