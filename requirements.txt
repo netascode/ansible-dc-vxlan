@@ -1,7 +1,6 @@
 requests
 nac-yaml==1.0.0
 nac-validate==1.0.0
-nac-test==1.0.0
 macaddress
 netaddr
-packaging==24.1
+packaging
