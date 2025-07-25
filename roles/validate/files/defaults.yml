@@ -78,6 +78,8 @@ factory_defaults:
         enable_bootstrap: false
         enable_local_dhcp_server: false
         enable_cdp_mgmt: false
+      allow_l3_vni_no_vlan: true
+      enable_l3_vni_no_vlan: false
     topology:
       switches:
         routing_loopback_id: 0
