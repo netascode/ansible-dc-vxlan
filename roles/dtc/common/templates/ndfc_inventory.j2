@@ -8,6 +8,11 @@
 {# Include NDFC DC VXLAN EVPN Base Template #}
 {% include '/ndfc_inventory/common/fabric_inventory.j2' %}
 
+{% elif vxlan.fabric.type == 'eBGP_VXLAN'%}
+
+{# Include NDFC DC VXLAN EVPN Base Template #}
+{% include '/ndfc_inventory/common/fabric_inventory.j2' %}
+
 {% elif vxlan.fabric.type == 'ISN'%}
 
 {# Include NDFC ISN Base Template #}
@@ -18,5 +23,5 @@
 {# Include NDFC DC External Template #}
 {% include '/ndfc_inventory/dc_external_fabric/dc_external_fabric_inventory.j2' %}
 
-{# Supported fabric types are: DC VXLAN EVPN, ISN and External #}
+{# Supported fabric types are: DC VXLAN EVPN, eBGP_VXLAN, ISN and External #}
 {% endif %}
