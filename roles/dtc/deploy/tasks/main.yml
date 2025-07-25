@@ -99,7 +99,9 @@
   when: >
     (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
     (vars_common_ebgp_vxlan.changes_detected_fabric or 
-    vars_common_ebgp_vxlan.changes_detected_inventory)
+    vars_common_ebgp_vxlan.changes_detected_inventory or
+    vars_common_ebgp_vxlan.changes_detected_vpc_peering or
+    vars_common_ebgp_vxlan.changes_detected_link_vpc_peering)
 # Additional conditions to be added when needed:
 # vars_common_ebgp_vxlan.changes_detected_fabric_links or
 # vars_common_ebgp_vxlan.changes_detected_interface_access_po or
@@ -111,11 +113,9 @@
 # vars_common_ebgp_vxlan.changes_detected_interface_trunk_po or
 # vars_common_ebgp_vxlan.changes_detected_interface_trunk or
 # vars_common_ebgp_vxlan.changes_detected_interface_vpc or
-# vars_common_ebgp_vxlan.changes_detected_link_vpc_peering or
 # vars_common_ebgp_vxlan.changes_detected_networks or
 # vars_common_ebgp_vxlan.changes_detected_policy or
 # vars_common_ebgp_vxlan.changes_detected_sub_interface_routed or
-# vars_common_ebgp_vxlan.changes_detected_vpc_peering or
 # vars_common_ebgp_vxlan.changes_detected_vrfs
 - name: Mark Stage Role Deploy Completed
   cisco.nac_dc_vxlan.common.run_map:
