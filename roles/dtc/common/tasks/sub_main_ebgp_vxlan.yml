@@ -162,8 +162,8 @@
 # # Build Fabric Policy List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build Fabric Policy List From Template
-#   ansible.builtin.import_tasks: common/ndfc_policy.yml
+- name: Build Fabric Policy List From Template
+  ansible.builtin.import_tasks: common/ndfc_policy.yml
 
 # # --------------------------------------------------------------------
 # # Build Fabric Links List From Template
@@ -201,7 +201,7 @@
         changes_detected_inventory: "{{ changes_detected_inventory }}"
 #         changes_detected_link_vpc_peering: "{{ changes_detected_link_vpc_peering }}"
 # #        changes_detected_networks: "{{ changes_detected_networks }}"
-#         changes_detected_policy: "{{ changes_detected_policy }}"
+        changes_detected_policy: "{{ changes_detected_policy }}"
 #         changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed }}"
 #         changes_detected_vpc_peering: "{{ changes_detected_vpc_peering }}"
 # #        changes_detected_vrfs: "{{ changes_detected_vrfs }}"
@@ -221,7 +221,7 @@
 #         link_vpc_peering: "{{ link_vpc_peering }}"
 # #        net_config: "{{ net_config }}"
         poap_data: "{{ poap_data }}"
-#         policy_config: "{{ policy_config }}"
+        policy_config: "{{ policy_config }}"
 #         sub_interface_routed: "{{ sub_interface_routed }}"
         updated_inv_config: "{{ updated_inv_config }}"
         updated_inv_config_no_bootstrap: "{{ updated_inv_config_no_bootstrap }}"
@@ -253,7 +253,7 @@
 #       - "+     ----- All Interfaces -----"
 # #      - "+     VRFs Changes Detected -                 [ {{ vars_common_ebgp_vxlan.changes_detected_vrfs }} ]"
 # #      - "+     Networks Changes Detected -             [ {{ vars_common_ebgp_vxlan.changes_detected_networks }} ]"
-#       - "+     Policy Changes Detected -               [ {{ vars_common_ebgp_vxlan.changes_detected_policy }} ]"
+      - "+     Policy Changes Detected -               [ {{ vars_common_ebgp_vxlan.changes_detected_policy }} ]"
 #       - "+     Fabric Links Changes Detected -         [ {{ vars_common_ebgp_vxlan.changes_detected_fabric_links }} ]"
 #       - "+     Edge Connections Changes Detected -     [ {{ vars_common_ebgp_vxlan.changes_detected_edge_connections }} ]"
       - "+     ----- Run Map -----"

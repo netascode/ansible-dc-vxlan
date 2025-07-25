@@ -44,11 +44,11 @@
 #   when:
 #     - vars_common_vxlan.changes_detected_edge_connections
 
-# - name: Remove Fabric Policy
-#   ansible.builtin.import_tasks: common/policy.yml
-#   tags: "{{ nac_tags.remove_policy }}"
-#   when:
-#     - vars_common_vxlan.changes_detected_policy
+- name: Remove Fabric Policy
+  ansible.builtin.import_tasks: common/policy.yml
+  tags: "{{ nac_tags.remove_policy }}"
+  when:
+    - vars_common_ebgp_vxlan.changes_detected_policy
 
 # - name: Remove Fabric Interfaces
 #   ansible.builtin.import_tasks: common/interfaces.yml
