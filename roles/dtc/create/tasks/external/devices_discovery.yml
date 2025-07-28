@@ -21,7 +21,7 @@
 
 ---
 
-- name: Add NDFC Fabric Devices {{ MD_Extended.vxlan.fabric.name }}
+- name: Add Fabric Devices in Nexus Dashboard
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_external.updated_inv_config['updated_inv_list'] }}"
@@ -46,13 +46,13 @@
   register: results
 # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 
-- name: Join List of Switch Hostname Policy IDs from NDFC
+- name: Join List of Switch Hostname Policy IDs from Nexus Dashboard
   ansible.builtin.set_fact:
     policy_ids: "{{ results.policy_update.values() | map(attribute='policyId') | list | join('%2C') }}"
   when: results.policy_update | length > 0
   delegate_to: localhost
 
-- name: Update Switch Hostname Policy in NDFC
+- name: Update Switch Hostname Policy in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: PUT
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"

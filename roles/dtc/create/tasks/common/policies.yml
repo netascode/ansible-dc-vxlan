@@ -21,17 +21,20 @@
 
 ---
 
-- name: Choose vars_common Based On Fabric Type
+- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
@@ -43,9 +46,9 @@
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
-# Manage VRF Configuration on NDFC
+# Manage Fabric Policy Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
-- name: Manage NDFC Fabric Policies
+- name: Manage Fabric Policies in Nexus Dashboard
   cisco.dcnm.dcnm_policy:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     use_desc_as_key: true

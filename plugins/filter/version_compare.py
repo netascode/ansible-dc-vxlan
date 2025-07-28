@@ -43,16 +43,15 @@ DOCUMENTATION = r"""
 
 EXAMPLES = r"""
 
-    version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>') }}"
-    # => True
+version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>') }}"
+# => True
 
-    # {% if ndfc_version.response.DATA.version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
+# {% if ndfc_version.response.DATA.version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
 
-    # - ansible.builtin.set_fact:
-    #     version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>=') }}"
-    #   when: MD_Extended.vxlan.global
-    #   delegate_to: localhost
-
+# - ansible.builtin.set_fact:
+#     version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>=') }}"
+#   when: MD_Extended.vxlan.global
+#   delegate_to: localhost
 """
 
 RETURN = r"""
