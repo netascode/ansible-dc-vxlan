@@ -50,7 +50,7 @@
     - vars_common_isn.changes_detected_inventory
   tags: "{{ nac_tags.create_switches }}"
 
-- name: Manage Fabric Inter Links in Nexus Dashboard
+- name: Manage ISN Fabric Inter Links in Nexus Dashboard
   ansible.builtin.import_tasks: common/edge_connections.yml
   when:
     - MD_Extended.vxlan.topology.edge_connections | length > 0

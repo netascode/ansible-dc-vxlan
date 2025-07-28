@@ -50,21 +50,21 @@
     - vars_common_external.changes_detected_inventory
   tags: "{{ nac_tags.create_switches }}"
 
-- name: Manage NDFC Fabric Inter Links
+- name: Manage External Fabric Inter Links in Nexus Dashboard
   ansible.builtin.import_tasks: common/edge_connections.yml
   when:
     - MD_Extended.vxlan.topology.edge_connections | length > 0
     - changes_detected_edge_connections
   tags: "{{ nac_tags.create_links }}"
 
-- name: Manage NDFC External Fabric Interfaces
+- name: Manage External Fabric Interfaces in Nexus Dashboard
   ansible.builtin.import_tasks: common/interfaces.yml
   when:
     - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
     - vars_common_external.changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
 
-- name: Manage NDFC External Fabric Policies
+- name: Manage External Fabric Policies in Nexus Dashboard
   ansible.builtin.import_tasks: common/policies.yml
   when:
     - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
