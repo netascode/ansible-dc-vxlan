@@ -72,7 +72,6 @@
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
 
-
 # - name: Manage NDFC eBGP VXLAN Fabric Interfaces
 #   ansible.builtin.import_tasks: common/interfaces.yml
 #   when:

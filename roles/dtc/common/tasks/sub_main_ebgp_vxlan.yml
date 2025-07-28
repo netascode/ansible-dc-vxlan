@@ -67,16 +67,16 @@
 - name: Build vPC Domain ID Resource From Template
   ansible.builtin.import_tasks: common/ndfc_vpc_domain_id_resource.yml
 
-# # --------------------------------------------------------------------
-# # Build Fabric intra links for vpc peering From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build Fabric intra links for vpc peering From Template
+# --------------------------------------------------------------------
 
 - name: Build vPC Intra Fabric Links From Template
   ansible.builtin.import_tasks: common/ndfc_vpc_fabric_peering_links.yml
 
-# # --------------------------------------------------------------------
-# # Build vPC Peering parameter List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build vPC Peering parameter List From Template
+# --------------------------------------------------------------------
 
 - name: Build vPC Peering Parameters
   ansible.builtin.import_tasks: common/ndfc_vpc_peering_pairs.yml
@@ -194,7 +194,6 @@
     vars_common_ebgp_vxlan:
         changes_detected_fabric: "{{ changes_detected_fabric }}"
         changes_detected_fabric_links: false
-        
 #         changes_detected_fabric_links: "{{ changes_detected_fabric_links }}"
 #         changes_detected_edge_connections: "{{ changes_detected_edge_connections }}"
 #         changes_detected_interface_access_po: "{{ changes_detected_interface_access_po }}"
