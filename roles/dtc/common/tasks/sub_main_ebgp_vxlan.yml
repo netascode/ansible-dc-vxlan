@@ -64,7 +64,7 @@
   ansible.builtin.import_tasks: common/ndfc_vpc_domain_id_resource.yml
 
 # --------------------------------------------------------------------
-# Build Fabric intra links for vpc peering From Template
+# # Build vPC Intra Fabric Links for vPC Peering From Template
 # --------------------------------------------------------------------
 
 - name: Build vPC Intra Fabric Links From Template
