@@ -28,46 +28,46 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+- name: Display Device Configuration Method
+  ansible.builtin.debug:
+    msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"
 
-- name: Config-Save block
+- name: Config-Save Block for MSD Fabric
   block:
-    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
+    - name: Config-Save for MSD Fabric
       cisco.dcnm.dcnm_rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       register: config_save
-      when: >
-        (MD_Extended.vxlan.fabric.type == 'ISN' and (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)) or
-        MD_Extended.vxlan.fabric.type == 'MSD'
+      when: MD_Extended.vxlan.fabric.type == 'MSD'
       # TODO: Need to add logic to only save if changes are made
 
   rescue:
-    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
+    - name: Config-Save for MSD Fabric - Failed
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
 
-- name: Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }}
+- name: Deploy for MSD Fabric
   cisco.dcnm.dcnm_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
   when: >
       (MD_Extended.vxlan.fabric.type == 'MSD' and
        MD_Extended.vxlan.topology.child_fabrics is defined and
        MD_Extended.vxlan.topology.child_fabrics | length > 0)
   # TODO: Need to add logic to only deploy if changes are made
 
-- name: Config-Save For Child Fabrics
+- name: Config-Save For MSD Child Fabrics
   cisco.nac_dc_vxlan.dtc.fabrics_config_save:
     fabrics: "{{ child_fabrics_vrfs_networks_changed }}"
   when: >
     MD_Extended.vxlan.fabric.type == 'MSD' and
     (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0)
 
-- name: Deploy For Child Fabrics
+- name: Deploy For MSD Child Fabrics
   cisco.nac_dc_vxlan.dtc.fabrics_deploy:
     fabrics: "{{ child_fabrics_vrfs_networks_changed }}"
   when: >

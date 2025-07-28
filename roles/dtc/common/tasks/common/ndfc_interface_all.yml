@@ -41,6 +41,7 @@
   ansible.builtin.copy:
     src: "{{ path_name }}{{ file_name }}"
     dest: "{{ path_name }}{{ file_name }}.old"
+    mode: preserve
   when: data_file_previous.stat.exists
 
 - name: Delete Previous Data File If It Exists
@@ -57,7 +58,18 @@
 
 - name: Set interface_all Var
   ansible.builtin.set_fact:
-    interface_all: "{{ interface_breakout + interface_access + interface_access_po + interface_trunk + interface_trunk_po + interface_routed + interface_po_routed + sub_interface_routed + interface_vpc + int_loopback_config + interface_dot1q }}"
+    interface_all: >
+      "{{ interface_breakout +
+          interface_access +
+          interface_access_po +
+          interface_trunk +
+          interface_trunk_po +
+          interface_routed +
+          interface_po_routed +
+          sub_interface_routed +
+          interface_vpc +
+          int_loopback_config +
+          interface_dot1q }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
   delegate_to: localhost
 
@@ -65,6 +77,7 @@
   ansible.builtin.copy:
     content: "{{ interface_all | to_nice_yaml }}"
     dest: "{{ path_name }}{{ file_name }}"
+    mode: preserve
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files

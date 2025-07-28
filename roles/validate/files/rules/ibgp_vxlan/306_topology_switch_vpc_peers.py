@@ -42,7 +42,7 @@ class Rule:
                         f"vxlan.topology.vpc_peers switch {vpc_peers_pair['peer2']} not found in the topology inventory."
                     )
 
-                # Check VPC Domain ID is in the range
+                # Check vPC Domain ID is in the range
                 if 'domain_id' in vpc_peers_pair:
                     if vpc_peers_pair['domain_id'] > int(vpc_range_split[1]) or vpc_peers_pair['domain_id'] < int(vpc_range_split[0]):
                         results.append(
