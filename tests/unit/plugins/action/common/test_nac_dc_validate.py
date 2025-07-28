@@ -88,8 +88,8 @@ class TestNacDcValidateActionModule:
         from ansible.plugins.action import ActionBase
         assert isinstance(action_module, ActionBase)
 
-    # New comprehensive tests for missing coverage areas
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -125,7 +125,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/path/to/rules'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -137,7 +137,8 @@ class TestNacDcValidateActionModule:
             # MCF should use multisite rules
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/multisite/')
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -173,7 +174,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/path/to/rules'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -185,7 +186,8 @@ class TestNacDcValidateActionModule:
             # ISN should use isn rules
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/isn/')
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -221,7 +223,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/path/to/rules'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -233,7 +235,8 @@ class TestNacDcValidateActionModule:
             # External should use external rules
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/external/')
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -272,7 +275,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/path/to/rules'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -285,7 +288,8 @@ class TestNacDcValidateActionModule:
             # MCF should use multisite rules
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/multisite/')
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -324,7 +328,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/path/to/rules'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -337,7 +341,8 @@ class TestNacDcValidateActionModule:
             # ISN should use isn rules
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/isn/')
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -376,7 +381,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/path/to/rules'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -389,7 +394,8 @@ class TestNacDcValidateActionModule:
             # External should use isn rules in deprecated mode
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/isn/')
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -435,7 +441,8 @@ class TestNacDcValidateActionModule:
         assert 'is not a supported fabric type' in result['msg']
         mock_display.deprecated.assert_called_once()
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -482,7 +489,8 @@ class TestNacDcValidateActionModule:
         # The deprecated warning is only called if fabric_type is present
         mock_display.deprecated.assert_not_called()
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -509,7 +517,7 @@ class TestNacDcValidateActionModule:
         }
 
         with patch('plugins.action.common.nac_dc_validate.display') as mock_display:
-            with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+            with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
                 mock_validator_instance = MagicMock()
                 mock_validator_instance.errors = []
                 mock_validator.return_value = mock_validator_instance
@@ -523,7 +531,8 @@ class TestNacDcValidateActionModule:
                 warning_calls = [call.args[0] for call in mock_display.warning.call_args_list]
                 assert any('exists but is empty' in call for call in warning_calls)
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -543,7 +552,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/different/role/path'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -557,7 +566,8 @@ class TestNacDcValidateActionModule:
             # Should call validate_semantics since rules exist
             mock_validator_instance.validate_semantics.assert_called_once()
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -577,7 +587,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/different/role/path'  # Different role path so rules check fails
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -591,7 +601,8 @@ class TestNacDcValidateActionModule:
             # Should call validate_semantics since rules path is provided (custom enhanced rules)
             mock_validator_instance.validate_semantics.assert_called_once()
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -625,7 +636,7 @@ class TestNacDcValidateActionModule:
                 instance.errors = []
             return instance
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator', side_effect=create_validator_instance):
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator', side_effect=create_validator_instance):
             action_module = self.create_action_module(task_args)
             result = action_module.run(task_vars=task_vars)
 
@@ -634,7 +645,8 @@ class TestNacDcValidateActionModule:
             # Should only create one validator instance due to early exit
             assert len(validator_instances) == 1
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -651,7 +663,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/path/to/role'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -663,7 +675,8 @@ class TestNacDcValidateActionModule:
             assert isinstance(result, dict)
             assert 'failed' in result
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -682,7 +695,7 @@ class TestNacDcValidateActionModule:
         action_module = self.create_action_module(task_args)
 
         # Call with None task_vars - should handle gracefully
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -693,12 +706,45 @@ class TestNacDcValidateActionModule:
             assert isinstance(result, dict)
             assert 'failed' in result
 
-    # Additional tests for 100% coverage
-    def test_iac_validate_import_error(self):
-        """Test handling of iac-validate import error."""
+    def test_NAC_YAML_IMPORT_ERROR(self):
+        """Test handling of nac-yaml import error."""
+        from ansible.errors import AnsibleError
+        import plugins.action.common.nac_dc_validate as nac_dc_validate_module
+
+        # Create an action module first to ensure it's properly initialized
+        task_args = {
+            'schema': '/path/to/schema.yaml',
+            'rules': '/path/to/rules',
+            'mdata': '/path/to/data'
+        }
+
+        task_vars = {
+            'role_path': '/path/to/role'
+        }
+
+        # Store original value
+        original_error = nac_dc_validate_module.NAC_YAML_IMPORT_ERROR
+
+        try:
+            # Set the import error
+            nac_dc_validate_module.NAC_YAML_IMPORT_ERROR = ImportError("nac-yaml not found")
+
+            # Mock the parent run method
+            with patch('ansible.plugins.action.ActionBase.run', return_value={}):
+                action_module = self.create_action_module(task_args)
+
+                # Should raise AnsibleError when nac-yaml is not installed
+                with pytest.raises(AnsibleError, match="nac-yaml not found"):
+                    action_module.run(task_vars=task_vars)
+        finally:
+            # Restore original value
+            nac_dc_validate_module.NAC_YAML_IMPORT_ERROR = original_error
+
+    def test_NAC_VALIDATE_IMPORT_ERROR(self):
+        """Test handling of nac-validate import error."""
         from ansible.errors import AnsibleError
 
-        with patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', ImportError("iac-validate not found")):
+        with patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', ImportError("nac-validate not found")):
             task_args = {
                 'schema': '/path/to/schema.yaml',
                 'rules': '/path/to/rules',
@@ -713,11 +759,12 @@ class TestNacDcValidateActionModule:
             with patch('ansible.plugins.action.ActionBase.run', return_value={}):
                 action_module = self.create_action_module(task_args)
 
-                # Should raise AnsibleError when iac-validate is not installed
-                with pytest.raises(AnsibleError, match="iac-validate not found"):
+                # Should raise AnsibleError when nac-validate is not installed
+                with pytest.raises(AnsibleError, match="nac-validate not found"):
                     action_module.run(task_vars=task_vars)
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -738,7 +785,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/different/role/path'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -751,7 +798,8 @@ class TestNacDcValidateActionModule:
             warning_calls = [call[0][0] for call in mock_display.warning.call_args_list]
             assert any('does not appear to exist' in call for call in warning_calls)
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -772,7 +820,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/different/role/path'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -785,7 +833,8 @@ class TestNacDcValidateActionModule:
             warning_calls = [call[0][0] for call in mock_display.warning.call_args_list]
             assert any('does not appear to exist' in call for call in warning_calls)
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -811,7 +860,8 @@ class TestNacDcValidateActionModule:
         assert result['failed'] is True
         assert 'does not appear to exist' in result['msg']
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -837,7 +887,8 @@ class TestNacDcValidateActionModule:
         assert result['failed'] is True
         assert 'is empty' in result['msg']
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -873,7 +924,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/path/to/rules'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -884,7 +935,8 @@ class TestNacDcValidateActionModule:
             assert result['failed'] is False
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/ibgp_vxlan/')
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -923,7 +975,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/path/to/rules'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -935,7 +987,8 @@ class TestNacDcValidateActionModule:
             mock_display.deprecated.assert_called_once()
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/ibgp_vxlan/')
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -973,7 +1026,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/different/role/path'  # Different path to trigger else block
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -986,7 +1039,8 @@ class TestNacDcValidateActionModule:
             # Should use custom enhanced rules path
             mock_validator.assert_called_with('/path/to/schema.yaml', '/path/to/rules/')
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -1007,7 +1061,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/different/role/path'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = []
             mock_validator.return_value = mock_validator_instance
@@ -1018,7 +1072,8 @@ class TestNacDcValidateActionModule:
             # Should use DEFAULT_SCHEMA when schema is empty
             mock_validator.assert_called_with('/default/schema.yaml', '/path/to/rules/')
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -1038,7 +1093,7 @@ class TestNacDcValidateActionModule:
             'role_path': '/different/role/path'
         }
 
-        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
             mock_validator_instance = MagicMock()
             mock_validator_instance.errors = ['Error 1', 'Error 2']
             mock_validator.return_value = mock_validator_instance
@@ -1050,7 +1105,8 @@ class TestNacDcValidateActionModule:
             assert 'Error 1' in result['msg']
             assert 'Error 2' in result['msg']
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -1095,10 +1151,10 @@ class TestNacDcValidateActionModule:
         # without running any validation rules
         assert result['failed'] is False
 
-    def test_iac_validate_import_success(self):
-        """Test successful import of iac-validate (covers else clause)."""
+    def test_nac_validate_import_success(self):
+        """Test successful import of nac-validate (covers else clause)."""
         # This test covers the successful import path (lines 35-36)
-        with patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None):
+        with patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None):
             task_args = {
                 'schema': '/path/to/schema.yaml',
                 'rules': '/path/to/rules/',
@@ -1112,7 +1168,7 @@ class TestNacDcValidateActionModule:
             with patch('ansible.plugins.action.ActionBase.run', return_value={}):
                 with patch('os.path.exists', return_value=True):
                     with patch('os.listdir', return_value=['data.yaml']):
-                        with patch('plugins.action.common.nac_dc_validate.iac_validate.validator.Validator') as mock_validator:
+                        with patch('plugins.action.common.nac_dc_validate.nac_validate.validator.Validator') as mock_validator:
                             mock_validator_instance = MagicMock()
                             mock_validator_instance.errors = []
                             mock_validator.return_value = mock_validator_instance
@@ -1123,7 +1179,8 @@ class TestNacDcValidateActionModule:
             # Should succeed without import error
             assert result['failed'] is False
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -1166,7 +1223,8 @@ class TestNacDcValidateActionModule:
         assert result['failed'] is True
         assert 'is not a supported fabric type' in result['msg']
 
-    @patch('plugins.action.common.nac_dc_validate.IAC_VALIDATE_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_YAML_IMPORT_ERROR', None)
+    @patch('plugins.action.common.nac_dc_validate.NAC_VALIDATE_IMPORT_ERROR', None)
     @patch('ansible.plugins.action.ActionBase.run')
     @patch('os.path.exists')
     @patch('os.listdir')
@@ -1212,7 +1270,7 @@ class TestNacDcValidateActionModule:
     def test_import_success_path(self):
         """Test the successful import path (lines 35-36)."""
         # This test is to ensure the import success path is covered
-        # The else clause sets IAC_VALIDATE_IMPORT_ERROR = None on successful import
+        # The else clause sets NAC_VALIDATE_IMPORT_ERROR = None on successful import
         # This should already be covered by other tests, but let's be explicit
         import sys
         import importlib
@@ -1224,10 +1282,10 @@ class TestNacDcValidateActionModule:
 
         # Mock successful import
         with patch('plugins.action.common.nac_dc_validate.load_yaml_files'):
-            with patch('plugins.action.common.nac_dc_validate.iac_validate.validator'):
+            with patch('plugins.action.common.nac_dc_validate.nac_validate.validator'):
                 with patch('plugins.action.common.nac_dc_validate.DEFAULT_SCHEMA', '/default/schema.yaml'):
-                    # Import the module - should set IAC_VALIDATE_IMPORT_ERROR = None
-                    from plugins.action.common.nac_dc_validate import IAC_VALIDATE_IMPORT_ERROR
+                    # Import the module - should set NAC_VALIDATE_IMPORT_ERROR = None
+                    from plugins.action.common.nac_dc_validate import NAC_VALIDATE_IMPORT_ERROR
 
                     # Should be None on successful import
-                    assert IAC_VALIDATE_IMPORT_ERROR is None
+                    assert NAC_VALIDATE_IMPORT_ERROR is None

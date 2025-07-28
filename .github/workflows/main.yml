@@ -106,8 +106,8 @@ jobs:
         name: collection-${{ matrix.ansible }}
         path: .cache/collection-tarballs
 
-    - name: Install iac-validate (v0.2.7)
-      run: pip install iac-validate==0.2.7
+    - name: Install nac-validate (v1.0.0)
+      run: pip install nac-validate==1.0.0
 
     - name: Install coverage (v7.9.2)
       run: pip install coverage==7.9.2
