@@ -8,7 +8,6 @@
   SITE_ID: {{ vxlan.global.multisite_site_id }}
 {% endif %}
   ANYCAST_BGW_ADVERTISE_PIP: {{ vxlan.global.vpc.advertise_pip_border_gateway | default(defaults.vxlan.global.vpc.advertise_pip_border_gateway) }}
-  
 {% if not (vxlan.global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | ansible.builtin.bool) %}
   ADVERTISE_PIP_ON_BORDER: {{ vxlan.global.vpc.advertise_pip_border_only | default(defaults.vxlan.global.vpc.advertise_pip_border_only) | title }}
 {% endif %}
@@ -21,7 +20,6 @@
 {% endif %}
 {% endif %}
 {% endif %}
-
 {% if ( ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.1', '<=')) and
         (not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool))) or
         (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) ) %}

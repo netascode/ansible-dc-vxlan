@@ -33,7 +33,7 @@
   tags: "{{ nac_tags.create }}"
 
 - name: Create NDFC eBGP VXLAN Fabric
-  ansible.builtin.import_tasks: common/fabric.yml
+  ansible.builtin.import_tasks: ebgp_vxlan/fabric.yml
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
@@ -41,71 +41,9 @@
     - vars_common_ebgp_vxlan.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
-
-### FOR NOW JUST CREATING THE BGP FABRIC, NO OTHER FUNCTIONALITIES ADDED  
 - name: Manage NDFC eBGP VXLAN Fabric Switches
   ansible.builtin.import_tasks: common/devices.yml
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
     - vars_common_ebgp_vxlan.changes_detected_inventory
   tags: "{{ nac_tags.create_switches }}"
-
-# - name: Manage NDFC VXLAN VPC Peering
-#   ansible.builtin.import_tasks: common/vpc_peering.yml
-#   when:
-#     - MD_Extended.vxlan.topology.vpc_peers | length > 0
-#     - vars_common_ebgp_vxlan.changes_detected_vpc_peering
-#   tags: "{{ nac_tags.create_vpc_peers }}"
-
-# - name: Config-Save block to propagate vPC changes to the fabric
-#   block:
-#     - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
-#       cisco.dcnm.dcnm_rest:
-#         method: POST
-#         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-#       when: MD_Extended.vxlan.topology.switches | length > 0
-#       register: config_save
-#       # TODO: Need to add logic to only save if changes are made
-
-#   rescue:
-#     - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
-#       ansible.builtin.debug:
-#         msg: "{{ config_save.msg.DATA }}"
-
-
-# - name: Manage NDFC eBGP VXLAN Fabric Interfaces
-#   ansible.builtin.import_tasks: common/interfaces.yml
-#   when:
-#     - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
-#     - vars_common_ebgp_vxlan.changes_detected_interfaces
-#   tags: "{{ nac_tags.create_interfaces }}"
-
-# - name: Manage NDFC Fabric Inter Links
-#   ansible.builtin.import_tasks: common/edge_connections.yml
-#   when:
-#     - MD_Extended.vxlan.topology.edge_connections | length > 0
-#     - vars_common_ebgp_vxlan.changes_detected_edge_connections
-#   tags: "{{ nac_tags.create_links }}"
-
-
-# - name: Manage NDFC eBGP VXLAN Fabric VRFs and Networks
-#   ansible.builtin.import_tasks: vxlan/vrfs_networks.yml
-#   when:
-#     - MD_Extended.vxlan.overlay is defined
-#     - MD_Extended.vxlan.topology.switches | length > 0
-#     - vars_common_ebgp_vxlan.changes_detected_vrfs or vars_common_ebgp_vxlan.changes_detected_networks
-#   tags: "{{ nac_tags.create_vrfs_networks }}"
-
-# - name: Manage NDFC VXLAN Fabric Intra Links
-#   ansible.builtin.import_tasks: common/links.yml
-#   when:
-#     - MD_Extended.vxlan.topology.fabric_links | length > 0
-#     - vars_common_ebgp_vxlan.changes_detected_fabric_links
-#   tags: "{{ nac_tags.create_links }}"
-
-# - name: Manage NDFC VXLAN Fabric Policies
-#   ansible.builtin.import_tasks: common/policies.yml
-#   when:
-#     - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
-#     - vars_common_ebgp_vxlan.changes_detected_policy
-#   tags: "{{ nac_tags.create_policy }}"
