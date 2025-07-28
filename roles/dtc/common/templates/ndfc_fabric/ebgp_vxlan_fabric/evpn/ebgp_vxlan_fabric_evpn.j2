@@ -1,7 +1,14 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN config data structure for fabric {{ vxlan.fabric.name }} #}
   ENABLE_EVPN: true
+  ALLOW_L3VNI_NO_VLAN:  {{ vxlan.global.allow_l3_vni_no_vlan | default(defaults.vxlan.global.allow_l3_vni_no_vlan) }}
+  ENABLE_L3VNI_NO_VLAN:  {{ vxlan.global.enable_l3_vni_no_vlan | default(defaults.vxlan.global.enable_l3_vni_no_vlan) }}
   ANYCAST_GW_MAC: {{ vxlan.global.anycast_gateway_mac | default(defaults.vxlan.global.anycast_gateway_mac) }}
   ADVERTISE_PIP_BGP: {{ (vxlan.global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) }}
+{% if vxlan.global.multisite_site_id is defined %}
+  SITE_ID: {{ vxlan.global.multisite_site_id }}
+{% endif %}
+  ANYCAST_BGW_ADVERTISE_PIP: {{ vxlan.global.vpc.advertise_pip_border_gateway | default(defaults.vxlan.global.vpc.advertise_pip_border_gateway) }}
+  
 {% if not (vxlan.global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | ansible.builtin.bool) %}
   ADVERTISE_PIP_ON_BORDER: {{ vxlan.global.vpc.advertise_pip_border_only | default(defaults.vxlan.global.vpc.advertise_pip_border_only) | title }}
 {% endif %}
