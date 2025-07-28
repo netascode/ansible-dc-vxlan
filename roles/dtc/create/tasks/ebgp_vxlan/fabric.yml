@@ -31,7 +31,7 @@
 # There's an issue with the controller valdiation schema for this fabric type
 # as it pertains to PIM BiDir configuration, as such, we need to skip validation.
 # Use skip validation: true to avoid the error.
-- name: Manage Fabric {{ MD_Extended.vxlan.fabric.name }} in NDFC
+- name: Manage Fabric in Nexus Dashboard
   cisco.dcnm.dcnm_fabric:
     state: merged
     config: "{{ vars_common_ebgp_vxlan.fabric_config }}"

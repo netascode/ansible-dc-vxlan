@@ -1,6 +1,6 @@
 class Rule:
     id = "309"
-    description = "Verify orphan ports for non-VPC switches"
+    description = "Verify orphan ports for non-vPC switches"
     severity = "HIGH"
 
     @classmethod
@@ -13,7 +13,7 @@ class Rule:
         if 'switches' in dm_check['keys_data']:
             switches = inventory['vxlan']['topology']['switches']
 
-        # Extract all VPC peer switch names from vxlan.topology.vpc_peers
+        # Extract all vPC peer switch names from vxlan.topology.vpc_peers
         vpc_peers = set()
         vpc_peers_check = cls.data_model_key_check(inventory, ['vxlan', 'topology', 'vpc_peers'])
         if 'vpc_peers' in vpc_peers_check['keys_data']:
@@ -34,7 +34,7 @@ class Rule:
                         if switch_name not in vpc_peers:
                             results.append(
                                 f"Switch '{switch_name}' with interface '{interface_name}' "
-                                "has orphan_port: true, but the switch is not part of any VPC peer."
+                                "has orphan_port: true, but the switch is not part of any vPC peer."
                             )
 
         return results
