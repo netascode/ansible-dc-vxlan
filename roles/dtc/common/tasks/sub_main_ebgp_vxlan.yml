@@ -21,7 +21,7 @@
 
 ---
 
-- ansible.builtin.fail: msg="Service Model Not Defined.  Role cisco.nac_dc_eBGP_VXLAN.validate Must Be Called First"
+- ansible.builtin.fail: msg="Service Model Not Defined.  Role cisco.nac_dc_vxlan.validate Must Be Called First"
   when: MD is undefined
   delegate_to: localhost
 
@@ -45,13 +45,9 @@
 - name: Build Fabric Create Parameters
   ansible.builtin.import_tasks: common/ndfc_fabric.yml
 
-
-### FOR NOW JUST CREATING THE BGP FABRIC, NO OTHER FUNCTIONALITIES ADDED
-
 # --------------------------------------------------------------------
 # Build NDFC Fabric Switch Inventory List From Template
 # --------------------------------------------------------------------
-
 - name: Build NDFC Fabric Switch Inventory List From Template
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
@@ -229,15 +225,12 @@
         link_vpc_peering: "{{ link_vpc_peering }}"
 # #        net_config: "{{ net_config }}"
         poap_data: "{{ poap_data }}"
-#         policy_config: "{{ policy_config }}"
-#         sub_interface_routed: "{{ sub_interface_routed }}"
         updated_inv_config: "{{ updated_inv_config }}"
         updated_inv_config_no_bootstrap: "{{ updated_inv_config_no_bootstrap }}"
         vpc_peering: "{{ vpc_peering }}"
         vpc_domain_id_resource: "{{ vpc_domain_id_resource }}"
 # #        vrf_config: "{{ vrf_config }}"
 # #        vrf_attach_config: "{{ vrf_attach_config }}"
-
 
 - name: Run Diff Flags
   ansible.builtin.debug:

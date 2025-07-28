@@ -117,6 +117,7 @@
 # vars_common_ebgp_vxlan.changes_detected_policy or
 # vars_common_ebgp_vxlan.changes_detected_sub_interface_routed or
 # vars_common_ebgp_vxlan.changes_detected_vrfs
+
 - name: Mark Stage Role Deploy Completed
   cisco.nac_dc_vxlan.common.run_map:
     model_data: "{{ MD_Extended }}"
