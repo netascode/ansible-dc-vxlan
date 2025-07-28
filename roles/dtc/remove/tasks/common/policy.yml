@@ -37,7 +37,7 @@
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
-- name: Remove Unmanaged Fabric Policy From Switches
+- name: Remove Unmanaged Fabric Policy From Nexus Dashboard
   when:
     - switch_list.response.DATA | length > 0
     - (policy_delete_mode is defined) and (policy_delete_mode is true|bool)
@@ -46,7 +46,7 @@
       ansible.builtin.debug:
         msg: "Removing Unmanaged Fabric Policy From Switches. This could take several minutes..."
 
-    - name: Create List of Switch Serial Numbers from NDFC Switch List
+    - name: Create List of Switch Serial Numbers from Nexus Dashboard
       ansible.builtin.set_fact:
         switch_serial_numbers: "{{ switch_list.response.DATA | map(attribute='serialNumber') | list }}"
       delegate_to: localhost
@@ -58,7 +58,7 @@
       register: unmanaged_policy_config
       # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 
-    - name: Remove Unmanaged NDFC Fabric Policy
+    - name: Remove Unmanaged Fabric Policy from Nexus Dashboard
       cisco.dcnm.dcnm_policy:
         fabric: "{{ MD_Extended.vxlan.fabric.name }}"
         use_desc_as_key: true

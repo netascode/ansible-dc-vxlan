@@ -64,7 +64,7 @@
 #    - multisite_vrf_delete_mode is true | bool
 #    - vars_common_msd.changes_detected_vrfs
 
-- name: Remove Unmanaged Fabric VRFs
+- name: Remove Unmanaged Fabric VRFs in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_vrfs:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     msite_data: "{{ MD_Multisite }}"

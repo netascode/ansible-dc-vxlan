@@ -27,9 +27,9 @@
   when: MD is undefined
   delegate_to: localhost
 
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Remove all files from the previous run if run_map requires it
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 - name: Set path_name Var
   ansible.builtin.set_fact:
     path_name: "{{ role_path }}/files/isn/{{ MD_Extended.vxlan.fabric.name }}/"
@@ -40,126 +40,126 @@
   when:
     - not run_map_read_result.diff_run or ((force_run_all is defined) and (force_run_all is true|bool))
 
-# --------------------------------------------------------------------
-# Build Create Fabric Parameter List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric List From Template
+# ------------------------------------------------------------------------
 
-- name: Build Fabric Create Parameters
+- name: Build ISN Fabric List From Template
   ansible.builtin.import_tasks: common/ndfc_fabric.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Fabric Switch Inventory List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Switch Inventory List From Template
+# ------------------------------------------------------------------------
 
-- name: Build NDFC Fabric Switch Inventory List From Template
+- name: Build ISN Fabric Switch Inventory List From Template
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
 # We need to also build an inventory list without bootstrap settings
 # This will be used for device removal.
-- name: Build NDFC Fabric Switch Inventory List From Template - No Bootstrap
+- name: Build ISN Fabric Switch Inventory List From Template - No Bootstrap
   ansible.builtin.import_tasks: common/ndfc_inventory_no_bootstrap.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Fabric Breakout Interfaces List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Breakout Interfaces List From Template
+# ------------------------------------------------------------------------
 
-- name: Build NDFC Fabric Breakout Interfaces List From Template
+- name: Build ISN Fabric Breakout Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_breakout.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Fabric Loopback Interfaces List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Loopback Interfaces List From Template
+# ------------------------------------------------------------------------
 
-- name: Build NDFC Fabric Loopback Interfaces List From Template
+- name: Build ISN Fabric Loopback Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_loopback.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Fabric Access Port-Channel Interfaces List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Access Port-Channel Interfaces List From Template
+# ------------------------------------------------------------------------
 
-- name: Build NDFC Fabric Access Port-Channel Interfaces List From Template
+- name: Build ISN Fabric Access Port-Channel Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_access_po.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Trunk Port-Channel Interfaces List From Template
+# ------------------------------------------------------------------------
 
-- name: Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
+- name: Build ISN Fabric Trunk Port-Channel Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_trunk_po.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Fabric Interface Routed List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Interface Routed List From Template
+# ------------------------------------------------------------------------
 
-- name: Build NDFC Fabric Interface Routed List From Template
+- name: Build ISN Fabric Interface Routed List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_routed.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Fabric Sub-Interface Routed List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Sub-Interface Routed List From Template
+# ------------------------------------------------------------------------
 
-- name: Build NDFC Fabric Sub-Interface Routed List From Template
+- name: Build ISN Fabric Sub-Interface Routed List From Template
   ansible.builtin.import_tasks: common/ndfc_sub_interface_routed.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Fabric Routed Port-Channel Interface List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Routed Port-Channel Interface List From Template
+# ------------------------------------------------------------------------
 
-- name: Build NDFC Fabric Routed Port-Channel Interface List From Template
+- name: Build ISN Fabric Routed Port-Channel Interface List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_po_routed.yml
 
-# --------------------------------------------------------------------
-# Build Trunk Interfaces List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Trunk Interfaces List From Template
+# ------------------------------------------------------------------------
 
-- name: Build Trunk Interfaces List From Template
+- name: Build ISN Fabric Trunk Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_trunk.yml
 
-# --------------------------------------------------------------------
-# Build Access Interfaces List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Access Interfaces List From Template
+# ------------------------------------------------------------------------
 
-- name: Build Access Interfaces List From Template
+- name: Build ISN Fabric Access Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_access.yml
 
-# --------------------------------------------------------------------
-# Build Dot1q Interfaces List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Dot1q Interfaces List From Template
+# ------------------------------------------------------------------------
 
-- name: Build Dot1q Interfaces List From Template
+- name: Build ISN Fabric Dot1q Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_dot1q.yml
 
-# --------------------------------------------------------------------
-# Build Fabric interface vPC List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric vPC Interface List From Template
+# ------------------------------------------------------------------------
 
-- name: Build Fabric interface vPC List From Template
+- name: Build ISN Fabric vPC Interface List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_vpc.yml
 
-# --------------------------------------------------------------------
-# Build Fabric Interface All List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Interface All List From Template
+# ------------------------------------------------------------------------
 
-- name: Build Fabric interface All List From Template
+- name: Build ISN Fabric Interface All List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_all.yml
 
-# --------------------------------------------------------------------
-# Build Fabric Policy List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Fabric Policy List From Template
+# ------------------------------------------------------------------------
 
-- name: Build Fabric Policy List From Template
+- name: Build ISN Fabric Policy List From Template
   ansible.builtin.import_tasks: common/ndfc_policy.yml
 
-# --------------------------------------------------------------------
-# Build Edge Connections List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build ISN Edge Connections List From Template
+# ------------------------------------------------------------------------
 
-- name: Build Edge Connections List From Template
+- name: Build ISN Edge Connections List From Template
   ansible.builtin.import_tasks: common/ndfc_edge_connections.yml
 
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 - name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_isn:

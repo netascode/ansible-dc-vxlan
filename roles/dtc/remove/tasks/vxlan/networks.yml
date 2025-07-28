@@ -23,7 +23,7 @@
 - name: Check If Current Fabric Is An Active Multisite Fabric
   when: is_active_child_fabric is not defined
   block:
-    - name: Get Multisite Fabric Associations
+    - name: Get Multisite Fabric Associations in Nexus Dashboard
       cisco.dcnm.dcnm_rest:
         method: GET
         path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
@@ -54,7 +54,7 @@
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
     - not is_active_child_fabric
 
-- name: Remove Unmanaged Fabric Networks
+- name: Remove Unmanaged Fabric Networks in Nexus Dashboard
   cisco.dcnm.dcnm_network:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden

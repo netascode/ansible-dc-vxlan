@@ -44,7 +44,7 @@
     - switch_list.response.DATA | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
-- name: Remove Unmanaged Fabric Interfaces
+- name: Remove Unmanaged Fabric Interfaces in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden

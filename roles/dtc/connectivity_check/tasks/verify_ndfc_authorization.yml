@@ -21,9 +21,9 @@
 
 ---
 
-- name: Verify Authorization to NDFC
+- name: Verify Authorization to Nexus Dashboard
   block:
-    - name: Verify Authorization to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
+    - name: Verify Authorization to Nexus Dashboard
       ansible.builtin.uri:
         url: "https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}/login"
         method: POST
@@ -43,10 +43,10 @@
       delegate_to: localhost
 
   rescue:
-    - name: Fail Play If NDFC Authorization Test Failed
+    - name: Fail Play If Nexus Dashboard Authorization Test Failed
       ansible.builtin.fail:
         msg: >
           NDFC authorization failed using specified ansible_user and ansible_password
           for https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}.
-          Check NDFC credentials and/or login domain.
+          Check Nexus Dashboard credentials and/or login domain.
       delegate_to: localhost

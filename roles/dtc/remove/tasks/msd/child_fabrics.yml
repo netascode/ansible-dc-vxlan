@@ -28,7 +28,7 @@
     - MD_Extended.vxlan.multisite.child_fabrics is defined
     - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
 
-- name: Remove Unmanaged Child Fabrics from NDFC
+- name: Remove Unmanaged Child Fabrics in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
     parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     child_fabrics: "{{ MD_Multisite_Child_Fabrics.to_be_removed }}"

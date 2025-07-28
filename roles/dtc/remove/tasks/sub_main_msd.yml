@@ -30,7 +30,7 @@
 
 - name: Display Device Configuration Method
   ansible.builtin.debug:
-    msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"
+    msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"
   tags: "{{ nac_tags.remove }}"
 
 - name: Prepare Multisite Data
@@ -42,13 +42,13 @@
     - "{{ nac_tags.remove_networks }}"
     - "{{ nac_tags.remove_vrfs }}"
 
-- name: Remove Fabric Networks
+- name: Remove MSD Fabric Networks from Nexus Dashboard
   ansible.builtin.import_tasks: msd/networks.yml
   tags: "{{ nac_tags.remove_networks }}"
 
-- name: Remove Fabric VRFs
+- name: Remove MSD Fabric VRFs from Nexus Dashboard
   ansible.builtin.import_tasks: msd/vrfs.yml
   tags: "{{ nac_tags.remove_vrfs }}"
 
-- name: Remove Child Fabrics
+- name: Remove MSD Fabric Child Fabrics from Nexus Dashboard
   ansible.builtin.import_tasks: msd/child_fabrics.yml

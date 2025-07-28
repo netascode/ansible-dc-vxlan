@@ -29,9 +29,9 @@
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
-# Manage Edge Connection Configuration on NDFC
+# Manage Edge Connection Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
-- name: Manage NDFC Inter Fabric Links
+- name: Manage Inter Fabric Links in Nexus Dashboard
   cisco.dcnm.dcnm_policy:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ edge_connections }}"

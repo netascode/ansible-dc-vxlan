@@ -37,7 +37,7 @@
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
-- name: Unmanaged Edge Connections
+- name: Unmanaged Edge Connections in Nexus Dashboard
   when:
     - switch_list.response.DATA | length > 0
     - (edge_connections_delete_mode is defined) and (edge_connections_delete_mode is true|bool)
@@ -53,7 +53,7 @@
       register: unmanaged_edge_connections_config
       # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 
-    - name: Remove Unmanaged NDFC Edge Connections
+    - name: Remove Unmanaged NDFC Edge Connections in Nexus Dashboard
       cisco.dcnm.dcnm_policy:
         fabric: "{{ MD_Extended.vxlan.fabric.name }}"
         use_desc_as_key: true

@@ -31,10 +31,10 @@
 
 - name: Display Device Configuration Method
   ansible.builtin.debug:
-    msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"
+    msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"
   tags: "{{ nac_tags.create }}"
 
-- name: Create NDFC External Fabric
+- name: Create External Fabric in Nexus Dashboard
   ansible.builtin.import_tasks: external/fabric.yml
   when:
     - MD_Extended.vxlan.fabric.name is defined
@@ -43,7 +43,7 @@
     - vars_common_external.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
-- name: Manage NDFC External Fabric Switches
+- name: Manage External Fabric Switches in Nexus Dashboard
   ansible.builtin.import_tasks: common/devices.yml
   when:
     - MD_Extended.vxlan.topology.switches | length > 0

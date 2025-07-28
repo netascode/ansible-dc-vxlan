@@ -27,7 +27,7 @@
     - switch_list.response.DATA | length > 0
     - (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
 
-- name: Remove Intra Fabric Links for vPC Peering
+- name: Remove Intra Fabric Links for vPC Peering in Nexus Dashboard
   cisco.dcnm.dcnm_links:
     state: replaced
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
@@ -39,7 +39,7 @@
     - switch_list.response.DATA | length > 0
     - (link_vpc_delete_mode is defined) and (link_vpc_delete_mode is true|bool)
 
-- name: Unmanaged Fabric Links
+- name: Unmanaged Fabric Links in Nexus Dashboard
   when:
     - switch_list.response.DATA | length > 0
     - (link_fabric_delete_mode is defined) and (link_fabric_delete_mode is true|bool)
@@ -48,7 +48,7 @@
       ansible.builtin.debug:
         msg: "Removing Unmanaged Fabric Links. This could take several minutes..."
 
-    - name: Query Links - with Src & Dst Fabric
+    - name: Query Links with Src & Dst Fabric from Nexus Dashboard
       cisco.dcnm.dcnm_links:
         state: query # choose from [merged, replaced, deleted, query]
         src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
@@ -60,7 +60,7 @@
       ansible.builtin.set_fact:
         required_links: []
 
-    - name: Create a list of links that already exist
+    - name: Create a List of Links That Already Exist
       cisco.nac_dc_vxlan.dtc.links_filter_and_remove:
         existing_links: "{{ result_links.response }}"
         fabric_links: "{{ vars_common_vxlan.fabric_links }}"
@@ -72,10 +72,12 @@
       ansible.builtin.set_fact:
         links_to_be_removed: []
       when: result_links.response is not defined
+
     # --------------------------------------------------------------------
-    # Manage VRF Configuration on NDFC
+    # Unmanage Fabric Links in Nexus Dashboard
     # --------------------------------------------------------------------
-    - name: Manage NDFC Fabric Links
+
+    - name: Unmanage Fabric Links in Nexus Dashboard
       cisco.dcnm.dcnm_links:
         src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
         config: "{{ links_to_be_removed['links_to_be_removed'] }}"

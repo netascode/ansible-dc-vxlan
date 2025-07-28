@@ -48,6 +48,8 @@
     mv
     "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_golden.json"
     "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_golden_previous.json"
+  register: mv_output
+  changed_when: mv_output.rc != 0
   when: golden_stat.stat.exists and check_roles['save_previous']
   delegate_to: localhost
 
@@ -57,5 +59,7 @@
     mv
     "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_extended.json"
     "{{ role_path }}/files/{{ MD_Extended.vxlan.fabric.name }}_service_model_extended_previous.json"
+  register: mv_output
+  changed_when: mv_output.rc != 0
   when: extended_stat.stat.exists and check_roles['save_previous']
   delegate_to: localhost

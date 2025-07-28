@@ -43,7 +43,7 @@
   when:
     - (inventory_delete_mode is defined) and (inventory_delete_mode is true|bool)
 
-- name: Remove Unmanaged NDFC Fabric Devices
+- name: Remove Unmanaged Fabric Devices from Nexus Dashboard
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_local.updated_inv_config_no_bootstrap['updated_inv_list'] }}"

@@ -46,9 +46,9 @@
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
-# Manage VRF Configuration on NDFC
+# Manage Fabric Policy Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
-- name: Manage NDFC Fabric Policies
+- name: Manage Fabric Policies in Nexus Dashboard
   cisco.dcnm.dcnm_policy:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     use_desc_as_key: true
