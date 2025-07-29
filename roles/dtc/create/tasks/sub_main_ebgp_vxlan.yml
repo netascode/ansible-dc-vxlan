@@ -33,7 +33,7 @@
   tags: "{{ nac_tags.create }}"
 
 - name: Create NDFC eBGP VXLAN Fabric
-  ansible.builtin.import_tasks: common/fabric.yml
+  ansible.builtin.import_tasks: ebgp_vxlan/fabric.yml
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"

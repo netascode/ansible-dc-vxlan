@@ -21,7 +21,7 @@
 
 ---
 
-- ansible.builtin.fail: msg="Service Model Not Defined.  Role cisco.nac_dc_eBGP_VXLAN.validate Must Be Called First"
+- ansible.builtin.fail: msg="Service Model Not Defined.  Role cisco.nac_dc_vxlan.validate Must Be Called First"
   when: MD is undefined
   delegate_to: localhost
 
@@ -48,6 +48,7 @@
 # --------------------------------------------------------------------
 # Build NDFC Fabric Switch Inventory List From Template
 # --------------------------------------------------------------------
+
 - name: Build NDFC Fabric Switch Inventory List From Template
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
