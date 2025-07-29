@@ -33,7 +33,7 @@
   tags: "{{ nac_tags.create }}"
 
 - name: Create NDFC eBGP VXLAN Fabric
-  ansible.builtin.import_tasks: ebgp_vxlan/fabric.yml
+  ansible.builtin.import_tasks: common/fabric.yml
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
@@ -100,9 +100,9 @@
 #     - vars_common_ebgp_vxlan.changes_detected_fabric_links
 #   tags: "{{ nac_tags.create_links }}"
 
-# - name: Manage NDFC VXLAN Fabric Policies
-#   ansible.builtin.import_tasks: common/policies.yml
-#   when:
-#     - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
-#     - vars_common_ebgp_vxlan.changes_detected_policy
-#   tags: "{{ nac_tags.create_policy }}"
+- name: Manage NDFC VXLAN Fabric Policies
+  ansible.builtin.import_tasks: common/policies.yml
+  when:
+    - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
+    - vars_common_ebgp_vxlan.changes_detected_policy
+  tags: "{{ nac_tags.create_policy }}"
