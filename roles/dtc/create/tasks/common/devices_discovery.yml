@@ -41,19 +41,13 @@
 - name: Add NDFC Fabric Devices {{ MD_Extended.vxlan.fabric.name }}
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ inventory_config_list }}"
+    config: "{{ vars_common_local.updated_inv_config['updated_inv_list'] }}"
     deploy: false
     save: false
     state: merged
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
-    inventory_config_list: >-
-      {{
-        vars_common_local.updated_inv_config['updated_inv_list']
-        if (vars_common_local.updated_inv_config['updated_inv_list'] | length > 0)
-        else vars_common_local.updated_inv_config_no_bootstrap['updated_inv_list']
-      }}
   when: MD_Extended.vxlan.topology.switches | length > 0
 
 - name: Allocate Underlay IP Address
@@ -61,10 +55,7 @@
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_vxlan.underlay_ip_address }}"
-  when: 
-    - MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined 
-    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation == True
+  when: MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined and MD_Extended.vxlan.underlay.general.manual_underlay_allocation == True
 
 # With the addition of the Allocate Underlay IP Address change above we
 # cannot call cisco.dcnm.dcnm_inventory with save: true until after
@@ -73,23 +64,15 @@
 - name: Call Inventory Module Again with Save set to True
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ inventory_config_list_save }}"
+    config: "{{ vars_common_local.updated_inv_config['updated_inv_list'] }}"
     deploy: false
     save: true
     state: merged
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
-    inventory_config_list_save: >-
-      {{
-        vars_common_local.updated_inv_config['updated_inv_list']
-        if (vars_common_local.updated_inv_config['updated_inv_list'] | length > 0)
-        else vars_common_local.updated_inv_config_no_bootstrap['updated_inv_list']
-      }}
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
-    - (vars_common_local.updated_inv_config is defined and vars_common_local.updated_inv_config['updated_inv_list'] is defined) or 
-      (vars_common_local.updated_inv_config_no_bootstrap is defined and vars_common_local.updated_inv_config_no_bootstrap['updated_inv_list'] is defined)
 
 - name: Create List of Switch Serial Numbers from Data Model
   ansible.builtin.set_fact:
