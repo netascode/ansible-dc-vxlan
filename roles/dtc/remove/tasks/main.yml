@@ -68,6 +68,7 @@
   when: >
     (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
     (vars_common_ebgp_vxlan.changes_detected_fabric_links or
+    vars_common_ebgp_vxlan.changes_detected_policy or
     vars_common_ebgp_vxlan.changes_detected_inventory)
   # Additional conditions to be added when needed:
   # vars_common_ebgp_vxlan.changes_detected_interfaces or
