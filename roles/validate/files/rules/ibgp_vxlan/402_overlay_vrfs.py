@@ -17,7 +17,8 @@ class Rule:
 
             if inventory["vxlan"].get("underlay", None):
                 if inventory["vxlan"].get("underlay").get("multicast", None):
-                    fabric_trm_status = inventory["vxlan"]["underlay"]["multicast"].get("trm_enable", False)
+                    if inventory["vxlan"].get("underlay").get("multicast").get("ipv4", None):
+                        fabric_trm_status = inventory["vxlan"]["underlay"]["multicast"]["ipv4"].get("trm_enable", False)
 
             vrf_keys = ['vxlan', 'overlay', 'vrfs']
             check = cls.data_model_key_check(inventory, vrf_keys)
@@ -54,7 +55,7 @@ class Rule:
                 if fabric_trm_status is False and current_vrf_trm_status is True:
                     results.append(
                         f"For vxlan.overlay.vrfs.{vrf['name']}.trm_enable to be enabled, "
-                        f"first vxlan.underlay.multicast.trm_enable must be enabled (true)."
+                        f"first vxlan.underlay.multicast.ipv4.trm_enable must be enabled (true)."
                     )
                     break
 
