@@ -34,16 +34,13 @@
 - ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
-- ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Manage Fabric Entry Point
   ansible.builtin.debug:
     msg:
-      - "----------------------------------------------------------------"
+      - "---------------------------------------------------------------"
       - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
-      - "----------------------------------------------------------------"
+      - "---------------------------------------------------------------"
 
 - name: Manage Fabric {{ MD_Extended.vxlan.fabric.name }} in NDFC
   cisco.dcnm.dcnm_fabric:
