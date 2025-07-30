@@ -37,7 +37,13 @@
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
   register: switch_list
   tags: "{{ nac_tags.remove }}"
-
+  
+- name: Remove Fabric vPC Peering
+  ansible.builtin.import_tasks: common/vpc_peers.yml
+  tags: "{{ nac_tags.remove_vpc_peers }}"
+  when:
+    - vars_common_ebgp_vxlan.changes_detected_vpc_peering
+    
 - name: Remove Fabric Switches
   ansible.builtin.import_tasks: common/switches.yml
   tags: "{{ nac_tags.remove_switches }}"
@@ -79,9 +85,3 @@
 #   tags: "{{ nac_tags.remove_links }}"
 #   when:
 #     - vars_common_ebgp_vxlan.changes_detected_fabric_links
-
-- name: Remove Fabric vPC Peering
-  ansible.builtin.import_tasks: common/vpc_peers.yml
-  tags: "{{ nac_tags.remove_vpc_peers }}"
-  when:
-    - vars_common_ebgp_vxlan.changes_detected_vpc_peering
