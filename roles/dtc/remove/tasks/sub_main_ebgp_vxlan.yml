@@ -44,12 +44,6 @@
   when:
     - vars_common_ebgp_vxlan.changes_detected_vpc_peering
     
-- name: Remove Fabric Switches
-  ansible.builtin.import_tasks: common/switches.yml
-  tags: "{{ nac_tags.remove_switches }}"
-  when:
-    - vars_common_ebgp_vxlan.changes_detected_inventory
-
 # - name: Remove Edge Connections
 #   ansible.builtin.import_tasks: common/edge_connections.yml
 #   tags: "{{ nac_tags.remove_edge_connections }}"
@@ -85,3 +79,9 @@
 #   tags: "{{ nac_tags.remove_links }}"
 #   when:
 #     - vars_common_ebgp_vxlan.changes_detected_fabric_links
+
+- name: Remove Fabric Switches
+  ansible.builtin.import_tasks: common/switches.yml
+  tags: "{{ nac_tags.remove_switches }}"
+  when:
+    - vars_common_ebgp_vxlan.changes_detected_inventory
