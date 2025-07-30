@@ -47,6 +47,7 @@
     - name: Config-Save for iBGP VXLAN Fabric - Failed
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
+      when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
 
 - name: Deploy for iBGP VXLAN Fabric
   cisco.dcnm.dcnm_rest:
@@ -83,6 +84,7 @@
     - name: Retrying Config-Save for iBGP VXLAN Fabric - Failed
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
+      when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
 
 - name: Retrying Deploy for iBGP VXLAN Fabric
   cisco.dcnm.dcnm_rest:
