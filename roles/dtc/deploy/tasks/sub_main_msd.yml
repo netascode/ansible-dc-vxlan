@@ -40,7 +40,6 @@
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       register: config_save
       when: MD_Extended.vxlan.fabric.type == 'MSD'
-      # TODO: Need to add logic to only save if changes are made
 
   rescue:
     - name: Config-Save for MSD Fabric - Failed
@@ -55,11 +54,10 @@
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
-  when: >
-      (MD_Extended.vxlan.fabric.type == 'MSD' and
-       MD_Extended.vxlan.topology.child_fabrics is defined and
-       MD_Extended.vxlan.topology.child_fabrics | length > 0)
-  # TODO: Need to add logic to only deploy if changes are made
+  when: 
+    - MD_Extended.vxlan.fabric.type == 'MSD'
+    - MD_Extended.vxlan.multisite.child_fabrics is defined
+    - MD_Extended.vxlan.multisite.child_fabrics | length > 0
 
 - name: Config-Save For MSD Child Fabrics
   cisco.nac_dc_vxlan.dtc.fabrics_config_save:
