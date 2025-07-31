@@ -77,7 +77,7 @@ class Rule:
     @classmethod
     def validate_vpc_peers_and_vtep_vip(cls, inventory):
         """
-        Validates VPC peers and ensures vtep_vip is defined and unique when manual_underlay_allocation is true.
+        Validates vPC peers and ensures vtep_vip is defined and unique when manual_underlay_allocation is true.
         """
         check = cls.data_model_key_check(inventory, ["vxlan", "topology", "vpc_peers"])
         if 'vpc_peers' not in check['keys_data']:
@@ -93,12 +93,12 @@ class Rule:
             vtep_vip = peer.get("vtep_vip", False)
             # Check if vtep_vip is defined
             if not vtep_vip:
-                cls.results.append(f"VPC peer '{peer_name}' is missing a defined vtep_vip address.")
+                cls.results.append(f"vPC peer '{peer_name}' is missing a defined vtep_vip address.")
                 continue
 
             # Check if vtep_vip is unique
             if vtep_vip in vtep_vip_list:
-                cls.results.append(f"Duplicate vtep_vip address '{vtep_vip}' found for VPC peer '{peer_name}'.")
+                cls.results.append(f"Duplicate vtep_vip address '{vtep_vip}' found for vPC peer '{peer_name}'.")
             else:
                 vtep_vip_list.add(vtep_vip)
 
@@ -114,7 +114,7 @@ class Rule:
     @classmethod
     def validate_fabric_links(cls, inventory, vpc_peers_list):
         """
-        Validates fabric links to ensure that IPv4 configuration is present for VPC peer connections.
+        Validates fabric links to ensure that IPv4 configuration is present for vPC peer connections.
         """
         check = cls.data_model_key_check(inventory, ["vxlan", "topology", "fabric_links"])
 

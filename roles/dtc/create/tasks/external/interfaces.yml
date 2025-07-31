@@ -28,99 +28,99 @@
       - "+     Manage Fabric Interfaces {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-# --------------------------------------------------------------------
-# Manage Interface Trunk Configuration on NDFC
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Manage Interface Trunk Configuration in Nexus Dashboard
+# ----------------------------------------------------------------------
 
-- name: Manage Interface Trunk
+- name: Manage Interface Trunk in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ interface_trunk }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.trunk.count > 0
 
-# --------------------------------------------------------------------
-# Manage Interface Access Routed Configuration on NDFC
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Manage Interface Access Routed Configuration in Nexus Dashboard
+# ----------------------------------------------------------------------
 
-- name: Manage Interface Access
+- name: Manage Interface Access in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ interface_access }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.access.count > 0
 
-# --------------------------------------------------------------------
-# Manage Interface Access Portchannel Configuration on NDFC
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Manage Interface Access Portchannel Configuration in Nexus Dashboard
+# ----------------------------------------------------------------------
 
-- name: Manage Access Portchannel Interface
+- name: Manage Access Portchannel Interface in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_external.interface_access_po }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.access_po.count > 0
 
-# --------------------------------------------------------------------
-# Manage Interface Trunk Portchannel Configuration on NDFC
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Manage Interface Trunk Portchannel Configuration in Nexus Dashboard
+# ----------------------------------------------------------------------
 
-- name: Manage Trunk Portchannel Interface
+- name: Manage Trunk Portchannel Interface in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_external.interface_trunk_po }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.trunk_po.count > 0
 
-# --------------------------------------------------------------------
-# Manage Interface Routed Configuration on NDFC
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Manage Interface Routed Configuration in Nexus Dashboard
+# ----------------------------------------------------------------------
 
-- name: Manage Interface Routed
+- name: Manage Interface Routed in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_external.interface_routed }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.routed.count > 0
 
-# --------------------------------------------------------------------
-# Manage Sub-Interface Routed Configuration on NDFC
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Manage Sub-Interface Routed Configuration in Nexus Dashboard
+# ----------------------------------------------------------------------
 
-- name: Manage Sub-interface Routed
+- name: Manage Sub-interface Routed in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_external.sub_interface_routed }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.routed_sub.count > 0
 
-# --------------------------------------------------------------------
-# Manage Interface Port-Channel Routed Configuration on NDFC
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Manage Interface Port-Channel Routed Configuration in Nexus Dashboard
+# ----------------------------------------------------------------------
 
-- name: Manage Interface Port-Channel Routed
+- name: Manage Interface Port-Channel Routed in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_external.interface_po_routed }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.routed_po.count > 0
 
-# --------------------------------------------------------------------
-# Manage Interface Loopback Configuration on NDFC
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Manage Interface Loopback Configuration in Nexus Dashboard
+# ----------------------------------------------------------------------
 
-- name: Manage NDFC Fabric Loopback
+- name: Manage NDFC Fabric Loopback in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_external.int_loopback_config }}"
   when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0
 
-# --------------------------------------------------------------------
-# Manage Interface vPC Configuration on NDFC
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Manage Interface vPC Configuration in Nexus Dashboard
+# ----------------------------------------------------------------------
 
-- name: Manage NDFC Fabric vPCs
+- name: Manage NDFC Fabric vPCs in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
@@ -129,10 +129,10 @@
 
 ## Will discuss with team and switchover to the below code and remove the above code
 # # --------------------------------------------------------------------
-# # Manage Interface All Configuration on NDFC
+# # Manage Interface All Configuration in Nexus Dashboard
 # # --------------------------------------------------------------------
 
-# - name: Manage Interface All
+# - name: Manage Interface All in Nexus Dashboard
 #   cisco.dcnm.dcnm_interface:
 #     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
 #     state: replaced
