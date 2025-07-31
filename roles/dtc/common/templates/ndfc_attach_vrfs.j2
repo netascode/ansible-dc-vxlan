@@ -3,7 +3,7 @@
 # DO NOT EDIT MANUALLY
 #
 {% set vxlan = MD_Extended.vxlan %}
-{% if vxlan.fabric.type == 'VXLAN_EVPN' %}
+{% if vxlan.fabric.type in ['VXLAN_EVPN', 'eBGP_VXLAN'] %}
 
 {# Include NDFC DC VXLAN EVPN Base Template #}
 {% include '/ndfc_vrfs/dc_vxlan_fabric/dc_vxlan_fabric_vrfs.j2' %}

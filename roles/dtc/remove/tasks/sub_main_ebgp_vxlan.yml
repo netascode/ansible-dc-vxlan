@@ -69,10 +69,10 @@
 #     - vars_common_vxlan.changes_detected_networks
 
 - name: Remove Fabric VRFs
-  ansible.builtin.import_tasks: vxlan/vrfs.yml
+  ansible.builtin.import_tasks: ebgp_vxlan/vrfs.yml
   tags: "{{ nac_tags.remove_vrfs }}"
   when:
-    - vars_common_vxlan.changes_detected_vrfs
+    - vars_common_ebgp_vxlan.changes_detected_vrfs
 
 # - name: Remove Fabric Links
 #   ansible.builtin.import_tasks: common/links.yml
