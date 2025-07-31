@@ -50,11 +50,11 @@
   when:
     - vars_common_ebgp_vxlan.changes_detected_policy
 
-# - name: Remove Fabric Interfaces
-#   ansible.builtin.import_tasks: common/interfaces.yml
-#   tags: "{{ nac_tags.remove_interfaces }}"
-#   when:
-#     - vars_common_vxlan.changes_detected_interfaces
+- name: Remove Fabric Interfaces
+  ansible.builtin.import_tasks: common/interfaces.yml
+  tags: "{{ nac_tags.remove_interfaces }}"
+  when:
+    - vars_common_ebgp_vxlan.changes_detected_interfaces
 
 # - name: Remove Fabric Networks
 #   ansible.builtin.import_tasks: vxlan/networks.yml
