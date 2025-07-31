@@ -54,7 +54,7 @@
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
-  when: 
+  when:
     - MD_Extended.vxlan.fabric.type == 'MSD'
     - MD_Extended.vxlan.multisite.child_fabrics is defined
     - MD_Extended.vxlan.multisite.child_fabrics | length > 0
