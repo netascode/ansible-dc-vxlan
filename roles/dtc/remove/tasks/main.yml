@@ -75,6 +75,7 @@
   # Additional conditions to be added when needed:
   # vars_common_ebgp_vxlan.changes_detected_interfaces or
   # vars_common_ebgp_vxlan.changes_detected_networks or
+  # vars_common_ebgp_vxlan.changes_detected_policy or
 
 
 - name: Mark Stage Role Remove Completed
