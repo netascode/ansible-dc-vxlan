@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -37,12 +37,18 @@
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
   register: switch_list
   tags: "{{ nac_tags.remove }}"
-
+  
+- name: Remove Fabric vPC Peering
+  ansible.builtin.import_tasks: common/vpc_peers.yml
+  tags: "{{ nac_tags.remove_vpc_peers }}"
+  when:
+    - vars_common_ebgp_vxlan.changes_detected_vpc_peering
+    
 # - name: Remove Edge Connections
 #   ansible.builtin.import_tasks: common/edge_connections.yml
 #   tags: "{{ nac_tags.remove_edge_connections }}"
 #   when:
-#     - vars_common_vxlan.changes_detected_edge_connections
+#     - vars_common_ebgp_vxlan.changes_detected_edge_connections
 
 - name: Remove Fabric Policy
   ansible.builtin.import_tasks: common/policy.yml
@@ -72,13 +78,7 @@
 #   ansible.builtin.import_tasks: common/links.yml
 #   tags: "{{ nac_tags.remove_links }}"
 #   when:
-#     - vars_common_vxlan.changes_detected_fabric_links
-
-# - name: Remove Fabric vPC Peering
-#   ansible.builtin.import_tasks: common/vpc_peers.yml
-#   tags: "{{ nac_tags.remove_vpc_peers }}"
-#   when:
-#     - vars_common_vxlan.changes_detected_vpc_peering
+#     - vars_common_ebgp_vxlan.changes_detected_fabric_links
 
 - name: Remove Fabric Switches
   ansible.builtin.import_tasks: common/switches.yml

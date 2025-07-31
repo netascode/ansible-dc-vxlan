@@ -48,7 +48,6 @@
 # --------------------------------------------------------------------
 # Build NDFC Fabric Switch Inventory List From Template
 # --------------------------------------------------------------------
-
 - name: Build NDFC Fabric Switch Inventory List From Template
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
