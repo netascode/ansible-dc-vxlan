@@ -70,12 +70,12 @@
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
 
-# - name: Manage NDFC eBGP VXLAN Fabric Interfaces
-#   ansible.builtin.import_tasks: common/interfaces.yml
-#   when:
-#     - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
-#     - vars_common_ebgp_vxlan.changes_detected_interfaces
-#   tags: "{{ nac_tags.create_interfaces }}"
+- name: Manage NDFC eBGP VXLAN Fabric Interfaces
+  ansible.builtin.import_tasks: common/interfaces.yml
+  when:
+    - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
+    - vars_common_ebgp_vxlan.changes_detected_interfaces
+  tags: "{{ nac_tags.create_interfaces }}"
 
 # - name: Manage NDFC Fabric Inter Links
 #   ansible.builtin.import_tasks: common/edge_connections.yml
