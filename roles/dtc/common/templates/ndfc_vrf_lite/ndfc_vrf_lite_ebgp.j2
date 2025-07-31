@@ -193,14 +193,13 @@ feature bfd
 !
 {% endif %}
 !
-
 {% if item.vrf.lower() == "default" %}
 router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
-  {# If GRT #}
+  {# GRT #}
   {{- vrf_lite_ebgp_vrf_config(item, switch_item, defaults) -}}
 {% else %}
 router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
+  {# Other VRFs #}
   vrf {{ item.vrf }}
-  {# If other vrfs #}{# If not GRT #}
-      {{- vrf_lite_ebgp_vrf_config(item, switch_item, defaults) | indent(2)-}}
+  {{- vrf_lite_ebgp_vrf_config(item, switch_item, defaults) | indent(2) -}}
 {% endif %}

@@ -17,9 +17,9 @@
     {%- set _ = static_option.append(next_hop.route_preference | string ) -%}
   {% endif %}
   {% if static_option | length > 0 %}
-{{address_family}} route {{ static_route.prefix }} {{ next_hop.ip }} {{ static_option | join(" ") }}
+{{ address_family }} route {{ static_route.prefix }} {{ next_hop.ip }} {{ static_option | join(" ") }}
   {% else %}
-{{address_family}} route {{ static_route.prefix }} {{ next_hop.ip }}
+{{ address_family }} route {{ static_route.prefix }} {{ next_hop.ip }}
   {% endif %}
 {% endmacro %}
 
