@@ -78,13 +78,13 @@
 - name: Build vPC Peering Parameters
   ansible.builtin.import_tasks: common/ndfc_vpc_peering_pairs.yml
 
-# ## --------------------------------------------------------------------
-# ## Build NDFC Fabric VRFs Attach List From Template
-# ## --------------------------------------------------------------------
-# #
-# #- name: Build NDFC Fabric VRFs Attach List From Template
-# #  ansible.builtin.import_tasks: vxlan/ndfc_vrfs.yml
-# #
+# --------------------------------------------------------------------
+# Build NDFC Fabric VRFs Attach List From Template
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric VRFs Attach List From Template
+  ansible.builtin.import_tasks: vxlan/ndfc_vrfs.yml
+
 # ## --------------------------------------------------------------------
 # ## Build NDFC Fabric Networks Attach List From Template
 # ## --------------------------------------------------------------------
@@ -209,7 +209,7 @@
 #         changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed }}"
         changes_detected_vpc_peering: "{{ changes_detected_vpc_peering }}"
         changes_detected_vpc_domain_id_resource: "{{ changes_detected_vpc_domain_id_resource }}"
-# #        changes_detected_vrfs: "{{ changes_detected_vrfs }}"
+        changes_detected_vrfs: "{{ changes_detected_vrfs }}"
         fabric_config: "{{ fabric_config }}"
 #         fabric_links: "{{ fabric_links }}"
 #         edge_connections: "{{ edge_connections }}"
@@ -232,8 +232,8 @@
         updated_inv_config_no_bootstrap: "{{ updated_inv_config_no_bootstrap }}"
         vpc_peering: "{{ vpc_peering }}"
         vpc_domain_id_resource: "{{ vpc_domain_id_resource }}"
-# #        vrf_config: "{{ vrf_config }}"
-# #        vrf_attach_config: "{{ vrf_attach_config }}"
+        vrf_config: "{{ vrf_config }}"
+        vrf_attach_config: "{{ vrf_attach_config }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:
@@ -257,7 +257,7 @@
 #       - "+     ----- All Interfaces -----"
 #       - "+     All Interfaces Changes Detected -       [ {{ vars_common_ebgp_vxlan.changes_detected_interfaces }} ]"
 #       - "+     ----- All Interfaces -----"
-# #      - "+     VRFs Changes Detected -                 [ {{ vars_common_ebgp_vxlan.changes_detected_vrfs }} ]"
+      - "+     VRFs Changes Detected -                 [ {{ vars_common_ebgp_vxlan.changes_detected_vrfs }} ]"
 # #      - "+     Networks Changes Detected -             [ {{ vars_common_ebgp_vxlan.changes_detected_networks }} ]"
       - "+     Policy Changes Detected -               [ {{ vars_common_ebgp_vxlan.changes_detected_policy }} ]"
 #       - "+     Fabric Links Changes Detected -         [ {{ vars_common_ebgp_vxlan.changes_detected_fabric_links }} ]"
