@@ -21,17 +21,20 @@
 
 ---
 
-- name: Choose vars_common Based On Fabric Type
+- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
@@ -42,19 +45,19 @@
       - "+     Manage Fabric Links {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Query Links - with Src & Dst Fabric
+- name: Query Links with Src & Dst Fabrics in Nexus Dashboard
   cisco.dcnm.dcnm_links:
-    state: query # choose from [merged, replaced, deleted, query]
+    state: query
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config:
-      - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}" # Destination fabric
+      - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
   register: result_links
 
 - name: Create empty result List
   ansible.builtin.set_fact:
     required_links: []
 
-- name: Create a list of links that already exist
+- name: Create a List of Links that Already Exist from Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.existing_links_check:
     existing_links: "{{ result_links.response }}"
     fabric_links: "{{ fabric_links }}"
@@ -62,9 +65,9 @@
   when: result_links.response is defined
 
 # --------------------------------------------------------------------
-# Manage VRF Configuration on NDFC
+# Manage Links Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
-- name: Manage NDFC Fabric Links
+- name: Manage Fabric Links in Nexus Dashboard
   cisco.dcnm.dcnm_links:
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ required_links['required_links'] }}"

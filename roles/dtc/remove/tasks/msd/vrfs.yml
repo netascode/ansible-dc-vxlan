@@ -20,7 +20,9 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- ansible.builtin.debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
+- name: Display Removing Unmanaged Fabric VRFs Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged Fabric VRFs. This could take several minutes..."
   when:
     - (multisite_vrf_delete_mode is defined) and (multisite_vrf_delete_mode is true|bool)
 
@@ -35,8 +37,9 @@
     vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
   vars:
     update_data:
-        changes_detected_vrfs: "{{ changes_detected_vrfs if vars_common_msd.changes_detected_vrfs is not defined else vars_common_msd.changes_detected_vrfs }}"
-        vrf_config: "{{ vrf_config }}"
+      changes_detected_vrfs: >
+        "{{ changes_detected_vrfs if vars_common_msd.changes_detected_vrfs is not defined else vars_common_msd.changes_detected_vrfs }}"
+      vrf_config: "{{ vrf_config }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:
@@ -61,7 +64,7 @@
 #    - multisite_vrf_delete_mode is true | bool
 #    - vars_common_msd.changes_detected_vrfs
 
-- name: Remove Unmanaged Fabric VRFs
+- name: Remove Unmanaged Fabric VRFs in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_vrfs:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     msite_data: "{{ MD_Multisite }}"
@@ -70,8 +73,10 @@
     - multisite_vrf_delete_mode is defined
     - multisite_vrf_delete_mode is true | bool
     - vars_common_msd.changes_detected_vrfs
+    - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
 
-- ansible.builtin.debug:
+- name: Skip Remove Unmanaged Fabric VRFs Task If multisite_vrf_delete_mode is False
+  ansible.builtin.debug:
     msg:
       - "------------------------------------------------------------------------------------------------------------------"
       - "+ SKIPPING Remove Unmanaged MultiSite Fabric VRFs task because multisite_vrf_delete_mode flag is set to False    +"

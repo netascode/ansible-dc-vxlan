@@ -28,17 +28,26 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.validate]             +"
       - "----------------------------------------------------------------"
 
-- ansible.builtin.debug: msg="Role Path - {{ role_path }}"
+- name: Display Role Path
+  ansible.builtin.debug:
+    msg: "Role Path - {{ role_path }}"
 
-- ansible.builtin.debug: msg="Inventory Directory - {{ inventory_dir }}"
+- name: Display Inventory Directory
+  ansible.builtin.debug:
+    msg: "Inventory Directory - {{ inventory_dir }}"
 
 - name: Validate NDFC Service Model Data
-  ansible.builtin.debug: msg="Calling Role Validate - nac_dc_vxlan.validate"
+  ansible.builtin.debug:
+    msg: "Calling Role Validate - nac_dc_vxlan.validate"
 
-- ansible.builtin.debug: msg="Workflow is Direct to Device (DTD)"
+- name: Display Workflow Type - Direct to Device (DTD)
+  ansible.builtin.debug:
+    msg: "Workflow is Direct to Device (DTD)"
   when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.nxos.nxos"
 
-- ansible.builtin.debug: msg="Workflow is Direct to Controller (DTC)"
+- name: Display Workflow Type - Direct to Controller (DTC)
+  ansible.builtin.debug:
+    msg: "Workflow is Direct to Controller (DTC)"
   when: hostvars[inventory_hostname]['ansible_network_os'] == "cisco.dcnm.dcnm"
 
 - name: Check for Schema Path Being Defined
@@ -75,7 +84,8 @@
   delegate_to: localhost
 
 - name: Stat Factory Defaults
-  ansible.builtin.stat: path="{{ role_path }}/files/defaults.yml"
+  ansible.builtin.stat:
+    path: "{{ role_path }}/files/defaults.yml"
   register: factory_defaults_file
   delegate_to: localhost
 

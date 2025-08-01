@@ -20,7 +20,9 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- ansible.builtin.debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
+- name: Display Removing Unmanaged Fabric Networks Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged Fabric Networks. This could take several minutes..."
   when:
     - (multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true|bool)
 
@@ -35,8 +37,9 @@
     vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
   vars:
     update_data:
-        changes_detected_networks: "{{ changes_detected_networks if vars_common_msd.changes_detected_networks is not defined else vars_common_msd.changes_detected_networks }}"
-        net_config: "{{ net_config }}"
+      changes_detected_networks: >
+        "{{ changes_detected_networks if vars_common_msd.changes_detected_networks is not defined else vars_common_msd.changes_detected_networks }}"
+      net_config: "{{ net_config }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:
@@ -61,7 +64,7 @@
 #     - multisite_network_delete_mode is true | bool
 #     - vars_common_msd.changes_detected_networks
 
-- name: Remove Unmanaged Fabric Networks
+- name: Remove Unmanaged Fabric Networks in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_networks:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     msite_data: "{{ MD_Multisite }}"
@@ -70,8 +73,10 @@
     - multisite_network_delete_mode is defined
     - multisite_network_delete_mode is true | bool
     - vars_common_msd.changes_detected_networks
+    - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
 
-- ansible.builtin.debug:
+- name: Skip Remove Unmanaged Fabric Networks Task If multisite_network_delete_mode is False
+  ansible.builtin.debug:
     msg:
       - "---------------------------------------------------------------------------------------------------------------"
       - "+ SKIPPING Remove Unmanaged Fabric Networks task because multisite_network_delete_mode flag is set to False   +"

@@ -21,13 +21,15 @@
 
 ---
 
-- ansible.builtin.fail: msg="Service Model Not Defined. Role cisco.nac_dc_vxlan.validate Must Be Called First"
+- name: Fail if Data Model is not defined
+  ansible.builtin.fail:
+    msg: "Service Model Not Defined. Role cisco.nac_dc_vxlan.validate Must Be Called First"
   when: MD is undefined
   delegate_to: localhost
 
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Remove all files from the previous run if run_map requires it
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 - name: Set path_name Var
   ansible.builtin.set_fact:
     path_name: "{{ role_path }}/files/msd/{{ MD_Extended.vxlan.fabric.name }}/"
@@ -38,57 +40,57 @@
   when:
     - not run_map_read_result.diff_run or ((force_run_all is defined) and (force_run_all is true|bool))
 
-# --------------------------------------------------------------------
-# Build Create Fabric Parameter List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build MSD Fabric List From Template
+# ------------------------------------------------------------------------
 
-- name: Build Fabric Create Parameters
+- name: Build MSD Fabric List From Template
   ansible.builtin.import_tasks: common/ndfc_fabric.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Child Fabric Inventory List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build MSD Child Fabric Inventory List From Template
+# ------------------------------------------------------------------------
 
-- name: Build NDFC Child Fabric Inventory List From Template
+- name: Build MSD Child Fabric Inventory List From Template
   ansible.builtin.import_tasks: msd/ndfc_child_fabrics.yml
 
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Build NDFC Child Fabric BGW Anycast VIP List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
-- name: Build NDFC Child Fabric BGW Anycast VIP List From Template
+- name: Build MSD Child Fabric BGW Anycast VIP List From Template
   ansible.builtin.import_tasks: msd/ndfc_bgw_anycast_vip.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Fabric VRFs Attach List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build MSD Fabric VRFs Attach List From Template
+# ------------------------------------------------------------------------
 
-# - name: Build NDFC Fabric VRFs Attach List From Template
+# - name: Build MSD Fabric VRFs Attach List From Template
 #   ansible.builtin.import_tasks: msd/ndfc_vrfs.yml
 
-# --------------------------------------------------------------------
-# Build NDFC Fabric Networks Attach List From Template
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Build MSD Fabric Networks Attach List From Template
+# ------------------------------------------------------------------------
 
-# - name: Build NDFC Fabric Networks Attach List From Template
+# - name: Build MSD Fabric Networks Attach List From Template
 #   ansible.builtin.import_tasks: msd/ndfc_networks.yml
 
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 - name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_msd:
-        changes_detected_fabric: "{{ changes_detected_fabric }}"
-        changes_detected_bgw_anycast_vip: "{{ changes_detected_bgw_anycast_vip }}"
-        # changes_detected_vrfs: "{{ changes_detected_vrfs }}"
-        # changes_detected_networks: "{{ changes_detected_networks }}"
-        fabric_config: "{{ fabric_config }}"
-        bgw_anycast_vip: "{{ bgw_anycast_vip }}"
-        # vrf_config: "{{ vrf_config }}"
-        # net_config: "{{ net_config }}"
-        # Check with Matt and Pete on how to handle this for MSD
-        # vrf_attach_config: "{{ vrf_attach_config }}"
+      changes_detected_fabric: "{{ changes_detected_fabric }}"
+      changes_detected_bgw_anycast_vip: "{{ changes_detected_bgw_anycast_vip }}"
+      # changes_detected_vrfs: "{{ changes_detected_vrfs }}"
+      # changes_detected_networks: "{{ changes_detected_networks }}"
+      fabric_config: "{{ fabric_config }}"
+      bgw_anycast_vip: "{{ bgw_anycast_vip }}"
+      # vrf_config: "{{ vrf_config }}"
+      # net_config: "{{ net_config }}"
+      # Check with Matt and Pete on how to handle this for MSD
+      # vrf_attach_config: "{{ vrf_attach_config }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:

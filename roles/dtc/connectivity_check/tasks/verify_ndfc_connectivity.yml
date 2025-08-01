@@ -21,7 +21,7 @@
 
 ---
 
-- name: Verify Connection to NDFC {{ ansible_host }} on Port {{ ansible_httpapi_port | default(443) }}
+- name: Verify Connection to Nexus Dashboard
   ansible.builtin.wait_for:
     # The ansible_host here could be an IPv4 or IPv6 address
     # The replace filters are used to remove square brackets from IPv6 addresses
@@ -33,5 +33,7 @@
     sleep: 5
     timeout: 30
     state: started
-    msg: Timed out waiting to connect to NDFC at https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}. Check the NDFC is reachable from the Ansible Controller.
+    msg: >
+      Timed out waiting to connect to NDFC at https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}.
+      Check the Nexus Dashboard is reachable from the Ansible Controller.
   delegate_to: localhost

@@ -29,10 +29,12 @@
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+- name: Display Device Configuration Method
+  ansible.builtin.debug:
+    msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"
   tags: "{{ nac_tags.create }}"
 
-- name: Create NDFC MSD Fabric
+- name: Create MSD Fabric in Nexus Dashboard
   ansible.builtin.import_tasks: common/fabric.yml
   when:
     - MD_Extended.vxlan.fabric.name is defined
@@ -40,7 +42,7 @@
     - vars_common_msd.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
-- name: Manage NDFC MSD Fabric Child Fabrics
+- name: Manage MSD Fabric Child Fabrics in Nexus Dashboard
   ansible.builtin.import_tasks: msd/child_fabrics.yml
   when:
     - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
@@ -52,7 +54,7 @@
   register: MD_Multisite
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
-- name: Create Border Gateway Site Anycast VIP Loopback in NDFC
+- name: Create Border Gateway Site Anycast VIP Loopback in Nexus Dashboard
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
@@ -64,11 +66,11 @@
       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["true", true])
       | map(attribute='key')
-      | list 
+      | list
       | length > 0) and
       (vars_common_msd.bgw_anycast_vip | length > 0)
 
-- name: Manage NDFC MSD Fabric VRFs and Networks
+- name: Manage MSD Fabric VRFs and Networks in Nexus Dashboard
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
   when:
     - MD_Extended.vxlan.multisite.overlay is defined
