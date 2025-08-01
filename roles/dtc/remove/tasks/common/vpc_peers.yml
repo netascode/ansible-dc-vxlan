@@ -20,6 +20,20 @@
 # SPDX-License-Identifier: MIT
 ---
 
+- name: Choose vars_common Based On Fabric Type
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_msd }}"
+  when: MD_Extended.vxlan.fabric.type == "MSD"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_isn }}"
+  when: MD_Extended.vxlan.fabric.type == "ISN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_external }}"
+  when: MD_Extended.vxlan.fabric.type == "External"
+
 - ansible.builtin.debug: msg="Removing Unmanaged vPC Peering. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
@@ -28,9 +42,9 @@
 - name: Remove Unmanaged vPC Peering
   cisco.dcnm.dcnm_vpc_pair:
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    deploy: true
+    deploy: false
     state: overridden
-    config: "{{ vars_common_vxlan.vpc_peering }}"
+    config: "{{ vars_common_local.vpc_peering }}"
   vars:
       ansible_command_timeout: 1000
       ansible_connect_timeout: 1000
