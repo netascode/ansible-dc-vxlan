@@ -26,6 +26,8 @@ factory_defaults:
       ebgp:
         bgp_asn_mode: Multi-AS
         leaf_same_bgp_asn: false
+      ibgp:
+        tcam_allocation: true
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
