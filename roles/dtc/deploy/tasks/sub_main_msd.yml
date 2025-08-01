@@ -69,6 +69,9 @@
 - name: Deploy For MSD Child Fabrics
   cisco.nac_dc_vxlan.dtc.fabrics_deploy:
     fabrics: "{{ child_fabrics_vrfs_networks_changed }}"
+  vars:
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
   when: >
     MD_Extended.vxlan.fabric.type == 'MSD' and
     (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0)

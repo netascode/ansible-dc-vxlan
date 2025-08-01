@@ -40,6 +40,7 @@ class ActionModule(ActionBase):
         results['diff_run'] = True
 
         model_data = self._task.args.get('model_data')
+        play_tags = self._task.args.get('play_tags')
         fabric_name = model_data['vxlan']['fabric']['name']
 
         if 'dtc' in task_vars['role_path']:
@@ -60,9 +61,21 @@ class ActionModule(ActionBase):
 
         # Check run map flags and if any of then is false set diff_run to false
         # to force all sections to run.
+        # Set diff_run to false for any of the following conditions:
+        #   - Any of the runmap flags is false
+        #   - play_tags (ansible_run_tags) is something other then 'all'
+        #
         for role in ['role_validate_completed', 'role_create_completed', 'role_deploy_completed', 'role_remove_completed']:
             if not previous_run_map.get(role):
                 results['diff_run'] = False
                 break
+        if play_tags and 'all' not in play_tags:
+            results['diff_run'] = False
+
+        # If diff_run is false display an ansible warning message
+        if not results['diff_run']:
+            display.warning(
+                f"Diff Run Feature is Disabled on this run for Fabric {fabric_name} as one or more run map flags are `false` or `ansible_run_tags` is not 'all'."
+            )
 
         return results
