@@ -75,7 +75,8 @@ class ActionModule(ActionBase):
         # If diff_run is false display an ansible warning message
         if not results['diff_run']:
             display.warning(
-                f"Diff Run Feature is Disabled on this run for Fabric {fabric_name} as one or more run map flags are `false` or `ansible_run_tags` is not 'all'."
+                f"Diff Run Feature is Disabled on this run for Fabric {fabric_name} "
+                f"as one or more run map flags are `false` or `ansible_run_tags` is not 'all'."
             )
 
         return results
