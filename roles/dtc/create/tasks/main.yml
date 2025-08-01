@@ -40,6 +40,7 @@
     (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
     (vars_common_ebgp_vxlan.changes_detected_fabric) or
     (vars_common_ebgp_vxlan.changes_detected_inventory) or
+    (vars_common_ebgp_vxlan.changes_detected_interfaces) or
     (vars_common_ebgp_vxlan.changes_detected_policy)
 
 - name: Import ISN Role Tasks
