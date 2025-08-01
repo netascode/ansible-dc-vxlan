@@ -30,7 +30,7 @@
 # If run_map_read_result.diff_run is true then we know that the changes_detected_vrfs flag
 # was set in the dtc.common.tasks.msd.ndfc_vrfs.yml tasks.
 #
-# Otherwise, we set the flag to True to ensur the VRFs will be removed when the diff_run
+# Otherwise, we set the flag to True to ensure the VRFs will be removed when the diff_run
 # feature is not enabled.
 - name: If run_map_read_result.diff_run is false then set changes_detected_networks to true
   ansible.builtin.set_fact:
