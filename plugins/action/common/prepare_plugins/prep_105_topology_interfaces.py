@@ -95,11 +95,12 @@ class PreparePlugin:
 
             if switch.get('interface_breakouts'):
                 for breakout in switch.get('interface_breakouts'):
-                    if breakout.get('to'):
-                        nb_int = breakout['to'] - breakout['from']
-                        model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += nb_int + 1
-                    else:
-                        model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += 1
+                    if not breakout.get('enable_during_bootstrap'):
+                        if breakout.get('to'):
+                            nb_int = breakout['to'] - breakout['from']
+                            model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += nb_int + 1
+                        else:
+                            model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += 1
 
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
