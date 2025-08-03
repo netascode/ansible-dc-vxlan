@@ -62,9 +62,6 @@ jobs:
       run: |
         pip install --upgrade pip
 
-    - name: Install packaging
-      run: pip install packaging
-
     - name: Install ansible-base (v${{ matrix.ansible }})
       run: pip install https://github.com/ansible/ansible/archive/v${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
