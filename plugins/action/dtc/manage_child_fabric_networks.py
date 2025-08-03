@@ -179,7 +179,7 @@ class ActionModule(ActionBase):
                             dm_key = map_info['dm_key']
                             default = map_info['default']
                             template_value = ndfc_net_template_config.get(template_key, default)
-                            dm_value = ndfc_net_template_config.get(dm_key, default)
+                            dm_value = network_child_fabric.get(dm_key, default)
                             # Normalize boolean/string values for comparison
                             if isinstance(default, bool):
                                 template_value = str(template_value).lower()

@@ -25,7 +25,7 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.10.14
       uses: actions/setup-python@v5
       with:
@@ -61,6 +61,9 @@ jobs:
     - name: Upgrade pip
       run: |
         pip install --upgrade pip
+
+    - name: Install packaging
+      run: pip install packaging
 
     - name: Install ansible-base (v${{ matrix.ansible }})
       run: pip install https://github.com/ansible/ansible/archive/v${{ matrix.ansible }}.tar.gz --disable-pip-version-check
