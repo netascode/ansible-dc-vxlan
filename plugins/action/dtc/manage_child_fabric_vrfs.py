@@ -31,6 +31,7 @@ from ansible.errors import AnsibleFileNotFound
 from ansible_collections.cisco.nac_dc_vxlan.plugins.filter import version_compare
 
 
+import re
 import json
 
 display = Display()
@@ -40,6 +41,7 @@ MSD_CHILD_FABRIC_VRF_TEMPLATE_PATH = "/../common/templates/ndfc_vrfs/msd_fabric/
 MSD_CHILD_FABRIC_VRF_TEMPLATE = "/msd_child_fabric_vrf.j2"
 
 
+# Currently supported VRF template config keys and their mapping to data model keys
 VRF_TEMPLATE_CONFIG_MAP = {
     'advertiseHostRouteFlag': {'dm_key': 'adv_host_routes', 'default': ''},
     'advertiseDefaultRouteFlag': {'dm_key': 'adv_default_routes', 'default': ''},
@@ -70,6 +72,13 @@ class ActionModule(ActionBase):
 
         nd_version = self._task.args["nd_version"]
         msite_data = self._task.args["msite_data"]
+
+        nd_major_minor_patch = None
+        nd_patch_letter = None
+        match = re.match(r'^(\d+\.\d+\.\d+)(l)?$', nd_version)
+        if match:
+            nd_major_minor_patch = match.group(1)
+            nd_patch_letter = match.group(2)
 
         vrfs = msite_data['overlay_attach_groups']['vrfs']
         vrf_attach_groups_dict = msite_data['overlay_attach_groups']['vrf_attach_groups']
@@ -218,10 +227,12 @@ class ActionModule(ActionBase):
                                 },
                             )
 
+                            import epdb ; epdb.st()  # noqa: E702
+
                             # Attempt to find and read the template file
                             role_path = task_vars.get('role_path')
                             version = '3.2'
-                            if version_compare.version_compare(nd_version, '12.2.1', '<='):
+                            if version_compare.version_compare(nd_major_minor_patch, '12.2.1', '<='):
                                 version = '3.1'
                             template_path = f"{role_path}{MSD_CHILD_FABRIC_VRF_TEMPLATE_PATH}{version}{MSD_CHILD_FABRIC_VRF_TEMPLATE}"
 
@@ -231,8 +242,6 @@ class ActionModule(ActionBase):
                                     template_content = template_file.read()
                             except (IOError, AnsibleFileNotFound) as e:
                                 return {'failed': True, 'msg': f"Template file not found or unreadable: {str(e)}"}
-
-                            import epdb ; epdb.st()  # noqa: E702
 
                             # Create a Templar instance
                             templar = Templar(loader=self._loader, variables=vrf_vars)
