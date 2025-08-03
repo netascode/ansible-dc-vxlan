@@ -28,6 +28,7 @@ from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ansible.template import Templar
 from ansible.errors import AnsibleFileNotFound
+from ansible_collections.cisco.nac_dc_vxlan.plugins.filter import version_compare
 
 
 import json
@@ -35,7 +36,28 @@ import json
 display = Display()
 
 # Path to Jinja template files relative to create role
-MSD_CHILD_FABRIC_VRF_TEMPLATE = "/../common/templates/ndfc_vrfs/msd_fabric/child_fabric/msd_child_fabric_vrf.j2"
+MSD_CHILD_FABRIC_VRF_TEMPLATE_PATH = "/../common/templates/ndfc_vrfs/msd_fabric/child_fabric/"
+MSD_CHILD_FABRIC_VRF_TEMPLATE = "/msd_child_fabric_vrf.j2"
+
+
+VRF_TEMPLATE_CONFIG_MAP = {
+    'advertiseHostRouteFlag': {'dm_key': 'adv_host_routes', 'default': ''},
+    'advertiseDefaultRouteFlag': {'dm_key': 'adv_default_routes', 'default': ''},
+    'configureStaticDefaultRouteFlag': {'dm_key': 'config_static_default_route', 'default': ''},
+    'bgpPassword': {'dm_key': 'bgp_password', 'default': ''},
+    'bgpPasswordKeyType': {'dm_key': 'bgp_password_key_type', 'default': ''},
+    'ENABLE_NETFLOW': {'dm_key': 'netflow_enable', 'default': False},
+    'NETFLOW_MONITOR': {'dm_key': 'netflow_monitor', 'default': ''},
+    'trmEnabled': {'dm_key': 'trm_enable', 'default': False},
+    'loopbackNumber': {'dm_key': 'rp_loopback_id', 'default': ''},
+    'rpAddress': {'dm_key': 'rp_address', 'default': ''},
+    'isRPAbsent': {'dm_key': 'no_rp', 'default': False},
+    'isRPExternal': {'dm_key': 'rp_external', 'default': False},
+    'L3VniMcastGroup': {'dm_key': 'underlay_mcast_ip', 'default': ''},
+    'multicastGroup': {'dm_key': 'overlay_multicast_group', 'default': ''},
+    'routeTargetImportMvpn': {'dm_key': 'import_mvpn_rt', 'default': ''},
+    'routeTargetExportMvpn': {'dm_key': 'export_mvpn_rt', 'default': ''}
+}
 
 
 class ActionModule(ActionBase):
@@ -46,6 +68,7 @@ class ActionModule(ActionBase):
         results['failed'] = False
         results['child_fabrics_changed'] = []
 
+        nd_version = self._task.args["nd_version"]
         msite_data = self._task.args["msite_data"]
 
         vrfs = msite_data['overlay_attach_groups']['vrfs']
@@ -94,7 +117,8 @@ class ActionModule(ActionBase):
                         elif len(vrf_child_fabric) == 1:
                             vrf_child_fabric = vrf_child_fabric[0]
 
-                        # Need to clean these up and make them more dynamic
+                        # Need to clean these up and make them more
+                        # Check if fabric settings are properly enabled
                         if vrf_child_fabric.get('netflow_enable'):
                             if child_fabric_attributes['ENABLE_NETFLOW'] == 'false':
                                 error_msg = (
@@ -145,24 +169,41 @@ class ActionModule(ActionBase):
                         # Check for differences between the data model and the template config from NDFC for the
                         # attributes that are configurable by the user in a child fabric.
                         # Note: This excludes IPv6 related attributes at this time as they are not yet supported fully in the data model.
-                        if (
-                            (ndfc_vrf_template_config['advertiseHostRouteFlag'] != str(vrf_child_fabric.get('adv_host_routes', '')).lower()) or
-                            (ndfc_vrf_template_config['advertiseDefaultRouteFlag'] != str(vrf_child_fabric.get('adv_default_routes', '')).lower()) or
-                            (ndfc_vrf_template_config['configureStaticDefaultRouteFlag'] != str(vrf_child_fabric.get('config_static_default_route', '')).lower()) or     # noqa: E501
-                            (ndfc_vrf_template_config['bgpPassword'] != vrf_child_fabric.get('bgp_password', '')) or
-                            (ndfc_vrf_template_config.get('bgpPasswordKeyType', '') != vrf_child_fabric.get('bgp_password_key_type', '')) or
-                            (ndfc_vrf_template_config['ENABLE_NETFLOW'] != str(vrf_child_fabric.get('netflow_enable', False)).lower()) or
-                            (ndfc_vrf_template_config['NETFLOW_MONITOR'] != vrf_child_fabric.get('netflow_monitor', '')) or
-                            (ndfc_vrf_template_config['trmEnabled'] != str(vrf_child_fabric.get('trm_enable', False)).lower()) or
-                            (ndfc_vrf_template_config.get('loopbackNumber', '') != vrf_child_fabric.get('rp_loopback_id', '')) or
-                            (ndfc_vrf_template_config.get('rpAddress', '') != vrf_child_fabric.get('rp_address', '')) or
-                            (ndfc_vrf_template_config['isRPAbsent'] != str(vrf_child_fabric.get('no_rp', False)).lower()) or
-                            (ndfc_vrf_template_config['isRPExternal'] != str(vrf_child_fabric.get('rp_external', False)).lower()) or
-                            (ndfc_vrf_template_config.get('L3VniMcastGroup', '') != vrf_child_fabric.get('underlay_mcast_ip', '')) or
-                            (ndfc_vrf_template_config['multicastGroup'] != vrf_child_fabric.get('overlay_multicast_group', '')) or
-                            (ndfc_vrf_template_config.get('routeTargetImportMvpn', '') != vrf_child_fabric.get('import_mvpn_rt', '')) or
-                            (ndfc_vrf_template_config.get('routeTargetExportMvpn', '') != vrf_child_fabric.get('export_mvpn_rt', ''))
-                        ):
+                        # if (
+                        #     (ndfc_vrf_template_config['advertiseHostRouteFlag'] != str(vrf_child_fabric.get('adv_host_routes', '')).lower()) or
+                        #     (ndfc_vrf_template_config['advertiseDefaultRouteFlag'] != str(vrf_child_fabric.get('adv_default_routes', '')).lower()) or
+                        #     (ndfc_vrf_template_config['configureStaticDefaultRouteFlag'] != str(vrf_child_fabric.get('config_static_default_route', '')).lower()) or     # noqa: E501
+                        #     (ndfc_vrf_template_config['bgpPassword'] != vrf_child_fabric.get('bgp_password', '')) or
+                        #     (ndfc_vrf_template_config.get('bgpPasswordKeyType', '') != vrf_child_fabric.get('bgp_password_key_type', '')) or
+                        #     (ndfc_vrf_template_config['ENABLE_NETFLOW'] != str(vrf_child_fabric.get('netflow_enable', False)).lower()) or
+                        #     (ndfc_vrf_template_config['NETFLOW_MONITOR'] != vrf_child_fabric.get('netflow_monitor', '')) or
+                        #     (ndfc_vrf_template_config['trmEnabled'] != str(vrf_child_fabric.get('trm_enable', False)).lower()) or
+                        #     (ndfc_vrf_template_config.get('loopbackNumber', '') != vrf_child_fabric.get('rp_loopback_id', '')) or
+                        #     (ndfc_vrf_template_config.get('rpAddress', '') != vrf_child_fabric.get('rp_address', '')) or
+                        #     (ndfc_vrf_template_config['isRPAbsent'] != str(vrf_child_fabric.get('no_rp', False)).lower()) or
+                        #     (ndfc_vrf_template_config['isRPExternal'] != str(vrf_child_fabric.get('rp_external', False)).lower()) or
+                        #     (ndfc_vrf_template_config.get('L3VniMcastGroup', '') != vrf_child_fabric.get('underlay_mcast_ip', '')) or
+                        #     (ndfc_vrf_template_config['multicastGroup'] != vrf_child_fabric.get('overlay_multicast_group', '')) or
+                        #     (ndfc_vrf_template_config.get('routeTargetImportMvpn', '') != vrf_child_fabric.get('import_mvpn_rt', '')) or
+                        #     (ndfc_vrf_template_config.get('routeTargetExportMvpn', '') != vrf_child_fabric.get('export_mvpn_rt', ''))
+                        # ):
+                        #     results['child_fabrics_changed'].append(child_fabric)
+
+                        diff_found = False
+                        for template_key, map_info in VRF_TEMPLATE_CONFIG_MAP.items():
+                            dm_key = map_info['dm_key']
+                            default = map_info['default']
+                            template_value = ndfc_vrf_template_config.get(template_key, default)
+                            dm_value = vrf_child_fabric.get(dm_key, default)
+                            # Normalize boolean/string values for comparison
+                            if isinstance(default, bool):
+                                template_value = str(template_value).lower()
+                                dm_value = str(dm_value).lower()
+                            if template_value != dm_value:
+                                diff_found = True
+                                break
+
+                        if diff_found:
                             results['child_fabrics_changed'].append(child_fabric)
 
                             # Combine task_vars with local_vars for template rendering
@@ -179,13 +220,19 @@ class ActionModule(ActionBase):
 
                             # Attempt to find and read the template file
                             role_path = task_vars.get('role_path')
-                            template_path = role_path + MSD_CHILD_FABRIC_VRF_TEMPLATE
+                            version = '3.2'
+                            if version_compare.version_compare(nd_version, '12.2.1', '<='):
+                                version = '3.1'
+                            template_path = f"{role_path}{MSD_CHILD_FABRIC_VRF_TEMPLATE_PATH}{version}{MSD_CHILD_FABRIC_VRF_TEMPLATE}"
+
                             try:
                                 template_full_path = self._find_needle('templates', template_path)
                                 with open(template_full_path, 'r') as template_file:
                                     template_content = template_file.read()
                             except (IOError, AnsibleFileNotFound) as e:
                                 return {'failed': True, 'msg': f"Template file not found or unreadable: {str(e)}"}
+
+                            import epdb ; epdb.st()  # noqa: E702
 
                             # Create a Templar instance
                             templar = Templar(loader=self._loader, variables=vrf_vars)
