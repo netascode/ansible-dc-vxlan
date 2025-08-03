@@ -28,14 +28,26 @@ from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ansible.template import Templar
 from ansible.errors import AnsibleFileNotFound
+from ansible_collections.cisco.nac_dc_vxlan.plugins.filter import version_compare
 
 
+import re
 import json
 
 display = Display()
 
 # Path to Jinja template files relative to create role
-MSD_CHILD_FABRIC_NETWORK_TEMPLATE = "/../common/templates/ndfc_networks/msd_fabric/child_fabric/msd_child_fabric_network.j2"
+MSD_CHILD_FABRIC_NETWORK_TEMPLATE_PATH = "/../common/templates/ndfc_networks/msd_fabric/child_fabric/"
+MSD_CHILD_FABRIC_NETWORK_TEMPLATE = "/msd_child_fabric_network.j2"
+
+# Currently supported Network template config keys and their mapping to data model keys
+NETWORK_TEMPLATE_CONFIG_MAP = {
+    'loopbackId': {'dm_key': 'dhcp_loopback_id', 'default': ''},
+    'ENABLE_NETFLOW': {'dm_key': 'netflow_enable', 'default': False},
+    'VLAN_NETFLOW_MONITOR': {'dm_key': 'vlan_netflow_monitor', 'default': ''},
+    'trmEnabled': {'dm_key': 'trm_enable', 'default': False},
+    'mcastGroup': {'dm_key': 'multicast_group_address', 'default': ''},
+}
 
 
 class ActionModule(ActionBase):
@@ -46,7 +58,15 @@ class ActionModule(ActionBase):
         results['failed'] = False
         results['child_fabrics_changed'] = []
 
+        nd_version = self._task.args["nd_version"]
         msite_data = self._task.args["msite_data"]
+
+        nd_major_minor_patch = None
+        nd_patch_letter = None
+        match = re.match(r'^(\d+\.\d+\.\d+)(l)?$', nd_version)
+        if match:
+            nd_major_minor_patch = match.group(1)
+            nd_patch_letter = match.group(2)
 
         networks = msite_data['overlay_attach_groups']['networks']
         network_attach_groups_dict = msite_data['overlay_attach_groups']['network_attach_groups']
@@ -145,13 +165,30 @@ class ActionModule(ActionBase):
                         # Check for differences between the data model and the template config from NDFC for the
                         # attributes that are configurable by the user in a child fabric.
                         # Note: This excludes IPv6 related attributes at this time as they are not yet supported fully in the data model.
-                        if (
-                            (ndfc_net_template_config['loopbackId'] != network_child_fabric.get('dhcp_loopback_id', "")) or
-                            (ndfc_net_template_config['ENABLE_NETFLOW'] != str(network_child_fabric.get('netflow_enable', False)).lower()) or
-                            (ndfc_net_template_config['VLAN_NETFLOW_MONITOR'] != network_child_fabric.get('vlan_netflow_monitor', "")) or
-                            (ndfc_net_template_config['trmEnabled'] != str(network_child_fabric.get('trm_enable', False)).lower()) or
-                            (ndfc_net_template_config['mcastGroup'] != network_child_fabric.get('multicast_group_address'))
-                        ):
+                        # if (
+                        #     (ndfc_net_template_config['loopbackId'] != network_child_fabric.get('dhcp_loopback_id', "")) or
+                        #     (ndfc_net_template_config['ENABLE_NETFLOW'] != str(network_child_fabric.get('netflow_enable', False)).lower()) or
+                        #     (ndfc_net_template_config['VLAN_NETFLOW_MONITOR'] != network_child_fabric.get('vlan_netflow_monitor', "")) or
+                        #     (ndfc_net_template_config['trmEnabled'] != str(network_child_fabric.get('trm_enable', False)).lower()) or
+                        #     (ndfc_net_template_config['mcastGroup'] != network_child_fabric.get('multicast_group_address'))
+                        # ):
+                        #     results['child_fabrics_changed'].append(child_fabric)
+
+                        diff_found = False
+                        for template_key, map_info in NETWORK_TEMPLATE_CONFIG_MAP.items():
+                            dm_key = map_info['dm_key']
+                            default = map_info['default']
+                            template_value = ndfc_net_template_config.get(template_key, default)
+                            dm_value = ndfc_net_template_config.get(dm_key, default)
+                            # Normalize boolean/string values for comparison
+                            if isinstance(default, bool):
+                                template_value = str(template_value).lower()
+                                dm_value = str(dm_value).lower()
+                            if template_value != dm_value:
+                                diff_found = True
+                                break
+
+                        if diff_found:
                             results['child_fabrics_changed'].append(child_fabric)
 
                             # Combine task_vars with local_vars for template rendering
@@ -165,10 +202,13 @@ class ActionModule(ActionBase):
                                 },
                             )
 
-                            role_path = task_vars.get('role_path')
-                            template_path = role_path + MSD_CHILD_FABRIC_NETWORK_TEMPLATE
-
                             # Attempt to find and read the template file
+                            role_path = task_vars.get('role_path')
+                            version = '3.2'
+                            if version_compare.version_compare(nd_major_minor_patch, '12.2.1', '<='):
+                                version = '3.1'
+                            template_path = f"{role_path}{MSD_CHILD_FABRIC_NETWORK_TEMPLATE_PATH}{version}{MSD_CHILD_FABRIC_NETWORK_TEMPLATE}"
+
                             try:
                                 template_full_path = self._find_needle('templates', template_path)
                                 with open(template_full_path, 'r') as template_file:

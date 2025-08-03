@@ -40,7 +40,6 @@ display = Display()
 MSD_CHILD_FABRIC_VRF_TEMPLATE_PATH = "/../common/templates/ndfc_vrfs/msd_fabric/child_fabric/"
 MSD_CHILD_FABRIC_VRF_TEMPLATE = "/msd_child_fabric_vrf.j2"
 
-
 # Currently supported VRF template config keys and their mapping to data model keys
 VRF_TEMPLATE_CONFIG_MAP = {
     'advertiseHostRouteFlag': {'dm_key': 'adv_host_routes', 'default': ''},
@@ -226,8 +225,6 @@ class ActionModule(ActionBase):
                                     'dm': vrf_child_fabric
                                 },
                             )
-
-                            import epdb ; epdb.st()  # noqa: E702
 
                             # Attempt to find and read the template file
                             role_path = task_vars.get('role_path')
