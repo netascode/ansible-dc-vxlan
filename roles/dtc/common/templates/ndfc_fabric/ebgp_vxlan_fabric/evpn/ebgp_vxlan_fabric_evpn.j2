@@ -1,8 +1,6 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN config data structure for fabric {{ vxlan.fabric.name }} #}
   ENABLE_EVPN: true
-{% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '<=')) %}
   ALLOW_L3VNI_NO_VLAN:  {{ vxlan.global.allow_l3_vni_no_vlan | default(defaults.vxlan.global.allow_l3_vni_no_vlan) }}
-{% endif %}
   ENABLE_L3VNI_NO_VLAN:  {{ vxlan.global.enable_l3_vni_no_vlan | default(defaults.vxlan.global.enable_l3_vni_no_vlan) }}
   ANYCAST_GW_MAC: {{ vxlan.global.anycast_gateway_mac | default(defaults.vxlan.global.anycast_gateway_mac) }}
   ADVERTISE_PIP_BGP: {{ (vxlan.global.vpc.advertise_pip | default(defaults.vxlan.global.vpc.advertise_pip) | title) }}
