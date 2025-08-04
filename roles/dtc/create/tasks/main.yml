@@ -43,6 +43,7 @@
     (vars_common_ebgp_vxlan.changes_detected_vpc_peering) or
     (vars_common_ebgp_vxlan.changes_detected_link_vpc_peering) or
     (vars_common_ebgp_vxlan.changes_detected_policy) or
+    (vars_common_ebgp_vxlan.changes_detected_interfaces) or
     (vars_common_ebgp_vxlan.changes_detected_vrfs)
 
 - name: Import ISN Role Tasks

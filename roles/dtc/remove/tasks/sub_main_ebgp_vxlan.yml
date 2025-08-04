@@ -31,14 +31,14 @@
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
   tags: "{{ nac_tags.remove }}"
 
-- name: Get List of Fabric Switches from NDFC
+- name: Get List of eBGP VXLAN Fabric Switches from NDFC
   cisco.dcnm.dcnm_rest:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
   register: switch_list
   tags: "{{ nac_tags.remove }}"
   
-- name: Remove Fabric vPC Peering
+- name: Remove eBGP VXLAN Fabric vPC Peering
   ansible.builtin.import_tasks: common/vpc_peers.yml
   tags: "{{ nac_tags.remove_vpc_peers }}"
   when:
@@ -50,19 +50,19 @@
 #   when:
 #     - vars_common_ebgp_vxlan.changes_detected_edge_connections
 
-- name: Remove Fabric Policy
+- name: Remove eBGP VXLAN Fabric Policy
   ansible.builtin.import_tasks: common/policy.yml
   tags: "{{ nac_tags.remove_policy }}"
   when:
     - vars_common_ebgp_vxlan.changes_detected_policy
 
-# - name: Remove Fabric Interfaces
-#   ansible.builtin.import_tasks: common/interfaces.yml
-#   tags: "{{ nac_tags.remove_interfaces }}"
-#   when:
-#     - vars_common_vxlan.changes_detected_interfaces
+- name: Remove eBGP VXLAN Fabric Interfaces
+  ansible.builtin.import_tasks: common/interfaces.yml
+  tags: "{{ nac_tags.remove_interfaces }}"
+  when:
+    - vars_common_ebgp_vxlan.changes_detected_interfaces
 
-# - name: Remove Fabric Networks
+# - name: Remove eBGP VXLAN Fabric Networks
 #   ansible.builtin.import_tasks: vxlan/networks.yml
 #   tags: "{{ nac_tags.remove_networks }}"
 #   when:
@@ -74,13 +74,13 @@
   when:
     - vars_common_ebgp_vxlan.changes_detected_vrfs
 
-# - name: Remove Fabric Links
+# - name: Remove eBGP VXLAN Fabric Links
 #   ansible.builtin.import_tasks: common/links.yml
 #   tags: "{{ nac_tags.remove_links }}"
 #   when:
 #     - vars_common_ebgp_vxlan.changes_detected_fabric_links
 
-- name: Remove Fabric Switches
+- name: Remove eBGP VXLAN Fabric Switches
   ansible.builtin.import_tasks: common/switches.yml
   tags: "{{ nac_tags.remove_switches }}"
   when:

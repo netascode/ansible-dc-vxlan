@@ -39,21 +39,21 @@
     - not run_map_read_result.diff_run or ((force_run_all is defined) and (force_run_all is true|bool))
 
 # --------------------------------------------------------------------
-# Build Create Fabric parameter List From Template
+# Build Create eBGP VXLAN Fabric parameter List From Template
 # --------------------------------------------------------------------
 
-- name: Build Fabric Create Parameters
+- name: Build eBGP VXLAN Fabric Create Parameters
   ansible.builtin.import_tasks: common/ndfc_fabric.yml
 
 # --------------------------------------------------------------------
-# Build NDFC Fabric Switch Inventory List From Template
+# Build eBGP VXLAN Fabric Switch Inventory List From Template
 # --------------------------------------------------------------------
-- name: Build NDFC Fabric Switch Inventory List From Template
+- name: Build eBGP VXLAN Fabric Switch Inventory List From Template
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
 # We need to also build an inventory list without bootstrap settings
 # This will be used for device removal.
-- name: Build NDFC Fabric Switch Inventory List From Template - No Bootstrap
+- name: Build eBGP VXLAN Fabric Switch Inventory List From Template - No Bootstrap
   ansible.builtin.import_tasks: common/ndfc_inventory_no_bootstrap.yml
 
 # --------------------------------------------------------------------
@@ -85,94 +85,109 @@
   ansible.builtin.import_tasks: vxlan/ndfc_vrfs.yml
 
 # ## --------------------------------------------------------------------
-# ## Build NDFC Fabric Networks Attach List From Template
+# ## Build eBGP VXLAN Fabric Networks Attach List From Template
 # ## --------------------------------------------------------------------
 # #
-# #- name: Build NDFC Fabric Networks Attach List From Template
+# #- name: Build eBGP VXLAN Fabric Networks Attach List From Template
 # #  ansible.builtin.import_tasks: vxlan/ndfc_networks.yml
+
+# --------------------------------------------------------------------
+# Build eBGP VXLAN Fabric Breakout Interfaces List From Template
+# --------------------------------------------------------------------
+
+- name: Build eBGP VXLAN Fabric Breakout Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_breakout.yml
+
 # #
 # # --------------------------------------------------------------------
-# # Build NDFC Fabric Loopback Interfaces List From Template
+# # Build eBGP VXLAN Fabric Loopback Interfaces List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build NDFC Fabric Loopback Interfaces List From Template
-#   ansible.builtin.import_tasks: common/ndfc_interface_loopback.yml
+- name: Build eBGP VXLAN Fabric Loopback Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_loopback.yml
 
 # # --------------------------------------------------------------------
-# # Build NDFC Fabric Access Port-Channel Interfaces List From Template
+# # Build eBGP VXLAN Fabric Access Port-Channel Interfaces List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build NDFC Fabric Access Port-Channel Interfaces List From Template
-#   ansible.builtin.import_tasks: common/ndfc_interface_access_po.yml
+- name: Build eBGP VXLAN Fabric Access Port-Channel Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_access_po.yml
 
 # # --------------------------------------------------------------------
-# # Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
+# # Build eBGP VXLAN Fabric Trunk Port-Channel Interfaces List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build NDFC Fabric Trunk Port-Channel Interfaces List From Template
-#   ansible.builtin.import_tasks: common/ndfc_interface_trunk_po.yml
+- name: Build eBGP VXLAN Fabric Trunk Port-Channel Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_trunk_po.yml
 
 # # --------------------------------------------------------------------
-# # Build NDFC Fabric Interface Routed List From Template
+# # Build eBGP VXLAN Fabric Interface Routed List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build NDFC Fabric Interface Routed List From Template
-#   ansible.builtin.import_tasks: common/ndfc_interface_routed.yml
+- name: Build eBGP VXLAN Fabric Interface Routed List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_routed.yml
 
 # # --------------------------------------------------------------------
-# # Build NDFC Fabric Sub-Interface Routed List From Template
+# # Build eBGP VXLAN Fabric Sub-Interface Routed List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build NDFC Fabric Sub-Interface Routed List From Template
-#   ansible.builtin.import_tasks: common/ndfc_sub_interface_routed.yml
+- name: Build eBGP VXLAN Fabric Sub-Interface Routed List From Template
+  ansible.builtin.import_tasks: common/ndfc_sub_interface_routed.yml
 
 # # --------------------------------------------------------------------
-# # Build NDFC Fabric Routed Port-Channel Interface List From Template
+# # Build eBGP VXLAN Fabric Routed Port-Channel Interface List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build NDFC Fabric Routed Port-Channel Interface List From Template
-#   ansible.builtin.import_tasks: common/ndfc_interface_po_routed.yml
+- name: Build eBGP VXLAN Fabric Routed Port-Channel Interface List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_po_routed.yml
 
 # # --------------------------------------------------------------------
 # # Build Trunk Interfaces List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build Trunk Interfaces List From Template
-#   ansible.builtin.import_tasks: common/ndfc_interface_trunk.yml
+- name: Build Trunk Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_trunk.yml
 
 # # --------------------------------------------------------------------
 # # Build Access Interfaces List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build Access Interfaces List From Template
-#   ansible.builtin.import_tasks: common/ndfc_interface_access.yml
+- name: Build Access Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_access.yml
 
 # --------------------------------------------------------------------
-# Build Fabric Interface vPC List From Template
+# Build Dot1q Interfaces List From Template
 # --------------------------------------------------------------------
 
-- name: Build Fabric interface vPC List From Template
+- name: Build Dot1q Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_dot1q.yml
+
+# --------------------------------------------------------------------
+# Build eBGP VXLAN Fabric Interface vPC List From Template
+# --------------------------------------------------------------------
+
+- name: Build eBGP VXLAN Fabric interface vPC List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_vpc.yml
 
 # # --------------------------------------------------------------------
-# # Build Fabric interface all List From Template
+# # Build eBGP VXLAN Fabric interface all List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build Fabric interface All List From Template
-#   ansible.builtin.import_tasks: common/ndfc_interface_all.yml
+- name: Build eBGP VXLAN Fabric interface All List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_all.yml
 
 # --------------------------------------------------------------------
-# Build Fabric Policy List From Template
+# Build eBGP VXLAN Fabric Policy List From Template
 # --------------------------------------------------------------------
 
-- name: Build Fabric Policy List From Template
+- name: Build eBGP VXLAN Fabric Policy List From Template
   ansible.builtin.import_tasks: common/ndfc_policy.yml
 
 # # --------------------------------------------------------------------
-# # Build Fabric Links List From Template
+# # Build eBGP VXLAN Fabric Links List From Template
 # # --------------------------------------------------------------------
 
-# - name: Build Fabric Links List From Template
+# - name: Build eBGP VXLAN Fabric Links List From Template
 #   ansible.builtin.import_tasks: common/ndfc_fabric_links.yml
 
 # # --------------------------------------------------------------------
@@ -192,41 +207,45 @@
         changes_detected_fabric_links: false
 #         changes_detected_fabric_links: "{{ changes_detected_fabric_links }}"
 #         changes_detected_edge_connections: "{{ changes_detected_edge_connections }}"
-#         changes_detected_interface_access_po: "{{ changes_detected_interface_access_po }}"
-#         changes_detected_interface_access: "{{ changes_detected_interface_access }}"
-#         changes_detected_interfaces: "{{ changes_detected_interfaces }}"
-#         changes_detected_interface_loopback: "{{ changes_detected_interface_loopback }}"
-#         changes_detected_interface_po_routed: "{{ changes_detected_interface_po_routed }}"
-#         changes_detected_interface_routed: "{{ changes_detected_interface_routed }}"
-#         changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po }}"
-#         changes_detected_interface_trunk: "{{ changes_detected_interface_trunk }}"
+        changes_detected_interface_access_po: "{{ changes_detected_interface_access_po }}"
+        changes_detected_interface_access: "{{ changes_detected_interface_access }}"
+        changes_detected_interfaces: "{{ changes_detected_interfaces }}"
+        changes_detected_interface_loopback: "{{ changes_detected_interface_loopback }}"
+        changes_detected_interface_breakout: "{{ changes_detected_interface_breakout }}"
+        changes_detected_interface_po_routed: "{{ changes_detected_interface_po_routed }}"
+        changes_detected_interface_routed: "{{ changes_detected_interface_routed }}"
+        changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po }}"
+        changes_detected_interface_trunk: "{{ changes_detected_interface_trunk }}"
         changes_detected_interface_vpc: "{{ changes_detected_interface_vpc }}"
+        changes_detected_interface_dot1q: "{{ changes_detected_interface_dot1q }}"
         changes_detected_inventory: "{{ changes_detected_inventory }}"
         changes_detected_link_vpc_peering: "{{ changes_detected_link_vpc_peering }}"
 # #        changes_detected_networks: "{{ changes_detected_networks }}"
         changes_detected_policy: "{{ changes_detected_policy }}"
-#         changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed }}"
+        changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed }}"
         changes_detected_vpc_peering: "{{ changes_detected_vpc_peering }}"
         changes_detected_vpc_domain_id_resource: "{{ changes_detected_vpc_domain_id_resource }}"
         changes_detected_vrfs: "{{ changes_detected_vrfs }}"
         fabric_config: "{{ fabric_config }}"
 #         fabric_links: "{{ fabric_links }}"
+        interface_breakout: "{{ interface_breakout }}"
 #         edge_connections: "{{ edge_connections }}"
-#         interface_access_po: "{{ interface_access_po }}"
-#         interface_access: "{{ interface_access }}"
-#         interface_all: "{{ interface_all }}"
-#         int_loopback_config: "{{ int_loopback_config }}"
-#         interface_po_routed: "{{ interface_po_routed }}"
-#         interface_routed: "{{ interface_routed }}"
-#         interface_trunk_po: "{{ interface_trunk_po }}"
-#         interface_trunk: "{{ interface_trunk }}"
+        interface_access_po: "{{ interface_access_po }}"
+        interface_access: "{{ interface_access }}"
+        interface_all: "{{ interface_all }}"
+        int_loopback_config: "{{ int_loopback_config }}"
+        interface_po_routed: "{{ interface_po_routed }}"
+        interface_routed: "{{ interface_routed }}"
+        interface_trunk_po: "{{ interface_trunk_po }}"
+        interface_trunk: "{{ interface_trunk }}"
         interface_vpc: "{{ interface_vpc }}"
+        interface_dot1q: "{{ interface_dot1q }}"
         inv_config: "{{ inv_config }}"
         link_vpc_peering: "{{ link_vpc_peering }}"
 # #        net_config: "{{ net_config }}"
         poap_data: "{{ poap_data }}"
         policy_config: "{{ policy_config }}"
-#         sub_interface_routed: "{{ sub_interface_routed }}"
+        sub_interface_routed: "{{ sub_interface_routed }}"
         updated_inv_config: "{{ updated_inv_config }}"
         updated_inv_config_no_bootstrap: "{{ updated_inv_config_no_bootstrap }}"
         vpc_peering: "{{ vpc_peering }}"
@@ -244,18 +263,19 @@
       - "+     vPC Peer Changes Detected -             [ {{ vars_common_ebgp_vxlan.changes_detected_vpc_peering }} ]"
       - "+     vPC Domain ID Detected -                [ {{ vars_common_ebgp_vxlan.changes_detected_vpc_domain_id_resource }} ]"
       - "+     ----- Interfaces -----"
+      - "+     Interface breakout Changes Detected -   [ {{ vars_common_ebgp_vxlan.changes_detected_interface_breakout }} ]"
       - "+     Interface vPC Changes Detected -        [ {{ vars_common_ebgp_vxlan.changes_detected_interface_vpc }} ]"
-#       - "+     Interface Access Changes Detected -     [ {{ vars_common_ebgp_vxlan.changes_detected_interface_access }} ]"
-#       - "+     Interface Access PO Changes Detected -  [ {{ vars_common_ebgp_vxlan.changes_detected_interface_access_po }} ]"
-#       - "+     Interface Loopback Changes Detected -   [ {{ vars_common_ebgp_vxlan.changes_detected_interface_loopback }} ]"
-#       - "+     Interface PO Routed Changes Detected -  [ {{ vars_common_ebgp_vxlan.changes_detected_interface_po_routed }} ]"
-#       - "+     Interface Routed Changes Detected -     [ {{ vars_common_ebgp_vxlan.changes_detected_interface_routed }} ]"
-#       - "+     Interface Trunk Changes Detected -      [ {{ vars_common_ebgp_vxlan.changes_detected_interface_trunk }} ]"
-#       - "+     Interface Trunk PO Changes Detected -   [ {{ vars_common_ebgp_vxlan.changes_detected_interface_trunk_po }} ]"
-#       - "+     Sub Interface Routed Changes Detected - [ {{ vars_common_ebgp_vxlan.changes_detected_sub_interface_routed }} ]"
-#       - "+     ----- All Interfaces -----"
-#       - "+     All Interfaces Changes Detected -       [ {{ vars_common_ebgp_vxlan.changes_detected_interfaces }} ]"
-#       - "+     ----- All Interfaces -----"
+      - "+     Interface Access Changes Detected -     [ {{ vars_common_ebgp_vxlan.changes_detected_interface_access }} ]"
+      - "+     Interface Access PO Changes Detected -  [ {{ vars_common_ebgp_vxlan.changes_detected_interface_access_po }} ]"
+      - "+     Interface Loopback Changes Detected -   [ {{ vars_common_ebgp_vxlan.changes_detected_interface_loopback }} ]"
+      - "+     Interface PO Routed Changes Detected -  [ {{ vars_common_ebgp_vxlan.changes_detected_interface_po_routed }} ]"
+      - "+     Interface Routed Changes Detected -     [ {{ vars_common_ebgp_vxlan.changes_detected_interface_routed }} ]"
+      - "+     Interface Trunk Changes Detected -      [ {{ vars_common_ebgp_vxlan.changes_detected_interface_trunk }} ]"
+      - "+     Interface Trunk PO Changes Detected -   [ {{ vars_common_ebgp_vxlan.changes_detected_interface_trunk_po }} ]"
+      - "+     Sub Interface Routed Changes Detected - [ {{ vars_common_ebgp_vxlan.changes_detected_sub_interface_routed }} ]"
+      - "+     ----- All Interfaces -----"
+      - "+     All Interfaces Changes Detected -       [ {{ vars_common_ebgp_vxlan.changes_detected_interfaces }} ]"
+      - "+     ----- All Interfaces -----"
       - "+     VRFs Changes Detected -                 [ {{ vars_common_ebgp_vxlan.changes_detected_vrfs }} ]"
 # #      - "+     Networks Changes Detected -             [ {{ vars_common_ebgp_vxlan.changes_detected_networks }} ]"
       - "+     Policy Changes Detected -               [ {{ vars_common_ebgp_vxlan.changes_detected_policy }} ]"
