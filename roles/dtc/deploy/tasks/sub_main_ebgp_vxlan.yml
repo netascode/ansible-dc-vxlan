@@ -32,7 +32,7 @@
 
 - name: Config-Save block
   block:
-    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
+    - name: Config-Save for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }}
       cisco.dcnm.dcnm_rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
@@ -42,11 +42,11 @@
       # TODO: Need to add logic to only save if changes are made
 
   rescue:
-    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
+    - name: Config-Save for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
 
-- name: Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }}
+- name: Deploy for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }}
   cisco.dcnm.dcnm_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
@@ -57,7 +57,7 @@
     (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
   # TODO: Need to add logic to only deploy if changes are made
 
-- name: Check Switch Sync in Fabric {{ MD_Extended.vxlan.fabric.name }}
+- name: Check Switch Sync in eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }}
   cisco.nac_dc_vxlan.dtc.fabric_check_sync:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
   register: results
@@ -66,7 +66,7 @@
 
 - name: Retrying Config-Save Block
   block:
-    - name: Retrying Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
+    - name: Retrying Config-Save for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }}
       cisco.dcnm.dcnm_rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
@@ -78,11 +78,11 @@
       # TODO: Need to add logic to only save if changes are made
 
   rescue:
-    - name: Retrying Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
+    - name: Retrying Config-Save for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
 
-- name: Retrying Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }}
+- name: Retrying Deploy for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }}
   cisco.dcnm.dcnm_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
