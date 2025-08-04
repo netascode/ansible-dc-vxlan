@@ -229,7 +229,7 @@ class ActionModule(ActionBase):
                             # Attempt to find and read the template file
                             role_path = task_vars.get('role_path')
                             version = '3.2'
-                            if version_compare.version_compare(nd_major_minor_patch, '12.2.1', '<='):
+                            if version_compare.version_compare(nd_major_minor_patch, '3.1.1', '<='):
                                 version = '3.1'
                             template_path = f"{role_path}{MSD_CHILD_FABRIC_VRF_TEMPLATE_PATH}{version}{MSD_CHILD_FABRIC_VRF_TEMPLATE}"
 
