@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -63,7 +63,7 @@
     - vars_common_vxlan.changes_detected_networks
 
 - name: Remove Fabric VRFs
-  ansible.builtin.import_tasks: vxlan/vrfs.yml
+  ansible.builtin.import_tasks: common_vxlan/vrfs.yml
   tags: "{{ nac_tags.remove_vrfs }}"
   when:
     - vars_common_vxlan.changes_detected_vrfs

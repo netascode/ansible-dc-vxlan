@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -20,6 +20,13 @@
 # SPDX-License-Identifier: MIT
 
 ---
+- name: Choose vars_common Based On Fabric Type
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Manage VRFs and Networks Entry Point
   ansible.builtin.debug:
@@ -52,7 +59,7 @@
     msg: VRFs cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
   when:
     - is_active_child_fabric
-    - vars_common_vxlan.vrf_config | length > 0
+    - vars_common_local.vrf_config | length > 0
 
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
@@ -61,12 +68,12 @@
   cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
-    config: "{{ vars_common_vxlan.vrf_config }}"
+    config: "{{ vars_common_local.vrf_config }}"
   register: manage_vrf_result
   when:
     - MD_Extended.vxlan.overlay.vrfs is defined
     - MD_Extended.vxlan.overlay.vrfs
-    - vars_common_vxlan.changes_detected_vrfs
+    - vars_common_local.changes_detected_vrfs
     - not is_active_child_fabric
 
 # --------------------------------------------------------------------
@@ -76,11 +83,11 @@
   cisco.dcnm.dcnm_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
-    json_data: "{{ vars_common_vxlan.vrf_attach_config | to_json}}"
+    json_data: "{{ vars_common_local.vrf_attach_config | to_json}}"
   when:
     - MD_Extended.vxlan.overlay.vrfs is defined
     - MD_Extended.vxlan.overlay.vrfs
-    - vars_common_vxlan.changes_detected_vrfs
+    - vars_common_local.changes_detected_vrfs
     - not is_active_child_fabric
 
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
@@ -88,7 +95,7 @@
     msg: Networks cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
   when:
     - is_active_child_fabric
-    - vars_common_vxlan.net_config | length > 0
+    - vars_common_local.net_config | length > 0
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
@@ -97,10 +104,10 @@
   cisco.dcnm.dcnm_network:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
-    config: "{{ vars_common_vxlan.net_config }}"
+    config: "{{ vars_common_local.net_config }}"
   register: manage_network_result
   when:
     - MD_Extended.vxlan.overlay.networks is defined
     - MD_Extended.vxlan.overlay.networks
-    - vars_common_vxlan.changes_detected_networks
+    - vars_common_local.changes_detected_networks
     - not is_active_child_fabric

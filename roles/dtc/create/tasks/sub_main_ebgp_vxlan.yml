@@ -86,7 +86,7 @@
 
 
 - name: Manage NDFC eBGP VXLAN Fabric VRFs and Networks
-  ansible.builtin.import_tasks: ebgp_vxlan/vrfs_networks.yml
+  ansible.builtin.import_tasks: common_vxlan/vrfs_networks.yml
   when:
     - MD_Extended.vxlan.overlay is defined
     - MD_Extended.vxlan.topology.switches | length > 0
