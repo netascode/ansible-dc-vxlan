@@ -42,7 +42,7 @@
       switch_data: "{{ switch_list.response.DATA }}"
       edge_connections: "{{ edge_connections }}"
     register: unmanaged_edge_connections_config
-    # do not delegate_to: localhost as this action plugin uses Python to execute cisco.nd.nd_rest
+    # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 
   - name: Remove Unmanaged NDFC Edge Connections
     cisco.dcnm.dcnm_policy:

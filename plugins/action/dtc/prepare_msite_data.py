@@ -47,7 +47,7 @@ class ActionModule(ActionBase):
         # This is actaully not an accurrate API endpoint as it returns all fabrics in NDFC, not just the fabrics associated with MSD
         # Therefore, we need to get the fabric associations response and filter out the fabrics that are not associated with the parent fabric (MSD)
         msd_fabric_associations = self._execute_module(
-            module_name="cisco.nd.nd_rest",
+            module_name=task_vars['ansible_network_os_rest'],
             module_args={
                 "method": "GET",
                 "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations",

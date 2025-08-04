@@ -113,7 +113,7 @@
 
 # Check with Matt and Pete on how we want to handle this for MSD
 # - name: Attach VRF Loopbacks per VRF
-#   cisco.nd.nd_rest:
+#   cisco.dcnm.dcnm_rest:
 #     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
 #     method: "POST"
 #     json_data: "{{ vars_common_msd.vrf_attach_config | to_json}}"

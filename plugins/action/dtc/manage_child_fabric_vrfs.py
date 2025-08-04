@@ -130,7 +130,7 @@ class ActionModule(ActionBase):
                         #         return results
 
                         ndfc_vrf = self._execute_module(
-                            module_name="cisco.nd.nd_rest",
+                            module_name=task_vars['ansible_network_os_rest'],
                             module_args={
                                 "method": "GET",
                                 "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}"
@@ -195,7 +195,7 @@ class ActionModule(ActionBase):
                             rendered_to_nice_json = templar.environment.filters['to_nice_json'](rendered_content)
 
                             ndfc_vrf_update = self._execute_module(
-                                module_name="cisco.nd.nd_rest",
+                                module_name=task_vars['ansible_network_os_rest'],
                                 module_args={
                                     "method": "PUT",
                                     "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}",

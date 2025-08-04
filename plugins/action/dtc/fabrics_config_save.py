@@ -43,7 +43,7 @@ class ActionModule(ActionBase):
         for fabric in fabrics:
             display.display(f"Executing config-save on Fabric: {fabric}")
             ndfc_config_save = self._execute_module(
-                module_name="cisco.nd.nd_rest",
+                module_name=task_vars['ansible_network_os_rest'],
                 module_args={
                     "method": "POST",
                     "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}/config-save",

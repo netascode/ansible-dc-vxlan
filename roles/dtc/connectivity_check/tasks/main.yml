@@ -46,12 +46,21 @@
     nd_version: "{{ nd_version_response.json.major }}.{{ nd_version_response.json.minor }}.{{ nd_version_response.json.maintenance }}{{ nd_version_response.json.patch }}"
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
-- name: Get Cisco NDFC Version
+- name: Get Cisco NDFC Version for ND
   cisco.nd.nd_rest:
     method: GET
     path: /appcenter/cisco/ndfc/api/about/version
   register: ndfc_version
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
+  when: ansible_network_os_rest == "cisco.nd.nd_rest"
+
+- name: Get Cisco NDFC Version for DCNM
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: /appcenter/cisco/ndfc/api/about/version
+  register: ndfc_version
+  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
+  when: ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
 
 - name: Set Cisco NDFC Version Var
   ansible.builtin.set_fact:

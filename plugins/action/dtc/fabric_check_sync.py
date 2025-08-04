@@ -41,7 +41,7 @@ class ActionModule(ActionBase):
         fabric = self._task.args["fabric"]
 
         ndfc_response = self._execute_module(
-            module_name="cisco.nd.nd_rest",
+            module_name=task_vars['ansible_network_os_rest'],
             module_args={
                 "method": "GET",
                 "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}/inventory/switchesByFabric",

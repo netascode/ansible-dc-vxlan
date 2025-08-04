@@ -57,4 +57,11 @@
     method: PUT
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"
     json_data: "{{ results.policy_update.values() | list | to_json }}"
-  when: results.policy_update | length > 0
+  when: results.policy_update | length > 0 and ansible_network_os_rest == "cisco.nd.nd_rest"
+
+- name: Update Switch Hostname Policy in DCNM
+  cisco.dcnm.dcnm_rest:
+    method: PUT
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"
+    json_data: "{{ results.policy_update.values() | list | to_json }}"
+  when: results.policy_update | length > 0 and ansible_network_os_rest == "cisco.dcnm.dcnm_rest"

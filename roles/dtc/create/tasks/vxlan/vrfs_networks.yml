@@ -30,10 +30,18 @@
 
 - name: Check If Current Fabric Is An Active Multisite Fabric
   block:
-    - name: Get Multisite Fabric Associations
+    - name: Get Multisite Fabric Associations for nd
       cisco.nd.nd_rest:
         method: GET
         path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
+      when: ansible_network_os_rest == "cisco.nd.nd_rest"
+      register: ndfc_msd_fabric_associations
+
+    - name: Get Multisite Fabric Associations for dcnm
+      cisco.dcnm.dcnm_rest:
+        method: GET
+        path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
+      when: ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
       register: ndfc_msd_fabric_associations
 
     - name: Find Current Fabric by Name In Multisite Associations
@@ -72,7 +80,7 @@
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC
 # --------------------------------------------------------------------
-- name: Attach Loopbacks to VRFs
+- name: Attach Loopbacks to VRFs for nd
   cisco.nd.nd_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
@@ -82,6 +90,19 @@
     - MD_Extended.vxlan.overlay.vrfs
     - vars_common_vxlan.changes_detected_vrfs
     - not is_active_child_fabric
+    - ansible_network_os_rest == "cisco.nd.nd_rest"
+
+- name: Attach Loopbacks to VRFs for dcnm 
+  cisco.dcnm.dcnm_rest:
+    method: POST
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
+    json_data: "{{ vars_common_vxlan.vrf_attach_config | to_json}}"
+  when:
+    - MD_Extended.vxlan.overlay.vrfs is defined
+    - MD_Extended.vxlan.overlay.vrfs
+    - vars_common_vxlan.changes_detected_vrfs
+    - not is_active_child_fabric
+    - ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
 
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
   ansible.builtin.fail:

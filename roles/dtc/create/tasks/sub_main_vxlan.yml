@@ -61,9 +61,16 @@
       cisco.nd.nd_rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-      when: MD_Extended.vxlan.topology.switches | length > 0
+      when: MD_Extended.vxlan.topology.switches | length > 0 and ansible_network_os_rest == "cisco.nd.nd_rest"
       register: config_save
       # TODO: Need to add logic to only save if changes are made
+
+    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
+      cisco.dcnm.dcnm_rest:
+        method: POST
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
+      when: MD_Extended.vxlan.topology.switches | length > 0 and ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
+      register: config_save
 
   rescue:
     - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed

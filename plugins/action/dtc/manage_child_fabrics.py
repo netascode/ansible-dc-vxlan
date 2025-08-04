@@ -46,7 +46,7 @@ class ActionModule(ActionBase):
             for fabric in child_fabrics:
                 json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric, fabric)
                 add_fabric_result = self._execute_module(
-                    module_name="cisco.nd.nd_rest",
+                    module_name=task_vars['ansible_network_os_rest'],
                     module_args={
                         "method": "POST",
                         "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdAdd",
@@ -75,7 +75,7 @@ class ActionModule(ActionBase):
             for fabric in child_fabrics:
                 json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric, fabric)
                 remove_fabric_result = self._execute_module(
-                    module_name="cisco.nd.nd_rest",
+                    module_name=task_vars['ansible_network_os_rest'],
                     module_args={
                         "method": "POST",
                         "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdExit",
@@ -95,7 +95,7 @@ class ActionModule(ActionBase):
         return results
 
 
-#   cisco.nd.nd_rest:
+#   cisco.dcnm.dcnm_rest:
 #     method: POST
 #     path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdAdd
 #     json_data: '{"destFabric":"nac-msd","sourceFabric":"nac-ndfc1"}'
