@@ -74,7 +74,7 @@ class ActionModule(ActionBase):
 
         nd_major_minor_patch = None
         nd_patch_letter = None
-        match = re.match(r'^(\d+\.\d+\.\d+)(l)?$', nd_version)
+        match = re.match(r'^(\d+\.\d+\.\d+)([a-z])?$', nd_version)
         if match:
             nd_major_minor_patch = match.group(1)
             nd_patch_letter = match.group(2)
