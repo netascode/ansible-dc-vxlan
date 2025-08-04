@@ -26,54 +26,53 @@
 # workflow and how the dcnm_inventory module can be used to pre-provision
 # a switch.
 
-  tasks:
-    - name: Pre-provision switch Configuration
-      cisco.dcnm.dcnm_inventory:
-        fabric: nac-ndfc1
-        state: merged # Only 2 options supported merged/query for poap config
-        config:
-        # All the values below are mandatory if poap configuration is being done - state is merged
-        - seed_ip: 192.168.9.14
-          user_name: admin
-          password: cisco.123
-          role: border
-          poap:
-            - preprovision_serial: 9Y0K4YPFFFF
-              model: N9K-C9300v
-              version: 9.3(7)
-              hostname: netascode-leaf3
-              # image_policy: "prepro_image_policy"
-              config_data:
-                modulesModel: [N9K-X9364v, N9K-vSUP]
-                gateway: 192.168.9.1/24
-      vars:
-        ansible_command_timeout: 1000
-        ansible_connect_timeout: 1000
+- name: Pre-provision switch Configuration
+  cisco.dcnm.dcnm_inventory:
+    fabric: nac-ndfc1
+    state: merged # Only 2 options supported merged/query for poap config
+    config:
+    # All the values below are mandatory if poap configuration is being done - state is merged
+      - seed_ip: 192.168.9.14
+        user_name: admin
+        password: cisco.123
+        role: border
+        poap:
+          - preprovision_serial: 9Y0K4YPFFFF
+            model: N9K-C9300v
+            version: 9.3(7)
+            hostname: netascode-leaf3
+            # image_policy: "prepro_image_policy"
+            config_data:
+              modulesModel: [N9K-X9364v, N9K-vSUP]
+              gateway: 192.168.9.1/24
+  vars:
+    ansible_command_timeout: 1000
+    ansible_connect_timeout: 1000
 
-    # Note: Calling the module in this way will switch out the fake
-    # serial number with the actual switch serial number and also
-    # poap the switch if it's in poap mode and appears in the NDFC
-    # poap list.
-    - name: Pre-provision switch Configuration
-      cisco.dcnm.dcnm_inventory:
-        fabric: nac-ndfc1
-        state: merged # Only 2 options supported merged/query for poap config
-        config:
-        # All the values below are mandatory if poap configuration is being done - state is merged
-        - seed_ip: 192.168.9.14
-          user_name: admin
-          password: cisco.123
-          role: border
-          poap:
-            - preprovision_serial: 9Y0K4YPFFFF
-              serial_number: 9Y0K4YPFV64
-      vars:
-        ansible_command_timeout: 1000
-        ansible_connect_timeout: 1000
+# Note: Calling the module in this way will switch out the fake
+# serial number with the actual switch serial number and also
+# poap the switch if it's in poap mode and appears in the NDFC
+# poap list.
+- name: Pre-provision switch Configuration
+  cisco.dcnm.dcnm_inventory:
+    fabric: nac-ndfc1
+    state: merged # Only 2 options supported merged/query for poap config
+    config:
+    # All the values below are mandatory if poap configuration is being done - state is merged
+      - seed_ip: 192.168.9.14
+        user_name: admin
+        password: cisco.123
+        role: border
+        poap:
+          - preprovision_serial: 9Y0K4YPFFFF
+            serial_number: 9Y0K4YPFV64
+  vars:
+    ansible_command_timeout: 1000
+    ansible_connect_timeout: 1000
 
-          # preprovision:
-          #   serial: 9Y0K4YPFFFF
-          #   model: N9K-C9300v
-          #   version: 9.4(8)
-          #   modulesModel: [N9K-X9364v, N9K-vSUP]
-          #   gateway: 10.15.9.1/24 # Add netmask to management key
+      # preprovision:
+      #   serial: 9Y0K4YPFFFF
+      #   model: N9K-C9300v
+      #   version: 9.4(8)
+      #   modulesModel: [N9K-X9364v, N9K-vSUP]
+      #   gateway: 10.15.9.1/24 # Add netmask to management key

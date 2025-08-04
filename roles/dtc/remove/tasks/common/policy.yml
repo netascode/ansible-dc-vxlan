@@ -20,7 +20,7 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- name: Choose vars_common Based On Fabric Type
+- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
@@ -30,44 +30,50 @@
 - ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
-- block:
-  - ansible.builtin.debug: msg="Removing Unmanaged Fabric Policy From Switches. This could take several minutes..."
-
-  - name: Create List of Switch Serial Numbers from NDFC Switch List
-    ansible.builtin.set_fact:
-      switch_serial_numbers: "{{ switch_list.response.DATA | map(attribute='serialNumber') | list }}"
-    delegate_to: localhost
-
-  - name: Build Unmanaged Fabric Policy Payload
-    cisco.nac_dc_vxlan.dtc.unmanaged_policy:
-      switch_serial_numbers: "{{ switch_serial_numbers }}"
-      model_data: "{{ MD_Extended }}"
-    register: unmanaged_policy_config
-    # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
-
-  - name: Remove Unmanaged NDFC Fabric Policy
-    cisco.dcnm.dcnm_policy:
-      fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-      use_desc_as_key: true
-      config: "{{ unmanaged_policy_config.unmanaged_policies }}"
-      deploy: true
-      state: deleted
-    when: unmanaged_policy_config.unmanaged_policies | length > 0
-    vars:
-        ansible_command_timeout: 3000
-        ansible_connect_timeout: 3000
+- name: Remove Unmanaged Fabric Policy From Nexus Dashboard
   when:
     - switch_list.response.DATA | length > 0
     - (policy_delete_mode is defined) and (policy_delete_mode is true|bool)
+  block:
+    - name: Display Removing Unmanaged Fabric Policy From Switches Message
+      ansible.builtin.debug:
+        msg: "Removing Unmanaged Fabric Policy From Switches. This could take several minutes..."
 
-- ansible.builtin.debug:
+    - name: Create List of Switch Serial Numbers from Nexus Dashboard
+      ansible.builtin.set_fact:
+        switch_serial_numbers: "{{ switch_list.response.DATA | map(attribute='serialNumber') | list }}"
+      delegate_to: localhost
+
+    - name: Build Unmanaged Fabric Policy Payload
+      cisco.nac_dc_vxlan.dtc.unmanaged_policy:
+        switch_serial_numbers: "{{ switch_serial_numbers }}"
+        model_data: "{{ MD_Extended }}"
+      register: unmanaged_policy_config
+      # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
+
+    - name: Remove Unmanaged Fabric Policy from Nexus Dashboard
+      cisco.dcnm.dcnm_policy:
+        fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+        use_desc_as_key: true
+        config: "{{ unmanaged_policy_config.unmanaged_policies }}"
+        deploy: true
+        state: deleted
+      when: unmanaged_policy_config.unmanaged_policies | length > 0
+      vars:
+        ansible_command_timeout: 3000
+        ansible_connect_timeout: 3000
+
+- name: Skip Remove Unmanaged Policy Task If policy_delete_mode is False
+  ansible.builtin.debug:
     msg:
       - "--------------------------------------------------------------------------------------------------------"
       - "+ SKIPPING Remove Unmanaged Policy from Switches task because policy_delete_mode flag is set to False   +"

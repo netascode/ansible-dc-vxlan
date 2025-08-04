@@ -21,13 +21,15 @@
 
 ---
 
-- ansible.builtin.fail: msg="Service Model Not Defined.  Role cisco.nac_dc_vxlan.validate Must Be Called First"
+- name: Fail if Data Model is not defined
+  ansible.builtin.fail:
+    msg: "Service Model Not Defined.  Role cisco.nac_dc_vxlan.validate Must Be Called First"
   when: MD is undefined
   delegate_to: localhost
 
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Remove all files from the previous run if run_map requires it
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 - name: Set path_name Var
   ansible.builtin.set_fact:
     path_name: "{{ role_path }}/files/ebgp_vxlan/{{ MD_Extended.vxlan.fabric.name }}/"
@@ -98,59 +100,58 @@
 - name: Build eBGP VXLAN Fabric Breakout Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_breakout.yml
 
-# #
-# # --------------------------------------------------------------------
-# # Build eBGP VXLAN Fabric Loopback Interfaces List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build eBGP VXLAN Fabric Loopback Interfaces List From Template
+# --------------------------------------------------------------------
 
 - name: Build eBGP VXLAN Fabric Loopback Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_loopback.yml
 
-# # --------------------------------------------------------------------
-# # Build eBGP VXLAN Fabric Access Port-Channel Interfaces List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build eBGP VXLAN Fabric Access Port-Channel Interfaces List From Template
+# --------------------------------------------------------------------
 
 - name: Build eBGP VXLAN Fabric Access Port-Channel Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_access_po.yml
 
-# # --------------------------------------------------------------------
-# # Build eBGP VXLAN Fabric Trunk Port-Channel Interfaces List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build eBGP VXLAN Fabric Trunk Port-Channel Interfaces List From Template
+# --------------------------------------------------------------------
 
 - name: Build eBGP VXLAN Fabric Trunk Port-Channel Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_trunk_po.yml
 
-# # --------------------------------------------------------------------
-# # Build eBGP VXLAN Fabric Interface Routed List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build eBGP VXLAN Fabric Interface Routed List From Template
+# --------------------------------------------------------------------
 
 - name: Build eBGP VXLAN Fabric Interface Routed List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_routed.yml
 
-# # --------------------------------------------------------------------
-# # Build eBGP VXLAN Fabric Sub-Interface Routed List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build eBGP VXLAN Fabric Sub-Interface Routed List From Template
+# --------------------------------------------------------------------
 
 - name: Build eBGP VXLAN Fabric Sub-Interface Routed List From Template
   ansible.builtin.import_tasks: common/ndfc_sub_interface_routed.yml
 
-# # --------------------------------------------------------------------
-# # Build eBGP VXLAN Fabric Routed Port-Channel Interface List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build eBGP VXLAN Fabric Routed Port-Channel Interface List From Template
+# --------------------------------------------------------------------
 
 - name: Build eBGP VXLAN Fabric Routed Port-Channel Interface List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_po_routed.yml
 
-# # --------------------------------------------------------------------
-# # Build Trunk Interfaces List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build Trunk Interfaces List From Template
+# --------------------------------------------------------------------
 
 - name: Build Trunk Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_trunk.yml
 
-# # --------------------------------------------------------------------
-# # Build Access Interfaces List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build Access Interfaces List From Template
+# --------------------------------------------------------------------
 
 - name: Build Access Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_access.yml
@@ -169,9 +170,9 @@
 - name: Build eBGP VXLAN Fabric interface vPC List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_vpc.yml
 
-# # --------------------------------------------------------------------
-# # Build eBGP VXLAN Fabric interface all List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build eBGP VXLAN Fabric interface all List From Template
+# --------------------------------------------------------------------
 
 - name: Build eBGP VXLAN Fabric interface All List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_all.yml
@@ -199,7 +200,7 @@
 
 # --------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 - name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_ebgp_vxlan:

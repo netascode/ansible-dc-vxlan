@@ -29,10 +29,12 @@
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+- name: Display Device Configuration Method
+  ansible.builtin.debug:
+    msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"
   tags: "{{ nac_tags.create }}"
 
-- name: Create eBGP VXLAN Fabric
+- name: Create eBGP VXLAN Fabric in Nexus Dashboard
   ansible.builtin.import_tasks: ebgp_vxlan/fabric.yml
   when:
     - MD_Extended.vxlan.fabric.name is defined

@@ -21,9 +21,9 @@
 
 ---
 
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # Initialize NameSpace Dicts For Variable Sharing
-# --------------------------------------------------------------------
+# ------------------------------------------------------------------------
 - name: Initialize NameSpace Dict For Sharing Variables
   ansible.builtin.set_fact:
     vars_common_vxlan:
@@ -107,7 +107,7 @@
       changes_detected_vrfs: false
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
 
-- name: Import Role Tasks for VXLAN Fabric
+- name: Import Role Tasks for iBGP VXLAN Fabric
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
@@ -127,7 +127,7 @@
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric.type == 'MSD'
 
-- name: Import Role Tasks for MSD Fabric
+- name: Import Role Tasks for External Fabric
   ansible.builtin.import_tasks: sub_main_external.yml
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric.type == 'External'
