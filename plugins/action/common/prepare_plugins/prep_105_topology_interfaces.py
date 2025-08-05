@@ -95,7 +95,7 @@ class PreparePlugin:
 
             if switch.get('interface_breakouts'):
                 for breakout in switch.get('interface_breakouts'):
-                    if not breakout.get('enable_during_bootstrap'):
+                    if breakout.get('enable_during_bootstrap') == False:
                         if breakout.get('to'):
                             nb_int = breakout['to'] - breakout['from']
                             model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += nb_int + 1
