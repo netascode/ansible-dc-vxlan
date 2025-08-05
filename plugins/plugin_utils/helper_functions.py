@@ -196,6 +196,35 @@ def ndfc_get_fabric_attributes(self, task_vars, tmp, fabric):
 
     return fabric_attributes
 
+def ndfc_get_fabric_attributes_onepath(self, task_vars, tmp, fabric, cluster):
+    """
+    Get NDFC fabric attributes.
+
+    :Parameters:
+        :self: Ansible action plugin instance object.
+        :task_vars (dict): Ansible task vars.
+        :tmp (None, optional): Ansible tmp object. Defaults to None via Action Plugin.
+        :fabric (str): The fabric name to be retrieved.
+
+    :Returns:
+        :fabric_attributes: The NDFC fabric attributes data for the given fabric.
+
+    :Raises:
+        N/A
+    """
+    fabric_response = self._execute_module(
+        module_name="cisco.dcnm.dcnm_rest",
+        module_args={
+            "method": "GET",
+            "path": f"/onepath/{cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}",
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+    fabric_attributes = fabric_response['response']['DATA']['nvPairs']
+
+    return fabric_attributes
+
 
 def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
     """
@@ -233,6 +262,44 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
                 }
             )
 
+    return fabric_switches
+
+def ndfc_get_fabric_switches_onepath(self, task_vars, tmp, fabric, cluster):
+    """
+    Get NDFC fabric switches.
+
+    :Parameters:
+        :self: Ansible action plugin instance object.
+        :task_vars (dict): Ansible task vars.
+        :tmp (None, optional): Ansible tmp object. Defaults to None via Action Plugin.
+        :fabric (str): The fabric name to be retrieved.
+
+    :Returns:
+        :fabric_switches: The NDFC fabric switches data for the given fabric.
+
+    :Raises:
+        N/A
+    """
+    fabric_response = self._execute_module(
+        module_name="cisco.dcnm.dcnm_rest",
+        module_args={
+            "method": "GET",
+            "path": f"/onepath/{cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}/inventory/switchesByFabric",
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+
+    fabric_switches = []
+    for fabric_switch in fabric_response['response']['DATA']:
+        if 'logicalName' in fabric_switch:
+            fabric_switches.append(
+                {
+                    'hostname': fabric_switch['logicalName'],
+                    'mgmt_ip_address': fabric_switch['ipAddress']
+                }
+            )
+            
     return fabric_switches
 
 def normalise_int_lists(data):

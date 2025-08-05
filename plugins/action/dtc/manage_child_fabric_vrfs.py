@@ -47,6 +47,7 @@ class ActionModule(ActionBase):
         results['child_fabrics_changed'] = []
 
         msite_data = self._task.args["msite_data"]
+        fabric_type = self._task.args["fabric_type"]
 
         vrfs = msite_data['overlay_attach_groups']['vrfs']
         vrf_attach_groups_dict = msite_data['overlay_attach_groups']['vrf_attach_groups']
@@ -73,6 +74,7 @@ class ActionModule(ActionBase):
                 if child_fabric_type in ['Switch_Fabric']:
                     child_fabric_attributes = child_fabrics[child_fabric]['attributes']
                     child_fabric_switches = child_fabrics[child_fabric]['switches']
+                    child_fabric_cluster = child_fabrics[child_fabric].get('cluster')
                     child_fabric_switches_mgmt_ip_addresses = [child_fabric_switch['mgmt_ip_address'] for child_fabric_switch in child_fabric_switches]
 
                     is_intersection = set(vrf_attach_group_switches_mgmt_ip_addresses).intersection(set(child_fabric_switches_mgmt_ip_addresses))
@@ -128,12 +130,15 @@ class ActionModule(ActionBase):
                         #         results['failed'] = True
                         #         results['msg'] = error_msg
                         #         return results
-
+                        if fabric_type == 'MFD':
+                            get_path = f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}"
+                        else:
+                            get_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}"
                         ndfc_vrf = self._execute_module(
                             module_name="cisco.dcnm.dcnm_rest",
                             module_args={
                                 "method": "GET",
-                                "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}"
+                                "path": get_path,
                             },
                             task_vars=task_vars,
                             tmp=tmp
@@ -141,7 +146,7 @@ class ActionModule(ActionBase):
 
                         ndfc_vrf_response_data = ndfc_vrf['response']['DATA']
                         ndfc_vrf_template_config = json.loads(ndfc_vrf_response_data['vrfTemplateConfig'])
-
+                        print(ndfc_vrf_template_config)
                         # Check for differences between the data model and the template config from NDFC for the
                         # attributes that are configurable by the user in a child fabric.
                         # Note: This excludes IPv6 related attributes at this time as they are not yet supported fully in the data model.
@@ -193,12 +198,16 @@ class ActionModule(ActionBase):
                             # Render the template with the combined variables
                             rendered_content = templar.template(template_content)
                             rendered_to_nice_json = templar.environment.filters['to_nice_json'](rendered_content)
-
+                            
+                            if fabric_type == 'MFD':
+                                put_path = f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}"
+                            else:
+                                put_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}"
                             ndfc_vrf_update = self._execute_module(
                                 module_name="cisco.dcnm.dcnm_rest",
                                 module_args={
                                     "method": "PUT",
-                                    "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}",
+                                    "path": put_path,
                                     "data": rendered_to_nice_json
                                 },
                                 task_vars=task_vars,

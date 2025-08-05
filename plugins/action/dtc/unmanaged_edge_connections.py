@@ -37,7 +37,7 @@ class ActionModule(ActionBase):
         # List of switch serial numbes obtained directly from NDFC
         ndfc_sw_data = self._task.args["switch_data"]
         # Data from data model
-        edge_connections = self._task.args["edge_connections"][0]["switch"]
+        edge_connections = self._task.args.get("edge_connections", [{}])[0].get("switch", [])
         restructured_edge_connections = {}
         # For each switch current_sw_policies will be used to store a list of policies currently associated to the switch
         # For each switch that has unmanaged policies, the switch IP address and the list of unmanaged policies will be stored

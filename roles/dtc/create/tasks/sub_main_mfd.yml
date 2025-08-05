@@ -28,7 +28,8 @@
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+- name: Debug message
+  ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
   tags: "{{ nac_tags.create }}"
 
 - name: Create NDFC Fabric
@@ -38,18 +39,27 @@
     - changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
-- ansible.builtin.debug: msg="Query NDFC for List of Fabric Switches"
+- name: Debug message
+  ansible.builtin.debug: msg="Query NDFC for List of Fabric Switches"
   tags: "{{ nac_tags.create }}"
 
-- cisco.dcnm.dcnm_rest:
+- name: Collect switch data from NDFC
+  cisco.dcnm.dcnm_rest:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
   register: result
   tags: "{{ nac_tags.create }}"
 
-- name: set facts for result
+- name: Set facts for result
   ansible.builtin.set_fact:
-    switch_list_create: "{{result}}"
+    switch_list_create: "{{ result }}"
+
+- name: Prepare Multisite Data
+  cisco.nac_dc_vxlan.dtc.prepare_msite_data:
+    model_data: "{{ MD_Extended }}"
+    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+  register: MD_Multisite
+  tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage NDFC Fabric VRFs and Networks
   ansible.builtin.import_tasks: mfd/vrfs_networks.yml

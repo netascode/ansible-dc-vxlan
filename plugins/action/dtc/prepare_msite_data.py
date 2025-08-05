@@ -28,6 +28,8 @@ from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ...plugin_utils.helper_functions import ndfc_get_fabric_attributes
 from ...plugin_utils.helper_functions import ndfc_get_fabric_switches
+from ...plugin_utils.helper_functions import ndfc_get_fabric_attributes_onepath
+from ...plugin_utils.helper_functions import ndfc_get_fabric_switches_onepath
 import re
 
 display = Display()
@@ -46,34 +48,63 @@ class ActionModule(ActionBase):
 
         # This is actaully not an accurrate API endpoint as it returns all fabrics in NDFC, not just the fabrics associated with MSD
         # Therefore, we need to get the fabric associations response and filter out the fabrics that are not associated with the parent fabric (MSD)
-        msd_fabric_associations = self._execute_module(
-            module_name="cisco.dcnm.dcnm_rest",
-            module_args={
-                "method": "GET",
-                "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations",
-            },
-            task_vars=task_vars,
-            tmp=tmp
-        )
+        if model_data["vxlan"]["fabric"]["type"] == "MFD":
+            mfd_fabric_associations = self._execute_module(
+                module_name="cisco.dcnm.dcnm_rest",
+                module_args={
+                    "method": "GET",
+                    "path": "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics",
+                },
+                task_vars=task_vars,
+                tmp=tmp
+            )
+            associated_child_fabrics = []
+            for fabric in mfd_fabric_associations.get('response').get('DATA'):
+                if fabric.get('fabricName') == parent_fabric:
+                    for member in fabric["members"]:
+                        associated_child_fabrics.append({'fabric':member.get('fabricName'), 'cluster':member.get('clusterName'), 'type':member.get('fabricType')})
 
-        # Build a list of child fabrics that are associated with the parent fabric (MSD)
-        associated_child_fabrics = []
-        for fabric in msd_fabric_associations.get('response').get('DATA'):
-            if fabric.get('fabricParent') == parent_fabric:
-                associated_child_fabrics.append(fabric.get('fabricName'))
+
+            child_fabrics_data = {}
+            for fabric in associated_child_fabrics:
+                fabric_name = fabric['fabric']
+                child_fabrics_data.update({fabric_name: {}})
+                child_fabrics_data[fabric_name].update({'type': fabric['type']})
+                child_fabrics_data[fabric_name].update({'attributes': ndfc_get_fabric_attributes_onepath(self, task_vars, tmp, fabric_name, fabric['cluster'])})
+                child_fabrics_data[fabric_name].update({'switches': ndfc_get_fabric_switches_onepath(self, task_vars, tmp, fabric_name, fabric['cluster'])})
+                child_fabrics_data[fabric_name].update({'cluster': fabric['cluster']})
+
+            results['child_fabrics_data'] = child_fabrics_data
+            
+        else:
+            msd_fabric_associations = self._execute_module(
+                module_name="cisco.dcnm.dcnm_rest",
+                module_args={
+                    "method": "GET",
+                    "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations",
+                },
+                task_vars=task_vars,
+                tmp=tmp
+            )
+
+            # Build a list of child fabrics that are associated with the parent fabric (MSD)
+            associated_child_fabrics = []
+            for fabric in msd_fabric_associations.get('response').get('DATA'):
+                if fabric.get('fabricParent') == parent_fabric:
+                    associated_child_fabrics.append(fabric.get('fabricName'))
 
         # Get the fabric attributes and switches for each child fabric
         # These queries are potentially trying to get data for a fabric that is not associated with the parent fabric (MSD) yet
-        child_fabrics_data = {}
-        for fabric in associated_child_fabrics:
-            child_fabrics_data.update({fabric: {}})
-            child_fabrics_data[fabric].update(
-                {'type': [_fabric['fabricType'] for _fabric in msd_fabric_associations['response']['DATA'] if _fabric['fabricName'] == fabric][0]}
-            )
-            child_fabrics_data[fabric].update({'attributes': ndfc_get_fabric_attributes(self, task_vars, tmp, fabric)})
-            child_fabrics_data[fabric].update({'switches': ndfc_get_fabric_switches(self, task_vars, tmp, fabric)})
+            child_fabrics_data = {}
+            for fabric in associated_child_fabrics:
+                child_fabrics_data.update({fabric: {}})
+                child_fabrics_data[fabric].update(
+                    {'type': [_fabric['fabricType'] for _fabric in msd_fabric_associations['response']['DATA'] if _fabric['fabricName'] == fabric][0]}
+                )
+                child_fabrics_data[fabric].update({'attributes': ndfc_get_fabric_attributes(self, task_vars, tmp, fabric)})
+                child_fabrics_data[fabric].update({'switches': ndfc_get_fabric_switches(self, task_vars, tmp, fabric)})
 
-        results['child_fabrics_data'] = child_fabrics_data
+            results['child_fabrics_data'] = child_fabrics_data
 
         # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
         # a structure that is easier to use just like MD_Extended.
