@@ -21,7 +21,7 @@
 
 ---
 
-- name: Choose vars_common Based On Fabric Type
+- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
@@ -31,14 +31,16 @@
 - ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
+- name: Set vars_common_local for ISN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
+- name: Set vars_common_local for External
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
-- name: Add NDFC Fabric Devices {{ MD_Extended.vxlan.fabric.name }}
+- name: Add Fabric Devices in Nexus Dashboard
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_local.updated_inv_config['updated_inv_list'] }}"
@@ -55,13 +57,15 @@
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_vxlan.underlay_ip_address }}"
-  when: MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined and MD_Extended.vxlan.underlay.general.manual_underlay_allocation == True
+  when:
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
 
 # With the addition of the Allocate Underlay IP Address change above we
 # cannot call cisco.dcnm.dcnm_inventory with save: true until after
 # cisco.dcnm.dcnm_resource_manager is called.  This is why we call it
 # again here with save: true to maintain the previous workflow.
-- name: Call Inventory Module Again with Save set to True
+- name: Call Inventory Module Again with Save Set to True
   cisco.dcnm.dcnm_inventory:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_local.updated_inv_config['updated_inv_list'] }}"
@@ -87,13 +91,13 @@
   register: results
 # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 
-- name: Join List of Switch Hostname Policy IDs from NDFC
+- name: Join List of Switch Hostname Policy IDs from Nexus Dashboard
   ansible.builtin.set_fact:
     policy_ids: "{{ results.policy_update.values() | map(attribute='policyId') | list | join('%2C') }}"
   when: results.policy_update | length > 0
   delegate_to: localhost
 
-- name: Update Switch Hostname Policy in NDFC
+- name: Update Switch Hostname Policy in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: PUT
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"

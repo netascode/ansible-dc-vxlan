@@ -21,7 +21,7 @@
 
 ---
 
-- name: Import VXLAN Role Tasks
+- name: Import iBGP VXLAN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN') and
@@ -34,7 +34,7 @@
     (vars_common_vxlan.changes_detected_networks) or
     (vars_common_vxlan.changes_detected_policy)
 
-- name: Import eBGP VXLAN Role Tasks
+- name: Import eBGP VXLAN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
@@ -46,7 +46,7 @@
     (vars_common_ebgp_vxlan.changes_detected_interfaces) or
     (vars_common_ebgp_vxlan.changes_detected_vrfs)
 
-- name: Import ISN Role Tasks
+- name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'ISN') and
@@ -55,24 +55,20 @@
     (vars_common_isn.changes_detected_interfaces) or
     (vars_common_isn.changes_detected_policy)
 
-- name: Import MSD Role Tasks
+- name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   when: >
-    (MD_Extended.vxlan.fabric.type == 'MSD') and
-    (vars_common_msd.changes_detected_fabric) or
-    (vars_common_msd.changes_detected_bgw_anycast_vip) or
-    (vars_common_msd.changes_detected_vrfs) or
-    (vars_common_msd.changes_detected_networks)
+    (MD_Extended.vxlan.fabric.type == 'MSD')
 
 # Check with Matt and Pete on External Fabrics
-- name: Import Role Tasks External Fabric
+- name: Import External Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_external.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'External') and
     (vars_common_external.changes_detected_inventory) or
     (vars_common_external.changes_detected_interfaces) or
     (vars_common_external.changes_detected_fabric) or
-    (vars_common_external.changes_detected_interface_access_po) or 
+    (vars_common_external.changes_detected_interface_access_po) or
     (vars_common_external.changes_detected_interface_access) or
     (vars_common_external.changes_detected_interface_loopback) or
     (vars_common_external.changes_detected_interface_po_routed) or
