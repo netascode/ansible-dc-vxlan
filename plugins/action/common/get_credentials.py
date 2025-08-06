@@ -55,10 +55,9 @@ class ActionModule(ActionBase):
         updated_inv_list = []
         for device in inv_list:
             updated_inv_list.append(copy.deepcopy(device))
-
         for new_device in updated_inv_list:
-            new_device['user_name'] = username
-            new_device['password'] = password
+            if new_device.get('user_name') == 'PLACE_HOLDER_USERNAME': new_device['user_name'] = username
+            if new_device.get('password') == 'PLACE_HOLDER_PASSWORD': new_device['password'] = password
 
         results['updated_inv_list'] = updated_inv_list
         return results
