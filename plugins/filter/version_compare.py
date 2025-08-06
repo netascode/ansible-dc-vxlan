@@ -83,7 +83,6 @@ SUPPORTED_COMPARISON_OPERATORS = ['==', '!=', '>', '>=', '<', '<=']
 def version_compare(version1, version2, op):
     """
     Compare two version strings using the specified operator.
-
     Args:
         version1 (str): The first version string to compare.
         version2 (str): The second version string to compare.
