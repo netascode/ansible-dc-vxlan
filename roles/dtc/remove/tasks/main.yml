@@ -76,7 +76,6 @@
   # Additional conditions to be added when needed:
   # vars_common_ebgp_vxlan.changes_detected_networks or
 
-
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:
     model_data: "{{ MD_Extended }}"
