@@ -24,7 +24,9 @@
 {% endfor %}
         "freeformConfig": "{{ attach['freeform_config'] | default('') | replace('\n', '\\n') | replace('"', '\\"') }}",
         "extensionValues": "",
+{% if vrf['vlan_id'] is defined %}
         "vlan": "{{ vrf["vlan_id"] }}",
+{% endif %}
         "deployment": true,
         "instanceValues": "{\"loopbackId\": \"{{ attach['loopback_id'] | default('')}}\", \"loopbackIpAddress\": \"{{ attach['loopback_ipv4'] | default('') }}\", \"loopbackIpV6Address\":\"{{ attach['loopback_ipv6'] | default('') }}\"}"
       }{% if not loop.last %},{% endif %}
