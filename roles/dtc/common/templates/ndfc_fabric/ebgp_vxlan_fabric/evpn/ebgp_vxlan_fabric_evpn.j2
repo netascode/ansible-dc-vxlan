@@ -20,7 +20,7 @@
         (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) ) %}
 {% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
   RP_LB_ID: {{ vxlan.underlay.multicast.underlay_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_rp_loopback_id) }}
-  RP_COUNT: {{ vxlan.underlay.multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) }}
+  RP_COUNT: "{{ vxlan.underlay.multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) }}"
   RP_MODE: {{ vxlan.underlay.multicast.rp_mode | default(defaults.vxlan.underlay.multicast.rp_mode) }}
   ENABLE_TRM: {{ vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | title }}
 {% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) %}

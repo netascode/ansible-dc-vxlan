@@ -52,11 +52,7 @@
 - name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   when: >
-    (MD_Extended.vxlan.fabric.type == 'MSD') and
-    (vars_common_msd.changes_detected_fabric) or
-    (vars_common_msd.changes_detected_bgw_anycast_vip) or
-    (vars_common_msd.changes_detected_vrfs) or
-    (vars_common_msd.changes_detected_networks)
+    (MD_Extended.vxlan.fabric.type == 'MSD')
 
 # Check with Matt and Pete on External Fabrics
 - name: Import External Fabric Role Tasks

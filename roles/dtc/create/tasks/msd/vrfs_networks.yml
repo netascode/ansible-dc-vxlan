@@ -51,6 +51,11 @@
 #     name: dtc.common
 #     tasks_from: msd/ndfc_networks.yml
 
+- name: Set path_name Var
+  ansible.builtin.set_fact:
+    path_name: "{{ role_path }}/../common/files/msd/{{ MD_Extended.vxlan.fabric.name }}/"
+  delegate_to: localhost
+
 - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
   ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
 
@@ -65,6 +70,8 @@
     vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
   vars:
     update_data:
+      # changes_detected_vrfs and changes_detected_networks are set in the
+      # dtc.common.tasks.msd.ndfc_vrfs.yml and dtc.common.tasks.msd.ndfc_networks.yml tasks
       changes_detected_vrfs: "{{ changes_detected_vrfs }}"
       changes_detected_networks: "{{ changes_detected_networks }}"
       vrf_config: "{{ vrf_config }}"
@@ -143,5 +150,12 @@
 
 - name: Update Child Fabrics VRFs and Networks Changed State
   ansible.builtin.set_fact:
-    child_fabrics_vrfs_networks_changed: >
-      "{{ child_fabric_vrf_results.child_fabrics_changed | ansible.builtin.union(child_fabric_network_results.child_fabrics_changed) }}"
+    child_fabrics_vrfs_networks_changed: "{{ vrf_changed | ansible.builtin.union(network_changed) }}"
+  vars:
+    vrf_changed: "{{ child_fabric_vrf_results.child_fabrics_changed | default([]) }}"
+    network_changed: "{{ child_fabric_network_results.child_fabrics_changed | default([]) }}"
+  when: >
+    (child_fabric_vrf_results.child_fabrics_changed is defined and
+      child_fabric_vrf_results.child_fabrics_changed | length > 0) or
+    (child_fabric_network_results.child_fabrics_changed is defined and
+     child_fabric_network_results.child_fabrics_changed | length > 0)

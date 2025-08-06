@@ -4,3 +4,4 @@ nac-validate==1.0.0
 macaddress
 netaddr
 packaging
+jmespath

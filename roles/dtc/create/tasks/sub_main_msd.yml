@@ -59,21 +59,21 @@
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_msd.bgw_anycast_vip }}"
-  when: >
-      (MD_Multisite.child_fabrics_data
-      | dict2items
-      | selectattr('value.attributes', 'defined')
-      | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
-      | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["true", true])
-      | map(attribute='key')
-      | list
-      | length > 0) and
-      (vars_common_msd.bgw_anycast_vip | length > 0)
+  when:
+    - (MD_Multisite.child_fabrics_data
+       | dict2items
+       | selectattr('value.attributes', 'defined')
+       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
+       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["true", true])
+       | map(attribute='key')
+       | list
+       | length > 0)
+    - vars_common_msd.bgw_anycast_vip | length > 0
+    - vars_common_msd.changes_detected_bgw_anycast_vip
 
 - name: Manage MSD Fabric VRFs and Networks in Nexus Dashboard
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
   when:
     - MD_Extended.vxlan.multisite.overlay is defined
     - MD_Extended.vxlan.multisite.overlay
-    # - (vars_common_msd.changes_detected_vrfs or vars_common_msd.changes_detected_networks)
   tags: "{{ nac_tags.create_vrfs_networks }}"
