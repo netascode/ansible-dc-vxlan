@@ -34,6 +34,6 @@
     timeout: 30
     state: started
     msg: >
-      Timed out waiting to connect to NDFC at https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}.
+      Timed out waiting to connect to Nexus Dashboard at https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}.
       Check the Nexus Dashboard is reachable from the Ansible Controller.
   delegate_to: localhost
