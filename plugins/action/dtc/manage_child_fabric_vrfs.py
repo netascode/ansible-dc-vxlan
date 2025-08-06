@@ -72,6 +72,11 @@ class ActionModule(ActionBase):
         nd_version = self._task.args["nd_version"]
         msite_data = self._task.args["msite_data"]
 
+        # Extract major, minor, patch and patch letter from nd_version
+        # that is set in nac_dc_vxlan.dtc.connectivity_check role
+        # Example nd_version: "3.1.1l" or "3.2.2m"
+        # where 3.1.1/3.2.2 are major.minor.patch respectively
+        # and l/m are the patch letter respectively
         nd_major_minor_patch = None
         nd_patch_letter = None
         match = re.match(r'^(\d+\.\d+\.\d+)([a-z])?$', nd_version)
@@ -125,7 +130,7 @@ class ActionModule(ActionBase):
                         elif len(vrf_child_fabric) == 1:
                             vrf_child_fabric = vrf_child_fabric[0]
 
-                        # Need to clean these up and make them more
+                        # Need to clean these up and make them more dynamic
                         # Check if fabric settings are properly enabled
                         if vrf_child_fabric.get('netflow_enable'):
                             if child_fabric_attributes['ENABLE_NETFLOW'] == 'false':
@@ -177,26 +182,6 @@ class ActionModule(ActionBase):
                         # Check for differences between the data model and the template config from NDFC for the
                         # attributes that are configurable by the user in a child fabric.
                         # Note: This excludes IPv6 related attributes at this time as they are not yet supported fully in the data model.
-                        # if (
-                        #     (ndfc_vrf_template_config['advertiseHostRouteFlag'] != str(vrf_child_fabric.get('adv_host_routes', '')).lower()) or
-                        #     (ndfc_vrf_template_config['advertiseDefaultRouteFlag'] != str(vrf_child_fabric.get('adv_default_routes', '')).lower()) or
-                        #     (ndfc_vrf_template_config['configureStaticDefaultRouteFlag'] != str(vrf_child_fabric.get('config_static_default_route', '')).lower()) or     # noqa: E501
-                        #     (ndfc_vrf_template_config['bgpPassword'] != vrf_child_fabric.get('bgp_password', '')) or
-                        #     (ndfc_vrf_template_config.get('bgpPasswordKeyType', '') != vrf_child_fabric.get('bgp_password_key_type', '')) or
-                        #     (ndfc_vrf_template_config['ENABLE_NETFLOW'] != str(vrf_child_fabric.get('netflow_enable', False)).lower()) or
-                        #     (ndfc_vrf_template_config['NETFLOW_MONITOR'] != vrf_child_fabric.get('netflow_monitor', '')) or
-                        #     (ndfc_vrf_template_config['trmEnabled'] != str(vrf_child_fabric.get('trm_enable', False)).lower()) or
-                        #     (ndfc_vrf_template_config.get('loopbackNumber', '') != vrf_child_fabric.get('rp_loopback_id', '')) or
-                        #     (ndfc_vrf_template_config.get('rpAddress', '') != vrf_child_fabric.get('rp_address', '')) or
-                        #     (ndfc_vrf_template_config['isRPAbsent'] != str(vrf_child_fabric.get('no_rp', False)).lower()) or
-                        #     (ndfc_vrf_template_config['isRPExternal'] != str(vrf_child_fabric.get('rp_external', False)).lower()) or
-                        #     (ndfc_vrf_template_config.get('L3VniMcastGroup', '') != vrf_child_fabric.get('underlay_mcast_ip', '')) or
-                        #     (ndfc_vrf_template_config['multicastGroup'] != vrf_child_fabric.get('overlay_multicast_group', '')) or
-                        #     (ndfc_vrf_template_config.get('routeTargetImportMvpn', '') != vrf_child_fabric.get('import_mvpn_rt', '')) or
-                        #     (ndfc_vrf_template_config.get('routeTargetExportMvpn', '') != vrf_child_fabric.get('export_mvpn_rt', ''))
-                        # ):
-                        #     results['child_fabrics_changed'].append(child_fabric)
-
                         diff_found = False
                         for template_key, map_info in VRF_TEMPLATE_CONFIG_MAP.items():
                             dm_key = map_info['dm_key']

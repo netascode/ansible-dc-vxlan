@@ -61,6 +61,11 @@ class ActionModule(ActionBase):
         nd_version = self._task.args["nd_version"]
         msite_data = self._task.args["msite_data"]
 
+        # Extract major, minor, patch and patch letter from nd_version
+        # that is set in nac_dc_vxlan.dtc.connectivity_check role
+        # Example nd_version: "3.1.1l" or "3.2.2m"
+        # where 3.1.1/3.2.2 are major.minor.patch respectively
+        # and l/m are the patch letter respectively
         nd_major_minor_patch = None
         nd_patch_letter = None
         match = re.match(r'^(\d+\.\d+\.\d+)([a-z])?$', nd_version)
@@ -115,6 +120,7 @@ class ActionModule(ActionBase):
                             network_child_fabric = network_child_fabric[0]
 
                         # Need to clean these up and make them more dynamic
+                        # Check if fabric settings are properly enabled
                         if network_child_fabric.get('netflow_enable'):
                             if child_fabric_attributes['ENABLE_NETFLOW'] == 'false':
                                 error_msg = (
@@ -165,15 +171,6 @@ class ActionModule(ActionBase):
                         # Check for differences between the data model and the template config from NDFC for the
                         # attributes that are configurable by the user in a child fabric.
                         # Note: This excludes IPv6 related attributes at this time as they are not yet supported fully in the data model.
-                        # if (
-                        #     (ndfc_net_template_config['loopbackId'] != network_child_fabric.get('dhcp_loopback_id', "")) or
-                        #     (ndfc_net_template_config['ENABLE_NETFLOW'] != str(network_child_fabric.get('netflow_enable', False)).lower()) or
-                        #     (ndfc_net_template_config['VLAN_NETFLOW_MONITOR'] != network_child_fabric.get('vlan_netflow_monitor', "")) or
-                        #     (ndfc_net_template_config['trmEnabled'] != str(network_child_fabric.get('trm_enable', False)).lower()) or
-                        #     (ndfc_net_template_config['mcastGroup'] != network_child_fabric.get('multicast_group_address'))
-                        # ):
-                        #     results['child_fabrics_changed'].append(child_fabric)
-
                         diff_found = False
                         for template_key, map_info in NETWORK_TEMPLATE_CONFIG_MAP.items():
                             dm_key = map_info['dm_key']
