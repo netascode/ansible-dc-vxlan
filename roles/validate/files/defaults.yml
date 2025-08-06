@@ -26,6 +26,8 @@ factory_defaults:
       ebgp:
         bgp_asn_mode: Multi-AS
         leaf_same_bgp_asn: false
+      ibgp:
+        tcam_allocation: true
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
@@ -201,7 +203,7 @@ factory_defaults:
         authentication_key_id: 127
       isis:
         level: level-2
-        net_area_number: "0001"
+        net_area_number: 0001
         network_point_to_point: true
         authentication_enable: false
         authentication_key_id: 127

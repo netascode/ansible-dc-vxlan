@@ -136,12 +136,8 @@
 - name: Read Run Map From Previous Run
   cisco.nac_dc_vxlan.common.read_run_map:
     model_data: "{{ MD_Extended }}"
+    play_tags: "{{ ansible_run_tags }}"
   register: run_map_read_result
-  delegate_to: localhost
-
-- name: Debug Run Map Read Result
-  ansible.builtin.debug:
-    msg: "{{ run_map_read_result }}"
   delegate_to: localhost
 
 - name: Initialize Run Map
