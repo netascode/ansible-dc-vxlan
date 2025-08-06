@@ -65,4 +65,9 @@
 - name: Set Cisco NDFC Version Var
   ansible.builtin.set_fact:
     ndfc_version: "{{ ndfc_version.response.DATA.version }}"
+  when:
+    - ndfc_version is defined
+    - ndfc_version.response is defined
+    - ndfc_version.response.DATA is defined
+    - ndfc_version.response.DATA.version is defined
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
