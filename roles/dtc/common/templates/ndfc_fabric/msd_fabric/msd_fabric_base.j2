@@ -9,8 +9,10 @@
 {# Include NDFC DC VXLAN EVPN DCI Template #}
 {% include '/ndfc_fabric/msd_fabric/dci/msd_fabric_dci.j2' %}
 
-{# Include NDFC DC VXLAN EVPN Security Template #}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
+{# Include NDFC MSD Security Template #}
 {% include '/ndfc_fabric/msd_fabric/security/msd_fabric_security.j2' %}
+{% endif %}
 
 {# Include NDFC DC VXLAN EVPN Resources Template #}
 {% include '/ndfc_fabric/msd_fabric/resources/msd_fabric_resources.j2' %}

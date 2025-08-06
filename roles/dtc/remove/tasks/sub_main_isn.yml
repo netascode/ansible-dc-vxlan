@@ -28,35 +28,37 @@
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.remove }}" # Tags defined in roles/common_global/vars/main.yml
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+- name: Display Device Configuration Method
+  ansible.builtin.debug:
+    msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"
   tags: "{{ nac_tags.remove }}"
 
-- name: Get List of Fabric Switches from NDFC
+- name: Get List of ISN Fabric Switches from Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
   register: switch_list
   tags: "{{ nac_tags.remove }}"
 
-- name: Remove Edge Connections
+- name: Remove ISN Fabric Edge Connections from Nexus Dashboard
   ansible.builtin.import_tasks: common/edge_connections.yml
   tags: "{{ nac_tags.remove_edge_connections }}"
   when:
     - vars_common_isn.changes_detected_edge_connections
 
-- name: Remove Fabric Policy
+- name: Remove ISN Fabric Policy from Nexus Dashboard
   ansible.builtin.import_tasks: common/policy.yml
   tags: "{{ nac_tags.remove_policy }}"
   when:
     - vars_common_isn.changes_detected_policy
 
-- name: Remove Fabric Interfaces
+- name: Remove ISN Fabric Interfaces from Nexus Dashboard
   ansible.builtin.import_tasks: common/interfaces.yml
   tags: "{{ nac_tags.remove_interfaces }}"
   when:
     - vars_common_isn.changes_detected_interfaces
 
-- name: Remove Fabric Switches
+- name: Remove ISN Fabric Switches from Nexus Dashboard
   ansible.builtin.import_tasks: common/switches.yml
   tags: "{{ nac_tags.remove_switches }}"
   when:
