@@ -319,6 +319,38 @@ class TestReadRunMapActionModule:
                         result = action_module.run(task_vars=task_vars)
                         assert result['diff_run'] is False
 
+    def test_run_map_file_exists_all_not_in_play_tags(self):
+        """Test when run map file exists and play_tags exists (should by default) and 'all' not in play_tags."""
+        task_args = {
+            'model_data': {
+                'vxlan': {
+                    'fabric': {
+                        'name': 'test-fabric'
+                    }
+                }
+            },
+            'play_tags': ['tag1', 'tag2']
+        }
+        task_vars = {
+            'role_path': '/path/to/role'
+        }
+        action_module = self.create_action_module(task_args)
+
+        # Mock YAML data with all roles completed
+        yaml_data = {
+            'role_validate_completed': True,
+            'role_create_completed': True,
+            'role_deploy_completed': True,
+            'role_remove_completed': True
+        }
+
+        with patch('ansible.plugins.action.ActionBase.run', return_value={}):
+            with patch('os.path.exists', return_value=True):
+                with patch('builtins.open', mock_open()):
+                    with patch('yaml.safe_load', return_value=yaml_data):
+                        result = action_module.run(task_vars=task_vars)
+                        assert result['diff_run'] is False
+
     def test_run_map_file_does_not_exist(self):
         """Test when run map file does not exist."""
         task_args = {
