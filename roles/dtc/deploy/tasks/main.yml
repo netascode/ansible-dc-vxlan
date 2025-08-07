@@ -113,11 +113,12 @@
     vars_common_ebgp_vxlan.changes_detected_inventory or
     vars_common_ebgp_vxlan.changes_detected_vpc_peering or
     vars_common_ebgp_vxlan.changes_detected_link_vpc_peering or
-    vars_common_ebgp_vxlan.changes_detected_policy)
+    vars_common_ebgp_vxlan.changes_detected_interface_vpc or
+    vars_common_ebgp_vxlan.changes_detected_policy or
+    vars_common_ebgp_vxlan.changes_detected_vrfs)
 # Additional conditions to be added when needed:
 # vars_common_ebgp_vxlan.changes_detected_fabric_links or
 # vars_common_ebgp_vxlan.changes_detected_networks or
-# vars_common_ebgp_vxlan.changes_detected_vrfs
 
 - name: Mark Stage Role Deploy Completed
   cisco.nac_dc_vxlan.common.run_map:

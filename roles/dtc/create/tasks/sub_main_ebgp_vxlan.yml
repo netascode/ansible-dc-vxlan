@@ -86,14 +86,13 @@
 #     - vars_common_ebgp_vxlan.changes_detected_edge_connections
 #   tags: "{{ nac_tags.create_links }}"
 
-
-# - name: Manage eBGP VXLAN Fabric VRFs and Networks
-#   ansible.builtin.import_tasks: vxlan/vrfs_networks.yml
-#   when:
-#     - MD_Extended.vxlan.overlay is defined
-#     - MD_Extended.vxlan.topology.switches | length > 0
-#     - vars_common_ebgp_vxlan.changes_detected_vrfs or vars_common_ebgp_vxlan.changes_detected_networks
-#   tags: "{{ nac_tags.create_vrfs_networks }}"
+- nname: Manage eBGP VXLAN Fabric VRFs and Networks in Nexus Dashboard
+  ansible.builtin.import_tasks: common_vxlan/vrfs_networks.yml
+  when:
+    - MD_Extended.vxlan.overlay is defined
+    - MD_Extended.vxlan.topology.switches | length > 0
+    - vars_common_ebgp_vxlan.changes_detected_vrfs or vars_common_ebgp_vxlan.changes_detected_networks
+  tags: "{{ nac_tags.create_vrfs_networks }}"
 
 # - name: Manage eBGP VXLAN Fabric Intra Links
 #   ansible.builtin.import_tasks: common/links.yml

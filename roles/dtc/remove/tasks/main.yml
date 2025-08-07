@@ -69,6 +69,7 @@
     (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
     (vars_common_ebgp_vxlan.changes_detected_fabric_links or
     vars_common_ebgp_vxlan.changes_detected_vpc_peering or
+    vars_common_ebgp_vxlan.changes_detected_vrfs or
     vars_common_ebgp_vxlan.changes_detected_interfaces or
     vars_common_ebgp_vxlan.changes_detected_policy or
     vars_common_ebgp_vxlan.changes_detected_inventory)
