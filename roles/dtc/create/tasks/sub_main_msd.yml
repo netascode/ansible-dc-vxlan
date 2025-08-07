@@ -64,7 +64,7 @@
       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["true", true])
       | map(attribute='key')
-      | list 
+      | list
       | length > 0) and
       (vars_common_msd.bgw_anycast_vip | length > 0)
 

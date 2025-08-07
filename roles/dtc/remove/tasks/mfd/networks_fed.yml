@@ -28,13 +28,13 @@
 - name: Get network list
   cisco.dcnm.dcnm_rest:
     method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name  }}/networks"
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/networks"
   register: networkList
 
 - name: Get network attachments list
   cisco.dcnm.dcnm_rest:
-      method: GET
-      path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/networks/attachments
+    method: GET
+    path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/networks/attachments
   register: networkAttachmentList
 
 - name: Filter networks to be removed
@@ -47,9 +47,9 @@
 
 - name: Remove network attachments
   cisco.dcnm.dcnm_rest:
-      method: POST
-      path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/networks/attachments
-      json_data: "{{ not_required_networks.attachments_payload  | to_json }}"
+    method: POST
+    path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/networks/attachments
+    json_data: "{{ not_required_networks.attachments_payload | to_json }}"
   register: network_attachment_result
   when:
     - switch_list.response.DATA | length > 0
@@ -58,15 +58,15 @@
 
 - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
   cisco.dcnm.dcnm_rest:
-     method: POST
-     path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
+    method: POST
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
   register: config_save
-  ignore_errors: True
+  ignore_errors: true
 
 - name: Deploy for network attachments removal
   cisco.dcnm.dcnm_rest:
-       method: POST
-       path: /appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy/{{not_required_networks.deploy_payload | join(',') }}?forceShowRun=false
+    method: POST
+    path: /appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy/{{ not_required_networks.deploy_payload | join(',') }}?forceShowRun=false
   when:
     - switch_list.response.DATA | length > 0
     - not_required_networks.deploy_payload | length > 0
@@ -74,8 +74,8 @@
 
 - name: Remove networks
   cisco.dcnm.dcnm_rest:
-      method: DELETE
-      path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/bulk-delete/networks?network-names={{ not_required_networks.payload | join(',') }}
+    method: DELETE
+    path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/bulk-delete/networks?network-names={{ not_required_networks.payload | join(',') }}
   register: network_attachment_result
   when:
     - switch_list.response.DATA | length > 0
