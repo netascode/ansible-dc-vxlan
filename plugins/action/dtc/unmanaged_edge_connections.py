@@ -25,7 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
-from ...plugin_utils.helper_functions import ndfc_get_switch_policy_using_desc
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_switch_policy_using_desc
 
 
 class ActionModule(ActionBase):

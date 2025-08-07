@@ -20,7 +20,7 @@
 # SPDX-License-Identifier: MIT
 
 from ansible.utils.display import Display
-from ....plugin_utils.helper_functions import data_model_key_check
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import data_model_key_check
 
 display = Display()
 
