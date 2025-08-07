@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -55,10 +55,9 @@ class ActionModule(ActionBase):
         updated_inv_list = []
         for device in inv_list:
             updated_inv_list.append(copy.deepcopy(device))
-
         for new_device in updated_inv_list:
-            new_device['user_name'] = username
-            new_device['password'] = password
+            if new_device.get('user_name') == 'PLACE_HOLDER_USERNAME': new_device['user_name'] = username
+            if new_device.get('password') == 'PLACE_HOLDER_PASSWORD': new_device['password'] = password
 
         results['updated_inv_list'] = updated_inv_list
         return results

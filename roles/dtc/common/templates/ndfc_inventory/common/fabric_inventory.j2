@@ -6,9 +6,17 @@
 {% elif switch.management.management_ipv6_address is defined %}
 - seed_ip: {{ switch['management']['management_ipv6_address'] }}
 {% endif %}
-  auth_proto: {{ MD['vxlan']['global']['auth_proto'] | default(defaults.vxlan.global.auth_proto) }}
+{% if switch['management']['username'] is defined %}
+  user_name: {{ switch['management']['username'] }}
+{% else %}
   user_name: PLACE_HOLDER_USERNAME
+{% endif %}
+{% if switch['management']['password'] is defined %}
+  password: {{ switch['management']['password'] }}
+{% else %}
   password: PLACE_HOLDER_PASSWORD
+{% endif %}
+  auth_proto: {{ MD['vxlan']['global']['auth_proto'] | default(defaults.vxlan.global.auth_proto) }}
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: {{ switch['role'] }}
   preserve_config: false
