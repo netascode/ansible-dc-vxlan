@@ -23,9 +23,9 @@
     PEER2_KEEP_ALIVE_LOCAL_IP: {{ vpc_peers_pair.peer2_keepalive_ipv4 }}
     PEER2_PO_CONF: "{{ vpc_peers_pair.peer2_po_channel_conf | default('') }}"
     PEER2_PO_DESC: "{{ vpc_peers_pair.peer2_po_channel_desc | default('') }}"
-    PEER1_PCID: {{ vpc_peers_pair.peer1_port_channel_id | default(defaults.vxlan.topology.vpc_peers.peer1_port_channel_id) }}
-    PEER2_PCID: {{ vpc_peers_pair.peer2_port_channel_id | default(defaults.vxlan.topology.vpc_peers.peer2_port_channel_id) }}
-    PEER1_MEMBER_INTERFACES: "{{ vpc_peers_pair.peer1_member_interfaces | default('') }}"
-    PEER2_MEMBER_INTERFACES: "{{ vpc_peers_pair.peer1_member_interfaces | default('') }}"
+    PEER1_PCID: {{ vpc_peers_pair.peer1_po_channel_id | default(defaults.vxlan.topology.vpc_peers.peer1_po_channel_id) }}
+    PEER2_PCID: {{ vpc_peers_pair.peer2_po_channel_id | default(defaults.vxlan.topology.vpc_peers.peer2_po_channel_id) }}
+    PEER1_MEMBER_INTERFACES: "{{ vpc_peers_pair.peer1_member_interfaces | default([]) | join(',') }}"
+    PEER2_MEMBER_INTERFACES: "{{ vpc_peers_pair.peer2_member_interfaces | default([]) | join(',') }}"
 {% endfor %}
 {% endif %}
