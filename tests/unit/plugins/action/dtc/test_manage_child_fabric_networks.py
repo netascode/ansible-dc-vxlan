@@ -45,6 +45,7 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
         """Set up test fixtures."""
         super().setUp()
         self.maxDiff = None
+        self.mock_nd_version = '3.2.2m'
         self.mock_msite_data = {
             'overlay_attach_groups': {
                 'networks': [
@@ -103,7 +104,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
             'child_fabrics_data': {}
         }
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         result = action_module.run()
@@ -122,7 +126,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
             'child_fabrics_data': {}
         }
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         result = action_module.run()
@@ -132,7 +139,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
 
     def test_run_non_switch_fabric_type(self):
         """Test run with non-Switch_Fabric type child fabrics."""
-        task_args = {'msite_data': self.mock_msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': self.mock_msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         # Change child fabric type to non-Switch_Fabric
@@ -175,7 +185,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
             }
         }
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         result = action_module.run()
@@ -189,7 +202,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
         # Set fabric netflow to false but network netflow to true
         msite_data['child_fabrics_data']['child_fabric1']['attributes']['ENABLE_NETFLOW'] = 'false'
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         result = action_module.run()
@@ -203,7 +219,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
         # Set fabric TRM to false but network TRM to true
         msite_data['child_fabrics_data']['child_fabric1']['attributes']['ENABLE_TRM'] = 'false'
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         result = action_module.run()
@@ -213,7 +232,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
 
     def test_run_network_update_required(self):
         """Test run when network configuration needs to be updated."""
-        task_args = {'msite_data': self.mock_msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': self.mock_msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         # Mock template file content and path finding
@@ -260,7 +282,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
 
     def test_run_network_no_update_required(self):
         """Test run when network configuration matches and no update is needed."""
-        task_args = {'msite_data': self.mock_msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': self.mock_msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         with patch.object(action_module, '_execute_module') as mock_execute:
@@ -288,7 +313,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
 
     def test_run_template_file_not_found(self):
         """Test run when template file cannot be found."""
-        task_args = {'msite_data': self.mock_msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': self.mock_msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         with patch.object(action_module, '_execute_module') as mock_execute, \
@@ -322,7 +350,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
 
     def test_run_network_update_failed(self):
         """Test run when network update fails."""
-        task_args = {'msite_data': self.mock_msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': self.mock_msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         template_content = '{"networkName": "{{ network_name }}"}'
@@ -394,7 +425,10 @@ class TestManageChildFabricNetworksActionModule(ActionModuleTestCase):
             }
         }
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         template_content = '{"networkName": "{{ network_name }}", "fabric": "{{ fabric_name }}"}'

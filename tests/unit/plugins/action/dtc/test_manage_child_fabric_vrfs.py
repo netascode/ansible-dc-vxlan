@@ -45,6 +45,7 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
         """Set up test fixtures."""
         super().setUp()
         self.maxDiff = None
+        self.mock_nd_version = '3.2.2m'
 
         # Standard mock VRF template config JSON string that matches the test VRF config exactly
         self.standard_vrf_config = (
@@ -135,7 +136,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
             'child_fabrics_data': {}
         }
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         result = action_module.run()
@@ -154,7 +158,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
             'child_fabrics_data': {}
         }
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         result = action_module.run()
@@ -164,7 +171,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
 
     def test_run_non_switch_fabric_type(self):
         """Test run with non-Switch_Fabric type child fabrics."""
-        task_args = {'msite_data': self.mock_msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': self.mock_msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         # Change child fabric type to non-Switch_Fabric
@@ -181,7 +191,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
         # Set fabric netflow to false but VRF netflow to true
         msite_data['child_fabrics_data']['child_fabric1']['attributes']['ENABLE_NETFLOW'] = 'false'
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         result = action_module.run()
@@ -191,7 +204,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
 
     def test_run_vrf_no_update_required(self):
         """Test run when VRF configuration matches and no update is needed."""
-        task_args = {'msite_data': self.mock_msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': self.mock_msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         with patch.object(action_module, '_execute_module') as mock_execute:
@@ -218,7 +234,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
         msite_data['child_fabrics_data']['child_fabric1']['attributes']['ENABLE_TRM'] = 'false'
         msite_data['overlay_attach_groups']['vrfs'][0]['child_fabrics'][0]['trm_enable'] = True
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         result = action_module.run()
@@ -228,7 +247,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
 
     def test_run_vrf_update_required(self):
         """Test run when VRF configuration needs to be updated."""
-        task_args = {'msite_data': self.mock_msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': self.mock_msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         # Mock template file content and path finding
@@ -288,7 +310,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
 
     def test_run_template_file_not_found(self):
         """Test run when template file cannot be found."""
-        task_args = {'msite_data': self.mock_msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': self.mock_msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         with patch.object(action_module, '_execute_module') as mock_execute, \
@@ -335,7 +360,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
 
     def test_run_vrf_update_failed(self):
         """Test run when VRF update fails."""
-        task_args = {'msite_data': self.mock_msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': self.mock_msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         template_content = '{"vrfName": "{{ dm.name }}"}'
@@ -420,7 +448,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
             }
         }
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         template_content = '{"vrfName": "test_vrf", "fabric": "{{ fabric_name }}"}'
@@ -510,7 +541,10 @@ class TestManageChildFabricVrfsActionModule(ActionModuleTestCase):
             }
         }
 
-        task_args = {'msite_data': msite_data}
+        task_args = {
+            'nd_version': self.mock_nd_version,
+            'msite_data': msite_data
+        }
         action_module = self.create_action_module(ActionModule, task_args)
 
         result = action_module.run()
