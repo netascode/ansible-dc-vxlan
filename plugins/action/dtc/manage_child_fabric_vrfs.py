@@ -28,7 +28,7 @@ from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ansible.template import Templar
 from ansible.errors import AnsibleFileNotFound
-from ansible_collections.cisco.nac_dc_vxlan.plugins.filter import version_compare
+from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
 
 
 import re
@@ -214,7 +214,7 @@ class ActionModule(ActionBase):
                             # Attempt to find and read the template file
                             role_path = task_vars.get('role_path')
                             version = '3.2'
-                            if version_compare.version_compare(nd_major_minor_patch, '3.1.1', '<='):
+                            if version_compare(nd_major_minor_patch, '3.1.1', '<='):
                                 version = '3.1'
                             template_path = f"{role_path}{MSD_CHILD_FABRIC_VRF_TEMPLATE_PATH}{version}{MSD_CHILD_FABRIC_VRF_TEMPLATE}"
 
