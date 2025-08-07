@@ -28,7 +28,7 @@ from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ansible.template import Templar
 from ansible.errors import AnsibleFileNotFound
-from ...filter.version_compare import version_compare
+from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
 
 
 import re
