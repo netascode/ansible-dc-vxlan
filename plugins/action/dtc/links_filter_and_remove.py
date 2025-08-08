@@ -48,10 +48,12 @@ class ActionModule(ActionBase):
             # Cannot assume the existing_link has the 'templateName' key so use get for safety
             if existing_link.get('templateName') == "int_pre_provision_intra_fabric_link" or existing_link.get('templateName') == "int_intra_fabric_num_link":
                 filtered_existing_links.append(existing_link)
-                if ('sw1-info' in existing_link and
+                if (
+                    'sw1-info' in existing_link and
                     'sw2-info' in existing_link and
                     'sw-sys-name' in existing_link['sw1-info'] and
-                    'sw-sys-name' in existing_link['sw2-info']):
+                    'sw-sys-name' in existing_link['sw2-info']
+                ):
                     for switch in switch_list:
                         if existing_link['sw1-info']['sw-sys-name'].lower() == switch['name'].lower():
                             existing_link['sw1-info']['sw-sys-name'] = switch['management']['management_ipv4_address']

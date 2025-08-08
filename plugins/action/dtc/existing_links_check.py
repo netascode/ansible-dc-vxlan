@@ -45,10 +45,12 @@ class ActionModule(ActionBase):
         not_required_links = []
         for link in fabric_links:
             for existing_link in existing_links:
-                if ('sw1-info' in existing_link and
+                if (
+                    'sw1-info' in existing_link and
                     'sw2-info' in existing_link and
                     'sw-sys-name' in existing_link['sw1-info'] and
-                    'sw-sys-name' in existing_link['sw2-info']):
+                    'sw-sys-name' in existing_link['sw2-info']
+                ):
                     for switch in switch_list:
                         if existing_link['sw1-info']['sw-sys-name'].lower() == switch['name'].lower():
                             existing_link['sw1-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
