@@ -12,6 +12,6 @@
   SUBNET_TARGET_MASK: {{ vxlan.underlay.ipv4.subnet_mask | default(defaults.vxlan.underlay.ipv4.subnet_mask) }}
 {% endif %}
   LINK_STATE_ROUTING: {{ vxlan.underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol) }}
-  RR_COUNT: {{ vxlan.global.ibgp.route_reflectors | default(defaults.vxlan.global.ibgp.route_reflectors) }}
-  ANYCAST_GW_MAC: {{ vxlan.global.ibgp.anycast_gateway_mac | default(defaults.vxlan.global.ibgp.anycast_gateway_mac) }}
+  RR_COUNT: {{ vxlan.global.ibgp.route_reflectors | default(defaults.vxlan.global.route_reflectors) }}
+  ANYCAST_GW_MAC: {{ vxlan.global.ibgp.anycast_gateway_mac | default(defaults.vxlan.global.anycast_gateway_mac) }}
 {# #}
