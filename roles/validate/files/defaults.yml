@@ -158,8 +158,8 @@ factory_defaults:
         domain_id: 1
         keepalive_holdout_time: 3
         port_channel_mode: active
-        peer1_port_channel_id: 500
-        peer2_port_channel_id: 500
+        peer1_po_channel_id: 500
+        peer2_po_channel_id: 500
       fabric_links:
         mtu: 9216
         admin_state: true

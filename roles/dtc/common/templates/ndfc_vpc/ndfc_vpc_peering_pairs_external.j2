@@ -15,17 +15,21 @@
     KEEP_ALIVE_HOLD_TIMEOUT: {{ vpc_peers_pair.keepalive_holdout_time | default(defaults.vxlan.topology.vpc_peers.keepalive_holdout_time) }}
     KEEP_ALIVE_VRF: {{ vpc_peers_pair.keepalive_vrfname }}
     PC_MODE: {{ vpc_peers_pair.port_channel_mode | default(defaults.vxlan.topology.vpc_peers.port_channel_mode) }}
-    PEER1_DOMAIN_CONF: "{{ vpc_peers_pair.peer1_domain_conf | default('') }}"
+    PEER1_DOMAIN_CONF: |2-
+      {{ vpc_peers_pair.peer1_domain_conf | default('') | indent(6, false) }}
     PEER1_KEEP_ALIVE_LOCAL_IP: {{ vpc_peers_pair.peer1_keepalive_ipv4 }}
-    PEER1_PO_CONF: "{{ vpc_peers_pair.peer1_po_channel_conf | default('') }}"
     PEER1_PO_DESC: "{{ vpc_peers_pair.peer1_po_channel_desc | default('') }}"
-    PEER2_DOMAIN_CONF: "{{ vpc_peers_pair.peer2_domain_conf | default('') }}"
+    PEER2_DOMAIN_CONF: |2-
+      {{ vpc_peers_pair.peer2_domain_conf | default('') | indent(6, false)}}
     PEER2_KEEP_ALIVE_LOCAL_IP: {{ vpc_peers_pair.peer2_keepalive_ipv4 }}
-    PEER2_PO_CONF: "{{ vpc_peers_pair.peer2_po_channel_conf | default('') }}"
+    PEER1_PO_CONF: |2-
+      {{ vpc_peers_pair.peer1_po_channel_conf | default('') | indent(6, false) }}
+    PEER2_PO_CONF:  |2-
+      {{ vpc_peers_pair.peer2_po_channel_conf | default('') | indent(6, false) }}
     PEER2_PO_DESC: "{{ vpc_peers_pair.peer2_po_channel_desc | default('') }}"
-    PEER1_PCID: {{ vpc_peers_pair.peer1_port_channel_id | default(defaults.vxlan.topology.vpc_peers.peer1_port_channel_id) }}
-    PEER2_PCID: {{ vpc_peers_pair.peer2_port_channel_id | default(defaults.vxlan.topology.vpc_peers.peer2_port_channel_id) }}
-    PEER1_MEMBER_INTERFACES: "{{ vpc_peers_pair.peer1_member_interfaces | default('') }}"
-    PEER2_MEMBER_INTERFACES: "{{ vpc_peers_pair.peer1_member_interfaces | default('') }}"
+    PEER1_PCID: {{ vpc_peers_pair.peer1_po_channel_id | default(defaults.vxlan.topology.vpc_peers.peer1_po_channel_id) }}
+    PEER2_PCID: {{ vpc_peers_pair.peer2_po_channel_id | default(defaults.vxlan.topology.vpc_peers.peer2_po_channel_id) }}
+    PEER1_MEMBER_INTERFACES: "{{ vpc_peers_pair.peer1_member_interfaces | default([]) | join(',') }}"
+    PEER2_MEMBER_INTERFACES: "{{ vpc_peers_pair.peer2_member_interfaces | default([]) | join(',') }}"
 {% endfor %}
 {% endif %}

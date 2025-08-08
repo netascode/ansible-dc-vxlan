@@ -55,19 +55,19 @@
     - changes_detected_edge_connections
   tags: "{{ nac_tags.create_links }}"
 
-- name: Manage NDFC External VPC Peering
-  ansible.builtin.import_tasks: common/vpc_peering.yml
-  when:
-    - MD_Extended.vxlan.topology.vpc_peers | length > 0
-    - vars_common_external.changes_detected_vpc_peering
-  tags: "{{ nac_tags.create_vpc_peers }}"
-
 - name: Manage NDFC External Fabric Interfaces
   ansible.builtin.import_tasks: common/interfaces.yml
   when:
     - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
     - vars_common_external.changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
+
+- name: Manage NDFC External VPC Peering
+  ansible.builtin.import_tasks: common/vpc_peering.yml
+  when:
+    - MD_Extended.vxlan.topology.vpc_peers | length > 0
+    - vars_common_external.changes_detected_vpc_peering
+  tags: "{{ nac_tags.create_vpc_peers }}"
 
 - name: Manage NDFC External Fabric Policies
   ansible.builtin.import_tasks: common/policies.yml
