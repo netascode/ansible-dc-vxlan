@@ -7,7 +7,7 @@
 {% if vxlan.fabric.type == 'VXLAN_EVPN' %}
 
 {# Include NDFC iBGP VXLAN EVPN Base Template #}
-{% include '/ndfc_fabric/ibgp_vxlan_fabric/ibgp_vxlan_fabric_base.j2' %}
+{% include '/ndfc_fabric/dc_vxlan_fabric/dc_vxlan_fabric_base.j2' %}
 
 {% elif vxlan.fabric.type == 'eBGP_VXLAN'%}
 
