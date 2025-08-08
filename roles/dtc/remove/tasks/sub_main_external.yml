@@ -31,20 +31,10 @@
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
   tags: "{{ nac_tags.remove }}"
 
-- name: Get List of Fabric Switches from NDFC for nd
-  cisco.nd.nd_rest: 
+- name: Get List of Fabric Switches from NDFC
+  cisco.nac_dc_vxlan.dtc.rest_selector: 
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
-    when:  ansible_network_os_rest == "cisco.nd.nd_rest"
-  register: switch_list
-  tags: "{{ nac_tags.remove }}"
-
-- name: Get List of Fabric Switches from NDFC for dcnm
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric
-"
-    when:  ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
   register: switch_list
   tags: "{{ nac_tags.remove }}"
 

@@ -28,62 +28,29 @@
       - "+     Manage Fabric External {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Check if fabric External {{ MD_Extended.vxlan.fabric.name }} exists in NDFC
-  cisco.nd.nd_rest:
+- name: Check if fabric External {{ MD_Extended.vxlan.fabric.name }} exists
+  cisco.nac_dc_vxlan.dtc.rest_selector:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}"
-    when: ansible_network_os_rest == "cisco.nd.nd_rest"
   register: get_result
   failed_when: false
 
-- name: Check if fabric External {{ MD_Extended.vxlan.fabric.name }} exists in DCNM
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}"
-    when: ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
-  register: get_result
-  failed_when: false
-
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in ND (PUT)
-  cisco.nd.nd_rest:
+- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} (PUT)
+  cisco.nac_dc_vxlan.dtc.rest_selector:
     method: PUT
     path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'
     payload: '{{ fabric_config }}'
   when:
-    - ansible_network_os_rest == "cisco.nd.nd_rest"
     - get_result.response.DATA is defined
     - get_result.response.DATA
   register: put_result
 
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (PUT)
-  cisco.dcnm.dcnm_rest:
-    method: PUT
-    path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'
-    json_data: '{{ fabric_config | to_json }}'
-  when:
-    - ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
-    - get_result.response.DATA is defined
-    - get_result.response.DATA
-  register: put_result
-
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in ND (POST)
-  cisco.nd.nd_rest:
+- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} (POST)
+  cisco.nac_dc_vxlan.dtc.rest_selector:
     method: POST
     path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'
     payload: '{{ fabric_config }}'
   when: >
     (get_result.response.DATA is not defined) or
     (get_result.response.DATA is defined and not get_result.get('response', false) and not get_result.get('response').get('DATA'))
-    and ansible_network_os_rest == "cisco.nd.nd_rest"
-  register: post_result
-
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (POST)
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'
-    json_data: '{{ fabric_config | to_json }}'
-  when: >
-    (get_result.response.DATA is not defined) or
-    (get_result.response.DATA is defined and not get_result.get('response', false) and not get_result.get('response').get('DATA'))
-    and ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
   register: post_result

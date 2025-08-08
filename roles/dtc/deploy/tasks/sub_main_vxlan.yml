@@ -30,16 +30,15 @@
 
 - ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
 
-- name: Config-Save block for nd
+- name: Config-Save block
   block:
     - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
-      cisco.nd.nd_rest:
+      cisco.nac_dc_vxlan.dtc.rest_selector:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       register: config_save
       when: >
-        (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0) and
-        ansible_network_os_rest == "cisco.nd.nd_rest"
+        (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
       # TODO: Need to add logic to only save if changes are made
 
   rescue:
@@ -47,45 +46,15 @@
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
 
-- name: Config-Save block for dcnm
-  block:
-    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
-      cisco.dcnm.dcnm_rest:
-        method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-      register: config_save
-      when: >
-        (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0) and
-        ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
-      # TODO: Need to add logic to only save if changes are made
-
-  rescue:
-    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
-      ansible.builtin.debug:
-        msg: "{{ config_save.msg.DATA }}"
-
-- name: Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }} for nd
-  cisco.nd.nd_rest:
+- name: Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }}
+  cisco.nac_dc_vxlan.dtc.rest_selector:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:
       ansible_command_timeout: 3000
       ansible_connect_timeout: 3000
   when: >
-    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0) and
-    ansible_network_os_rest == "cisco.nd.nd_rest"
-  # TODO: Need to add logic to only deploy if changes are made
-
-- name: Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }} dcnm
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
-  vars:
-      ansible_command_timeout: 3000
-      ansible_connect_timeout: 3000
-  when: >
-    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0) and
-    ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
+    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
   # TODO: Need to add logic to only deploy if changes are made
 
 - name: Check Switch Sync in Fabric {{ MD_Extended.vxlan.fabric.name }}
@@ -95,10 +64,10 @@
   when: >
     (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
 
-- name: Retrying Config-Save Block for nd
+- name: Retrying Config-Save Block
   block:
     - name: Retrying Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
-      cisco.nd.nd_rest:
+      cisco.nac_dc_vxlan.dtc.rest_selector:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       register: config_save
@@ -106,26 +75,6 @@
         - MD_Extended.vxlan.topology.switches is defined
         - MD_Extended.vxlan.topology.switches | length > 0
         - results.changed
-        - ansible_network_os_rest == "cisco.nd.nd_rest"
-      # TODO: Need to add logic to only save if changes are made
-
-  rescue:
-    - name: Retrying Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
-      ansible.builtin.debug:
-        msg: "{{ config_save.msg.DATA }}"
-
-- name: Retrying Config-Save Block for dcnm
-  block:
-    - name: Retrying Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
-      cisco.dcnm.dcnm_rest:
-        method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-      register: config_save
-      when:
-        - MD_Extended.vxlan.topology.switches is defined
-        - MD_Extended.vxlan.topology.switches | length > 0
-        - results.changed
-        - ansible_network_os_rest == "cisco.dcnm.dcnm_rest"
       # TODO: Need to add logic to only save if changes are made
 
   rescue:
@@ -134,7 +83,7 @@
         msg: "{{ config_save.msg.DATA }}"
 
 - name: Retrying Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }}
-  cisco.nd.nd_rest:
+  cisco.nac_dc_vxlan.dtc.rest_selector:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:
