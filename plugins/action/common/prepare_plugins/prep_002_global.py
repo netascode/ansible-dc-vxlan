@@ -91,8 +91,7 @@ class PreparePlugin:
             # This elif handles the case where the new global key exists but is empty or has data while data still exists
             # under the old global key. This is to ensure that the new global key is populated with the data from the old
             # global key if it exists and only if the new global key does not already have data at the key location.
-            elif new_global_key in dm_check['keys_found'] and (new_global_key in dm_check['keys_data'] or
-                                                              new_global_key in dm_check['keys_no_data']):
+            elif new_global_key in dm_check['keys_found'] and (new_global_key in dm_check['keys_data'] or new_global_key in dm_check['keys_no_data']):
                 for key in BACKWARD_COMPATIBLE_KEYS:
                     # Check if the key exists in the new global key
                     dm_check = data_model_key_check(model_data, PARENT_KEYS + [key])
