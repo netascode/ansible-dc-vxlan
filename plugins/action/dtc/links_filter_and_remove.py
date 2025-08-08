@@ -48,7 +48,10 @@ class ActionModule(ActionBase):
             # Cannot assume the existing_link has the 'templateName' key so use get for safety
             if existing_link.get('templateName') == "int_pre_provision_intra_fabric_link" or existing_link.get('templateName') == "int_intra_fabric_num_link":
                 filtered_existing_links.append(existing_link)
-                if 'sw1-info' in existing_link and 'sw2-info' in existing_link and 'sw-sys-name' in existing_link['sw1-info'] and 'sw-sys-name' in existing_link['sw2-info']:
+                if ('sw1-info' in existing_link and
+                    'sw2-info' in existing_link and
+                    'sw-sys-name' in existing_link['sw1-info'] and
+                    'sw-sys-name' in existing_link['sw2-info']):
                     for switch in switch_list:
                         if existing_link['sw1-info']['sw-sys-name'].lower() == switch['name'].lower():
                             existing_link['sw1-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
@@ -56,13 +59,13 @@ class ActionModule(ActionBase):
                             existing_link['sw2-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
                     for link in fabric_links:
                         if ((existing_link['sw1-info']['sw-sys-name'].lower() == link['src_device'].lower() and
-                            existing_link['sw1-info']['if-name'].lower() == link['src_interface'].lower() and
-                            existing_link['sw2-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
-                            existing_link['sw2-info']['if-name'].lower() == link['dst_interface'].lower()) or
+                             existing_link['sw1-info']['if-name'].lower() == link['src_interface'].lower() and
+                             existing_link['sw2-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
+                             existing_link['sw2-info']['if-name'].lower() == link['dst_interface'].lower()) or
                             (existing_link['sw1-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
-                            existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower() and
-                            existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower() and
-                            existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower())):
+                             existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower() and
+                             existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower() and
+                             existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower())):
                             required_links.append(existing_link)
         for link in filtered_existing_links:
             link_found = False

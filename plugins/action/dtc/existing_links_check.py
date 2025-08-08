@@ -45,20 +45,23 @@ class ActionModule(ActionBase):
         not_required_links = []
         for link in fabric_links:
             for existing_link in existing_links:
-                if 'sw1-info' in existing_link and 'sw2-info' in existing_link and 'sw-sys-name' in existing_link['sw1-info'] and 'sw-sys-name' in existing_link['sw2-info']:
+                if ('sw1-info' in existing_link and
+                    'sw2-info' in existing_link and
+                    'sw-sys-name' in existing_link['sw1-info'] and
+                    'sw-sys-name' in existing_link['sw2-info']):
                     for switch in switch_list:
                         if existing_link['sw1-info']['sw-sys-name'].lower() == switch['name'].lower():
                             existing_link['sw1-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
                         if existing_link['sw2-info']['sw-sys-name'].lower() == switch['name'].lower():
                             existing_link['sw2-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
                     if ((existing_link['sw1-info']['sw-sys-name'].lower() == link['src_device'].lower() and
-                        existing_link['sw1-info']['if-name'].lower() == link['src_interface'].lower() and
-                        existing_link['sw2-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
-                        existing_link['sw2-info']['if-name'].lower() == link['dst_interface'].lower()) or
+                         existing_link['sw1-info']['if-name'].lower() == link['src_interface'].lower() and
+                         existing_link['sw2-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
+                         existing_link['sw2-info']['if-name'].lower() == link['dst_interface'].lower()) or
                         (existing_link['sw1-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
-                        existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower() and
-                        existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower() and
-                        existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower())):
+                         existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower() and
+                         existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower() and
+                         existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower())):
                         if 'templateName' not in existing_link:
                             not_required_links.append(link)
                         elif existing_link['templateName'] == 'int_pre_provision_intra_fabric_link':
