@@ -61,6 +61,7 @@
   cisco.nac_dc_vxlan.dtc.existing_links_check:
     existing_links: "{{ result_links.response }}"
     fabric_links: "{{ fabric_links }}"
+    switch_data_model: "{{ MD_Extended.vxlan.topology.switches }}"
   register: required_links
   when: result_links.response is defined
 
