@@ -77,8 +77,8 @@ class PreparePlugin:
             # If the new global key already exists and has data, it will not be overwritten.
             if new_global_key in dm_check['keys_not_found'] or new_global_key in dm_check['keys_no_data']:
                 deprecated_msg = (
-                    f"Attempting to use vxlan.global keys due to vxlan.fabric.global.{new_global_key} not being defined. "
-                    f"General vxlan.global keys are being deprecated. Please use vxlan.fabric.global.{new_global_key}."
+                    f"Attempting to use vxlan.global keys due to vxlan.global.{new_global_key} not being defined. "
+                    f"General vxlan.global keys are being deprecated. Please use vxlan.global.{new_global_key}."
                 )
                 display.deprecated(msg=deprecated_msg, version="1.0.0", collection_name='cisco.nac_dc_vxlan')
 
@@ -86,7 +86,7 @@ class PreparePlugin:
 
                 for key in BACKWARD_COMPATIBLE_KEYS:
                     if key in model_data['vxlan']['global']:
-                        model_data['vxlan']['fabric']['ibgp'].update({key: model_data['vxlan']['global'][key]})
+                        model_data['vxlan']['global'][new_global_key].update({key: model_data['vxlan']['global'][key]})
 
             # This elif handles the case where the new global key exists but is empty or has data while data still exists
             # under the old global key. This is to ensure that the new global key is populated with the data from the old
@@ -102,4 +102,4 @@ class PreparePlugin:
                         dm_check = data_model_key_check(model_data, PARENT_KEYS[:-1])
                         # If the key exists and has data in the old global key, we can copy the data
                         if key in dm_check['keys_found'] and key in dm_check['keys_data']:
-                            model_data['vxlan']['fabric']['global']['ibgp'].update({key: model_data['vxlan']['global'][key]})
+                            model_data['vxlan']['global'][new_global_key].update({key: model_data['vxlan']['global'][key]})
