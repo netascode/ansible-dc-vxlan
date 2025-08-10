@@ -90,7 +90,7 @@ class ActionModule(ActionBase):
                 for child_fabric in child_fabrics_data.keys():
                     for sw in child_fabrics_data[child_fabric]['switches']:
                         # When switch is in preprovision, sw['hostname'] is None.
-                        if sw['hostname'] is not None:
+                        if sw['hostname']:
                             # Compare switches with regex to catch hostname when ip domain-name is configured
                             regex_pattern = f"^{switch['hostname']}$|^{switch['hostname']}\\..*$"
                             if re.search(regex_pattern, sw['hostname']):
@@ -121,7 +121,7 @@ class ActionModule(ActionBase):
             for switch in model_data['vxlan']['multisite']['overlay']['network_attach_groups_dict'][grp['name']]:
                 for child_fabric in child_fabrics_data.keys():
                     for sw in child_fabrics_data[child_fabric]['switches']:
-                        if sw['hostname'] is not None:
+                        if sw['hostname']:
                             regex_pattern = f"^{switch['hostname']}$|^{switch['hostname']}\\..*$"
                             if re.search(regex_pattern, sw['hostname']):
                                 switch['mgmt_ip_address'] = sw['mgmt_ip_address']
