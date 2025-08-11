@@ -60,6 +60,7 @@ class ActionModule(ActionBase):
                 new_device['user_name'] = username
             if new_device.get('password') == 'PLACE_HOLDER_PASSWORD':
                 new_device['password'] = password
-
+        # REMOVE BEFORE PR 
+        display.v("Updated inventory list with credentials: {}".format(updated_inv_list))
         results['updated_inv_list'] = updated_inv_list
         return results
