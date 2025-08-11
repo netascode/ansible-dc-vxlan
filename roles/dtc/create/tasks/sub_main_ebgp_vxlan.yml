@@ -86,7 +86,7 @@
 #     - vars_common_ebgp_vxlan.changes_detected_edge_connections
 #   tags: "{{ nac_tags.create_links }}"
 
-- nname: Manage eBGP VXLAN Fabric VRFs and Networks in Nexus Dashboard
+- name: Manage eBGP VXLAN Fabric VRFs and Networks in Nexus Dashboard
   ansible.builtin.import_tasks: common_vxlan/vrfs_networks.yml
   when:
     - MD_Extended.vxlan.overlay is defined
