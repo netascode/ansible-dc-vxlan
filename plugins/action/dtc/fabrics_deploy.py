@@ -24,8 +24,10 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+from .rest_module_utils import get_rest_module
 
 
 display = Display()
@@ -39,11 +41,17 @@ class ActionModule(ActionBase):
         results['failed'] = False
 
         fabrics = self._task.args["fabrics"]
-
         for fabric in fabrics:
             display.display(f"Executing config-deploy on Fabric: {fabric}")
+            network_os = task_vars['ansible_network_os']
+            rest_module = get_rest_module(network_os)
+            if not rest_module:
+                results['failed'] = True
+                results['msg'] = f"Unsupported network_os: {network_os}"
+                return results
+
             ndfc_deploy = self._execute_module(
-                module_name=task_vars['ansible_network_os_rest'],
+                module_name=rest_module,
                 module_args={
                     "method": "POST",
                     "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}/config-deploy?forceShowRun=false",

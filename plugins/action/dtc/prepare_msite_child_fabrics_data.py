@@ -24,8 +24,10 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+from .rest_module_utils import get_rest_module
 
 display = Display()
 

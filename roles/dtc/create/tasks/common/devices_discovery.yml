@@ -90,9 +90,10 @@
   when: results.policy_update | length > 0
   delegate_to: localhost
 
-- name: Update Switch Hostname Policy
-  cisco.nac_dc_vxlan.dtc.rest_selector:
+- name: Update Switch Hostname Policy in NDFC
+  cisco.nac_dc_vxlan.dtc.rest:
     method: PUT
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"
     json_data: "{{ results.policy_update.values() | list | to_json }}"
   when: results.policy_update | length > 0
+

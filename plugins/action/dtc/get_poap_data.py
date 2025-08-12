@@ -139,17 +139,23 @@ class POAPDevice:
 
         return discovered
 
+
     def refresh(self) -> None:
         """
         ### Summary
         Refresh POAP data from NDFC
-
         """
         self.refresh_succeeded = False
         self.refresh_message = None
 
+        from .rest_module_utils import get_rest_module
+        network_os = self.task_vars['ansible_network_os']
+        rest_module = get_rest_module(network_os)
+        if not rest_module:
+            self.refresh_message = f"Unsupported network_os: {network_os}"
+            return
         data = self.execute_module(
-            module_name=task_vars['ansible_network_os_rest'],
+            module_name=rest_module,
             module_args={
                 "method": self.poap_get_method,
                 "path": self.poap_get_path

@@ -35,9 +35,21 @@ display = Display()
 
 class ActionModule(ActionBase):
     """
-    Action plugin to dynamically select between cisco.nac_dc_vxlan.dtc.rest_selector and cisco.dcnm.dcnm_rest
+    Action plugin to dynamically select between cisco.nd.nd_rest and cisco.dcnm.dcnm_rest
     based on the ansible_network_os variable.
     """
+    REST_MODULES = {
+        'cisco.nd.nd': 'cisco.nd.nd_rest',
+        'cisco.dcnm.dcnm': 'cisco.dcnm.dcnm_rest'
+    }
+
+    def get_rest_module(self, network_os):
+        if not network_os:
+            results['failed'] = True
+            results['msg'] = "ansible_network_os is not defined in task_vars"
+        else:
+            results = self.REST_MODULES.get(network_os)
+        return results
 
     def run(self, tmp=None, task_vars=None):
         """
@@ -59,14 +71,12 @@ class ActionModule(ActionBase):
         module_args = self._task.args.copy()
         
         # Get the network OS from task variables or module arguments
-        network_os = task_vars.get('ansible_network_os') \
-            or module_args.pop('ansible_network_os', None)
+        network_os = task_vars.get('ansible_network_os')
+        display.vvvv(f"Using OS module: {network_os}")
         
         # Determine which module to use based on network_os
-        if network_os == 'cisco.nd.nd':
-            rest_module = 'cisco.nac_dc_vxlan.dtc.rest_selector'
-        elif network_os == 'cisco.dcnm.dcnm':
-            rest_module = 'cisco.dcnm.dcnm_rest'
+        if network_os in self.REST_MODULES:
+            rest_module = self.get_rest_module(network_os)
         else:
             results['failed'] = True
             results['msg'] = (
@@ -75,27 +85,40 @@ class ActionModule(ActionBase):
             )
             return results
 
-        display.vvvv(f"Using REST module: {rest_module}")
+        display.vvvv(f"Using ----------REST------------- module: {rest_module}")
 
         try:
+            display.vvvv(f"Executing module: {rest_module} with args: {module_args}")
+
+            self._task.vars['ansible_rest_os_module'] = rest_module
+
+            # Set the connection to httpapi
+            if 'connection' not in task_vars:
+                task_vars['connection'] = 'httpapi'
+                
             # Execute the appropriate REST module
             result = self._execute_module(
                 module_name=rest_module,
                 module_args=module_args,
                 task_vars=task_vars,
-                tmp=tmp
+                tmp=tmp,
+                wrap_async=False
             )
             
             # Update results with the module's results
             if result.get('failed'):
                 results.update(result)
+                display.error(f"Module execution failed: {result.get('msg')}")
             else:
                 results['changed'] = result.get('changed', False)
                 results.update(result)
+                display.vvvv(f"Module execution successful: {result}")
                 
         except Exception as e:
+            import traceback
+            error_trace = traceback.format_exc()
             results['failed'] = True
-            results['msg'] = f"Failed to execute {rest_module}: {str(e)}"
+            results['msg'] = f"Failed to execute {rest_module}: {str(e)}\n{error_trace}"
             display.error(results['msg'], wrap_text=False)
 
         return results
