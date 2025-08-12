@@ -93,12 +93,12 @@ class Rule:
         if (
             'fabric_links' not in check['keys_data']
             and (
-            (interface_numbering_v4 and interface_numbering_v4.get("fabric_interface_numbering") == "p2p")
-            or (interface_numbering_v6 and interface_numbering_v6.get("enable_ipv6_link_local_address") is False)
+                (interface_numbering_v4 and interface_numbering_v4.get("fabric_interface_numbering") == "p2p")
+                or (interface_numbering_v6 and interface_numbering_v6.get("enable_ipv6_link_local_address") is False)
             )
         ):
             cls.results.append(
-            "Fabric Links is not configured, but P2P subnet is expected in this configuration."
+                "Fabric Links is not configured, but P2P subnet is expected in this configuration."
             )
 
         # Check if vtep_ip exist in vpc_peers
