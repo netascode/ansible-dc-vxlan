@@ -90,11 +90,16 @@ class Rule:
         check = cls.data_model_key_check(inventory, ["vxlan", "topology", "fabric_links"])
         interface_numbering_v4 = cls.safeget(inventory, ["vxlan", "underlay", "ipv4"])
         interface_numbering_v6 = cls.safeget(inventory, ["vxlan", "underlay", "ipv6"])
-        if 'fabric_links' not in check['keys_data'] and ((interface_numbering_v4 and interface_numbering_v4["fabric_interface_numbering"] == "p2p") or (
-            interface_numbering_v6 and interface_numbering_v6["enable_ipv6_link_local_address"] is False)):
+        if (
+            'fabric_links' not in check['keys_data']
+            and (
+            (interface_numbering_v4 and interface_numbering_v4.get("fabric_interface_numbering") == "p2p")
+            or (interface_numbering_v6 and interface_numbering_v6.get("enable_ipv6_link_local_address") is False)
+            )
+        ):
             cls.results.append(
-                "Fabric Links is not configured, but P2P subnet is expected in this configuration."
-           )
+            "Fabric Links is not configured, but P2P subnet is expected in this configuration."
+            )
 
         # Check if vtep_ip exist in vpc_peers
         cls.validate_vpc_peers_and_vtep_vip(inventory)
@@ -146,7 +151,6 @@ class Rule:
                 if peer.get("fabric_peering") is False or interface_numbering["enable_ipv6_link_local_address"] is False:
                     cls.validate_fabric_links(inventory, vpc_peers_list)
 
-
     @classmethod
     def validate_fabric_links(cls, inventory, vpc_peers_list):
         """
@@ -185,8 +189,8 @@ class Rule:
                     cls.results.append(
                         f"Fabric link between '{source_device}' and '{dest_device}' is missing a valid IPv4 configuration."
                     )
-            if interface_numbering_v6:
             # Check IPv6 configuration
+            if interface_numbering_v6:
                 if len(ipv6_config.keys()) > 0 and (not ipv6_config.get("subnet") or not ipv6_config.get("source_ipv6") or not ipv6_config.get("dest_ipv6")):
                     cls.results.append(
                         f"Fabric link between '{source_device}' and '{dest_device}' is missing a valid IPv6 configuration."
