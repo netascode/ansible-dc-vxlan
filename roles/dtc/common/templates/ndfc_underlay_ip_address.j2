@@ -17,17 +17,21 @@
 {%- endfor %}
 {% macro generate_loopback_config(loopback_id) %}
 {%- for switch in vxlan.topology.switches %}
-{%- set ns = namespace(ipv4="") %}
+{%- set ns = namespace(ip="") %}
 {%- for interface in switch.interfaces %}
 {%- if interface.name.lower() == "loopback" ~ loopback_id or interface.name.lower() == "lo" ~ loopback_id %}
-{%- set ns.ipv4 = interface.ipv4_address %}
+{%- if interface.ipv4_address is defined and interface.ipv4_address is iterable %}
+{%- set ns.ip = interface.ipv4_address %}
+{%- elif interface.ipv6_address is defined and interface.ipv6_address is iterable %}
+{%- set ns.ip = interface.ipv6_address %}
+{%- endif %}
 {%- endif %}
 {%- endfor %}
 - entity_name: "{{ switch_list[switch.name].serial_number }}~loopback{{ loopback_id }}"
   pool_type: IP
   pool_name: "LOOPBACK{{ loopback_id }}_IP_POOL"
   scope_type: device_interface
-  resource: "{{ ns.ipv4 }}"
+  resource: "{{ ns.ip }}"
   switch:
     - "{{ switch_list[switch.name].management_ipv4_address }}"
 {% endfor %}
@@ -48,12 +52,25 @@
     - "{{ switch_list[peer.peer1].management_ipv4_address }}"
 {% endfor %}
 {% endif %}
+{# Configure IPv6 router_id #}
+{% for switch in vxlan.topology.switches %}
+{% if switch.manual_ipv6_router_id is defined and switch.manual_ipv6_router_id is iterable %}
+- entity_name: "{{ switch_list[switch.name].serial_number }}"
+  pool_type: IP
+  pool_name: "ROUTER_ID_POOL"
+  scope_type: device
+  resource: "{{ switch.manual_ipv6_router_id }}"
+  switch:
+    - "{{ switch_list[switch.name].management_ipv4_address }}"
+{% endif %}
+{% endfor%}
+
 {# build p2p links - Check if ipv4 or ipv6 is present to distinct with fabric_link with template #}
 {# build subnet #}
-
 {% if vxlan.topology.fabric_links is defined %}
 {% for switch in vxlan.topology.fabric_links %}
-{% if switch.ipv4 is iterable or switch.ipv6 is iterable %}
+{# Allocation for IPv4 #}
+{% if switch.ipv4 is defined and switch.ipv4 is iterable %}
 - entity_name: "{{ switch_list[switch.source_device].serial_number }}~{{ switch.source_interface }}~{{ switch_list[switch.dest_device].serial_number }}~{{ switch.dest_interface }}"
   pool_type: SUBNET
   pool_name: "SUBNET"
@@ -81,7 +98,38 @@
     - "{{ switch_list[switch.dest_device].management_ipv4_address }}"
 {% endif %}
 {% endif %}
-{% endfor %}
 
+{# Allocation for IPv6 #}
+{% if switch.ipv6 is defined and switch.ipv6 is iterable %}
+- entity_name: "{{ switch_list[switch.source_device].serial_number }}~{{ switch.source_interface }}~{{
+  switch_list[switch.dest_device].serial_number }}~{{ switch.dest_interface }}"
+  pool_type: SUBNET
+  pool_name: "SUBNET"
+  scope_type: link
+  resource: "{{ switch.ipv6.subnet }}"
+  switch:
+  - "{{ switch_list[switch.source_device].management_ipv4_address }}"
+
+{# assign ips #}
+{% if switch.ipv6.source_ipv6 is defined and switch.ipv6.dest_ipv6 is defined %}
+- entity_name: "{{ switch_list[switch.source_device].serial_number }}~{{ switch.source_interface }}"
+  pool_type: IP
+  pool_name: "{{switch.ipv6.subnet}}"
+  scope_type: device_interface
+  resource: "{{ switch.ipv6.source_ipv6 }}"
+  switch:
+  - "{{ switch_list[switch.source_device].management_ipv4_address }}"
+
+- entity_name: "{{ switch_list[switch.dest_device].serial_number }}~{{ switch.dest_interface }}"
+  pool_type: IP
+  pool_name: "{{switch.ipv6.subnet}}"
+  scope_type: device_interface
+  resource: "{{ switch.ipv6.dest_ipv6 }}"
+  switch:
+  - "{{ switch_list[switch.dest_device].management_ipv4_address }}"
+{% endif %}
+{% endif %}
+
+{% endfor %}
 {% endif %}
 {% endif %}
