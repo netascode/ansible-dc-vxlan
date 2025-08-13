@@ -27,11 +27,20 @@ __metaclass__ = type
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 import copy
+import os
 
 display = Display()
 
 
 class ActionModule(ActionBase):
+
+    @staticmethod
+    def _get_credentials_from_env(var_name):
+        """
+        Pull credentials from environment variables.
+        If not found, return "not_set" strings.
+        """
+        return os.getenv(var_name, 'not_set')
 
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
@@ -56,11 +65,45 @@ class ActionModule(ActionBase):
         for device in inv_list:
             updated_inv_list.append(copy.deepcopy(device))
         for new_device in updated_inv_list:
-            if new_device.get('user_name') == 'PLACE_HOLDER_USERNAME':
+            device_ip = new_device.get('seed_ip', 'unknown')
+            inv_list_user_name = new_device.get('user_name')
+            inv_list_passw = new_device.get('password')
+
+            # Handle username field
+            if inv_list_user_name == 'PLACE_HOLDER_USERNAME':
                 new_device['user_name'] = username
-            if new_device.get('password') == 'PLACE_HOLDER_PASSWORD':
+            elif inv_list_user_name and inv_list_user_name.startswith('env_var_'):
+                # Handle the case where user_name starts with "env_var_"
+                env_var_name = inv_list_user_name.replace('env_var_', '', 1)
+                credential = self._get_credentials_from_env(env_var_name)
+                if credential == 'not_set':
+                    display.warning(f"Environment variable '{env_var_name}' not found for device {device_ip}. Using group_vars username.")
+                    new_device['user_name'] = username
+                else:
+                    new_device['user_name'] = credential
+            elif inv_list_user_name:
+                # Plain text username - security warning
+                display.warning(f"Plain text username detected for device {device_ip}. Using plain text credentials in configuration files is not secure.")
+            else:
+                new_device['user_name'] = username
+
+            # Handle password field
+            if inv_list_passw == 'PLACE_HOLDER_PASSWORD':
                 new_device['password'] = password
-        # REMOVE BEFORE PR 
-        display.v("Updated inventory list with credentials: {}".format(updated_inv_list))
+            elif inv_list_passw and inv_list_passw.startswith('env_var_'):
+                # Handle the case where password starts with "env_var_"
+                env_var_name = inv_list_passw.replace('env_var_', '', 1)
+                credential = self._get_credentials_from_env(env_var_name)
+                if credential == 'not_set':
+                    display.warning(f"Environment variable '{env_var_name}' not found for device {device_ip}. Using group_vars password.")
+                    new_device['password'] = password
+                else:
+                    new_device['password'] = credential
+            elif inv_list_passw:
+                # Plain text password - security warning
+                display.warning(f"Plain text password detected for device {device_ip}. Using plain text credentials in configuration files is not secure.")
+            else:
+                new_device['password'] = password
+
         results['updated_inv_list'] = updated_inv_list
         return results
