@@ -28,14 +28,14 @@
       - "+     Manage Fabric External {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Check if fabric External {{ MD_Extended.vxlan.fabric.name }} exists
+- name: Check if fabric External {{ MD_Extended.vxlan.fabric.name }} exists in NDFC
   cisco.nac_dc_vxlan.dtc.rest:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}"
   register: get_result
   failed_when: false
 
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} (PUT)
+- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (PUT)
   cisco.nac_dc_vxlan.dtc.rest:
     method: PUT
     path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'
@@ -45,7 +45,7 @@
     - get_result.response.DATA
   register: put_result
 
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} (POST)
+- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (POST)
   cisco.nac_dc_vxlan.dtc.rest:
     method: POST
     path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'

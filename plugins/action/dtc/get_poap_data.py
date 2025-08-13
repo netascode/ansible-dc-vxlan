@@ -25,6 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
+from .rest_module_utils import get_rest_module
 import json
 import re
 import inspect
@@ -139,11 +140,11 @@ class POAPDevice:
 
         return discovered
 
-
     def refresh(self) -> None:
         """
         ### Summary
         Refresh POAP data from NDFC
+
         """
         self.refresh_succeeded = False
         self.refresh_message = None

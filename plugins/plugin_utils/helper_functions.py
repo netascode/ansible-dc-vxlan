@@ -25,6 +25,7 @@
 # For example in prepare_serice_model.py we can do the following:
 #  from ..helper_functions import do_something
 
+from .rest_module_utils import get_rest_module
 
 def data_model_key_check(tested_object, keys):
     """
@@ -96,8 +97,15 @@ def ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number):
     :Raises:
         N/A
     """
+    network_os = task_vars['ansible_network_os']
+    rest_module = get_rest_module(network_os)
+    if not rest_module:
+        results['failed'] = True
+        results['msg'] = f"Unsupported network_os: {network_os}"
+        return results
+
     policy_data = self._execute_module(
-        module_name=task_vars['ansible_network_os_rest'],
+        module_name=rest_module,
         module_args={
             "method": "GET",
             "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches/{switch_serial_number}/SWITCH/SWITCH"
@@ -182,8 +190,15 @@ def ndfc_get_fabric_attributes(self, task_vars, tmp, fabric):
     :Raises:
         N/A
     """
+    network_os = task_vars['ansible_network_os']
+    rest_module = get_rest_module(network_os)
+    if not rest_module:
+        results['failed'] = True
+        results['msg'] = f"Unsupported network_os: {network_os}"
+        return results
+
     fabric_response = self._execute_module(
-        module_name=task_vars['ansible_network_os_rest'],
+        module_name=rest_module,
         module_args={
             "method": "GET",
             "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric}",

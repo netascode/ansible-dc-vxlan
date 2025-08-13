@@ -28,7 +28,7 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-
+from .rest_module_utils import get_rest_module
 
 display = Display()
 
@@ -38,18 +38,6 @@ class ActionModule(ActionBase):
     Action plugin to dynamically select between cisco.nd.nd_rest and cisco.dcnm.dcnm_rest
     based on the ansible_network_os variable.
     """
-    REST_MODULES = {
-        'cisco.nd.nd': 'cisco.nd.nd_rest',
-        'cisco.dcnm.dcnm': 'cisco.dcnm.dcnm_rest'
-    }
-
-    def get_rest_module(self, network_os):
-        if not network_os:
-            results['failed'] = True
-            results['msg'] = "ansible_network_os is not defined in task_vars"
-        else:
-            results = self.REST_MODULES.get(network_os)
-        return results
 
     def run(self, tmp=None, task_vars=None):
         """
@@ -75,14 +63,10 @@ class ActionModule(ActionBase):
         display.vvvv(f"Using OS module: {network_os}")
         
         # Determine which module to use based on network_os
-        if network_os in self.REST_MODULES:
-            rest_module = self.get_rest_module(network_os)
-        else:
+        rest_module = get_rest_module(network_os)
+        if not rest_module:
             results['failed'] = True
-            results['msg'] = (
-                f"Unsupported network_os: {network_os}. "
-                "Must be 'cisco.nd.nd' or 'cisco.dcnm.dcnm'"
-            )
+            results['msg'] = f"Unsupported network_os: {network_os}"
             return results
 
         display.vvvv(f"Using ----------REST------------- module: {rest_module}")

@@ -24,7 +24,6 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from .rest_module_utils import get_rest_module
@@ -44,10 +43,17 @@ class ActionModule(ActionBase):
         parent_fabric = self._task.args["parent_fabric"]
         child_fabrics = self._task.args["child_fabrics"]
 
+        network_os = task_vars['ansible_network_os']
+        rest_module = get_rest_module(network_os)
+        if not rest_module:
+            results['failed'] = True
+            results['msg'] = f"Unsupported network_os: {network_os}"
+            return results
+
         # This is actaully not an accurrate API endpoint as it returns all fabrics in NDFC, not just the fabrics associated with MSD
         # Therefore, we need to get the fabric associations response and filter out the fabrics that are not associated with the parent fabric (MSD)
         msd_fabric_associations = self._execute_module(
-            module_name=task_vars['ansible_network_os_rest'],
+            module_name=rest_module,
             module_args={
                 "method": "GET",
                 "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations",
