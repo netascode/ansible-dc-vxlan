@@ -52,7 +52,7 @@
     config: "{{ vars_common_local.fabric_config }}"
 
 
-- name: Set and Create ANYCAST_RP in Nexus Dashboard
+- name: Create ANYCAST_RP in Nexus Dashboard
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ vxlan.fabric.name }}"
