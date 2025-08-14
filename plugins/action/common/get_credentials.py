@@ -40,12 +40,12 @@ class ActionModule(ActionBase):
         Pull credentials from environment variables.
         If not found, return "not_set" strings.
         
-        Note: Environment variables containing special characters like $, `, \, etc.
+        Note: Environment variables containing special characters like $, `, \\, etc.
         should be properly escaped when setting them in the shell.
         Example: export PASSWORD='MyP@$$w0rd' (use single quotes to prevent shell interpretation)
         """
         credential = os.getenv(var_name, 'not_set')
-        
+
         # Check for potential shell interpretation issues
         if credential != 'not_set':
             # Check for common signs that shell interpretation may have occurred
@@ -55,7 +55,7 @@ class ActionModule(ActionBase):
                 display.warning(f"Environment variable '{var_name}' contains special characters. "
                                f"Ensure it's properly quoted when setting: export {var_name}='your_value'"
                                f"Check documentation how to set your password")
-        
+
         return credential
 
     def run(self, tmp=None, task_vars=None):
