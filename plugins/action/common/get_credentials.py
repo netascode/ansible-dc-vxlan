@@ -39,7 +39,7 @@ class ActionModule(ActionBase):
         """
         Pull credentials from environment variables.
         If not found, return "not_set" strings.
-        
+
         Note: Environment variables containing special characters like $, `, \\, etc.
         should be properly escaped when setting them in the shell.
         Example: export PASSWORD='MyP@$$w0rd' (use single quotes to prevent shell interpretation)
