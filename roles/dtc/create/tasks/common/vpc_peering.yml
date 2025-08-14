@@ -70,7 +70,7 @@
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
-  when: link_vpc_peering|length != 0
+  when: vars_common_local.link_vpc_peering|length != 0
 
 # --------------------------------------------------------------------
 # Manage vPC Peering in Nexus Dashboard
@@ -82,3 +82,5 @@
     deploy: false
     state: replaced
     config: "{{ vars_common_local.vpc_peering }}"
+  when: vars_common_local.vpc_peering is defined and vars_common_local.vpc_peering|length > 0
+  ignore_errors: true
