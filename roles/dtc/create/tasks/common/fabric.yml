@@ -64,7 +64,7 @@
         resource: >-
           {{
             vxlan.underlay.multicast.ipv6.anycast_rp
-            if vxlan.underlay.general.enable_ipv6_underlay | default(false)
+            if vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay)
             else vxlan.underlay.multicast.ipv4.anycast_rp
           }}
   when:
