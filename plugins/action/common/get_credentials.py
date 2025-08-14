@@ -53,8 +53,8 @@ class ActionModule(ActionBase):
             original_var = os.getenv(var_name)
             if original_var and any(char in var_name for char in suspicious_patterns):
                 display.warning(f"Environment variable '{var_name}' contains special characters. "
-                               f"Ensure it's properly quoted when setting: export {var_name}='your_value'"
-                               f"Check documentation how to set your password")
+                                f"Ensure it's properly quoted when setting: export {var_name}='your_value'"
+                                f"Check documentation how to set your password")
 
         return credential
 
