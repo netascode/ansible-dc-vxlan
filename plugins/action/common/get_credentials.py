@@ -24,10 +24,10 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible.utils.display import Display
-from ansible.plugins.action import ActionBase
 import copy
 import os
+from ansible.utils.display import Display
+from ansible.plugins.action import ActionBase
 
 display = Display()
 
@@ -39,8 +39,24 @@ class ActionModule(ActionBase):
         """
         Pull credentials from environment variables.
         If not found, return "not_set" strings.
+        
+        Note: Environment variables containing special characters like $, `, \, etc.
+        should be properly escaped when setting them in the shell.
+        Example: export PASSWORD='MyP@$$w0rd' (use single quotes to prevent shell interpretation)
         """
-        return os.getenv(var_name, 'not_set')
+        credential = os.getenv(var_name, 'not_set')
+        
+        # Check for potential shell interpretation issues
+        if credential != 'not_set':
+            # Check for common signs that shell interpretation may have occurred
+            suspicious_patterns = ['$', '`', '\\']
+            original_var = os.getenv(var_name)
+            if original_var and any(char in var_name for char in suspicious_patterns):
+                display.warning(f"Environment variable '{var_name}' contains special characters. "
+                               f"Ensure it's properly quoted when setting: export {var_name}='your_value'"
+                               f"Check documentation how to set your password")
+        
+        return credential
 
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
@@ -105,5 +121,6 @@ class ActionModule(ActionBase):
             else:
                 new_device['password'] = password
 
+        # display.v('Credentials {} username:{} password:{}'.format(new_device['seed_ip'],new_device['user_name'], new_device['password']))
         results['updated_inv_list'] = updated_inv_list
         return results
