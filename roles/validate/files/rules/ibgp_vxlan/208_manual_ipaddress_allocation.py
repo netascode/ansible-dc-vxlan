@@ -20,7 +20,6 @@ class Rule:
         else:
             underlay_af = 4
         if "manual_underlay_allocation" in general and underlay_af == 4:
-            # Check if anycast_rp is configured:
             # Check if anycast_rp is configured
             check = cls.data_model_key_check(inventory, ['vxlan', 'underlay', 'multicast', 'ipv4'])
             if 'ipv4' not in check['keys_data']:
