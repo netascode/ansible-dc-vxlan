@@ -27,7 +27,7 @@ ansible_connection: ansible.netcommon.httpapi
 ansible_httpapi_port: 443
 ansible_httpapi_use_ssl: true
 ansible_httpapi_validate_certs: false
-ansible_network_os: ansible_network_os_rest
+ansible_network_os: cisco.dcnm.dcnm
 # NDFC API Credentials
 ansible_user: admin
 ansible_password: password
