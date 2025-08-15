@@ -37,7 +37,9 @@ class ActionModule(ActionBase):
         # List of switch serial numbes obtained directly from NDFC
         ndfc_sw_data = self._task.args["switch_data"]
         # Data from data model
-        edge_connections = self._task.args["edge_connections"][0]["switch"]
+        edge_connections = self._task.args["edge_connections"]
+        if edge_connections:
+            edge_connections = edge_connections[0]["switch"]
         restructured_edge_connections = {}
         # For each switch current_sw_policies will be used to store a list of policies currently associated to the switch
         # For each switch that has unmanaged policies, the switch IP address and the list of unmanaged policies will be stored
@@ -48,15 +50,25 @@ class ActionModule(ActionBase):
             }
         ]
         # Iterate over each item in the data list
-        for item in edge_connections:
-            ip = item['ip']
-            # If the IP is not already a key in the dictionary, add it with an empty list
+        # for item in edge_connections:
+        #     ip = item['ip']
+        #     # If the IP is not already a key in the dictionary, add it with an empty list
+        #     if ip not in restructured_edge_connections:
+        #         restructured_edge_connections[ip] = []
+        #     # Iterate over each policy and collect the descriptions
+        #     for policy in item['policies']:
+        #         description = policy['description']
+        #         restructured_edge_connections[ip].append(description)
+
+        for switch in ndfc_sw_data:
+            ip = switch['ipAddress']
             if ip not in restructured_edge_connections:
                 restructured_edge_connections[ip] = []
-            # Iterate over each policy and collect the descriptions
-            for policy in item['policies']:
-                description = policy['description']
-                restructured_edge_connections[ip].append(description)
+            for item in edge_connections:
+                if ip == item['ip']:
+                    for policy in item['policies']:
+                        description = policy['description']
+                        restructured_edge_connections[ip].append(description)
 
         # Print the resulting dictionary
         # print(restructured_edge_connections)
