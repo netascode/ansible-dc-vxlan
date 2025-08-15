@@ -82,7 +82,8 @@
 {% set address_family = {'address_family_v4': false, 'address_family_v6': false } %}
 {% if "address_family_ipv4_unicast" in peer %}
   {% set _ = address_family.update({'address_family_v4': true}) %}
-{% elif "address_family_ipv6_unicast" in peer %}
+{% endif %}
+{% if "address_family_ipv6_unicast" in peer %}
   {% set _ = address_family.update({'address_family_v6': true}) %}
 {% endif %}
   neighbor {{ peer.address }}
@@ -148,7 +149,6 @@
     {% endif %}
 !
   {% endif %}
-
 {% if address_family["address_family_v6"] is true %}
     address-family ipv6 unicast
 {% endif %}
