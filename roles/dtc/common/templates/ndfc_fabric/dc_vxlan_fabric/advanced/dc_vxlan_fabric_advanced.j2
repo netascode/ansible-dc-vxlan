@@ -3,7 +3,7 @@
   GRFIELD_DEBUG_FLAG: Enable
   ENABLE_PVLAN: false
   AAA_REMOTE_IP_ENABLED: False
-  TCAM_ALLOCATION: {{ vxlan.global.ibgp.tcam_allocation | default(defaults.vxlan.global.tcam_allocation) }}
+  TCAM_ALLOCATION: {{ vxlan.global.ibgp.tcam_allocation | default(defaults.vxlan.global.ibgp.tcam_allocation) }}
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   FEATURE_PTP: {{ vxlan.global.ibgp.ptp.enable | default(defaults.vxlan.global.ptp.enable) }}
 {% if vxlan.global.ibgp.ptp.enable is defined and vxlan.global.ibgp.ptp.enable | ansible.builtin.bool %}

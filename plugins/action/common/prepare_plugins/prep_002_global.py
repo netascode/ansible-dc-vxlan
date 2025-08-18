@@ -60,6 +60,8 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
 
+        # import epdb ; epdb.st()
+
         new_global_key = None
         if model_data['vxlan']['fabric']['type'] == 'VXLAN_EVPN':
             new_global_key = 'ibgp'
@@ -87,6 +89,9 @@ class PreparePlugin:
                 for key in BACKWARD_COMPATIBLE_KEYS:
                     if key in model_data['vxlan']['global']:
                         model_data['vxlan']['global'][new_global_key].update({key: model_data['vxlan']['global'][key]})
+                        model_data['vxlan']['global'].pop(key, None)
+
+                return self.kwargs['results']
 
             # This elif handles the case where the new global key exists but is empty or has data while data still exists
             # under the old global key. This is to ensure that the new global key is populated with the data from the old
@@ -99,7 +104,12 @@ class PreparePlugin:
                     # from the old global key to the new global key if the old global key has data
                     if key in dm_check['keys_not_found'] or key in dm_check['keys_no_data']:
                         # Check if the key exists in the old global key
-                        dm_check = data_model_key_check(model_data, PARENT_KEYS[:-1])
+                        dm_check = data_model_key_check(model_data, PARENT_KEYS[:-1] + [key])
                         # If the key exists and has data in the old global key, we can copy the data
                         if key in dm_check['keys_found'] and key in dm_check['keys_data']:
                             model_data['vxlan']['global'][new_global_key].update({key: model_data['vxlan']['global'][key]})
+                            model_data['vxlan']['global'].pop(key, None)
+                    elif key in dm_check['keys_found'] and key in dm_check['keys_data']:
+                            model_data['vxlan']['global'].pop(key, None)
+
+                return self.kwargs['results']
