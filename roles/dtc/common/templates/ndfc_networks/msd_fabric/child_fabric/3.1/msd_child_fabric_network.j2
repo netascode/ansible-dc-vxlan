@@ -37,7 +37,7 @@
       "trmEnabled": dm.trm_enable if dm.trm_enable is defined else ndfc.trmEnabled,
       "igmpVersion": ndfc.igmpVersion,
       "rtBothAuto": ndfc.rtBothAuto,
-      "enableL3OnBorder": ndfc.enableL3OnBorder,
+      "enableL3OnBorder": dm.l3gw_on_border if dm.l3gw_on_border is defined else ndfc.enableL3OnBorder,
       "nveId": ndfc.nveId,
       "type": "Normal",
     } }}",
