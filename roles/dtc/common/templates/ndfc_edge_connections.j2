@@ -44,7 +44,7 @@
             FF_CONF: |2-
               {{ link.bgp_section.bgp_freeform | default('')  | indent(14, false)}}
             SPEED: Auto
-            ADMIN_STATE: true
+            ADMIN_STATE: {{ link.source_interface_enabled | default(true) }}
             BGP_PASSWORD: ""
             BGP_PASSWORD_ENABLE: false
             OVERRIDE_LOCAL_ASN: false
