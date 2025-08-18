@@ -19,6 +19,7 @@
 #
 # SPDX-License-Identifier: MIT
 ---
+
 - name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_local }}"
