@@ -60,8 +60,6 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
 
-        # import epdb ; epdb.st()
-
         new_global_key = None
         if model_data['vxlan']['fabric']['type'] == 'VXLAN_EVPN':
             new_global_key = 'ibgp'
@@ -113,3 +111,5 @@ class PreparePlugin:
                             model_data['vxlan']['global'].pop(key, None)
 
                 return self.kwargs['results']
+
+        return self.kwargs['results']
