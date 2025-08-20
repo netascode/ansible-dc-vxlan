@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 # Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -57,11 +54,11 @@ class ActionModule(ActionBase):
 
         # Get task arguments
         module_args = self._task.args.copy()
-        
+
         # Get the network OS from task variables or module arguments
         network_os = task_vars.get('ansible_network_os')
         display.vvvv(f"Using OS module: {network_os}")
-        
+
         # Determine which module to use based on network_os
         rest_module = get_rest_module(network_os)
         if not rest_module:
@@ -79,7 +76,7 @@ class ActionModule(ActionBase):
             # Set the connection to httpapi
             if 'connection' not in task_vars:
                 task_vars['connection'] = 'httpapi'
-                
+
             # Execute the appropriate REST module
             result = self._execute_module(
                 module_name=rest_module,
@@ -88,7 +85,7 @@ class ActionModule(ActionBase):
                 tmp=tmp,
                 wrap_async=False
             )
-            
+
             # Update results with the module's results
             if result.get('failed'):
                 results.update(result)
@@ -97,7 +94,7 @@ class ActionModule(ActionBase):
                 results['changed'] = result.get('changed', False)
                 results.update(result)
                 display.vvvv(f"Module execution successful: {result}")
-                
+
         except Exception as e:
             import traceback
             error_trace = traceback.format_exc()

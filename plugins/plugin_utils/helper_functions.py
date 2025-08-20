@@ -99,9 +99,8 @@ def ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number):
     network_os = task_vars['ansible_network_os']
     rest_module = get_rest_module(network_os)
     if not rest_module:
-        results['failed'] = True
-        results['msg'] = f"Unsupported network_os: {network_os}"
-        return results
+        err_msg = f"Unsupported network_os: {network_os}"
+        raise Exception(err_msg)
 
     policy_data = self._execute_module(
         module_name=rest_module,
@@ -192,9 +191,8 @@ def ndfc_get_fabric_attributes(self, task_vars, tmp, fabric):
     network_os = task_vars['ansible_network_os']
     rest_module = get_rest_module(network_os)
     if not rest_module:
-        results['failed'] = True
-        results['msg'] = f"Unsupported network_os: {network_os}"
-        return results
+        err_msg = f"Unsupported network_os: {network_os}"
+        raise Exception(err_msg)
 
     fabric_response = self._execute_module(
         module_name=rest_module,
@@ -248,6 +246,7 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
             )
 
     return fabric_switches
+
 
 def get_rest_module(network_os):
     if network_os == 'cisco.dcnm.dcnm':

@@ -90,7 +90,6 @@ class ActionModule(ActionBase):
 
         child_fabrics = msite_data['child_fabrics_data']
 
-
         network_os = task_vars['ansible_network_os']
         rest_module = get_rest_module(network_os)
         if not rest_module:
