@@ -25,7 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
-from .rest_module_utils import get_rest_module
+from ...plugin_utils.helper_functions import get_rest_module
 import json
 import re
 import inspect

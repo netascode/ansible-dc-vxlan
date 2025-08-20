@@ -26,7 +26,7 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-from .rest_module_utils import get_rest_module
+from ...plugin_utils.helper_functions import get_rest_module
 
 display = Display()
 

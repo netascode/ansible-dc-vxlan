@@ -25,7 +25,6 @@
 # For example in prepare_serice_model.py we can do the following:
 #  from ..helper_functions import do_something
 
-from .rest_module_utils import get_rest_module
 
 def data_model_key_check(tested_object, keys):
     """
@@ -249,3 +248,11 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
             )
 
     return fabric_switches
+
+def get_rest_module(network_os):
+    if network_os == 'cisco.dcnm.dcnm':
+        return 'cisco.dcnm.dcnm_rest'
+    elif network_os == 'cisco.nd.nd':
+        return 'cisco.nd.nd_rest'
+    else:
+        return None

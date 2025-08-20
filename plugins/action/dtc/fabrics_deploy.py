@@ -26,7 +26,7 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-from .rest_module_utils import get_rest_module
+from ...plugin_utils.helper_functions import get_rest_module
 
 
 display = Display()
@@ -40,6 +40,7 @@ class ActionModule(ActionBase):
         results['failed'] = False
 
         fabrics = self._task.args["fabrics"]
+
         for fabric in fabrics:
             display.display(f"Executing config-deploy on Fabric: {fabric}")
             network_os = task_vars['ansible_network_os']

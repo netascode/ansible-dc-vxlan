@@ -28,7 +28,7 @@ from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ansible.template import Templar
 from ansible.errors import AnsibleFileNotFound
-from .rest_module_utils import get_rest_module
+from ...plugin_utils.helper_functions import get_rest_module
 
 
 import json
