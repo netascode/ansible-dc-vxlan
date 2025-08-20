@@ -108,7 +108,7 @@ class PreparePlugin:
                             model_data['vxlan']['global'][new_global_key].update({key: model_data['vxlan']['global'][key]})
                             model_data['vxlan']['global'].pop(key, None)
                     elif key in dm_check['keys_found'] and key in dm_check['keys_data']:
-                            model_data['vxlan']['global'].pop(key, None)
+                        model_data['vxlan']['global'].pop(key, None)
 
                 return self.kwargs['results']
 
