@@ -19,10 +19,6 @@
   profile:
     admin_state: {{ switches[peer1].enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled) }}
     mode: {{ switches[peer1].mode }}
-{#    disable_lacp_suspend_individual: {{ switches[peer1].disable_lacp_suspend_individual | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.disable_lacp_suspend_individual) }} #}
-{#    enable_lacp_vpc_convergence: {{ switches[peer1].enable_lacp_vpc_convergence | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_lacp_vpc_convergence) }} #}
-{#    lacp_port_priority: {{ switches[peer1].lacp_port_priority | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_port_priority) }} #}
-{#    lacp_rate: {{ switches[peer1]lacp_rate | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_rate) }} #}
     peer1_pcid: {{ switches[peer1].name | regex_replace('[^0-9]', '') }}
     peer2_pcid: {{ switches[peer2].name | regex_replace('[^0-9]', '') }}
     port_type_fast: {{ switches[peer1].spanning_tree_portfast | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_portfast) }}
@@ -38,6 +34,10 @@
     peer1_description: "{{ switches[peer1].description | default(omit) }}"
     peer2_description: "{{ switches[peer2].description | default(omit) }}"
     bpdu_guard: {{ switches[peer1].enable_bpdu_guard | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard)   }}
+    disable_lacp_suspend_individual: {{ switches[peer1].disable_lacp_suspend_individual | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.disable_lacp_suspend_individual) }}
+    enable_lacp_vpc_convergence: {{ switches[peer1].enable_lacp_vpc_convergence | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_lacp_vpc_convergence) }}    
+    lacp_port_priority: {{ switches[peer1].lacp_port_priority | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_port_priority) }}
+    lacp_rate: {{ switches[peer1].lacp_rate | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_rate) }}
 {% if switches[peer1].mode == 'trunk' %}
     peer1_allowed_vlans: "{{ convert_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
     peer2_allowed_vlans: "{{ convert_ranges(switches[peer2].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
