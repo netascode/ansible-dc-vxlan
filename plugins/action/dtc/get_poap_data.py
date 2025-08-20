@@ -25,6 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
+from ...plugin_utils.helper_functions import get_rest_module
 import json
 import re
 import inspect
@@ -151,8 +152,13 @@ class POAPDevice:
         self.refresh_succeeded = False
         self.refresh_message = None
 
+        network_os = self.task_vars['ansible_network_os']
+        rest_module = get_rest_module(network_os)
+        if not rest_module:
+            self.refresh_message = f"Unsupported network_os: {network_os}"
+            return
         data = self.execute_module(
-            module_name="cisco.dcnm.dcnm_rest",
+            module_name=rest_module,
             module_args={
                 "method": self.poap_get_method,
                 "path": self.poap_get_path

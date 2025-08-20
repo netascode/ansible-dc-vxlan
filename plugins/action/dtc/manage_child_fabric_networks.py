@@ -29,6 +29,7 @@ from ansible.plugins.action import ActionBase
 from ansible.template import Templar
 from ansible.errors import AnsibleFileNotFound
 from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
+from ...plugin_utils.helper_functions import get_rest_module
 
 
 import re
@@ -78,6 +79,13 @@ class ActionModule(ActionBase):
         network_attach_groups_dict = msite_data['overlay_attach_groups']['network_attach_groups']
 
         child_fabrics = msite_data['child_fabrics_data']
+
+        network_os = task_vars['ansible_network_os']
+        rest_module = get_rest_module(network_os)
+        if not rest_module:
+            results['failed'] = True
+            results['msg'] = f"Unsupported network_os: {network_os}"
+            return results
 
         for network in networks:
             network_attach_group_switches = [
@@ -157,7 +165,7 @@ class ActionModule(ActionBase):
                         #         return results
 
                         ndfc_net = self._execute_module(
-                            module_name="cisco.dcnm.dcnm_rest",
+                            module_name=rest_module,
                             module_args={
                                 "method": "GET",
                                 "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks/{network['name']}",
@@ -222,7 +230,7 @@ class ActionModule(ActionBase):
                             rendered_to_nice_json = templar.environment.filters['to_nice_json'](rendered_content)
 
                             ndfc_net_update = self._execute_module(
-                                module_name="cisco.dcnm.dcnm_rest",
+                                module_name=rest_module,
                                 module_args={
                                     "method": "PUT",
                                     "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks/{network['name']}",

@@ -52,7 +52,7 @@
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Get Cisco Nexus Dashboard Fabric Controller Version
-  cisco.dcnm.dcnm_rest:
+  cisco.nac_dc_vxlan.dtc.rest:
     method: GET
     path: /appcenter/cisco/ndfc/api/about/version
   register: ndfc_version
@@ -61,4 +61,9 @@
 - name: Set Cisco Nexus Dashboard Fabric Controller Version Var
   ansible.builtin.set_fact:
     ndfc_version: "{{ ndfc_version.response.DATA.version }}"
+  when:
+    - ndfc_version is defined
+    - ndfc_version.response is defined
+    - ndfc_version.response.DATA is defined
+    - ndfc_version.response.DATA.version is defined
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml

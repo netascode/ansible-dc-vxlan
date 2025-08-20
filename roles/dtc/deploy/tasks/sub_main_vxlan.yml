@@ -35,7 +35,7 @@
 - name: Config-Save Block for iBGP VXLAN Fabric
   block:
     - name: Config-Save for iBGP VXLAN Fabric
-      cisco.dcnm.dcnm_rest:
+      cisco.nac_dc_vxlan.dtc.rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       register: config_save
@@ -50,7 +50,7 @@
       when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
 
 - name: Deploy for iBGP VXLAN Fabric
-  cisco.dcnm.dcnm_rest:
+  cisco.nac_dc_vxlan.dtc.rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:
@@ -70,7 +70,7 @@
 - name: Retrying Config-Save Block for iBGP VXLAN Fabric
   block:
     - name: Retrying Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
-      cisco.dcnm.dcnm_rest:
+      cisco.nac_dc_vxlan.dtc.rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       register: config_save
@@ -87,7 +87,7 @@
       when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
 
 - name: Retrying Deploy for iBGP VXLAN Fabric
-  cisco.dcnm.dcnm_rest:
+  cisco.nac_dc_vxlan.dtc.rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:

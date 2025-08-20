@@ -35,7 +35,7 @@
 - name: Config-Save Block for MSD Fabric
   block:
     - name: Config-Save for MSD Fabric
-      cisco.dcnm.dcnm_rest:
+      cisco.nac_dc_vxlan.dtc.rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
       register: config_save
@@ -48,7 +48,7 @@
       when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
 
 - name: Deploy for MSD Fabric
-  cisco.dcnm.dcnm_rest:
+  cisco.nac_dc_vxlan.dtc.rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:

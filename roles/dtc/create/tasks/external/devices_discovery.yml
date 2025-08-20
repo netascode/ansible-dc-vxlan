@@ -53,7 +53,7 @@
   delegate_to: localhost
 
 - name: Update Switch Hostname Policy in Nexus Dashboard
-  cisco.dcnm.dcnm_rest:
+  cisco.nac_dc_vxlan.dtc.rest:
     method: PUT
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"
     json_data: "{{ results.policy_update.values() | list | to_json }}"
