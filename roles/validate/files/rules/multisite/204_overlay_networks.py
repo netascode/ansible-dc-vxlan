@@ -3,7 +3,7 @@ class Rule:
     description = "Verify Network attributes are set for multisite overlay vs standalone fabric overlay"
     severity = "HIGH"
 
-    msg = "Network {0} attribute '{1}' must be defined under vxlan.multisite.overlay.vrfs under the 'child_fabrics:' key."
+    msg = "Network {0} attribute '{1}' must be defined under vxlan.multisite.overlay.networks under the 'child_fabrics:' key."
 
     @classmethod
     def match(cls, inventory):

@@ -24,7 +24,8 @@ class Rule:
         if inventory.get("vxlan", None):
             if inventory["vxlan"].get("underlay", None):
                 if inventory["vxlan"].get("underlay").get("multicast", None):
-                    fabric_trm_status = inventory["vxlan"]["underlay"]["multicast"].get("trm_enable", False)
+                    if inventory["vxlan"].get("underlay").get("multicast").get("ipv4", None):
+                        fabric_trm_status = inventory["vxlan"]["underlay"]["multicast"]["ipv4"].get("trm_enable", False)
 
         # Uncomment 31-34 when verified to work and remove line 25-28.
         # trm_keys = ['vxlan', 'underlay', 'multicast', 'trm_enabled']
@@ -74,7 +75,7 @@ class Rule:
                 if fabric_trm_status is False and current_network_trm_status is True:
                     results.append(
                         f"For vxlan.overlay.networks.{network['name']}.trm_enable to be enabled, "
-                        f"first vxlan.underlay.multicast.trm_enable must be enabled (true)."
+                        f"first vxlan.underlay.multicast.ipv4.trm_enable must be enabled (true)."
                     )
                     break
 

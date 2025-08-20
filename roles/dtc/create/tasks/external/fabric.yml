@@ -21,21 +21,21 @@
 
 ---
 
-- name: Manage Fabric External Entry Point
+- name: Manage Fabric Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric External {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Check if fabric External {{ MD_Extended.vxlan.fabric.name }} exists in NDFC
+- name: Check Fabric Exists in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.rest:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}"
   register: get_result
   failed_when: false
 
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (PUT)
+- name: Manage Fabric in Nexus Dashboard (PUT)
   cisco.nac_dc_vxlan.dtc.rest:
     method: PUT
     path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'
@@ -45,7 +45,7 @@
     - get_result.response.DATA
   register: put_result
 
-- name: Manage fabric External {{ MD_Extended.vxlan.fabric.name }} in NDFC (POST)
+- name: Manage Fabric in Nexus Dashboard (POST)
   cisco.nac_dc_vxlan.dtc.rest:
     method: POST
     path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'

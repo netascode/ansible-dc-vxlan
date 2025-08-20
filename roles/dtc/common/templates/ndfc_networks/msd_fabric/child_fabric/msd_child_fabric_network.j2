@@ -39,7 +39,7 @@
         "igmpVersion": ndfc.igmpVersion,
         "trmV6Enabled": ndfc.trmV6Enabled,
         "rtBothAuto": ndfc.rtBothAuto,
-        "enableL3OnBorder": ndfc.enableL3OnBorder,
+        "enableL3OnBorder": dm.l3gw_on_border if dm.l3gw_on_border is defined else ndfc.enableL3OnBorder,
         "enableL3OnBorderVpcBgw": ndfc.enableL3OnBorderVpcBgw,
         "nveId": ndfc.nveId,
         "type": "Normal",

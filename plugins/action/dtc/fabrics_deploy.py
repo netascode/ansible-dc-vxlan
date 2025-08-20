@@ -111,8 +111,16 @@ class ActionModule(ActionBase):
             #     "_ansible_parsed": true
             # }
             if ndfc_deploy.get('msg'):
-                if ndfc_deploy['msg']['RETURN_CODE'] != 200:
+                # Handle case where msg is a string (simple error message)
+                if isinstance(ndfc_deploy['msg'], str):
                     results['failed'] = True
-                    results['msg'] = f"For fabric {fabric}; {ndfc_deploy['msg']['DATA']['message']}"
+                    results['msg'] = f"For fabric {fabric}; {ndfc_deploy['msg']}"
+                # Handle case where msg is a dict with structured error info
+                elif isinstance(ndfc_deploy['msg'], dict):
+                    if ndfc_deploy['msg'].get('RETURN_CODE', 0) != 200:
+                        results['failed'] = True
+                        # Safely access nested message
+                        error_message = ndfc_deploy['msg'].get('DATA', {}).get('message', 'Unknown error')
+                        results['msg'] = f"For fabric {fabric}; {error_message}"
 
         return results

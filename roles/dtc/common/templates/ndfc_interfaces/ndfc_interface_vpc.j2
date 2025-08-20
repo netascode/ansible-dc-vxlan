@@ -1,6 +1,6 @@
 {% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 ---
-# This NDFC VPC interface config data structure is auto-generated
+# This NDFC vPC interface config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
 
@@ -23,6 +23,7 @@
     peer2_pcid: {{ switches[peer2].name | regex_replace('[^0-9]', '') }}
     port_type_fast: {{ switches[peer1].spanning_tree_portfast | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_portfast) }}
     mtu: {{ switches[peer1].mtu | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.mtu) }}
+    speed: {{ switches[peer1].speed | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.speed) }}
     pc_mode: {{ switches[peer1].pc_mode | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.pc_mode) }}
     peer1_members: {{ switches[peer1].members | to_json }}
     peer2_members: {{ switches[peer2].members | to_json }}
