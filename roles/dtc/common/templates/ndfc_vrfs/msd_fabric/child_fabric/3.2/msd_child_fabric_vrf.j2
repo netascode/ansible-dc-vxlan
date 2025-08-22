@@ -20,7 +20,7 @@
       "maxBgpPaths": ndfc.maxBgpPaths,
       "maxIbgpPaths": ndfc.maxIbgpPaths,
       "ipv6LinkLocalFlag": ndfc.ipv6LinkLocalFlag,
-      "enableL3VniNoVlan": ndfc.enableL3VniNoVlan,
+      "enableL3VniNoVlan": dm.enable_l3_vni_no_vlan if dm.enable_l3_vni_no_vlan is defined else ndfc.enableL3VniNoVlan,
       "enableBgpBestPathEcmp": ndfc.enableBgpBestPathEcmp,
       "advertiseHostRouteFlag": dm.adv_host_routes | default(ndfc.advertiseHostRouteFlag),
       "advertiseDefaultRouteFlag": dm.adv_default_routes | default(ndfc.advertiseDefaultRouteFlag),
