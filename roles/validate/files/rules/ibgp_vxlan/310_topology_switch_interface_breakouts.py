@@ -10,6 +10,8 @@ class Rule:
 
         # Extract switches from the inventory
         switches = inventory.get("vxlan", {}).get("topology", {}).get("switches", [])
+        if switches is None:
+            return results
 
         # Process each switch
         for switch in switches:

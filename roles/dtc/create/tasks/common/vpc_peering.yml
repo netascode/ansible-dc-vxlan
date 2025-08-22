@@ -55,7 +55,6 @@
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_vxlan.vpc_domain_id_resource }}"
   when:
-
     - vars_common_vxlan.vpc_domain_id_resource is defined
     - vars_common_vxlan.vpc_domain_id_resource | length > 0
 

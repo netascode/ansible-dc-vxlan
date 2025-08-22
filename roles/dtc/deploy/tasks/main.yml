@@ -52,7 +52,8 @@
     (MD_Extended.vxlan.fabric.type == 'MSD') and
     (vars_common_msd.changes_detected_fabric or
     vars_common_msd.changes_detected_vrfs or
-    vars_common_msd.changes_detected_networks)
+    vars_common_msd.changes_detected_networks or
+    vars_common_msd.changes_detected_bgw_anycast_vip)
 
 - name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
@@ -60,7 +61,6 @@
   when: >
     (MD_Extended.vxlan.fabric.type == 'ISN') and
     (vars_common_isn.changes_detected_fabric or
-    vars_common_isn.changes_detected_fabric_links or
     vars_common_isn.changes_detected_interface_access_po or
     vars_common_isn.changes_detected_interface_access or
     vars_common_isn.changes_detected_interfaces or
