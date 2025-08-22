@@ -66,7 +66,7 @@ class ActionModule(ActionBase):
             results['msg'] = f"Unsupported network_os: {network_os}"
             return results
 
-        display.vvvv(f"Using ----------REST------------- module: {rest_module}")
+        display.vvvv(f"Using REST module: {rest_module}")
 
         try:
             display.vvvv(f"Executing module: {rest_module} with args: {module_args}")
