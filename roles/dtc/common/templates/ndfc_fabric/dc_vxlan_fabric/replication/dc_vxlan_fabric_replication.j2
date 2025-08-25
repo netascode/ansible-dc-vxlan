@@ -8,7 +8,7 @@
 {% else %}
   REPLICATION_MODE: {{ vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title }}
 {% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
-  RP_COUNT: {{ vxlan.underlay.multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) }}
+  RP_COUNT: "{{ vxlan.underlay.multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) }}"
   RP_MODE: {{ vxlan.underlay.multicast.rp_mode | default(defaults.vxlan.underlay.multicast.rp_mode) }}
   RP_LB_ID: {{ vxlan.underlay.multicast.underlay_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_rp_loopback_id) }}
   ENABLE_TRM: {{ vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | title }}

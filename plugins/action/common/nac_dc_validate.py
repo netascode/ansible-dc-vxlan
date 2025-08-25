@@ -44,7 +44,7 @@ else:
     NAC_VALIDATE_IMPORT_ERROR = None
 
 import os
-from ...plugin_utils.helper_functions import data_model_key_check
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import data_model_key_check
 
 display = Display()
 

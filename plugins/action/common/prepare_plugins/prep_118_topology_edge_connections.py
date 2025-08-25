@@ -19,7 +19,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-
 class PreparePlugin:
     def __init__(self, **kwargs):
         self.kwargs = kwargs

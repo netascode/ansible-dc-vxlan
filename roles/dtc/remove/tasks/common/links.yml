@@ -64,6 +64,7 @@
       cisco.nac_dc_vxlan.dtc.links_filter_and_remove:
         existing_links: "{{ result_links.response }}"
         fabric_links: "{{ vars_common_vxlan.fabric_links }}"
+        switch_data_model: "{{ MD_Extended.vxlan.topology.switches }}"
       register: links_to_be_removed
       when: result_links.response is defined
 

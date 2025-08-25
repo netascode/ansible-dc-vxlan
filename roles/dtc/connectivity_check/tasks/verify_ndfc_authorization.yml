@@ -46,7 +46,7 @@
     - name: Fail Play If Nexus Dashboard Authorization Test Failed
       ansible.builtin.fail:
         msg: >
-          NDFC authorization failed using specified ansible_user and ansible_password
+          Nexus Dashboard authorization failed using specified ansible_user and ansible_password
           for https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}.
           Check Nexus Dashboard credentials and/or login domain.
       delegate_to: localhost
