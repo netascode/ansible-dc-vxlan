@@ -44,7 +44,8 @@
     (vars_common_ebgp_vxlan.changes_detected_link_vpc_peering) or
     (vars_common_ebgp_vxlan.changes_detected_policy) or
     (vars_common_ebgp_vxlan.changes_detected_interfaces) or
-    (vars_common_ebgp_vxlan.changes_detected_vrfs)
+    (vars_common_ebgp_vxlan.changes_detected_vrfs) or
+    (vars_common_ebgp_vxlan.changes_detected_networks)
 
 - name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml

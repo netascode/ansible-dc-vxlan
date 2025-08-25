@@ -20,6 +20,16 @@
 # SPDX-License-Identifier: MIT
 ---
 
+- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_local }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Choose vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+
 - name: Check If Current Fabric Is An Active Multisite Fabric
   when: is_active_child_fabric is not defined
   block:
@@ -39,38 +49,38 @@
       ansible.builtin.set_fact:
         is_active_child_fabric: "{{ true if selected_fabric[0]['fabricParent'] != 'None' else false }}"
 
-- name: Fail If Current Fabric is Part of Multisite And Attempting to Manage VRFs
+- name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
   ansible.builtin.fail:
-    msg: VRFs cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
+    msg: Networks cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
   when:
     - is_active_child_fabric
-    - vars_common_vxlan.vrf_config | length > 0
+    - vars_common_local.net_config | length > 0
 
-- name: Unmanaged Fabric VRFs Removal Status Message
+- name: Unmanaged Fabric Networks Removal Status Message
   ansible.builtin.debug:
-    msg: "Removing Unmanaged Fabric VRFs. This could take several minutes..."
+    msg: "Removing Unmanaged Fabric Networks. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
-    - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+    - (network_delete_mode is defined) and (network_delete_mode is true|bool)
     - not is_active_child_fabric
 
-- name: Remove Unmanaged Fabric VRFs in Nexus Dashboard
-  cisco.dcnm.dcnm_vrf:
+- name: Remove Unmanaged Fabric Networks in Nexus Dashboard
+  cisco.dcnm.dcnm_network:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden
-    config: "{{ vars_common_vxlan.vrf_config }}"
+    config: "{{ vars_common_local.net_config }}"
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
   when:
     - switch_list.response.DATA | length > 0
-    - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+    - (network_delete_mode is defined) and (network_delete_mode is true|bool)
     - not is_active_child_fabric
 
-- name: Skip Remove Unmanaged Fabric VRFs Task If vrf_delete_mode is False
+- name: Skip Remove Unmanaged Fabric Networks Task If network_delete_mode is False
   ansible.builtin.debug:
     msg:
-      - "--------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False              +"
-      - "--------------------------------------------------------------------------------------------------------"
-  when: not ((vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)) or is_active_child_fabric
+      - "---------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Fabric Networks task because network_delete_mode flag is set to False              +"
+      - "---------------------------------------------------------------------------------------------------------------"
+  when: not ((network_delete_mode is defined) and (network_delete_mode is true|bool)) or is_active_child_fabric

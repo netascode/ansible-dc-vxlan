@@ -62,11 +62,11 @@
   when:
     - vars_common_ebgp_vxlan.changes_detected_interfaces
 
-# - name: Remove eBGP VXLAN Fabric Networks from Nexus Dashboard
-#   ansible.builtin.import_tasks: vxlan/networks.yml
-#   tags: "{{ nac_tags.remove_networks }}"
-#   when:
-#     - vars_common_vxlan.changes_detected_networks
+- name: Remove eBGP VXLAN Fabric Networks from Nexus Dashboard
+  ansible.builtin.import_tasks: common_vxlan/networks.yml
+  tags: "{{ nac_tags.remove_networks }}"
+  when:
+    - vars_common_ebgp_vxlan.changes_detected_networks
 
 - name: Remove eBGP VXLAN Fabric VRFs from Nexus Dashboard
   ansible.builtin.import_tasks: common_vxlan/vrfs.yml
