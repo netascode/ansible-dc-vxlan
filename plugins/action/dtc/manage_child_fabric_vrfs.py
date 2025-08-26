@@ -29,6 +29,7 @@ from ansible.plugins.action import ActionBase
 from ansible.template import Templar
 from ansible.errors import AnsibleFileNotFound
 from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
+from ansible.plugins.filter.core import to_bool
 
 
 import re
@@ -227,6 +228,7 @@ class ActionModule(ActionBase):
 
                             # Create a Templar instance
                             templar = Templar(loader=self._loader, variables=vrf_vars)
+                            templar.environment.filters['bool'] = to_bool
 
                             # Render the template with the combined variables
                             rendered_content = templar.template(template_content)

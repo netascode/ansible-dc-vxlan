@@ -47,6 +47,7 @@ NETWORK_TEMPLATE_CONFIG_MAP = {
     'VLAN_NETFLOW_MONITOR': {'dm_key': 'vlan_netflow_monitor', 'default': ''},
     'trmEnabled': {'dm_key': 'trm_enable', 'default': False},
     'mcastGroup': {'dm_key': 'multicast_group_address', 'default': ''},
+    'enableL3OnBorder': {'dm_key': 'l3gw_on_border', 'default': False},
 }
 
 
