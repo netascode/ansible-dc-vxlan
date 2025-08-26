@@ -3,7 +3,9 @@
   GRFIELD_DEBUG_FLAG: Enable
   ENABLE_PVLAN: false
   AAA_REMOTE_IP_ENABLED: False
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
   ALLOW_L3VNI_NO_VLAN:  {{ vxlan.global.allow_l3_vni_no_vlan | default(defaults.vxlan.global.allow_l3_vni_no_vlan) }}
+{% endif %}
   ENABLE_L3VNI_NO_VLAN:  {{ vxlan.global.enable_l3_vni_no_vlan | default(defaults.vxlan.global.enable_l3_vni_no_vlan) }}
   TCAM_ALLOCATION: {{ vxlan.global.ibgp.tcam_allocation | default(defaults.vxlan.global.ibgp.tcam_allocation) }}
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
