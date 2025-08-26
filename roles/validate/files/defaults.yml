@@ -158,6 +158,7 @@ factory_defaults:
         domain_id: 1
         keepalive_holdout_time: 3
         port_channel_mode: active
+        trunk_allowed_vlans: all
         peer1_po_channel_id: 500
         peer2_po_channel_id: 500
       fabric_links:
