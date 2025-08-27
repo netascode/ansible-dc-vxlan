@@ -144,7 +144,10 @@
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_local.int_loopback_config }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0
+  when: >
+    (MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0) or
+    (MD_Extended.vxlan.topology.interfaces.modes.fabric_loopback.count > 0) or
+    (MD_Extended.vxlan.topology.interfaces.modes.mpls_loopback.count > 0)
 
 # ----------------------------------------------------------------------
 # Manage Interface Dot1q Configuration in Nexus Dashboard
