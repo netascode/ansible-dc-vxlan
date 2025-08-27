@@ -19,9 +19,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-
 # Count interfaces of different types and expose in extended service model for controls within playbooks
 #
+
 class PreparePlugin:
     def __init__(self, **kwargs):
         self.kwargs = kwargs

@@ -157,6 +157,7 @@ class ActionModule(ActionBase):
             # If the network is in NDFC but not in the data model, delete it
             diff_ndfc_network_names = [ndfc_network_name for ndfc_network_name in ndfc_network_names if ndfc_network_name not in network_names]
 
+        display.warning(f"Removing network_names: {diff_ndfc_network_names} from fabric: {fabric}")
         if diff_ndfc_network_names:
             config = []
             for ndfc_network_name in diff_ndfc_network_names:

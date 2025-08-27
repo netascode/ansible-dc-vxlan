@@ -11,8 +11,12 @@
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: {{ switch['role'] }}
   preserve_config: true
+{# ------------------------------ #}
+{# Global Bootstrap Section Start #}
 {% if MD_Extended.vxlan.global.bootstrap is defined %}
 {% if MD_Extended.vxlan.global.bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.global.bootstrap.enable_bootstrap %}
+{#     ------------------------- #}
+{#     Switch POAP Section Start #}
 {% if switch.poap is defined and switch.poap.bootstrap %}
 {% if poap_data[switch['serial_number']] is defined %}
 {% set pdata = poap_data[switch['serial_number']] %}
@@ -24,7 +28,14 @@
       config_data:
         modulesModel: {{ pdata['modulesModel'] }}
         gateway: {{ pdata['gateway'] }}
-{% elif switch['poap']['preprovision'] is defined %}
+{% endif %}
+{% endif %}
+{#     ---------------------------------- #}
+{#     Switch POAP Section End            #}
+{##}
+{#     ---------------------------------- #}
+{#     Switch Pre-Provision Section Start #}
+{% if switch['poap']['preprovision'] is defined %}
   poap:
     - preprovision_serial: {{ switch['poap']['preprovision']['serial_number'] }}
       model: {{  switch['poap']['preprovision']['model'] }}
@@ -48,7 +59,10 @@
 {% endif %}
       hostname: {{ switch['name'] }}
 {% endif %}
+{#     Switch Pre-Provision Section End   #}
+{#     ---------------------------------- #}
 {% endif %}
 {% endif %}
-{% endif %}
+{# Global Bootstrap Section End #}
+{# ---------------------------- #}
 {% endfor %}

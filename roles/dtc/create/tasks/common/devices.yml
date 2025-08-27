@@ -28,5 +28,5 @@
       - "+     Manage Devices Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Manage Devices Discovery
+- name: Manage Devices Discovery in Nexus Dashboard
   ansible.builtin.import_tasks: devices_discovery.yml
