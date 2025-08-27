@@ -261,7 +261,6 @@ factory_defaults:
         redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         trm_enable: false
         trm_bgw_msite: false
-        enable_l3_vni_no_vlan: true
         # Staging trmv6 attributes for later usage after low-level collection adds support.
         # trmv6_no_rp: false
         # trmv6_rp_external: false
