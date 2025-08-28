@@ -102,6 +102,7 @@
 
 - name: Manage NDFC Child Fabric VRFs
   cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
+    nd_version: "{{ nd_version }}"
     msite_data: "{{ MD_Multisite }}"
     fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
   register: child_fabric_vrf_results
@@ -186,6 +187,7 @@
 
 - name: Manage NDFC Child Fabric Networks
   cisco.nac_dc_vxlan.dtc.manage_child_fabric_networks:
+    nd_version: "{{ nd_version }}"
     msite_data: "{{ MD_Multisite }}"
     fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
   register: child_fabric_network_results
