@@ -21,7 +21,7 @@
 
 ---
 
-- name: Import Role Tasks
+- name: Import iBGP VXLAN EVPN Role Tasks
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
@@ -45,16 +45,17 @@
     vars_common_vxlan.changes_detected_vpc_peering or
     vars_common_vxlan.changes_detected_vrfs)
 
-- name: Import Role Tasks
+- name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'MSD') and
     (vars_common_msd.changes_detected_fabric or
     vars_common_msd.changes_detected_vrfs or
-    vars_common_msd.changes_detected_networks)
+    vars_common_msd.changes_detected_networks or
+    vars_common_msd.changes_detected_bgw_anycast_vip)
 
-- name: Import Role Tasks
+- name: Import MFD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_mfd.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
@@ -63,13 +64,12 @@
     vars_common_mfd.changes_detected_vrfs or
     vars_common_mfd.changes_detected_networks)
 
-- name: Import Role Tasks
+- name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'ISN') and
     (vars_common_isn.changes_detected_fabric or
-    vars_common_isn.changes_detected_fabric_links or
     vars_common_isn.changes_detected_interface_access_po or
     vars_common_isn.changes_detected_interface_access or
     vars_common_isn.changes_detected_interfaces or
@@ -83,12 +83,13 @@
     vars_common_isn.changes_detected_policy or
     vars_common_isn.changes_detected_sub_interface_routed)
 
-- name: Import Role Tasks
+- name: Import External Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_external.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'External') and
     (vars_common_external.changes_detected_fabric or
+    vars_common_external.changes_detected_vpc_peering or
     vars_common_external.changes_detected_interface_access_po or
     vars_common_external.changes_detected_interface_access or
     vars_common_external.changes_detected_interfaces or

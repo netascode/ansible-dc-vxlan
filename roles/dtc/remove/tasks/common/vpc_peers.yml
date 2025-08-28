@@ -34,27 +34,30 @@
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
-- ansible.builtin.debug: msg="Removing Unmanaged vPC Peering. This could take several minutes..."
+- name: Display Removing Unmanaged vPC Peering Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged vPC Peering. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
     - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
 
-- name: Remove Unmanaged vPC Peering
+- name: Remove Unmanaged vPC Peering from Nexus Dashboard
   cisco.dcnm.dcnm_vpc_pair:
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     deploy: false
     state: overridden
     config: "{{ vars_common_local.vpc_peering }}"
   vars:
-      ansible_command_timeout: 1000
-      ansible_connect_timeout: 1000
+    ansible_command_timeout: 1000
+    ansible_connect_timeout: 1000
   when:
     - switch_list.response.DATA | length > 0
     - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
 
-- ansible.builtin.debug:
+- name: Skip Remove Unmanaged vPC Peering Task If vpc_delete_mode is False
+  ansible.builtin.debug:
     msg:
       - "-------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_peering_delete_mode flag is set to False  +"
+      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_peering_delete_mode flag is set to False     +"
       - "-------------------------------------------------------------------------------------------------------"
   when: not ((vpc_delete_mode is defined) and (vpc_delete_mode is true|bool))

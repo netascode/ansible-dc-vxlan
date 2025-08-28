@@ -21,17 +21,20 @@
 
 ---
 
-- name: Choose vars_common Based On Fabric Type
+- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
 
@@ -43,10 +46,10 @@
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
-# Manage VPC Domain ID
+# Manage vPC Domain ID
 # --------------------------------------------------------------------
 
-- name: Manage VPC Domain ID resource
+- name: Manage vPC Domain ID Resource in Nexus Dashboard
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
@@ -56,10 +59,10 @@
     - vars_common_vxlan.vpc_domain_id_resource | length > 0
 
 # --------------------------------------------------------------------
-# Manage Intra Fabric Links Configuration on NDFC (prepare links for vpc peering)
+# Manage Intra Fabric Links for vPC Peering in Nexus Dashboard
 # --------------------------------------------------------------------
 
-- name: Manage Intra Fabric Links for vpc peering
+- name: Manage Intra Fabric Links for vPC Peering in Nexus Dashboard
   cisco.dcnm.dcnm_links:
     state: replaced
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
@@ -70,10 +73,10 @@
   when: link_vpc_peering|length != 0
 
 # --------------------------------------------------------------------
-# Manage vPC Peering
+# Manage vPC Peering in Nexus Dashboard
 # --------------------------------------------------------------------
 
-- name: Manage vPC Peering
+- name: Manage vPC Peering in Nexus Dashboard
   cisco.dcnm.dcnm_vpc_pair:
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     deploy: false

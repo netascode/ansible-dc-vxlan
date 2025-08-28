@@ -21,7 +21,7 @@
 
 ---
 
-- name: Import VXLAN Role Tasks
+- name: Import iBGP VXLAN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   # Check with Matt on changes_detected_policy here
   # Was not there previously
@@ -36,7 +36,7 @@
     vars_common_vxlan.changes_detected_vrfs or
     vars_common_vxlan.changes_detected_edge_connections)
 
-- name: Import MSD Role Tasks
+- name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'MSD') and
@@ -50,7 +50,7 @@
     (vars_common_mfd.changes_detected_vrfs) or
     (vars_common_mfd.changes_detected_networks)
 
-- name: Import ISN Role Tasks
+- name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'ISN') and
@@ -59,7 +59,7 @@
     vars_common_isn.changes_detected_policy or
     vars_common_isn.changes_detected_edge_connections)
 
-- name: Import External Role Tasks
+- name: Import External Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_external.yml
   when: >
     (MD_Extended.vxlan.fabric.type == 'External') and
