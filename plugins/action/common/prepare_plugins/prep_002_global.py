@@ -59,6 +59,7 @@ ISN_BACKWARD_COMPATIBLE_KEYS = [
     "netflow"
 ]
 
+
 class PreparePlugin:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
