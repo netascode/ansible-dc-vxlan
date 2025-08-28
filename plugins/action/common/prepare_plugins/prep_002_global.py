@@ -51,6 +51,13 @@ BACKWARD_COMPATIBLE_KEYS = [
     "bootstrap"
 ]
 
+# Deprecated global keys that are still supported for backwards compatibility
+ISN_BACKWARD_COMPATIBLE_KEYS = [
+    "auth_proto",
+    "ptp",
+    "snmp_server_host_trap",
+    "netflow"
+]
 
 class PreparePlugin:
     def __init__(self, **kwargs):
@@ -60,6 +67,14 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
 
+        # Store simplified data model fabric type key for ease of use in Jinja2 templates and Ansible tasks
+        if model_data['vxlan']['fabric']['type'] == 'VXLAN_EVPN':
+            model_data['vxlan']['fabric'].update({'simplified_type': 'ibgp'})
+        elif model_data['vxlan']['fabric']['type'] == 'eBGP_VXLAN':
+            model_data['vxlan']['fabric'].update({'simplified_type': 'ebgp'})
+        elif model_data['vxlan']['fabric']['type'] == 'External':
+            model_data['vxlan']['fabric'].update({'simplified_type': 'external'})
+
         new_global_key = None
         if model_data['vxlan']['fabric']['type'] == 'VXLAN_EVPN':
             new_global_key = 'ibgp'
@@ -67,8 +82,12 @@ class PreparePlugin:
         elif model_data['vxlan']['fabric']['type'] == 'External':
             new_global_key = 'external'
             PARENT_KEYS.append(new_global_key)
+        elif model_data['vxlan']['fabric']['type'] == 'ISN':
+            # new_global_key is set to 'isn' here only for the conditional check that follows and is not a new key
+            new_global_key = 'isn'
+            ISN_PARENT_KEYS = ['vxlan', 'multisite', 'isn']
 
-        if new_global_key:
+        if new_global_key in ['ibgp', 'external']:
             dm_check = data_model_key_check(model_data, PARENT_KEYS)
 
             # This if handles the case where the new global key does not exist at all
@@ -111,5 +130,24 @@ class PreparePlugin:
                         model_data['vxlan']['global'].pop(key, None)
 
                 return self.kwargs['results']
+
+        elif new_global_key == 'isn':
+            for key in ISN_BACKWARD_COMPATIBLE_KEYS:
+                # Check if the key exists under vxlan.multisite.isn
+                dm_check = data_model_key_check(model_data, ISN_PARENT_KEYS + [key])
+                # If the key does not exist or has no data in the key, we can safely try to copy the data
+                # from the old global key to the key under vxlan.multisite.isn if the old global key has data
+                # e.g. vxlan.global.auth_proto to vxlan.multisite.isn.auth_proto
+                if key in dm_check['keys_not_found'] or key in dm_check['keys_no_data']:
+                    # Check if the key exists in the old global key
+                    dm_check = data_model_key_check(model_data, PARENT_KEYS[:-1] + [key])
+                    # If the key exists and has data in the old global key, we can copy the data
+                    if key in dm_check['keys_found'] and key in dm_check['keys_data']:
+                        model_data['vxlan']['multisite']['isn'].update({key: model_data['vxlan']['global'][key]})
+                        model_data['vxlan']['global'].pop(key, None)
+                # elif key in dm_check['keys_found'] and key in dm_check['keys_data']:
+                #     model_data['vxlan']['global'].pop(key, None)
+
+            return self.kwargs['results']
 
         return self.kwargs['results']

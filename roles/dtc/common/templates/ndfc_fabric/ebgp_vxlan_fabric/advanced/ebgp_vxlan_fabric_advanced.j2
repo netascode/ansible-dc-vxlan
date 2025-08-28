@@ -6,25 +6,25 @@
   FABRIC_MTU: {{ vxlan.underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
   L2_HOST_INTF_MTU: {{ vxlan.underlay.general.layer2_host_interface_mtu | default(defaults.vxlan.underlay.general.layer2_host_interface_mtu) }}
 {% if vxlan.global.bootstrap is defined and vxlan.global.bootstrap.enable_cdp_mgmt is defined %}
-  CDP_ENABLE: {{ vxlan.global.bootstrap.enable_cdp_mgmt }}
+  CDP_ENABLE: {{ vxlan.global.ebgp.bootstrap.enable_cdp_mgmt }}
 {% endif %}
-  ENABLE_NXAPI: {{ vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
-{% if vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) | ansible.builtin.bool %}
-  NXAPI_HTTPS_PORT: {{ vxlan.global.nxapi_https_port | default(defaults.vxlan.global.nxapi_https_port) }}
-  ENABLE_NXAPI_HTTP: {{ vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) }}
-{% if vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) | ansible.builtin.bool %}
-  NXAPI_HTTP_PORT: {{ vxlan.global.nxapi_http_port | default(defaults.vxlan.global.nxapi_http_port) }}
+  ENABLE_NXAPI: {{ vxlan.global.ebgp.enable_nxapi_https | default(defaults.vxlan.global.ebgp.enable_nxapi_https) }}
+{% if vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.ebgp.enable_nxapi_https) | ansible.builtin.bool %}
+  NXAPI_HTTPS_PORT: {{ vxlan.global.ebgp.nxapi_https_port | default(defaults.vxlan.global.ebgp.nxapi_https_port) }}
+  ENABLE_NXAPI_HTTP: {{ vxlan.global.ebgp.enable_nxapi_http | default(defaults.vxlan.global.ebgp.enable_nxapi_http) }}
+{% if vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.ebgp.enable_nxapi_http) | ansible.builtin.bool %}
+  NXAPI_HTTP_PORT: {{ vxlan.global.ebgp.nxapi_http_port | default(defaults.vxlan.global.ebgp.nxapi_http_port) }}
 {% endif %}
 {% endif %}
-  SNMP_SERVER_HOST_TRAP: {{ vxlan.global.snmp_server_host_trap | default(defaults.vxlan.global.snmp_server_host_trap) }}
+  SNMP_SERVER_HOST_TRAP: {{ vxlan.global.ebgp.snmp_server_host_trap | default(defaults.vxlan.global.ebgp.snmp_server_host_trap) }}
 {% if ( (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) and
         (not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool)) ) %}
-  FEATURE_PTP: {{ vxlan.global.ptp.enable | default(defaults.vxlan.global.ptp.enable) }}
+  FEATURE_PTP: {{ vxlan.global.ebgp.ptp.enable | default(defaults.vxlan.global.ebgp.ptp.enable) }}
 {% if vxlan.global.ptp.enable is defined and vxlan.global.ptp.enable | ansible.builtin.bool %}
-  PTP_DOMAIN_ID: {{ vxlan.global.ptp.domain_id | default(defaults.vxlan.global.ptp.domain_id) }}
-  PTP_LB_ID: {{ vxlan.global.ptp.lb_id | default(defaults.vxlan.global.ptp.lb_id) }}
+  PTP_DOMAIN_ID: {{ vxlan.global.ebgp.ptp.domain_id | default(defaults.vxlan.global.ebgp.ptp.domain_id) }}
+  PTP_LB_ID: {{ vxlan.global.ebgp.ptp.lb_id | default(defaults.vxlan.global.ebgp.ptp.lb_id) }}
 {% if vxlan.global.ptp.vlan_id is defined %}
-  PTP_VLAN_ID: {{ vxlan.global.ptp.vlan_id }}
+  PTP_VLAN_ID: {{ vxlan.global.ebgp.ptp.vlan_id }}
 {% endif %}
 {% endif %}
 {% endif %}

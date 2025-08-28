@@ -1,19 +1,19 @@
 {# Auto-generated NDFC DC External Advanced config data structure for fabric {{ vxlan.fabric.name }} #}
   POWER_REDUNDANCY_MODE: ps-redundant
-  FEATURE_PTP: {{ vxlan.global.external.ptp.enable | default(defaults.vxlan.global.ptp.enable) }}
-{% if vxlan.global.external.ptp.enable | default(defaults.vxlan.global.ptp.enable) %}
+  FEATURE_PTP: {{ vxlan.global.external.ptp.enable | default(defaults.vxlan.global.external.ptp.enable) }}
+{% if vxlan.global.external.ptp.enable | default(defaults.vxlan.global.external.ptp.enable) %}
   PTP_DOMAIN_ID: {{ vxlan.global.external.ptp.domain_id }}
   PTP_LB_ID: {{ vxlan.global.external.ptp.lb_id }}
 {% endif %}
-  ENABLE_NXAPI: {{ vxlan.global.external.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
-{% if vxlan.global.external.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) %}
-  NXAPI_HTTPS_PORT: {{ vxlan.global.external.nxapi_https_port | default(defaults.vxlan.global.nxapi_https_port) }}
+  ENABLE_NXAPI: {{ vxlan.global.external.enable_nxapi_https | default(defaults.vxlan.global.external.enable_nxapi_https) }}
+{% if vxlan.global.external.enable_nxapi_https | default(defaults.vxlan.global.external.enable_nxapi_https) %}
+  NXAPI_HTTPS_PORT: {{ vxlan.global.external.nxapi_https_port | default(defaults.vxlan.global.external.nxapi_https_port) }}
 {% endif %}
-  ENABLE_NXAPI_HTTP: {{ vxlan.global.external.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) }}
-{% if vxlan.global.external.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) %}
-  NXAPI_HTTP_PORT: {{ vxlan.global.external.nxapi_http_port | default(defaults.vxlan.global.nxapi_http_port) }}
+  ENABLE_NXAPI_HTTP: {{ vxlan.global.external.enable_nxapi_http | default(defaults.vxlan.global.external.enable_nxapi_http) }}
+{% if vxlan.global.external.enable_nxapi_http | default(defaults.vxlan.global.external.enable_nxapi_http) %}
+  NXAPI_HTTP_PORT: {{ vxlan.global.external.nxapi_http_port | default(defaults.vxlan.global.external.nxapi_http_port) }}
 {% endif %}
-  SNMP_SERVER_HOST_TRAP: {{ vxlan.global.external.snmp_server_host_trap | default(defaults.vxlan.global.snmp_server_host_trap) }}
+  SNMP_SERVER_HOST_TRAP: {{ vxlan.global.external.snmp_server_host_trap | default(defaults.vxlan.global.external.snmp_server_host_trap) }}
 {% if vxlan.global.external.bootstrap is defined and vxlan.global.external.bootstrap.enable_cdp_mgmt is defined %}
   CDP_ENABLE: {{ vxlan.global.external.bootstrap.enable_cdp_mgmt }}
 {% endif %}

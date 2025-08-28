@@ -1,4 +1,5 @@
 {# Auto-generated NDFC DC VXLAN EVPN Inventory config data structure for fabric {{ vxlan.fabric.name }} #}
+{% set simplified_fabric_type = model_data['vxlan']['fabric']['simplified_type'] %}
 {% set poap_data = poap_data['poap_data'] %}
 {% for switch in MD_Extended.vxlan.topology.switches %}
 {% if switch.management.management_ipv4_address is defined %}
@@ -6,7 +7,7 @@
 {% elif switch.management.management_ipv6_address is defined %}
 - seed_ip: {{ switch['management']['management_ipv6_address'] }}
 {% endif %}
-  auth_proto: {{ MD['vxlan']['global']['auth_proto'] | default(defaults.vxlan.global.auth_proto) }}
+  auth_proto: {{ MD_Extended['vxlan']['global'][simplified_fabric_type]['auth_proto'] | default(defaults.vxlan.global[simplified_fabric_type].auth_proto) }}
   user_name: PLACE_HOLDER_USERNAME
   password: PLACE_HOLDER_PASSWORD
   max_hops: 0 # this is the default value as it is not defined into the data model
@@ -14,8 +15,8 @@
   preserve_config: false
 {# ------------------------------ #}
 {# Global Bootstrap Section Start #}
-{% if MD_Extended.vxlan.global.bootstrap is defined %}
-{% if MD_Extended.vxlan.global.bootstrap.enable_bootstrap | default(defaults.vxlan.global.enable_bootstrap) | ansible.builtin.bool %}
+{% if MD_Extended.vxlan.global[simplified_fabric_type].bootstrap is defined %}
+{% if MD_Extended.vxlan.global[simplified_fabric_type].bootstrap.enable_bootstrap | default(defaults.vxlan.global[simplified_fabric_type].enable_bootstrap) | ansible.builtin.bool %}
 {#     ------------------------- #}
 {#     Switch POAP Section Start #}
 {% if switch.poap is defined and (switch.poap.bootstrap | default(defaults.vxlan.topology.switches.poap.bootstrap) | ansible.builtin.bool) %}
@@ -58,4 +59,4 @@
 {% endif %}
 {# Global Bootstrap Section End #}
 {# ---------------------------- #}
-{% endfor %} 
+{% endfor %}

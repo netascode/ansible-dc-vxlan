@@ -1,9 +1,9 @@
 {# Auto-generated NDFC DC VXLAN EVPN Bootstrap config data structure for fabric {{ vxlan.fabric.name }} #}
 {% if vxlan.global.ibgp.bootstrap is defined %}
-  BOOTSTRAP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool }}
-{% if vxlan.global.ibgp.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool %}
-  DHCP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool }}
-{% if vxlan.global.ibgp.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool %}
+  BOOTSTRAP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_bootstrap | default(defaults.vxlan.global.ibgp.bootstrap.enable_bootstrap) | bool }}
+{% if vxlan.global.ibgp.bootstrap.enable_bootstrap | default(defaults.vxlan.global.ibgp.bootstrap.enable_bootstrap) | bool %}
+  DHCP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.ibgp.bootstrap.enable_local_dhcp_server) | bool }}
+{% if vxlan.global.ibgp.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.ibgp.bootstrap.enable_local_dhcp_server) | bool %}
   DHCP_IPV6_ENABLE: {{ vxlan.global.ibgp.bootstrap.dhcp_version }}
 {% if vxlan.global.ibgp.bootstrap.dhcp_version is defined and vxlan.global.ibgp.bootstrap.dhcp_version == "DHCPv4" %}
   DHCP_START: {{ vxlan.global.ibgp.bootstrap.dhcp_v4.scope_start_address }}
