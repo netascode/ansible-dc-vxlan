@@ -1,5 +1,5 @@
 {# Auto-generated NDFC External Inventory config data structure for fabric {{ vxlan.fabric.name }} #}
-{% set simplified_fabric_type = model_data['vxlan']['fabric']['simplified_type'] %}
+{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
 {% set poap_data = poap_data['poap_data'] %}
 {% for switch in MD_Extended.vxlan.topology.switches %}
 {% if switch.management.management_ipv4_address is defined %}

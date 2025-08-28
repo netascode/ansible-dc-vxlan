@@ -2,7 +2,7 @@
 ! DO NOT EDIT MANUALLY
 !
 !
-{% set simplified_fabric_type = model_data['vxlan']['fabric']['simplified_type'] %}
+{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
 {# macro render_ospf_interface to render ospf area part #}
 {% macro render_ospf_area(area, defaults) %}
   {% if area.id and (area.id != 0 or area.id != '0.0.0.0') %}

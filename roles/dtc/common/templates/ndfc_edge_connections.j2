@@ -2,7 +2,7 @@
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% set simplified_fabric_type = model_data['vxlan']['fabric']['simplified_type'] %}
+{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
 {% if MD_Extended.vxlan.fabric.type == "ISN" %}
 {% set bgp_asn = MD_Extended.vxlan.multisite.isn.bgp_asn %}
 {% else %}
