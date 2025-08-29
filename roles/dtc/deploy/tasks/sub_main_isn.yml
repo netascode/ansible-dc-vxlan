@@ -34,7 +34,7 @@
 
 - name: Config-Save Block for ISN Fabric
   block:
-    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
+    - name: Config-Save for ISN Fabric
       cisco.dcnm.dcnm_rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
@@ -42,13 +42,22 @@
       when: >
         (MD_Extended.vxlan.fabric.type == 'ISN' and
         (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0))
-      # TODO: Need to add logic to only save if changes are made
 
   rescue:
     - name: Config-Save for ISN Fabric - Failed
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
       when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
+
+# - name: Config-Preview Block for ISN Fabric
+#   block:
+#     - name: Config-Preview for ISN Fabric
+#       cisco.dcnm.dcnm_rest:
+#         method: GET
+#         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-preview"
+#       when: >
+#         (MD_Extended.vxlan.fabric.type == 'ISN' and
+#         (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0))
 
 - name: Deploy for ISN Fabric
   cisco.dcnm.dcnm_rest:
@@ -60,4 +69,3 @@
   when: >
     (MD_Extended.vxlan.fabric.type == 'ISN' and
     (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0))
-  # TODO: Need to add logic to only deploy if changes are made
