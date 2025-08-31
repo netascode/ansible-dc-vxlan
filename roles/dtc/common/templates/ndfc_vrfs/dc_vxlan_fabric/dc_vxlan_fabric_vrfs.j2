@@ -54,6 +54,9 @@
   underlay_mcast_ip: {{ vrf['underlay_mcast_ip'] | default(omit) }}
 {% endif %}
   redist_direct_rmap: {{ vrf['redist_direct_routemap'] | default(defaults.vxlan.overlay.vrfs.redist_direct_routemap) }}
+{% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) %}
+  v6_redist_direct_rmap: {{ vrf['ipv6_redist_direct_routemap'] | default(defaults.vxlan.overlay.vrfs.ipv6_redist_direct_routemap) }}
+{% endif %}
 {# ------------------------------------------------------ #}
 {# Attach Group Section                                   #}
 {# ------------------------------------------------------ #}

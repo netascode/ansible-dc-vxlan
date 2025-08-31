@@ -305,8 +305,6 @@ factory_defaults:
         max_bgp_paths: 1
         max_ibgp_paths: 2
         ipv6_linklocal_enable: true
-        # Staging ipv6 route-map attribute for later usage after low-level collection adds support.
-        # ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         adv_host_routes: false
         adv_default_routes: true
         static_default_route: true
@@ -315,6 +313,7 @@ factory_defaults:
         no_rp: false
         rp_external: false
         redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
+        ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         trm_enable: false
         trm_bgw_msite: false
         # Staging trmv6 attributes for later usage after low-level collection adds support.
