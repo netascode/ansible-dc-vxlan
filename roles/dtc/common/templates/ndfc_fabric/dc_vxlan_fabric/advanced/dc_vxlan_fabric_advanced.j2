@@ -2,7 +2,7 @@
   OVERLAY_MODE: cli
   GRFIELD_DEBUG_FLAG: Enable
   ENABLE_PVLAN: false
-  AAA_REMOTE_IP_ENABLED: {{ vxlan.global.ibgp.enable_aaa_remote_ip | default(defaults.vxlan.global.ibgp.enable_aaa_remote_ip }}
+  AAA_REMOTE_IP_ENABLED: {{ vxlan.global.ibgp.enable_aaa_remote_ip | default(defaults.vxlan.global.ibgp.enable_aaa_remote_ip) }}
   TCAM_ALLOCATION: {{ vxlan.global.ibgp.tcam_allocation | default(defaults.vxlan.global.ibgp.tcam_allocation) }}
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   FEATURE_PTP: {{ vxlan.global.ptp.enable | default(defaults.vxlan.global.ptp.enable) }}
@@ -41,10 +41,10 @@
   STP_BRIDGE_PRIORITY: {{ vxlan.global.spanning_tree.bridge_priority | default(defaults.vxlan.global.spanning_tree.bridge_priority) }}
 {% endif %}
 {% endif %}
-  POWER_REDUNDANCY_MODEL: {{ vxlan.global.ibgp.power_redundancy | default(defaults.vxlan.global.ibgp.power_redundancy }}
-  COPP_POLICY: {{ vxlan.global.ibgp.copp_policy | default(defaults.vxlan.global.ibgp.copp_policy }}
-  HD_TIME: {{ vxlan.global.ibgp.vtep_holddown_time | default(defaults.vxlan.global.ibgp.vtep_holddown_time }}
-  ENABLE_NGOAM: {{ vxlan.global.ibgp.enable_ngoam | default(defaults.vxlan.global.ibgp.enable_ngoam }}
-  ENABLE_TENANT_DHCP: {{ vxlan.global.ibgp.enable_tenant_dhcp | default(defaults.vxlan.global.ibgp.enable_tenant_dhcp }}
-  STRICT_CC_MODE: {{ vxlan.global.ibgp.strict_config_compliance | default(defaults.vxlan.global.ibgp.strict_config_compliance }}
-  ENABLE_DEFAULT_QUEUING_POLICY: {{ vxlan.global.ibgp.enable_default_queuing_policy | default(defaults.vxlan.global.ibgp.enable_default_queuing_policy }}
+  POWER_REDUNDANCY_MODEL: {{ vxlan.global.ibgp.power_redundancy | default(defaults.vxlan.global.ibgp.power_redundancy) }}
+  COPP_POLICY: {{ vxlan.global.ibgp.copp_policy | default(defaults.vxlan.global.ibgp.copp_policy) }}
+  HD_TIME: {{ vxlan.global.ibgp.vtep_holddown_time | default(defaults.vxlan.global.ibgp.vtep_holddown_time) }}
+  ENABLE_NGOAM: {{ vxlan.global.ibgp.enable_ngoam | default(defaults.vxlan.global.ibgp.enable_ngoam) }}
+  ENABLE_TENANT_DHCP: {{ vxlan.global.ibgp.enable_tenant_dhcp | default(defaults.vxlan.global.ibgp.enable_tenant_dhcp) }}
+  STRICT_CC_MODE: {{ vxlan.global.ibgp.strict_config_compliance | default(defaults.vxlan.global.ibgp.strict_config_compliance) }}
+  ENABLE_DEFAULT_QUEUING_POLICY: {{ vxlan.global.ibgp.enable_default_queuing_policy | default(defaults.vxlan.global.ibgp.enable_default_queuing_policy) }}
