@@ -21,10 +21,10 @@
 {% set peer1_switch = MD_Extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer1) | first %}
 {% set peer2_switch = MD_Extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer2) | first %}
 {% if peer1_switch.interfaces is defined %}
-{% set peer1_vpc_interface = peer1_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_pair') | first | default({}) %}
+{% set peer1_vpc_interface = peer1_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_peer_link') | first | default({}) %}
 {% endif %}
 {% if peer2_switch.interfaces is defined %}
-{% set peer2_vpc_interface = peer2_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_pair') | first | default({}) %}
+{% set peer2_vpc_interface = peer2_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_peer_link') | first | default({}) %}
 {% endif %}
 {% if peer1_vpc_interface.name is defined %}
     PEER1_PO_CONF: |2-

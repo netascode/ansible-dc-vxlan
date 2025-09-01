@@ -69,14 +69,14 @@ class Rule:
 
     @classmethod
     def find_vpc_port_channels(cls, switch):
-        """Find all port-channels with mode 'vpc_pair' on a switch"""
+        """Find all port-channels with mode 'vpc_peer_link' on a switch"""
         vpc_channels = []
         if switch.get('interfaces'):
             for interface in switch['interfaces']:
                 interface_name = interface.get('name', '')
                 is_pc = (interface_name.startswith('port-channel') or
                          interface_name.startswith('po'))
-                if is_pc and interface.get('mode') == 'vpc_pair':
+                if is_pc and interface.get('mode') == 'vpc_peer_link':
                     vpc_channels.append(interface)
         return vpc_channels
 
