@@ -76,3 +76,6 @@
 {% set l3_vlan_range = defaults.vxlan.global.layer3_vlan_range.from ~ '-' ~ defaults.vxlan.global.layer3_vlan_range.to %}
 {% endif %}
   VRF_VLAN_RANGE: {{ l3_vlan_range }}
+  AUTO_UNIQUE_VRF_LITE_IP_PREFIX: {{ vxlan.global.ibgp.auto_unique_vrflite_ip_prefix | default(defaults.vxlan.global.ibgp.auto_unique_vrflite_ip_prefix }}
+  PER_VRF_LOOPBACK_AUTO_PROVISION: {{ vxlan.global.ibgp.per_vrf_loopback_v4_auto_provision | default(defaults.vxlan.global.ibgp.per_vrf_loopback_v4_auto_provision }}
+  SUBINTERFACE_RANGE: {{ vxlan.global.ibgp.sub_int_range | default(defaults.vxlan.global.ibgp.sub_int_range }}
