@@ -41,7 +41,7 @@
   STP_BRIDGE_PRIORITY: {{ vxlan.global.spanning_tree.bridge_priority | default(defaults.vxlan.global.spanning_tree.bridge_priority) }}
 {% endif %}
 {% endif %}
-  POWER_REDUNDANCY_MODEL: {{ vxlan.global.ibgp.power_redundancy | default(defaults.vxlan.global.ibgp.power_redundancy) }}
+  POWER_REDUNDANCY_MODE: {{ vxlan.global.ibgp.power_redundancy | default(defaults.vxlan.global.ibgp.power_redundancy) }}
   COPP_POLICY: {{ vxlan.global.ibgp.copp_policy | default(defaults.vxlan.global.ibgp.copp_policy) }}
   HD_TIME: {{ vxlan.global.ibgp.vtep_holddown_time | default(defaults.vxlan.global.ibgp.vtep_holddown_time) }}
   ENABLE_NGOAM: {{ vxlan.global.ibgp.enable_ngoam | default(defaults.vxlan.global.ibgp.enable_ngoam) }}
