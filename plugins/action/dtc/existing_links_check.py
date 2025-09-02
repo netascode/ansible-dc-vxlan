@@ -79,7 +79,8 @@ class ActionModule(ActionBase):
                             required_links.append(link)
                         elif existing_link['templateName'] == 'int_intra_fabric_unnum_link':
                             if not ((existing_link['nvPairs']['PEER1_DESC'].lower() == link['profile']['peer1_description'].lower() or
-                                existing_link['nvPairs']['PEER2_DESC'].lower() == link['profile']['peer2_description'].lower())):
+                                     existing_link['nvPairs']['PEER2_DESC'].lower() == link['profile']['peer2_description'].lower())
+                                    ):
                                 required_links.append(link)
                             else:
                                 not_required_links.append(link)
