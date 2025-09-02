@@ -59,7 +59,7 @@ class ActionModule(ActionBase):
         return credential
 
     def _get_switch_credentials_from_datamodel(self, model_data, management_ipv4_address):
-        
+
         model_data_switches = model_data['vxlan']['topology']['switches']
 
         for switch in model_data_switches:
@@ -70,8 +70,8 @@ class ActionModule(ActionBase):
                     return username, password
                 else:
                     return None
-        
-    def run(self, tmp=None, task_vars=None):        
+
+    def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['retrieve_failed'] = False
 
@@ -97,12 +97,12 @@ class ActionModule(ActionBase):
             updated_inv_list.append(copy.deepcopy(device))
         for new_device in updated_inv_list:
             device_ip = new_device.get('seed_ip', 'unknown')
-            
+
             # Try to get individual credentials from model data
             individual_credentials = self._get_switch_credentials_from_datamodel(model_data, device_ip)
             if individual_credentials:
                 switch_username, switch_password = individual_credentials
-                
+
                 # Handle env_var_ prefix for switch-specific username
                 if switch_username.startswith('env_var_'):
                     env_var_name = switch_username
@@ -110,7 +110,7 @@ class ActionModule(ActionBase):
                     if switch_username == 'not_set':
                         display.vv(f"Environment variable '{env_var_name}' not found for device {device_ip}. Using group_vars username.")
                         switch_username = username
-                
+
                 # Handle env_var_ prefix for switch-specific password
                 if switch_password.startswith('env_var_'):
                     env_var_name = switch_password
@@ -118,7 +118,7 @@ class ActionModule(ActionBase):
                     if switch_password == 'not_set':
                         display.vv(f"Environment variable '{env_var_name}' not found for device {device_ip}. Using group_vars password.")
                         switch_password = password
-                
+
                 # Use individual credentials
                 new_device['user_name'] = switch_username
                 new_device['password'] = switch_password
@@ -128,6 +128,6 @@ class ActionModule(ActionBase):
                 new_device['user_name'] = username
                 new_device['password'] = password
                 display.vvv(f"No individual credentials found in model data for device {device_ip}. Using group_vars credentials.")
-            
+
         results['updated_inv_list'] = updated_inv_list
         return results

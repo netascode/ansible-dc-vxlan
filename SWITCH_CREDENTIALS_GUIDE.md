@@ -13,7 +13,7 @@
 From `get_credentials.py`:
 - Defaults must exist in group_vars: `ndfc_switch_username` and `ndfc_switch_password`.
 - For each switch (matched by `management.management_ipv4_address`):
-  - If both `management.username` and `management.password` are present, they’re used.
+  - If both `management.username` and `management.password` are present, they're used.
     - If a value starts with `env_var_`, its value is loaded from the environment.
     - If a value is `!vault`, nac_yaml decrypts it via `ansible-vault`.
   - Otherwise, defaults from group_vars are used.
@@ -51,7 +51,7 @@ Export those variables in your shell before running Ansible (quote special chars
 export env_var_spine21_username='admin'
 export env_var_spine21_password='S3cureP@ss!'
 ```
-If a variable isn’t set, the code falls back to group_vars for that device.
+If a variable isn't set, the code falls back to group_vars for that device.
 
 ---
 
@@ -81,7 +81,7 @@ vault_identity_list = default@/absolute/path/to/vault_password_file
 export ANSIBLE_VAULT_PASSWORD_FILE=/absolute/path/to/vault_password_file
 ```
 
-This is required so nac_yaml’s loader (which calls `ansible-vault` in a subprocess) can decrypt `!vault` values.
+This is required so nac_yaml's loader (which calls `ansible-vault` in a subprocess) can decrypt `!vault` values.
 
 ### 4.3 Encrypt the username and password
 You can encrypt inline strings and paste the output blocks into the model:
@@ -105,7 +105,7 @@ management:
     <encrypted-block-for-password>
 ```
 
-VS Code may warn about `!vault`; it’s valid for Ansible.
+VS Code may warn about `!vault`; it's valid for Ansible.
 
 ---
 
@@ -158,7 +158,7 @@ Short answer: no, not interactively. The nac_yaml loader invokes `ansible-vault`
 - An env var consumed by the helper script used as `--vault-id` (inspect the helper at your site-packages path to see what it expects).
 
 ## Troubleshooting
-- Decryption failed: “no vault secrets were found …”
+- Decryption failed: "no vault secrets were found ..."
   - Ensure `vault_password_file` or `vault_identity_list` is set in `ansible.cfg`, or `ANSIBLE_VAULT_PASSWORD_FILE` exported.
   - The vault file must contain the correct (non-empty) password and match the ciphertext.
 - Environment variables not picked up:
@@ -166,7 +166,7 @@ Short answer: no, not interactively. The nac_yaml loader invokes `ansible-vault`
   - Quote special characters in your shell: `export env_var_PASSWORD='S3cure$Th!ng'`.
 
 ## Security notes
-- Don’t commit `vault_password_file`; add it to `.gitignore`.
+- Don't commit `vault_password_file`; add it to `.gitignore`.
 - Prefer Vault or environment variables over plain text.
 - Restrict permissions on the vault password file (`chmod 600`).
 
