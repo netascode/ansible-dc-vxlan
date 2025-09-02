@@ -69,14 +69,14 @@ class Rule:
 
     @classmethod
     def find_vpc_port_channels(cls, switch):
-        """Find all port-channels with mode 'vpc_pair' on a switch"""
+        """Find all port-channels with mode 'vpc_peer_link' on a switch"""
         vpc_channels = []
         if switch.get('interfaces'):
             for interface in switch['interfaces']:
                 interface_name = interface.get('name', '')
                 is_pc = (interface_name.startswith('port-channel') or
                          interface_name.startswith('po'))
-                if is_pc and interface.get('mode') == 'vpc_pair':
+                if is_pc and interface.get('mode') == 'vpc_peer_link':
                     vpc_channels.append(interface)
         return vpc_channels
 
@@ -86,7 +86,7 @@ class Rule:
                                          domain_id):
         """Validate that VPC port-channels are consistent between peers"""
         results = []
-        
+
         # Check if the number of VPC port-channels match
         if len(peer1_channels) != len(peer2_channels):
             results.append(
@@ -100,7 +100,7 @@ class Rule:
         # Sort channels by port-channel ID for comparison
         def get_pc_id(interface):
             return cls.extract_pc_id(interface.get('name', ''))
-        
+
         peer1_sorted = sorted(peer1_channels, key=get_pc_id)
         peer2_sorted = sorted(peer2_channels, key=get_pc_id)
 

@@ -21,25 +21,25 @@
 {% set peer1_switch = MD_Extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer1) | first %}
 {% set peer2_switch = MD_Extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer2) | first %}
 {% if peer1_switch.interfaces is defined %}
-{% set peer1_vpc_interface = peer1_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_pair') | first | default({}) %}
+{% set peer1_vpc_interface = peer1_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_peer_link') | first | default({}) %}
 {% endif %}
 {% if peer2_switch.interfaces is defined %}
-{% set peer2_vpc_interface = peer2_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_pair') | first | default({}) %}
+{% set peer2_vpc_interface = peer2_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_peer_link') | first | default({}) %}
 {% endif %}
 {% if peer1_vpc_interface.name is defined %}
     PEER1_PO_CONF: |2-
       {{ peer1_vpc_interface.freeform_config | default('') | indent(6, false) }}
     PEER2_PO_CONF: |2-
       {{ peer2_vpc_interface.freeform_config | default('') | indent(6, false) }}
-    PC_MODE: {{ peer1_vpc_interface.pc_mode | default(defaults.vxlan.topology.vpc_peers.port_channel_mode) }}
+    PC_MODE: {{ peer1_vpc_interface.pc_mode | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.pc_mode)}}
     PEER1_PO_DESC: "{{ peer1_vpc_interface.description | default('') }}"
     PEER2_PO_DESC: "{{ peer2_vpc_interface.description | default('') }}"
-    PEER1_PCID: {{ peer1_vpc_interface.name | default('') | regex_replace('^(port-channel|po)', '') | default(defaults.vxlan.topology.vpc_peers.peer1_po_channel_id) }}
-    PEER2_PCID: {{ peer2_vpc_interface.name | default('') | regex_replace('^(port-channel|po)', '') | default(defaults.vxlan.topology.vpc_peers.peer2_po_channel_id) }}
+    PEER1_PCID: {{ peer1_vpc_interface.name | default('') | regex_replace('^(port-channel|po)', '') | default('') }}
+    PEER2_PCID: {{ peer2_vpc_interface.name | default('') | regex_replace('^(port-channel|po)', '') | default('') }}
     PEER1_MEMBER_INTERFACES: "{{ peer1_vpc_interface.members | default([]) | join(',') }}"
     PEER2_MEMBER_INTERFACES: "{{ peer2_vpc_interface.members | default([]) | join(',') }}"
-    ALLOWED_VLANS: "{{ peer1_vpc_interface.trunk_allowed_vlans | default(defaults.vxlan.topology.vpc_peers.trunk_allowed_vlans) }}"
-    ADMIN_STATE: {{ peer1_vpc_interface.enabled }}
+    ALLOWED_VLANS: "{{ peer1_vpc_interface.trunk_allowed_vlans | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) }}"
+    ADMIN_STATE: {{ peer1_vpc_interface.enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled)}}
 {% endif %}
 {% endfor %}
 {% endif %}
