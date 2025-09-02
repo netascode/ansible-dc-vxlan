@@ -68,25 +68,24 @@ class PreparePlugin:
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
 
-        # Store simplified data model fabric type key for ease of use in Jinja2 templates and Ansible tasks
-        if model_data['vxlan']['fabric']['type'] == 'VXLAN_EVPN':
-            model_data['vxlan']['fabric'].update({'simplified_type': 'ibgp'})
-        elif model_data['vxlan']['fabric']['type'] == 'eBGP_VXLAN':
-            model_data['vxlan']['fabric'].update({'simplified_type': 'ebgp'})
-        elif model_data['vxlan']['fabric']['type'] == 'External':
-            model_data['vxlan']['fabric'].update({'simplified_type': 'external'})
-
+        # Store simplified data model fabric type key for ibgp, ebgp, and external fabrics
+        # This is for ease of use in Jinja2 templates and Ansible tasks
         new_global_key = None
         if model_data['vxlan']['fabric']['type'] == 'VXLAN_EVPN':
             new_global_key = 'ibgp'
+            model_data['vxlan']['fabric'].update({'simplified_type': new_global_key})
             PARENT_KEYS.append(new_global_key)
+        elif model_data['vxlan']['fabric']['type'] == 'eBGP_VXLAN':
+            # Do not set new_global_key here as eBGP fabrics only support attributes under the 'ebgp' key under 'global'
+            model_data['vxlan']['fabric'].update({'simplified_type': 'ebgp'})
         elif model_data['vxlan']['fabric']['type'] == 'External':
             new_global_key = 'external'
+            model_data['vxlan']['fabric'].update({'simplified_type': new_global_key})
             PARENT_KEYS.append(new_global_key)
         elif model_data['vxlan']['fabric']['type'] == 'ISN':
             # new_global_key is set to 'isn' here only for the conditional check that follows and is not a new key
             new_global_key = 'isn'
-            ISN_PARENT_KEYS = ['vxlan', 'multisite', 'isn']
+            ISN_PARENT_KEYS = ['vxlan', 'multisite', new_global_key]
 
         if new_global_key in ['ibgp', 'external']:
             dm_check = data_model_key_check(model_data, PARENT_KEYS)
@@ -146,8 +145,6 @@ class PreparePlugin:
                     if key in dm_check['keys_found'] and key in dm_check['keys_data']:
                         model_data['vxlan']['multisite']['isn'].update({key: model_data['vxlan']['global'][key]})
                         model_data['vxlan']['global'].pop(key, None)
-                # elif key in dm_check['keys_found'] and key in dm_check['keys_data']:
-                #     model_data['vxlan']['global'].pop(key, None)
 
             return self.kwargs['results']
 
