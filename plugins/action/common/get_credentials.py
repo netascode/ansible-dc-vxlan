@@ -58,9 +58,24 @@ class ActionModule(ActionBase):
 
         return credential
 
-    def run(self, tmp=None, task_vars=None):
+    def _get_switch_credentials_from_datamodel(self, model_data, management_ipv4_address):
+        
+        model_data_switches = model_data['vxlan']['topology']['switches']
+
+        for switch in model_data_switches:
+            if switch['management']['management_ipv4_address'] == management_ipv4_address:
+                username = switch['management'].get('username', '')
+                password = switch['management'].get('password', '')
+                if username and password:
+                    return username, password
+                else:
+                    return None
+        
+    def run(self, tmp=None, task_vars=None):        
         results = super(ActionModule, self).run(tmp, task_vars)
         results['retrieve_failed'] = False
+
+        model_data = self._task.args.get('model_data')
 
         key_username = 'ndfc_switch_username'
         key_password = 'ndfc_switch_password'
@@ -82,45 +97,37 @@ class ActionModule(ActionBase):
             updated_inv_list.append(copy.deepcopy(device))
         for new_device in updated_inv_list:
             device_ip = new_device.get('seed_ip', 'unknown')
-            inv_list_user_name = new_device.get('user_name')
-            inv_list_passw = new_device.get('password')
-
-            # Handle username field
-            if inv_list_user_name == 'PLACE_HOLDER_USERNAME':
-                new_device['user_name'] = username
-            elif inv_list_user_name and inv_list_user_name.startswith('env_var_'):
-                # Handle the case where user_name starts with "env_var_"
-                env_var_name = inv_list_user_name.replace('env_var_', '', 1)
-                credential = self._get_credentials_from_env(env_var_name)
-                if credential == 'not_set':
-                    display.warning(f"Environment variable '{env_var_name}' not found for device {device_ip}. Using group_vars username.")
-                    new_device['user_name'] = username
-                else:
-                    new_device['user_name'] = credential
-            elif inv_list_user_name:
-                # Plain text username - security warning
-                display.warning(f"Plain text username detected for device {device_ip}. Using plain text credentials in configuration files is not secure.")
+            
+            # Try to get individual credentials from model data
+            individual_credentials = self._get_switch_credentials_from_datamodel(model_data, device_ip)
+            if individual_credentials:
+                switch_username, switch_password = individual_credentials
+                
+                # Handle env_var_ prefix for switch-specific username
+                if switch_username.startswith('env_var_'):
+                    env_var_name = switch_username
+                    switch_username = self._get_credentials_from_env(env_var_name)
+                    if switch_username == 'not_set':
+                        display.vv(f"Environment variable '{env_var_name}' not found for device {device_ip}. Using group_vars username.")
+                        switch_username = username
+                
+                # Handle env_var_ prefix for switch-specific password
+                if switch_password.startswith('env_var_'):
+                    env_var_name = switch_password
+                    switch_password = self._get_credentials_from_env(env_var_name)
+                    if switch_password == 'not_set':
+                        display.vv(f"Environment variable '{env_var_name}' not found for device {device_ip}. Using group_vars password.")
+                        switch_password = password
+                
+                # Use individual credentials
+                new_device['user_name'] = switch_username
+                new_device['password'] = switch_password
+                display.vvv(f"Using individual credentials from model data for device {device_ip}")
             else:
+                # Use default group_vars credentials
                 new_device['user_name'] = username
-
-            # Handle password field
-            if inv_list_passw == 'PLACE_HOLDER_PASSWORD':
                 new_device['password'] = password
-            elif inv_list_passw and inv_list_passw.startswith('env_var_'):
-                # Handle the case where password starts with "env_var_"
-                env_var_name = inv_list_passw.replace('env_var_', '', 1)
-                credential = self._get_credentials_from_env(env_var_name)
-                if credential == 'not_set':
-                    display.warning(f"Environment variable '{env_var_name}' not found for device {device_ip}. Using group_vars password.")
-                    new_device['password'] = password
-                else:
-                    new_device['password'] = credential
-            elif inv_list_passw:
-                # Plain text password - security warning
-                display.warning(f"Plain text password detected for device {device_ip}. Using plain text credentials in configuration files is not secure.")
-            else:
-                new_device['password'] = password
-
-        # display.v('Credentials {} username:{} password:{}'.format(new_device['seed_ip'],new_device['user_name'], new_device['password']))
+                display.vvv(f"No individual credentials found in model data for device {device_ip}. Using group_vars credentials.")
+            
         results['updated_inv_list'] = updated_inv_list
         return results
