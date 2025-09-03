@@ -13,7 +13,8 @@ class Rule:
         if 'enable_bootstrap' in check['keys_found']:
             bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_local_dhcp_server']
             check = cls.data_model_key_check(inventory, bootstrap_keys)
-            if 'enable_local_dhcp_server' in check['keys_found']:
+            enable_local_dhcp_server = cls.safeget(inventory, ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_local_dhcp_server'])
+            if 'enable_local_dhcp_server' in check['keys_found'] and enable_local_dhcp_server:
                 bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'dhcp_version']
                 check = cls.data_model_key_check(inventory, bootstrap_keys)
                 if 'dhcp_version' in check['keys_found']:

@@ -130,8 +130,10 @@ class ActionModule(ActionBase):
                             rules_list.append(f'{rules}ibgp_vxlan/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCF'):
                             rules_list.append(f'{rules}multisite/')
-                        elif results['data']['vxlan']['global']['fabric_type'] in ('ISN', 'External'):
+                        elif results['data']['vxlan']['global']['fabric_type'] in ('ISN'):
                             rules_list.append(f'{rules}isn/')
+                        elif results['data']['vxlan']['global']['fabric_type'] in ('External'):
+                            rules_list.append(f'{rules}external/')
                         else:
                             results['failed'] = True
                             results['msg'] = f"vxlan.fabric.type {results['data']['vxlan']['global']['fabric_type']} is not a supported fabric type."
