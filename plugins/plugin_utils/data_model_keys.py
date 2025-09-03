@@ -27,7 +27,7 @@
 
 root_key = 'vxlan'
 # Keys here match data model schema
-# type: enum('VXLAN_EVPN', 'MSD', 'MCF', 'ISN')
+# type: enum('VXLAN_EVPN', 'MSD', 'MFD', 'ISN', 'External')
 model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MFD': {}, 'ISN': {}, 'External': {}}
 
 
