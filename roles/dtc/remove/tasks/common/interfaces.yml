@@ -47,8 +47,9 @@
 - name: Remove Unmanaged Fabric Interfaces in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: overridden
-    config: "{{ vars_common_local.interface_all }}"
+    state: deleted
+    # config: "{{ vars_common_local.interface_all }}"
+    config: "{{ vars_common_local.interface_diff_result.removed }}"
     # deploy: false
   vars:
     ansible_command_timeout: 3000
@@ -56,6 +57,7 @@
   register: int_data
   when:
     - switch_list.response.DATA | length > 0
+    - vars_common_local.interface_diff_result.removed | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
 # - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} after removing or defaulting interfaces

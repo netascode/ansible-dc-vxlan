@@ -184,6 +184,7 @@
       interface_access_po: "{{ interface_access_po }}"
       interface_access: "{{ interface_access }}"
       interface_all: "{{ interface_all }}"
+      interface_diff_result: "{{ interface_diff_result }}"
       int_loopback_config: "{{ int_loopback_config }}"
       interface_po_routed: "{{ interface_po_routed }}"
       interface_routed: "{{ interface_routed }}"
