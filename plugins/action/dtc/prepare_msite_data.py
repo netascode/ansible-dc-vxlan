@@ -62,8 +62,11 @@ class ActionModule(ActionBase):
             for fabric in mfd_fabric_associations.get('response').get('DATA'):
                 if fabric.get('fabricName') == parent_fabric:
                     for member in fabric["members"]:
-                        associated_child_fabrics.append({'fabric':member.get('fabricName'), 'cluster':member.get('clusterName'), 'type':member.get('fabricType')})
-
+                        associated_child_fabrics.append({
+                            'fabric': member.get('fabricName'),
+                            'cluster': member.get('clusterName'),
+                            'type': member.get('fabricType')
+                        })
 
             child_fabrics_data = {}
             for fabric in associated_child_fabrics:
@@ -73,7 +76,6 @@ class ActionModule(ActionBase):
                 child_fabrics_data[fabric_name].update({'attributes': ndfc_get_fabric_attributes_onepath(self, task_vars, tmp, fabric_name, fabric['cluster'])})
                 child_fabrics_data[fabric_name].update({'switches': ndfc_get_fabric_switches_onepath(self, task_vars, tmp, fabric_name, fabric['cluster'])})
                 child_fabrics_data[fabric_name].update({'cluster': fabric['cluster']})
-
             results['child_fabrics_data'] = child_fabrics_data
             
         else:

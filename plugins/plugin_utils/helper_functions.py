@@ -26,6 +26,7 @@
 #  from ..helper_functions import do_something
 import re
 
+
 def data_model_key_check(tested_object, keys):
     """
     Check if key(s) are found and exist in the data model.
@@ -196,6 +197,7 @@ def ndfc_get_fabric_attributes(self, task_vars, tmp, fabric):
 
     return fabric_attributes
 
+
 def ndfc_get_fabric_attributes_onepath(self, task_vars, tmp, fabric, cluster):
     """
     Get NDFC fabric attributes.
@@ -264,6 +266,7 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
 
     return fabric_switches
 
+
 def ndfc_get_fabric_switches_onepath(self, task_vars, tmp, fabric, cluster):
     """
     Get NDFC fabric switches.
@@ -299,11 +302,12 @@ def ndfc_get_fabric_switches_onepath(self, task_vars, tmp, fabric, cluster):
                     'mgmt_ip_address': fabric_switch['ipAddress']
                 }
             )
-            
+
     return fabric_switches
+
 
 def normalise_int_lists(data):
     for interface in data:
-        if interface.startswith(('Ethernet','ethernet','Eth','eth','E','e')):
+        if interface.startswith(('Ethernet', 'ethernet', 'Eth', 'eth', 'E', 'e')):
             interface = "Ethernet" + re.split(r'(?=\d)', interface, 1)[1]
     return data

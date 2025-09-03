@@ -158,7 +158,8 @@ class ActionModule(ActionBase):
                         #         results['msg'] = error_msg
                         #         return results
                         if fabric_type == 'MFD':
-                            get_path = f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks/{network['name']}"
+                            get_path = (f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/"
+                                        f"rest/top-down/fabrics/{child_fabric}/networks/{network['name']}")
                         else:
                             get_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks/{network['name']}"
                         ndfc_net = self._execute_module(
@@ -226,7 +227,8 @@ class ActionModule(ActionBase):
                             rendered_content = templar.template(template_content)
                             rendered_to_nice_json = templar.environment.filters['to_nice_json'](rendered_content)
                             if fabric_type == 'MFD':
-                                put_path = f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks/{network['name']}"
+                                put_path = (f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/"
+                                            f"rest/top-down/fabrics/{child_fabric}/networks/{network['name']}")
                             else:
                                 put_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks/{network['name']}"
                             ndfc_net_update = self._execute_module(

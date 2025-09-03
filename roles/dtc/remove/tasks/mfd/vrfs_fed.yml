@@ -91,3 +91,4 @@
       - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False   +"
       - "--------------------------------------------------------------------------------------------------------"
   when: not ((vrf_delete_mode is defined) and (vrf_delete_mode is true|bool))
+  

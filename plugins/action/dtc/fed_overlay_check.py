@@ -47,14 +47,21 @@ class ActionModule(ActionBase):
         restructured_attachment_data = []
         deployment = False
         deploy_payload = []
-        #normalise data for comparison
+        # normalise data for comparison
         if check_type == 'network_attach':
             switch_data = ndfc_data
-            for attached_network in ndfc_attachment_data: 
+            for attached_network in ndfc_attachment_data:
                 for network_attached_group in attached_network['lanAttachList']:
-                    if network_attached_group['isLanAttached'] == True:
-                        normal_ndfc_data.append({'networkName': network_attached_group['networkName'],'switchName': network_attached_group['switchName'],'serialNumber':network_attached_group['switchSerialNo'],'portNames':network_attached_group['portNames'], "deployment":deployment, "fabric":network_attached_group['fabricName']})
-            for network in model_data['vxlan']['multisite']['overlay']['networks']: 
+                    if network_attached_group['isLanAttached'] is True:
+                        normal_ndfc_data.append({
+                            'networkName': network_attached_group['networkName'],
+                            'switchName': network_attached_group['switchName'],
+                            'serialNumber': network_attached_group['switchSerialNo'],
+                            'portNames': network_attached_group['portNames'],
+                            'deployment': deployment,
+                            'fabric': network_attached_group['fabricName']
+                        })
+            for network in model_data['vxlan']['multisite']['overlay']['networks']:
                 for network_attach_group in model_data['vxlan']['multisite']['overlay']['network_attach_groups']:
                     if network.get('network_attach_group') == network_attach_group['name']:
                         for switch in network_attach_group['switches']:
@@ -70,15 +77,29 @@ class ActionModule(ActionBase):
                                         # Combine main and tors
                                         ports = f"{main} {tors}".strip()
 
-                                        normal_model_data.append({'networkName':network['name'],'switchName':switch['hostname'],'serialNumber':switch_entry['serialNumber'],'portNames':ports,"deployment":deployment, "fabric":switch_entry['fabricName']})
+                                        normal_model_data.append({
+                                            'networkName': network['name'],
+                                            'switchName': switch['hostname'],
+                                            'serialNumber': switch_entry['serialNumber'],
+                                            'portNames': ports,
+                                            'deployment': deployment,
+                                            'fabric': switch_entry['fabricName']
+                                        })
                                     else:
-                                        normal_model_data.append({'networkName':network['name'],'switchName':switch['hostname'],'serialNumber':switch_entry['serialNumber'],'portNames':(",".join(switch['ports'])),"deployment":deployment, "fabric":switch_entry['fabricName']})
+                                        normal_model_data.append({
+                                            'networkName': network['name'],
+                                            'switchName': switch['hostname'],
+                                            'serialNumber': switch_entry['serialNumber'],
+                                            'portNames': (",".join(switch['ports'])),
+                                            'deployment': deployment,
+                                            'fabric': switch_entry['fabricName']
+                                        })
             difference = [item for item in normal_ndfc_data if item not in normal_model_data]
 
             # Restructure in case of just port removal
             for item in difference:
                 if item['portNames'] != "":
-                    for network in model_data['vxlan']['multisite']['overlay']['networks']: 
+                    for network in model_data['vxlan']['multisite']['overlay']['networks']:
                         for network_attach_group in model_data['vxlan']['multisite']['overlay']['network_attach_groups']:
                             if network.get('network_attach_group') == network_attach_group['name'] and item['networkName'] == network['name']:
                                 for switch in network_attach_group['switches']:
@@ -118,26 +139,56 @@ class ActionModule(ActionBase):
             for network in network_difference:
                 for attached_network in ndfc_attachment_data:
                     for network_attached_group in attached_network['lanAttachList']:
-                        if network == attached_network['networkName'] and network == network_attached_group['networkName'] and network_attached_group['isLanAttached'] == True:
+                        if (network == attached_network['networkName'] and
+                                network == network_attached_group['networkName'] and
+                                network_attached_group['isLanAttached'] is True):
                             if network not in network_attachment_dict:
-                                network_attachment_dict[network] = {'networkName': network, 'lanAttachList': []}
-                            network_attachment_dict[network]['lanAttachList'].append({'networkName': network_attached_group['networkName'],'switchName': network_attached_group['switchName'],'serialNumber':network_attached_group['switchSerialNo'],'portNames':network_attached_group['portNames'], "deployment":deployment, "fabric":network_attached_group['fabricName']})
+                                network_attachment_dict[network] = {
+                                    'networkName': network,
+                                    'lanAttachList': []
+                                }
+                            network_attachment_dict[network]['lanAttachList'].append({
+                                'networkName': network_attached_group['networkName'],
+                                'switchName': network_attached_group['switchName'],
+                                'serialNumber': network_attached_group['switchSerialNo'],
+                                'portNames': network_attached_group['portNames'],
+                                'deployment': deployment,
+                                'fabric': network_attached_group['fabricName']
+                            })
+                            network_attachment_dict[network]['lanAttachList'].append({
+                                'networkName': network_attached_group['networkName'],
+                                'switchName': network_attached_group['switchName'],
+                                'serialNumber': network_attached_group['switchSerialNo'],
+                                'portNames': network_attached_group['portNames'],
+                                'deployment': deployment,
+                                'fabric': network_attached_group['fabricName']
+                            })
                             deploy_payload.append(network_attached_group['switchSerialNo'])
             restructured_attachment_data = list(network_attachment_dict.values())
 
         elif check_type == 'vrf_attach':
             switch_data = ndfc_data
-            for attached_vrf in ndfc_attachment_data: 
+            for attached_vrf in ndfc_attachment_data:
                 for vrf_attached_group in attached_vrf['lanAttachList']:
-                    if vrf_attached_group['isLanAttached'] == True:
-                        normal_ndfc_data.append({"fabric":vrf_attached_group['fabricName'],'deployment': deployment, 'vrfName': vrf_attached_group['vrfName'],'serialNumber':vrf_attached_group['switchSerialNo']})
+                    if vrf_attached_group['isLanAttached'] is True:
+                        normal_ndfc_data.append({
+                            'fabric': vrf_attached_group['fabricName'],
+                            'deployment': deployment,
+                            'vrfName': vrf_attached_group['vrfName'],
+                            'serialNumber': vrf_attached_group['switchSerialNo']
+                        })
             for vrf in model_data['vxlan']['multisite']['overlay']['vrfs']:
                 for vrf_attach_group in model_data['vxlan']['multisite']['overlay']['vrf_attach_groups']:
                     if vrf['vrf_attach_group'] == vrf_attach_group['name']:
                         for switch in vrf_attach_group['switches']:
                             for switch_entry in switch_data:
                                 if switch['hostname'] == switch_entry['logicalName']:
-                                    normal_model_data.append({"fabric":switch_entry['fabricName'],'deployment': deployment,'vrfName':vrf['name'],'serialNumber':switch_entry['serialNumber']})
+                                    normal_model_data.append({
+                                        'fabric': switch_entry['fabricName'],
+                                        'deployment': deployment,
+                                        'vrfName': vrf['name'],
+                                        'serialNumber': switch_entry['serialNumber']
+                                    })
             difference = [item for item in normal_ndfc_data if item not in normal_model_data]
 
             # Restructure the difference data
@@ -162,10 +213,15 @@ class ActionModule(ActionBase):
             for vrf in vrf_difference:
                 for attached_vrf in ndfc_attachment_data:
                     for vrf_attached_group in attached_vrf['lanAttachList']:
-                        if vrf == attached_vrf['vrfName'] and vrf == vrf_attached_group['vrfName'] and vrf_attached_group['isLanAttached'] == True:
+                        if vrf == attached_vrf['vrfName'] and vrf == vrf_attached_group['vrfName'] and vrf_attached_group['isLanAttached'] is True:
                             if vrf not in vrf_attachment_dict:
                                 vrf_attachment_dict[vrf] = {'vrfName': vrf, 'lanAttachList': []}
-                            vrf_attachment_dict[vrf]['lanAttachList'].append({'vrfName': vrf_attached_group['vrfName'],'serialNumber':vrf_attached_group['switchSerialNo'], "deployment":deployment, "fabric":vrf_attached_group['fabricName']})
+                            vrf_attachment_dict[vrf]['lanAttachList'].append({
+                                'vrfName': vrf_attached_group['vrfName'],
+                                'serialNumber': vrf_attached_group['switchSerialNo'],
+                                'deployment': deployment,
+                                'fabric': vrf_attached_group['fabricName']
+                            })
                             deploy_payload.append(vrf_attached_group['switchSerialNo'])
             restructured_attachment_data = list(vrf_attachment_dict.values())
 
@@ -174,6 +230,5 @@ class ActionModule(ActionBase):
         results['payload'] = restructured_data
         results['attachments_payload'] = restructured_attachment_data
         results['deploy_payload'] = deploy_payload
-            
+
         return results
-    

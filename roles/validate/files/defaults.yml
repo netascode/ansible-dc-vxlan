@@ -418,13 +418,6 @@ factory_defaults:
           route_target_both: false
           route_tag: 12345
           trm_enable: false
-          net_description: "Configured by Ansible NetAsCode"
-      layer2_vni_range:
-        from: 30000
-        to: 49000
-      layer3_vni_range:
-        from: 50000
-        to: 59000
       overlay_dci:
         deployment_method: Direct_To_BGWS
         route_server:

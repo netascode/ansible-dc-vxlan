@@ -125,4 +125,3 @@ model_keys['MFD']['multisite.overlay.vrf_attach_groups.switches'] = [root_key, '
 model_keys['MFD']['multisite.overlay.networks'] = [root_key, 'multisite', 'overlay', 'networks', 'LIST']
 model_keys['MFD']['multisite.overlay.network_attach_groups'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'LIST']
 model_keys['MFD']['multisite.overlay.network_attach_groups.switches'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'switches', 'LIST_INDEX']
-

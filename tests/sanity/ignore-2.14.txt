@@ -15,6 +15,8 @@ plugins/action/common/get_credentials.py action-plugin-docs # action plugin has 
 plugins/action/common/run_map.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/read_run_map.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/merge_defaults.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/fed_overlay_check.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/prepare_msite.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/add_device_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/manage_child_fabrics.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/prepare_msite_child_fabrics_data.py action-plugin-docs # action plugin has no matching module to provide documentation
