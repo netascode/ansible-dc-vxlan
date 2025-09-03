@@ -77,7 +77,7 @@ class ActionModule(ActionBase):
                 child_fabrics_data[fabric_name].update({'switches': ndfc_get_fabric_switches_onepath(self, task_vars, tmp, fabric_name, fabric['cluster'])})
                 child_fabrics_data[fabric_name].update({'cluster': fabric['cluster']})
             results['child_fabrics_data'] = child_fabrics_data
-            
+
         else:
             msd_fabric_associations = self._execute_module(
                 module_name="cisco.dcnm.dcnm_rest",
