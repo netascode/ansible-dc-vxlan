@@ -1,4 +1,10 @@
 [
+  {% for vrf in MD_Extended.vxlan.multisite.overlay.vrfs %}
+    {% if vrf['vrf_attach_group'] is defined %}
+  {
+    "vrfName": "{{ vrf["name"] }}",
+    "lanAttachList":
+  [
   {% for attach in MD_Extended.vxlan.multisite.overlay.vrf_attach_groups_dict[vrf["vrf_attach_group"]] %}
   {
 
@@ -16,5 +22,8 @@
     "instanceValues": "{\"loopbackId\": \"{{ attach['loopback_id'] | default('') }}\", \"loopbackIpAddress\": \"{{ attach['loopback_ipv4'] | default('') }}\", \"loopbackIpV6Address\":\"{{ attach['loopback_ipv6'] | default('') }}\"}"
   }{% if not loop.last %},{% endif %}
   {% endfor %}
+    ]
+  }{% if not loop.last %},{% endif %}
+  {% endif %}
+  {% endfor %}
 ]
-

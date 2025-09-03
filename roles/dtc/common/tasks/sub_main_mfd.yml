@@ -72,12 +72,20 @@
 - name: Build NDFC Fabric Networks Attach List From Template
   ansible.builtin.import_tasks: mfd/ndfc_networks.yml
 
-- name: Set facts for missed changes_detected flags for Federated Fabric
+- name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_mfd:
       changes_detected_fabric: "{{ changes_detected_fabric | default(false) }}"
       changes_detected_vrfs: "{{ changes_detected_vrfs }}"
       changes_detected_networks: "{{ changes_detected_networks }}"
+      fabric_config: "{{ fabric_config }}"
+      fabric_children: "{{ fabric_children }}"
+      switches_in_fabric: "{{ switches_in_fabric }}"
+      net_config: "{{ net_config }}"
+      network_switches: "{{ network_switches }}"
+      network_switches_ports: "{{ network_switches_ports }}"            
+      vrf_config: "{{ vrf_config }}"
+      vrf_attach_config: "{{ vrf_attach_config }}"
 - name: Run Diff Flags
   ansible.builtin.debug:
     msg:

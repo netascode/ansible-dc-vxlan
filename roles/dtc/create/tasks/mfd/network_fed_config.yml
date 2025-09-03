@@ -26,7 +26,7 @@
       - "----------------------------------------------------------------"
       - "+     Manage Networks for Federated Fabrics {{ MD.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
-
+  tags: "{{ nac_tags.create_vrfs_networks }}"
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
 # --------------------------------------------------------------------
@@ -36,6 +36,7 @@
     network_id_list: "{{ fed_networks_existing | json_query(network_query) }}"
   vars:
     network_query: "response.DATA[?displayName=='{{network.displayName}}'].networkId"
+  tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Update Network for Federated NDFCs
   cisco.dcnm.dcnm_rest:
@@ -43,6 +44,7 @@
     method: "PUT"
     json_data: "{{ network | to_json}}"
   when: network_id_list|default(None)|length != 0
+  tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Configure Network for Federated NDFCs
   cisco.dcnm.dcnm_rest:
@@ -50,3 +52,4 @@
     method: "POST"
     json_data: "{{ network | to_json}}"
   when: network_id_list|default(None)|length == 0
+  tags: "{{ nac_tags.create_vrfs_networks }}"

@@ -184,7 +184,6 @@ class ActionModule(ActionBase):
 
                         ndfc_vrf_response_data = ndfc_vrf['response']['DATA']
                         ndfc_vrf_template_config = json.loads(ndfc_vrf_response_data['vrfTemplateConfig'])
-                        print(ndfc_vrf_template_config)
                         # Check for differences between the data model and the template config from NDFC for the
                         # attributes that are configurable by the user in a child fabric.
                         # Note: This excludes IPv6 related attributes at this time as they are not yet supported fully in the data model.

@@ -13,5 +13,10 @@
 {# Include NDFC MSD Base Template #}
 {% include '/ndfc_networks/msd_fabric/msd_fabric_networks.j2' %}
 
-{# Supported fabric types are: DC VXLAN EVPN and MSDs #}
+{% elif vxlan.fabric.type == 'MFD'%}
+
+{# Include NDFC MFD Base Template #}
+{% include '/ndfc_networks/mfd_fabric/ndfc_attach_networks.j2' %}
+
+{# Supported fabric types are: DC VXLAN EVPN, MSDs and MFDs #}
 {% endif %}

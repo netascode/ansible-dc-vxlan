@@ -37,7 +37,7 @@
 
 - cisco.dcnm.dcnm_rest:
     method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.fabric.name }}/inventory/switchesByFabric"
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
   register: result
   tags: "{{ nac_tags.remove }}"
 
@@ -49,13 +49,13 @@
   ansible.builtin.import_tasks: mfd/networks_fed.yml
   tags: "{{ nac_tags.remove_networks }}"
   when:
-    - changes_detected_networks
+    - vars_common_mfd.changes_detected_networks
 
 - name: Remove Fabric VRFs
   ansible.builtin.import_tasks: mfd/vrfs_fed.yml
   tags: "{{ nac_tags.remove_vrfs }}"
   when:
-    - changes_detected_vrfs
+    - vars_common_mfd.changes_detected_vrfs
 
 - name: Remove Child Fabrics
   ansible.builtin.import_tasks: mfd/child_fabrics.yml

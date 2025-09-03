@@ -25,9 +25,9 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage VRFs for Federated Fabrics {{ MD.vxlan.fabric.name }}"
+      - "+     Manage VRFs for Federated Fabrics {{ MD_Extended.vxlan.fabric.name }} and {{ vrf.displayName }} "
       - "----------------------------------------------------------------"
-
+  tags: "{{ nac_tags.create_vrfs_networks }}"
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
 # --------------------------------------------------------------------
@@ -35,25 +35,29 @@
 - name: Get existing VRFs in Federated Fabric
   cisco.dcnm.dcnm_rest:
       method: GET
-      path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.fabric.name }}/vrfs"
+      path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs"
   register: dcnm_vrf_existing
+  tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Check if VRF Exists
   set_fact:
     vrf_exist_result: "{{ dcnm_vrf_existing | json_query(vrf_query) }}"
   vars:
     vrf_query: "response.DATA[?vrfName=='{{vrf.displayName}}'].vrfName"
+  tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Update VRF for Federated NDFCs
   cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.fabric.name }}/vrfs/{{ vrf.displayName }}"
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/{{ vrf.displayName }}"
     method: "PUT"
     json_data: "{{ vrf | to_json}}"
   when: vrf_exist_result|default(None)|length != 0
+  tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Configure VRF for Federated NDFCs
   cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.fabric.name }}/vrfs"
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs"
     method: "POST"
     json_data: "{{ vrf | to_json}}"
   when: vrf_exist_result|default(None)|length == 0
+  tags: "{{ nac_tags.create_vrfs_networks }}"
