@@ -28,7 +28,7 @@
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "{{ MD_Extended.vxlan.fabric.name }}_ndfc_edge_connections.yml"
+    file_name: "ndfc_edge_connections.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
