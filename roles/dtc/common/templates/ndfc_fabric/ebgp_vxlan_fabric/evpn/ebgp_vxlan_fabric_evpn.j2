@@ -5,7 +5,7 @@
   ANYCAST_GW_MAC: {{ vxlan.global.ebgp.anycast_gateway_mac | default(defaults.vxlan.global.ebgp.anycast_gateway_mac) }}
   ADVERTISE_PIP_BGP: {{ (vxlan.global.ebgp.vpc.advertise_pip | default(defaults.vxlan.global.ebgp.vpc.advertise_pip) | title) }}
 {% if vxlan.global.ebgp.multisite_site_id is defined %}
-  SITE_ID: {{ vxlan.global.ebgp.multisite_site_id }}
+  SITE_ID: {{ vxlan.global.ebgp.multisite_site_id | default(vxlan.global.ebgp.spine_bgp_asn) }}
 {% endif %}
   ANYCAST_BGW_ADVERTISE_PIP: {{ vxlan.global.ebgp.vpc.advertise_pip_border_gateway | default(defaults.vxlan.global.ebgp.vpc.advertise_pip_border_gateway) }}
 {% if not (vxlan.global.ebgp.vpc.advertise_pip | default(defaults.vxlan.global.ebgp.vpc.advertise_pip) | ansible.builtin.bool) %}
