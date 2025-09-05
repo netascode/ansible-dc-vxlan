@@ -2,10 +2,11 @@
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
+{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
 {% if MD_Extended.vxlan.fabric.type == "ISN" %}
 {% set bgp_asn = MD_Extended.vxlan.multisite.isn.bgp_asn %}
 {% else %}
-{% set bgp_asn = MD_Extended.vxlan.global.bgp_asn %}
+{% set bgp_asn = MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn %}
 {% endif %}
 {% if MD_Extended.vxlan.topology.edge_connections | default([]) | length > 0 %}
 - switch:

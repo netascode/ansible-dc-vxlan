@@ -39,7 +39,7 @@
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-    - MD_Extended.vxlan.global is defined
+    - MD_Extended.vxlan.global.ibgp is defined
     - vars_common_vxlan.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
