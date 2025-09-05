@@ -3,7 +3,7 @@
   GRFIELD_DEBUG_FLAG: Enable
   ENABLE_PVLAN: false
   AAA_REMOTE_IP_ENABLED: False
-{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') and ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '<') %}
   ALLOW_L3VNI_NO_VLAN:  {{ vxlan.global.ibgp.enable_mvpn_vri_id_range | default(defaults.vxlan.global.ibgp.enable_mvpn_vri_id_range) }}
 {% endif %}
   ENABLE_L3VNI_NO_VLAN:  {{ vxlan.global.ibgp.enable_l3_vni_no_vlan | default(defaults.vxlan.global.ibgp.enable_l3_vni_no_vlan) }}
