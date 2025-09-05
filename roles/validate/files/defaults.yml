@@ -90,7 +90,7 @@ factory_defaults:
           to: 2999
         layer3_vlan_range:
           from: 2000
-          to:
+          to: 2299
         enable_mvpn_vri_id_range: true
         enable_l3_vni_no_vlan: false
         vpc:
