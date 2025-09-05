@@ -1,5 +1,6 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN config data structure for fabric {{ vxlan.fabric.name }} #}
   ENABLE_EVPN: true
+  OVERLAY_MODE: {{ vxlan.global.ebgp.overlay_mode | default(defaults.vxlan.global.ebgp.overlay_mode) }}
   ANYCAST_GW_MAC: {{ vxlan.global.ebgp.anycast_gateway_mac | default(defaults.vxlan.global.ebgp.anycast_gateway_mac) }}
   ADVERTISE_PIP_BGP: {{ (vxlan.global.vpc.advertise_pip | default(defaults.vxlan.global.ebgp.vpc.advertise_pip) | title) }}
 {% if not (vxlan.global.vpc.advertise_pip | default(defaults.vxlan.global.ebgp.vpc.advertise_pip) | ansible.builtin.bool) %}
@@ -14,7 +15,6 @@
 {% endif %}
 {% endif %}
 {% endif %}
-
 {% if ( ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.1', '<=')) and
         (not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool))) or
         (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) ) %}
