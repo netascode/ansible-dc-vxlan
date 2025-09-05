@@ -131,6 +131,10 @@ factory_defaults:
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
+            disable_lacp_suspend_individual: false
+            enable_lacp_vpc_convergence: false
+            lacp_port_priority: 32768
+            lacp_rate: normal
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -143,6 +147,10 @@ factory_defaults:
             duplex: auto
             orphan_port: false
             native_vlan: ""
+            disable_lacp_suspend_individual: false
+            enable_lacp_vpc_convergence: false
+            lacp_port_priority: 32768
+            lacp_rate: normal
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
