@@ -25,9 +25,11 @@ factory_defaults:
     global:
       ebgp:
         bgp_asn_mode: Multi-AS
-        leaf_same_bgp_asn: false
+        leaf_same_bgp_asn: 
       ibgp:
         tcam_allocation: true
+        enable_mvpn_vri_id_range: true
+        enable_l3_vni_no_vlan: false
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
@@ -78,8 +80,6 @@ factory_defaults:
         enable_bootstrap: false
         enable_local_dhcp_server: false
         enable_cdp_mgmt: false
-      allow_l3_vni_no_vlan: true
-      enable_l3_vni_no_vlan: false
     topology:
       switches:
         routing_loopback_id: 0
