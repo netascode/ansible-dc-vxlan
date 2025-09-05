@@ -28,6 +28,8 @@ factory_defaults:
         leaf_same_bgp_asn: false
       ibgp:
         tcam_allocation: true
+        enable_mvpn_vri_id_range: true
+        enable_l3_vni_no_vlan: false
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
