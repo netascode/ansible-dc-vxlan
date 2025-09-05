@@ -26,6 +26,8 @@ factory_defaults:
       ebgp:
         bgp_asn_mode: Multi-AS
         leaf_same_bgp_asn: false
+      ibgp:
+        tcam_allocation: true
       route_reflectors: 2
       anycast_gateway_mac: 20:20:00:00:00:aa
       auth_proto: MD5
@@ -129,6 +131,10 @@ factory_defaults:
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
+            disable_lacp_suspend_individual: false
+            enable_lacp_vpc_convergence: false
+            lacp_port_priority: 32768
+            lacp_rate: normal
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -141,6 +147,10 @@ factory_defaults:
             duplex: auto
             orphan_port: false
             native_vlan: ""
+            disable_lacp_suspend_individual: false
+            enable_lacp_vpc_convergence: false
+            lacp_port_priority: 32768
+            lacp_rate: normal
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
@@ -201,7 +211,7 @@ factory_defaults:
         authentication_key_id: 127
       isis:
         level: level-2
-        net_area_number: 0001
+        net_area_number: "0001"
         network_point_to_point: true
         authentication_enable: false
         authentication_key_id: 127
@@ -245,8 +255,6 @@ factory_defaults:
         max_bgp_paths: 1
         max_ibgp_paths: 2
         ipv6_linklocal_enable: true
-        # Staging ipv6 route-map attribute for later usage after low-level collection adds support.
-        # ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         adv_host_routes: false
         adv_default_routes: true
         static_default_route: true
@@ -255,6 +263,7 @@ factory_defaults:
         no_rp: false
         rp_external: false
         redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
+        ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         trm_enable: false
         trm_bgw_msite: false
         # Staging trmv6 attributes for later usage after low-level collection adds support.

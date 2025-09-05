@@ -29,10 +29,12 @@
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+- name: Display Device Configuration Method
+  ansible.builtin.debug:
+    msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"
   tags: "{{ nac_tags.create }}"
 
-- name: Create NDFC ISN Fabric
+- name: Create ISN Fabric in Nexus Dashboard
   ansible.builtin.import_tasks: common/fabric.yml
   when:
     - MD_Extended.vxlan.fabric.name is defined
@@ -41,28 +43,28 @@
     - vars_common_isn.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
-- name: Manage NDFC ISN Fabric Switches
+- name: Manage ISN Fabric Switches in Nexus Dashboard
   ansible.builtin.import_tasks: common/devices.yml
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
     - vars_common_isn.changes_detected_inventory
   tags: "{{ nac_tags.create_switches }}"
 
-- name: Manage NDFC Fabric Inter Links
+- name: Manage ISN Fabric Inter Links in Nexus Dashboard
   ansible.builtin.import_tasks: common/edge_connections.yml
   when:
     - MD_Extended.vxlan.topology.edge_connections | length > 0
     - changes_detected_edge_connections
   tags: "{{ nac_tags.create_links }}"
 
-- name: Manage NDFC ISN Fabric Interfaces
+- name: Manage ISN Fabric Interfaces in Nexus Dashboard
   ansible.builtin.import_tasks: common/interfaces.yml
   when:
     - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
     - vars_common_isn.changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
 
-- name: Manage NDFC ISN Fabric Policies
+- name: Manage ISN Fabric Policies in Nexus Dashboard
   ansible.builtin.import_tasks: common/policies.yml
   when:
     - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
