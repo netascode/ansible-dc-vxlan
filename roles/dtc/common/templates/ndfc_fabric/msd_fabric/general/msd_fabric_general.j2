@@ -10,6 +10,7 @@
   BGW_ROUTING_TAG: {{ vxlan.multisite.bgw_ip_tag | default(defaults.vxlan.multisite.bgw_ip_tag) }}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '<=') %}
   TOR_AUTO_DEPLOY: false
+{% endif %}
 {% if vxlan.multisite.layer2_vni_range.from is defined %}
 {% set l2_vni_start = vxlan.multisite.layer2_vni_range.from %}
 {% if vxlan.multisite.layer2_vni_range.to is defined %}
