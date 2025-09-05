@@ -25,7 +25,7 @@ factory_defaults:
     global:
       ebgp:
         bgp_asn_mode: Multi-AS
-        leaf_same_bgp_asn: 
+        leaf_same_bgp_asn: false
       ibgp:
         tcam_allocation: true
         enable_mvpn_vri_id_range: true
