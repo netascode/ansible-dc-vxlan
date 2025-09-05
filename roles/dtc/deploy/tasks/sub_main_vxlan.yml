@@ -41,7 +41,6 @@
       register: config_save
       when: >
         (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
-      # TODO: Need to add logic to only save if changes are made
 
   rescue:
     - name: Config-Save for iBGP VXLAN Fabric - Failed
@@ -58,7 +57,6 @@
     ansible_connect_timeout: 3000
   when: >
     (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
-  # TODO: Need to add logic to only deploy if changes are made
 
 - name: Check Switch Sync in iBGP VXLAN Fabric
   cisco.nac_dc_vxlan.dtc.fabric_check_sync:
@@ -69,7 +67,7 @@
 
 - name: Retrying Config-Save Block for iBGP VXLAN Fabric
   block:
-    - name: Retrying Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
+    - name: Retrying Config-Save for iBGP VXLAN Fabric
       cisco.dcnm.dcnm_rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
@@ -78,7 +76,6 @@
         - MD_Extended.vxlan.topology.switches is defined
         - MD_Extended.vxlan.topology.switches | length > 0
         - results.changed
-      # TODO: Need to add logic to only save if changes are made
 
   rescue:
     - name: Retrying Config-Save for iBGP VXLAN Fabric - Failed
