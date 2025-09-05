@@ -6,7 +6,18 @@
 {% elif switch.management.management_ipv6_address is defined %}
 - seed_ip: {{ switch['management']['management_ipv6_address'] }}
 {% endif %}
-  auth_proto: {{ MD['vxlan']['global']['auth_proto'] | default(defaults.vxlan.global.auth_proto) }}
+{% macro get_auth_proto() %}
+{%- if MD.vxlan.global.ebgp.auth_proto is defined -%}
+{{ MD.vxlan.global.ebgp.auth_proto | default(defaults.vxlan.global.ebgp.auth_proto) }}
+{%- elif MD.vxlan.global.ibgp.auth_proto is defined -%}
+{{ MD.vxlan.global.ibgp.auth_proto | default(defaults.vxlan.global.ibgp.auth_proto) }}
+{%- elif MD.vxlan.global.external.auth_proto is defined -%}
+{{ MD.vxlan.global.external.auth_proto | default(defaults.vxlan.global.external.auth_proto) }}
+{%- else -%}
+{{ MD.vxlan.global.auth_proto | default(defaults.vxlan.global.auth_proto) }}
+{%- endif -%}
+{% endmacro %}
+  auth_proto: {{ get_auth_proto() }}
   user_name: PLACE_HOLDER_USERNAME
   password: PLACE_HOLDER_PASSWORD
   max_hops: 0 # this is the default value as it is not defined into the data model
