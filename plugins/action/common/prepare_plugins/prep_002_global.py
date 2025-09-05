@@ -96,9 +96,9 @@ class PreparePlugin:
             # If the new global key already exists and has data, it will not be overwritten.
             if new_global_key in dm_check['keys_not_found'] or new_global_key in dm_check['keys_no_data']:
                 deprecated_msg = (
-                    f"Attempting to use vxlan.global keys due to vxlan.global.{new_global_key} not being defined. "
-                    f"General vxlan.global keys are being deprecated. Please use vxlan.global.{new_global_key}."
+                    f"Using deprecated vxlan.global keys. Please migrate to vxlan.global.{new_global_key}."
                 )
+
                 display.deprecated(msg=deprecated_msg, version="1.0.0", collection_name='cisco.nac_dc_vxlan')
 
                 model_data['vxlan']['global'].update({new_global_key: {}})
