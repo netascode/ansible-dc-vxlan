@@ -8,7 +8,7 @@
 {% endif %}
   ENABLE_L3VNI_NO_VLAN:  {{ vxlan.global.ibgp.enable_l3_vni_no_vlan | default(defaults.vxlan.global.ibgp.enable_l3_vni_no_vlan) }}
 {% if vxlan.global.ibgp.multisite_site_id is defined %}
-  SITE_ID: {{ vxlan.global.ibgp.multisite_site_id | default(vxlan.global.ibgp.spine_bgp_asn) }}
+  SITE_ID: {{ vxlan.global.ibgp.multisite_site_id | default(vxlan.global.ibgp.bgp_asn) }}
 {% endif %}
   TCAM_ALLOCATION: {{ vxlan.global.ibgp.tcam_allocation | default(defaults.vxlan.global.ibgp.tcam_allocation) }}
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
