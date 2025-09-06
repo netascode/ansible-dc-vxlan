@@ -77,6 +77,8 @@ class ActionModule(ActionBase):
                             else:
                                 link['profile']['enable_macsec'] = 'false'
                             required_links.append(link)
+                        elif existing_link['templateName'] == 'int_intra_fabric_unnum_link':
+                            required_links.append(link)
                         else:
                             not_required_links.append(link)
             if link not in required_links and link not in not_required_links:
