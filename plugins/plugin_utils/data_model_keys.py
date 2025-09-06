@@ -71,14 +71,15 @@ model_keys['VXLAN_EVPN']['policy.switches'] = [root_key, 'policy', 'switches', '
 
 # eBGP_VXLAN KEYS
 model_keys['eBGP_VXLAN']['global'] = [root_key, 'global', 'KEY']
-model_keys['eBGP_VXLAN']['global.dns_servers'] = [root_key, 'global', 'dns_servers', 'LIST']
-model_keys['eBGP_VXLAN']['global.ntp_servers'] = [root_key, 'global', 'ntp_servers', 'LIST']
-model_keys['eBGP_VXLAN']['global.syslog_servers'] = [root_key, 'global', 'syslog_servers', 'LIST']
-model_keys['eBGP_VXLAN']['global.netflow'] = [root_key, 'global', 'netflow', 'KEY']
-model_keys['eBGP_VXLAN']['global.netflow.exporter'] = [root_key, 'global', 'netflow', 'exporter', 'LIST']
-model_keys['eBGP_VXLAN']['global.netflow.record'] = [root_key, 'global', 'netflow', 'record', 'LIST']
-model_keys['eBGP_VXLAN']['global.netflow.monitor'] = [root_key, 'global', 'netflow', 'monitor', 'LIST']
-model_keys['eBGP_VXLAN']['global.spanning_tree'] = [root_key, 'global', 'spanning_tree', 'KEY']
+model_keys['eBGP_VXLAN']['global.ebgp'] = [root_key, 'global', 'ebgp', 'KEY']
+model_keys['eBGP_VXLAN']['global.ebgp.dns_servers'] = [root_key, 'global', 'ebgp', 'dns_servers', 'LIST']
+model_keys['eBGP_VXLAN']['global.ebgp.ntp_servers'] = [root_key, 'global', 'ebgp', 'ntp_servers', 'LIST']
+model_keys['eBGP_VXLAN']['global.ebgp.syslog_servers'] = [root_key, 'global', 'ebgp', 'syslog_servers', 'LIST']
+model_keys['eBGP_VXLAN']['global.ebgp.netflow'] = [root_key, 'global', 'ebgp', 'netflow', 'KEY']
+model_keys['eBGP_VXLAN']['global.ebgp.netflow.exporter'] = [root_key, 'global', 'ebgp', 'netflow', 'exporter', 'LIST']
+model_keys['eBGP_VXLAN']['global.ebgp.netflow.record'] = [root_key, 'global', 'ebgp', 'netflow', 'record', 'LIST']
+model_keys['eBGP_VXLAN']['global.ebgp.netflow.monitor'] = [root_key, 'global', 'ebgp', 'netflow', 'monitor', 'LIST']
+model_keys['eBGP_VXLAN']['global.ebgp.spanning_tree'] = [root_key, 'global', 'ebgp', 'spanning_tree', 'KEY']
 # ---
 model_keys['eBGP_VXLAN']['underlay'] = [root_key, 'underlay', 'KEY']
 # ---
