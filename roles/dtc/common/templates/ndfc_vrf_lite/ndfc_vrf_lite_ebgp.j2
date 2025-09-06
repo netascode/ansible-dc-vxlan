@@ -2,7 +2,6 @@
 ! DO NOT EDIT MANUALLY
 !
 !
-{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
 {% macro vrf_lite_ebgp_vrf_config(item, switch_item, defaults) %}
 
 {% if switch_item.router_id %}
@@ -21,13 +20,13 @@
 {% elif switch_item.bgp.graceful_restart_helper is not defined and (item.bgp.graceful_restart_helper | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.graceful_restart_helper)) %}
   graceful-restart-helper
 {% endif %}
-{% if switch_item.bgp.local_as %}
+{% if switch_item.bgp.local_as and item.vrf.lower() != 'default' %}
   local-as {{ switch_item.bgp.local_as }}
-{% elif item.bgp.local_as %}
+{% elif item.bgp.local_as and item.vrf.lower() != 'default' %}
   local-as {{ item.bgp.local_as }}
 {% endif %}
-{% if switch_item.bgp.address_family_ipv4_unicast %}
   address-family ipv4 unicast
+{% if switch_item.bgp.address_family_ipv4_unicast %}
   {% if (switch_item.bgp.address_family_ipv4_unicast.ebgp_distance or switch_item.bgp.address_family_ipv4_unicast.ibgp_distance or switch_item.bgp.address_family_ipv4_unicast.local_distance) %}
     distance {{ switch_item.bgp.address_family_ipv4_unicast.ebgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.ebgp_distance)  }} {{ switch_item.bgp.address_family_ipv4_unicast.ibgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.ibgp_distance)  }} {{ switch_item.bgp.address_family_ipv4_unicast.local_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.local_distance) }}
   {% endif %}
@@ -43,17 +42,19 @@
   {% if switch_item.bgp.address_family_ipv4_unicast.additional_paths_selection_route_map %}
     additional-paths selection route-map {{ switch_item.bgp.address_family_ipv4_unicast.additional_paths_selection_route_map }}
   {% endif %}
-  {% if switch_item.redistribution %}
-    {% for switch_redist in switch_item.redistribution %}
-      {% if switch_redist.source == 'static' and switch_redist.route_map_ipv4 %}
-    redistribute static route-map {{ switch_redist.route_map_ipv4 }}
-      {% endif %}
-    {% endfor %}
-  {% endif %}
-!
 {% endif %}
-{% if switch_item.bgp.address_family_ipv6_unicast %}
+{% if switch_item.redistribution %}
+  {% for switch_redist in switch_item.redistribution %}
+    {% if switch_redist.source == 'static' and switch_redist.route_map_ipv4 %}
+    redistribute static route-map {{ switch_redist.route_map_ipv4 }}
+    {% endif %}
+    {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
+    redistribute ospf {{ switch_redist.protocol_tag }} route-map {{ switch_redist.route_map_ipv4 }}
+    {% endif %}
+  {% endfor %}
+{% endif %}
   address-family ipv6 unicast
+{% if switch_item.bgp.address_family_ipv6_unicast %}
   {% if (switch_item.bgp.address_family_ipv6_unicast.ebgp_distance or switch_item.bgp.address_family_ipv6_unicast.ibgp_distance or switch_item.bgp.address_family_ipv6_unicast.local_distance) %}
     distance {{ switch_item.bgp.address_family_ipv6_unicast.ebgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.ebgp_distance)  }} {{ switch_item.bgp.address_family_ipv6_unicast.ibgp_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.ibgp_distance)  }} {{ switch_item.bgp.address_family_ipv6_unicast.local_distance | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv6_unicast.local_distance) }}
   {% endif %}
@@ -69,24 +70,20 @@
   {% if switch_item.bgp.address_family_ipv6_unicast.additional_paths_selection_route_map %}
     additional-paths selection route-map {{ switch_item.bgp.address_family_ipv6_unicast.additional_paths_selection_route_map }}
   {% endif %}
-  {% if switch_item.redistribution %}
-    {% for switch_redist in switch_item.redistribution %}
-      {% if switch_redist.source == 'static' and switch_redist.route_map_ipv6 %}
-    redistribute static route-map {{ switch_redist.route_map_ipv6 }}
-      {% endif %}
-    {% endfor %}
-  {% endif %}
-!
 {% endif %}
+{% if switch_item.redistribution %}
+  {% for switch_redist in switch_item.redistribution %}
+    {% if switch_redist.source == 'static' and switch_redist.route_map_ipv6 %}
+    redistribute static route-map {{ switch_redist.route_map_ipv6 }}
+    {% endif %}
+    {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv6 %}
+    redistribute ospf {{ switch_redist.protocol_tag }} route-map {{ switch_redist.route_map_ipv6 }}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{# bgp peer loop #}
 {% if switch_item.bgp_peers %}
 {% for peer in switch_item.bgp_peers %}
-{% set address_family = {'address_family_v4': false, 'address_family_v6': false } %}
-{% if "address_family_ipv4_unicast" in peer %}
-  {% set _ = address_family.update({'address_family_v4': true}) %}
-{% endif %}
-{% if "address_family_ipv6_unicast" in peer %}
-  {% set _ = address_family.update({'address_family_v6': true}) %}
-{% endif %}
   neighbor {{ peer.address }}
     remote-as {{ peer.remote_as }}
   {% if peer.local_as %}
@@ -117,10 +114,10 @@
   {% if peer.password is defined %}
     password 3 {{ peer.password }}
   {% endif %}
-{% if address_family["address_family_v4"] is true %}
+{% if (peer.address | ipv4()) or peer.address_family_ipv4_unicast is defined %}
     address-family ipv4 unicast
 {% endif %}
-  {% if peer.address_family_ipv4_unicast %}
+  {% if peer.address_family_ipv4_unicast  %}
     {% if peer.address_family_ipv4_unicast.route_map_in %}
       route-map {{ peer.address_family_ipv4_unicast.route_map_in }} in
     {% endif %}
@@ -148,9 +145,8 @@
     {% if peer.address_family_ipv4_unicast.default_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.bgp.address_family_ipv4_unicast.default_originate) %}
       default-originate
     {% endif %}
-!
   {% endif %}
-{% if address_family["address_family_v6"] is true %}
+{% if (peer.address | ipv6()) or peer.address_family_ipv6_unicast is defined %}
     address-family ipv6 unicast
 {% endif %}
   {% if peer.address_family_ipv6_unicast %}
@@ -196,12 +192,13 @@ feature bfd
 {% endif %}
 !
 {% if item.vrf.lower() == "default" %}
-router bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }}
+router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   {# GRT #}
   {{- vrf_lite_ebgp_vrf_config(item, switch_item, defaults) -}}
 {% else %}
-router bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }}
+router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
   {# Other VRFs #}
   vrf {{ item.vrf }}
+
   {{- vrf_lite_ebgp_vrf_config(item, switch_item, defaults) | indent(2) -}}
 {% endif %}
