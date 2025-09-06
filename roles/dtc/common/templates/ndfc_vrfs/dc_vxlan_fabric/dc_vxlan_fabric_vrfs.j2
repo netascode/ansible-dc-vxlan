@@ -1,4 +1,5 @@
 {# Auto-generated NDFC DC VXLAN EVPN VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
+{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
 {% set vrfs = [] %}
 {% if MD_Extended.vxlan.overlay.vrfs is defined and MD_Extended.vxlan.overlay.vrfs %}
 {% set vrfs = MD_Extended.vxlan.overlay.vrfs %}
@@ -31,6 +32,7 @@
   import_mvpn_rt: {{ vrf['import_mvpn_rt'] | default(omit) }}
   import_vpn_rt: {{ vrf['import_vpn_rt'] | default(omit) }}
   netflow_enable: {{ vrf['netflow_enable'] | default(defaults.vxlan.overlay.vrfs.netflow_enable) }}
+  l3vni_wo_vlan: {{ vrf['enable_l3_vni_no_vlan'] | default(defaults.vxlan.global[simplified_fabric_type].enable_l3_vni_no_vlan) }}
 {% if vrf['netflow_enable'] is defined and vrf['netflow_enable'] | bool %}
   nf_monitor: {{ vrf['netflow_monitor'] }}
 {% endif %}

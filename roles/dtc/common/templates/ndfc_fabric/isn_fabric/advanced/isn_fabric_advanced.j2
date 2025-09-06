@@ -17,9 +17,9 @@
 {% if vxlan.multisite.isn.enable_nxapi_http | default(defaults.vxlan.multisite.isn.enable_nxapi_http) %}
   NXAPI_HTTP_PORT: {{ vxlan.multisite.isn.nxapi_http_port | default(defaults.vxlan.multisite.isn.nxapi_http_port) }}
 {% endif %}
-  FEATURE_PTP: {{ vxlan.global.ptp.enable | default(defaults.vxlan.global.ptp.enable) }}
-{% if vxlan.global.ptp.enable | default(defaults.vxlan.global.ptp.enable) %}
-  PTP_DOMAIN_ID: {{ vxlan.global.ptp.domain_id }}
-  PTP_LB_ID: {{ vxlan.global.ptp.lb_id }}
+  FEATURE_PTP: {{ vxlan.multisite.isn.ptp.enable | default(defaults.vxlan.multisite.isn.ptp.enable) }}
+{% if vxlan.multisite.isn.ptp.enable | default(defaults.vxlan.multisite.isn.ptp.enable) %}
+  PTP_DOMAIN_ID: {{ vxlan.multisite.isn.ptp.domain_id | default(defaults.vxlan.multisite.isn.ptp.domain_id) }}
+  PTP_LB_ID: {{ vxlan.multisite.isn.ptp.lb_id | default(defaults.vxlan.multisite.isn.ptp.lb_id) }}
 {% endif %}
 {# #}

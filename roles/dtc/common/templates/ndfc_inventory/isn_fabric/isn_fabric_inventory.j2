@@ -6,7 +6,7 @@
 {% elif switch.management.management_ipv6_address is defined %}
 - seed_ip: {{ switch['management']['management_ipv6_address'] }}
 {% endif %}
-  auth_proto: {{ MD['vxlan']['global']['auth_proto'] | default(defaults.vxlan.global.auth_proto) }}
+  auth_proto: {{ MD_Extended.vxlan.multisite.isn.auth_proto | default(defaults.vxlan.multisite.isn.auth_proto) }}
   user_name: PLACE_HOLDER_USERNAME
   password: PLACE_HOLDER_PASSWORD
   max_hops: 0 # this is the default value as it is not defined into the data model
@@ -15,7 +15,7 @@
 {# ------------------------------ #}
 {# Global Bootstrap Section Start #}
 {% if MD_Extended.vxlan.multisite.isn.bootstrap is defined %}
-{% if MD_Extended.vxlan.multisite.isn.bootstrap.enable_bootstrap | default(defaults.vxlan.global.enable_bootstrap) | ansible.builtin.bool %}
+{% if MD_Extended.vxlan.multisite.isn.bootstrap.enable_bootstrap | default(defaults.vxlan.multisite.isn.bootstrap.enable_bootstrap) | ansible.builtin.bool %}
 {#     ------------------------- #}
 {#     Switch POAP Section Start #}
 {% if switch.poap is defined and (switch.poap.bootstrap | default(defaults.vxlan.topology.switches.poap.bootstrap) | ansible.builtin.bool) %}
