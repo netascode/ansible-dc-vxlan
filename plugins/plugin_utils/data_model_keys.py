@@ -29,16 +29,18 @@ root_key = 'vxlan'
 model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MCF': {}, 'ISN': {}, 'External': {}}
 
 # VXLAN_EVPN KEYS
+# iBGP VXLAN KEYS
 
 model_keys['VXLAN_EVPN']['global'] = [root_key, 'global', 'KEY']
-model_keys['VXLAN_EVPN']['global.dns_servers'] = [root_key, 'global', 'dns_servers', 'LIST']
-model_keys['VXLAN_EVPN']['global.ntp_servers'] = [root_key, 'global', 'ntp_servers', 'LIST']
-model_keys['VXLAN_EVPN']['global.syslog_servers'] = [root_key, 'global', 'syslog_servers', 'LIST']
-model_keys['VXLAN_EVPN']['global.netflow'] = [root_key, 'global', 'netflow', 'KEY']
-model_keys['VXLAN_EVPN']['global.netflow.exporter'] = [root_key, 'global', 'netflow', 'exporter', 'LIST']
-model_keys['VXLAN_EVPN']['global.netflow.record'] = [root_key, 'global', 'netflow', 'record', 'LIST']
-model_keys['VXLAN_EVPN']['global.netflow.monitor'] = [root_key, 'global', 'netflow', 'monitor', 'LIST']
-model_keys['VXLAN_EVPN']['global.spanning_tree'] = [root_key, 'global', 'spanning_tree', 'KEY']
+model_keys['VXLAN_EVPN']['global.ibgp'] = [root_key, 'global', 'ibgp', 'KEY']
+model_keys['VXLAN_EVPN']['global.ibgp.dns_servers'] = [root_key, 'global', 'ibgp', 'dns_servers', 'LIST']
+model_keys['VXLAN_EVPN']['global.ibgp.ntp_servers'] = [root_key, 'global', 'ibgp', 'ntp_servers', 'LIST']
+model_keys['VXLAN_EVPN']['global.ibgp.syslog_servers'] = [root_key, 'global', 'ibgp', 'syslog_servers', 'LIST']
+model_keys['VXLAN_EVPN']['global.ibgp.netflow'] = [root_key, 'global', 'ibgp', 'netflow', 'KEY']
+model_keys['VXLAN_EVPN']['global.ibgp.netflow.exporter'] = [root_key, 'global', 'ibgp', 'netflow', 'exporter', 'LIST']
+model_keys['VXLAN_EVPN']['global.ibgp.netflow.record'] = [root_key, 'global', 'ibgp', 'netflow', 'record', 'LIST']
+model_keys['VXLAN_EVPN']['global.ibgp.netflow.monitor'] = [root_key, 'global', 'ibgp', 'netflow', 'monitor', 'LIST']
+model_keys['VXLAN_EVPN']['global.ibgp.spanning_tree'] = [root_key, 'global', 'ibgp', 'spanning_tree', 'KEY']
 # ---
 model_keys['VXLAN_EVPN']['underlay'] = [root_key, 'underlay', 'KEY']
 # ---
