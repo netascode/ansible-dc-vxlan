@@ -20,6 +20,16 @@
 # SPDX-License-Identifier: MIT
 ---
 
+- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_local }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Choose vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+
 - name: Check If Current Fabric Is An Active Multisite Fabric
   when: is_active_child_fabric is not defined
   block:
@@ -44,7 +54,7 @@
     msg: Networks cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
   when:
     - is_active_child_fabric
-    - vars_common_vxlan.net_config | length > 0
+    - vars_common_local.net_config | length > 0
 
 - name: Unmanaged Fabric Networks Removal Status Message
   ansible.builtin.debug:
@@ -58,7 +68,7 @@
   cisco.dcnm.dcnm_network:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden
-    config: "{{ vars_common_vxlan.net_config }}"
+    config: "{{ vars_common_local.net_config }}"
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000

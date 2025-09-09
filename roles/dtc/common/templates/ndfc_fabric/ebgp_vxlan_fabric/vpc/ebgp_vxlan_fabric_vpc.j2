@@ -8,6 +8,6 @@
   ENABLE_FABRIC_VPC_DOMAIN_ID: False
   VPC_DOMAIN_ID_RANGE: {{ vxlan.global.ebgp.vpc.domain_id_range | default(defaults.vxlan.global.ebgp.vpc.domain_id_range) }}
   FABRIC_VPC_QOS: {{ vxlan.global.ebgp.vpc.fabric_vpc_qos | default(defaults.vxlan.global.ebgp.vpc.fabric_vpc_qos) }}
-{% if (vxlan.global.vpc.fabric_vpc_qos | default(defaults.vxlan.global.ebgp.vpc.fabric_vpc_qos) | title) == 'True' %}
+{% if (vxlan.global.ebgp.vpc.fabric_vpc_qos | default(defaults.vxlan.global.ebgp.vpc.fabric_vpc_qos) | title) == 'True' %}
   FABRIC_VPC_QOS_POLICY_NAME: {{ vxlan.global.ebgp.vpc.fabric_vpc_qos_policy_name | default(defaults.vxlan.global.ebgp.vpc.fabric_vpc_qos_policy_name) }}
 {% endif %}

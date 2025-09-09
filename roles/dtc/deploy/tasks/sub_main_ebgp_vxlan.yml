@@ -1,0 +1,95 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+---
+
+- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
+      - "----------------------------------------------------------------"
+
+- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+
+- name: Config-Save block
+  block:
+    - name: Config-Save for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }}
+      cisco.dcnm.dcnm_rest:
+        method: POST
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
+      register: config_save
+      when: >
+        (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
+      # TODO: Need to add logic to only save if changes are made
+
+  rescue:
+    - name: Config-Save for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
+      ansible.builtin.debug:
+        msg: "{{ config_save.msg.DATA }}"
+
+- name: Deploy for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }}
+  cisco.dcnm.dcnm_rest:
+    method: POST
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
+  when: >
+    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
+  # TODO: Need to add logic to only deploy if changes are made
+
+- name: Check Switch Sync in eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }}
+  cisco.nac_dc_vxlan.dtc.fabric_check_sync:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+  register: results
+  when: >
+    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
+
+- name: Retrying Config-Save Block
+  block:
+    - name: Retrying Config-Save for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }}
+      cisco.dcnm.dcnm_rest:
+        method: POST
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
+      register: config_save
+      when: 
+        - MD_Extended.vxlan.topology.switches is defined
+        - MD_Extended.vxlan.topology.switches | length > 0
+        - results.changed
+      # TODO: Need to add logic to only save if changes are made
+
+  rescue:
+    - name: Retrying Config-Save for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
+      ansible.builtin.debug:
+        msg: "{{ config_save.msg.DATA }}"
+
+- name: Retrying Deploy for eBGP VXLAN Fabric {{ MD_Extended.vxlan.fabric.name }}
+  cisco.dcnm.dcnm_rest:
+    method: POST
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
+  vars:
+      ansible_command_timeout: 3000
+      ansible_connect_timeout: 3000
+  when: 
+    - MD_Extended.vxlan.topology.switches is defined
+    - MD_Extended.vxlan.topology.switches | length > 0
+    - results.changed

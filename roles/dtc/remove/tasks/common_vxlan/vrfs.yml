@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,6 +19,16 @@
 #
 # SPDX-License-Identifier: MIT
 ---
+
+- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Choose vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Check If Current Fabric Is An Active Multisite Fabric
   when: is_active_child_fabric is not defined
@@ -44,7 +54,7 @@
     msg: VRFs cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
   when:
     - is_active_child_fabric
-    - vars_common_vxlan.vrf_config | length > 0
+    - vars_common_local.vrf_config | length > 0
 
 - name: Unmanaged Fabric VRFs Removal Status Message
   ansible.builtin.debug:
@@ -58,7 +68,7 @@
   cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden
-    config: "{{ vars_common_vxlan.vrf_config }}"
+    config: "{{ vars_common_local.vrf_config }}"
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
