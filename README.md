@@ -300,6 +300,20 @@ export NDFC_SW_USERNAME=admin
 export NDFC_SW_PASSWORD=Admin_123
 ```
 
+##### Switch Credential Management
+
+This collection supports flexible credential management for network switches with three security levels:
+
+- **🔐 Ansible Vault**: Encrypted credentials for production deployments
+- **✅ Environment Variables**: Secure credential injection for CI/CD pipelines
+- **⚠️ Plain Text**: Simple credentials for lab testing only
+
+The system supports both switch-specific credentials and group-level defaults with automatic fallback. Environment variable lookups can be configured in group_vars for enhanced security and automation compatibility.
+
+**📖 Complete Guide**: [Switch Credentials Configuration](docs/SWITCH_CREDENTIALS_GUIDE.md)
+
+## Quick Start Guide
+
 The following quickstart repository is available to provide a step by step guide for using this collection.
 
 [Quick Start Guide Repo](https://github.com/netascode/ansible-dc-vxlan-example)
