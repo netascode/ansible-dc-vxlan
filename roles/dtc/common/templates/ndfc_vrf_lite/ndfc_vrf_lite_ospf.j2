@@ -2,6 +2,7 @@
 ! DO NOT EDIT MANUALLY
 !
 !
+{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
 {# macro render_ospf_interface to render ospf area part #}
 {% macro render_ospf_area(area, defaults) %}
   {% if area.id and (area.id != 0 or area.id != '0.0.0.0') %}
@@ -127,7 +128,7 @@ router ospf {{ item.ospf['process'] }}
   redistribute static route-map {{ switch_redist.route_map_ipv4 }}
       {% endif %}
       {% if switch_redist.source == 'bgp' and switch_redist.route_map_ipv4 %}
-  redistribute bgp {{ MD_Extended.vxlan.global.bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
+  redistribute bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
       {% endif %}
       {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
         {% set _ = redistribute.update({'ospf': switch_redist.route_map_ipv4}) %}
@@ -158,7 +159,7 @@ router ospf {{ item.ospf['process'] }}
     redistribute static route-map {{ switch_redist.route_map_ipv4 }}
         {% endif %}
         {% if switch_redist.source == 'bgp' and switch_redist.route_map_ipv4 %}
-    redistribute bgp {{ MD_Extended.vxlan.global.bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
+    redistribute bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
         {% endif %}
         {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
           {% set _ = redistribute.update({'ospf': switch_redist.route_map_ipv4}) %}
@@ -168,7 +169,7 @@ router ospf {{ item.ospf['process'] }}
 {% endif %}
 !
 {% if redistribute['ospf'] %}
-router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
+router bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }}
   {% if item.vrf.lower() == "default" %}
   address-family ipv4 unicast
     redistribute ospf {{ item.ospf['process'] }} route-map {{ redistribute['ospf'] }}

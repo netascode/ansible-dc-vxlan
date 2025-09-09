@@ -39,7 +39,7 @@
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "External"
-    - MD_Extended.vxlan.global is defined
+    - MD_Extended.vxlan.global.external is defined
     - vars_common_external.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 

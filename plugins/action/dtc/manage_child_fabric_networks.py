@@ -205,6 +205,8 @@ class ActionModule(ActionBase):
                             version = '3.2'
                             if version_compare(nd_major_minor_patch, '3.1.1', '<='):
                                 version = '3.1'
+                            elif version_compare(nd_major_minor_patch, '4.1.1', '>='):
+                                version = '4.1'
                             template_path = f"{role_path}{MSD_CHILD_FABRIC_NETWORK_TEMPLATE_PATH}{version}{MSD_CHILD_FABRIC_NETWORK_TEMPLATE}"
 
                             try:
