@@ -33,7 +33,7 @@ class PreparePlugin:
         else:
             switches = model_data['vxlan']['topology']['switches']
 
-        if model_data['vxlan']['fabric']['type'] in ('VXLAN_EVPN'):
+        if model_data['vxlan']['fabric']['type'] in ('VXLAN_EVPN', 'eBGP_VXLAN'):
             # Rebuild sm_data['vxlan']['overlay']['vrf_attach_groups'] into
             # a structure that is easier to use.
             vrf_grp_name_list = []

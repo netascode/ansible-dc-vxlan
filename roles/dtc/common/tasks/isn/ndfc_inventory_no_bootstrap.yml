@@ -72,6 +72,7 @@
 - name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
   cisco.nac_dc_vxlan.common.get_credentials:
     inv_list: "{{ inv_config_no_bootstrap }}"
+    model_data: "{{ MD_Extended }}"
   register: updated_inv_config_no_bootstrap
   no_log: true
 
