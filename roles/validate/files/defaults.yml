@@ -238,6 +238,7 @@ factory_defaults:
           bootstrap: false
       vpc_peers:
         domain_id: 1
+        keepalive_hold_time: 3
       fabric_links:
         mtu: 9216
         admin_state: true
