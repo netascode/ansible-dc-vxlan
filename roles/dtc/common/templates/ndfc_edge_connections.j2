@@ -14,7 +14,7 @@
     - ip: {{ link.source_device_ip }}
       policies:
         - create_additional_policy: False
-          description: {{ 'nace_bgp_peer_template_dci_underlay_jython_' + link.source_device + '_' + link.dest_device }}
+          description: {{ 'nace_bgp_peer_template_dci_underlay_jython_' + link.source_device + '_' + link.source_interface + '_' + link.dest_device }}
           name: bgp_peer_template_dci_underlay_jython
           policy_vars:
             BGP_PASSWORD: "{{ link.bgp_section.bgp_password | default('') }}"
@@ -26,7 +26,7 @@
               {{ link.bgp_section.peer_template_freeform | default('') | indent(14, false)}}
           priority: 475
         - create_additional_policy: False
-          description: {{ 'nace_ebgp_underlay_dci_template_' + link.source_device + '_' + link.dest_device }}
+          description: {{ 'nace_ebgp_underlay_dci_template_' + link.source_device + '_' + link.source_interface + '_' + link.dest_device  }}
           name: ebgp_underlay_dci_template
           policy_vars:
             INTF_NAME: {{ link.source_interface }}
