@@ -77,10 +77,6 @@ For enhanced security, you can use environment variable lookups in your group_va
 # Credentials for switches in inventory
 ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
 ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
-
-# Additional leaf-specific credentials
-leaf_username: "{{ lookup('env', 'env_var_leaf_username') }}"
-leaf_password: "{{ lookup('env', 'env_var_leaf_password') }}"
 ```
 
 **Example 2: Environment lookups with fallback defaults**
@@ -89,10 +85,6 @@ leaf_password: "{{ lookup('env', 'env_var_leaf_password') }}"
 # Primary credentials with fallbacks
 ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') | default('admin') }}"
 ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') | default('default_password') }}"
-
-# Role-specific credentials
-leaf_username: "{{ lookup('env', 'LEAF_USERNAME') | default(ndfc_switch_username) }}"
-leaf_password: "{{ lookup('env', 'LEAF_PASSWORD') | default(ndfc_switch_password) }}"
 ```
 
 **Setting the corresponding environment variables:**
@@ -102,8 +94,6 @@ export NDFC_SW_USERNAME='admin'
 export NDFC_SW_PASSWORD='secure_default_password'
 export env_var_leaf_username='leaf_admin'
 export env_var_leaf_password='leaf_secure_password'
-export LEAF_USERNAME='leaf_user'
-export LEAF_PASSWORD='leaf_pass'
 ```
 
 ## How Credential Resolution Works
@@ -138,14 +128,6 @@ ndfc_switch_password: default_password
 # Credentials for switches in inventory
 ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
 ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
-
-# Role-specific credentials
-leaf_username: "{{ lookup('env', 'env_var_leaf_username') }}"
-leaf_password: "{{ lookup('env', 'env_var_leaf_password') }}"
-
-# Credentials with fallback defaults
-spine_username: "{{ lookup('env', 'SPINE_USERNAME') | default(ndfc_switch_username) }}"
-spine_password: "{{ lookup('env', 'SPINE_PASSWORD') | default(ndfc_switch_password) }}"
 ```
 
 **Required environment variables for advanced configuration:**
@@ -155,8 +137,6 @@ export NDFC_SW_USERNAME='admin'
 export NDFC_SW_PASSWORD='secure_default_password'
 export env_var_leaf_username='leaf_admin'
 export env_var_leaf_password='leaf_secure_password'
-export SPINE_USERNAME='spine_admin'
-export SPINE_PASSWORD='spine_secure_password'
 ```
 
 ⚠️ **Important**: These defaults are required and serve as fallback credentials for any switch that doesn't have specific credentials defined.
