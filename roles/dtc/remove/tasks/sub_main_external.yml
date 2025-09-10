@@ -58,7 +58,7 @@
   when:
     - vars_common_external.changes_detected_interfaces
 
-- name: Remove Fabric vPC Peering
+- name: Remove External Fabric vPC Peering from Nexus Dashboard
   ansible.builtin.import_tasks: common/vpc_peers.yml
   tags: "{{ nac_tags.remove_vpc_peers }}"
   when:
