@@ -20,8 +20,8 @@
 # SPDX-License-Identifier: MIT
 
 from ansible.utils.display import Display
-from ....plugin_utils.helper_functions import data_model_key_check
-from ....plugin_utils.data_model_keys import model_keys
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import data_model_key_check
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.data_model_keys import model_keys
 from functools import reduce
 import operator
 
@@ -203,7 +203,7 @@ class PreparePlugin:
         #
         # There might actualy be data but one of the other model files might
         # have a bug or everything except the top level vxlan key is commented out.
-        if fabric_type in ['VXLAN_EVPN', 'External']:
+        if fabric_type in ['VXLAN_EVPN', 'External', 'eBGP_VXLAN']:
             fn = self.model_data['vxlan']['fabric']['name']
             if not bool(self.model_data['vxlan'].get('underlay')):
                 msg = "((vxlan.underlay)) data is empty! Check your host_vars model data for fabric {fn}."

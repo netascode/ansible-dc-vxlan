@@ -20,8 +20,8 @@
 # SPDX-License-Identifier: MIT
 
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader
-from ....plugin_utils.helper_functions import hostname_to_ip_mapping
-from ansible_collections.ansible.utils.plugins.filter import ipaddr
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import hostname_to_ip_mapping
+from ansible_collections.ansible.utils.plugins.filter import ipaddr, ipv4, ipv6
 
 
 class PreparePlugin:
@@ -48,6 +48,8 @@ class PreparePlugin:
         )
 
         env.filters["ipaddr"] = ipaddr.ipaddr
+        env.filters["ipv4"] = ipv4.ipv4
+        env.filters["ipv6"] = ipv6.ipv6
         template = env.get_template(template_filename)
         if "overlay_extensions" in model_data["vxlan"]:
             if "vrf_lites" in model_data["vxlan"]["overlay_extensions"]:

@@ -19,7 +19,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from ....plugin_utils.helper_functions import hostname_to_ip_mapping, data_model_key_check
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import hostname_to_ip_mapping, data_model_key_check
 
 
 class PreparePlugin:
@@ -48,6 +48,7 @@ class PreparePlugin:
         model_data['vxlan']['topology']['border_gateway_super_spine'] = {}
         model_data['vxlan']['topology']['tor'] = {}
         model_data['vxlan']['topology']['core_router'] = {}
+        model_data['vxlan']['topology']['edge_router'] = {}
         sm_switches = model_data['vxlan']['topology']['switches']
         for switch in sm_switches:
             # Build list of switch IP's based on role keyed by switch name

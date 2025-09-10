@@ -2,6 +2,90 @@
 ! DO NOT EDIT MANUALLY
 !
 !
+{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
+{# macro render_ospf_interface to render ospf area part #}
+{% macro render_ospf_area(area, defaults) %}
+  {% if area.id and (area.id != 0 or area.id != '0.0.0.0') %}
+    {% if (area.area_type and area.area_type == 'stub') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.areas.area_type == 'stub') %}
+area {{ area.id | ipaddr('address') }} stub
+    {% elif (area.area_type and area.area_type == 'totally_stub') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.areas.area_type == 'totally_stub') %}
+area {{ area.id | ipaddr('address') }} stub no-summary
+    {% elif (area.area_type and area.area_type == 'nssa') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.areas.area_type == 'nssa') %}
+      {% if area.nssa is not defined %}
+area {{ area.id | ipaddr('address') }} nssa
+      {% else %}
+        {%- set nssa_options = {
+          'no_redistribution': area.nssa.no_redistribution | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.no_redistribution),
+          'no_summary': area.nssa.no_summary | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.no_summary),
+          'default_information_originate': area.nssa.default_information_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.default_information_originate),
+          'translate_always': area.nssa.translate.always | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.always),
+          'translate_supress_fa': area.nssa.translate.supress_fa | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.supress_fa),
+          'translate_never': area.nssa.translate.never | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.never)
+        } -%}
+        {%- set nssa_options_flags = [] -%}
+        {%- set nssa_options_translate = [] -%}
+        {%- set nssa_options_flags_enabled = false -%}
+        {%- set nssa_options_translate_enabled = false -%}
+        {% if nssa_options.no_summary is true %}
+          {%- set _= nssa_options_flags.append("no-summary") -%}
+          {%- set nssa_options_flags_enabled = true -%}
+        {% endif %}
+        {% if nssa_options.no_redistribution is true %}
+          {% set _= nssa_options_flags.append("no-redistribution") -%}
+          {%- set nssa_options_flags_enabled = true -%}
+        {% endif %}
+        {% if nssa_options.default_information_originate is true %}
+          {% set _= nssa_options_flags.append("default-information-originate") %}
+          {% if area.nssa.route_map %}
+            {% set _= nssa_options_flags.append("route-map") %}
+            {% set _= nssa_options_flags.append(area.nssa.route_map) %}
+            {% set nssa_options_flags_enabled = true %}
+          {% endif %}
+        {% endif %}
+        {% if nssa_options.translate_always is true %}
+          {% set _= nssa_options_translate.append("always") %}
+          {% set nssa_options_translate_enabled = true %}
+        {% endif %}
+        {% if nssa_options.translate_supress_fa is true %}
+          {% set _= nssa_options_translate.append("supress-fa") %}
+          {% set nssa_options_translate_enabled = true %}
+        {% endif %}
+        {% if nssa_options.translate_never is true %}
+          {% set _= nssa_options_translate.append("never") %}
+          {% set nssa_options_translate_enabled = true %}
+        {% endif %}
+        {% if nssa_options_flags_enabled is true %}
+area {{ area.id | ipaddr('address') }} nssa {{ nssa_options_flags | join(' ') }}
+        {% endif %}
+        {% if nssa_options_translate_enabled is true %}
+area {{ area.id | ipaddr('address') }} nssa translate type7 {{ nssa_options_translate | join(' ') }}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+  {% if area.area_cost is defined and area.area_cost != 1 and area.id != 0 %}
+area {{ area.id | ipaddr('address') }} default-cost {{ area.area_cost }}
+  {% elif area.area_cost is defined and area.area_cost != 1 %}
+area 0.0.0.0 default-cost {{ area.area_cost }}
+  {% endif %}
+  {% if area.default_information_originate is defined %}
+    {% if area.default_information_originate.always is not defined %}
+      {% set default_information_originate_always = defaults.vxlan.overlay_extensions.vrf_lites.ospf.default_information_originate.always %}
+    {% else %}
+      {% set default_information_originate_always = area.default_information_originate.always %}
+    {% endif %}
+    {% if (default_information_originate_always is true and area.default_information_originate.route_map is defined) %}
+default-information originate always route-map {{ area.default_information_originate.route_map }}
+    {% elif default_information_originate_always is true and area.default_information_originate.route_map is not defined %}
+default-information originate always
+    {% elif default_information_originate_always is false and area.default_information_originate.route_map is defined %}
+default-information originate route-map {{ area.default_information_originate.route_map }}
+    {% else %}
+default-information originate
+    {% endif %}
+  {% endif %}
+{% endmacro %}
+
 feature ospf
 {% set redistribute = {} %}
 {% set feature = {} %}
@@ -21,96 +105,51 @@ feature bfd
 {% endif %}
 !
 router ospf {{ item.ospf['process'] }}
+{# GRT #}
+{% if item.vrf.lower() == "default" %}
+{% if switch_item['router_id'] %}
+  router-id {{ switch_item['router_id'] }}
+{% endif %}
+{% if item.ospf.areas is defined and item.ospf.areas %}
+{% for area in item.ospf.areas %}
+  {{- render_ospf_area(area, defaults) -}}
+{% endfor %}
+{% endif %}
+  {% if (item.ospf.distance and item.ospf.distance != 110) or (item.ospf.distance is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.distance != 110) %}
+  distance {{ item.ospf.distance }}
+  {% endif %}
+  {# Redistribution configuration #}
+  {% if switch_item.redistribution %}
+    {% for switch_redist in switch_item.redistribution %}
+      {% if switch_redist.source == 'direct' and switch_redist.route_map_ipv4 %}
+  redistribute direct route-map {{ switch_redist.route_map_ipv4 }}
+      {% endif %}
+      {% if switch_redist.source == 'static' and switch_redist.route_map_ipv4 %}
+  redistribute static route-map {{ switch_redist.route_map_ipv4 }}
+      {% endif %}
+      {% if switch_redist.source == 'bgp' and switch_redist.route_map_ipv4 %}
+  redistribute bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
+      {% endif %}
+      {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
+        {% set _ = redistribute.update({'ospf': switch_redist.route_map_ipv4}) %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% else %}
+{# Other vrfs #}
   vrf {{ item.vrf }}
     {% if switch_item['router_id'] %}
     router-id {{ switch_item['router_id'] }}
     {% endif %}
     {% if item.ospf.areas %}
       {% for area in item.ospf.areas %}
-        {% if area.id and (area.id != 0 or area.id != '0.0.0.0') %}
-          {% if (area.area_type and area.area_type == 'stub') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.areas.area_type == 'stub') %}
-    area {{ area.id | ipaddr('address') }} stub
-          {% elif (area.area_type and area.area_type == 'totally_stub') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.areas.area_type == 'totally_stub') %}
-    area {{ area.id | ipaddr('address') }} stub no-summary
-          {% elif (area.area_type and area.area_type == 'nssa') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.areas.area_type == 'nssa') %}
-            {% if area.nssa is not defined %}
-    area {{ area.id | ipaddr('address') }} nssa
-            {% else %}
-                {% set nssa_options = {
-                'no_redistribution': area.nssa.no_redistribution | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.no_redistribution),
-                'no_summary': area.nssa.no_summary | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.no_summary),
-                'default_information_originate': area.nssa.default_information_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.default_information_originate),
-                'translate_always': area.nssa.translate.always | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.always),
-                'translate_supress_fa': area.nssa.translate.supress_fa | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.supress_fa),
-                'translate_never': area.nssa.translate.never | default(defaults.vxlan.overlay_extensions.vrf_lites.ospf.nssa.translate.never)
-                } %}
-                {% set nssa_options_flags = [] %}
-                {% set nssa_options_translate = [] %}
-                {% set nssa_options_flags_enabled = false %}
-                {% set nssa_options_translate_enabled = false %}
-              {% if nssa_options.no_summary is true %}
-                {% set _= nssa_options_flags.append("no-summary") %}
-                {% set nssa_options_flags_enabled = true %}
-              {% endif %}
-              {% if nssa_options.no_redistribution is true %}
-                {% set _= nssa_options_flags.append("no-redistribution") %}
-                {% set nssa_options_flags_enabled = true %}
-              {% endif %}
-              {% if nssa_options.default_information_originate is true %}
-                {% set _= nssa_options_flags.append("default-information-originate") %}
-                {% if area.nssa.route_map %}
-                  {% set _= nssa_options_flags.append("route-map") %}
-                  {% set _= nssa_options_flags.append(area.nssa.route_map) %}
-                  {% set nssa_options_flags_enabled = true %}
-                {% endif %}
-              {% endif %}
-              {% if nssa_options.translate_always is true %}
-                {% set _= nssa_options_translate.append("always") %}
-                {% set nssa_options_translate_enabled = true %}
-              {% endif %}
-              {% if nssa_options.translate_supress_fa is true %}
-                {% set _= nssa_options_translate.append("supress-fa") %}
-                {% set nssa_options_translate_enabled = true %}
-              {% endif %}
-              {% if nssa_options.translate_never is true %}
-                {% set _= nssa_options_translate.append("never") %}
-                {% set nssa_options_translate_enabled = true %}
-              {% endif %}
-              {% if nssa_options_flags_enabled is true %}
-    area {{ area.id | ipaddr('address') }} nssa {{ nssa_options_flags | join(' ') }}
-              {% endif %}
-              {% if nssa_options_translate_enabled is true %}
-    area {{ area.id | ipaddr('address') }} nssa translate type7 {{ nssa_options_translate | join(' ') }}
-              {% endif %}
-            {% endif %}
-          {% endif %}
-        {% endif %}
-        {% if area.area_cost is defined and area.area_cost != 1 and area.id != 0 %}
-    area {{ area.id | ipaddr('address') }} default-cost {{ area.area_cost }}
-        {% elif area.area_cost is defined and area.area_cost != 1 %}
-    area 0.0.0.0 default-cost {{ area.area_cost }}
-        {% endif %}
-        {% if area.default_information_originate is defined %}
-          {% if area.default_information_originate.always is not defined %}
-            {% set default_information_originate_always = defaults.vxlan.overlay_extensions.vrf_lites.ospf.default_information_originate.always %}
-          {% else %}
-            {% set default_information_originate_always = area.default_information_originate.always %}
-          {% endif %}
-          {% if (default_information_originate_always is true and area.default_information_originate.route_map is defined) %}
-    default-information originate always route-map {{ area.default_information_originate.route_map }}
-          {% elif default_information_originate_always is true and area.default_information_originate.route_map is not defined %}
-    default-information originate always
-          {% elif default_information_originate_always is false and area.default_information_originate.route_map is defined %}
-    default-information originate route-map {{ area.default_information_originate.route_map }}
-          {% else %}
-    default-information originate
-          {% endif %}
-        {% endif %}
+    {{- render_ospf_area(area, defaults) -}}
       {% endfor %}
     {% endif %}
     {% if (item.ospf.distance and item.ospf.distance != 110) or (item.ospf.distance is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.distance != 110) %}
     distance {{ item.ospf.distance }}
     {% endif %}
+    {# Redistribution configuration #}
     {% if switch_item.redistribution %}
       {% for switch_redist in switch_item.redistribution %}
         {% if switch_redist.source == 'direct' and switch_redist.route_map_ipv4 %}
@@ -120,19 +159,25 @@ router ospf {{ item.ospf['process'] }}
     redistribute static route-map {{ switch_redist.route_map_ipv4 }}
         {% endif %}
         {% if switch_redist.source == 'bgp' and switch_redist.route_map_ipv4 %}
-    redistribute bgp {{ MD_Extended.vxlan.global.bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
+    redistribute bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
         {% endif %}
         {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
           {% set _ = redistribute.update({'ospf': switch_redist.route_map_ipv4}) %}
         {% endif %}
       {% endfor %}
     {% endif %}
+{% endif %}
 !
 {% if redistribute['ospf'] %}
-router bgp {{ MD_Extended.vxlan.global.bgp_asn }}
+router bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }}
+  {% if item.vrf.lower() == "default" %}
+  address-family ipv4 unicast
+    redistribute ospf {{ item.ospf['process'] }} route-map {{ redistribute['ospf'] }}
+  {% else %}
   vrf {{ item.vrf }}
     address-family ipv4 unicast
       redistribute ospf {{ item.ospf['process'] }} route-map {{ redistribute['ospf'] }}
+  {% endif %}
 !
 {% endif %}
 {% if switch_item.interfaces %}

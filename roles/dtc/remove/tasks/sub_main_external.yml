@@ -58,13 +58,11 @@
   when:
     - vars_common_external.changes_detected_interfaces
 
-# Feature not implemented yet, currently vars_common_external.changes_detected_vpc_peering is not being set so will
-# currently cause an undefined variable error.
-# - name: Remove External Fabric vPC Peering from Nexus Dashboard
-#   ansible.builtin.import_tasks: common/vpc_peers.yml
-#   tags: "{{ nac_tags.remove_vpc_peers }}"
-#   when:
-#     - vars_common_external.changes_detected_vpc_peering
+- name: Remove External Fabric vPC Peering from Nexus Dashboard
+  ansible.builtin.import_tasks: common/vpc_peers.yml
+  tags: "{{ nac_tags.remove_vpc_peers }}"
+  when:
+    - vars_common_external.changes_detected_vpc_peering
 
 - name: Remove External Fabric Switches from Nexus Dashboard
   ansible.builtin.import_tasks: common/switches.yml

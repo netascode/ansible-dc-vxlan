@@ -51,6 +51,11 @@
 #     name: dtc.common
 #     tasks_from: msd/ndfc_networks.yml
 
+- name: Set path_name Var
+  ansible.builtin.set_fact:
+    path_name: "{{ role_path }}/../common/files/msd/{{ MD_Extended.vxlan.fabric.name }}/"
+  delegate_to: localhost
+
 - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
   ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
 
@@ -65,6 +70,8 @@
     vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
   vars:
     update_data:
+      # changes_detected_vrfs and changes_detected_networks are set in the
+      # dtc.common.tasks.msd.ndfc_vrfs.yml and dtc.common.tasks.msd.ndfc_networks.yml tasks
       changes_detected_vrfs: "{{ changes_detected_vrfs }}"
       changes_detected_networks: "{{ changes_detected_networks }}"
       vrf_config: "{{ vrf_config }}"
@@ -104,6 +111,7 @@
 
 - name: Manage Child Fabric VRFs in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
+    nd_version: "{{ nd_version }}"
     msite_data: "{{ MD_Multisite }}"
   register: child_fabric_vrf_results
 
@@ -138,6 +146,7 @@
 
 - name: Manage Child Fabric Networks in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.manage_child_fabric_networks:
+    nd_version: "{{ nd_version }}"
     msite_data: "{{ MD_Multisite }}"
   register: child_fabric_network_results
 

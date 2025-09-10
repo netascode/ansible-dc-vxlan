@@ -66,7 +66,10 @@
 - name: Set int_loopback_config Var
   ansible.builtin.set_fact:
     int_loopback_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0
+  when: >
+    (MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0) or
+    (MD_Extended.vxlan.topology.interfaces.modes.fabric_loopback.count > 0) or
+    (MD_Extended.vxlan.topology.interfaces.modes.mpls_loopback.count > 0)
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files

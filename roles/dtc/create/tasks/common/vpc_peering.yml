@@ -37,6 +37,9 @@
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Manage Fabric vPC Peers Entry Point
   ansible.builtin.debug:
@@ -54,7 +57,9 @@
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ vars_common_vxlan.vpc_domain_id_resource }}"
-  when: vars_common_vxlan.vpc_domain_id_resource | length > 0
+  when:
+    - vars_common_vxlan.vpc_domain_id_resource is defined
+    - vars_common_vxlan.vpc_domain_id_resource | length > 0
 
 # --------------------------------------------------------------------
 # Manage Intra Fabric Links for vPC Peering in Nexus Dashboard

@@ -54,6 +54,13 @@
 - name: Build External Fabric Switch Inventory List From Template
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
+# --------------------------------------------------------------------
+# Build External Fabric vPC Peering Template
+# --------------------------------------------------------------------
+
+- name: Build External Fabric vPC Peering Template
+  ansible.builtin.import_tasks: external/ndfc_vpc_peering_pairs.yml
+
 # We need to also build an inventory list without bootstrap settings
 # This will be used for device removal.
 - name: Build External Fabric Switch Inventory List From Template - No Bootstrap
@@ -178,6 +185,7 @@
       changes_detected_interface_dot1q: "{{ changes_detected_interface_dot1q }}"
       changes_detected_interfaces: "{{ changes_detected_interfaces }}"
       changes_detected_policy: "{{ changes_detected_policy }}"
+      changes_detected_vpc_peering: "{{ changes_detected_vpc_peering }}"
       fabric_config: "{{ fabric_config }}"
       edge_connections: "{{ edge_connections }}"
       interface_breakout: "{{ interface_breakout }}"
@@ -196,6 +204,7 @@
       sub_interface_routed: "{{ sub_interface_routed }}"
       updated_inv_config: "{{ updated_inv_config }}"
       updated_inv_config_no_bootstrap: "{{ updated_inv_config_no_bootstrap }}"
+      vpc_peering: "{{ vpc_peering }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:
@@ -204,6 +213,7 @@
       - "+     Fabric Changes Detected -               [ {{ vars_common_external.changes_detected_fabric }} ]"
       - "+     Inventory Changes Detected -            [ {{ vars_common_external.changes_detected_inventory }} ]"
       - "+     Edge Connections Changes Detected -     [ {{ vars_common_external.changes_detected_edge_connections }} ]"
+      - "+     vPC Peer Changes Detected -             [ {{ vars_common_external.changes_detected_vpc_peering }} ]"
       - "+     ----- Interfaces -----"
       - "+     Interface breakout Changes Detected -   [ {{ vars_common_external.changes_detected_interface_breakout }} ]"
       - "+     Interface Access Changes Detected -     [ {{ vars_common_external.changes_detected_interface_access }} ]"

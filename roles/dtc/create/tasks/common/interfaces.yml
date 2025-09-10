@@ -25,8 +25,10 @@
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- name: Choose vars_common Based On Fabric Type - MSD
-  ansible.builtin.set_fact:
+- ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+- ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
 - name: Choose vars_common Based On Fabric Type - ISN
@@ -142,7 +144,10 @@
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_local.int_loopback_config }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0
+  when: >
+    (MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0) or
+    (MD_Extended.vxlan.topology.interfaces.modes.fabric_loopback.count > 0) or
+    (MD_Extended.vxlan.topology.interfaces.modes.mpls_loopback.count > 0)
 
 # ----------------------------------------------------------------------
 # Manage Interface Dot1q Configuration in Nexus Dashboard
