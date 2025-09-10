@@ -55,10 +55,10 @@
   ansible.builtin.import_tasks: common/ndfc_inventory.yml
 
 # --------------------------------------------------------------------
-# Build vPC Peering parameter List From Template
+# Build External Fabric vPC Peering Template
 # --------------------------------------------------------------------
 
-- name: Build vPC Peering Parameters
+- name: Build External Fabric vPC Peering Template
   ansible.builtin.import_tasks: external/ndfc_vpc_peering_pairs.yml
 
 # We need to also build an inventory list without bootstrap settings
