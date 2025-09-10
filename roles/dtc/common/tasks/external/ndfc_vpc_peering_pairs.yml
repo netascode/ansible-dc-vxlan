@@ -41,6 +41,7 @@
   ansible.builtin.copy:
     src: "{{ path_name }}{{ file_name }}"
     dest: "{{ path_name }}{{ file_name }}.old"
+    mode: preserve
   when: data_file_previous.stat.exists
 
 - name: Delete Previous Data File If It Exists
@@ -50,16 +51,11 @@
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
-- name: debug MD_Extended.vxlan.topology.vpc_peers
-  ansible.builtin.debug:
-    msg: "{{ MD_Extended.vxlan.topology.vpc_peers }}"
-  when: MD_Extended.vxlan.topology.vpc_peers | length > 0
-  delegate_to: localhost
-
 - name: Build vPC Peering
   ansible.builtin.template:
     src: ndfc_vpc/ndfc_vpc_peering_pairs_external.j2
     dest: "{{ path_name }}{{ file_name }}"
+    mode: '0644'
   delegate_to: localhost
 
 - name: Set vpc_peering Var default
@@ -67,7 +63,7 @@
     vpc_peering: []
   delegate_to: localhost
 
-- name: Set link_vpc_peering Var default as not used for external fabric
+- name: Set link_vpc_peering Var to default - Not used for External Fabric
   ansible.builtin.set_fact:
     link_vpc_peering: []
   delegate_to: localhost
