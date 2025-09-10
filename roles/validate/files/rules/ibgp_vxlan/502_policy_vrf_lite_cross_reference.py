@@ -44,6 +44,10 @@ class Rule:
         switch_policy = []
         static_routes_compliance = []
 
+        if data.get("vxlan", {}).get("fabric", {}).get("type") == "eBGP_VXLAN":
+            cls.results.append("VRF-Lite is not supported for eBGP_VXLAN yet.")
+            return cls.results
+
         # Get fabric switches
         if data.get("vxlan", {}).get("topology", {}).get("switches") is not None:
             topology_switches = data["vxlan"]["topology"]["switches"]
@@ -65,19 +69,12 @@ class Rule:
                     fabric_type = None
                     fabric_type_map = {
                         "VXLAN_EVPN": "ibgp",
-                        "eBGP_VXLAN": "ebgp",
                         "External": "external"
                     }
                     fabric_type = fabric_type_map.get(data["vxlan"]["fabric"].get("type"))
                     bgp_asn = cls.safeget(data, ["vxlan", "global", fabric_type, "bgp_asn"]) if fabric_type else None
                     if bgp_asn is None:
                         bgp_asn = cls.safeget(data, ["vxlan", "global", "bgp_asn"])
-                    if bgp_asn is None:
-                        cls.results.append(
-                            f"vxlan.global.{fabric_type}.bgp_asn is not defined. "
-                            "This value is required to validate the policies"
-                        )
-                        break
                     for switch_policy in policy["switches"]:
                         cls.check_switch_level(
                             switch_policy,
