@@ -57,6 +57,7 @@ factory_defaults:
           ipv6_nd_sync: true
           advertise_pip: false
           advertise_pip_border_only: true
+          advertise_pip_border_gateway: false
           domain_id_range: 1-1000
           fabric_vpc_qos: false
           fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering

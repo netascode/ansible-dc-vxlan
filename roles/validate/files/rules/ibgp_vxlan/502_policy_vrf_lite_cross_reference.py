@@ -44,6 +44,10 @@ class Rule:
         switch_policy = []
         static_routes_compliance = []
 
+        if data.get("vxlan", {}).get("fabric", {}).get("type") == "eBGP_VXLAN":
+            cls.results.append("VRF-Lite is not supported for eBGP_VXLAN yet.")
+            return cls.results
+
         # Get fabric switches
         if data.get("vxlan", {}).get("topology", {}).get("switches") is not None:
             topology_switches = data["vxlan"]["topology"]["switches"]
@@ -61,11 +65,21 @@ class Rule:
                 cls.check_global_ospf_area(policy)
                 # Check switch Level and update static_routes_compliance if exists
                 if policy.get("switches"):
+                    # Backward compatibility with bgp_asn at the global level
+                    fabric_type = None
+                    fabric_type_map = {
+                        "VXLAN_EVPN": "ibgp",
+                        "External": "external"
+                    }
+                    fabric_type = fabric_type_map.get(data["vxlan"]["fabric"].get("type"))
+                    bgp_asn = cls.safeget(data, ["vxlan", "global", fabric_type, "bgp_asn"]) if fabric_type else None
+                    if bgp_asn is None:
+                        bgp_asn = cls.safeget(data, ["vxlan", "global", "bgp_asn"])
                     for switch_policy in policy["switches"]:
                         cls.check_switch_level(
                             switch_policy,
                             policy,
-                            data["vxlan"]["global"]["bgp_asn"],
+                            bgp_asn,
                             topology_switches,
                             static_routes_compliance,
                         )
@@ -367,3 +381,14 @@ class Rule:
                             f"vxlan.overlay_extensions.vrf_lites.{data['policy']} and vxlan.overlay_extensions.vrf_lites.{data2['policy']} "
                             f"use the same VRF and switch with different static routes"
                         )
+
+    @classmethod
+    def safeget(cls, dictionary, keys):
+        """
+        Safely retrieves nested values from a dictionary using a list of keys.
+        """
+        for key in keys:
+            if dictionary is None or key not in dictionary:
+                return None
+            dictionary = dictionary[key]
+        return dictionary
