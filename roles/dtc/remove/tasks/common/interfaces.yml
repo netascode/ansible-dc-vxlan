@@ -46,22 +46,11 @@
     - switch_list.response.DATA | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
-# NOT Needed as module is now handling this
-# - name: Filter out breakout interfaces for unreachable switches
-#   ansible.builtin.set_fact:
-#     filtered_interface_all: "{{ vars_common_local.interface_all | rejectattr('type', 'equalto', 'breakout') | list + (vars_common_local.interface_all | selectattr('type', 'equalto', 'breakout') | rejectattr('switch.0', 'in', unreachable_switch_ips) | list) }}"
-#   vars:
-#     unreachable_switch_ips: "{{ switch_list.response.DATA | selectattr('status', 'equalto', 'Unreachable') | map(attribute='ipAddress') | list }}"
-#   when:
-#     - switch_list.response.DATA | length > 0
-#     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
-#     - vars_common_local.interface_all is defined
-
 - name: Remove Unmanaged Fabric Interfaces in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden
-    config: "{{ vars_common_local.interface_all | default(vars_common_local.interface_all) }}"
+    config: "{{ vars_common_local.interface_all }}"
     # deploy: false
   vars:
     ansible_command_timeout: 3000
