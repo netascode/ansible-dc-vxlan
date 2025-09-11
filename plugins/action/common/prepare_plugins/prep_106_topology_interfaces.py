@@ -21,6 +21,8 @@
 
 # Count interfaces of different types and expose in extended service model for controls within playbooks
 #
+import re
+
 
 class PreparePlugin:
     def __init__(self, **kwargs):
@@ -45,6 +47,11 @@ class PreparePlugin:
         model_data['vxlan']['topology']['interfaces']['modes']['breakout'] = {}
         model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] = 0
 
+        loopback_id = []
+        if model_data['vxlan'].get('underlay', {}).get('general', {}).get('manual_underlay_allocation'):
+            loopback_id.append(model_data['vxlan']['underlay']['general']['underlay_routing_loopback_id'])
+            loopback_id.append(model_data['vxlan']['underlay']['general']['underlay_vtep_loopback_id'])
+
         # loop through interface modes and initialize with interface count 0
         for mode in self.mode_direct:
             model_data['vxlan']['topology']['interfaces']['modes'][mode] = {}
@@ -60,8 +67,18 @@ class PreparePlugin:
                 for interface_mode in self.mode_direct:
                     # if interface mode is a direct match, then increment the count for that mode
                     if interface_mode == interface.get('mode'):
-                        model_data['vxlan']['topology']['interfaces']['modes'][interface_mode]['count'] += 1
-                        model_data['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
+                        # Add special condition to exclude fabric loopback when manual_allocation is enabled
+                        # Match interface names like 'lo<ID>' or 'loopback<ID>', where <ID> is an integer
+                        loopback_regex = re.compile(r'^(lo|loopback)(\d+)$', re.IGNORECASE)
+                        if not (
+                            interface.get('mode') == 'fabric_loopback'
+                            and (
+                                loopback_regex.match(interface.get('name'))
+                                and int(loopback_regex.match(interface.get('name')).group(2)) in loopback_id
+                            )
+                        ):
+                            model_data['vxlan']['topology']['interfaces']['modes'][interface_mode]['count'] += 1
+                            model_data['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
                 # loop through interface modes indirect along with additional validation and count
                 if interface.get('mode') == 'access':
                     # if interface name starts with 'po' and has vpc_id, then it is a vpc access interface

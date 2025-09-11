@@ -45,7 +45,7 @@ ip access-list {{ ipv4_access_list["name"] | lower }}
                             {% set destination = entry[ "destination"].ip ~ " " ~ entry[ "destination"]["wildcard"] %}
                         {% elif entry[ "destination"].ip is defined  %}
                             {% if entry[ "destination"]["ip"] | ipaddr('hostmask') == '0.0.0.0' %}
-                                {% set destination = entry[ "destination"].ip | ipaddr('address')  %}
+                                {% set destination = entry[ "destination"].ip | ipaddr('address') ~ "/32" %}
                             {% else %}
                                 {% set destination = entry[ "destination"].ip | ipaddr('network') ~ " " ~ entry[ "destination"].ip | ipaddr('hostmask') %}
                             {% endif %}
