@@ -120,8 +120,8 @@ class ActionModule(ActionBase):
 
                     # is_intersection = set(vrf_attach_group_switches_mgmt_ip_addresses).intersection(set(child_fabric_switches_mgmt_ip_addresses))
 
+                    # If switch intersection is found, then process the VRF configuration for the child fabric
                     # if is_intersection:
-                        # If switch intersection is found, then process the VRF configuration for the child fabric
                     vrf_child_fabric = []
                     if vrf_child_fabrics:
                         vrf_child_fabric = [
