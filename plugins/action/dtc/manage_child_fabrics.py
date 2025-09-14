@@ -42,55 +42,56 @@ class ActionModule(ActionBase):
         child_fabrics = self._task.args['child_fabrics']
         state = self._task.args['state']
 
-        if state == 'present':
-            for fabric in child_fabrics:
-                json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric, fabric)
-                add_fabric_result = self._execute_module(
-                    module_name="cisco.dcnm.dcnm_rest",
-                    module_args={
-                        "method": "POST",
-                        "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdAdd",
-                        "json_data": json_data
-                    },
-                    task_vars=task_vars,
-                    tmp=tmp
-                )
+        if child_fabrics:
+            if state == 'present':
+                for fabric in child_fabrics:
+                    json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric, fabric)
+                    add_fabric_result = self._execute_module(
+                        module_name="cisco.dcnm.dcnm_rest",
+                        module_args={
+                            "method": "POST",
+                            "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdAdd",
+                            "json_data": json_data
+                        },
+                        task_vars=task_vars,
+                        tmp=tmp
+                    )
 
-                if add_fabric_result.get('failed'):
-                    results['failed'] = True
-                    results['msg'] = f"{add_fabric_result['msg']['MESSAGE']}: {add_fabric_result['msg']['DATA']}"
-                    break
+                    if add_fabric_result.get('failed'):
+                        results['failed'] = True
+                        results['msg'] = f"{add_fabric_result['msg']['MESSAGE']}: {add_fabric_result['msg']['DATA']}"
+                        break
 
-                # If a child fabric is successfully added under an MSD fabric set a flag
-                # indicating this so that it can be used later to prevent managing VRFs
-                # and Networks.  If we dont prevent this then the VRFs and Networks could
-                # be removed as part of moving the child fabric.
-                #
-                # TBD: This flag is not actually being used currently.  Discuss with team.
-                results['child_fabrics_moved'] = True
+                    # If a child fabric is successfully added under an MSD fabric set a flag
+                    # indicating this so that it can be used later to prevent managing VRFs
+                    # and Networks.  If we dont prevent this then the VRFs and Networks could
+                    # be removed as part of moving the child fabric.
+                    #
+                    # TBD: This flag is not actually being used currently.  Discuss with team.
+                    results['child_fabrics_moved'] = True
 
-                results['changed'] = True
+                    results['changed'] = True
 
-        if state == 'absent':
-            for fabric in child_fabrics:
-                json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric, fabric)
-                remove_fabric_result = self._execute_module(
-                    module_name="cisco.dcnm.dcnm_rest",
-                    module_args={
-                        "method": "POST",
-                        "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdExit",
-                        "json_data": json_data
-                    },
-                    task_vars=task_vars,
-                    tmp=tmp
-                )
+            if state == 'absent':
+                for fabric in child_fabrics:
+                    json_data = '{"destFabric":"%s","sourceFabric":"%s"}' % (parent_fabric, fabric)
+                    remove_fabric_result = self._execute_module(
+                        module_name="cisco.dcnm.dcnm_rest",
+                        module_args={
+                            "method": "POST",
+                            "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msdExit",
+                            "json_data": json_data
+                        },
+                        task_vars=task_vars,
+                        tmp=tmp
+                    )
 
-                if remove_fabric_result.get('failed'):
-                    results['failed'] = True
-                    results['msg'] = f"{remove_fabric_result['msg']['MESSAGE']}: {remove_fabric_result['msg']['DATA']}"
-                    break
+                    if remove_fabric_result.get('failed'):
+                        results['failed'] = True
+                        results['msg'] = f"{remove_fabric_result['msg']['MESSAGE']}: {remove_fabric_result['msg']['DATA']}"
+                        break
 
-                results['changed'] = True
+                    results['changed'] = True
 
         return results
 

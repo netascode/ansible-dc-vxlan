@@ -54,10 +54,64 @@ class ActionModule(ActionBase):
             tmp=tmp
         )
 
+        # Response example:
+        # {
+        #     'changed': False,
+        #     'response': {
+        #         'RETURN_CODE': 200,
+        #         'METHOD': 'GET',
+        #         'REQUEST_PATH': 'https://10.15.0.110:443/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations',
+        #         'MESSAGE': 'OK',
+        #         'DATA': [
+        #             {
+        #                 'fabricId': 2,
+        #                 'fabricName': 'nac-ibgp-fabric1',
+        #                 'fabricType': 'Switch_Fabric',
+        #                 'fabricState': 'member',
+        #                 'fabricParent': 'msd',
+        #                 'fabricTechnology': 'VXLANFabric'
+        #             },
+        #             {
+        #                 'fabricId': 3,
+        #                 'fabricName': 'nac-ibgp-fabric2',
+        #                 'fabricType': 'Switch_Fabric',
+        #                 'fabricState': 'member',
+        #                 'fabricParent': 'msd',
+        #                 'fabricTechnology': 'VXLANFabric'
+        #             },
+        #             {
+        #                 'fabricId': 4,
+        #                 'fabricName': 'nac-isn',
+        #                 'fabricType': 'External',
+        #                 'fabricState': 'member',
+        #                 'fabricParent': 'msd',
+        #                 'fabricTechnology': 'External'
+        #             },
+        #             {
+        #                 'fabricId': 5,
+        #                 'fabricName': 'msd',
+        #                 'fabricType': 'MSD',
+        #                 'fabricState': 'msd',
+        #                 'fabricParent': 'None',
+        #                 'fabricTechnology': 'VXLANFabric'
+        #             }
+        #         ]
+        #     },
+        #     'invocation': {
+        #         'module_args': {
+        #             'method': 'GET',
+        #             'path': '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations',
+        #             'data': None,
+        #             'urlencoded_data': None
+        #         }
+        #     },
+        #     '_ansible_parsed': True
+        # }
+
         # Build a list of child fabrics that are associated with the parent fabric (MSD)
         associated_child_fabrics = []
         for fabric in msd_fabric_associations.get('response').get('DATA'):
-            if fabric.get('fabricParent') == parent_fabric:
+            if fabric.get('fabricParent') == 'msd':
                 associated_child_fabrics.append(fabric.get('fabricName'))
 
         # Can probably remove this as I don't think it will be used
