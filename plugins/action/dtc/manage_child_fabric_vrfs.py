@@ -86,26 +86,10 @@ class ActionModule(ActionBase):
             nd_patch_letter = match.group(2)
 
         vrfs = msite_data['overlay_attach_groups']['vrfs']
-        # vrf_attach_groups_dict = msite_data['overlay_attach_groups']['vrf_attach_groups']
 
         child_fabrics = msite_data['child_fabrics_data']
 
         for vrf in vrfs:
-            # import epdb; epdb.set_trace()
-            # vrf_attach_group_switches = []
-            # vrf_attach_group_switches_mgmt_ip_addresses = []
-            # if vrf_attach_groups_dict:
-            #     vrf_attach_group_switches = [
-            #         vrf_attach_group_dict['switches']
-            #         for vrf_attach_group_dict in vrf_attach_groups_dict
-            #         if vrf_attach_group_dict['name'] == vrf.get('vrf_attach_group')
-            #     ]
-
-            #     if vrf_attach_group_switches:
-            #         vrf_attach_group_switches_mgmt_ip_addresses = [
-            #             vrf_attach_group_switch['mgmt_ip_address']
-            #             for vrf_attach_group_switch in vrf_attach_group_switches[0]
-            #         ]
 
             vrf_child_fabrics = vrf.get('child_fabrics', [])
 
@@ -115,13 +99,7 @@ class ActionModule(ActionBase):
                 child_fabric_type = child_fabrics[child_fabric]['type']
                 if child_fabric_type in ['Switch_Fabric']:
                     child_fabric_attributes = child_fabrics[child_fabric]['attributes']
-                    # child_fabric_switches = child_fabrics[child_fabric]['switches']
-                    # child_fabric_switches_mgmt_ip_addresses = [child_fabric_switch['mgmt_ip_address'] for child_fabric_switch in child_fabric_switches]
 
-                    # is_intersection = set(vrf_attach_group_switches_mgmt_ip_addresses).intersection(set(child_fabric_switches_mgmt_ip_addresses))
-
-                    # If switch intersection is found, then process the VRF configuration for the child fabric
-                    # if is_intersection:
                     vrf_child_fabric = []
                     if vrf_child_fabrics:
                         vrf_child_fabric = [
@@ -208,9 +186,7 @@ class ActionModule(ActionBase):
 
                         # Combine task_vars with local_vars for template rendering
                         vrf_vars = {}
-                        # vrf_vars.update({'vrf_vars': {}})
                         vrf_vars.update({'fabric_name': ndfc_vrf_response_data['fabric']})
-                        # vrf_vars['vrf_vars'] = {**vrf, **ndfc_vrf_vrf_template_config}
                         vrf_vars.update(
                             {
                                 'ndfc': ndfc_vrf_template_config,

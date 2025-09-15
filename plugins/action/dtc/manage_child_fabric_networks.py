@@ -75,20 +75,10 @@ class ActionModule(ActionBase):
             nd_patch_letter = match.group(2)
 
         networks = msite_data['overlay_attach_groups']['networks']
-        # network_attach_groups_dict = msite_data['overlay_attach_groups']['network_attach_groups']
 
         child_fabrics = msite_data['child_fabrics_data']
 
         for network in networks:
-            # network_attach_group_switches = [
-            #     network_attach_groups_dict['switches']
-            #     for network_attach_groups_dict in network_attach_groups_dict
-            #     if network_attach_groups_dict['name'] == network['network_attach_group']
-            # ][0]
-            # network_attach_group_switches_mgmt_ip_addresses = [
-            #     network_attach_group_switch['mgmt_ip_address']
-            #     for network_attach_group_switch in network_attach_group_switches
-            # ]
 
             network_child_fabrics = network.get('child_fabrics', [])
 
@@ -98,13 +88,7 @@ class ActionModule(ActionBase):
                 child_fabric_type = child_fabrics[child_fabric]['type']
                 if child_fabric_type in ['Switch_Fabric']:
                     child_fabric_attributes = child_fabrics[child_fabric]['attributes']
-                    # child_fabric_switches = child_fabrics[child_fabric]['switches']
-                    # child_fabric_switches_mgmt_ip_addresses = [child_fabric_switch['mgmt_ip_address'] for child_fabric_switch in child_fabric_switches]
 
-                    # is_intersection = set(network_attach_group_switches_mgmt_ip_addresses).intersection(set(child_fabric_switches_mgmt_ip_addresses))
-
-                    # If switch intersection is found, then process the VRF configuration for the child fabric
-                    # if is_intersection:
                     network_child_fabric = []
                     if network_child_fabrics:
                         network_child_fabric = [
