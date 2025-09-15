@@ -1,0 +1,22 @@
+---
+# This NDFC fabric inventory no bootstrap config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% set vxlan = MD_Extended.vxlan %}
+{% if vxlan.fabric.type in ['VXLAN_EVPN', 'eBGP_VXLAN'] %}
+
+{# Include NDFC DC VXLAN EVPN Base Template #}
+{% include '/ndfc_inventory/common/fabric_inventory_no_bootstrap.j2' %}
+
+{% elif vxlan.fabric.type == 'ISN'%}
+
+{# Include NDFC ISN Base Template #}
+{% include '/ndfc_inventory/isn_fabric/isn_fabric_inventory_no_bootstrap.j2' %}
+
+{% elif vxlan.fabric.type == 'External' %}
+
+{# Include NDFC DC External Template #}
+{% include '/ndfc_inventory/dc_external_fabric/dc_external_fabric_inventory_no_bootstrap.j2' %}
+
+{# Supported fabric types are: DC VXLAN EVPN, eBGP_VXLAN, ISN and External #}
+{% endif %}

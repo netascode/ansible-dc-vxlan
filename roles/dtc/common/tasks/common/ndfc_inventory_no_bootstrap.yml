@@ -53,7 +53,7 @@
 
 - name: Build Fabric Switch Inventory List From Template
   ansible.builtin.template:
-    src: ndfc_inventory/common/fabric_inventory_no_bootstrap.j2
+    src: ndfc_inventory_no_bootstrap.j2
     dest: "{{ inv_file_path }}"
     mode: '0644'
   delegate_to: localhost
