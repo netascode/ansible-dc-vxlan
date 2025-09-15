@@ -23,7 +23,7 @@ issues: https://github.com/netascode/ansible-dc-vxlan/issues
 
 license_file: LICENSE
 
-tags: [cisco, ndfc, dcnm, nxos, networking, vxlan, evpn, nac, sac]
+tags: [cisco, dc, nd, ndfc, nxos, networking, vxlan, evpn, nac, sac]
 
 dependencies:
   "ansible.netcommon": ">=4.1.0"
