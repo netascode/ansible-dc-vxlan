@@ -23,11 +23,11 @@
 {%- for link in MD_Extended.vxlan.topology.fabric_links %}
 {%- if link.template is defined and link.source_device_mgmt_ip_address is defined and link.dest_device_mgmt_ip_address is defined %}
 
-  - dst_fabric: "{{ MD_Extended.vxlan.fabric.name | default('') }}"
+  - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     src_device: "{{ link.source_device_mgmt_ip_address }}"
-    src_interface: "{{ normalize_interface(link.source_interface | default('')) }}"
+    src_interface: "{{ normalize_interface(link.source_interface) }}"
     dst_device: "{{ link.dest_device_mgmt_ip_address }}"
-    dst_interface: "{{ normalize_interface(link.dest_interface | default('')) }}"
+    dst_interface: "{{ normalize_interface(link.dest_interface) }}"
     template: "{{ link.template }}"
     profile:
       admin_state: "{{ link.admin_state | default(defaults.vxlan.topology.fabric_links.admin_state | default('up')) }}"
