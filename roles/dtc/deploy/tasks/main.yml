@@ -53,6 +53,7 @@
     (vars_common_msd.changes_detected_fabric or
     vars_common_msd.changes_detected_vrfs or
     vars_common_msd.changes_detected_networks or
+    (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0) or
     vars_common_msd.changes_detected_bgw_anycast_vip)
 
 - name: Import ISN Fabric Role Tasks
