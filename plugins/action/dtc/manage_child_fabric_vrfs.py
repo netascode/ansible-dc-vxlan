@@ -43,11 +43,11 @@ MSD_CHILD_FABRIC_VRF_TEMPLATE = "/msd_child_fabric_vrf.j2"
 
 # Currently supported VRF template config keys and their mapping to data model keys
 VRF_TEMPLATE_CONFIG_MAP = {
-    'advertiseHostRouteFlag': {'dm_key': 'adv_host_routes', 'default': ''},
-    'advertiseDefaultRouteFlag': {'dm_key': 'adv_default_routes', 'default': ''},
-    'configureStaticDefaultRouteFlag': {'dm_key': 'config_static_default_route', 'default': ''},
+    'advertiseHostRouteFlag': {'dm_key': 'adv_host_routes', 'default': False},
+    'advertiseDefaultRouteFlag': {'dm_key': 'adv_default_routes', 'default': True},
+    'configureStaticDefaultRouteFlag': {'dm_key': 'config_static_default_route', 'default': True},
     'bgpPassword': {'dm_key': 'bgp_password', 'default': ''},
-    'bgpPasswordKeyType': {'dm_key': 'bgp_password_key_type', 'default': ''},
+    'bgpPasswordKeyType': {'dm_key': 'bgp_password_key_type', 'default': '3'},
     'ENABLE_NETFLOW': {'dm_key': 'netflow_enable', 'default': False},
     'NETFLOW_MONITOR': {'dm_key': 'netflow_monitor', 'default': ''},
     'trmEnabled': {'dm_key': 'trm_enable', 'default': False},
