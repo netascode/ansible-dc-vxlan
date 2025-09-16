@@ -168,16 +168,16 @@ class ActionModule(ActionBase):
                     # attributes that are configurable by the user in a child fabric.
                     # Note: This excludes IPv6 related attributes at this time as they are not yet supported fully in the data model.
                     diff_found = False
-                    for template_key, map_info in VRF_TEMPLATE_CONFIG_MAP.items():
+                    for ndfc_key, map_info in VRF_TEMPLATE_CONFIG_MAP.items():
                         dm_key = map_info['dm_key']
                         default = map_info['default']
-                        template_value = ndfc_vrf_template_config.get(template_key, default)
+                        ndfc_value = ndfc_vrf_template_config.get(ndfc_key, default)
                         dm_value = vrf_child_fabric.get(dm_key, default)
                         # Normalize boolean/string values for comparison
                         if isinstance(default, bool):
-                            template_value = str(template_value).lower()
+                            ndfc_value = str(ndfc_value).lower()
                             dm_value = str(dm_value).lower()
-                        if template_value != dm_value:
+                        if ndfc_value != dm_value:
                             diff_found = True
                             break
 

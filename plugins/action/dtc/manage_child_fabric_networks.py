@@ -46,7 +46,7 @@ NETWORK_TEMPLATE_CONFIG_MAP = {
     'ENABLE_NETFLOW': {'dm_key': 'netflow_enable', 'default': False},
     'VLAN_NETFLOW_MONITOR': {'dm_key': 'vlan_netflow_monitor', 'default': ''},
     'trmEnabled': {'dm_key': 'trm_enable', 'default': False},
-    'mcastGroup': {'dm_key': 'multicast_group_address', 'default': ''},
+    'mcastGroup': {'dm_key': 'multicast_group_address', 'default': '239.1.1.1'},
     'enableL3OnBorder': {'dm_key': 'l3gw_on_border', 'default': False},
 }
 
@@ -157,16 +157,16 @@ class ActionModule(ActionBase):
                     # attributes that are configurable by the user in a child fabric.
                     # Note: This excludes IPv6 related attributes at this time as they are not yet supported fully in the data model.
                     diff_found = False
-                    for template_key, map_info in NETWORK_TEMPLATE_CONFIG_MAP.items():
+                    for ndfc_key, map_info in NETWORK_TEMPLATE_CONFIG_MAP.items():
                         dm_key = map_info['dm_key']
                         default = map_info['default']
-                        template_value = ndfc_net_template_config.get(template_key, default)
+                        ndfc_value = ndfc_net_template_config.get(ndfc_key, default)
                         dm_value = network_child_fabric.get(dm_key, default)
                         # Normalize boolean/string values for comparison
                         if isinstance(default, bool):
-                            template_value = str(template_value).lower()
+                            ndfc_value = str(ndfc_value).lower()
                             dm_value = str(dm_value).lower()
-                        if template_value != dm_value:
+                        if ndfc_value != dm_value:
                             diff_found = True
                             break
 
