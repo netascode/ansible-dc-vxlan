@@ -2,9 +2,11 @@
 # This NDFC breakout interface data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
+
 {% for switch in MD_Extended.vxlan.topology.switches %}
 {% if switch.interface_breakouts is defined %}
 {% for breakout in switch.interface_breakouts %}
+{% if breakout.enable_during_bootstrap is defined and breakout.enable_during_bootstrap | ansible.builtin.bool %}
 {% if breakout.to is defined %}
 {% for port in range(breakout.from, breakout.to + 1) %}
 - name: Ethernet{{ breakout.module }}/{{ port }}
@@ -31,6 +33,7 @@
   deploy: true
   profile:
     map: {{ breakout.map }}
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}

@@ -23,12 +23,12 @@
 
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
-    changes_detected_interface_breakout: false
+    changes_detected_interface_breakout_preprov: false
   delegate_to: localhost
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "ndfc_interface_breakout.yml"
+    file_name: "ndfc_interface_breakout_preprov.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
@@ -53,21 +53,25 @@
 
 - name: Build Interface
   ansible.builtin.template:
-    src: ndfc_interfaces/ndfc_interface_breakout.j2
+    src: ndfc_interfaces/ndfc_interface_breakout_preprov.j2
     dest: "{{ path_name }}{{ file_name }}"
     mode: '0644'
   delegate_to: localhost
 
 - name: Initialize interface_breakout Var
   ansible.builtin.set_fact:
-    interface_breakout: []
+    interface_breakout_preprov: []
   delegate_to: localhost
 
-- name: Set interface_breakout Var
+- name: Set interface_breakout_preprov Var
   ansible.builtin.set_fact:
-    interface_breakout: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.breakout.count > 0
+    interface_breakout_preprov: "{{ lookup('file', path_name + file_name) | from_yaml }}"
+  when: MD_Extended.vxlan.topology.interfaces.modes.breakout_preprov.count > 0
   delegate_to: localhost
+
+- debug: msg="{{ interface_breakout_preprov }}"
+
+# - meta: end_play
 
 - name: Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
@@ -78,7 +82,7 @@
 
 - name: Set File Change Flag Based on File Diff Result
   ansible.builtin.set_fact:
-    changes_detected_interface_breakout: true
+    changes_detected_interface_breakout_preprov: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

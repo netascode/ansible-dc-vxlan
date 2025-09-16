@@ -19,7 +19,7 @@
 {% if MD_Extended.vxlan.global[simplified_fabric_type].bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.global[simplified_fabric_type].bootstrap.enable_bootstrap %}
 {#     ------------------------- #}
 {#     Switch POAP Section Start #}
-{% if switch.poap is defined and switch.poap.bootstrap %}
+{% if switch.poap is defined and (switch.poap.bootstrap | default(defaults.vxlan.topology.switches.poap.bootstrap) | ansible.builtin.bool) %}
 {% if poap_data[switch['serial_number']] is defined %}
 {% set pdata = poap_data[switch['serial_number']] %}
   poap:

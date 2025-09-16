@@ -47,6 +47,10 @@ class PreparePlugin:
         model_data['vxlan']['topology']['interfaces']['modes']['breakout'] = {}
         model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] = 0
 
+        # Initialize breakout preprovisioned interfaces
+        model_data['vxlan']['topology']['interfaces']['modes']['breakout_preprov'] = {}
+        model_data['vxlan']['topology']['interfaces']['modes']['breakout_preprov']['count'] = 0
+
         loopback_id = []
         if model_data['vxlan'].get('underlay', {}).get('general', {}).get('manual_underlay_allocation'):
             loopback_id.append(model_data['vxlan']['underlay']['general']['underlay_routing_loopback_id'])
@@ -112,12 +116,19 @@ class PreparePlugin:
 
             if switch.get('interface_breakouts'):
                 for breakout in switch.get('interface_breakouts'):
-                    if breakout.get('enable_during_bootstrap') is False:
+                    if breakout.get('enable_during_bootstrap') in [False, None]:
                         if breakout.get('to'):
                             nb_int = breakout['to'] - breakout['from']
                             model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += nb_int + 1
                         else:
                             model_data['vxlan']['topology']['interfaces']['modes']['breakout']['count'] += 1
+
+                    if breakout.get('enable_during_bootstrap') is True:
+                        if breakout.get('to'):
+                            nb_int = breakout['to'] - breakout['from']
+                            model_data['vxlan']['topology']['interfaces']['modes']['breakout_preprov']['count'] += nb_int + 1
+                        else:
+                            model_data['vxlan']['topology']['interfaces']['modes']['breakout_preprov']['count'] += 1
 
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']
