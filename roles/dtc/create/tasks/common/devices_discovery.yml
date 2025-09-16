@@ -25,17 +25,19 @@
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
-- ansible.builtin.set_fact:
+- name: Choose vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- name: Set vars_common_local for ISN
+- name: Choose vars_common Based On Fabric Type - ISN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- name: Set vars_common_local for External
+- name: Choose vars_common Based On Fabric Type - External
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
@@ -50,7 +52,9 @@
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
-  when: MD_Extended.vxlan.topology.switches | length > 0
+  when:
+    - MD_Extended.vxlan.topology.switches | length > 0
+    - vars_common_local.changes_detected_inventory
 
 - name: Allocate Underlay IP Address
   cisco.dcnm.dcnm_resource_manager:
@@ -60,6 +64,7 @@
   when:
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
+    - (vars_common_local.changes_detected_underlay_ip_address is defined and vars_common_local.changes_detected_underlay_ip_address)
 
 # With the addition of the Allocate Underlay IP Address change above we
 # cannot call cisco.dcnm.dcnm_inventory with save: true until after
@@ -77,6 +82,7 @@
     ansible_connect_timeout: 3000
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
+    - vars_common_local.changes_detected_inventory or (vars_common_local.changes_detected_underlay_ip_address is defined and vars_common_local.changes_detected_underlay_ip_address)
 
 - name: Create List of Switch Serial Numbers from Data Model
   ansible.builtin.set_fact:
