@@ -57,7 +57,7 @@
 # We need to also build an inventory list without bootstrap settings
 # This will be used for device removal.
 - name: Build ISN Fabric Switch Inventory List From Template - No Bootstrap
-  ansible.builtin.import_tasks: isn/ndfc_inventory_no_bootstrap.yml
+  ansible.builtin.import_tasks: common/ndfc_inventory_no_bootstrap.yml
 
 # ------------------------------------------------------------------------
 # Build ISN Fabric Breakout Interfaces List From Template
