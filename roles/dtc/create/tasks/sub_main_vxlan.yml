@@ -47,7 +47,7 @@
   ansible.builtin.import_tasks: common/devices.yml
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
-    - vars_common_vxlan.changes_detected_inventory
+    - vars_common_vxlan.changes_detected_inventory or vars_common_vxlan.changes_detected_underlay_ip_address
   tags: "{{ nac_tags.create_switches }}"
 
 - name: Manage iBGP VXLAN vPC Peering in Nexus Dashboard
