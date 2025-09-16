@@ -87,7 +87,7 @@
 - name: Set interface_breakout_remove Var
   ansible.builtin.set_fact:
     interface_breakout_remove: "{{ lookup('file', path_name + file_name_remove) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.breakout.count > 0
+  # when: MD_Extended.vxlan.topology.interfaces.modes.breakout.count > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
