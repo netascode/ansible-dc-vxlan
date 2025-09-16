@@ -2,18 +2,38 @@
 # This NDFC fabric links config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% for link in MD_Extended.vxlan.topology.fabric_links %}
-{% if link.template is defined %}
+
+{% macro normalize_interface(ifname) %}
+  {%- set ifname = ifname | string | lower -%}
+  {%- if ifname is match('^eth[0-9]') -%}
+    {%- set ifname = ifname | replace('eth', 'ethernet') -%}
+  {%- endif -%}
+  {%- if ifname is match('^e[0-9]') -%}
+    {%- set ifname = 'ethernet' ~ ifname[1:] -%}
+  {%- endif -%}
+  {%- if ifname.startswith('ethernet') -%}
+    {{- ifname | replace('ethernet', 'Ethernet') -}}
+  {%- else -%}
+    {{- ifname -}}
+  {%- endif -%}
+{% endmacro %}
+
+
+{%- if MD_Extended.vxlan.topology.fabric_links is defined and MD_Extended.vxlan.topology.fabric_links %}
+{%- for link in MD_Extended.vxlan.topology.fabric_links %}
+{%- if link.template is defined and link.source_device_mgmt_ip_address is defined and link.dest_device_mgmt_ip_address is defined %}
+
   - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     src_device: "{{ link.source_device_mgmt_ip_address }}"
-    src_interface: "{{ link.source_interface }}"
+    src_interface: "{{ normalize_interface(link.source_interface) }}"
     dst_device: "{{ link.dest_device_mgmt_ip_address }}"
-    dst_interface: "{{ link.dest_interface }}"
+    dst_interface: "{{ normalize_interface(link.dest_interface) }}"
     template: "{{ link.template }}"
     profile:
-        admin_state: "{{ link.admin_state | default(defaults.vxlan.topology.fabric_links.admin_state) }}"
-        mtu: "{{ link.mtu | default(defaults.vxlan.topology.fabric_links.mtu) }}"
-        peer1_description: "{{ link.source_description | default('') }}"
-        peer2_description: "{{ link.destination_description | default('') }}"
-{% endif %}
-{% endfor %}
+      admin_state: "{{ link.admin_state | default(defaults.vxlan.topology.fabric_links.admin_state) }}"
+      mtu: "{{ link.mtu | default(defaults.vxlan.topology.fabric_links.mtu) }}"
+      peer1_description: "{{ link.source_description | default('') }}"
+      peer2_description: "{{ link.destination_description | default('') }}"
+{%- endif %}
+{%- endfor %}
+{%- endif %}
