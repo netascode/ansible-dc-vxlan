@@ -69,10 +69,6 @@
   when: MD_Extended.vxlan.topology.interfaces.modes.breakout_preprov.count > 0
   delegate_to: localhost
 
-- debug: msg="{{ interface_breakout_preprov }}"
-
-# - meta: end_play
-
 - name: Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"
