@@ -6,7 +6,7 @@
 {% for switch in MD_Extended.vxlan.topology.switches %}
 {% if switch.interface_breakouts is defined %}
 {% for breakout in switch.interface_breakouts %}
-{% if not (breakout.enable_during_bootstrap | default(false)) %}
+{% if breakout.enable_during_bootstrap is defined and breakout.enable_during_bootstrap | ansible.builtin.bool %}
 {% if breakout.to is defined %}
 {% for port in range(breakout.from, breakout.to + 1) %}
 - name: Ethernet{{ breakout.module }}/{{ port }}
