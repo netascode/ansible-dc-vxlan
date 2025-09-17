@@ -44,7 +44,8 @@
     vars_common_vxlan.changes_detected_sub_interface_routed or
     vars_common_vxlan.changes_detected_vpc_peering or
     vars_common_vxlan.changes_detected_vrfs or
-    vars_common_vxlan.changes_detected_edge_connections)
+    vars_common_vxlan.changes_detected_edge_connections or
+    vars_common_vxlan.changes_detected_underlay_ip_address)
 
 - name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
