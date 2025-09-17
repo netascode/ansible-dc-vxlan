@@ -51,6 +51,7 @@
     skip_validation: "{{ True if MD_Extended.vxlan.fabric.type == 'ISN' else omit }}"
     config: "{{ vars_common_local.fabric_config }}"
 
+
 - name: Create ANYCAST_RP in Nexus Dashboard
   cisco.dcnm.dcnm_resource_manager:
     state: merged
@@ -60,7 +61,14 @@
         pool_type: "IP"
         pool_name: "ANYCAST_RP_IP_POOL"
         scope_type: "fabric"
-        resource: "{{ vxlan.underlay.multicast.ipv4.anycast_rp }}"
+        resource: >-
+          {{
+            vxlan.underlay.multicast.ipv6.anycast_rp
+            if vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay)
+            else vxlan.underlay.multicast.ipv4.anycast_rp
+          }}
   when:
     - vxlan.underlay.general.manual_underlay_allocation is defined
     - vxlan.underlay.general.manual_underlay_allocation
+    - vxlan.underlay.general.replication_mode is defined
+    - vxlan.underlay.general.replication_mode == "multicast"
