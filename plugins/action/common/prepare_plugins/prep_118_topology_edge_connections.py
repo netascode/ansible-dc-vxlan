@@ -37,7 +37,10 @@ class PreparePlugin:
         # management IP address from topology switches
         topology_switches = model_data['vxlan']['topology']['switches']
         for link in model_data['vxlan']['topology']['edge_connections']:
-            if any(sw['name'] == link['source_device'] for sw in topology_switches):
+            if "." in link['source_interface']:
+                self.kwargs['results']['failed'] = True
+                self.kwargs['results']['msg'] = "Sub interfaces not allowed to be used for edge connections"
+            elif any(sw['name'] == link['source_device'] for sw in topology_switches):
                 found_switch = next((item for item in topology_switches if item["name"] == link['source_device']))
                 if found_switch.get('management').get('management_ipv4_address'):
                     link['source_device_ip'] = found_switch['management']['management_ipv4_address']
