@@ -295,8 +295,7 @@ factory_defaults:
           group_subnet: 239.1.1.0/25
           authentication_enable: false
           trm_enable: false
-# not supported by the API calls used today
-#          trm_default_group: 239.1.1.0
+          trm_default_group: 239.1.1.0
         ipv6:
           group_subnet: ff1e::/121
           trmv6_enable: false
