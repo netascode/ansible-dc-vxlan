@@ -86,18 +86,20 @@
   ansible.builtin.set_fact:
     file_name: "ndfc_attach_network_switches_ports.yml"
     file_name2: "ndfc_attach_network_switches.yml"
+    switches: []
+    networks: []
     network_switches: []
     network_switches_ports: []
   delegate_to: localhost
 
-- name: Build VRFs Attach List for switches From Template
+- name: Build Network Attach List for switches From Template
   ansible.builtin.template:
     src: "{{ role_path }}/../common/templates/ndfc_networks/mfd_fabric/ndfc_attach_networks_switches.j2"
     dest: "{{ path_name }}{{ file_name }}"
     mode: '0644'
   delegate_to: localhost
 
-- name: Build VRFs Attach List for switches and ports From Template
+- name: Build Network Attach List for switches and ports From Template
   ansible.builtin.template:
     src: "{{ role_path }}/../common/templates/ndfc_networks/mfd_fabric/ndfc_attach_networks_switches_ports.j2"
     dest: "{{ path_name }}{{ file_name2 }}"
