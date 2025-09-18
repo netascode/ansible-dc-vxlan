@@ -152,7 +152,7 @@
     method: "POST"
     json_data: "{{ vars_common_mfd.network_switches | to_json }}"
   when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined and vars_common_mfd.changes_detected_networks
+    - MD_Extended.vxlan.multisite.overlay.networks is defined and vars_common_mfd.changes_detected_networks and vars_common_mfd.network_switches != []
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Attach network to switches and ports for all networks
