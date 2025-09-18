@@ -59,7 +59,7 @@
 - name: Set interface_all Var
   ansible.builtin.set_fact:
     interface_all: "{{
-      interface_breakout_remove +
+      (interface_breakout_remove | default([]) | list) +
       interface_access +
       interface_access_po +
       interface_trunk +
