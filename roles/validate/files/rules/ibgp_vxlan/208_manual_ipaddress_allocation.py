@@ -137,10 +137,12 @@ class Rule:
             ipv4_config = link.get("ipv4", {})
 
             # Check IPv4 configuration
-            if not ipv4_config or not ipv4_config.get("subnet") or not ipv4_config.get("source_ipv4") or not ipv4_config.get("dest_ipv4"):
-                cls.results.append(
-                    f"Fabric link between '{source_device}' and '{dest_device}' is missing a valid IPv4 configuration."
-                )
+            if ipv4_config != {}:
+                # Check IPv4 configuration
+                if not ipv4_config or not ipv4_config.get("subnet") or not ipv4_config.get("source_ipv4") or not ipv4_config.get("dest_ipv4"):
+                    cls.results.append(
+                        f"Fabric link between '{source_device}' and '{dest_device}' is missing a valid IPv4 configuration."
+                    )
 
         # Check if vpc_peers is on fabric_link
         vpc_peers = cls.safeget(inventory, ["vxlan", "topology", "vpc_peers"])
