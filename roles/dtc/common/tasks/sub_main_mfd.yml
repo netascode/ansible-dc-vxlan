@@ -83,7 +83,7 @@
       switches_in_fabric: "{{ switches_in_fabric }}"
       net_config: "{{ net_config }}"
       network_switches: "{{ network_switches }}"
-      network_switches_ports: "{{ network_switches_ports }}"            
+      network_switches_ports: "{{ network_switches_ports }}"
       vrf_config: "{{ vrf_config }}"
       vrf_attach_config: "{{ vrf_attach_config }}"
 - name: Run Diff Flags
