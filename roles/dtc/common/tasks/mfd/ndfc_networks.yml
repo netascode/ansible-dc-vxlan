@@ -86,8 +86,8 @@
   ansible.builtin.set_fact:
     file_name: "ndfc_attach_network_switches_ports.yml"
     file_name2: "ndfc_attach_network_switches.yml"
-    switches: []
-    networks: []
+    switches: []  # check why this is defined here to be used in the template
+    networks: []  # same for this
     network_switches: []
     network_switches_ports: []
   delegate_to: localhost
