@@ -54,6 +54,7 @@
   register: dcnm_vrf_existing
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
+    - MD_Extended.vxlan.multisite.overlay.vrfs
     - vars_common_mfd.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
@@ -64,6 +65,7 @@
     loop_var: vrf
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
+    - MD_Extended.vxlan.multisite.overlay.vrfs
     - vars_common_mfd.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
@@ -78,6 +80,7 @@
     json_data: "{{ vars_common_mfd.vrf_attach_config | to_json }}"
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
+    - MD_Extended.vxlan.multisite.overlay.vrfs
     - vars_common_mfd.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
@@ -88,6 +91,7 @@
   register: vrfAttachmentList
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
+    - MD_Extended.vxlan.multisite.overlay.vrfs
     - vars_common_mfd.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
@@ -100,6 +104,7 @@
   register: not_required_vrfs
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
+    - MD_Extended.vxlan.multisite.overlay.vrfs
     - vars_common_mfd.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
@@ -111,6 +116,7 @@
   register: vrf_attachment_result
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
+    - MD_Extended.vxlan.multisite.overlay.vrfs
     - vars_common_mfd.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
@@ -122,6 +128,7 @@
   register: child_fabric_vrf_results
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
+    - MD_Extended.vxlan.multisite.overlay.vrfs
     - vars_common_mfd.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
@@ -134,7 +141,9 @@
     path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/networks"
   register: fed_networks_existing
   when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined and vars_common_mfd.changes_detected_networks
+    - MD_Extended.vxlan.multisite.overlay.networks is defined
+    - MD_Extended.vxlan.multisite.overlay.networks
+    - vars_common_mfd.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage NDFC Fabric Networks for Federated
@@ -143,7 +152,9 @@
   loop_control:
     loop_var: network
   when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined and vars_common_mfd.changes_detected_networks
+    - MD_Extended.vxlan.multisite.overlay.networks is defined
+    - MD_Extended.vxlan.multisite.overlay.networks
+    - vars_common_mfd.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Attach switches for all networks
@@ -152,7 +163,9 @@
     method: "POST"
     json_data: "{{ vars_common_mfd.network_switches | to_json }}"
   when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined and vars_common_mfd.changes_detected_networks and vars_common_mfd.network_switches != []
+    - MD_Extended.vxlan.multisite.overlay.networks is defined
+    - MD_Extended.vxlan.multisite.overlay.networks
+    - vars_common_mfd.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Attach network to switches and ports for all networks
@@ -161,7 +174,9 @@
     method: "POST"
     json_data: "{{ vars_common_mfd.network_switches_ports | to_json }}"
   when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined and vars_common_mfd.changes_detected_networks
+    - MD_Extended.vxlan.multisite.overlay.networks is defined
+    - MD_Extended.vxlan.multisite.overlay.networks
+    - vars_common_mfd.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Get network attachments list
@@ -170,7 +185,9 @@
     path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/networks/attachments
   register: networkAttachmentList
   when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined and vars_common_mfd.changes_detected_networks
+    - MD_Extended.vxlan.multisite.overlay.networks is defined
+    - MD_Extended.vxlan.multisite.overlay.networks
+    - vars_common_mfd.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Filter network attachments to be removed
@@ -181,7 +198,9 @@
     check_type: "network_attach"
   register: network_attachments_payload
   when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined and vars_common_mfd.changes_detected_networks
+    - MD_Extended.vxlan.multisite.overlay.networks is defined
+    - MD_Extended.vxlan.multisite.overlay.networks
+    - vars_common_mfd.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Attach network to switches and ports for all networks
@@ -190,7 +209,9 @@
     path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/networks/attachments
     json_data: "{{ network_attachments_payload.attachments_payload | to_json }}"
   when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined and vars_common_mfd.changes_detected_networks
+    - MD_Extended.vxlan.multisite.overlay.networks is defined
+    - MD_Extended.vxlan.multisite.overlay.networks
+    - vars_common_mfd.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage NDFC Child Fabric Networks
