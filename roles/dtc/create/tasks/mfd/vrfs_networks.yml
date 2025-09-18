@@ -155,7 +155,6 @@
     json_data: "{{ vars_common_mfd.network_switches | to_json }}"
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
-    - vars_common_mfd.network_switches is defined
     - vars_common_mfd.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
@@ -166,7 +165,6 @@
     json_data: "{{ vars_common_mfd.network_switches_ports | to_json }}"
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
-    - vars_common_mfd.network_switches_ports is defined
     - vars_common_mfd.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
@@ -199,7 +197,6 @@
     json_data: "{{ network_attachments_payload.attachments_payload | to_json }}"
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
-    - vars_common_mfd.network_switches_ports is defined
     - vars_common_mfd.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
@@ -210,4 +207,3 @@
     fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
   register: child_fabric_network_results
   tags: "{{ nac_tags.create_vrfs_networks }}"
-  
