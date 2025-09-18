@@ -11,7 +11,6 @@ class Rule:
         fabric_type_map = {
                 "VXLAN_EVPN": "ibgp",
                 "eBGP_VXLAN": "ebgp",
-                "External": "external"
             }
 
         fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
@@ -21,7 +20,7 @@ class Rule:
             end_keys = ['vxlan', 'global', fabric_type, key, 'to']
             check = cls.data_model_key_check(data_model, ['vxlan', 'global', fabric_type, key])
             if key in check['keys_not_found']:
-                if fabric_type in ['ibgp', 'external']:
+                if fabric_type in ['ibgp']:
                     check = cls.data_model_key_check(data_model, ['vxlan', 'global', key])
                     if key in check['keys_found']:
                         start_keys = ['vxlan', 'global', key, 'from']
@@ -35,7 +34,7 @@ class Rule:
         return cls.results
 
     @classmethod
-    def check_ranges(cls, start_keys, end_keys,check_key, range_type, data):
+    def check_ranges(cls, start_keys, end_keys, check_key, range_type, data):
         # start_keys = ['vxlan', 'global', check_key, 'from']
         # end_keys = ['vxlan', 'global', check_key, 'to']
         check_start = cls.data_model_key_check(data, start_keys)
