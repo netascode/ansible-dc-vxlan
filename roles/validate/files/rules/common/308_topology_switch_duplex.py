@@ -4,14 +4,14 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         switches = []
 
         # Check for the 'switches' key in the data model
-        dm_check = cls.data_model_key_check(inventory, ['vxlan', 'topology', 'switches'])
+        dm_check = cls.data_model_key_check(data_model, ['vxlan', 'topology', 'switches'])
         if 'switches' in dm_check['keys_data']:
-            switches = inventory['vxlan']['topology']['switches']
+            switches = data_model['vxlan']['topology']['switches']
 
         # Iterate through switches and their interfaces
         for switch in switches:

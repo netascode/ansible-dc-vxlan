@@ -34,7 +34,7 @@ class Rule:
     results = []
 
     @classmethod
-    def match(cls, data):
+    def match(cls, data_model):
         """
         function used by iac-validate
         """
@@ -45,12 +45,12 @@ class Rule:
         static_routes_compliance = []
 
         # Get fabric switches
-        if data.get("vxlan", {}).get("topology", {}).get("switches") is not None:
-            topology_switches = data["vxlan"]["topology"]["switches"]
+        if data_model.get("vxlan", {}).get("topology", {}).get("switches") is not None:
+            topology_switches = data_model["vxlan"]["topology"]["switches"]
 
         # Get vrf-lites policies
-        if data.get("vxlan", {}).get("overlay_extensions", {}).get("vrf_lites") is not None:
-            vrf_lites = data["vxlan"]["overlay_extensions"]["vrf_lites"]
+        if data_model.get("vxlan", {}).get("overlay_extensions", {}).get("vrf_lites") is not None:
+            vrf_lites = data_model["vxlan"]["overlay_extensions"]["vrf_lites"]
 
         # Check Global Level
         for policy in vrf_lites:
@@ -65,7 +65,7 @@ class Rule:
                         cls.check_switch_level(
                             switch_policy,
                             policy,
-                            data["vxlan"]["global"]["bgp_asn"],
+                            data_model["vxlan"]["global"]["bgp_asn"],
                             topology_switches,
                             static_routes_compliance,
                         )

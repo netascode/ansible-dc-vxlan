@@ -27,14 +27,12 @@ class Rule:
     """
 
     id = "502"
-    description = (
-        "Verify VRF-Lites Cross Reference Between Policies, Groups, and Switches"
-    )
+    description = "Verify VRF-Lites Cross Reference Between Policies, Groups, and Switches"
     severity = "HIGH"
     results = []
 
     @classmethod
-    def match(cls, data):
+    def match(cls, data_model):
         """
         function used by iac-validate
         """
@@ -44,17 +42,17 @@ class Rule:
         switch_policy = []
         static_routes_compliance = []
 
-        if data.get("vxlan", {}).get("fabric", {}).get("type") == "eBGP_VXLAN":
+        if data_model.get("vxlan", {}).get("fabric", {}).get("type") == "eBGP_VXLAN":
             cls.results.append("VRF-Lite is not supported for eBGP_VXLAN yet.")
             return cls.results
 
         # Get fabric switches
-        if data.get("vxlan", {}).get("topology", {}).get("switches") is not None:
-            topology_switches = data["vxlan"]["topology"]["switches"]
+        if data_model.get("vxlan", {}).get("topology", {}).get("switches") is not None:
+            topology_switches = data_model["vxlan"]["topology"]["switches"]
 
         # Get vrf-lites policies
-        if data.get("vxlan", {}).get("overlay_extensions", {}).get("vrf_lites") is not None:
-            vrf_lites = data["vxlan"]["overlay_extensions"]["vrf_lites"]
+        if data_model.get("vxlan", {}).get("overlay_extensions", {}).get("vrf_lites") is not None:
+            vrf_lites = data_model["vxlan"]["overlay_extensions"]["vrf_lites"]
 
         # Check Global Level
         for policy in vrf_lites:
@@ -71,10 +69,10 @@ class Rule:
                         "VXLAN_EVPN": "ibgp",
                         "External": "external"
                     }
-                    fabric_type = fabric_type_map.get(data["vxlan"]["fabric"].get("type"))
-                    bgp_asn = cls.safeget(data, ["vxlan", "global", fabric_type, "bgp_asn"]) if fabric_type else None
+                    fabric_type = fabric_type_map.get(data_model["vxlan"]["fabric"].get("type"))
+                    bgp_asn = cls.safeget(data_model, ["vxlan", "global", fabric_type, "bgp_asn"]) if fabric_type else None
                     if bgp_asn is None:
-                        bgp_asn = cls.safeget(data, ["vxlan", "global", "bgp_asn"])
+                        bgp_asn = cls.safeget(data_model, ["vxlan", "global", "bgp_asn"])
                     for switch_policy in policy["switches"]:
                         cls.check_switch_level(
                             switch_policy,
