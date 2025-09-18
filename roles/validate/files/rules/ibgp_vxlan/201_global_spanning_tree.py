@@ -10,7 +10,7 @@ class Rule:
         stp_keys = ['vxlan', 'global', 'ibgp', 'spanning_tree']
         check = cls.data_model_key_check(data_model, stp_keys)
         # Backwards compatibility check for vxlan.global.spanning_tree
-        if 'spanning_tree' in check['keys_not_found']:
+        if 'spanning_tree' in check['keys_not_found'] and 'ibgp' in check['keys_found']:
             stp_keys = ['vxlan', 'global', 'spanning_tree']
             check = cls.data_model_key_check(data_model, stp_keys)
 
