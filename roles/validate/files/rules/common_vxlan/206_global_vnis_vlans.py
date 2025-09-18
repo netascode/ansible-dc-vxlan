@@ -6,17 +6,38 @@ class Rule:
     results = []
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
+        # Map fabric types to the keys used in the data model based on controller fabric types
+        fabric_type_map = {
+                "VXLAN_EVPN": "ibgp",
+                "eBGP_VXLAN": "ebgp",
+                "External": "external"
+            }
+
+        fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
 
         for key in ['layer2_vni_range', 'layer3_vni_range', 'layer2_vlan_range', 'layer3_vlan_range']:
-            cls.check_ranges(key, 'VNI' if 'vni' in key else 'VLAN', inventory)
+            start_keys = ['vxlan', 'global', fabric_type, key, 'from']
+            end_keys = ['vxlan', 'global', fabric_type, key, 'to']
+            check = cls.data_model_key_check(data_model, ['vxlan', 'global', fabric_type, key])
+            if key in check['keys_not_found']:
+                if fabric_type in ['ibgp', 'external']:
+                    check = cls.data_model_key_check(data_model, ['vxlan', 'global', key])
+                    if key in check['keys_found']:
+                        start_keys = ['vxlan', 'global', key, 'from']
+                        end_keys = ['vxlan', 'global', key, 'to']
+                if fabric_type in ['ebgp']:
+                    cls.results.append("VNI and VLAN ranges for eBGP VXLAN fabrics must be defined under vxlan.global.ebgp.")
+                    return cls.results
+
+            cls.check_ranges(start_keys, end_keys,key, 'VNI' if 'vni' in key else 'VLAN', data_model)
 
         return cls.results
 
     @classmethod
-    def check_ranges(cls, check_key, range_type, data):
-        start_keys = ['vxlan', 'global', check_key, 'from']
-        end_keys = ['vxlan', 'global', check_key, 'to']
+    def check_ranges(cls, start_keys, end_keys,check_key, range_type, data):
+        # start_keys = ['vxlan', 'global', check_key, 'from']
+        # end_keys = ['vxlan', 'global', check_key, 'to']
         check_start = cls.data_model_key_check(data, start_keys)
         check_end = cls.data_model_key_check(data, end_keys)
 

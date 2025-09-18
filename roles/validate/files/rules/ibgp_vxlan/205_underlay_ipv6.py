@@ -4,21 +4,21 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
 
         enable_ipv6_underlay_keys = ['vxlan', 'underlay', 'general', 'enable_ipv6_underlay']
-        check = cls.data_model_key_check(inventory, enable_ipv6_underlay_keys)
+        check = cls.data_model_key_check(data_model, enable_ipv6_underlay_keys)
         if (
             ('enable_ipv6_underlay' in check['keys_found']) and
             ('enable_ipv6_underlay' in check['keys_data'])
         ):
-            enable_ipv6_underlay = inventory["vxlan"]["underlay"]["general"]["enable_ipv6_underlay"]
+            enable_ipv6_underlay = data_model["vxlan"]["underlay"]["general"]["enable_ipv6_underlay"]
 
             # Check if IPv6 is enabled and if so, ensure BFD settings are not configured
             for item in ['enable', 'ospf', 'isis', 'ibgp', 'pim']:
                 underlay_bfd_keys = ['vxlan', 'underlay', 'bfd', item]
-                check = cls.data_model_key_check(inventory, underlay_bfd_keys)
+                check = cls.data_model_key_check(data_model, underlay_bfd_keys)
                 if (
                     ('bfd' in check['keys_found']) and
                     (item in check['keys_found']) and
@@ -32,8 +32,20 @@ class Rule:
 
                     return results
 
-            netflow_keys = ['vxlan', 'global', 'netflow', 'enable']
-            check = cls.data_model_key_check(inventory, netflow_keys)
+            # Map fabric types to the keys used in the data model based on controller fabric types
+            fabric_type_map = {
+                    "VXLAN_EVPN": "ibgp"
+                }
+
+            fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
+
+            netflow_keys = ['vxlan', 'global', fabric_type, 'netflow', 'enable']
+            check = cls.data_model_key_check(data_model, netflow_keys)
+            # Backwards compatibility check for vxlan.global.netflow.enable
+            if 'enable' in check['keys_not_found']:
+                netflow_keys = ['vxlan', 'global', 'netflow', 'enable']
+                check = cls.data_model_key_check(data_model, netflow_keys)
+
             if (
                 ('netflow' in check['keys_found']) and
                 ('enable' in check['keys_found']) and
@@ -41,23 +53,23 @@ class Rule:
                 (enable_ipv6_underlay)
             ):
                 results.append(
-                    "vxlan.global.netflow.enable should not be configured when "
-                    "vxlan.underlay.general.enable_ipv6_underlay is configured as true. "
+                    f"vxlan.global.{fabric_type}.netflow.enable should not be configured when "
+                    f"vxlan.underlay.general.enable_ipv6_underlay is configured as true. "
                 )
 
                 return results
 
         ipv6_link_local_keys = ['vxlan', 'underlay', 'ipv6', 'enable_ipv6_link_local_address']
-        check = cls.data_model_key_check(inventory, ipv6_link_local_keys)
+        check = cls.data_model_key_check(data_model, ipv6_link_local_keys)
         if (
             ('enable_ipv6_link_local_address' in check['keys_found']) and
             ('enable_ipv6_link_local_address' in check['keys_data'])
         ):
-            enable_ipv6_link_local_address = inventory["vxlan"]["underlay"]["ipv6"]["enable_ipv6_link_local_address"]
+            enable_ipv6_link_local_address = data_model["vxlan"]["underlay"]["ipv6"]["enable_ipv6_link_local_address"]
 
             # Check if IPv6 link local address is enabled and if so, ensure IPv6 subnet mask is not configured
             ipv6_subnet_mask_keys = ['vxlan', 'underlay', 'ipv6', 'underlay_subnet_mask']
-            check = cls.data_model_key_check(inventory, ipv6_subnet_mask_keys)
+            check = cls.data_model_key_check(data_model, ipv6_subnet_mask_keys)
             if (
                 ('underlay_subnet_mask' in check['keys_found']) and
                 ('underlay_subnet_mask' in check['keys_data']) and
@@ -72,7 +84,7 @@ class Rule:
 
             # Check if IPv6 link local address is enabled and if so, ensure IPv6 subnet IP range is not configured
             ipv6_subnet_ip_range_keys = ['vxlan', 'underlay', 'ipv6', 'underlay_subnet_ip_range']
-            check = cls.data_model_key_check(inventory, ipv6_subnet_ip_range_keys)
+            check = cls.data_model_key_check(data_model, ipv6_subnet_ip_range_keys)
             if (
                 ('underlay_subnet_ip_range' in check['keys_found']) and
                 ('underlay_subnet_ip_range' in check['keys_data']) and

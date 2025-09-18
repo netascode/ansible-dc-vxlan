@@ -4,20 +4,53 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
-        if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("global", None):
-                if inventory["vxlan"].get("global", None).get("spanning_tree", None):
-                    root_bridge_protocol = inventory["vxlan"]["global"]["spanning_tree"].get("root_bridge_protocol", None)
-                    vlan_range = inventory["vxlan"]["global"]["spanning_tree"].get("vlan_range", None)
-                    mst_instance_range = inventory["vxlan"]["global"]["spanning_tree"].get("mst_instance_range", None)
 
-                    if vlan_range and mst_instance_range:
-                        results.append(
-                            "vxlan.global.spanning_tree.vlan_range and vxlan.global.spanning_tree.mst_instance_range "
-                            "both cannot be configured at the same time. Please choose one depending on the "
-                            "vxlan.global.spanning_tree.root_bridge_protocol selected."
-                        )
+        stp_keys = ['vxlan', 'global', 'ibgp', 'spanning_tree']
+        check = cls.data_model_key_check(data_model, stp_keys)
+        # Backwards compatibility check for vxlan.global.spanning_tree
+        if 'spanning_tree' in check['keys_not_found']:
+            stp_keys = ['vxlan', 'global', 'spanning_tree']
+            check = cls.data_model_key_check(data_model, stp_keys)
+
+        root_bridge_protocol = cls.safeget(data_model, stp_keys + ['root_bridge_protocol'])
+        vlan_range = cls.safeget(data_model, stp_keys + ['vlan_range'])
+        mst_instance_range = cls.safeget(data_model, stp_keys + ['mst_instance_range'])
+
+        if vlan_range and mst_instance_range:
+            results.append(
+                "vxlan.global.ibgp.spanning_tree.vlan_range and vxlan.global.ibgp.spanning_tree.mst_instance_range "
+                "both cannot be configured at the same time. Please choose one depending on the "
+                "vxlan.global.ibgp.spanning_tree.root_bridge_protocol selected."
+            )
 
         return results
+
+    @classmethod
+    def data_model_key_check(cls, tested_object, keys):
+        dm_key_dict = {'keys_found': [], 'keys_not_found': [], 'keys_data': [], 'keys_no_data': []}
+        for key in keys:
+            if tested_object and key in tested_object:
+                dm_key_dict['keys_found'].append(key)
+                tested_object = tested_object[key]
+                if tested_object:
+                    dm_key_dict['keys_data'].append(key)
+                else:
+                    dm_key_dict['keys_no_data'].append(key)
+            else:
+                dm_key_dict['keys_not_found'].append(key)
+        return dm_key_dict
+
+    @classmethod
+    def safeget(cls, dict, keys):
+        # Utility function to safely get nested dictionary values
+        for key in keys:
+            if dict is None:
+                return None
+            if key in dict:
+                dict = dict[key]
+            else:
+                return None
+
+        return dict

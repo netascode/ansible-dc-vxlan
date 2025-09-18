@@ -154,3 +154,5 @@
 - name: Manage Current Service Model Data Files
   ansible.builtin.import_tasks: manage_model_files_current.yml
   when: check_roles['save_previous']
+
+- ansible.builtin.meta: end_play
