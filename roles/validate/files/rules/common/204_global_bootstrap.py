@@ -8,7 +8,7 @@ class Rule:
         results = []
         dhcp = None
 
-       # Map fabric types to the keys used in the data model based on controller fabric types
+        # Map fabric types to the keys used in the data model based on controller fabric types
         fabric_type_map = {
             "VXLAN_EVPN": "ibgp",
             "eBGP_VXLAN": "ebgp",
