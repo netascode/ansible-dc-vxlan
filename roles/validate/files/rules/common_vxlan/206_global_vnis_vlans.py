@@ -9,9 +9,9 @@ class Rule:
     def match(cls, data_model):
         # Map fabric types to the keys used in the data model based on controller fabric types
         fabric_type_map = {
-                "VXLAN_EVPN": "ibgp",
-                "eBGP_VXLAN": "ebgp",
-            }
+            "VXLAN_EVPN": "ibgp",
+            "eBGP_VXLAN": "ebgp",
+        }
 
         fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
 
@@ -29,7 +29,7 @@ class Rule:
                     cls.results.append("VNI and VLAN ranges for eBGP VXLAN fabrics must be defined under vxlan.global.ebgp.")
                     return cls.results
 
-            cls.check_ranges(start_keys, end_keys,key, 'VNI' if 'vni' in key else 'VLAN', data_model)
+            cls.check_ranges(start_keys, end_keys, key, 'VNI' if 'vni' in key else 'VLAN', data_model)
 
         return cls.results
 

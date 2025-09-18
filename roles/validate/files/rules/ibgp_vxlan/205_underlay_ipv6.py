@@ -34,8 +34,8 @@ class Rule:
 
             # Map fabric types to the keys used in the data model based on controller fabric types
             fabric_type_map = {
-                    "VXLAN_EVPN": "ibgp"
-                }
+                "VXLAN_EVPN": "ibgp"
+            }
 
             fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
 
