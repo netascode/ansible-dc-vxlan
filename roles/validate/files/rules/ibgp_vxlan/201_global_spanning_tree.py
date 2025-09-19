@@ -7,10 +7,11 @@ class Rule:
     def match(cls, data_model):
         results = []
 
-        stp_keys = ['vxlan', 'global', 'ibgp', 'spanning_tree']
+        stp_keys = ['vxlan', 'global', 'ibgp']
         check = cls.data_model_key_check(data_model, stp_keys)
+        stp_keys.append('spanning_tree')
+        if 'ibgp' in check['keys_not_found'] or cls.safeget(data_model, stp_keys) is None:
         # Backwards compatibility check for vxlan.global.spanning_tree
-        if 'spanning_tree' in check['keys_not_found'] and 'ibgp' in check['keys_found']:
             stp_keys = ['vxlan', 'global', 'spanning_tree']
             check = cls.data_model_key_check(data_model, stp_keys)
 

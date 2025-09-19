@@ -20,8 +20,6 @@ class Rule:
             end_keys = ['vxlan', 'global', fabric_type, key, 'to']
             fabric_global_key = ['vxlan', 'global', fabric_type]
             check = cls.data_model_key_check(data_model, fabric_global_key)
-            # import epdb; epdb.set_trace()
-            tmp = cls.safeget(data_model, fabric_global_key + [key])
             if fabric_type in check['keys_not_found'] or cls.safeget(data_model, fabric_global_key + [key]) is None:
                 if fabric_type in ['ibgp']:
                     check = cls.data_model_key_check(data_model, ['vxlan', 'global', key])
