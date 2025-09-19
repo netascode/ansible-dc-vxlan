@@ -9,22 +9,25 @@ class Rule:
 
         stp_keys = ['vxlan', 'global', 'ibgp']
         check = cls.data_model_key_check(data_model, stp_keys)
-        stp_keys.append('spanning_tree')
-        if 'ibgp' in check['keys_not_found'] or cls.safeget(data_model, stp_keys) is None:
-        # Backwards compatibility check for vxlan.global.spanning_tree
+        if 'ibgp' in check['keys_found']:
+            stp_keys = ['vxlan', 'global', 'ibgp', 'spanning_tree']
+            check = cls.data_model_key_check(data_model, stp_keys)
+
+        if 'ibgp' in check['keys_not_found'] or 'spanning_tree' in check['keys_not_found']:
             stp_keys = ['vxlan', 'global', 'spanning_tree']
             check = cls.data_model_key_check(data_model, stp_keys)
 
-        root_bridge_protocol = cls.safeget(data_model, stp_keys + ['root_bridge_protocol'])
-        vlan_range = cls.safeget(data_model, stp_keys + ['vlan_range'])
-        mst_instance_range = cls.safeget(data_model, stp_keys + ['mst_instance_range'])
+        if 'spanning_tree' in check['keys_found']:
+            root_bridge_protocol = cls.safeget(data_model, stp_keys + ['root_bridge_protocol'])
+            vlan_range = cls.safeget(data_model, stp_keys + ['vlan_range'])
+            mst_instance_range = cls.safeget(data_model, stp_keys + ['mst_instance_range'])
 
-        if vlan_range and mst_instance_range:
-            results.append(
-                "vxlan.global.ibgp.spanning_tree.vlan_range and vxlan.global.ibgp.spanning_tree.mst_instance_range "
-                "both cannot be configured at the same time. Please choose one depending on the "
-                "vxlan.global.ibgp.spanning_tree.root_bridge_protocol selected."
-            )
+            if vlan_range and mst_instance_range:
+                results.append(
+                    "vxlan.global.ibgp.spanning_tree.vlan_range and vxlan.global.ibgp.spanning_tree.mst_instance_range "
+                    "both cannot be configured at the same time. Please choose one depending on the "
+                    "vxlan.global.ibgp.spanning_tree.root_bridge_protocol selected."
+                )
 
         return results
 
