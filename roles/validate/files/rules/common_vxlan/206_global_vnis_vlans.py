@@ -16,19 +16,24 @@ class Rule:
         fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
 
         for key in ['layer2_vni_range', 'layer3_vni_range', 'layer2_vlan_range', 'layer3_vlan_range']:
-            start_keys = ['vxlan', 'global', fabric_type, key, 'from']
-            end_keys = ['vxlan', 'global', fabric_type, key, 'to']
-            fabric_global_key = ['vxlan', 'global', fabric_type]
-            check = cls.data_model_key_check(data_model, fabric_global_key)
-            if fabric_type in check['keys_not_found'] or cls.safeget(data_model, fabric_global_key + [key]) is None:
-                if fabric_type in ['ibgp']:
-                    check = cls.data_model_key_check(data_model, ['vxlan', 'global', key])
-                    if key in check['keys_found']:
-                        start_keys = ['vxlan', 'global', key, 'from']
-                        end_keys = ['vxlan', 'global', key, 'to']
+            range_keys = ['vxlan', 'global', fabric_type]
+            check = cls.data_model_key_check(data_model, range_keys)
+            if fabric_type in check['keys_found']:
+                range_keys = ['vxlan', 'global', fabric_type, key]
+                check = cls.data_model_key_check(data_model, range_keys)
+                if key in check['keys_found']:
+                    start_keys = ['vxlan', 'global', fabric_type, key, 'from']
+                    end_keys = ['vxlan', 'global', fabric_type, key, 'to']
+
+            if fabric_type in check['keys_not_found'] or key in check['keys_not_found']:
                 if fabric_type in ['ebgp']:
                     cls.results.append("VNI and VLAN ranges for eBGP VXLAN fabrics must be defined under vxlan.global.ebgp.")
                     return cls.results
+                range_keys = ['vxlan', 'global', key]
+                check = cls.data_model_key_check(data_model, range_keys)
+                if key in check['keys_found']:
+                    start_keys = ['vxlan', 'global', key, 'from']
+                    end_keys = ['vxlan', 'global', key, 'to']
 
             cls.check_ranges(start_keys, end_keys, key, 'VNI' if 'vni' in key else 'VLAN', data_model)
 

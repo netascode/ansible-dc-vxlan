@@ -18,7 +18,6 @@ class Rule:
 
         bootstrap_keys = ['vxlan', 'global', fabric_type]
         check = cls.data_model_key_check(data_model, bootstrap_keys)
-        # import epdb; epdb.set_trace()
         if fabric_type in check['keys_found']:
             bootstrap_keys = ['vxlan', 'global', fabric_type, 'bootstrap', 'enable_bootstrap']
             check = cls.data_model_key_check(data_model, bootstrap_keys)
