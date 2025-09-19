@@ -15,6 +15,8 @@ class Rule:
 
         fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
 
+        start_keys = []
+        end_keys = []
         for key in ['layer2_vni_range', 'layer3_vni_range', 'layer2_vlan_range', 'layer3_vlan_range']:
             range_keys = ['vxlan', 'global', fabric_type]
             check = cls.data_model_key_check(data_model, range_keys)
