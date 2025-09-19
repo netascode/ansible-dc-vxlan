@@ -42,6 +42,12 @@ class Rule:
                     return results
 
             if fabric_type in ["ebgp"]:
+                # Since ebgp keys are only supported under vxlan.global.ebgp we need to ensure the ebgp key exists
+                check = cls.data_model_key_check(data_model, ['vxlan', 'global', fabric_type])
+                if 'ebgp' in check['keys_not_found']:
+                    results.append(f"Fabric type is 'ebgp'.  Key vxlan.global.{fabric_type} must be defined in the data model.")
+                    return results
+
                 # Examples:
                 # {'keys_found': ['vxlan', 'global', 'ebgp'], 'keys_not_found': ['spine_bgp_asn'], 'keys_data': ['vxlan', 'global', 'ebgp'], 'keys_no_data': []} # noqa: E501
                 check = cls.data_model_key_check(data_model, ['vxlan', 'global', fabric_type, 'spine_bgp_asn'])
