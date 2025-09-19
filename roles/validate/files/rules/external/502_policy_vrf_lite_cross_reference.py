@@ -27,9 +27,7 @@ class Rule:
     """
 
     id = "502"
-    description = (
-        "Verify VRF-Lites Cross Reference Between Policies, Groups, and Switches"
-    )
+    description = "Verify VRF-Lites Cross Reference Between Policies, Groups, and Switches"
     severity = "HIGH"
     results = []
 
@@ -43,6 +41,10 @@ class Rule:
         policies = []
         switch_policy = []
         static_routes_compliance = []
+
+        if data_model.get("vxlan", {}).get("fabric", {}).get("type") == "eBGP_VXLAN":
+            cls.results.append("VRF-Lite is not supported for eBGP_VXLAN yet.")
+            return cls.results
 
         # Get fabric switches
         if data_model.get("vxlan", {}).get("topology", {}).get("switches") is not None:
@@ -61,11 +63,21 @@ class Rule:
                 cls.check_global_ospf_area(policy)
                 # Check switch Level and update static_routes_compliance if exists
                 if policy.get("switches"):
+                    # Backward compatibility with bgp_asn at the global level
+                    fabric_type = None
+                    fabric_type_map = {
+                        "VXLAN_EVPN": "ibgp",
+                        "External": "external"
+                    }
+                    fabric_type = fabric_type_map.get(data_model["vxlan"]["fabric"].get("type"))
+                    bgp_asn = cls.safeget(data_model, ["vxlan", "global", fabric_type, "bgp_asn"]) if fabric_type else None
+                    if bgp_asn is None:
+                        bgp_asn = cls.safeget(data_model, ["vxlan", "global", "bgp_asn"])
                     for switch_policy in policy["switches"]:
                         cls.check_switch_level(
                             switch_policy,
                             policy,
-                            data_model["vxlan"]["global"]["bgp_asn"],
+                            bgp_asn,
                             topology_switches,
                             static_routes_compliance,
                         )
@@ -367,3 +379,14 @@ class Rule:
                             f"vxlan.overlay_extensions.vrf_lites.{data['policy']} and vxlan.overlay_extensions.vrf_lites.{data2['policy']} "
                             f"use the same VRF and switch with different static routes"
                         )
+
+    @classmethod
+    def safeget(cls, dictionary, keys):
+        """
+        Safely retrieves nested values from a dictionary using a list of keys.
+        """
+        for key in keys:
+            if dictionary is None or key not in dictionary:
+                return None
+            dictionary = dictionary[key]
+        return dictionary
