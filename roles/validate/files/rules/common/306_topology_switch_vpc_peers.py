@@ -4,30 +4,30 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         switches = []
         vpc_peers_pairs = []
 
-        dm_check = cls.data_model_key_check(inventory, ['vxlan', 'topology', 'switches'])
+        dm_check = cls.data_model_key_check(data_model, ['vxlan', 'topology', 'switches'])
         if 'switches' in dm_check['keys_data']:
-            switches = inventory['vxlan']['topology']['switches']
+            switches = data_model['vxlan']['topology']['switches']
         else:
             return results
 
         # Set vpc_range with value in the data source or default "1-1000"
-        dm_check = cls.data_model_key_check(inventory, ['vxlan', 'global', 'vpc', 'domain_id_range'])
+        dm_check = cls.data_model_key_check(data_model, ['vxlan', 'global', 'vpc', 'domain_id_range'])
         if 'domain_id_range' in dm_check['keys_data']:
-            vpc_range = inventory['vxlan']['global']['vpc']['domain_id_range']
+            vpc_range = data_model['vxlan']['global']['vpc']['domain_id_range']
         else:
             vpc_range = "1-1000"
         vpc_range_split = vpc_range.split("-")
         vpc_domain_list = []
 
         vpc_peers_keys = ['vxlan', 'topology', 'vpc_peers']
-        dm_check = cls.data_model_key_check(inventory, vpc_peers_keys)
+        dm_check = cls.data_model_key_check(data_model, vpc_peers_keys)
         if 'vpc_peers' in dm_check['keys_found'] and 'vpc_peers' in dm_check['keys_data']:
-            vpc_peers_pairs = inventory['vxlan']['topology']['vpc_peers']
+            vpc_peers_pairs = data_model['vxlan']['topology']['vpc_peers']
             for vpc_peers_pair in vpc_peers_pairs:
                 if any(sw['name'] == vpc_peers_pair['peer1'] for sw in switches):
                     pass

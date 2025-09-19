@@ -4,20 +4,20 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         switches = []
 
         # Check for the 'switches' key in the data model
-        dm_check = cls.data_model_key_check(inventory, ['vxlan', 'topology', 'switches'])
+        dm_check = cls.data_model_key_check(data_model, ['vxlan', 'topology', 'switches'])
         if 'switches' in dm_check['keys_data']:
-            switches = inventory['vxlan']['topology']['switches']
+            switches = data_model['vxlan']['topology']['switches']
 
         # Extract all vPC peer switch names from vxlan.topology.vpc_peers
         vpc_peers = set()
-        vpc_peers_check = cls.data_model_key_check(inventory, ['vxlan', 'topology', 'vpc_peers'])
+        vpc_peers_check = cls.data_model_key_check(data_model, ['vxlan', 'topology', 'vpc_peers'])
         if 'vpc_peers' in vpc_peers_check['keys_data']:
-            for peer in inventory['vxlan']['topology']['vpc_peers']:
+            for peer in data_model['vxlan']['topology']['vpc_peers']:
                 vpc_peers.add(peer['peer1'])
                 vpc_peers.add(peer['peer2'])
 

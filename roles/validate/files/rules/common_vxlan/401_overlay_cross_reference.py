@@ -4,7 +4,7 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
 
         switches = None
@@ -18,11 +18,11 @@ class Rule:
         # Remove the check for overlay_services after deprecation
         # Remove lines 21 - 23
         overlay_key = 'overlay'
-        check = cls.data_model_key_check(inventory, ['vxlan', overlay_key])
+        check = cls.data_model_key_check(data_model, ['vxlan', overlay_key])
         if overlay_key in check['keys_not_found'] or overlay_key in check['keys_no_data']:
             overlay_key = 'overlay_services'
 
-        check = cls.data_model_key_check(inventory, ['vxlan', overlay_key])
+        check = cls.data_model_key_check(data_model, ['vxlan', overlay_key])
         if overlay_key in check['keys_found'] and overlay_key in check['keys_data']:
             network_keys = ['vxlan', overlay_key, 'networks']
             vrf_keys = ['vxlan', overlay_key, 'vrfs']
@@ -30,28 +30,28 @@ class Rule:
             vrf_attach_keys = ['vxlan', overlay_key, 'vrf_attach_groups']
 
             # Check if vrfs, network and switch data is defined in the service model
-            check = cls.data_model_key_check(inventory, switch_keys)
+            check = cls.data_model_key_check(data_model, switch_keys)
             if 'switches' in check['keys_data']:
-                switches = cls.safeget(inventory, switch_keys)
+                switches = cls.safeget(data_model, switch_keys)
             if not switches:
                 # No switches defined in the service model, no reason to continue
                 return results
 
-            check = cls.data_model_key_check(inventory, network_keys)
+            check = cls.data_model_key_check(data_model, network_keys)
             if 'networks' in check['keys_data']:
-                sm_networks = cls.safeget(inventory, network_keys)
+                sm_networks = cls.safeget(data_model, network_keys)
 
-            check = cls.data_model_key_check(inventory, vrf_keys)
+            check = cls.data_model_key_check(data_model, vrf_keys)
             if 'vrfs' in check['keys_data']:
-                sm_vrfs = cls.safeget(inventory, vrf_keys)
+                sm_vrfs = cls.safeget(data_model, vrf_keys)
 
-            check = cls.data_model_key_check(inventory, vrf_attach_keys)
+            check = cls.data_model_key_check(data_model, vrf_attach_keys)
             if 'vrf_attach_groups' in check['keys_data']:
-                vrf_attach_groups = cls.safeget(inventory, vrf_attach_keys)
+                vrf_attach_groups = cls.safeget(data_model, vrf_attach_keys)
 
-            check = cls.data_model_key_check(inventory, network_attach_keys)
+            check = cls.data_model_key_check(data_model, network_attach_keys)
             if 'network_attach_groups' in check['keys_data']:
-                network_attach_groups = cls.safeget(inventory, network_attach_keys)
+                network_attach_groups = cls.safeget(data_model, network_attach_keys)
 
             # Ensure Network is not referencing a VRF that is not defined in the service model
             results = cls.cross_reference_vrfs_nets(sm_vrfs, sm_networks, results)

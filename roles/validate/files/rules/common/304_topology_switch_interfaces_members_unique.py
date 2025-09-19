@@ -8,14 +8,14 @@ class Rule:
 
     # Check if interface names are unique per switch and member interfaces are not repeated within a switch
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         # Check if fabric topology switches are defined
         switches = []
-        if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("topology", None):
-                if inventory.get("vxlan").get("topology").get("switches", None):
-                    switches = inventory.get("vxlan").get("topology").get("switches")
+        if data_model.get("vxlan", None):
+            if data_model["vxlan"].get("topology", None):
+                if data_model.get("vxlan").get("topology").get("switches", None):
+                    switches = data_model.get("vxlan").get("topology").get("switches")
         for switch in switches:
             # Check if interfaces are defined
             if switch.get("interfaces"):

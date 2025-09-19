@@ -4,16 +4,16 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         policies = []
         groups = []
         topology_switches = []
         results = []
 
-        if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("policy", None):
-                if inventory["vxlan"].get("policy").get("policies", None):
-                    policies = inventory["vxlan"]["policy"]["policies"]
+        if data_model.get("vxlan", None):
+            if data_model["vxlan"].get("policy", None):
+                if data_model["vxlan"].get("policy").get("policies", None):
+                    policies = data_model["vxlan"]["policy"]["policies"]
                     for policy in policies:
                         filename = policy.get("filename", None)
 
@@ -38,8 +38,8 @@ class Rule:
                             )
                             break
 
-                if inventory["vxlan"].get("policy").get("groups", None):
-                    groups = inventory["vxlan"]["policy"]["groups"]
+                if data_model["vxlan"].get("policy").get("groups", None):
+                    groups = data_model["vxlan"]["policy"]["groups"]
                     for group in groups:
                         group_policies = group.get("policies", [])
                         for group_policy in group_policies:
@@ -49,13 +49,13 @@ class Rule:
                                 )
                                 break
 
-                if inventory["vxlan"].get("policy").get("switches", None):
-                    switches = inventory["vxlan"]["policy"]["switches"]
+                if data_model["vxlan"].get("policy").get("switches", None):
+                    switches = data_model["vxlan"]["policy"]["switches"]
 
-                    if inventory.get("vxlan"):
-                        if inventory["vxlan"].get("topology"):
-                            if inventory.get("vxlan").get("topology").get("switches"):
-                                topology_switches = inventory.get("vxlan").get("topology").get("switches")
+                    if data_model.get("vxlan"):
+                        if data_model["vxlan"].get("topology"):
+                            if data_model.get("vxlan").get("topology").get("switches"):
+                                topology_switches = data_model.get("vxlan").get("topology").get("switches")
                     for switch in switches:
                         if not ((any(topology_switch['name'] == switch['name'] for topology_switch in topology_switches)) or
                                 (any(topology_switch['management'].get('management_ipv4_address', None) == switch['name']

@@ -4,27 +4,27 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         child_fabrics_names = []
         vrfs = []
         networks = []
 
         multisite_child_fabric_keys = ['vxlan', 'multisite', 'child_fabrics']
-        check = cls.data_model_key_check(inventory, multisite_child_fabric_keys)
+        check = cls.data_model_key_check(data_model, multisite_child_fabric_keys)
         if 'child_fabrics' in check['keys_found'] and 'child_fabrics' in check['keys_data']:
-            child_fabrics_names = [child_fabric['name'] for child_fabric in inventory['vxlan']['multisite']['child_fabrics']]
+            child_fabrics_names = [child_fabric['name'] for child_fabric in data_model['vxlan']['multisite']['child_fabrics']]
 
         multisite_vrf_keys = ['vxlan', 'multisite', 'overlay', 'vrfs']
-        check = cls.data_model_key_check(inventory, multisite_vrf_keys)
+        check = cls.data_model_key_check(data_model, multisite_vrf_keys)
         if 'vrfs' in check['keys_found'] and 'vrfs' in check['keys_data']:
-            vrfs = inventory['vxlan']['multisite']['overlay']['vrfs']
+            vrfs = data_model['vxlan']['multisite']['overlay']['vrfs']
             results = cls.cross_reference_child_fabrics(child_fabrics_names, vrfs, results)
 
         multisite_network_keys = ['vxlan', 'multisite', 'overlay', 'networks']
-        check = cls.data_model_key_check(inventory, multisite_network_keys)
+        check = cls.data_model_key_check(data_model, multisite_network_keys)
         if 'networks' in check['keys_found'] and 'networks' in check['keys_data']:
-            networks = inventory['vxlan']['multisite']['overlay']['networks']
+            networks = data_model['vxlan']['multisite']['overlay']['networks']
             results = cls.cross_reference_child_fabrics(child_fabrics_names, networks, results)
 
         return results

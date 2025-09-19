@@ -6,10 +6,10 @@ class Rule:
     results = []
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
 
         for key in ['layer2_vni_range', 'layer3_vni_range']:
-            cls.check_ranges(key, 'VNI', inventory)
+            cls.check_ranges(key, 'VNI', data_model)
 
         return cls.results
 

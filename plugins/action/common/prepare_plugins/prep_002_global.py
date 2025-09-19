@@ -51,6 +51,8 @@ BACKWARD_COMPATIBLE_KEYS = [
     "bootstrap"
 ]
 
+ISN_PARENT_KEYS = ['vxlan', 'multisite']
+
 # Deprecated global keys that are still supported for backwards compatibility
 ISN_BACKWARD_COMPATIBLE_KEYS = [
     "auth_proto",
@@ -85,7 +87,7 @@ class PreparePlugin:
         elif model_data['vxlan']['fabric']['type'] == 'ISN':
             # new_global_key is set to 'isn' here only for the conditional check that follows and is not a new key
             new_global_key = 'isn'
-            ISN_PARENT_KEYS = ['vxlan', 'multisite', new_global_key]
+            ISN_PARENT_KEYS.append(new_global_key)
 
         if new_global_key in ['ibgp', 'external']:
             dm_check = data_model_key_check(model_data, PARENT_KEYS)
