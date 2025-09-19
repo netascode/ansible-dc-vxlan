@@ -12,68 +12,58 @@ class Rule:
         fabric_type_map = {
             "VXLAN_EVPN": "ibgp",
             "eBGP_VXLAN": "ebgp",
-            "External": "external"
         }
 
         fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
 
-        bootstrap_keys = ['vxlan', 'global', fabric_type, 'bootstrap', 'enable_bootstrap']
+        bootstrap_keys = ['vxlan', 'global', fabric_type]
         check = cls.data_model_key_check(data_model, bootstrap_keys)
-        # Backwards compatibility check for vxlan.global.bootstrap.enable_bootstrap
-        if 'enable_bootstrap' in check['keys_not_found']:
+        # import epdb; epdb.set_trace()
+        if fabric_type in check['keys_found']:
+            bootstrap_keys = ['vxlan', 'global', fabric_type, 'bootstrap', 'enable_bootstrap']
+            check = cls.data_model_key_check(data_model, bootstrap_keys)
+
+        if fabric_type in check['keys_not_found'] or 'enable_bootstrap' in check['keys_not_found']:
             bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'enable_bootstrap']
             check = cls.data_model_key_check(data_model, bootstrap_keys)
 
-        # Continue if enable_bootstrap is found in either:
-        # vxlan.global.{fabric_type}.bootstrap.enable_bootstrap or
-        # vxlan.global.bootstrap.enable_bootstrap (backwards compatibility)
         if 'enable_bootstrap' in check['keys_found']:
-            bootstrap_keys = ['vxlan', 'global', fabric_type, 'bootstrap', 'enable_local_dhcp_server']
+            if fabric_type in bootstrap_keys:
+                bootstrap_keys = ['vxlan', 'global', fabric_type, 'bootstrap', 'enable_local_dhcp_server']
+            else:
+                bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'enable_local_dhcp_server']
             check = cls.data_model_key_check(data_model, bootstrap_keys)
             enable_local_dhcp_server = cls.safeget(data_model, bootstrap_keys)
-            # Backwards compatibility check for vxlan.global.bootstrap.enable_local_dhcp_server
-            if 'enable_local_dhcp_server' in check['keys_not_found']:
-                bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'enable_local_dhcp_server']
-                check = cls.data_model_key_check(data_model, bootstrap_keys)
-                enable_local_dhcp_server = cls.safeget(data_model, bootstrap_keys)
-
             if 'enable_local_dhcp_server' in check['keys_found'] and enable_local_dhcp_server:
-                bootstrap_keys = ['vxlan', 'global', fabric_type, 'bootstrap', 'dhcp_version']
-                check = cls.data_model_key_check(data_model, bootstrap_keys)
-                dhcp_version = cls.safeget(data_model, bootstrap_keys)
-                # Backwards compatibility check for vxlan.global.bootstrap.dhcp_version
-                if 'dhcp_version' in check['keys_not_found']:
+                if fabric_type in bootstrap_keys:
+                    bootstrap_keys = ['vxlan', 'global', fabric_type, 'bootstrap', 'dhcp_version']
+                else:
                     bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'dhcp_version']
-                    check = cls.data_model_key_check(data_model, bootstrap_keys)
-                    dhcp_version = cls.safeget(data_model, bootstrap_keys)
-
-                dhcp = None
+                check = cls.data_model_key_check(data_model, bootstrap_keys)
                 if 'dhcp_version' in check['keys_found']:
-                    if dhcp_version == 'DHCPv4':
+                    if cls.safeget(data_model, bootstrap_keys) == 'DHCPv4':
                         dhcp = 'dhcp_v4'
-                    elif dhcp_version == 'DHCPv6':
+                    elif cls.safeget(data_model, bootstrap_keys) == 'DHCPv6':
                         dhcp = 'dhcp_v6'
                 else:
                     results.append(f"A vxlan.global.{fabric_type}.bootstrap.dhcp_version is required for bootstrap in a VXLAN type fabric.")
                     return results
 
         if dhcp:
-            bootstrap_keys = ['vxlan', 'global', fabric_type, 'bootstrap', dhcp, 'domain_name']
-            check = cls.data_model_key_check(data_model, bootstrap_keys)
-            # Backwards compatibility check for vxlan.global.bootstrap.{dhcp}.domain_name}
-            if dhcp in check['keys_not_found']:
+            if fabric_type in bootstrap_keys:
+                bootstrap_keys = ['vxlan', 'global', fabric_type, 'bootstrap', dhcp, 'domain_name']
+            else:
                 bootstrap_keys = ['vxlan', 'global', 'bootstrap', dhcp, 'domain_name']
-                check = cls.data_model_key_check(data_model, bootstrap_keys)
-
+            check = cls.data_model_key_check(data_model, bootstrap_keys)
             if dhcp in check['keys_not_found']:
                 results.append(
-                    f"When vxlan.global.{fabric_type}.bootstrap.dhcp_version is defined, either "
-                    f"vxlan.global.{fabric_type}.bootstrap.dhcpv4 or vxlan.global.{fabric_type}.bootstrap.dhcpv6 must be defined in the data model."
+                    "When vxlan.global.bootstrap.dhcp_version is defined, either "
+                    "vxlan.global.bootstrap.dhcpv4 or vxlan.global.bootstrap.dhcpv6 must be defined in the data model."
                 )
                 return results
 
             if 'domain_name' in check['keys_found']:
-                results.append(f"vxlan.global.{fabric_type}.bootstrap.{dhcp}.domain_name is not supported for bootstrap in a VXLAN type fabric.")
+                results.append(f"vxlan.global.bootstrap.{dhcp}.domain_name is not supported for bootstrap in a VXLAN type fabric.")
 
         return results
 
