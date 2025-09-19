@@ -327,7 +327,7 @@ This collection is intended for use with the following release versions:
 <!--start requires_ansible-->
 ## Ansible Version Compatibility
 
-This collection has been tested against following Ansible Core versions: 
+This collection has been tested against following Ansible Core versions:
 * `2.14.x`
 * `2.15.x`
 * `2.16.x`
