@@ -32,17 +32,13 @@ class Rule:
 
                     return results
 
-            # Map fabric types to the keys used in the data model based on controller fabric types
-            fabric_type_map = {
-                "VXLAN_EVPN": "ibgp"
-            }
-
-            fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
-
-            netflow_keys = ['vxlan', 'global', fabric_type, 'netflow', 'enable']
+            netflow_keys = ['vxlan', 'global', 'ibgp']
             check = cls.data_model_key_check(data_model, netflow_keys)
-            # Backwards compatibility check for vxlan.global.netflow.enable
-            if 'enable' in check['keys_not_found']:
+            if 'ibgp' in check['keys_found']:
+                netflow_keys = ['vxlan', 'global', 'ibgp', 'netflow', 'enable']
+                check = cls.data_model_key_check(data_model, netflow_keys)
+
+            if 'ibgp' in check['keys_not_found'] or 'netflow' in check['keys_not_found']:
                 netflow_keys = ['vxlan', 'global', 'netflow', 'enable']
                 check = cls.data_model_key_check(data_model, netflow_keys)
 
@@ -53,7 +49,7 @@ class Rule:
                 (enable_ipv6_underlay)
             ):
                 results.append(
-                    f"vxlan.global.{fabric_type}.netflow.enable should not be configured when "
+                    f"vxlan.global.ibgp.netflow.enable should not be configured when "
                     f"vxlan.underlay.general.enable_ipv6_underlay is configured as true. "
                 )
 
