@@ -3,10 +3,10 @@
 {# Some of these features are supported only on Cisco Catalyst 9000 switches #}
 {# Currently Cisco NX-OS is the supported platform with expansion capable based on demand #}
 {% if vxlan.multisite.isn.bootstrap is defined %}
-  BOOTSTRAP_ENABLE: {{ vxlan.multisite.isn.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool }}
-{% if vxlan.multisite.isn.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool %}
-  DHCP_ENABLE: {{ vxlan.multisite.isn.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool }}
-{% if vxlan.multisite.isn.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool %}
+  BOOTSTRAP_ENABLE: {{ vxlan.multisite.isn.bootstrap.enable_bootstrap | default(defaults.vxlan.multisite.isn.bootstrap.enable_bootstrap) | bool }}
+{% if vxlan.multisite.isn.bootstrap.enable_bootstrap | default(defaults.vxlan.multisite.isn.bootstrap.enable_bootstrap) | bool %}
+  DHCP_ENABLE: {{ vxlan.multisite.isn.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.multisite.isn.bootstrap.enable_local_dhcp_server) | bool }}
+{% if vxlan.multisite.isn.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.multisite.isn.bootstrap.enable_local_dhcp_server) | bool %}
   DHCP_IPV6_ENABLE: {{ vxlan.multisite.isn.bootstrap.dhcp_version }}
 {% if vxlan.multisite.isn.bootstrap.dhcp_version is defined and vxlan.multisite.isn.bootstrap.dhcp_version == "DHCPv4" %}
   DHCP_START: {{ vxlan.multisite.isn.bootstrap.dhcp_v4.scope_start_address }}
@@ -18,6 +18,6 @@
   BOOTSTRAP_MULTISUBNET: "{{ vxlan.multisite.isn.bootstrap.dhcp_v4.multi_subnet_scope }}"
 {% endif %}
 {% endif %}
-{% endif %}  
+{% endif %}
 {% endif %}
 {% endif %}

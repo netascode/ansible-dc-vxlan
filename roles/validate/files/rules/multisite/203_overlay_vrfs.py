@@ -6,7 +6,7 @@ class Rule:
     msg = "VRF {0} attribute '{1}' must be defined under vxlan.multisite.overlay.vrfs under the 'child_fabrics:' key."
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         child_fabric_attributes = [
             'adv_host_routes',
@@ -29,9 +29,9 @@ class Rule:
         ]
 
         vrf_keys = ['vxlan', 'multisite', 'overlay', 'vrfs']
-        check = cls.data_model_key_check(inventory, vrf_keys)
+        check = cls.data_model_key_check(data_model, vrf_keys)
         if 'vrfs' in check['keys_found'] and 'vrfs' in check['keys_data']:
-            vrfs = inventory['vxlan']['multisite']['overlay']['vrfs']
+            vrfs = data_model['vxlan']['multisite']['overlay']['vrfs']
             for vrf in vrfs:
                 for attr in vrf:
                     if attr in child_fabric_attributes:

@@ -49,7 +49,9 @@
 {% endif %}
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
+{% if attach['ports'] is defined %}
       ports: {{ attach['ports'] }}
+{% endif %}
 {% endfor %}
   deploy: false
 {% endif %}

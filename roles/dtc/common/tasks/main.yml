@@ -47,6 +47,7 @@
       changes_detected_sub_interface_routed: false
       changes_detected_vpc_peering: false
       changes_detected_vrfs: false
+      changes_detected_underlay_ip_address: false
     vars_common_isn:
       changes_detected_fabric: false
       changes_detected_fabric_links: false
@@ -89,6 +90,27 @@
       changes_detected_sub_interface_routed: false
       changes_detected_policy: false
       changes_detected_vpc_peering: false
+    vars_common_ebgp_vxlan:
+      changes_detected_fabric: false
+      changes_detected_fabric_links: false
+      changes_detected_edge_connections: false
+      changes_detected_interface_dot1q: false
+      changes_detected_interface_access_po: false
+      changes_detected_interface_access: false
+      changes_detected_interfaces: false
+      changes_detected_interface_loopback: false
+      changes_detected_interface_po_routed: false
+      changes_detected_interface_routed: false
+      changes_detected_interface_trunk_po: false
+      changes_detected_interface_trunk: false
+      changes_detected_interface_vpc: false
+      changes_detected_inventory: false
+      changes_detected_link_vpc_peering: false
+      changes_detected_networks: false
+      changes_detected_policy: false
+      changes_detected_sub_interface_routed: false
+      changes_detected_vpc_peering: false
+      changes_detected_vrfs: false
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Import Role Tasks for iBGP VXLAN Fabric

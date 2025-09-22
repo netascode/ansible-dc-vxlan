@@ -44,13 +44,13 @@ ip access-list {{ ipv4_access_list["name"] | lower }}
                         {% if entry[ "destination"].ip is defined and entry[ "destination"]["wildcard"] is defined %}
                             {% set destination = entry[ "destination"].ip ~ " " ~ entry[ "destination"]["wildcard"] %}
                         {% elif entry[ "destination"].ip is defined  %}
-                            {% if entry[ "destination"]["ip"] | ipaddr('hostmask') == '/32' %}
-                                {% set destination = "host " ~ entry[ "destination"].host | ipaddr('address') %}
+                            {% if entry[ "destination"]["ip"] | ipaddr('hostmask') == '0.0.0.0' %}
+                                {% set destination = entry[ "destination"].ip | ipaddr('address') ~ "/32" %}
                             {% else %}
                                 {% set destination = entry[ "destination"].ip | ipaddr('network') ~ " " ~ entry[ "destination"].ip | ipaddr('hostmask') %}
                             {% endif %}
                         {% elif entry[ "destination"].host is defined %}
-                            {% set destination = entry[ "destination"]["host"] | ipaddr('address') ~ "/32"%}
+                            {% set destination = entry[ "destination"]["host"] | ipaddr('address') ~ "/32" %}
                         {% elif entry[ "destination"]["any"] is defined and entry[ "destination"]["any"] is true %}
                             {% set destination = "any" %}
                         {% elif entry[ "destination"]["addrgroup"] is defined %}

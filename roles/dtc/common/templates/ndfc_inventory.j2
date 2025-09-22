@@ -3,7 +3,7 @@
 # DO NOT EDIT MANUALLY
 #
 {% set vxlan = MD_Extended.vxlan %}
-{% if vxlan.fabric.type == 'VXLAN_EVPN' %}
+{% if vxlan.fabric.type in ['VXLAN_EVPN', 'eBGP_VXLAN'] %}
 
 {# Include NDFC DC VXLAN EVPN Base Template #}
 {% include '/ndfc_inventory/common/fabric_inventory.j2' %}
@@ -18,5 +18,5 @@
 {# Include NDFC DC External Template #}
 {% include '/ndfc_inventory/dc_external_fabric/dc_external_fabric_inventory.j2' %}
 
-{# Supported fabric types are: DC VXLAN EVPN, ISN and External #}
+{# Supported fabric types are: DC VXLAN EVPN, eBGP_VXLAN, ISN and External #}
 {% endif %}
