@@ -221,7 +221,7 @@ class ActionModule(ActionBase):
                                         f"rest/top-down/fabrics/{child_fabric}/networks/{network['name']}")
                         else:
                             put_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks/{network['name']}"
-                        
+
                         ndfc_net_update = self._execute_module(
                             module_name="cisco.dcnm.dcnm_rest",
                             module_args={
@@ -231,7 +231,7 @@ class ActionModule(ActionBase):
                             },
                             task_vars=task_vars,
                             tmp=tmp
-                            )
+                        )
 
                         # Successful response:
                         # {
