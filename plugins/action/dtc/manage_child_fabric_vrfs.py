@@ -228,7 +228,8 @@ class ActionModule(ActionBase):
                         rendered_to_nice_json = templar.environment.filters['to_nice_json'](rendered_content)
 
                         if fabric_type == 'MFD':
-                            put_path = (f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}")
+                            put_path = (f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/"
+                                        f"rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}")
                         else:
                             put_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}"
 
