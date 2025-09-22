@@ -30,7 +30,7 @@ Added
 * Added support for L3VNI without VLAN for iBGP and eBGP EVPN fabric types
 * Added support for additional LACP attributes in data model for port-channels
 * Added support for individual per-switch credentials
-    * Support documentation can be found here: https://github.com/netascode/ansible-dc-vxlan/blob/0.5.0/docs/SWITCH_CREDENTIALS_GUIDE.md)
+    * Support documentation can be found here: https://github.com/netascode/ansible-dc-vxlan/blob/0.5.0/docs/SWITCH_CREDENTIALS_GUIDE.md
 * Added support for breakout interfaces with pre-provision device workflows
 * Added initial support for unified Nexus Dashboard 4.1 via legacy, backwards compatiable NDFC APIs
 
