@@ -20,7 +20,7 @@ description: Ansible Solution Collection for VXLAN
 
 repository: https://github.com/netascode/ansible-dc-vxlan
 documentation: https://github.com/netascode/ansible-dc-vxlan/blob/main/README.md
-homepage: https://netascode.cisco.com/data_model/vxlan/overview
+homepage: https://netascode.cisco.com/docs/data_models/vxlan/overview/
 issues: https://github.com/netascode/ansible-dc-vxlan/issues
 
 license_file: LICENSE
