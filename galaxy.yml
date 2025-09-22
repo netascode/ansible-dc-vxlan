@@ -1,7 +1,7 @@
 ---
 namespace: cisco
 name: nac_dc_vxlan
-version: 0.5.0-dev
+version: 0.5.0
 readme: README.md
 authors:
   - Devendra Gupta <devegupt>
