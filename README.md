@@ -301,9 +301,9 @@ export NDFC_SW_PASSWORD=Admin_123
 
 This collection supports flexible credential management for network switches with three security levels:
 
-- **🔐 Ansible Vault**: Encrypted credentials for production deployments
-- **✅ Environment Variables**: Secure credential injection for CI/CD pipelines
-- **⚠️ Plain Text**: Simple credentials for lab testing only
+* **🔐 Ansible Vault**: Encrypted credentials for production deployments
+* **✅ Environment Variables**: Secure credential injection for CI/CD pipelines
+* **⚠️ Plain Text**: Simple credentials for lab testing only
 
 The system supports both switch-specific credentials and group-level defaults with automatic fallback. Environment variable lookups can be configured in group_vars for enhanced security and automation compatibility.
 
@@ -317,19 +317,19 @@ The following quickstart repository is available to provide a step by step guide
 
 This collection is intended for use with the following release versions:
 
-- `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.1`
-- `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.2`
-- `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.3`
-- `Cisco Nexus Dashboard Release 4.1.1g` - Unified Nexus Dashboard Tech Preview
+* `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.1`
+* `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.2`
+* `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.3`
+* `Cisco Nexus Dashboard Release 4.1.1g` - Unified Nexus Dashboard Tech Preview
 
 <!--start requires_ansible-->
 ## Ansible Version Compatibility
 
 This collection has been tested against following Ansible Core versions:
-- `2.14.x`
-- `2.15.x`
-- `2.16.x`
-- `2.17.x`
+* `2.14.x`
+* `2.15.x`
+* `2.16.x`
+* `2.17.x`
 
 Plugins, roles and modules within a collection may be tested with only specific Ansible versions.
 A collection may contain metadata that identifies these versions.
@@ -413,19 +413,19 @@ For example, if VRFs and Networks are added/changed/removed in the model data fi
 
 This capability is not available under the following conditions:
 
-- Control flag `force_run_all` under group_vars is set to `true`.
-- When using ansible tags to control execution.
-- When one of the following roles failed to complete on the previous run.
-  - `cisco.nac_dc_vxlan.validate`
-  - `cisco.nac_dc_vxlan.create`
-  - `cisco.nac_dc_vxlan.deploy`
-  - `cisco.nac_dc_vxlan.remove`
+* Control flag `force_run_all` under group_vars is set to `true`.
+* When using ansible tags to control execution.
+* When one of the following roles failed to complete on the previous run.
+  * `cisco.nac_dc_vxlan.validate`
+  * `cisco.nac_dc_vxlan.create`
+  * `cisco.nac_dc_vxlan.deploy`
+  * `cisco.nac_dc_vxlan.remove`
 
   If any of these conditions is true then all roles/sections will be run.
 
 ### See Also
 
-- [Ansible Using Collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
+* [Ansible Using Collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
 
 ## Multi-Site Domain for VXLAN BGP EVPN Fabrics
 
@@ -448,14 +448,14 @@ We welcome community contributions to this collection. If you find problems, ple
 
 ## Changelogs
 
-- [Changelog](https://github.com/netascode/ansible-dc-vxlan/blob/develop/CHANGELOG.rst)
+* [Changelog](https://github.com/netascode/ansible-dc-vxlan/blob/develop/CHANGELOG.rst)
 
 ## More Information
 
-- [Cisco Nexus Dashboard and Services Deployment and Upgrade Guide](https://www.cisco.com/c/en/us/td/docs/dcn/nd/3x/deployment/cisco-nexus-dashboard-and-services-deployment-guide-321.html)
-- [Cisco Nexus Dashboard Fabric Controller (NDFC) User Content for LAN Configuration Guide](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1222/collections/ndfc-user-content-1222-lan.html)
-- [Ansible User Guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
-- [Ansible Developer Guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
+* [Cisco Nexus Dashboard and Services Deployment and Upgrade Guide](https://www.cisco.com/c/en/us/td/docs/dcn/nd/3x/deployment/cisco-nexus-dashboard-and-services-deployment-guide-321.html)
+* [Cisco Nexus Dashboard Fabric Controller (NDFC) User Content for LAN Configuration Guide](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1222/collections/ndfc-user-content-1222-lan.html)
+* [Ansible User Guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
+* [Ansible Developer Guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
 
 ## Licensing
 
