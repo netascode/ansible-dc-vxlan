@@ -25,10 +25,10 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }} Child Fabrics"
       - "----------------------------------------------------------------"
 
-- name: Add Child Fabrics To Fabric - {{ MD_Extended.vxlan.fabric.name }}
+- name: Add Child Fabrics To MSD Fabric in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
     parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     child_fabrics: "{{ MD_Multisite_Child_Fabrics.to_be_added }}"

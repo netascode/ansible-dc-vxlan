@@ -1,3 +1,5 @@
+{# Auto-generated NDFC External Inventory config data structure for fabric {{ vxlan.fabric.name }} #}
+{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
 {% set poap_data = poap_data['poap_data'] %}
 {% for switch in MD_Extended.vxlan.topology.switches %}
 {% if switch.management.management_ipv4_address is defined %}
@@ -5,15 +7,19 @@
 {% elif switch.management.management_ipv6_address is defined %}
 - seed_ip: {{ switch['management']['management_ipv6_address'] }}
 {% endif %}
-  auth_proto: {{ MD['vxlan']['global']['auth_proto'] | default(defaults.vxlan.global.auth_proto) }}
+  auth_proto: {{ MD_Extended['vxlan']['global'][simplified_fabric_type]['auth_proto'] | default(defaults.vxlan.global[simplified_fabric_type].auth_proto) }}
   user_name: PLACE_HOLDER_USERNAME
   password: PLACE_HOLDER_PASSWORD
   max_hops: 0 # this is the default value as it is not defined into the data model
   role: {{ switch['role'] }}
   preserve_config: true
-{% if MD_Extended.vxlan.global.bootstrap is defined %}
-{% if MD_Extended.vxlan.global.bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.global.bootstrap.enable_bootstrap %}
-{% if switch.poap is defined and switch.poap.bootstrap %}
+{# ------------------------------ #}
+{# Global Bootstrap Section Start #}
+{% if MD_Extended.vxlan.global[simplified_fabric_type].bootstrap is defined %}
+{% if MD_Extended.vxlan.global[simplified_fabric_type].bootstrap.enable_bootstrap is defined and MD_Extended.vxlan.global[simplified_fabric_type].bootstrap.enable_bootstrap %}
+{#     ------------------------- #}
+{#     Switch POAP Section Start #}
+{% if switch.poap is defined and (switch.poap.bootstrap | default(defaults.vxlan.topology.switches.poap.bootstrap) | ansible.builtin.bool) %}
 {% if poap_data[switch['serial_number']] is defined %}
 {% set pdata = poap_data[switch['serial_number']] %}
   poap:
@@ -24,7 +30,14 @@
       config_data:
         modulesModel: {{ pdata['modulesModel'] }}
         gateway: {{ pdata['gateway'] }}
-{% elif switch['poap']['preprovision'] is defined %}
+{% endif %}
+{% endif %}
+{#     ---------------------------------- #}
+{#     Switch POAP Section End            #}
+{##}
+{#     ---------------------------------- #}
+{#     Switch Pre-Provision Section Start #}
+{% if switch['poap']['preprovision'] is defined %}
   poap:
     - preprovision_serial: {{ switch['poap']['preprovision']['serial_number'] }}
       model: {{  switch['poap']['preprovision']['model'] }}
@@ -32,9 +45,26 @@
       config_data:
         modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
         gateway: {{ switch['management']['default_gateway_v4'] | ansible.utils.ipaddr('address') }}/{{ switch['management']['subnet_mask_ipv4'] }}
+{% if switch.interface_breakouts is defined %}
+{% set breakout_commands = [] %}
+{% for breakout in switch.interface_breakouts %}
+{% if breakout.enable_during_bootstrap is defined and breakout.enable_during_bootstrap %}
+{% if breakout.to is defined %}
+{% set port_range = breakout.from|string + "-" + breakout.to|string %}
+{% else %}
+{% set port_range = breakout.from|string %}
+{% endif %}
+{% set _ = breakout_commands.append("interface breakout module " + breakout.module|string + " port " + port_range + " map " + breakout.map) %}
+{% endif %}
+{% endfor %}
+        breakout: "{{ breakout_commands | join('\\n') }}"
+{% endif %}
       hostname: {{ switch['name'] }}
 {% endif %}
+{#     Switch Pre-Provision Section End   #}
+{#     ---------------------------------- #}
 {% endif %}
 {% endif %}
-{% endif %}
+{# Global Bootstrap Section End #}
+{# ---------------------------- #}
 {% endfor %}

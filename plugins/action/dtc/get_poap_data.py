@@ -69,6 +69,7 @@ class POAPDevice:
         self.fabric_name = self.model_data['vxlan']['fabric']['name']
         self.switches = self.model_data['vxlan']['topology']['switches']
         self.poap_supported_switches = False
+        self.poap_switches = []
         self.preprovision_supported_switches = False
         self.poap_data = []
         self.poap_get_method = "GET"
@@ -90,6 +91,8 @@ class POAPDevice:
                 if self._get_discovered(ip, role, hostname):
                     # This switch is already discovered by the fabric so does not need to be POAP'd
                     continue
+                # Append switch to self.poap_switches list
+                self.poap_switches.append(switch)
                 self.poap_supported_switches = True
 
     def check_preprovision_supported_switches(self) -> None:
@@ -241,14 +244,19 @@ class ActionModule(ActionBase):
                 # fabric setting for this might be modified if/when the create
                 # role is executed later in this run.
                 fail_msg = workflow.refresh_message
-                match_text = r"Please\s+enable\s+the\s+DHCP\s+in\s+Fabric\s+Settings\s+to\s+start\s+the\s+bootstrap"
-                if re.search(match_text, fail_msg, re.IGNORECASE):
-                    pass
-                match_text = r"Invalid\s+Fabric"
-                if re.search(match_text, fail_msg, re.IGNORECASE):
-                    pass
+                match_cases = [
+                    r"Please\s+enable\s+the\s+DHCP\s+in\s+Fabric\s+Settings\s+to\s+start\s+the\s+bootstrap",
+                    r"Invalid\s+Fabric",
+                ]
+                for match_text in match_cases:
+                    if re.search(match_text, fail_msg, re.IGNORECASE):
+                        # If we match one of the expected messages then we
+                        # just ignore it and continue.
+                        results['poap_data'] = {}
+                        break
                 else:
-                    # Return any messages we don't recognize and fail
+                    # If we did not match any of the expected messages then
+                    # we return a failure message.
                     results['failed'] = True
                     results['message'] = "Unrecognized Failure Attempting To Get POAP Data: {0}".format(fail_msg)
                     return results
@@ -258,10 +266,12 @@ class ActionModule(ActionBase):
                 # model then we should not continue until we have POAP data
                 # from NDFC
                 results['failed'] = True
-                msg = "POAP is enabled on at least one switch in the service model but "
+                msg = "POAP is enabled on at least one switch in the service model that is NOT currently discovered but "
                 msg += "POAP bootstrap data is not yet available from NDFC. "
                 msg += "To disable poap on a device set (poap.boostrap) to (False) under (vxlan.topology.switches)"
                 results['message'] = msg
+                results['poap_switches'] = workflow.poap_switches
+                results['hints'] = "Double check that the role in the data model matches if a device with this same IP has been discovered"
                 return results
 
         return results

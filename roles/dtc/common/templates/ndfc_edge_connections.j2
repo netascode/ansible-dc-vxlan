@@ -2,10 +2,11 @@
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
+{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
 {% if MD_Extended.vxlan.fabric.type == "ISN" %}
 {% set bgp_asn = MD_Extended.vxlan.multisite.isn.bgp_asn %}
 {% else %}
-{% set bgp_asn = MD_Extended.vxlan.global.bgp_asn %}
+{% set bgp_asn = MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn %}
 {% endif %}
 {% if MD_Extended.vxlan.topology.edge_connections | default([]) | length > 0 %}
 - switch:
@@ -13,7 +14,7 @@
     - ip: {{ link.source_device_ip }}
       policies:
         - create_additional_policy: False
-          description: {{ 'nace_bgp_peer_template_dci_underlay_jython_' + link.source_device + '_' + link.dest_device }}
+          description: {{ 'nace_bgp_peer_template_dci_underlay_jython_' + link.source_device + '_' + link.source_interface + '_' + link.dest_device }}
           name: bgp_peer_template_dci_underlay_jython
           policy_vars:
             BGP_PASSWORD: "{{ link.bgp_section.bgp_password | default('') }}"
@@ -25,7 +26,7 @@
               {{ link.bgp_section.peer_template_freeform | default('') | indent(14, false)}}
           priority: 475
         - create_additional_policy: False
-          description: {{ 'nace_ebgp_underlay_dci_template_' + link.source_device + '_' + link.dest_device }}
+          description: {{ 'nace_ebgp_underlay_dci_template_' + link.source_device + '_' + link.source_interface + '_' + link.dest_device  }}
           name: ebgp_underlay_dci_template
           policy_vars:
             INTF_NAME: {{ link.source_interface }}
@@ -35,7 +36,7 @@
             FF_CONF: |2-
               {{ link.bgp_section.bgp_freeform | default('')  | indent(14, false)}}
             SPEED: Auto
-            ADMIN_STATE: true
+            ADMIN_STATE: {{ link.source_interface_enabled | default(true) }}
             BGP_PASSWORD: ""
             BGP_PASSWORD_ENABLE: false
             OVERRIDE_LOCAL_ASN: false

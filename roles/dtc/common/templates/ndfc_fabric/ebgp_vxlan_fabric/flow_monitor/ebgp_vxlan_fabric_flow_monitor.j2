@@ -1,0 +1,30 @@
+{# Auto-generated NDFC eBGP VXLAN EVPN Flow Monitor config data structure for fabric {{ vxlan.fabric.name }} #}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
+  ENABLE_NETFLOW: {{ vxlan.global.ebgp.netflow.enable | default(defaults.vxlan.global.ebgp.netflow.enable) }}
+{% if vxlan.global.ebgp.netflow.enable is defined and vxlan.global.ebgp.netflow.enable | bool or defaults.vxlan.global.ebgp.netflow.enable | bool %}
+{% if vxlan.global.ebgp.netflow.exporter is defined %}
+{% set exporter_dict = dict() %}
+{% set _ = exporter_dict.update({ "NETFLOW_EXPORTER_LIST":[] }) %}
+{% for e in vxlan.global.ebgp.netflow.exporter %}
+{% set _ = exporter_dict["NETFLOW_EXPORTER_LIST"].append(dict(EXPORTER_NAME=e.name,IP=e.ip_address,VRF=e.vrf | default(""), SRC_IF_NAME=e.source_interface,UDP_PORT=e.udp_port)) %}
+{% endfor %}
+  NETFLOW_EXPORTER_LIST: "{{ exporter_dict | tojson | replace('"', '\\"') }}"
+{% endif %}
+{% if vxlan.global.ebgp.netflow.record is defined %}
+{% set record_dict = dict() %}
+{% set _ = record_dict.update({ "NETFLOW_RECORD_LIST":[] }) %}
+{% for r in vxlan.global.ebgp.netflow.record %}
+{% set _ = record_dict["NETFLOW_RECORD_LIST"].append(dict(RECORD_NAME=r.name,RECORD_TEMPLATE =r.template,LAYER2_RECORD=r.layer2 | default(false) | string | lower)) %}
+{% endfor %}
+  NETFLOW_RECORD_LIST: "{{ record_dict | tojson | replace('"', '\\"') }}"
+{% endif %}
+{% if vxlan.global.ebgp.netflow.monitor is defined %}
+{% set monitor_dict = dict() %}
+{% set _ = monitor_dict.update({ "NETFLOW_MONITOR_LIST":[] }) %}
+{% for m in vxlan.global.ebgp.netflow.monitor %}
+{% set _ = monitor_dict["NETFLOW_MONITOR_LIST"].append(dict(MONITOR_NAME=m.name,RECORD_NAME=m.record,EXPORTER1=m.exporter1,EXPORTER2=m.exporter2 | default(""))) %}
+{% endfor %}
+  NETFLOW_MONITOR_LIST: "{{ monitor_dict | tojson | replace('"', '\\"') }}"
+{% endif %}
+{% endif %}
+{% endif %}
