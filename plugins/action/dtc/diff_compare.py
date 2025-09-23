@@ -33,15 +33,38 @@ class ActionModule(ActionBase):
     Action plugin to compare existing links with new links for a fabric.
     Identifies new/modified, removed, and unchanged items.
     """
+    def __init__(self, *args, **kwargs):
+        super(ActionModule, self).__init__(*args, **kwargs)
+        self.old_file_path = None
+        self.new_file_path = None
+
     def run(self, tmp=None, task_vars=None):
         """
         Run the action plugin.
-        """
-        results = super(ActionModule, self).run(tmp, task_vars)
-        results['interface_all'] = {}
 
-        self.old_file_path = self._task.args['old_file']
-        self.new_file_path = self._task.args['new_file']
+        Args:
+            tmp: Temporary directory for file operations
+            task_vars: Variables available to the task
+
+        Returns:
+            dict: Results containing the comparison of items
+        """
+        if task_vars is None:
+            task_vars = {}
+
+        results = super(ActionModule, self).run(tmp, task_vars)
+        results['compare'] = {}
+
+        # Validate required arguments
+        try:
+            self.old_file_path = self._task.args.get('old_file')
+            self.new_file_path = self._task.args.get('new_file')
+
+            if not self.old_file_path or not self.new_file_path:
+                raise ValueError("Both old_file and new_file arguments are required")
+
+        except (AttributeError, KeyError) as e:
+            return {'failed': True, 'msg': f'Missing required argument: {str(e)}'}
 
         old_items = []
         new_items = []
@@ -67,8 +90,8 @@ class ActionModule(ActionBase):
         from time import sleep
         sleep(10)
 
-        results['interface_all'] = {"updated": updated_items, "removed": removed_items, "equal": equal_items}
-        return results['interface_all']
+        results['compare'] = {"updated": updated_items, "removed": removed_items, "equal": equal_items}
+        return results['compare']
 
     def load_yaml(self, filename):
         """
@@ -115,7 +138,7 @@ class ActionModule(ActionBase):
         if not isinstance(item, dict):
             return None
 
-        filename = self._task['new_file']
+        filename = self.new_file_path
 
         # Handle fabric links specially due to composite key
         if filename.endswith('ndfc_fabric_links.yml'):
@@ -132,6 +155,7 @@ class ActionModule(ActionBase):
         """
         Compare old and new items, returning updated, removed, and equal items.
         """
+
         old_dict = {self.dict_key(item): item for item in old_items}
         new_dict = {self.dict_key(item): item for item in new_items}
 
