@@ -4,23 +4,23 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         dhcp = None
 
         bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_bootstrap']
-        check = cls.data_model_key_check(inventory, bootstrap_keys)
+        check = cls.data_model_key_check(data_model, bootstrap_keys)
         if 'enable_bootstrap' in check['keys_found']:
             bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_local_dhcp_server']
-            check = cls.data_model_key_check(inventory, bootstrap_keys)
-            enable_local_dhcp_server = cls.safeget(inventory, ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_local_dhcp_server'])
+            check = cls.data_model_key_check(data_model, bootstrap_keys)
+            enable_local_dhcp_server = cls.safeget(data_model, ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_local_dhcp_server'])
             if 'enable_local_dhcp_server' in check['keys_found'] and enable_local_dhcp_server:
                 bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'dhcp_version']
-                check = cls.data_model_key_check(inventory, bootstrap_keys)
+                check = cls.data_model_key_check(data_model, bootstrap_keys)
                 if 'dhcp_version' in check['keys_found']:
-                    if inventory['vxlan']['multisite']['isn']['bootstrap']['dhcp_version'] == 'DHCPv4':
+                    if data_model['vxlan']['multisite']['isn']['bootstrap']['dhcp_version'] == 'DHCPv4':
                         dhcp = 'dhcp_v4'
-                    elif inventory['vxlan']['multisite']['isn']['bootstrap']['dhcp_version'] == 'DHCPv6':
+                    elif data_model['vxlan']['multisite']['isn']['bootstrap']['dhcp_version'] == 'DHCPv6':
                         dhcp = 'dhcp_v6'
                 else:
                     results.append("A vxlan.multisite.isn.bootstrap.dhcp_version is required for bootstrap in an ISN type fabric.")
@@ -28,7 +28,7 @@ class Rule:
 
         if dhcp:
             bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', dhcp, 'domain_name']
-            check = cls.data_model_key_check(inventory, bootstrap_keys)
+            check = cls.data_model_key_check(data_model, bootstrap_keys)
             if dhcp in check['keys_not_found']:
                 results.append(
                     "When vxlan.multisite.isn.bootstrap.dhcp_version is defined, either "

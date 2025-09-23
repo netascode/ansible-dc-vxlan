@@ -41,9 +41,9 @@
 - name: Manage Fabric Entry Point
   ansible.builtin.debug:
     msg:
-      - "----------------------------------------------------------------"
+      - "---------------------------------------------------------------"
       - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
-      - "----------------------------------------------------------------"
+      - "---------------------------------------------------------------"
 
 - name: Manage Fabric in Nexus Dashboard
   cisco.dcnm.dcnm_fabric:

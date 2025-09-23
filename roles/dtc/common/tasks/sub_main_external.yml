@@ -59,12 +59,26 @@
 - name: Build External Fabric Switch Inventory List From Template - No Bootstrap
   ansible.builtin.import_tasks: common/ndfc_inventory_no_bootstrap.yml
 
+# --------------------------------------------------------------------
+# Build External Fabric vPC Peering Template
+# --------------------------------------------------------------------
+
+- name: Build External Fabric vPC Peering Template
+  ansible.builtin.import_tasks: external/ndfc_vpc_peering_pairs.yml
+
 # ------------------------------------------------------------------------
 # Build External Fabric Breakout Interfaces List From Template
 # ------------------------------------------------------------------------
 
 - name: Build External Fabric Breakout Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_breakout.yml
+
+# ------------------------------------------------------------------------
+# Build iBGP VXLAN Fabric PreProv Breakout Interfaces List From Template
+# ------------------------------------------------------------------------
+
+- name: Build iBGP VXLAN Fabric Breakout PreProv Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_breakout_preprov.yml
 
 # ----------------------------------------------------------------------------
 # Build External Fabric Access Port-Channel Interfaces List From Template
@@ -170,6 +184,7 @@
       changes_detected_interface_access: "{{ changes_detected_interface_access }}"
       changes_detected_interface_loopback: "{{ changes_detected_interface_loopback }}"
       changes_detected_interface_breakout: "{{ changes_detected_interface_breakout }}"
+      changes_detected_interface_breakout_preprov: "{{ changes_detected_interface_breakout_preprov }}"
       changes_detected_interface_po_routed: "{{ changes_detected_interface_po_routed }}"
       changes_detected_interface_routed: "{{ changes_detected_interface_routed }}"
       changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po }}"
@@ -178,9 +193,11 @@
       changes_detected_interface_dot1q: "{{ changes_detected_interface_dot1q }}"
       changes_detected_interfaces: "{{ changes_detected_interfaces }}"
       changes_detected_policy: "{{ changes_detected_policy }}"
+      changes_detected_vpc_peering: "{{ changes_detected_vpc_peering }}"
       fabric_config: "{{ fabric_config }}"
       edge_connections: "{{ edge_connections }}"
       interface_breakout: "{{ interface_breakout }}"
+      interface_breakout_preprov: "{{ interface_breakout_preprov }}"
       interface_access_po: "{{ interface_access_po }}"
       interface_access: "{{ interface_access }}"
       interface_all: "{{ interface_all }}"
@@ -197,6 +214,7 @@
       sub_interface_routed: "{{ sub_interface_routed }}"
       updated_inv_config: "{{ updated_inv_config }}"
       updated_inv_config_no_bootstrap: "{{ updated_inv_config_no_bootstrap }}"
+      vpc_peering: "{{ vpc_peering }}"
 
 - name: Run Diff Flags
   ansible.builtin.debug:
@@ -205,8 +223,10 @@
       - "+     Fabric Changes Detected -               [ {{ vars_common_external.changes_detected_fabric }} ]"
       - "+     Inventory Changes Detected -            [ {{ vars_common_external.changes_detected_inventory }} ]"
       - "+     Edge Connections Changes Detected -     [ {{ vars_common_external.changes_detected_edge_connections }} ]"
+      - "+     vPC Peer Changes Detected -             [ {{ vars_common_external.changes_detected_vpc_peering }} ]"
       - "+     ----- Interfaces -----"
       - "+     Interface breakout Changes Detected -   [ {{ vars_common_external.changes_detected_interface_breakout }} ]"
+      - "+     Interface PreProv breakout Changes Detected -   [ {{ vars_common_external.changes_detected_interface_breakout_preprov }} ]"
       - "+     Interface Access Changes Detected -     [ {{ vars_common_external.changes_detected_interface_access }} ]"
       - "+     Interface Access PO Changes Detected -  [ {{ vars_common_external.changes_detected_interface_access_po }} ]"
       - "+     Interface Loopback Changes Detected -   [ {{ vars_common_external.changes_detected_interface_loopback }} ]"

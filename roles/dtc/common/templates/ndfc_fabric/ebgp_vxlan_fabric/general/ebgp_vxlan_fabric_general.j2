@@ -1,5 +1,5 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN General config data structure for fabric {{ vxlan.fabric.name }} #}
-  BGP_AS: "{{ vxlan.bgp_asn }}"
+  BGP_AS: "{{ vxlan.global.ebgp.spine_bgp_asn }}"
   SUPER_SPINE_BGP_AS: "{{ vxlan.global.ebgp.super_spine_bgp_asn | default(omit) }}"
   BGP_AS_MODE: "{{ vxlan.global.ebgp.bgp_asn_mode | default(defaults.vxlan.global.ebgp.bgp_asn_mode) }}"
 {% if vxlan.global.ebgp.bgp_asn_mode | default(defaults.vxlan.global.ebgp.bgp_asn_mode) == 'Multi-AS' %}

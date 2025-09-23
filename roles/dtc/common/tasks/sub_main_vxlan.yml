@@ -102,6 +102,13 @@
   ansible.builtin.import_tasks: common/ndfc_interface_breakout.yml
 
 # ------------------------------------------------------------------------
+# Build iBGP VXLAN Fabric PreProv Breakout Interfaces List From Template
+# ------------------------------------------------------------------------
+
+- name: Build iBGP VXLAN Fabric Breakout PreProv Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_breakout_preprov.yml
+
+# ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Loopback Interfaces List From Template
 # ------------------------------------------------------------------------
 
@@ -220,6 +227,7 @@
       changes_detected_interfaces: "{{ changes_detected_interfaces }}"
       changes_detected_interface_loopback: "{{ changes_detected_interface_loopback }}"
       changes_detected_interface_breakout: "{{ changes_detected_interface_breakout }}"
+      changes_detected_interface_breakout_preprov: "{{ changes_detected_interface_breakout_preprov }}"
       changes_detected_interface_po_routed: "{{ changes_detected_interface_po_routed }}"
       changes_detected_interface_routed: "{{ changes_detected_interface_routed }}"
       changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po }}"
@@ -239,6 +247,7 @@
       fabric_links: "{{ fabric_links }}"
       edge_connections: "{{ edge_connections }}"
       interface_breakout: "{{ interface_breakout }}"
+      interface_breakout_preprov: "{{ interface_breakout_preprov }}"
       interface_access_po: "{{ interface_access_po }}"
       interface_access: "{{ interface_access }}"
       interface_all: "{{ interface_all }}"
@@ -275,6 +284,7 @@
       - "+     vPC Domain ID Detected -                [ {{ vars_common_vxlan.changes_detected_vpc_domain_id_resource }} ]"
       - "+     ----- Interfaces -----"
       - "+     Interface breakout Changes Detected -   [ {{ vars_common_vxlan.changes_detected_interface_breakout }} ]"
+      - "+     Interface PreProv breakout Changes Detected -   [ {{ vars_common_vxlan.changes_detected_interface_breakout_preprov }} ]"
       - "+     Interface vPC Changes Detected -        [ {{ vars_common_vxlan.changes_detected_interface_vpc }} ]"
       - "+     Interface Access Changes Detected -     [ {{ vars_common_vxlan.changes_detected_interface_access }} ]"
       - "+     Interface Access PO Changes Detected -  [ {{ vars_common_vxlan.changes_detected_interface_access_po }} ]"

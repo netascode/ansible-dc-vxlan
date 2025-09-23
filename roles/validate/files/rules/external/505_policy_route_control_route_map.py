@@ -45,7 +45,7 @@ class Rule:
                                    ]
 
     @classmethod
-    def match(cls, data):
+    def match(cls, data_model):
         """
         function used by iac-validate
         """
@@ -56,13 +56,13 @@ class Rule:
         group_policies = []
 
         # Get route_control policies
-        if data.get("vxlan", None):
-            if data["vxlan"].get("overlay_extensions", None):
-                if data["vxlan"].get("overlay_extensions").get("route_control", None):
-                    route_control = data["vxlan"]["overlay_extensions"]["route_control"]
+        if data_model.get("vxlan", None):
+            if data_model["vxlan"].get("overlay_extensions", None):
+                if data_model["vxlan"].get("overlay_extensions").get("route_control", None):
+                    route_control = data_model["vxlan"]["overlay_extensions"]["route_control"]
                     # Get groups policies
-                    if data["vxlan"].get("overlay_extensions").get("route_control").get("groups", None):
-                        group_policies = data["vxlan"]["overlay_extensions"]["route_control"]["groups"]
+                    if data_model["vxlan"].get("overlay_extensions").get("route_control").get("groups", None):
+                        group_policies = data_model["vxlan"]["overlay_extensions"]["route_control"]["groups"]
                     else:
                         # group is empty
                         return cls.results
@@ -71,11 +71,11 @@ class Rule:
                     return cls.results
 
         # Get fabric switches
-        if data.get("vxlan"):
-            if data["vxlan"].get("topology"):
-                if data.get("vxlan").get("topology").get("switches"):
+        if data_model.get("vxlan"):
+            if data_model["vxlan"].get("topology"):
+                if data_model.get("vxlan").get("topology").get("switches"):
                     topology_switches = (
-                        data.get("vxlan").get("topology").get("switches")
+                        data_model.get("vxlan").get("topology").get("switches")
                     )
 
         # Check switch Level
@@ -95,9 +95,9 @@ class Rule:
 
         # Check route maps integrity
         rm_keys = ['overlay_extensions', 'route_control', 'route_maps']
-        check = cls.data_model_key_check(data["vxlan"], rm_keys)
+        check = cls.data_model_key_check(data_model["vxlan"], rm_keys)
         if 'route_maps' in check['keys_data']:
-            route_maps = data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]
+            route_maps = data_model["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]
             cls.check_route_maps(
                 route_maps
             )

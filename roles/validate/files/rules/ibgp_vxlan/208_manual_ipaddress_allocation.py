@@ -6,28 +6,28 @@ class Rule:
     results = []
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
 
-        # Check if required keys exist in the inventory
-        check = cls.data_model_key_check(inventory, ['vxlan', 'underlay', 'general', 'manual_underlay_allocation'])
+        # Check if required keys exist in the data_model
+        check = cls.data_model_key_check(data_model, ['vxlan', 'underlay', 'general', 'manual_underlay_allocation'])
         if 'manual_underlay_allocation' not in check['keys_data']:
             # If manual_underlay_allocation key is missing, no need to proceed
             return cls.results
         # Check if manual_underlay_allocation is set to true
-        general = cls.safeget(inventory, ['vxlan', 'underlay', 'general'])
+        general = cls.safeget(data_model, ['vxlan', 'underlay', 'general'])
         if "manual_underlay_allocation" in general:
             # Check if anycast_rp is configured
-            check = cls.data_model_key_check(inventory, ['vxlan', 'underlay', 'multicast', 'ipv4'])
+            check = cls.data_model_key_check(data_model, ['vxlan', 'underlay', 'multicast', 'ipv4'])
             if 'ipv4' not in check['keys_data']:
                 cls.results.append("vxlan.underlay.multicast.ipv4.anycast_rp must be configured when manual_underlay_allocation is true.")
                 return cls.results
 
-            multicast_ipv4 = cls.safeget(inventory, ['vxlan', 'underlay', 'multicast', 'ipv4'])
+            multicast_ipv4 = cls.safeget(data_model, ['vxlan', 'underlay', 'multicast', 'ipv4'])
             if "anycast_rp" not in multicast_ipv4:
                 cls.results.append("vxlan.underlay.multicast.ipv4.anycast_rp must be configured when manual_underlay_allocation is true.")
 
         # Extract the underlay routing loopback IDs
-        underlay_general = cls.safeget(inventory, ["vxlan", "underlay", "general"])
+        underlay_general = cls.safeget(data_model, ["vxlan", "underlay", "general"])
         underlay_routing_loopback_id = underlay_general.get("underlay_routing_loopback_id")
         underlay_vtep_loopback_id = underlay_general.get("underlay_vtep_loopback_id")
 
@@ -35,14 +35,14 @@ class Rule:
         if underlay_routing_loopback_id is None or underlay_vtep_loopback_id is None:
             return cls.results.append("Missing underlay_routing_loopback_id or underlay_vtep_loopback_id in vxlan.underlay.general.")
 
-        # Check if required keys exist in the inventory
-        check = cls.data_model_key_check(inventory, ['vxlan', 'topology', 'switches'])
+        # Check if required keys exist in the data_model
+        check = cls.data_model_key_check(data_model, ['vxlan', 'topology', 'switches'])
         if 'switches' not in check['keys_data']:
             # If switches key is missing, no need to proceed
             return cls.results
 
         # Extract the list of switches
-        switches = cls.safeget(inventory, ["vxlan", "topology", "switches"])
+        switches = cls.safeget(data_model, ["vxlan", "topology", "switches"])
         for switch in switches:
             switch_name = switch.get("name")
 
@@ -70,20 +70,20 @@ class Rule:
                 )
 
         # Check if vtep_ip exist in vpc_peers
-        cls.validate_vpc_peers_and_vtep_vip(inventory)
+        cls.validate_vpc_peers_and_vtep_vip(data_model)
 
         return cls.results
 
     @classmethod
-    def validate_vpc_peers_and_vtep_vip(cls, inventory):
+    def validate_vpc_peers_and_vtep_vip(cls, data_model):
         """
         Validates vPC peers and ensures vtep_vip is defined and unique when manual_underlay_allocation is true.
         """
-        check = cls.data_model_key_check(inventory, ["vxlan", "topology", "vpc_peers"])
+        check = cls.data_model_key_check(data_model, ["vxlan", "topology", "vpc_peers"])
         if 'vpc_peers' not in check['keys_data']:
             # If switches key is missing, no need to proceed
             return cls.results
-        vpc_peers = cls.safeget(inventory, ["vxlan", "topology", "vpc_peers"])
+        vpc_peers = cls.safeget(data_model, ["vxlan", "topology", "vpc_peers"])
         vtep_vip_list = set()
         vpc_peers_list = []
 
@@ -102,21 +102,21 @@ class Rule:
             else:
                 vtep_vip_list.add(vtep_vip)
 
-            check = cls.data_model_key_check(inventory, ["vxlan", "underlay", "ipv4"])
+            check = cls.data_model_key_check(data_model, ["vxlan", "underlay", "ipv4"])
             if 'ipv4' in check['keys_data']:
-                interface_numbering = cls.safeget(inventory, ["vxlan", "underlay", "ipv4"])
+                interface_numbering = cls.safeget(data_model, ["vxlan", "underlay", "ipv4"])
 
                 # Check IP address under vxlan.topology.fabric_link only if
                 # fabric numbering is P2P or fabric peering is false (Use Fabric Peer-Link)
                 if peer.get("fabric_peering") is False or interface_numbering["fabric_interface_numbering"] == "p2p":
-                    cls.validate_fabric_links(inventory, vpc_peers_list)
+                    cls.validate_fabric_links(data_model, vpc_peers_list)
 
     @classmethod
-    def validate_fabric_links(cls, inventory, vpc_peers_list):
+    def validate_fabric_links(cls, data_model, vpc_peers_list):
         """
         Validates fabric links to ensure that IPv4 configuration is present for vPC peer connections.
         """
-        check = cls.data_model_key_check(inventory, ["vxlan", "topology", "fabric_links"])
+        check = cls.data_model_key_check(data_model, ["vxlan", "topology", "fabric_links"])
 
         if 'fabric_links' not in check['keys_data']:
             if vpc_peers_list:
@@ -126,7 +126,7 @@ class Rule:
                 # If switches key is missing, no need to proceed
                 return cls.results
 
-        fabric_links = cls.safeget(inventory, ["vxlan", "topology", "fabric_links"])
+        fabric_links = cls.safeget(data_model, ["vxlan", "topology", "fabric_links"])
         fabric_links_list = []
 
         for link in fabric_links:
@@ -137,13 +137,15 @@ class Rule:
             ipv4_config = link.get("ipv4", {})
 
             # Check IPv4 configuration
-            if not ipv4_config or not ipv4_config.get("subnet") or not ipv4_config.get("source_ipv4") or not ipv4_config.get("dest_ipv4"):
-                cls.results.append(
-                    f"Fabric link between '{source_device}' and '{dest_device}' is missing a valid IPv4 configuration."
-                )
+            if ipv4_config != {}:
+                # Check IPv4 configuration
+                if not ipv4_config or not ipv4_config.get("subnet") or not ipv4_config.get("source_ipv4") or not ipv4_config.get("dest_ipv4"):
+                    cls.results.append(
+                        f"Fabric link between '{source_device}' and '{dest_device}' is missing a valid IPv4 configuration."
+                    )
 
         # Check if vpc_peers is on fabric_link
-        vpc_peers = cls.safeget(inventory, ["vxlan", "topology", "vpc_peers"])
+        vpc_peers = cls.safeget(data_model, ["vxlan", "topology", "vpc_peers"])
         for peer in vpc_peers:
             peer1 = f"{peer.get('peer1')}-{peer.get('peer2')}"
             peer2 = f"{peer.get('peer2')}-{peer.get('peer1')}"
