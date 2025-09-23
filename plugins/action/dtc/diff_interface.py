@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -24,9 +24,9 @@ from __future__ import absolute_import, division, print_function
 import yaml
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-import logging
 
 display = Display()
+
 
 class ActionModule(ActionBase):
     """
@@ -64,7 +64,8 @@ class ActionModule(ActionBase):
         display.v("---------------------------------")
         display.v("Unchanged Items:\n%s", yaml.dump(equal_items, default_flow_style=False))
 
-        from time import sleep ; sleep(10)
+        from time import sleep;
+        sleep(10)
 
         results['interface_all'] = {"updated": updated_items, "removed": removed_items, "equal": equal_items}
         return results['interface_all']
@@ -76,18 +77,56 @@ class ActionModule(ActionBase):
         with open(filename, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f) or []
 
+    KEY_MAPPING = {
+    'ndfc_interface_all.yml': 'name',
+    'ndfc_underlay_ip_address.yml': 'entity_name',
+    'ndfc_attach_vrfs.yml': 'vrf_name',
+    'ndfc_attach_networks.yml': 'net_name',
+    'ndfc_vpc_domain_id_resource.yml': 'entity_name',
+    'ndfc_vpc_peering.yml': 'peerOneId'
+}
+
+    def _create_fabric_link_key(self, item):
+        """
+        Create a unique key for fabric links from multiple attributes.
+
+        Args:
+            item (dict): The fabric link item containing link details
+
+        Returns:
+            str: A unique key for the fabric link or None if required fields are missing
+        """
+        required_fields = ['dst_fabric', 'src_device', 'src_interface', 'dst_interface']
+        if not all(item.get(field) for field in required_fields):
+            return None
+
+        return '_'.join([item.get(field) for field in required_fields])
+
     def dict_key(self, item):
         """
-        Return the unique key for an item (e.g., interface name).
+        Return the unique key for an item based on its type.
+
+        Args:
+            item (dict): The item to generate a key for
+
+        Returns:
+            str: The unique key for the item, or None if no key could be generated
         """
-        if self.new_file_path.endswith('ndfc_interface_all.yml'):
-            return item.get('name')
-        elif self.new_file_path.endswith('ndfc_underlay_ip_address.yml'):
-            return item.get('entity_name')
-        elif self.new_file_path.endswith('ndfc_attach_vrfs.yml'):
-            return item.get('vrf_name')
-        else:
+        if not isinstance(item, dict):
             return None
+
+        filename = self._task['new_file']
+
+        # Handle fabric links specially due to composite key
+        if filename.endswith('ndfc_fabric_links.yml'):
+            return self._create_fabric_link_key(item)
+
+        # Find matching file type and return corresponding key
+        for file_type, key_attr in self.KEY_MAPPING.items():
+            if filename.endswith(file_type):
+                return item.get(key_attr)
+
+        return None
 
     def compare_items(self, old_items, new_items):
         """
@@ -96,9 +135,9 @@ class ActionModule(ActionBase):
         old_dict = {self.dict_key(item): item for item in old_items}
         new_dict = {self.dict_key(item): item for item in new_items}
 
-        updated_items = [] # Updated items in new file
-        removed_items = [] # Items removed in new file
-        equal_items = []   # Items unchanged
+        updated_items = []  # Updated items in new file
+        removed_items = []  # Items removed in new file
+        equal_items = []  # Items unchanged
 
         for key, new_item in new_dict.items():
             old_item = old_dict.get(key)
