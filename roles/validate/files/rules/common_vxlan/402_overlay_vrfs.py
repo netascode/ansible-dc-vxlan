@@ -4,31 +4,31 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         fabric_netflow_status = False
         fabric_trm_status = False
         vrfs = []
 
-        if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("global", None):
-                if inventory["vxlan"].get("global").get("netflow", None):
-                    fabric_netflow_status = inventory["vxlan"]["global"]["netflow"].get("enable", False)
+        if data_model.get("vxlan", None):
+            if data_model["vxlan"].get("global", None):
+                if data_model["vxlan"].get("global").get("netflow", None):
+                    fabric_netflow_status = data_model["vxlan"]["global"]["netflow"].get("enable", False)
 
-            if inventory["vxlan"].get("underlay", None):
-                if inventory["vxlan"].get("underlay").get("multicast", None):
-                    if inventory["vxlan"].get("underlay").get("multicast").get("ipv4", None):
-                        fabric_trm_status = inventory["vxlan"]["underlay"]["multicast"]["ipv4"].get("trm_enable", False)
+            if data_model["vxlan"].get("underlay", None):
+                if data_model["vxlan"].get("underlay").get("multicast", None):
+                    if data_model["vxlan"].get("underlay").get("multicast").get("ipv4", None):
+                        fabric_trm_status = data_model["vxlan"]["underlay"]["multicast"]["ipv4"].get("trm_enable", False)
 
             vrf_keys = ['vxlan', 'overlay', 'vrfs']
-            check = cls.data_model_key_check(inventory, vrf_keys)
+            check = cls.data_model_key_check(data_model, vrf_keys)
             if 'vrfs' in check['keys_data']:
-                vrfs = inventory["vxlan"]["overlay"]["vrfs"]
+                vrfs = data_model["vxlan"]["overlay"]["vrfs"]
             else:
                 vrf_keys = ['vxlan', 'overlay_services', 'vrfs']
-                check = cls.data_model_key_check(inventory, vrf_keys)
+                check = cls.data_model_key_check(data_model, vrf_keys)
                 if 'vrfs' in check['keys_data']:
-                    vrfs = inventory["vxlan"]["overlay_services"]["vrfs"]
+                    vrfs = data_model["vxlan"]["overlay_services"]["vrfs"]
 
         for vrf in vrfs:
             current_vrf_netflow_status = vrf.get("netflow_enable", None)

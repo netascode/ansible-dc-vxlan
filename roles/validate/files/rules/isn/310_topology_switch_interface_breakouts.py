@@ -4,12 +4,12 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         # Reset results at the start of each call to avoid retaining previous results
         results = []
 
-        # Extract switches from the inventory
-        switches = inventory.get("vxlan", {}).get("topology", {}).get("switches", [])
+        # Extract switches from the data_model
+        switches = data_model.get("vxlan", {}).get("topology", {}).get("switches", [])
         if switches is None:
             return results
 

@@ -39,9 +39,9 @@
   ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
 {% endif %}
   MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.ipv4.group_subnet | default(defaults.vxlan.underlay.multicast.ipv4.group_subnet) }}
-{% if (vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) %}
-  L3VNI_MCAST_GROUP: {{ vxlan.underlay.multicast.ipv4.trm_default_group | default(defaults.vxlan.underlay.multicast.ipv4.trm_default_group) }}
-{% endif %}
+{# {% if (vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) %} #}
+{#   L3VNI_MCAST_GROUP: {{ vxlan.underlay.multicast.ipv4.trm_default_group | default(defaults.vxlan.underlay.multicast.ipv4.trm_default_group) }} #}
+{# {% endif %} #}
 {% if ( (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) and
         (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool) ) %}
   L3VNI_IPv6_MCAST_GROUP: "{{ vxlan.underlay.multicast.ipv6.trmv6_default_group | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_default_group) }}"

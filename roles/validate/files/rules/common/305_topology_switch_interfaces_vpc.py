@@ -3,14 +3,12 @@ import re
 
 class Rule:
     id = "305"
-    description = (
-        "Verify vPC interfaces are compliant with vPC configuration requirements"
-    )
+    description = "Verify vPC interfaces are compliant with vPC configuration requirements"
     severity = "HIGH"
 
     # Check if vPC interfaces are compliant with vPC configuration requirements
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         # initialize results list, vpc_interfaces_dict and vpc_interfaces_dict_parameters dictionaries, vpc_params_to_match list and vpc_peers_list
         results = []
         vpc_interfaces_dict = {}
@@ -22,13 +20,13 @@ class Rule:
             "spanning_tree_portfast",
             "pc_mode",
         ]
-        vpc_peers_list = cls.get_vpc_peers(inventory)
+        vpc_peers_list = cls.get_vpc_peers(data_model)
         # Check if fabric topology switches are defined
         switches = []
-        if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("topology", None):
-                if inventory.get("vxlan").get("topology").get("switches", None):
-                    switches = inventory.get("vxlan").get("topology").get("switches")
+        if data_model.get("vxlan", None):
+            if data_model["vxlan"].get("topology", None):
+                if data_model.get("vxlan").get("topology").get("switches", None):
+                    switches = data_model.get("vxlan").get("topology").get("switches")
         for switch in switches:
             switch_name = switch["name"]
             # Check if interfaces are defined
@@ -190,13 +188,13 @@ class Rule:
 
     # Get vpc pairs from fabric topology vpc_peers
     @classmethod
-    def get_vpc_peers(cls, inventory):
+    def get_vpc_peers(cls, data_model):
         vpc_peers_list = []
-        if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("topology", None):
-                if inventory.get("vxlan").get("topology").get("vpc_peers", None):
+        if data_model.get("vxlan", None):
+            if data_model["vxlan"].get("topology", None):
+                if data_model.get("vxlan").get("topology").get("vpc_peers", None):
                     for vpc_peers in (
-                        inventory.get("vxlan").get("topology").get("vpc_peers")
+                        data_model.get("vxlan").get("topology").get("vpc_peers")
                     ):
                         vpc_peers_list.append(
                             sorted([vpc_peers.get("peer1"), vpc_peers.get("peer2")])

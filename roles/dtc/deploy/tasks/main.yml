@@ -43,7 +43,9 @@
     vars_common_vxlan.changes_detected_policy or
     vars_common_vxlan.changes_detected_sub_interface_routed or
     vars_common_vxlan.changes_detected_vpc_peering or
-    vars_common_vxlan.changes_detected_vrfs)
+    vars_common_vxlan.changes_detected_vrfs or
+    vars_common_vxlan.changes_detected_edge_connections or
+    vars_common_vxlan.changes_detected_underlay_ip_address)
 
 - name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
@@ -53,6 +55,7 @@
     (vars_common_msd.changes_detected_fabric or
     vars_common_msd.changes_detected_vrfs or
     vars_common_msd.changes_detected_networks or
+    (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0) or
     vars_common_msd.changes_detected_bgw_anycast_vip)
 
 - name: Import ISN Fabric Role Tasks

@@ -9,21 +9,19 @@ class Rule:
     """
 
     id = "503"
-    description = (
-        "Verify IP address format for Route-Control"
-    )
+    description = "Verify IP address format for Route-Control"
     severity = "HIGH"
     results = []
 
     @classmethod
-    def match(cls, data):
+    def match(cls, data_model):
         """
-        Matches and validates IP prefixes in the data based on provided keys and their entries.
+        Matches and validates IP prefixes in the data_model based on provided keys and their entries.
         """
-        cls.validate_prefix_lists(data, "ipv4_prefix_lists", "IPv4")
-        cls.validate_prefix_lists(data, "ipv6_prefix_lists", "IPv6")
-        cls.validate_acls(data, "ipv4_access_lists", "IPv4")
-        cls.validate_acls(data, "ipv6_access_lists", "IPv6")
+        cls.validate_prefix_lists(data_model, "ipv4_prefix_lists", "IPv4")
+        cls.validate_prefix_lists(data_model, "ipv6_prefix_lists", "IPv6")
+        cls.validate_acls(data_model, "ipv4_access_lists", "IPv4")
+        cls.validate_acls(data_model, "ipv6_access_lists", "IPv6")
 
         return cls.results
 

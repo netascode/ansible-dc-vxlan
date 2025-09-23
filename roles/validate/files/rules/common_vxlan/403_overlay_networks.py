@@ -4,51 +4,51 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         fabric_netflow_status = False
         fabric_trm_status = False
         networks = []
 
-        if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("global", None):
-                if inventory["vxlan"].get("global").get("netflow", None):
-                    fabric_netflow_status = inventory["vxlan"]["global"]["netflow"].get("enable", False)
+        if data_model.get("vxlan", None):
+            if data_model["vxlan"].get("global", None):
+                if data_model["vxlan"].get("global").get("netflow", None):
+                    fabric_netflow_status = data_model["vxlan"]["global"]["netflow"].get("enable", False)
 
         # Uncomment 19-22 when verified to work and remove line 13-16.
         # netflow_keys = ['vxlan', 'global', 'netflow', 'enable']
-        # check = cls.data_model_key_check(inventory, netflow_keys)
+        # check = cls.data_model_key_check(data_model, netflow_keys)
         # if 'enable' in check['keys_data']:
-        #     fabric_netflow_status = cls.safeget(inventory, netflow_keys)
+        #     fabric_netflow_status = cls.safeget(data_model, netflow_keys)
 
-        if inventory.get("vxlan", None):
-            if inventory["vxlan"].get("underlay", None):
-                if inventory["vxlan"].get("underlay").get("multicast", None):
-                    if inventory["vxlan"].get("underlay").get("multicast").get("ipv4", None):
-                        fabric_trm_status = inventory["vxlan"]["underlay"]["multicast"]["ipv4"].get("trm_enable", False)
+        if data_model.get("vxlan", None):
+            if data_model["vxlan"].get("underlay", None):
+                if data_model["vxlan"].get("underlay").get("multicast", None):
+                    if data_model["vxlan"].get("underlay").get("multicast").get("ipv4", None):
+                        fabric_trm_status = data_model["vxlan"]["underlay"]["multicast"]["ipv4"].get("trm_enable", False)
 
         # Uncomment 31-34 when verified to work and remove line 25-28.
         # trm_keys = ['vxlan', 'underlay', 'multicast', 'trm_enabled']
-        # check = cls.data_model_key_check(inventory, trm_keys)
+        # check = cls.data_model_key_check(data_model, trm_keys)
         # if 'trm_enable' in check['keys_data']:
-        #     fabric_trm_status = cls.safeget(inventory, trm_keys)
+        #     fabric_trm_status = cls.safeget(data_model, trm_keys)
 
         network_keys = ['vxlan', 'overlay', 'networks']
-        check = cls.data_model_key_check(inventory, network_keys)
+        check = cls.data_model_key_check(data_model, network_keys)
         if 'networks' in check['keys_data']:
-            networks = inventory["vxlan"]["overlay"]["networks"]
+            networks = data_model["vxlan"]["overlay"]["networks"]
         else:
             network_keys = ['vxlan', 'overlay_services', 'networks']
-            check = cls.data_model_key_check(inventory, network_keys)
+            check = cls.data_model_key_check(data_model, network_keys)
             if 'networks' in check['keys_data']:
-                networks = inventory["vxlan"]["overlay_services"]["networks"]
+                networks = data_model["vxlan"]["overlay_services"]["networks"]
 
-        # if inventory.get("vxlan", None):
-        #     if inventory["vxlan"].get("overlay", None) or inventory["vxlan"].get("overlay_services", None):
-        #         if inventory["vxlan"].get("overlay").get("networks", None):
-        #             networks = inventory["vxlan"]["overlay"]["networks"]
-        #         elif inventory["vxlan"].get("overlay_services").get("networks", None):
-        #             networks = inventory["vxlan"]["overlay_services"]["networks"]
+        # if data_model.get("vxlan", None):
+        #     if data_model["vxlan"].get("overlay", None) or data_model["vxlan"].get("overlay_services", None):
+        #         if data_model["vxlan"].get("overlay").get("networks", None):
+        #             networks = data_model["vxlan"]["overlay"]["networks"]
+        #         elif data_model["vxlan"].get("overlay_services").get("networks", None):
+        #             networks = data_model["vxlan"]["overlay_services"]["networks"]
 
         for network in networks:
             current_network_netflow_status = network.get("netflow_enable", None)

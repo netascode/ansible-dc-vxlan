@@ -323,11 +323,16 @@ This collection is intended for use with the following release versions:
 * `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.1`
 * `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.2`
 * `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.3`
+* `Cisco Nexus Dashboard Release 4.1.1g` - Unified Nexus Dashboard Tech Preview
 
 <!--start requires_ansible-->
 ## Ansible Version Compatibility
 
-This collection has been tested against following Ansible versions: **>=2.14.15**.
+This collection has been tested against following Ansible Core versions: 
+* `2.14.x`
+* `2.15.x`
+* `2.16.x`
+* `2.17.x`
 
 Plugins, roles and modules within a collection may be tested with only specific Ansible versions.
 A collection may contain metadata that identifies these versions.

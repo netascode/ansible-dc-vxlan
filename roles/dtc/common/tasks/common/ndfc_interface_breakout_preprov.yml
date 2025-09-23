@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,19 +21,14 @@
 
 ---
 
-- name: Get POAP Data From POAP Enabled Devices
-  cisco.nac_dc_vxlan.dtc.get_poap_data:
-    model_data: "{{ MD_Extended }}"
-  register: poap_data
-
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
-    changes_detected_inventory: false
+    changes_detected_interface_breakout_preprov: false
   delegate_to: localhost
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
-    file_name: "ndfc_inventory.yml"
+    file_name: "ndfc_interface_breakout_preprov.yml"
   delegate_to: localhost
 
 - name: Stat Previous File If It Exists
@@ -56,40 +51,22 @@
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
-- name: Set Path For Inventory File Lookup
-  ansible.builtin.set_fact:
-    inv_file_path: "{{ path_name }}{{ file_name }}"
-  delegate_to: localhost
-
-- name: Build Fabric Switch Inventory List From Template
+- name: Build Interface
   ansible.builtin.template:
-    src: ndfc_inventory.j2
-    dest: "{{ inv_file_path }}"
+    src: ndfc_interfaces/ndfc_interface_breakout_preprov.j2
+    dest: "{{ path_name }}{{ file_name }}"
     mode: '0644'
   delegate_to: localhost
 
-- name: Create Empty inv_config Var
+- name: Initialize interface_breakout Var
   ansible.builtin.set_fact:
-    inv_config: []
+    interface_breakout_preprov: []
   delegate_to: localhost
 
-- name: Set inv_config Var
+- name: Set interface_breakout_preprov Var
   ansible.builtin.set_fact:
-    inv_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: (MD_Extended.vxlan.topology.switches | default([])) | length > 0
-  delegate_to: localhost
-
-- name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
-  cisco.nac_dc_vxlan.common.get_credentials:
-    inv_list: "{{ inv_config }}"
-    model_data: "{{ MD_Extended }}"
-  register: updated_inv_config
-  no_log: true
-
-- name: Credential Retrieval Failed
-  ansible.builtin.fail:
-    msg: "{{ updated_inv_config }}"
-  when: updated_inv_config['retrieve_failed']
+    interface_breakout_preprov: "{{ lookup('file', path_name + file_name) | from_yaml }}"
+  when: MD_Extended.vxlan.topology.interfaces.modes.breakout_preprov.count > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
@@ -101,7 +78,7 @@
 
 - name: Set File Change Flag Based on File Diff Result
   ansible.builtin.set_fact:
-    changes_detected_inventory: true
+    changes_detected_interface_breakout_preprov: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

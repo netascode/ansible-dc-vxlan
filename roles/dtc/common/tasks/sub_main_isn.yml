@@ -57,7 +57,7 @@
 # We need to also build an inventory list without bootstrap settings
 # This will be used for device removal.
 - name: Build ISN Fabric Switch Inventory List From Template - No Bootstrap
-  ansible.builtin.import_tasks: isn/ndfc_inventory_no_bootstrap.yml
+  ansible.builtin.import_tasks: common/ndfc_inventory_no_bootstrap.yml
 
 # ------------------------------------------------------------------------
 # Build ISN Fabric Breakout Interfaces List From Template
@@ -65,6 +65,13 @@
 
 - name: Build ISN Fabric Breakout Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_breakout.yml
+
+# ------------------------------------------------------------------------
+# Build iBGP VXLAN Fabric PreProv Breakout Interfaces List From Template
+# ------------------------------------------------------------------------
+
+- name: Build iBGP VXLAN Fabric Breakout PreProv Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_breakout_preprov.yml
 
 # ------------------------------------------------------------------------
 # Build ISN Fabric Loopback Interfaces List From Template
@@ -170,6 +177,7 @@
       changes_detected_interfaces: "{{ changes_detected_interfaces }}"
       changes_detected_interface_loopback: "{{ changes_detected_interface_loopback }}"
       changes_detected_interface_breakout: "{{ changes_detected_interface_breakout }}"
+      changes_detected_interface_breakout_preprov: "{{ changes_detected_interface_breakout_preprov }}"
       changes_detected_interface_po_routed: "{{ changes_detected_interface_po_routed }}"
       changes_detected_interface_routed: "{{ changes_detected_interface_routed }}"
       changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po }}"
@@ -181,6 +189,7 @@
       changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed }}"
       fabric_config: "{{ fabric_config }}"
       interface_breakout: "{{ interface_breakout }}"
+      interface_breakout_preprov: "{{ interface_breakout_preprov }}"
       interface_access_po: "{{ interface_access_po }}"
       interface_access: "{{ interface_access }}"
       interface_all: "{{ interface_all }}"
@@ -206,6 +215,7 @@
       - "+     Inventory Changes Detected -            [ {{ vars_common_isn.changes_detected_inventory }} ]"
       - "+     ----- Interfaces -----"
       - "+     Interface breakout Changes Detected -   [ {{ vars_common_isn.changes_detected_interface_breakout }} ]"
+      - "+     Interface PreProv breakout Changes Detected -   [ {{ vars_common_isn.changes_detected_interface_breakout_preprov }} ]"
       - "+     Interface vPC Changes Detected -        [ {{ vars_common_isn.changes_detected_interface_vpc }} ]"
       - "+     Interface Access Changes Detected -     [ {{ vars_common_isn.changes_detected_interface_access }} ]"
       - "+     Interface Access PO Changes Detected -  [ {{ vars_common_isn.changes_detected_interface_access_po }} ]"
