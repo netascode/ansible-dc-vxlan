@@ -53,14 +53,20 @@
 # Manage vPC Domain ID
 # --------------------------------------------------------------------
 
+- name: Debug Domain ID
+  ansible.builtin.debug:
+    msg:
+      - "{{ vars_common_vxlan.vpc_domain_id_resource_diff_result }}"
+
 - name: Manage vPC Domain ID Resource in Nexus Dashboard
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ vars_common_vxlan.vpc_domain_id_resource }}"
+    # config: "{{ vars_common_vxlan.vpc_domain_id_resource }}"
+    config: "{{ vars_common_vxlan.vpc_domain_id_resource_diff_result.updated }}"
   when:
-    - vars_common_vxlan.vpc_domain_id_resource is defined
-    - vars_common_vxlan.vpc_domain_id_resource | length > 0
+    - vars_common_vxlan.vpc_domain_id_resource_diff_result is defined
+    - vars_common_vxlan.vpc_domain_id_resource_diff_result.updated | length > 0
 
 # --------------------------------------------------------------------
 # Manage Intra Fabric Links for vPC Peering in Nexus Dashboard
@@ -80,9 +86,17 @@
 # Manage vPC Peering in Nexus Dashboard
 # --------------------------------------------------------------------
 
+- name: Debug vPC Peering
+  ansible.builtin.debug:
+    msg:
+      # - "{{ vars_common_vxlan }}"
+      - "{{ vars_common_local.vpc_peering_diff_result }}"
+
 - name: Manage vPC Peering in Nexus Dashboard
   cisco.dcnm.dcnm_vpc_pair:
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     deploy: false
     state: replaced
-    config: "{{ vars_common_local.vpc_peering }}"
+    # config: "{{ vars_common_local.vpc_peering }}"
+    config: "{{ vars_common_local.vpc_peering_diff_result.updated }}"
+  when: vars_common_local.vpc_peering_diff_result is defined and vars_common_local.vpc_peering_diff_result.updated | length > 0

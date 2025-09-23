@@ -54,7 +54,7 @@
   ansible.builtin.import_tasks: common/vpc_peering.yml
   when:
     - MD_Extended.vxlan.topology.vpc_peers | length > 0
-    - vars_common_vxlan.changes_detected_vpc_peering
+    - vars_common_vxlan.changes_detected_vpc_peering or vars_common_vxlan.changes_detected_vpc_domain_id_resource
   tags: "{{ nac_tags.create_vpc_peers }}"
 
 - name: Config-Save Block to Propagate vPC Changes to iBGP VXLAN Fabric in Nexus Dashboard

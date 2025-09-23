@@ -60,7 +60,8 @@
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ vars_common_vxlan.underlay_ip_address }}"
+    # config: "{{ vars_common_vxlan.underlay_ip_address }}"
+    config: "{{ vars_common_vxlan.underlay_ip_address_diff_result.updated }}"
   when:
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
