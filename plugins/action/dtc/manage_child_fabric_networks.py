@@ -89,9 +89,7 @@ class ActionModule(ActionBase):
                 child_fabric_type = child_fabrics[child_fabric]['type']
                 if child_fabric_type in ['Switch_Fabric']:
                     child_fabric_attributes = child_fabrics[child_fabric]['attributes']
-                    child_fabric_switches = child_fabrics[child_fabric]['switches']
                     child_fabric_cluster = child_fabrics[child_fabric].get('cluster')
-                    child_fabric_switches_mgmt_ip_addresses = [child_fabric_switch['mgmt_ip_address'] for child_fabric_switch in child_fabric_switches]
 
                     network_child_fabric = []
                     if network_child_fabrics:

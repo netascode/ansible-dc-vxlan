@@ -142,7 +142,5 @@ class PreparePlugin:
                     if net.get('network_attach_group') not in net_grp_name_list:
                         del net['network_attach_group']
 
-            model_data['vxlan']['multisite']['overlay_services'] = model_data['vxlan']['multisite']['overlay']
-            model_data['vxlan']['overlay_services'] = model_data['vxlan']['multisite']['overlay']
         self.kwargs['results']['model_extended'] = model_data
         return self.kwargs['results']

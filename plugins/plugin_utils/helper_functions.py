@@ -24,8 +24,6 @@
 #
 # For example in prepare_serice_model.py we can do the following:
 #  from ..helper_functions import do_something
-import re
-
 
 def data_model_key_check(tested_object, keys):
     """
@@ -304,10 +302,3 @@ def ndfc_get_fabric_switches_onepath(self, task_vars, tmp, fabric, cluster):
             )
 
     return fabric_switches
-
-
-def normalise_int_lists(data):
-    for interface in data:
-        if interface.startswith(('Ethernet', 'ethernet', 'Eth', 'eth', 'E', 'e')):
-            interface = "Ethernet" + re.split(r'(?=\d)', interface, 1)[1]
-    return data

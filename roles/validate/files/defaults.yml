@@ -447,19 +447,7 @@ factory_defaults:
       vtep_loopback_id: 100
       bgw_ip_tag: 54321
       ipv4_vtep_loopback_range: 10.10.0.0/24
-      ipv4_dci_subnet_range: 10.10.1.0/24
-      ipv4_dci_subnet_mask: 30
       ipv6_vtep_loopback_range: fd00::a10:0/120
-      ipv6_dci_subnet_range: fd00::a11:0/120
-      ipv6_dci_subnet_mask: 126
-      overlay_ifc: Direct_To_BGWS
-      underlay_autoconfig: true
-      enable_bgp_send_community: false
-      enable_bgp_log_neighbor_change: false
-      enable_bgp_bfd: false
-      delay_restore: 300
-      enable_ebgp_password: false
-      enable_trm: false
       overlay:
         vrfs:
           vrf_description: "Configured by Ansible NetAsCode"
