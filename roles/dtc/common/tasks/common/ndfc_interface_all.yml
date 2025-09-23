@@ -59,19 +59,20 @@
 
 - name: Debug All Interface Variables
   ansible.builtin.debug:
-    msg: |
-      Interface Types:
-        Breakout:           {{ interface_breakout | default([]) }}
-        Access:             {{ interface_access | default([]) }}
-        Access Port-Channel: {{ interface_access_po | default([]) }}
-        Trunk:              {{ interface_trunk | default([]) }}
-        Trunk Port-Channel: {{ interface_trunk_po | default([]) }}
-        Routed:            {{ interface_routed | default([]) }}
-        Port-Channel Routed: {{ interface_po_routed | default([]) }}
-        Sub-Interface Routed: {{ sub_interface_routed | default([]) }}
-        VPC:               {{ interface_vpc | default([]) }}
-        Loopback:          {{ int_loopback_config | default([]) }}
-        Dot1Q:             {{ interface_dot1q | default([]) }}
+    msg:
+      - "----------------------------------------------------------------"
+      - "Interface Types:"
+      - "  Breakout:           {{ interface_breakout | default([]) }}"
+      - "  Access:             {{ interface_access | default([]) }}"
+      - "  Access Port-Channel: {{ interface_access_po | default([]) }}"
+      - "  Trunk:              {{ interface_trunk | default([]) }}"
+      - "  Trunk Port-Channel: {{ interface_trunk_po | default([]) }}"
+      - "  Routed:            {{ interface_routed | default([]) }}"
+      - "  Port-Channel Routed: {{ interface_po_routed | default([]) }}"
+      - "  Sub-Interface Routed: {{ sub_interface_routed | default([]) }}"
+      - "  VPC:               {{ interface_vpc | default([]) }}"
+      - "  Loopback:          {{ int_loopback_config | default([]) }}"
+      - "  Dot1Q:             {{ interface_dot1q | default([]) }}"
 
 - name: Set interface_all Var
   ansible.builtin.set_fact:
