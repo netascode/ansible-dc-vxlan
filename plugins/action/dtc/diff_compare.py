@@ -64,7 +64,7 @@ class ActionModule(ActionBase):
         display.v("---------------------------------")
         display.v("Unchanged Items:\n%s", yaml.dump(equal_items, default_flow_style=False))
 
-        from time import sleep;
+        from time import sleep
         sleep(10)
 
         results['interface_all'] = {"updated": updated_items, "removed": removed_items, "equal": equal_items}
