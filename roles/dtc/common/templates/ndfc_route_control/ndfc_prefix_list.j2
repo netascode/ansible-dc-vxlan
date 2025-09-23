@@ -28,9 +28,9 @@ ip prefix-list {{ ipv4_prefix_list["name"] }} description {{ ipv4_prefix_list["d
                             {% set _ = options.append("mask " ~ entry["mask"] ) %}
                         {% endif %}
                         {% if options | length > 0 %}
-ip prefix-list {{ ipv4_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }} {{ options | join(" ") }}
+ip prefix-list {{ ipv4_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] | ipaddr('network/prefix') }} {{ options | join(" ") }}
                         {% else %}
-ip prefix-list {{ ipv4_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] }}
+ip prefix-list {{ ipv4_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] | ipaddr('network/prefix') }}
                         {% endif %}
                     {% endfor %}
                 {% endif %}

@@ -50,7 +50,7 @@
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden
-    config: "{{ vars_common_local.interface_all | default(vars_common_local.interface_all) }}"
+    config: "{{ vars_common_local.interface_all }}"
     # deploy: false
   vars:
     ansible_command_timeout: 3000

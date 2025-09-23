@@ -86,15 +86,14 @@
 
 - name: Set file_name Var for loopback attachments
   ansible.builtin.set_fact:
-    file_name: "attach_vrfs_loopbacks.yml"
+    file_name: "{{ MD_Extended.vxlan.fabric.name }}_attach_vrfs_loopbacks.yml"
   delegate_to: localhost
 
 # Check with Matt and Pete on how we want to handle VRF loopbacks for MSD
-# - name: Build VRFs Attach List From Template
+# - name: Build VRFs Attach List From Template for loopback
 #   ansible.builtin.template:
-#     src: "{{ role_path }}/../common/templates/ndfc_vrfs/mfd_fabric/ndfc_attach_vrfs_loopbacks.j2"
+#     src: ndfc_attach_vrfs_loopbacks.j2
 #     dest: "{{ path_name }}{{ file_name }}"
-#     mode: '0644'
 #   delegate_to: localhost
 
 # - name: Create Empty vrf_config Var
@@ -106,5 +105,5 @@
 #   ansible.builtin.set_fact:
 #     vrf_attach_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
 #   when: >
-#     (MD_Extended.vxlan.multisite.overlay.vrfs | default([])) | length > 0
+#     (MD_Extended.vxlan.overlay.vrfs | default([])) | length > 0
 #   delegate_to: localhost
