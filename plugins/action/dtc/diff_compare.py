@@ -78,13 +78,13 @@ class ActionModule(ActionBase):
             return yaml.safe_load(f) or []
 
     KEY_MAPPING = {
-    'ndfc_interface_all.yml': 'name',
-    'ndfc_underlay_ip_address.yml': 'entity_name',
-    'ndfc_attach_vrfs.yml': 'vrf_name',
-    'ndfc_attach_networks.yml': 'net_name',
-    'ndfc_vpc_domain_id_resource.yml': 'entity_name',
-    'ndfc_vpc_peering.yml': 'peerOneId'
-}
+        'ndfc_interface_all.yml': 'name',
+        'ndfc_underlay_ip_address.yml': 'entity_name',
+        'ndfc_attach_vrfs.yml': 'vrf_name',
+        'ndfc_attach_networks.yml': 'net_name',
+        'ndfc_vpc_domain_id_resource.yml': 'entity_name',
+        'ndfc_vpc_peering.yml': 'peerOneId'
+    }
 
     def _create_fabric_link_key(self, item):
         """
