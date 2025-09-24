@@ -98,7 +98,6 @@ class ActionModule(ActionBase):
             return yaml.safe_load(f) or []
 
     KEY_MAPPING = {
-        'ndfc_interface_all.yml': 'name',
         'ndfc_underlay_ip_address.yml': 'entity_name',
         'ndfc_attach_vrfs.yml': 'vrf_name',
         'ndfc_attach_networks.yml': 'net_name',
@@ -122,6 +121,31 @@ class ActionModule(ActionBase):
 
         return '_'.join([item.get(field) for field in required_fields])
 
+    def _create_interface_key(self, item):
+        """
+        Create a unique key for interfaces from multiple attributes.
+
+        Args:
+            item (dict): The interface item containing interface details
+
+        Returns:
+            str: A unique key for the interface per switch or None if required fields are missing
+        """
+        required_fields = ['name', 'switch']
+        if not all(item.get(field) for field in required_fields):
+            return None
+
+        switch_value = item.get('switch')
+        # Handle both string and list types for switch field
+        if isinstance(switch_value, list):
+            if not switch_value:  # Empty list check
+                return None
+            switch_id = switch_value[0]
+        else:
+            switch_id = switch_value
+
+        return f"{item.get('name')}_{switch_id}"
+
     def dict_key(self, item):
         """
         Return the unique key for an item based on its type.
@@ -137,9 +161,13 @@ class ActionModule(ActionBase):
 
         filename = self.new_file_path
 
-        # Handle fabric links specially due to composite key
+        # Special handling for fabric links due to composite key
         if filename.endswith('ndfc_fabric_links.yml'):
             return self._create_fabric_link_key(item)
+
+        # Special handling for interfaces due to composite key
+        if filename.endswith('ndfc_interface_all.yml'):
+            return self._create_interface_key(item)
 
         # Find matching file type and return corresponding key
         for file_type, key_attr in self.KEY_MAPPING.items():

@@ -79,16 +79,16 @@
     interface_all: "{{
       interface_breakout +
       interface_breakout_preprov +
+      interface_trunk +
       interface_access +
       interface_access_po +
-      interface_trunk +
       interface_trunk_po +
       interface_routed +
-      interface_po_routed +
       sub_interface_routed +
-      interface_vpc +
+      interface_po_routed +
       int_loopback_config +
-      interface_dot1q }}"
+      interface_dot1q +
+      interface_vpc }}"
   when: >
     MD_Extended.vxlan.topology.interfaces.modes.breakout.count > 0 or
     MD_Extended.vxlan.topology.interfaces.modes.breakout_preprov.count > 0 or
@@ -109,6 +109,17 @@
     old_file: "{{ path_name }}{{ file_name }}.old"
     new_file: "{{ path_name }}{{ file_name }}"
   register: interface_diff_result
+  delegate_to: localhost
+
+- debug: msg="EQUAL {{ interface_diff_result['equal'] }}"
+- debug: msg="REMOVED {{ interface_diff_result['removed'] }}"
+- debug: msg="UPDATED {{ interface_diff_result['updated'] }}"
+- debug: msg="EQUAL {{ interface_diff_result['equal'] | length }}"
+- debug: msg="REMOVED {{ interface_diff_result['removed'] | length }}"
+- debug: msg="UPDATED {{ interface_diff_result['updated'] | length }}"
+- name: Sleep for 10 seconds
+  ansible.builtin.pause:
+    seconds: 10
   delegate_to: localhost
 
 - name: Get MD5 Diff For Previous and Current Data Files

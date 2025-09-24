@@ -178,12 +178,28 @@
 # Manage Interface All Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
 
+- name: Initialize Interface Config List to All Interfaces
+  set_fact:
+    interface_config_list: "{{ vars_common_local.interface_all }}"
+
+- name: Override Interface Config List Based On Diff Run Settings
+  set_fact:
+    interface_config_list: "{{ vars_common_local.interface_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+
+- debug: msg="{{ run_map_read_result  }}"
+- debug: msg="{{ interface_config_list  }}"
+
+- name: Sleep for 10 seconds
+  ansible.builtin.pause:
+    seconds: 10
+
 - name: Manage Interface All in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
-    # config: "{{ vars_common_local.interface_all }}"
-    config: "{{ vars_common_local.interface_diff_result.updated }}"
+    config: "{{ interface_config_list }}"
   vars:
       ansible_command_timeout: 5000
       ansible_connect_timeout: 5000

@@ -62,8 +62,11 @@
     - check_roles['save_previous']
     - smd_golden_diff.diff_lines | length == 0
     - smd_golden_diff.diff_text | length == 0
-    - ((force_run_all is defined) and (force_run_all is false|bool))
+    - run_map_read_result.diff_run is true|bool
+    - force_run_all is false|bool
   delegate_to: localhost
+
+- debug: msg="{{ run_map_read_result}}"
 
 - name: No Model Changes Detected
   ansible.builtin.meta: end_play
@@ -71,7 +74,8 @@
     - check_roles['save_previous']
     - smd_golden_diff.diff_lines | length == 0
     - smd_golden_diff.diff_text | length == 0
-    - ((force_run_all is defined) and (force_run_all is false|bool))
+    - run_map_read_result.diff_run is true|bool
+    - force_run_all is false|bool
   delegate_to: localhost
 
 # ------------------------------------------------------------------------
