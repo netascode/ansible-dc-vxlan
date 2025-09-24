@@ -190,6 +190,7 @@
 
 - debug: msg="{{ run_map_read_result  }}"
 - debug: msg="{{ interface_config_list  }}"
+- debug: msg="{{ interface_config_list | length  }}"
 
 - name: Sleep for 10 seconds
   ansible.builtin.pause:
@@ -203,4 +204,6 @@
   vars:
       ansible_command_timeout: 5000
       ansible_connect_timeout: 5000
-  when: MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
+  when:
+    - MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
+    - interface_config_list | length > 0

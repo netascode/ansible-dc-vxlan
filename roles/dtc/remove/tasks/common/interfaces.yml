@@ -51,7 +51,7 @@
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: deleted
     config: "{{ vars_common_local.interface_diff_result.removed }}"
-    # deploy: false
+    deploy: false
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
@@ -63,12 +63,15 @@
     - run_map_read_result.diff_run is true|bool
     - force_run_all is false|bool
 
+- debug: msg="Config {{ vars_common_local.interface_diff_result.removed }}"
+- debug: msg="{{ vars_common_local.interface_diff_result.removed | length }}"
+
 - name: Remove Unmanaged Fabric Interfaces in Nexus Dashboard - Diff Run False
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden
     config: "{{ vars_common_local.interface_all }}"
-    # deploy: false
+    deploy: false
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
@@ -78,10 +81,12 @@
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
     - run_map_read_result.diff_run is false|bool or force_run_all is true|bool
 
+- debug: msg="Config {{ vars_common_local.interface_all }}"
 - debug: msg="{{ vars_common_local.interface_all | length }}"
-- debug: msg="{{ interface_delete_mode }}"
-- debug: msg="{{ run_map_read_result.diff_run }}"
-- debug: msg="{{ force_run_all }}"
+
+- debug: msg="INT DEL MODE {{ interface_delete_mode }}"
+- debug: msg="RUN MAP {{ run_map_read_result.diff_run }}"
+- debug: msg="FORCE RUN ALL {{ force_run_all }}"
 
 # - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} after removing or defaulting interfaces
 #   cisco.dcnm.dcnm_rest:
