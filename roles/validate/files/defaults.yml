@@ -268,6 +268,8 @@ factory_defaults:
         underlay_vtep_loopback_ip_range: 10.3.0.0/22
         underlay_rp_loopback_ip_range: 10.254.254.0/24
         underlay_subnet_ip_range: 10.4.0.0/16
+        underlay_vrf_lite_ip_range: 10.33.0.0/16
+        underlay_vrf_lite_subnet_mask: 30
       ipv6:
         enable_ipv6_link_local_address: true
         underlay_subnet_mask: 126
