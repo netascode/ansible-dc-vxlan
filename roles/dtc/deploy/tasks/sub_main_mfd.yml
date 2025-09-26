@@ -28,7 +28,9 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+- name: Message
+  ansible.builtin.debug:
+    msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"
 
 - name: Config-Save block
   block:
@@ -46,11 +48,11 @@
         msg: "{{ config_save.msg.DATA }}"
 
 - name: Extract serial numbers from switches_in_fabric
-  set_fact:
+  ansible.builtin.set_fact:
     serial_numbers: "{{ switches_in_fabric | json_query('[*].serialNumber') }}"
 
 - name: Join serial numbers into a comma-separated list
-  set_fact:
+  ansible.builtin.set_fact:
     serial_numbers_str: "{{ serial_numbers | join(',') }}"
 
 - name: Deploy for Federated Overlay
