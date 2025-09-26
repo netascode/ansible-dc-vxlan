@@ -64,13 +64,13 @@
   when: >
     (MD_Extended.vxlan.fabric.type == 'MSD')
 
-- name: Import MFD Role Tasks
-  ansible.builtin.import_tasks: sub_main_mfd.yml
+- name: Import MCFG Role Tasks
+  ansible.builtin.import_tasks: sub_main_mcfg.yml
   when: >
-    (MD_Extended.vxlan.fabric.type == 'MFD') and
-    (vars_common_mfd.changes_detected_fabric) or
-    (vars_common_mfd.changes_detected_vrfs) or
-    (vars_common_mfd.changes_detected_networks)
+    (MD_Extended.vxlan.fabric.type == 'MCFG') and
+    (vars_common_mcfg.changes_detected_fabric) or
+    (vars_common_mcfg.changes_detected_vrfs) or
+    (vars_common_mcfg.changes_detected_networks)
 
 # Check with Matt and Pete on External Fabrics
 - name: Import External Fabric Role Tasks

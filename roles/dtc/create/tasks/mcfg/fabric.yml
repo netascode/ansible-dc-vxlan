@@ -28,7 +28,7 @@
       - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Check if fabric MFD {{ MD_Extended.vxlan.fabric.name }} exists in NDFC
+- name: Check if fabric MCFG {{ MD_Extended.vxlan.fabric.name }} exists in NDFC
   cisco.dcnm.dcnm_rest:
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}"

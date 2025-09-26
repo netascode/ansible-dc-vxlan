@@ -39,13 +39,13 @@
 
 - name: Stat Previous File If It Exists
   ansible.builtin.stat:
-    path: "{{ role_path }}/../common/files/mfd/{{ MD.vxlan.fabric.name}}/{{ file_name }}"
+    path: "{{ role_path }}/../common/files/mcfg/{{ MD.vxlan.fabric.name}}/{{ file_name }}"
   register: data_file_previous
   delegate_to: localhost
 
 - name: Set vrf_loopback_config Var
   ansible.builtin.set_fact:
-    vrf_loopback_config: "{{ lookup('file', role_path + '/../common/files/mfd/'+ fabric_name +'/' + file_name) | from_json }}"
+    vrf_loopback_config: "{{ lookup('file', role_path + '/../common/files/mcfg/'+ fabric_name +'/' + file_name) | from_json }}"
   when: (MD_Extended.vxlan.multisite.overlay.vrfs | default([])) | length > 0 and data_file_previous.stat.exists
   delegate_to: localhost
 
@@ -53,19 +53,11 @@
   set_fact:
     attach_payload: "{{ attach_payload | default([]) +  [{'vrfName':vrf.name, 'lanAttachList':vrf_loopback_config}]}}"
 
-- name: Call API to attach VRF to Leaf Switches
-  cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD.vxlan.fabric.name }}/vrfs/attachments"
-    method: "POST"
-    json_data: "{{ attach_payload | to_json}}"
-  when: MD.vxlan.fabric.type != 'MFD'
-
 - name: Call API to attach VRF to Leaf Switches for Federated NDFCs
   cisco.dcnm.dcnm_rest:
     path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD.vxlan.fabric.name }}/vrfs/attachments"
     method: "POST"
     json_data: "{{ attach_payload | to_json}}"
-  when: MD.vxlan.fabric.type == 'MFD'
 
 - name: Clear payload
   set_fact:

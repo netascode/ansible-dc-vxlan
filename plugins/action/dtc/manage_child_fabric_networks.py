@@ -141,7 +141,7 @@ class ActionModule(ActionBase):
                     #         results['failed'] = True
                     #         results['msg'] = error_msg
                     #         return results
-                    if fabric_type == 'MFD':
+                    if fabric_type == 'MCFG':
                         get_path = (f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/"
                                     f"rest/top-down/fabrics/{child_fabric}/networks/{network['name']}")
                     else:
@@ -214,7 +214,7 @@ class ActionModule(ActionBase):
                         rendered_content = templar.template(template_content)
                         rendered_to_nice_json = templar.environment.filters['to_nice_json'](rendered_content)
 
-                        if fabric_type == 'MFD':
+                        if fabric_type == 'MCFG':
                             put_path = (f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/"
                                         f"rest/top-down/fabrics/{child_fabric}/networks/{network['name']}")
                         else:

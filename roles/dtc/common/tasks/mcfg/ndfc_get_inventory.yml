@@ -21,7 +21,7 @@
 
 ---
 
-- name: Get all the switches in the Federated Fabric
+- name: Get all the switches in the MCFG Fabric Group
   cisco.dcnm.dcnm_rest:
       method: GET
       path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.fabric.name }}/inventory/switchesByFabric"
@@ -29,7 +29,7 @@
   delegate_to: "{{ inventory_hostname }}"
   failed_when: false
 
-- name: Store switches in the fabric for Federated Fabric
+- name: Store switches in the fabric for MCFG Fabric Group
   ansible.builtin.set_fact:
       switches_in_fabric: "{{ switch_results.response.DATA }}"
   when: switch_results is defined and switch_results.response.DATA is defined

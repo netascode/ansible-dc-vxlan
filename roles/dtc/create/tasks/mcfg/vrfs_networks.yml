@@ -20,11 +20,11 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Manage VRFs and Networks for MFD Entry Point
+- name: Manage VRFs and Networks for MCFG Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage VRFs and Networks MFD Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage VRFs and Networks MCFG Fabric {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.create_vrfs_networks }}"
 # --------------------------------------------------------------------
@@ -37,15 +37,15 @@
 #   when:
 #     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
 #     - changes_detected_vrfs
-#     - MD_Extended.vxlan.fabric.type == 'MFD'
+#     - MD_Extended.vxlan.fabric.type == 'MCFG'
 
 # - name: Load VRF federated details from file
 #   ansible.builtin.set_fact:
-#     fed_vrf_config: "{{ lookup('file', role_path + '/../common/files/mfd/{{ MD_Extended.vxlan.fabric.name }}/' + file_name) | from_json }}"
+#     fed_vrf_config: "{{ lookup('file', role_path + '/../common/files/mcfg/{{ MD_Extended.vxlan.fabric.name }}/' + file_name) | from_json }}"
 #   when:
 #     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
 #     - changes_detected_vrfs
-#     - MD_Extended.vxlan.fabric.type == 'MFD'
+#     - MD_Extended.vxlan.fabric.type == 'MCFG'
 
 - name: Get existing VRFs in Federated Fabric
   cisco.dcnm.dcnm_rest:
@@ -55,33 +55,33 @@
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
     - MD_Extended.vxlan.multisite.overlay.vrfs
-    - vars_common_mfd.changes_detected_vrfs
+    - vars_common_mcfg.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage NDFC Fabric VRFs for Federated
   ansible.builtin.include_tasks: vrf_fed_config.yml
-  loop: "{{ vars_common_mfd.vrf_config }}"
+  loop: "{{ vars_common_mcfg.vrf_config }}"
   loop_control:
     loop_var: vrf
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
     - MD_Extended.vxlan.multisite.overlay.vrfs
-    - vars_common_mfd.changes_detected_vrfs
+    - vars_common_mcfg.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 # --------------------------------------------------------------------
-# Manage Loopback VRF attachments on NDFC (MFD)
+# Manage Loopback VRF attachments on NDFC (MCFG)
 # --------------------------------------------------------------------
 
 - name: Call API to attach VRF to Leaf Switches for Federated NDFCs
   cisco.dcnm.dcnm_rest:
     path: /appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments
     method: POST
-    json_data: "{{ vars_common_mfd.vrf_attach_config | to_json }}"
+    json_data: "{{ vars_common_mcfg.vrf_attach_config | to_json }}"
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
     - MD_Extended.vxlan.multisite.overlay.vrfs
-    - vars_common_mfd.changes_detected_vrfs
+    - vars_common_mcfg.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Get vrf attachments list
@@ -92,7 +92,7 @@
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
     - MD_Extended.vxlan.multisite.overlay.vrfs
-    - vars_common_mfd.changes_detected_vrfs
+    - vars_common_mcfg.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Filter vrf attachments to be removed
@@ -105,7 +105,7 @@
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
     - MD_Extended.vxlan.multisite.overlay.vrfs
-    - vars_common_mfd.changes_detected_vrfs
+    - vars_common_mcfg.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Remove vrf attachments
@@ -117,7 +117,7 @@
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
     - MD_Extended.vxlan.multisite.overlay.vrfs
-    - vars_common_mfd.changes_detected_vrfs
+    - vars_common_mcfg.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage NDFC Child Fabric VRFs
@@ -129,7 +129,7 @@
   when:
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
     - MD_Extended.vxlan.multisite.overlay.vrfs
-    - vars_common_mfd.changes_detected_vrfs
+    - vars_common_mcfg.changes_detected_vrfs
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 # --------------------------------------------------------------------
@@ -143,40 +143,40 @@
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
     - MD_Extended.vxlan.multisite.overlay.networks
-    - vars_common_mfd.changes_detected_networks
+    - vars_common_mcfg.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage NDFC Fabric Networks for Federated
   ansible.builtin.include_tasks: network_fed_config.yml
-  loop: "{{ vars_common_mfd.net_config }}"
+  loop: "{{ vars_common_mcfg.net_config }}"
   loop_control:
     loop_var: network
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
     - MD_Extended.vxlan.multisite.overlay.networks
-    - vars_common_mfd.changes_detected_networks
+    - vars_common_mcfg.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Attach switches for all networks
   cisco.dcnm.dcnm_rest:
     path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/networks/attachments"
     method: "POST"
-    json_data: "{{ vars_common_mfd.network_switches | to_json }}"
+    json_data: "{{ vars_common_mcfg.network_switches | to_json }}"
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
     - MD_Extended.vxlan.multisite.overlay.networks
-    - vars_common_mfd.changes_detected_networks
+    - vars_common_mcfg.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Attach network to switches and ports for all networks
   cisco.dcnm.dcnm_rest:
     path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/networks/multiattach"
     method: "POST"
-    json_data: "{{ vars_common_mfd.network_switches_ports | to_json }}"
+    json_data: "{{ vars_common_mcfg.network_switches_ports | to_json }}"
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
     - MD_Extended.vxlan.multisite.overlay.networks
-    - vars_common_mfd.changes_detected_networks
+    - vars_common_mcfg.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Get network attachments list
@@ -187,7 +187,7 @@
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
     - MD_Extended.vxlan.multisite.overlay.networks
-    - vars_common_mfd.changes_detected_networks
+    - vars_common_mcfg.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Filter network attachments to be removed
@@ -200,7 +200,7 @@
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
     - MD_Extended.vxlan.multisite.overlay.networks
-    - vars_common_mfd.changes_detected_networks
+    - vars_common_mcfg.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Attach network to switches and ports for all networks
@@ -211,7 +211,7 @@
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
     - MD_Extended.vxlan.multisite.overlay.networks
-    - vars_common_mfd.changes_detected_networks
+    - vars_common_mcfg.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage NDFC Child Fabric Networks

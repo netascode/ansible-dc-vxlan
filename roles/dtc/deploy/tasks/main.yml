@@ -58,14 +58,14 @@
     (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0) or
     vars_common_msd.changes_detected_bgw_anycast_vip)
 
-- name: Import MFD Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_mfd.yml
+- name: Import MCFG Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_mcfg.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
-    (MD_Extended.vxlan.fabric.type == 'MFD') and
-    (vars_common_mfd.changes_detected_fabric or
-    vars_common_mfd.changes_detected_vrfs or
-    vars_common_mfd.changes_detected_networks)
+    (MD_Extended.vxlan.fabric.type == 'MCFG') and
+    (vars_common_mcfg.changes_detected_fabric or
+    vars_common_mcfg.changes_detected_vrfs or
+    vars_common_mcfg.changes_detected_networks)
 
 - name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
