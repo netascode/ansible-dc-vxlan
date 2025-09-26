@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -29,16 +29,22 @@ from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleError
 
 try:
-    from iac_validate.yaml import load_yaml_files
-    import iac_validate.validator
-    from iac_validate.cli.options import DEFAULT_SCHEMA
-except ImportError as imp_exc:
-    IAC_VALIDATE_IMPORT_ERROR = imp_exc
+    from nac_yaml.yaml import load_yaml_files
+except ImportError as imp_yaml_exc:
+    NAC_YAML_IMPORT_ERROR = imp_yaml_exc
 else:
-    IAC_VALIDATE_IMPORT_ERROR = None
+    NAC_YAML_IMPORT_ERROR = None
+
+try:
+    import nac_validate.validator
+    from nac_validate.cli.defaults import DEFAULT_SCHEMA
+except ImportError as imp_val_exc:
+    NAC_VALIDATE_IMPORT_ERROR = imp_val_exc
+else:
+    NAC_VALIDATE_IMPORT_ERROR = None
 
 import os
-from ...plugin_utils.helper_functions import data_model_key_check
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import data_model_key_check
 
 display = Display()
 
@@ -50,8 +56,11 @@ class ActionModule(ActionBase):
         results['failed'] = False
         results['msg'] = None
 
-        if IAC_VALIDATE_IMPORT_ERROR:
-            raise AnsibleError('iac-validate not found and must be installed. Please pip install iac-validate.') from IAC_VALIDATE_IMPORT_ERROR
+        if NAC_YAML_IMPORT_ERROR:
+            raise AnsibleError('nac-yaml not found and must be installed. Please pip install nac-yaml.') from NAC_YAML_IMPORT_ERROR
+
+        if NAC_VALIDATE_IMPORT_ERROR:
+            raise AnsibleError('nac-validate not found and must be installed. Please pip install nac-validate.') from NAC_VALIDATE_IMPORT_ERROR
 
         schema = self._task.args.get('schema')
         rules = self._task.args.get('rules')
@@ -86,18 +95,24 @@ class ActionModule(ActionBase):
             results['data'] = load_yaml_files([mdata])
 
             # Introduce common directory to the rules list by default once vrf and network rules are updated
-            # rules_to_run.append(f'{rules}common')
             parent_keys = ['vxlan', 'fabric']
             check = data_model_key_check(results['data'], parent_keys)
             if 'fabric' in check['keys_found'] and 'fabric' in check['keys_data']:
                 if 'type' in results['data']['vxlan']['fabric']:
                     if results['data']['vxlan']['fabric']['type'] in ('VXLAN_EVPN'):
-                        rules_list.append(f'{rules}vxlan/')
+                        rules_list.append(f'{rules}common')
+                        rules_list.append(f'{rules}ibgp_vxlan/')
+                        rules_list.append(f'{rules}common_vxlan')
+                    elif results['data']['vxlan']['fabric']['type'] in ('eBGP_VXLAN'):
+                        rules_list.append(f'{rules}common')
+                        rules_list.append(f'{rules}ebgp_vxlan/')
+                        rules_list.append(f'{rules}common_vxlan')
                     elif results['data']['vxlan']['fabric']['type'] in ('MSD', 'MCF'):
                         rules_list.append(f'{rules}multisite/')
                     elif results['data']['vxlan']['fabric']['type'] in ('ISN'):
                         rules_list.append(f'{rules}isn/')
                     elif results['data']['vxlan']['fabric']['type'] in ('External'):
+                        rules_list.append(f'{rules}common')
                         rules_list.append(f'{rules}external/')
                     else:
                         results['failed'] = True
@@ -118,11 +133,13 @@ class ActionModule(ActionBase):
                         display.deprecated(msg=deprecated_msg, version='1.0.0', collection_name='cisco.nac_dc_vxlan')
 
                         if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN'):
-                            rules_list.append(f'{rules}vxlan/')
+                            rules_list.append(f'{rules}ibgp_vxlan/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCF'):
                             rules_list.append(f'{rules}multisite/')
-                        elif results['data']['vxlan']['global']['fabric_type'] in ('ISN', 'External'):
+                        elif results['data']['vxlan']['global']['fabric_type'] in ('ISN'):
                             rules_list.append(f'{rules}isn/')
+                        elif results['data']['vxlan']['global']['fabric_type'] in ('External'):
+                            rules_list.append(f'{rules}external/')
                         else:
                             results['failed'] = True
                             results['msg'] = f"vxlan.fabric.type {results['data']['vxlan']['global']['fabric_type']} is not a supported fabric type."
@@ -134,7 +151,7 @@ class ActionModule(ActionBase):
             rules_list.append(f'{rules}')
 
         for rules_item in rules_list:
-            validator = iac_validate.validator.Validator(schema, rules_item)
+            validator = nac_validate.validator.Validator(schema, rules_item)
             if schema:
                 validator.validate_syntax([mdata])
             if rules_item:

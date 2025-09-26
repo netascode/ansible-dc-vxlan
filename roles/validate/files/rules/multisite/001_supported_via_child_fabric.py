@@ -4,13 +4,13 @@ class Rule:
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
 
         # Keys supported via child fabric(s)
         child_fabric_supported_keys = ['global', 'topology', 'underlay', 'overlay_extensions', 'policy']
         for child_fabric_supported_key in child_fabric_supported_keys:
-            check = cls.data_model_key_check(inventory, ['vxlan', child_fabric_supported_key])
+            check = cls.data_model_key_check(data_model, ['vxlan', child_fabric_supported_key])
             if child_fabric_supported_key in check['keys_found']:
                 results.append(
                     f"Key '{child_fabric_supported_key}' is supported via child fabric(s) respective host_vars data model file(s)."

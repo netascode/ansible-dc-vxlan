@@ -2,7 +2,7 @@
 
 ![Actions Status](https://github.com/netascode/ansible-dc-vxlan/actions/workflows/main.yml/badge.svg?branch=develop)
 
-NetAsCode DC VXLAN (nac_dc_vxlan) Ansible Collection for configuring Cisco VXLAN EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a data model that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
+NetAsCode DC VXLAN (nac_dc_vxlan) Ansible Collection for configuring Cisco VXLAN EVPN fabrics using the Cisco Nexus Dashboard Fabric Controller (NDFC). This collection simplifies the configuration of VXLAN fabrics by abstracting the automation using a [data model](https://netascode.cisco.com/docs/data_models/vxlan/overview/) that represents the desired state of the fabric. With this collection, an operator only needs to modify the configuration state in the data model instead of creating custom playbooks with modules and the associated parameters.
 
 This approach allows for consistent and repeatable configuration of VXLAN fabrics and aligns with Infrastructure as Code (IaC) methodology, where the configuration state of NDFC is saved in a version control system and managed as code.
 
@@ -26,7 +26,7 @@ Role: [cisco.nac_dc_vxlan.validate](https://github.com/netascode/ansible-dc-vxla
 
 The `validate` role ensures that the data model is correct and that the data model can be processed by the subsequent roles. The validate role reads all the files in the `host_vars` directory and creates a single data model in memory for execution.
 
-As part of the VXLAN as Code service from Cisco, you will also be able to utilize the semantic validation feature to make sure that the data model matches the intended expected values. This is a powerful feature that allows you to ensure that the data model is correct before it is deployed to the network. Additonally the validate role allows creation of rules that can be used to prevent operators from making specific configurations that are not allowed in the network. These can be as simple as enforcing proper naming conventions to more complex rules for interconnectivity issues that should be avoided. These rules are coded in Python and can be constructed as part of the Services as Code offer. 
+As part of the VXLAN as Code service from Cisco, you will also be able to utilize the semantic validation feature to make sure that the data model matches the intended expected values. This is a powerful feature that allows you to ensure that the data model is correct before it is deployed to the network. Additonally the validate role allows creation of rules that can be used to prevent operators from making specific configurations that are not allowed in the network. These can be as simple as enforcing proper naming conventions to more complex rules for interconnectivity issues that should be avoided. These rules are coded in Python and can be constructed as part of the Services as Code offer.
 
 ### Create Role
 
@@ -82,13 +82,13 @@ The following control variables are available in this collection.
 
 | Variable | Description | Default Value |
 | -------- | ------- | ------- |
-| `force_run_all` | Force all roles in the collection to run | `false` | 
+| `force_run_all` | Force all roles in the collection to run | `false` |
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
-| `multisite_child_fabric_delete_mode` | Remove child fabric from MSD/MFD fabric as part of the remove role | `false` |
-| `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
-| `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD and MFD) fabrics | `false` |
+| `multisite_child_fabric_delete_mode` | Remove child fabric from MSD fabric as part of the remove role | `false` |
+| `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD) fabrics | `false` |
+| `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD) fabrics | `false` |
 | `network_delete_mode` | Remove network state as part of the remove role | `false` |
 | `policy_delete_mode` | Remove policy state as part of the remove role | `false` |
 | `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
@@ -164,7 +164,7 @@ If you wish to install the galaxy collection inside the repository you are creat
 ansible-galaxy collection install -p collections/ansible_collections/ -r requirements.yaml
 ```
 
-The `ansible.cfg` file needs to be configured to point to the location of the collection. 
+The `ansible.cfg` file needs to be configured to point to the location of the collection.
 
 This is the path for all the python modules and libraries of the virtual environment that were created. If you look in that directory, you will find the collections package locations. Here is the base ansible.cfg, you will need to adjust the collections_path to your environment paths:
 
@@ -186,7 +186,7 @@ bin_ansible_callbacks = True
 
 #### Step 6 - Verify the Installation
 
-Verify that the ansible configuration file is being read and all the paths are correct inside of this virtual environment. 
+Verify that the ansible configuration file is being read and all the paths are correct inside of this virtual environment.
 
 ```bash
 ansible --version
@@ -300,18 +300,39 @@ export NDFC_SW_USERNAME=admin
 export NDFC_SW_PASSWORD=Admin_123
 ```
 
+##### Switch Credential Management
+
+This collection supports flexible credential management for network switches with three security levels:
+
+- **🔐 Ansible Vault**: Encrypted credentials for production deployments
+- **✅ Environment Variables**: Secure credential injection for CI/CD pipelines
+- **⚠️ Plain Text**: Simple credentials for lab testing only
+
+The system supports both switch-specific credentials and group-level defaults with automatic fallback. Environment variable lookups can be configured in group_vars for enhanced security and automation compatibility.
+
+**📖 Complete Guide**: [Switch Credentials Configuration](docs/SWITCH_CREDENTIALS_GUIDE.md)
+
+## Quick Start Guide
+
 The following quickstart repository is available to provide a step by step guide for using this collection.
 
 [Quick Start Guide Repo](https://github.com/netascode/ansible-dc-vxlan-example)
 
 This collection is intended for use with the following release versions:
 
-* `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.1` or later.
+* `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.1`
+* `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.2`
+* `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.3`
+* `Cisco Nexus Dashboard Release 4.1.1g` - Unified Nexus Dashboard Tech Preview
 
 <!--start requires_ansible-->
 ## Ansible Version Compatibility
 
-This collection has been tested against following Ansible versions: **>=2.14.15**.
+This collection has been tested against following Ansible Core versions: 
+* `2.14.x`
+* `2.15.x`
+* `2.16.x`
+* `2.17.x`
 
 Plugins, roles and modules within a collection may be tested with only specific Ansible versions.
 A collection may contain metadata that identifies these versions.
@@ -416,7 +437,7 @@ A Multi-Site Domain (MSD) is a multifabric administrative domain that is created
 ### To configure and manage MSD fabrics with VXLAN as Code, you should use the following workflow:
 1. Create each member/child fabric that will be managed by MSD using the normal data models for each fabric (or use a combined data model with all child fabrics)
 2. Create the MSD fabric. In the data model set the fabric type to MSD and specify each child fabric that will be managed.
-   Reference the [VXLAN Data Model](https://netascode.cisco.com/data_model/vxlan/overview)
+   Reference the [VXLAN MultiSite Data Model](https://netascode.cisco.com/docs/data_models/vxlan/multisite/multisite/)
 > [!NOTE]
 > Any additional changes can be done using the MSD fabric data model or on an individual fabric basis using the respective playbooks.
 
@@ -432,7 +453,7 @@ We welcome community contributions to this collection. If you find problems, ple
 
 ## More Information
 
-- [Cisco Nexus Dashboard and Services Deployment and Upgrade Guide](https://www.cisco.com/c/en/us/td/docs/dcn/nd/3x/deployment/cisco-nexus-dashboard-and-services-deployment-guide-321.html) 
+- [Cisco Nexus Dashboard and Services Deployment and Upgrade Guide](https://www.cisco.com/c/en/us/td/docs/dcn/nd/3x/deployment/cisco-nexus-dashboard-and-services-deployment-guide-321.html)
 - [Cisco Nexus Dashboard Fabric Controller (NDFC) User Content for LAN Configuration Guide](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1222/collections/ndfc-user-content-1222-lan.html)
 - [Ansible User Guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
 - [Ansible Developer Guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)

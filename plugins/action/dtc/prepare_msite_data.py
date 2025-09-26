@@ -26,8 +26,9 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
-from ...plugin_utils.helper_functions import ndfc_get_fabric_attributes
-from ...plugin_utils.helper_functions import ndfc_get_fabric_switches
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_fabric_attributes
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_fabric_switches
+import re
 
 display = Display()
 
@@ -88,8 +89,12 @@ class ActionModule(ActionBase):
             for switch in model_data['vxlan']['multisite']['overlay']['vrf_attach_groups_dict'][grp['name']]:
                 for child_fabric in child_fabrics_data.keys():
                     for sw in child_fabrics_data[child_fabric]['switches']:
-                        if switch['hostname'] == sw['hostname']:
-                            switch['mgmt_ip_address'] = sw['mgmt_ip_address']
+                        # When switch is in preprovision, sw['hostname'] is None.
+                        if sw.get('hostname') is not None:
+                            # Compare switches with regex to catch hostname when ip domain-name is configured
+                            regex_pattern = f"^{switch['hostname']}$|^{switch['hostname']}\\..*$"
+                            if re.search(regex_pattern, sw['hostname']):
+                                switch['mgmt_ip_address'] = sw['mgmt_ip_address']
 
                 # Append switch to a flat list of switches for cross comparison later when we query the
                 # MSD fabric information.  We need to stop execution if the list returned by the MSD query
@@ -116,8 +121,10 @@ class ActionModule(ActionBase):
             for switch in model_data['vxlan']['multisite']['overlay']['network_attach_groups_dict'][grp['name']]:
                 for child_fabric in child_fabrics_data.keys():
                     for sw in child_fabrics_data[child_fabric]['switches']:
-                        if switch['hostname'] == sw['hostname']:
-                            switch['mgmt_ip_address'] = sw['mgmt_ip_address']
+                        if sw.get('hostname') is not None:
+                            regex_pattern = f"^{switch['hostname']}$|^{switch['hostname']}\\..*$"
+                            if re.search(regex_pattern, sw['hostname']):
+                                switch['mgmt_ip_address'] = sw['mgmt_ip_address']
                 # Append switch to a flat list of switches for cross comparison later when we query the
                 # MSD fabric information.  We need to stop execution if the list returned by the MSD query
                 # does not include one of these switches.

@@ -25,7 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
-from ...plugin_utils.helper_functions import ndfc_get_switch_policy_using_template
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_switch_policy_using_template
 
 
 class ActionModule(ActionBase):
@@ -50,7 +50,7 @@ class ActionModule(ActionBase):
             )
 
             dm_switches = []
-            if model_data["vxlan"]["fabric"]["type"] in ('VXLAN_EVPN', 'ISN', 'External'):
+            if model_data["vxlan"]["fabric"]["type"] in ('VXLAN_EVPN', 'eBGP_VXLAN', 'ISN', 'External'):
                 dm_switches = model_data["vxlan"]["topology"]["switches"]
             # elif model_data["vxlan"]["fabric"]["type"] in ('ISN'):
             #     dm_switches = model_data["vxlan"]["multisite"]["isn"]["topology"]["switches"]

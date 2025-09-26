@@ -1,41 +1,51 @@
 {# Auto-generated NDFC DC VXLAN EVPN Advanced config data structure for fabric {{ vxlan.fabric.name }} #}
-  OVERLAY_MODE: cli
+  OVERLAY_MODE: {{ vxlan.global.ibgp.overlay_mode | default(defaults.vxlan.global.ibgp.overlay_mode) }}
   GRFIELD_DEBUG_FLAG: Enable
   ENABLE_PVLAN: false
   AAA_REMOTE_IP_ENABLED: False
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') and ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '<') %}
+  ALLOW_L3VNI_NO_VLAN:  {{ vxlan.global.ibgp.enable_mvpn_vri_id_range | default(defaults.vxlan.global.ibgp.enable_mvpn_vri_id_range) }}
+{% endif %}
+  ENABLE_L3VNI_NO_VLAN:  {{ vxlan.global.ibgp.enable_l3_vni_no_vlan | default(defaults.vxlan.global.ibgp.enable_l3_vni_no_vlan) }}
+{% if vxlan.global.ibgp.multisite_site_id is defined %}
+  SITE_ID: {{ vxlan.global.ibgp.multisite_site_id | default(vxlan.global.ibgp.bgp_asn) }}
+{% endif %}
+  TCAM_ALLOCATION: {{ vxlan.global.ibgp.tcam_allocation | default(defaults.vxlan.global.ibgp.tcam_allocation) }}
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
-  FEATURE_PTP: {{ vxlan.global.ptp.enable | default(defaults.vxlan.global.ptp.enable) }}
-{% if vxlan.global.ptp.enable is defined and vxlan.global.ptp.enable | ansible.builtin.bool %}
-  PTP_DOMAIN_ID: {{ vxlan.global.ptp.domain_id }}
-  PTP_LB_ID: {{ vxlan.global.ptp.lb_id  }}
-  PTP_VLAN_ID: {{ vxlan.global.ptp.vlan_id  }}
+  FEATURE_PTP: {{ vxlan.global.ibgp.ptp.enable | default(defaults.vxlan.global.ibgp.ptp.enable) }}
+{% if vxlan.global.ibgp.ptp.enable is defined and vxlan.global.ibgp.ptp.enable | ansible.builtin.bool %}
+  PTP_DOMAIN_ID: {{ vxlan.global.ibgp.ptp.domain_id | default(defaults.vxlan.global.ibgp.ptp.domain_id) }}
+  PTP_LB_ID: {{ vxlan.global.ibgp.ptp.lb_id | default(defaults.vxlan.global.ibgp.ptp.lb_id) }}
+{% if vxlan.global.ibgp.ptp.vlan_id is defined %}
+  PTP_VLAN_ID: {{ vxlan.global.ibgp.ptp.vlan_id }}
 {% endif %}
 {% endif %}
-  ENABLE_NXAPI: {{ vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) }}
-{% if vxlan.global.enable_nxapi_https | default(defaults.vxlan.global.enable_nxapi_https) | ansible.builtin.bool %}
-  NXAPI_HTTPS_PORT: {{ vxlan.global.nxapi_https_port | default(defaults.vxlan.global.nxapi_https_port) }}
-  ENABLE_NXAPI_HTTP: {{ vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) }}
-{% if vxlan.global.enable_nxapi_http | default(defaults.vxlan.global.enable_nxapi_http) | ansible.builtin.bool %}
-  NXAPI_HTTP_PORT: {{ vxlan.global.nxapi_http_port | default(defaults.vxlan.global.nxapi_http_port) }}
+{% endif %}
+  ENABLE_NXAPI: {{ vxlan.global.ibgp.enable_nxapi_https | default(defaults.vxlan.global.ibgp.enable_nxapi_https) }}
+{% if vxlan.global.ibgp.enable_nxapi_https | default(defaults.vxlan.global.ibgp.enable_nxapi_https) | ansible.builtin.bool %}
+  NXAPI_HTTPS_PORT: {{ vxlan.global.ibgp.nxapi_https_port | default(defaults.vxlan.global.ibgp.nxapi_https_port) }}
+  ENABLE_NXAPI_HTTP: {{ vxlan.global.ibgp.enable_nxapi_http | default(defaults.vxlan.global.ibgp.enable_nxapi_http) }}
+{% if vxlan.global.ibgp.enable_nxapi_http | default(defaults.vxlan.global.ibgp.enable_nxapi_http) | ansible.builtin.bool %}
+  NXAPI_HTTP_PORT: {{ vxlan.global.ibgp.nxapi_http_port | default(defaults.vxlan.global.ibgp.nxapi_http_port) }}
 {% endif %}
 {% endif %}
-{% if vxlan.global.bootstrap is defined and vxlan.global.bootstrap.enable_cdp_mgmt is defined %}
-  CDP_ENABLE: {{ vxlan.global.bootstrap.enable_cdp_mgmt }}
+{% if vxlan.global.ibgp.bootstrap is defined and vxlan.global.ibgp.bootstrap.enable_cdp_mgmt is defined %}
+  CDP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_cdp_mgmt }}
 {% endif %}
-  SNMP_SERVER_HOST_TRAP: {{ vxlan.global.snmp_server_host_trap | default(defaults.vxlan.global.snmp_server_host_trap) }}
+  SNMP_SERVER_HOST_TRAP: {{ vxlan.global.ibgp.snmp_server_host_trap | default(defaults.vxlan.global.ibgp.snmp_server_host_trap) }}
   FABRIC_MTU: {{ vxlan.underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
   L2_HOST_INTF_MTU: {{ vxlan.underlay.general.layer2_host_interface_mtu | default(defaults.vxlan.underlay.general.layer2_host_interface_mtu) }}
   HOST_INTF_ADMIN_STATE: {{ vxlan.underlay.general.unshut_host_interfaces | default(defaults.vxlan.underlay.general.unshut_host_interfaces) }}
 {# NDFC version 12.2.1 has a defect in the API as it pertains to setting Spanning-Tree options and is fixed in NDFC version 12.2.2 and later #}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
-  STP_ROOT_OPTION: {{ vxlan.global.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.spanning_tree.root_bridge_protocol) }}
-{% if vxlan.global.spanning_tree.root_bridge_protocol is defined and vxlan.global.spanning_tree.root_bridge_protocol != 'unmanaged' %}
-{% if (vxlan.global.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.spanning_tree.root_bridge_protocol)) == 'rpvst+' %}
-  STP_VLAN_RANGE: {{ convert_ranges(vxlan.global.spanning_tree.vlan_range, defaults.vxlan.global.spanning_tree.vlan_range) }}
-{% elif (vxlan.global.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.spanning_tree.root_bridge_protocol)) == 'mst' %}
-  MST_INSTANCE_RANGE: {{ convert_ranges(vxlan.global.spanning_tree.mst_instance_range, defaults.vxlan.global.spanning_tree.mst_instance_range) }}
+  STP_ROOT_OPTION: {{ vxlan.global.ibgp.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.ibgp.spanning_tree.root_bridge_protocol) }}
+{% if vxlan.global.ibgp.spanning_tree.root_bridge_protocol is defined and vxlan.global.ibgp.spanning_tree.root_bridge_protocol != 'unmanaged' %}
+{% if (vxlan.global.ibgp.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.ibgp.spanning_tree.root_bridge_protocol)) == 'rpvst+' %}
+  STP_VLAN_RANGE: {{ convert_ranges(vxlan.global.ibgp.spanning_tree.vlan_range, defaults.vxlan.global.ibgp.spanning_tree.vlan_range) }}
+{% elif (vxlan.global.ibgp.spanning_tree.root_bridge_protocol | default(defaults.vxlan.global.ibgp.spanning_tree.root_bridge_protocol)) == 'mst' %}
+  MST_INSTANCE_RANGE: {{ convert_ranges(vxlan.global.ibgp.spanning_tree.mst_instance_range, defaults.vxlan.global.ibgp.spanning_tree.mst_instance_range) }}
 {% endif %}
-  STP_BRIDGE_PRIORITY: {{ vxlan.global.spanning_tree.bridge_priority | default(defaults.vxlan.global.spanning_tree.bridge_priority) }}
+  STP_BRIDGE_PRIORITY: {{ vxlan.global.ibgp.spanning_tree.bridge_priority | default(defaults.vxlan.global.ibgp.spanning_tree.bridge_priority) }}
 {% endif %}
 {% endif %}
 {% if vxlan.underlay.general.leaf_freeform is defined %}

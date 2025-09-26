@@ -1,17 +1,18 @@
 {# Auto-generated NDFC DC VXLAN EVPN Bootstrap config data structure for fabric {{ vxlan.fabric.name }} #}
-{% if vxlan.global.bootstrap is defined %}
-  BOOTSTRAP_ENABLE: {{ vxlan.global.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool }}
-{% if vxlan.global.bootstrap.enable_bootstrap | default(defaults.vxlan.global.bootstrap.enable_bootstrap) | bool %}
-  DHCP_ENABLE: {{ vxlan.global.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool }}
-{% if vxlan.global.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.bootstrap.enable_local_dhcp_server) | bool %}
-  DHCP_IPV6_ENABLE: {{ vxlan.global.bootstrap.dhcp_version }}
-{% if vxlan.global.bootstrap.dhcp_version is defined and vxlan.global.bootstrap.dhcp_version == "DHCPv4" %}
-  DHCP_START: {{ vxlan.global.bootstrap.dhcp_v4.scope_start_address }}
-  DHCP_END: {{ vxlan.global.bootstrap.dhcp_v4.scope_end_address }}
-  MGMT_GW: {{ vxlan.global.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
-  MGMT_PREFIX: {{ vxlan.global.bootstrap.dhcp_v4.mgmt_prefix }}
-{% if vxlan.global.bootstrap.dhcp_v4.multi_subnet_scope is defined %}
-  BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.bootstrap.dhcp_v4.multi_subnet_scope }}"
+{% if vxlan.global.ibgp.bootstrap is defined %}
+  BOOTSTRAP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_bootstrap | default(defaults.vxlan.global.ibgp.bootstrap.enable_bootstrap) | bool }}
+{% if vxlan.global.ibgp.bootstrap.enable_bootstrap | default(defaults.vxlan.global.ibgp.bootstrap.enable_bootstrap) | bool %}
+  DHCP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.ibgp.bootstrap.enable_local_dhcp_server) | bool }}
+{% if vxlan.global.ibgp.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.ibgp.bootstrap.enable_local_dhcp_server) | bool %}
+  DHCP_IPV6_ENABLE: {{ vxlan.global.ibgp.bootstrap.dhcp_version }}
+{% if vxlan.global.ibgp.bootstrap.dhcp_version is defined and vxlan.global.ibgp.bootstrap.dhcp_version == "DHCPv4" %}
+  DHCP_START: {{ vxlan.global.ibgp.bootstrap.dhcp_v4.scope_start_address }}
+  DHCP_END: {{ vxlan.global.ibgp.bootstrap.dhcp_v4.scope_end_address }}
+  MGMT_GW: {{ vxlan.global.ibgp.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
+  MGMT_PREFIX: {{ vxlan.global.ibgp.bootstrap.dhcp_v4.mgmt_prefix }}
+{% if vxlan.global.ibgp.bootstrap.dhcp_v4.multi_subnet_scope is defined %}
+  BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.ibgp.bootstrap.dhcp_v4.multi_subnet_scope }}"
+{% endif %}
 {% endif %}
 {% endif %}
 {% endif %}
@@ -19,5 +20,4 @@
 {% if vxlan.underlay.general.bootstrap_freeform is defined %}
   BOOTSTRAP_CONF: |
     {{ vxlan.underlay.general.bootstrap_freeform | indent(4) }}
-{% endif %}
 {% endif %}

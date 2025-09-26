@@ -27,10 +27,18 @@
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.speed) }}
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_portfast) }}
-    pc_mode: {{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.pc_mode) }}
+    pc_mode: {{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.pc_mode) }}
     members: {{ interface['members'] | default(omit) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard) }}
     allowed_vlans: "{{ convert_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
+    duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.duplex) }}
+    disable_lacp_suspend_individual: {{ interface['disable_lacp_suspend_individual'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.disable_lacp_suspend_individual) }}
+    lacp_port_priority: {{ interface['lacp_port_priority'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_port_priority) }}
+    lacp_rate: {{ interface['lacp_rate'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_rate) }}
+{% if interface['orphan_port'] | default(false) %}
+    orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.orphan_port) }}
+{% endif %}
+    native_vlan: "{{ interface['native_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.native_vlan) }}"
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}

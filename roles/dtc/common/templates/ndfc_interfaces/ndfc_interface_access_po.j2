@@ -30,6 +30,13 @@
     members: {{ interface['members'] | default(omit) }}
     access_vlan: {{ interface['access_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_bpdu_guard) }}
+    duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.duplex) }}
+    disable_lacp_suspend_individual: {{ interface['disable_lacp_suspend_individual'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.disable_lacp_suspend_individual) }}
+    lacp_port_priority: {{ interface['lacp_port_priority'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.lacp_port_priority) }}
+    lacp_rate: {{ interface['lacp_rate'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.lacp_rate) }}
+{% if interface['orphan_port'] | default(false) %}
+    orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.orphan_port) }}
+{% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
