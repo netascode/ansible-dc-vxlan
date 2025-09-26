@@ -62,3 +62,17 @@
   ansible.builtin.set_fact:
     ndfc_version: "{{ ndfc_version.response.DATA.version }}"
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
+
+- name: Get Cisco Nexus Dashboard Fabric Controller Features
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: /appcenter/cisco/ndfc/api/v1/fm/features
+  register: ndfc_features
+  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
+
+- name: Set Cisco Nexus Dashboard Fabric Controller Features Var
+  ansible.builtin.set_fact:
+    ndfc_features: "{{ features_dict | dict2items | json_query('[*].value.{name: name, admin_state: admin_state}') }}"
+  vars:
+    features_dict: "{{ ndfc_features.response.DATA.data.features }}"
+  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
