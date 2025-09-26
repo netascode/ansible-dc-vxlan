@@ -2,6 +2,7 @@
   OVERLAY_MODE: {{ vxlan.global.ibgp.overlay_mode | default(defaults.vxlan.global.ibgp.overlay_mode) }}
   GRFIELD_DEBUG_FLAG: Enable
   ENABLE_PVLAN: false
+  AAA_REMOTE_IP_ENABLED: False
  if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') and ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '<') %}
   ALLOW_L3VNI_NO_VLAN:  {{ vxlan.global.ibgp.enable_mvpn_vri_id_range | default(defaults.vxlan.global.ibgp.enable_mvpn_vri_id_range) }}
 {% endif %}
