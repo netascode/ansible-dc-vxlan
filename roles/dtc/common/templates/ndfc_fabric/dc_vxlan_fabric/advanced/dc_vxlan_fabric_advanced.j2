@@ -52,6 +52,3 @@
   COPP_POLICY: {{ vxlan.global.ibgp.copp_policy | default(defaults.vxlan.global.ibgp.copp_policy) }}
   HD_TIME: {{ vxlan.global.ibgp.vtep_holddown_time | default(defaults.vxlan.global.ibgp.vtep_holddown_time) }}
   ENABLE_NGOAM: {{ vxlan.global.ibgp.enable_ngoam | default(defaults.vxlan.global.ibgp.enable_ngoam) }}
-  ENABLE_TENANT_DHCP: {{ vxlan.global.ibgp.enable_tenant_dhcp | default(defaults.vxlan.global.ibgp.enable_tenant_dhcp) }}
-  STRICT_CC_MODE: {{ vxlan.global.ibgp.strict_config_compliance | default(defaults.vxlan.global.ibgp.strict_config_compliance) }}
-  ENABLE_DEFAULT_QUEUING_POLICY: {{ vxlan.global.ibgp.enable_default_queuing_policy | default(defaults.vxlan.global.ibgp.enable_default_queuing_policy) }}
