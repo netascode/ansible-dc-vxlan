@@ -129,10 +129,6 @@ factory_defaults:
         copp_policy: strict
         vtep_holddown_time: 180
         enable_ngoam: true
-        enable_tenant_dhcp: true
-        strict_config_compliance: false
-        enable_aaa_remote_ip: false
-        enable_default_queuing_policy: false
         sub_int_range: 2-511
       external:
         auth_proto: MD5
