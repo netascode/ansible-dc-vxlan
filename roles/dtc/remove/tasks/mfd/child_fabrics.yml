@@ -34,10 +34,6 @@
     path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/members'
   register: member_result
 
-- name: debug member_result
-  ansible.builtin.debug:
-    var: member_result
-
 - name: Set fact for existing fabric names and cluster names
   set_fact:
     existing_fabrics: >-
