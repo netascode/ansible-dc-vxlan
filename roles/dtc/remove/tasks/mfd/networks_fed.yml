@@ -20,7 +20,8 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- ansible.builtin.debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
+- name: Initial network remove message
+  ansible.builtin.debug: msg="Removing Unmanaged Fabric Networks. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
@@ -82,10 +83,10 @@
     - not_required_networks.payload | length > 0
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
 
-- ansible.builtin.debug:
+- name: Networks skipping message
+  ansible.builtin.debug:
     msg:
       - "---------------------------------------------------------------------------------------------------------------"
       - "+ SKIPPING Remove Unmanaged Fabric Networks task because network_delete_mode flag is set to False  +"
       - "---------------------------------------------------------------------------------------------------------------"
   when: not ((network_delete_mode is defined) and (network_delete_mode is true|bool))
-  
