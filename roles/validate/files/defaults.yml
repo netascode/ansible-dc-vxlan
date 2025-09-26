@@ -125,6 +125,7 @@ factory_defaults:
           enable_local_dhcp_server: false
           enable_cdp_mgmt: false
         tcam_allocation: true
+        performance_monitoring: false
         power_redundancy: ps-redundant
         copp_policy: strict
         vtep_holddown_time: 180
