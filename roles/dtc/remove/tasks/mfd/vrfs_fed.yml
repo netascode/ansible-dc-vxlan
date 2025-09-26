@@ -86,7 +86,7 @@
     - not_required_vrfs.payload | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
 
-- name: Skipping message
+- name: VRF skipping message
   ansible.builtin.debug:
     msg:
       - "--------------------------------------------------------------------------------------------------------"
