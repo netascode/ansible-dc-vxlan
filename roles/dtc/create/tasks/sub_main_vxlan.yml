@@ -37,23 +37,23 @@
 - name: Create iBGP VXLAN Fabric in Nexus Dashboard
   ansible.builtin.import_tasks: common/fabric.yml
   when:
-    - MD_Extended.vxlan.fabric.name is defined
-    - MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-    - MD_Extended.vxlan.global.ibgp is defined
+    - data_model_extended.vxlan.fabric.name is defined
+    - data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
+    - data_model_extended.vxlan.global.ibgp is defined
     - vars_common_vxlan.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
 - name: Manage iBGP VXLAN Fabric Switches in Nexus Dashboard
   ansible.builtin.import_tasks: common/devices.yml
   when:
-    - MD_Extended.vxlan.topology.switches | length > 0
+    - data_model_extended.vxlan.topology.switches | length > 0
     - vars_common_vxlan.changes_detected_inventory or vars_common_vxlan.changes_detected_underlay_ip_address
   tags: "{{ nac_tags.create_switches }}"
 
 - name: Manage iBGP VXLAN vPC Peering in Nexus Dashboard
   ansible.builtin.import_tasks: common/vpc_peering.yml
   when:
-    - MD_Extended.vxlan.topology.vpc_peers | length > 0
+    - data_model_extended.vxlan.topology.vpc_peers | length > 0
     - vars_common_vxlan.changes_detected_vpc_peering
   tags: "{{ nac_tags.create_vpc_peers }}"
 
@@ -62,8 +62,8 @@
     - name: Config-Save for iBGP VXLAN Fabric in Nexus Dashboard
       cisco.dcnm.dcnm_rest:
         method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-      when: MD_Extended.vxlan.topology.switches | length > 0
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/config-save"
+      when: data_model_extended.vxlan.topology.switches | length > 0
       register: config_save
       # TODO: Need to add logic to only save if changes are made
 
@@ -76,35 +76,35 @@
 - name: Manage iBGP VXLAN Fabric Interfaces in Nexus Dashboard
   ansible.builtin.import_tasks: common/interfaces.yml
   when:
-    - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
+    - (data_model_extended.vxlan.topology.interfaces.modes.all.count >0) and (data_model_extended.vxlan.topology.switches | length > 0)
     - vars_common_vxlan.changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
 
 - name: Manage iBGP VXLAN Fabric Inter Links in Nexus Dashboard
   ansible.builtin.import_tasks: common/edge_connections.yml
   when:
-    - MD_Extended.vxlan.topology.edge_connections | length > 0
+    - data_model_extended.vxlan.topology.edge_connections | length > 0
     - vars_common_vxlan.changes_detected_edge_connections
   tags: "{{ nac_tags.create_links }}"
 
 - name: Manage iBGP VXLAN Fabric VRFs and Networks in Nexus Dashboard
   ansible.builtin.import_tasks: common_vxlan/vrfs_networks.yml
   when:
-    - MD_Extended.vxlan.overlay is defined
-    - MD_Extended.vxlan.topology.switches | length > 0
+    - data_model_extended.vxlan.overlay is defined
+    - data_model_extended.vxlan.topology.switches | length > 0
     - vars_common_vxlan.changes_detected_vrfs or vars_common_vxlan.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage iBGP VXLAN Fabric Intra Links in Nexus Dashboard
   ansible.builtin.import_tasks: common/links.yml
   when:
-    - MD_Extended.vxlan.topology.fabric_links | length > 0
+    - data_model_extended.vxlan.topology.fabric_links | length > 0
     - vars_common_vxlan.changes_detected_fabric_links
   tags: "{{ nac_tags.create_links }}"
 
 - name: Manage iBGP VXLAN Fabric Policies in Nexus Dashboard
   ansible.builtin.import_tasks: common/policies.yml
   when:
-    - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
+    - (data_model_extended.vxlan.policy is defined) and (data_model_extended.vxlan.policy.policies | length > 0)
     - vars_common_vxlan.changes_detected_policy
   tags: "{{ nac_tags.create_policy }}"

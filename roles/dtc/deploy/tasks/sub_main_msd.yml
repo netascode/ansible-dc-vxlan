@@ -37,9 +37,9 @@
     - name: Config-Save for MSD Fabric
       cisco.dcnm.dcnm_rest:
         method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/config-save"
       register: config_save
-      when: MD_Extended.vxlan.fabric.type == 'MSD'
+      when: data_model_extended.vxlan.fabric.type == 'MSD'
 
   rescue:
     - name: Config-Save for MSD Fabric - Failed
@@ -50,20 +50,20 @@
 - name: Deploy for MSD Fabric
   cisco.dcnm.dcnm_rest:
     method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
   when:
-    - MD_Extended.vxlan.fabric.type == 'MSD'
-    - MD_Extended.vxlan.multisite.child_fabrics is defined
-    - MD_Extended.vxlan.multisite.child_fabrics | length > 0
+    - data_model_extended.vxlan.fabric.type == 'MSD'
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
+    - data_model_extended.vxlan.multisite.child_fabrics | length > 0
 
 - name: Config-Save For MSD Child Fabrics
   cisco.nac_dc_vxlan.dtc.fabrics_config_save:
     fabrics: "{{ child_fabrics_vrfs_networks_changed }}"
   when: >
-    MD_Extended.vxlan.fabric.type == 'MSD' and
+    data_model_extended.vxlan.fabric.type == 'MSD' and
     (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0)
 
 - name: Deploy For MSD Child Fabrics
@@ -73,5 +73,5 @@
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
   when: >
-    MD_Extended.vxlan.fabric.type == 'MSD' and
+    data_model_extended.vxlan.fabric.type == 'MSD' and
     (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0)

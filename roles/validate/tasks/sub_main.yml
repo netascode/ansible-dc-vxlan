@@ -124,7 +124,7 @@
 
 - name: Store Extended Service Model Data
   ansible.builtin.set_fact:
-    MD_Extended: "{{ smd['model_extended'] }}"
+    data_model_extended: "{{ smd['model_extended'] }}"
   delegate_to: localhost
 
 - name: Check Roles
@@ -135,14 +135,14 @@
 
 - name: Read Run Map From Previous Run
   cisco.nac_dc_vxlan.common.read_run_map:
-    model_data: "{{ MD_Extended }}"
+    model_data: "{{ data_model_extended }}"
     play_tags: "{{ ansible_run_tags }}"
   register: run_map_read_result
   delegate_to: localhost
 
 - name: Initialize Run Map
   cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ MD_Extended }}"
+    model_data: "{{ data_model_extended }}"
     stage: starting_execution
   register: run_map
   delegate_to: localhost

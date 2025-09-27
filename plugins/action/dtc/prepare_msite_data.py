@@ -76,7 +76,7 @@ class ActionModule(ActionBase):
         results['child_fabrics_data'] = child_fabrics_data
 
         # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
-        # a structure that is easier to use just like MD_Extended.
+        # a structure that is easier to use just like data_model_extended.
         vrf_grp_name_list = []
         model_data['vxlan']['multisite']['overlay']['vrf_attach_groups_dict'] = {}
         model_data['vxlan']['multisite']['overlay']['vrf_attach_switches_list'] = []

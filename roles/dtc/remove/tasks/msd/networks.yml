@@ -52,14 +52,14 @@
 
 - name: Remove Unmanaged Fabric Networks in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_networks:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     msite_data: "{{ MD_Multisite }}"
   register: child_fabric_network_results
   when:
     - multisite_network_delete_mode is defined
     - multisite_network_delete_mode is true | bool
     - vars_common_msd.changes_detected_networks
-    - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
+    - data_model_extended.vxlan.multisite.child_fabrics is defined and data_model_extended.vxlan.multisite.child_fabrics | length > 0
 
 - name: Skip Remove Unmanaged Fabric Networks Task If multisite_network_delete_mode is False
   ansible.builtin.debug:

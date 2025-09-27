@@ -3,7 +3,7 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% for switch in MD_Extended.vxlan.topology.switches %}
+{% for switch in data_model_extended.vxlan.topology.switches %}
 {% if switch.interfaces is defined %}
 {% for interface in switch['interfaces'] %}
 {% if interface['mode'] == 'routed' %}

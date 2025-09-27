@@ -66,7 +66,7 @@
 - name: Set vrf_config Var
   ansible.builtin.set_fact:
     vrf_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: (MD_Extended.vxlan.multisite.overlay.vrfs | default([])) | length > 0
+  when: (data_model_extended.vxlan.multisite.overlay.vrfs | default([])) | length > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
@@ -86,7 +86,7 @@
 
 - name: Set file_name Var for loopback attachments
   ansible.builtin.set_fact:
-    file_name: "{{ MD_Extended.vxlan.fabric.name }}_attach_vrfs_loopbacks.yml"
+    file_name: "{{ data_model_extended.vxlan.fabric.name }}_attach_vrfs_loopbacks.yml"
   delegate_to: localhost
 
 # Check with Matt and Pete on how we want to handle VRF loopbacks for MSD
@@ -105,5 +105,5 @@
 #   ansible.builtin.set_fact:
 #     vrf_attach_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
 #   when: >
-#     (MD_Extended.vxlan.overlay.vrfs | default([])) | length > 0
+#     (data_model_extended.vxlan.overlay.vrfs | default([])) | length > 0
 #   delegate_to: localhost

@@ -26,7 +26,7 @@
   # Check with Matt on changes_detected_policy here
   # Was not there previously
   when: >
-    (MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN') and
+    (data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN') and
     (vars_common_vxlan.changes_detected_fabric_links or
     vars_common_vxlan.changes_detected_interfaces or
     vars_common_vxlan.changes_detected_inventory or
@@ -39,14 +39,14 @@
 - name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   when: >
-    MD_Extended.vxlan.fabric.type == 'MSD'
+    data_model_extended.vxlan.fabric.type == 'MSD'
   # Current implementation has to leverage the changes_detected flags
   # in the sub_main files to determine if the tasks should be run
 
 - name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
   when: >
-    (MD_Extended.vxlan.fabric.type == 'ISN') and
+    (data_model_extended.vxlan.fabric.type == 'ISN') and
     (vars_common_isn.changes_detected_interfaces or
     vars_common_isn.changes_detected_inventory or
     vars_common_isn.changes_detected_policy or
@@ -55,7 +55,7 @@
 - name: Import External Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_external.yml
   when: >
-    (MD_Extended.vxlan.fabric.type == 'External') and
+    (data_model_extended.vxlan.fabric.type == 'External') and
     (vars_common_external.changes_detected_interfaces or
     vars_common_external.changes_detected_inventory or
     vars_common_external.changes_detected_policy or
@@ -66,7 +66,7 @@
   # Check with Matt on changes_detected_policy here
   # Was not there previously
   when: >
-    (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
+    (data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN') and
     (vars_common_ebgp_vxlan.changes_detected_fabric_links or
     vars_common_ebgp_vxlan.changes_detected_vpc_peering or
     vars_common_ebgp_vxlan.changes_detected_vrfs or
@@ -78,7 +78,7 @@
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ MD_Extended }}"
+    model_data: "{{ data_model_extended }}"
     stage: role_remove_completed
   register: run_map
   delegate_to: localhost

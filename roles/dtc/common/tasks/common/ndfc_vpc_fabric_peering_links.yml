@@ -67,9 +67,9 @@
   ansible.builtin.set_fact:
     link_vpc_peering: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   when:
-    - MD_Extended.vxlan.topology.vpc_peers | length > 0
-    - MD_Extended.vxlan.topology.vpc_peers | selectattr('peer1_peerlink_interfaces', 'defined') | list | length > 0 or
-      MD_Extended.vxlan.topology.vpc_peers | selectattr('peer2_peerlink_interfaces', 'defined') | list | length > 0
+    - data_model_extended.vxlan.topology.vpc_peers | length > 0
+    - data_model_extended.vxlan.topology.vpc_peers | selectattr('peer1_peerlink_interfaces', 'defined') | list | length > 0 or
+      data_model_extended.vxlan.topology.vpc_peers | selectattr('peer2_peerlink_interfaces', 'defined') | list | length > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files

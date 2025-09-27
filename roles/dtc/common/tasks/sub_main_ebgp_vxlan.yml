@@ -32,7 +32,7 @@
 # ------------------------------------------------------------------------
 - name: Set path_name Var
   ansible.builtin.set_fact:
-    path_name: "{{ role_path }}/files/ebgp_vxlan/{{ MD_Extended.vxlan.fabric.name }}/"
+    path_name: "{{ role_path }}/files/ebgp_vxlan/{{ data_model_extended.vxlan.fabric.name }}/"
   delegate_to: localhost
 
 - name: Cleanup Files from Previous Run if run_map requires it

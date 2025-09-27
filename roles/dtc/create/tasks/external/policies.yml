@@ -25,7 +25,7 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Policies Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Policies Fabric {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
@@ -33,7 +33,7 @@
 # --------------------------------------------------------------------
 - name: Manage Fabric Policies in Nexus Dashboard
   cisco.dcnm.dcnm_policy:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     use_desc_as_key: true
     config: "{{ vars_common_external.policy_config }}"
     deploy: false

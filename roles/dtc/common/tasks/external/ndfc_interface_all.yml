@@ -68,7 +68,7 @@
           sub_interface_routed +
           interface_vpc +
           int_loopback_config }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
+  when: data_model_extended.vxlan.topology.interfaces.modes.all.count > 0
   delegate_to: localhost
 
 - name: Save interface_all

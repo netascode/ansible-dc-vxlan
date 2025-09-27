@@ -71,7 +71,7 @@
 - name: Set vpc_peering Var
   ansible.builtin.set_fact:
     vpc_peering: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.vpc_peers | length > 0
+  when: data_model_extended.vxlan.topology.vpc_peers | length > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files

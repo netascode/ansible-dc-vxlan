@@ -37,11 +37,11 @@
     - name: Config-Save for ISN Fabric
       cisco.dcnm.dcnm_rest:
         method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/config-save"
       register: config_save
       when: >
-        (MD_Extended.vxlan.fabric.type == 'ISN' and
-        (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0))
+        (data_model_extended.vxlan.fabric.type == 'ISN' and
+        (data_model_extended.vxlan.topology.switches is defined and data_model_extended.vxlan.topology.switches | length > 0))
 
   rescue:
     - name: Config-Save for ISN Fabric - Failed
@@ -54,18 +54,18 @@
 #     - name: Config-Preview for ISN Fabric
 #       cisco.dcnm.dcnm_rest:
 #         method: GET
-#         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-preview"
+#         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/config-preview"
 #       when: >
-#         (MD_Extended.vxlan.fabric.type == 'ISN' and
-#         (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0))
+#         (data_model_extended.vxlan.fabric.type == 'ISN' and
+#         (data_model_extended.vxlan.topology.switches is defined and data_model_extended.vxlan.topology.switches | length > 0))
 
 - name: Deploy for ISN Fabric
   cisco.dcnm.dcnm_rest:
     method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
   when: >
-    (MD_Extended.vxlan.fabric.type == 'ISN' and
-    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0))
+    (data_model_extended.vxlan.fabric.type == 'ISN' and
+    (data_model_extended.vxlan.topology.switches is defined and data_model_extended.vxlan.topology.switches | length > 0))

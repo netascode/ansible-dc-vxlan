@@ -30,7 +30,7 @@
 - name: Remove Intra Fabric Links for vPC Peering in Nexus Dashboard
   cisco.dcnm.dcnm_links:
     state: replaced
-    src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    src_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     config: "{{ vars_common_vxlan.link_vpc_peering }}"
   vars:
     ansible_command_timeout: 3000
@@ -51,9 +51,9 @@
     - name: Query Links with Src & Dst Fabric from Nexus Dashboard
       cisco.dcnm.dcnm_links:
         state: query # choose from [merged, replaced, deleted, query]
-        src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+        src_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
         config:
-          - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}" # Destination fabric
+          - dst_fabric: "{{ data_model_extended.vxlan.fabric.name }}" # Destination fabric
       register: result_links
 
     - name: Create empty result List
@@ -64,7 +64,7 @@
       cisco.nac_dc_vxlan.dtc.links_filter_and_remove:
         existing_links: "{{ result_links.response }}"
         fabric_links: "{{ vars_common_vxlan.fabric_links }}"
-        switch_data_model: "{{ MD_Extended.vxlan.topology.switches }}"
+        switch_data_model: "{{ data_model_extended.vxlan.topology.switches }}"
       register: links_to_be_removed
       when: result_links.response is defined
 
@@ -80,7 +80,7 @@
 
     - name: Unmanage Fabric Links in Nexus Dashboard
       cisco.dcnm.dcnm_links:
-        src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+        src_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
         config: "{{ links_to_be_removed['links_to_be_removed'] }}"
         deploy: false
         state: deleted

@@ -66,7 +66,7 @@
 - name: Set fabric_links Var
   ansible.builtin.set_fact:
     edge_connections: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.edge_connections | length > 0
+  when: data_model_extended.vxlan.topology.edge_connections | length > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files

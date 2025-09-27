@@ -37,23 +37,23 @@
 - name: Create External Fabric in Nexus Dashboard
   ansible.builtin.import_tasks: external/fabric.yml
   when:
-    - MD_Extended.vxlan.fabric.name is defined
-    - MD_Extended.vxlan.fabric.type == "External"
-    - MD_Extended.vxlan.global.external is defined
+    - data_model_extended.vxlan.fabric.name is defined
+    - data_model_extended.vxlan.fabric.type == "External"
+    - data_model_extended.vxlan.global.external is defined
     - vars_common_external.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
 - name: Manage External Fabric Switches in Nexus Dashboard
   ansible.builtin.import_tasks: common/devices.yml
   when:
-    - MD_Extended.vxlan.topology.switches | length > 0
+    - data_model_extended.vxlan.topology.switches | length > 0
     - vars_common_external.changes_detected_inventory
   tags: "{{ nac_tags.create_switches }}"
 
 - name: Manage NDFC External VPC Peering
   ansible.builtin.import_tasks: common/vpc_peering.yml
   when:
-    - MD_Extended.vxlan.topology.vpc_peers | length > 0
+    - data_model_extended.vxlan.topology.vpc_peers | length > 0
     - vars_common_external.changes_detected_vpc_peering
   tags: "{{ nac_tags.create_vpc_peers }}"
 
@@ -61,20 +61,20 @@
 - name: Manage External Fabric Inter Links in Nexus Dashboard
   ansible.builtin.import_tasks: common/edge_connections.yml
   when:
-    - MD_Extended.vxlan.topology.edge_connections | length > 0
+    - data_model_extended.vxlan.topology.edge_connections | length > 0
     - changes_detected_edge_connections
   tags: "{{ nac_tags.create_links }}"
 
 - name: Manage External Fabric Interfaces in Nexus Dashboard
   ansible.builtin.import_tasks: common/interfaces.yml
   when:
-    - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
+    - (data_model_extended.vxlan.topology.interfaces.modes.all.count >0) and (data_model_extended.vxlan.topology.switches | length > 0)
     - vars_common_external.changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
 
 - name: Manage External Fabric Policies in Nexus Dashboard
   ansible.builtin.import_tasks: common/policies.yml
   when:
-    - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
+    - (data_model_extended.vxlan.policy is defined) and (data_model_extended.vxlan.policy.policies | length > 0)
     - vars_common_external.changes_detected_policy
   tags: "{{ nac_tags.create_policy }}"

@@ -25,7 +25,7 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage VRFs and Networks Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage VRFs and Networks Fabric {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
 # cisco.nac_dc_vxlan.dtc.prepare_msite_data is called after cisco.nac_dc_vxlan.dtc.manage_child_fabrics
@@ -53,7 +53,7 @@
 
 - name: Set path_name Var
   ansible.builtin.set_fact:
-    path_name: "{{ role_path }}/../common/files/msd/{{ MD_Extended.vxlan.fabric.name }}/"
+    path_name: "{{ role_path }}/../common/files/msd/{{ data_model_extended.vxlan.fabric.name }}/"
   delegate_to: localhost
 
 - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
@@ -100,13 +100,13 @@
 # The cisco.dcnm.dcnm_vrf module works for MSD fabrics to create and update VRFs.
 - name: Manage MSD Fabric VRFs in Nexus Dashboard
   cisco.dcnm.dcnm_vrf:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_msd.vrf_config }}"
   register: manage_vrf_result
   when:
-    - MD_Extended.vxlan.multisite.overlay.vrfs is defined
-    - MD_Extended.vxlan.multisite.overlay.vrfs
+    - data_model_extended.vxlan.multisite.overlay.vrfs is defined
+    - data_model_extended.vxlan.multisite.overlay.vrfs
     - vars_common_msd.changes_detected_vrfs
 
 - name: Manage Child Fabric VRFs in Nexus Dashboard
@@ -122,12 +122,12 @@
 # Check with Matt and Pete on how we want to handle this for MSD
 # - name: Attach VRF Loopbacks per VRF
 #   cisco.dcnm.dcnm_rest:
-#     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
+#     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
 #     method: "POST"
 #     json_data: "{{ vars_common_msd.vrf_attach_config | to_json}}"
 #   when:
-#     - MD_Extended.vxlan.overlay.vrfs is defined
-#     - MD_Extended.vxlan.overlay.vrfs
+#     - data_model_extended.vxlan.overlay.vrfs is defined
+#     - data_model_extended.vxlan.overlay.vrfs
 #     - vars_common_msd.changes_detected_vrfs
 
 # --------------------------------------------------------------------
@@ -135,13 +135,13 @@
 # --------------------------------------------------------------------
 - name: Manage MSD Fabric Networks in Nexus Dashboard
   cisco.dcnm.dcnm_network:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_msd.net_config }}"
   register: manage_network_result
   when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined
-    - MD_Extended.vxlan.multisite.overlay.networks
+    - data_model_extended.vxlan.multisite.overlay.networks is defined
+    - data_model_extended.vxlan.multisite.overlay.networks
     - vars_common_msd.changes_detected_networks
 
 - name: Manage Child Fabric Networks in Nexus Dashboard

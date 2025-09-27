@@ -72,9 +72,9 @@
       int_loopback_config +
       interface_dot1q }}"
   when: >
-    MD_Extended.vxlan.topology.interfaces.modes.breakout.count > 0 or
-    MD_Extended.vxlan.topology.interfaces.modes.breakout_preprov.count > 0 or
-    MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
+    data_model_extended.vxlan.topology.interfaces.modes.breakout.count > 0 or
+    data_model_extended.vxlan.topology.interfaces.modes.breakout_preprov.count > 0 or
+    data_model_extended.vxlan.topology.interfaces.modes.all.count > 0
   delegate_to: localhost
 
 - name: Save interface_all

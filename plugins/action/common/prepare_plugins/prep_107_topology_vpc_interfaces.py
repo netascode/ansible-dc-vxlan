@@ -112,7 +112,7 @@ class PreparePlugin:
 #               - eth1/16
 #               - eth1/17
 # ========================================================
-# Sample Outout (MD_Extended)
+# Sample Outout (data_model_extended)
 # ========================================================
 # {
 #     "vxlan": {

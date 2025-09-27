@@ -1,6 +1,6 @@
 {# Auto-generated NDFC MSD VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
-{% if MD_Extended.vxlan.multisite.overlay.vrfs is defined and MD_Extended.vxlan.multisite.overlay.vrfs %}
-{% set vrfs = MD_Extended.vxlan.multisite.overlay.vrfs %}
+{% if data_model_extended.vxlan.multisite.overlay.vrfs is defined and data_model_extended.vxlan.multisite.overlay.vrfs %}
+{% set vrfs = data_model_extended.vxlan.multisite.overlay.vrfs %}
 {# This else block may not be needed after the prepare plugin work #}
 {% else %}
 {% set vrfs = [] %}
