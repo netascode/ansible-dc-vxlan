@@ -21,23 +21,27 @@
 
 ---
 
-- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- name: Choose vars_common Based On Fabric Type - eBGP_VXLAN
+
+- name: Set vars_common Based On Fabric Type - eBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
-- name: Choose vars_common Based On Fabric Type - MSD
+
+- name: Set vars_common Based On Fabric Type - MSD
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- name: Choose vars_common Based On Fabric Type - ISN
+
+- name: Set vars_common Based On Fabric Type - ISN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- name: Choose vars_common Based On Fabric Type - External
+
+- name: Set vars_common Based On Fabric Type - External
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
@@ -82,7 +86,8 @@
     ansible_connect_timeout: 3000
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
-    - vars_common_local.changes_detected_inventory or (vars_common_local.changes_detected_underlay_ip_address is defined and vars_common_local.changes_detected_underlay_ip_address)
+    - vars_common_local.changes_detected_inventory or
+      (vars_common_local.changes_detected_underlay_ip_address is defined and vars_common_local.changes_detected_underlay_ip_address)
 
 - name: Create List of Switch Serial Numbers from Data Model
   ansible.builtin.set_fact:
