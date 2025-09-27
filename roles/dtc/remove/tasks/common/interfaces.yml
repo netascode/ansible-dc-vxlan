@@ -65,6 +65,9 @@
 
 - debug: msg="Config {{ vars_common_local.interface_diff_result.removed }}"
 - debug: msg="{{ vars_common_local.interface_diff_result.removed | length }}"
+- name: Sleep for 5 seconds
+  ansible.builtin.pause:
+    seconds: 5
 
 - name: Remove Unmanaged Fabric Interfaces in Nexus Dashboard - Diff Run False
   cisco.dcnm.dcnm_interface:
@@ -85,7 +88,7 @@
 - debug: msg="{{ vars_common_local.interface_all | length }}"
 
 - debug: msg="INT DEL MODE {{ interface_delete_mode }}"
-- debug: msg="RUN MAP {{ run_map_read_result.diff_run }}"
+- debug: msg="DIFF RUN {{ run_map_read_result.diff_run }}"
 - debug: msg="FORCE RUN ALL {{ force_run_all }}"
 
 # - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} after removing or defaulting interfaces

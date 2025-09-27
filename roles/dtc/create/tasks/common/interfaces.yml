@@ -192,9 +192,9 @@
 - debug: msg="{{ interface_config_list  }}"
 - debug: msg="{{ interface_config_list | length  }}"
 
-- name: Sleep for 10 seconds
+- name: Sleep for 5 seconds
   ansible.builtin.pause:
-    seconds: 10
+    seconds: 5
 
 - name: Manage Interface All in Nexus Dashboard
   cisco.dcnm.dcnm_interface:

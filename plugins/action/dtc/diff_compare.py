@@ -81,6 +81,9 @@ class ActionModule(ActionBase):
 
         updated_items, removed_items, equal_items = self.compare_items(old_items, new_items)
 
+        if self.new_file_path.endswith('ndfc_interface_all.yml'):
+            removed_items = self.order_interface_remove(removed_items)
+
         display.v("New or Modified Items:\n%s", yaml.dump(updated_items, default_flow_style=False))
         display.v("---------------------------------")
         display.v("Remove Items:\n%s", yaml.dump(removed_items, default_flow_style=False))
@@ -202,3 +205,28 @@ class ActionModule(ActionBase):
                 removed_items.append(old_item)
 
         return updated_items, removed_items, equal_items
+
+    def order_interface_remove(self, removed_items):
+        """
+        Order interface removals to avoid dependency issues.
+        Ensures that port-channels are removed after their member interfaces.
+
+        Args:
+            removed_items (list): List of interface items to be removed
+
+        Returns:
+            list: Ordered list of interface items for removal (port-channels first,
+                  then ethernet interfaces, then other interface types)
+
+        Note:
+            This ordering helps prevent dependency conflicts during interface removal.
+            Port-channels should be removed before their member ethernet interfaces
+            to avoid configuration errors.
+        """
+        # Separate port-channels and ethernet interfaces
+        port_channels = [item for item in removed_items if item.get('type') == 'pc']
+        ethernet_interfaces = [item for item in removed_items if item.get('type') == 'eth']
+        other_interfaces = [item for item in removed_items if item.get('type') not in ['pc', 'eth']]
+
+        # Return ordered list: port-channels first, then ethernet interfaces, then others
+        return port_channels + ethernet_interfaces + other_interfaces

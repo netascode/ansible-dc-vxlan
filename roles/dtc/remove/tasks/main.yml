@@ -76,6 +76,14 @@
     vars_common_ebgp_vxlan.changes_detected_networks)
   # Additional conditions to be added when needed:
 
+- name: Log Stage Remove Without Deploy Setting
+  debug: msg="Stage Remove Without Deploy Is {{ stage_remove }}"
+
+- name: Deploy Remove Changes
+  ansible.builtin.include_role:
+    name: cisco.nac_dc_vxlan.dtc.deploy
+  when: stage_remove is false|bool
+
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:
     model_data: "{{ MD_Extended }}"

@@ -117,9 +117,9 @@
 - debug: msg="EQUAL {{ interface_diff_result['equal'] | length }}"
 - debug: msg="REMOVED {{ interface_diff_result['removed'] | length }}"
 - debug: msg="UPDATED {{ interface_diff_result['updated'] | length }}"
-- name: Sleep for 10 seconds
+- name: Sleep for 5 seconds
   ansible.builtin.pause:
-    seconds: 10
+    seconds: 5
   delegate_to: localhost
 
 - name: Get MD5 Diff For Previous and Current Data Files
