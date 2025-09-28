@@ -20,18 +20,23 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- ansible.builtin.import_role:
+
+- name: Test Common Tasks
+  ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.validate
   tags: 'role_validate'
 
-- ansible.builtin.import_role:
+- name: Import DTC Create Role
+  ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.create
   tags: 'role_create'
 
-- ansible.builtin.import_role:
+- name: Import DTC Deploy Role
+  ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.deploy
   tags: 'role_deploy'
 
-- ansible.builtin.import_role:
+- name: Import DTC Remove Role
+  ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.remove
   tags: 'role_remove'
