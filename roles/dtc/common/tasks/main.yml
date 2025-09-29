@@ -46,6 +46,7 @@
       changes_detected_policy: false
       changes_detected_sub_interface_routed: false
       changes_detected_vpc_peering: false
+      changes_detected_vpc_domain_id_resource: false
       changes_detected_vrfs: false
       changes_detected_underlay_ip_address: false
     vars_common_isn:
