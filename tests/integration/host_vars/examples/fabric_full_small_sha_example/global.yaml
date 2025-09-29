@@ -75,6 +75,6 @@ vxlan:
       auto_recovery_time: 300
       delay_restore_time: 175
       peer_link_port_channel_id: 555
-      advertise_pip: False
-      advertise_pip_border_only: True
+      advertise_pip: false
+      advertise_pip_border_only: true
       domain_id_range: 1-100
