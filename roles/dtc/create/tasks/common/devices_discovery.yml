@@ -56,6 +56,13 @@
     - MD_Extended.vxlan.topology.switches | length > 0
     - vars_common_local.changes_detected_inventory
 
+- debug: msg="{{ vars_common_vxlan.underlay_ip_address_diff_result.updated }}"
+- debug: msg="{{ vars_common_vxlan.underlay_ip_address_diff_result.updated | length }}"
+
+- name: Sleep for 5 seconds
+  ansible.builtin.pause:
+    seconds: 5
+
 - name: Allocate Underlay IP Address
   cisco.dcnm.dcnm_resource_manager:
     state: merged
@@ -65,7 +72,8 @@
   when:
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
-    - (vars_common_local.changes_detected_underlay_ip_address is defined and vars_common_local.changes_detected_underlay_ip_address)
+    # - (vars_common_local.changes_detected_underlay_ip_address is defined and vars_common_local.changes_detected_underlay_ip_address)
+    - (vars_common_local.underlay_ip_address_diff_result is defined and vars_common_local.underlay_ip_address_diff_result.updated | length > 0)
 
 # With the addition of the Allocate Underlay IP Address change above we
 # cannot call cisco.dcnm.dcnm_inventory with save: true until after

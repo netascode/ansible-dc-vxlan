@@ -60,10 +60,13 @@
 - name: Create a List of Links that Already Exist from Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.existing_links_check:
     existing_links: "{{ result_links.response }}"
-    fabric_links: "{{ fabric_links }}"
+    # fabric_links: "{{ fabric_links }}"
+    fabric_links: "{{ fabric_links_diff_result.updated }}"
     switch_data_model: "{{ MD_Extended.vxlan.topology.switches }}"
   register: required_links
   when: result_links.response is defined
+
+- debug: msg="{{ required_links }}"
 
 # --------------------------------------------------------------------
 # Manage Links Configuration in Nexus Dashboard
