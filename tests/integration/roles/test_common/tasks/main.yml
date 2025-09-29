@@ -21,7 +21,7 @@
 
 ---
 
-- name: Test Common Tasks
+- name: Import Validate Role
   ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.validate
   tags: 'role_validate'
