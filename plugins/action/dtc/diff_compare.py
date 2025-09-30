@@ -223,10 +223,28 @@ class ActionModule(ActionBase):
             Port-channels should be removed before their member ethernet interfaces
             to avoid configuration errors.
         """
-        # Separate port-channels and ethernet interfaces
+        # The order in which interfaces are configured matters during removal.
+        # Configuration Order:
+        #  - Breakout Interfaces        (Type: breakout)
+        #  - Trunk Interfaces           (Type: eth)
+        #  - Access Interfaces          (Type: eth)
+        #  - Access Port-Channels       (Type: pc)
+        #  - Trunk Port-Channels        (Type: pc)
+        #  - Routed Interfaces          (Type: eth)
+        #  - Routed Sub-Interfaces      (Type: sub_int)
+        #  - Routed Port-Channels       (Type: pc)
+        #  - Loopback Interfaces        (Type: lo)
+        #  - Dot1Q Sub-Interfaces       (Type: eth)
+        #  - vPC Interfaces             (Type: vpc)
+
+        # Remove in the reverse order to avoid dependency issues
+        vpc_interfaces = [item for item in removed_items if item.get('type') == 'vpc']
+        loopback_interfaces = [item for item in removed_items if item.get('type') == 'lo']
         port_channels = [item for item in removed_items if item.get('type') == 'pc']
+        routed_sub_interfaces = [item for item in removed_items if item.get('type') == 'sub_int']
         ethernet_interfaces = [item for item in removed_items if item.get('type') == 'eth']
-        other_interfaces = [item for item in removed_items if item.get('type') not in ['pc', 'eth']]
+        breakout_interfaces = [item for item in removed_items if item.get('type') == 'breakout']
 
         # Return ordered list: port-channels first, then ethernet interfaces, then others
-        return port_channels + ethernet_interfaces + other_interfaces
+        all_interfaces = vpc_interfaces + loopback_interfaces + port_channels + routed_sub_interfaces + ethernet_interfaces + breakout_interfaces
+        return all_interfaces

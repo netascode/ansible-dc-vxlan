@@ -94,3 +94,36 @@
     - MD_Extended.vxlan.topology.switches is defined
     - MD_Extended.vxlan.topology.switches | length > 0
     - results.changed
+
+- name: Check Switch Sync in iBGP VXLAN Fabric
+  cisco.nac_dc_vxlan.dtc.fabric_check_sync:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+  register: results
+  when: >
+    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
+
+- name: Capture History Log On Failure for iBGP VXLAN Fabric
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/config/delivery/deployerHistoryByFabric/{{ MD_Extended.vxlan.fabric.name }}?sort=completedTime%3ADES&limit=5"
+  vars:
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
+  when:
+    - MD_Extended.vxlan.topology.switches is defined
+    - MD_Extended.vxlan.topology.switches | length > 0
+    - results.changed
+  register: history_log
+
+- name: Display Last 5 History Log Entries On Failure for iBGP VXLAN Fabric
+  ansible.builtin.debug:
+    msg: "{{ history_log.response.DATA | json_query('[0:2]') }}"
+  when:
+    - MD_Extended.vxlan.topology.switches is defined
+    - MD_Extended.vxlan.topology.switches | length > 0
+    - results.changed
+
+- name: Fail On Failure for iBGP VXLAN Fabric
+  fail:
+    msg: "Deploy Failure Detected - Please see History Log For Full Details"
+  when: results.changed
