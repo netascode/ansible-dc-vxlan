@@ -73,6 +73,10 @@ class ActionModule(ActionBase):
         # All stages of the automation must run for the diff_run framework to be enabled
         if play_tags and 'all' not in play_tags:
             results['diff_run'] = False
+
+        # If only the role_validate tag is present then set validate_only_run to true
+        # This is used to prevent the diff_run map from being reset when the validate role
+        # gets run in isolation.
         if len(play_tags) == 1 and 'role_validate' in play_tags:
             results['validate_only_run'] = True
 

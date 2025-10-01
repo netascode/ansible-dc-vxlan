@@ -52,6 +52,15 @@
     - switch_list.response.DATA | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
+# -----------------------------------------------------------------------------
+# Remove Interfaces Using Diff Run Framework
+# -----------------------------------------------------------------------------
+#
+# The following conditions must be met for this task to execute:
+#  -  The number of interfaces to be removed/defaulted as compared to the
+#     previous run must be non-zero.
+#  -  The diff_run feature must be active
+#     Combination of the (diff_run flag and force_run_all_flag state)
 - name: Remove Unmanaged Fabric Interfaces in Nexus Dashboard - Diff Run True
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
@@ -69,12 +78,9 @@
     - run_map_read_result.diff_run is true|bool
     - force_run_all is false|bool
 
-- debug: msg="Config {{ vars_common_local.interface_diff_result.removed }}"
-- debug: msg="{{ vars_common_local.interface_diff_result.removed | length }}"
-- name: Sleep for 5 seconds
-  ansible.builtin.pause:
-    seconds: 5
-
+# -----------------------------------------------------------------------------
+# Remove Interfaces Default Mode
+# -----------------------------------------------------------------------------
 - name: Remove Unmanaged Fabric Interfaces in Nexus Dashboard - Diff Run False
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
@@ -89,34 +95,6 @@
     - switch_list.response.DATA | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
     - run_map_read_result.diff_run is false|bool or force_run_all is true|bool
-
-- debug: msg="Config {{ vars_common_local.interface_all }}"
-- debug: msg="{{ vars_common_local.interface_all | length }}"
-
-- debug: msg="INT DEL MODE {{ interface_delete_mode }}"
-- debug: msg="DIFF RUN {{ run_map_read_result.diff_run }}"
-- debug: msg="FORCE RUN ALL {{ force_run_all }}"
-
-# - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} after removing or defaulting interfaces
-#   cisco.dcnm.dcnm_rest:
-#     method: POST
-#     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-#   when:
-#     - int_data.changed is true
-#     - switch_list.response.DATA | length > 0
-#     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
-
-# - name: Deploy for Fabric {{ MD_Extended.vxlan.fabric.name }} after removing or defaulting interfaces
-#   cisco.dcnm.dcnm_rest:
-#     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
-#     method: POST
-#   vars:
-#       ansible_command_timeout: 3000
-#       ansible_connect_timeout: 3000
-#   when:
-#     - int_data.changed is true
-#     - switch_list.response.DATA | length > 0
-#     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
 - name: Skip Remove Unmanaged Fabric Interfaces Task If interface_delete_mode is False
   ansible.builtin.debug:

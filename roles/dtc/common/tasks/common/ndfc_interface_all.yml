@@ -80,11 +80,11 @@
       interface_breakout +
       interface_breakout_preprov +
       interface_trunk +
-      interface_access +
-      interface_access_po +
-      interface_trunk_po +
       interface_routed +
       sub_interface_routed +
+      interface_access +
+      interface_trunk_po +
+      interface_access_po +
       interface_po_routed +
       int_loopback_config +
       interface_dot1q +
@@ -111,9 +111,6 @@
   register: interface_diff_result
   delegate_to: localhost
 
-- debug: msg="EQUAL {{ interface_diff_result['equal'] }}"
-- debug: msg="REMOVED {{ interface_diff_result['removed'] }}"
-- debug: msg="UPDATED {{ interface_diff_result['updated'] }}"
 - debug: msg="EQUAL {{ interface_diff_result['equal'] | length }}"
 - debug: msg="REMOVED {{ interface_diff_result['removed'] | length }}"
 - debug: msg="UPDATED {{ interface_diff_result['updated'] | length }}"
