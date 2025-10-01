@@ -60,7 +60,7 @@
 #  -  The number of interfaces to be removed/defaulted as compared to the
 #     previous run must be non-zero.
 #  -  The diff_run feature must be active
-#     Combination of the (diff_run flag and force_run_all_flag state)
+#       Combination of the (diff_run flag and force_run_all_flag state)
 - name: Remove Unmanaged Fabric Interfaces in Nexus Dashboard - Diff Run True
   cisco.dcnm.dcnm_interface:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
