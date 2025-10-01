@@ -21,7 +21,9 @@
 
 # tasks file for create
 
-- debug: msg="Executing Create Role Tests"
+- name: Display Test Header
+  ansible.builtin.debug:
+    msg: "Executing Create Role Tests"
 
 - name: Get Fabric Switches Data
   cisco.dcnm.dcnm_inventory:
@@ -29,8 +31,8 @@
     state: query
   register: fabric_query
   vars:
-      ansible_command_timeout: 1000
-      ansible_connect_timeout: 1000
+    ansible_command_timeout: 1000
+    ansible_connect_timeout: 1000
 
 - name: Run inventory tests
   cisco.nac_dc_vxlan.test.inventory:

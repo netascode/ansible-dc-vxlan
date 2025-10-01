@@ -26,7 +26,7 @@
 # workflow and how the dcnm_inventory module can be used to pre-provision
 # a switch.
 
-- name: Pre-provision switch Configuration
+- name: Pre-Provision Switch Configuration in Nexus Dashboard
   cisco.dcnm.dcnm_inventory:
     fabric: nac-ndfc1
     state: merged # Only 2 options supported merged/query for poap config
@@ -53,7 +53,7 @@
 # serial number with the actual switch serial number and also
 # poap the switch if it's in poap mode and appears in the NDFC
 # poap list.
-- name: Pre-provision switch Configuration
+- name: Pre-Provision Switch Configuration in Nexus Dashboard
   cisco.dcnm.dcnm_inventory:
     fabric: nac-ndfc1
     state: merged # Only 2 options supported merged/query for poap config
