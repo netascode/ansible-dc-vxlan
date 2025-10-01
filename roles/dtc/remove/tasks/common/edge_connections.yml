@@ -20,19 +20,22 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- name: Choose vars_common Based On Fabric Type - MSD
+
+- name: Set vars_common Based On Fabric Type - MSD
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- name: Choose vars_common Based On Fabric Type - ISN
+
+- name: Set vars_common Based On Fabric Type - ISN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- name: Choose vars_common Based On Fabric Type - External
+
+- name: Set vars_common Based On Fabric Type - External
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"

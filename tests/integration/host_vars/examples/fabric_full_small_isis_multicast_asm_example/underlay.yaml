@@ -24,41 +24,41 @@ vxlan:
   underlay:
     general:
       routing_protocol: is-is
-      enable_ipv6_underlay: False
+      enable_ipv6_underlay: false
       replication_mode: multicast
       fabric_interface_numbering: p2p
       subnet_mask: 30
-      manual_underlay_allocation: False
+      manual_underlay_allocation: false
       underlay_routing_loopback_id: 0
       underlay_vtep_loopback_id: 1
       underlay_routing_protocol_tag: UNDERLAY
       underlay_rp_loopback_id: 3
       intra_fabric_interface_mtu: 9216
       layer2_host_interface_mtu: 9216
-      unshut_host_interfaces: True
+      unshut_host_interfaces: true
     ipv4:
       underlay_routing_loopback_ip_range: 10.2.0.0/22
       underlay_vtep_loopback_ip_range: 10.3.0.0/22
       underlay_rp_loopback_ip_range: 10.254.254.0/24
       underlay_subnet_ip_range: 10.4.0.0/16
     bgp:
-      authentication_enable: False
+      authentication_enable: false
     isis:
       level: level-2
-      network_point_to_point: True
-      authentication_enable: False
-      overload_bit: False
+      network_point_to_point: true
+      authentication_enable: false
+      overload_bit: false
       overload_bit_elapsed_time: 5
     multicast:
       group_subnet: 239.1.1.0/25
       rendezvous_points: 2
       rp_mode: asm
       underlay_rp_loopback_id: 128
-      trm_enable: True
+      trm_enable: true
       trm_default_group: 239.1.1.0
     bfd:
-      enable: False
-      ibgp: False
-      isis: False
-      pim: False
-      authentication_enable: False
+      enable: false
+      ibgp: false
+      isis: false
+      pim: false
+      authentication_enable: false

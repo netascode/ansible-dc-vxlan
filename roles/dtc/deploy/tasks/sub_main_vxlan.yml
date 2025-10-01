@@ -32,9 +32,9 @@
   ansible.builtin.debug:
     msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"
 
-- name: Config-Save Block for iBGP VXLAN Fabric
+- name: Config-Save Block for iBGP VXLAN Fabric in Nexus Dashboard
   block:
-    - name: Config-Save for iBGP VXLAN Fabric
+    - name: Config-Save for iBGP VXLAN Fabric in Nexus Dashboard
       cisco.dcnm.dcnm_rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
@@ -43,12 +43,12 @@
         (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
 
   rescue:
-    - name: Config-Save for iBGP VXLAN Fabric - Failed
+    - name: Config-Save for iBGP VXLAN Fabric in Nexus Dashboard - Failed
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
       when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
 
-- name: Deploy for iBGP VXLAN Fabric
+- name: Deploy for iBGP VXLAN Fabric in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
@@ -58,16 +58,16 @@
   when: >
     (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
 
-- name: Check Switch Sync in iBGP VXLAN Fabric
+- name: Check Switch Sync in iBGP VXLAN Fabric in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.fabric_check_sync:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
   register: results
   when: >
     (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
 
-- name: Retrying Config-Save Block for iBGP VXLAN Fabric
+- name: Retrying Config-Save Block for iBGP VXLAN Fabric in Nexus Dashboard
   block:
-    - name: Retrying Config-Save for iBGP VXLAN Fabric
+    - name: Retrying Config-Save for iBGP VXLAN Fabric in Nexus Dashboard
       cisco.dcnm.dcnm_rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
@@ -78,12 +78,12 @@
         - results.changed
 
   rescue:
-    - name: Retrying Config-Save for iBGP VXLAN Fabric - Failed
+    - name: Retrying Config-Save for iBGP VXLAN Fabric in Nexus Dashboard - Failed
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
       when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
 
-- name: Retrying Deploy for iBGP VXLAN Fabric
+- name: Retrying Deploy for iBGP VXLAN Fabric in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: POST
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"

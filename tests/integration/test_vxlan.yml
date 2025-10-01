@@ -44,22 +44,25 @@
 
 
 # Reset Fabric
-- hosts: fabric_empty
-  gather_facts: no
+- name: Test Remove
+  hosts: fabric_empty
+  gather_facts: false
 
   roles:
     - test_remove
 
 # Create and Deploy Fabric Configuration
-- hosts: '{{ fabric_profile }}'
-  gather_facts: no
+- name: Test Create
+  hosts: '{{ fabric_profile }}'
+  gather_facts: false
 
   roles:
     - test_create
 
 # Reset Fabric Back to Empty
-- hosts: fabric_empty
-  gather_facts: no
+- name: Test Remove
+  hosts: fabric_empty
+  gather_facts: false
 
   roles:
     - test_remove
