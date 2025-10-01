@@ -43,6 +43,7 @@ MSD_CHILD_FABRIC_NETWORK_TEMPLATE = "/msd_child_fabric_network.j2"
 # Currently supported Network template config keys and their mapping to data model keys
 NETWORK_TEMPLATE_CONFIG_MAP = {
     'loopbackId': {'dm_key': 'dhcp_loopback_id', 'default': ''},
+    'dhcpServers': {'dm_key': 'dhcp_servers', 'default': ''},
     'ENABLE_NETFLOW': {'dm_key': 'netflow_enable', 'default': False},
     'VLAN_NETFLOW_MONITOR': {'dm_key': 'vlan_netflow_monitor', 'default': ''},
     'trmEnabled': {'dm_key': 'trm_enable', 'default': False},
