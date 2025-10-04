@@ -34,26 +34,22 @@
     path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/members'
   register: member_result
 
-- name: debug member_result
-  ansible.builtin.debug:
-    var: member_result
-
 - name: Set fact for existing fabric names and cluster names
-  set_fact:
+  ansible.builtin.set_fact:
     existing_fabrics: >-
       {{
         member_result.response.DATA | map(attribute='fabrics') | map('dict2items') | flatten | list
       }}
 
 - name: Set fact for child fabric names
-  set_fact:
+  ansible.builtin.set_fact:
     child_fabric_names: >-
       {{
         fabric_children | map(attribute='fabricName') | list
       }}
 
 - name: Generate payload for fabrics to be removed
-  set_fact:
+  ansible.builtin.set_fact:
     remove_payload: >-
       [
       {% for fabric in existing_fabrics if fabric.key not in child_fabric_names %}

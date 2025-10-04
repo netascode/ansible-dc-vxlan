@@ -131,7 +131,7 @@ nac_tags:
     - cr_manage_vpc_peers
   create_interfaces:
     - cr_manage_interfaces
-  create_vrfs_networks: 
+  create_vrfs_networks:
     - cr_manage_vrfs_networks
   create_policy:
     - cr_manage_policy

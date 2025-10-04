@@ -20,7 +20,8 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- ansible.builtin.debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
+- name: Initial VRF remove message
+  ansible.builtin.debug: msg="Removing Unmanaged Fabric VRFs. This could take several minutes..."
   when:
     - switch_list.response.DATA | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
@@ -85,7 +86,8 @@
     - not_required_vrfs.payload | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
 
-- ansible.builtin.debug:
+- name: VRF skipping message
+  ansible.builtin.debug:
     msg:
       - "--------------------------------------------------------------------------------------------------------"
       - "+ SKIPPING Remove Unmanaged Fabric VRFs task because vrf_delete_mode flag is set to False   +"

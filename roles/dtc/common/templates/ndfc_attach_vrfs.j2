@@ -14,10 +14,10 @@
 {% include '/ndfc_vrfs/msd_fabric/msd_fabric_vrfs.j2' %}
 {# {% include '/ndfc_vrfs/msd_fabric/child_fabric/msd_child_fabric_vrfs.j2' %} #}
 
-{% elif vxlan.fabric.type == 'MFD'%}
+{% elif vxlan.fabric.type == 'MCFG'%}
 
-{# Include NDFC MFD Base Template #}
-{% include '/ndfc_vrfs/mfd_fabric/ndfc_attach_vrfs.j2' %}
+{# Include NDFC MCFG Base Template #}
+{% include '/ndfc_vrfs/mcfg_fabric/ndfc_attach_vrfs.j2' %}
 
-{# Supported fabric types are: DC VXLAN EVPN, MSDs and MFDs #}
+{# Supported fabric types are: DC VXLAN EVPN, MSDs and MCFGs #}
 {% endif %}

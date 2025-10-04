@@ -48,8 +48,8 @@ class ActionModule(ActionBase):
 
         # This is actaully not an accurrate API endpoint as it returns all fabrics in NDFC, not just the fabrics associated with MSD
         # Therefore, we need to get the fabric associations response and filter out the fabrics that are not associated with the parent fabric (MSD)
-        if model_data["vxlan"]["fabric"]["type"] == "MFD":
-            mfd_fabric_associations = self._execute_module(
+        if model_data["vxlan"]["fabric"]["type"] == "MCFG":
+            mcfg_fabric_associations = self._execute_module(
                 module_name="cisco.dcnm.dcnm_rest",
                 module_args={
                     "method": "GET",
@@ -59,7 +59,7 @@ class ActionModule(ActionBase):
                 tmp=tmp
             )
             associated_child_fabrics = []
-            for fabric in mfd_fabric_associations.get('response').get('DATA'):
+            for fabric in mcfg_fabric_associations.get('response').get('DATA'):
                 if fabric.get('fabricName') == parent_fabric:
                     for member in fabric["members"]:
                         associated_child_fabrics.append({

@@ -70,7 +70,7 @@
       changes_detected_bgw_anycast_vip: false
       changes_detected_vrfs: false
       changes_detected_networks: false
-    vars_common_mfd:
+    vars_common_mcfg:
       changes_detected_fabric: false
       changes_detected_vrfs: false
       changes_detected_networks: false
@@ -133,10 +133,10 @@
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: MD_Extended.vxlan.fabric.type == 'MSD'
 
-- name: Import Role Tasks for MFD Fabric
-  ansible.builtin.import_tasks: sub_main_mfd.yml
+- name: Import Role Tasks for MCFG Fabric
+  ansible.builtin.import_tasks: sub_main_mcfg.yml
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric.type == 'MFD'
+  when: MD_Extended.vxlan.fabric.type == 'MCFG'
 
 - name: Import Role Tasks for External Fabric
   ansible.builtin.import_tasks: sub_main_external.yml

@@ -29,7 +29,7 @@
 # --------------------------------------------------------------------
 - name: Set path_name Var
   ansible.builtin.set_fact:
-    path_name: "{{ role_path }}/files/mfd/{{ MD_Extended.vxlan.fabric.name }}/"
+    path_name: "{{ role_path }}/files/mcfg/{{ MD_Extended.vxlan.fabric.name }}/"
   delegate_to: localhost
 
 - name: Cleanup Files from Previous Run if run_map requires it
@@ -42,39 +42,39 @@
 # --------------------------------------------------------------------
 
 - name: Build Fabric Create Parameters
-  ansible.builtin.import_tasks: mfd/ndfc_fabric.yml
+  ansible.builtin.import_tasks: mcfg/ndfc_fabric.yml
 
 # --------------------------------------------------------------------
 # Build Create Fabric Children Parameter List From Template
 # --------------------------------------------------------------------
 
 - name: Build Fabric Create Parameters
-  ansible.builtin.import_tasks: mfd/ndfc_children.yml
+  ansible.builtin.import_tasks: mcfg/ndfc_children.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Get Switch Inventory when Federated Fabric
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Switch inventory
-  ansible.builtin.import_tasks: mfd/ndfc_get_inventory.yml
+  ansible.builtin.import_tasks: mcfg/ndfc_get_inventory.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric VRFs Attach List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric VRFs Attach List From Template
-  ansible.builtin.import_tasks: mfd/ndfc_vrfs.yml
+  ansible.builtin.import_tasks: mcfg/ndfc_vrfs.yml
 
 # --------------------------------------------------------------------
 # Build NDFC Fabric Networks Attach List From Template
 # --------------------------------------------------------------------
 
 - name: Build NDFC Fabric Networks Attach List From Template
-  ansible.builtin.import_tasks: mfd/ndfc_networks.yml
+  ansible.builtin.import_tasks: mcfg/ndfc_networks.yml
 
 - name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
-    vars_common_mfd:
+    vars_common_mcfg:
       changes_detected_fabric: "{{ changes_detected_fabric | default(false) }}"
       changes_detected_vrfs: "{{ changes_detected_vrfs }}"
       changes_detected_networks: "{{ changes_detected_networks }}"
@@ -90,9 +90,9 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Fabric Changes Detected -               [ {{ vars_common_mfd.changes_detected_fabric }} ]"
-      - "+     VRFs Changes Detected -                 [ {{ vars_common_mfd.changes_detected_vrfs }} ]"
-      - "+     Networks Changes Detected -             [ {{ vars_common_mfd.changes_detected_networks }} ]"
+      - "+     Fabric Changes Detected -               [ {{ vars_common_mcfg.changes_detected_fabric }} ]"
+      - "+     VRFs Changes Detected -                 [ {{ vars_common_mcfg.changes_detected_vrfs }} ]"
+      - "+     Networks Changes Detected -             [ {{ vars_common_mcfg.changes_detected_networks }} ]"
       - "+     ----- Run Map -----"
       - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"

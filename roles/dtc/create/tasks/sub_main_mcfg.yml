@@ -33,10 +33,10 @@
   tags: "{{ nac_tags.create }}"
 
 - name: Create NDFC Fabric
-  ansible.builtin.import_tasks: mfd/fabric.yml
+  ansible.builtin.import_tasks: mcfg/fabric.yml
   when:
     - MD_Extended.vxlan.fabric.name is defined
-    - vars_common_mfd.changes_detected_fabric
+    - vars_common_mcfg.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
 - name: Debug message
@@ -62,7 +62,7 @@
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage NDFC Fabric VRFs and Networks
-  ansible.builtin.import_tasks: mfd/vrfs_networks.yml
+  ansible.builtin.import_tasks: mcfg/vrfs_networks.yml
   when:
     - MD_Extended.vxlan.multisite.overlay is defined
-    - vars_common_mfd.changes_detected_vrfs or vars_common_mfd.changes_detected_networks
+    - vars_common_mcfg.changes_detected_vrfs or vars_common_mcfg.changes_detected_networks
