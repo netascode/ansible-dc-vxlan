@@ -83,3 +83,16 @@
   when:
     - file_diff_result.file_data_changed
     - check_roles['save_previous']
+
+- name: Set File Change Flag Based on File Diff Result
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
+    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    role_path: "{{ role_path }}"
+    operation: "update"
+    change_flag: changes_detected_interface_access
+    flag_value: true
+  delegate_to: localhost
+  when:
+    - file_diff_result.file_data_changed
+    - check_roles['save_previous']

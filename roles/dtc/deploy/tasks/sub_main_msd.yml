@@ -28,6 +28,13 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
+- name: MSD FABRIC
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+    MSD FABRIC                                               +"
+      - "----------------------------------------------------------------"
+
 - name: Display Device Configuration Method
   ansible.builtin.debug:
     msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"

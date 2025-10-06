@@ -29,6 +29,14 @@
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
+- name: VXLAN EBGP FABRIC
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+    VXLAN EBGP FABRIC                                         +"
+      - "----------------------------------------------------------------"
+  tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
+
 - name: Display Device Configuration Method
   ansible.builtin.debug:
     msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"

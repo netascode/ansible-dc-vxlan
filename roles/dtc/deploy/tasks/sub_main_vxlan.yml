@@ -28,6 +28,13 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
+- name: VXLAN IBGP FABRIC
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+    VXLAN IBGP FABRIC                                          +"
+      - "----------------------------------------------------------------"
+
 - name: Display Device Configuration Method
   ansible.builtin.debug:
     msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"

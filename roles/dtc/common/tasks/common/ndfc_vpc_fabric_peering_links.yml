@@ -21,10 +21,10 @@
 
 ---
 
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_link_vpc_peering: false
-  delegate_to: localhost
+# - name: Initialize changes_detected Var
+#   ansible.builtin.set_fact:
+#     changes_detected_link_vpc_peering: false
+#   delegate_to: localhost
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
@@ -79,9 +79,22 @@
   register: file_diff_result
   delegate_to: localhost
 
+# - name: Set File Change Flag Based on File Diff Result
+#   ansible.builtin.set_fact:
+#     changes_detected_link_vpc_peering: true
+#   delegate_to: localhost
+#   when:
+#     - file_diff_result.file_data_changed
+#     - check_roles['save_previous']
+
 - name: Set File Change Flag Based on File Diff Result
-  ansible.builtin.set_fact:
-    changes_detected_link_vpc_peering: true
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
+    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    role_path: "{{ role_path }}"
+    operation: "update"
+    change_flag: changes_detected_link_vpc_peering
+    flag_value: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

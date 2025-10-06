@@ -81,9 +81,6 @@
 - name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_msd:
-      changes_detected_fabric: "{{ changes_detected_fabric }}"
-      changes_detected_bgw_anycast_vip: "{{ changes_detected_bgw_anycast_vip }}"
-      # changes_detected_vrfs and changes_detected_networks must be defaulted back to false
       # because ansible.builtin.set_fact copmletely rewrites vars_common_msd and we need
       # to keep alignment with the initialzed false state in common/main.yml.
       # The proper state will update in create/sub_main_msd.yml as that is where vrfs and networks
@@ -96,18 +93,3 @@
       # net_config: "{{ net_config }}"
       # Check with Matt and Pete on how to handle this for MSD
       # vrf_attach_config: "{{ vrf_attach_config }}"
-
-- name: Run Diff Flags
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
-      - "+     BGW Anycast VIP Changes Detected -      [ {{ vars_common_msd.changes_detected_bgw_anycast_vip }} ]"
-      - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
-      - "+     VRFs Changes Detected -                 [ Known Later, Initialized to False for MSD ]"
-      - "+     Networks Changes Detected -             [ {{ vars_common_msd.changes_detected_networks }} ]"
-      - "+     Networks Changes Detected -             [ Known Later, Initialized to False for MSD ]"
-      - "+     ----- Run Map -----"
-      - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
-      - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
-      - "----------------------------------------------------------------"
