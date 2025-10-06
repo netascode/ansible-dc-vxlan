@@ -75,7 +75,7 @@
   when:
     - MD_Extended.vxlan.overlay.vrfs is defined
     - MD_Extended.vxlan.overlay.vrfs
-    - vars_common_local.changes_detected_vrfs
+    - change_flags.changes_detected_vrfs
     - not is_active_child_fabric
 
 # --------------------------------------------------------------------
@@ -89,7 +89,7 @@
   when:
     - MD_Extended.vxlan.overlay.vrfs is defined
     - MD_Extended.vxlan.overlay.vrfs
-    - vars_common_local.changes_detected_vrfs
+    - change_flags.changes_detected_vrfs
     - not is_active_child_fabric
 
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
@@ -111,5 +111,5 @@
   when:
     - MD_Extended.vxlan.overlay.networks is defined
     - MD_Extended.vxlan.overlay.networks
-    - vars_common_local.changes_detected_networks
+    - change_flags.changes_detected_networks
     - not is_active_child_fabric

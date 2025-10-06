@@ -47,7 +47,7 @@
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "MSD"
-    - vars_common_msd.changes_detected_fabric
+    - change_flags.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
 - name: Manage MSD Fabric Child Fabrics in Nexus Dashboard
@@ -77,7 +77,7 @@
        | list
        | length > 0)
     - vars_common_msd.bgw_anycast_vip | length > 0
-    - vars_common_msd.changes_detected_bgw_anycast_vip
+    - change_flags.changes_detected_bgw_anycast_vip
 
 - name: Manage MSD Fabric VRFs and Networks in Nexus Dashboard
   ansible.builtin.import_tasks: msd/vrfs_networks.yml

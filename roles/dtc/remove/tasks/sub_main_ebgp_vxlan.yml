@@ -52,34 +52,34 @@
   ansible.builtin.import_tasks: common/vpc_peers.yml
   tags: "{{ nac_tags.remove_vpc_peers }}"
   when:
-    - vars_common_ebgp_vxlan.changes_detected_vpc_peering
+    - change_flags.changes_detected_vpc_peering
 
 - name: Remove eBGP VXLAN Fabric Policy from Nexus Dashboard
   ansible.builtin.import_tasks: common/policy.yml
   tags: "{{ nac_tags.remove_policy }}"
   when:
-    - vars_common_ebgp_vxlan.changes_detected_policy
+    - change_flags.changes_detected_policy
 
 - name: Remove eBGP VXLAN Fabric Interfaces from Nexus Dashboard
   ansible.builtin.import_tasks: common/interfaces.yml
   tags: "{{ nac_tags.remove_interfaces }}"
   when:
-    - vars_common_ebgp_vxlan.changes_detected_interfaces
+    - change_flags.changes_detected_interfaces
 
 - name: Remove eBGP VXLAN Fabric Networks from Nexus Dashboard
   ansible.builtin.import_tasks: common_vxlan/networks.yml
   tags: "{{ nac_tags.remove_networks }}"
   when:
-    - vars_common_ebgp_vxlan.changes_detected_networks
+    - change_flags.changes_detected_networks
 
 - name: Remove eBGP VXLAN Fabric VRFs from Nexus Dashboard
   ansible.builtin.import_tasks: common_vxlan/vrfs.yml
   tags: "{{ nac_tags.remove_vrfs }}"
   when:
-    - vars_common_ebgp_vxlan.changes_detected_vrfs
+    - change_flags.changes_detected_vrfs
 
 - name: Remove eBGP VXLAN Fabric Switches from Nexus Dashboard
   ansible.builtin.import_tasks: common/switches.yml
   tags: "{{ nac_tags.remove_switches }}"
   when:
-    - vars_common_ebgp_vxlan.changes_detected_inventory
+    - change_flags.changes_detected_inventory

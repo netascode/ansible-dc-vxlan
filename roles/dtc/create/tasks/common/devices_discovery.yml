@@ -58,7 +58,7 @@
     ansible_connect_timeout: 3000
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
-    - vars_common_local.changes_detected_inventory
+    - change_flags.changes_detected_inventory
 
 - debug: msg="{{ vars_common_vxlan.underlay_ip_address_diff_result.updated }}"
 - debug: msg="{{ vars_common_vxlan.underlay_ip_address_diff_result.updated | length }}"
@@ -76,8 +76,8 @@
   when:
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
-    # - (vars_common_local.changes_detected_underlay_ip_address is defined and vars_common_local.changes_detected_underlay_ip_address)
-    - (vars_common_local.underlay_ip_address_diff_result is defined and vars_common_local.underlay_ip_address_diff_result.updated | length > 0)
+    # - (change_flags.changes_detected_underlay_ip_address is defined and change_flags.changes_detected_underlay_ip_address)
+    - (change_flags.underlay_ip_address_diff_result is defined and change_flags.underlay_ip_address_diff_result.updated | length > 0)
 
 # With the addition of the Allocate Underlay IP Address change above we
 # cannot call cisco.dcnm.dcnm_inventory with save: true until after
@@ -95,8 +95,8 @@
     ansible_connect_timeout: 3000
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
-    - vars_common_local.changes_detected_inventory or
-      (vars_common_local.changes_detected_underlay_ip_address is defined and vars_common_local.changes_detected_underlay_ip_address)
+    - change_flags.changes_detected_inventory or
+      (change_flags.changes_detected_underlay_ip_address is defined and change_flags.changes_detected_underlay_ip_address)
 
 - name: Create List of Switch Serial Numbers from Data Model
   ansible.builtin.set_fact:
