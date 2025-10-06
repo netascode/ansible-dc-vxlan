@@ -62,7 +62,7 @@ class Rule:
                 )
                 return results
 
-            if 'domain_name' in check['keys_found'] and fabric_type == ("ibgp" or "ebgp"):
+            if 'domain_name' in check['keys_found'] and fabric_type in ("ibgp", "ebgp"):
                 results.append(f"vxlan.global.bootstrap.{dhcp}.domain_name is not supported for bootstrap in a VXLAN type fabric.")
             elif 'domain_name' in check['keys_not_found'] and fabric_type == "external":
                 results.append(f"vxlan.global.bootstrap.{dhcp}.domain_name is required for bootstrap in an External type fabric.")
