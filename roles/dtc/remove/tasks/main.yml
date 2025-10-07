@@ -91,7 +91,7 @@
 
 - name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
-  when: >
+  when:
     MD_Extended.vxlan.fabric.type == 'MSD'
   # Current implementation has to leverage the changes_detected flags
   # in the sub_main files to determine if the tasks should be run

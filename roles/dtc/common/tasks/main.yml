@@ -27,6 +27,7 @@
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
     role_path: "{{ role_path }}"
     operation: "initialize"
+  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   delegate_to: localhost
 
 # # ------------------------------------------------------------------------
@@ -145,11 +146,13 @@
 - name: Read Change Flags JSON Data From File
   ansible.builtin.set_fact:
     change_flag_data: "{{ lookup('ansible.builtin.file', role_path + '/files/' + MD_Extended.vxlan.fabric.name + '_changes_detected_flags.json') | from_json }}"
+  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   delegate_to: localhost
 
 - name: Set Change Flags Fact
   ansible.builtin.set_fact:
     change_flags: "{{ change_flag_data[MD_Extended.vxlan.fabric.name][MD_Extended.vxlan.fabric.type] }}"
+  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   delegate_to: localhost
 
 - name: Display Flag Values
@@ -158,6 +161,8 @@
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
     role_path: "{{ role_path }}"
     operation: "display"
+  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   delegate_to: localhost
 
 - debug: msg="{{ change_flags }}"
+  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
