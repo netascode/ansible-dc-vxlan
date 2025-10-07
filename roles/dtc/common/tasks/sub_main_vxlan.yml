@@ -221,6 +221,7 @@
     vars_common_vxlan:
       fabric_config: "{{ fabric_config }}"
       fabric_links: "{{ fabric_links }}"
+      fabric_links_diff_result: "{{ fabric_links_diff_result }}"
       edge_connections: "{{ edge_connections }}"
       interface_breakout: "{{ interface_breakout }}"
       interface_breakout_preprov: "{{ interface_breakout_preprov }}"
