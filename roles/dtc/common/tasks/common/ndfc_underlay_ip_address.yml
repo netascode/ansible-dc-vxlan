@@ -21,11 +21,6 @@
 
 ---
 
-# - name: Initialize changes_detected Var
-#   ansible.builtin.set_fact:
-#     changes_detected_underlay_ip_address: false
-#   delegate_to: localhost
-
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_underlay_ip_address.yml"

@@ -21,11 +21,6 @@
 
 ---
 
-# - name: Initialize changes_detected Var
-#   ansible.builtin.set_fact:
-#     changes_detected_interface_trunk_po: false
-#   delegate_to: localhost
-
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_interface_trunk_po.yml"
@@ -75,14 +70,6 @@
     file_name_current: "{{ path_name }}{{ file_name }}"
   register: file_diff_result
   delegate_to: localhost
-
-# - name: Set File Change Flag Based on File Diff Result
-#   ansible.builtin.set_fact:
-#     changes_detected_interface_trunk_po: true
-#   delegate_to: localhost
-#   when:
-#     - file_diff_result.file_data_changed
-#     - check_roles['save_previous']
 
 - name: Set File Change Flag Based on File Diff Result
   cisco.nac_dc_vxlan.common.change_flag_manager:

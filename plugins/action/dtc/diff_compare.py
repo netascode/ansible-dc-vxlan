@@ -22,6 +22,8 @@
 from __future__ import absolute_import, division, print_function
 
 import yaml
+import os
+import datetime
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 
@@ -91,7 +93,55 @@ class ActionModule(ActionBase):
         display.v("Unchanged Items:\n%s", yaml.dump(equal_items, default_flow_style=False))
 
         results['compare'] = {"updated": updated_items, "removed": removed_items, "equal": equal_items}
+
+        # Write comparison results to file
+        self.write_comparison_results(results['compare'])
+
         return results['compare']
+
+    def write_comparison_results(self, compare_results):
+        """
+        Write comparison results to a unique file in the same directory as new_file_path.
+
+        Args:
+            compare_results (dict): Dictionary containing 'updated', 'removed', and 'equal' lists
+        """
+        if not self.new_file_path:
+            display.warning("new_file_path is not set, cannot write comparison results")
+            return
+
+        # Get the directory of the new_file_path
+        output_dir = os.path.dirname(self.new_file_path)
+
+        # Create a unique filename with timestamp
+        base_filename = os.path.splitext(os.path.basename(self.new_file_path))[0]
+        output_filename = f"{base_filename}_comparison.yml"
+        output_path = os.path.join(output_dir, output_filename)
+
+        # Prepare the data to write
+        output_data = {
+            'comparison_summary': {
+                'timestamp': datetime.datetime.now().isoformat(),
+                'source_file': self.new_file_path,
+                'total_updated': len(compare_results.get('updated', [])),
+                'total_removed': len(compare_results.get('removed', [])),
+                'total_equal': len(compare_results.get('equal', []))
+            },
+            'updated_items': compare_results.get('updated', []),
+            'removed_items': compare_results.get('removed', []),
+            'equal_items': compare_results.get('equal', [])
+        }
+
+        try:
+            # Remove old file if it exists
+            if os.path.exists(output_path):
+             os.remove(output_path)
+            display.v(f"Removed existing file: {output_path}")
+
+            with open(output_path, 'w', encoding='utf-8') as f:
+             yaml.dump(output_data, f, default_flow_style=False, sort_keys=False)
+        except Exception as e:
+            display.warning(f"Failed to write comparison results to {output_path}: {str(e)}")
 
     def load_yaml(self, filename):
         """

@@ -55,7 +55,7 @@
 - name: Remove Unmanaged Fabric vPC Peering in Nexus Dashboard - Diff Run True
   cisco.dcnm.dcnm_vpc_pair:
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    deploy: true
+    deploy: false
     state: deleted
     config: "{{ vars_common_local.vpc_peering_diff_result.removed }}"
   vars:
@@ -77,7 +77,7 @@
 - name: Remove Unmanaged vPC Peering from Nexus Dashboard - Diff Run False
   cisco.dcnm.dcnm_vpc_pair:
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    deploy: true
+    deploy: false
     state: overridden
     config: "{{ vars_common_local.vpc_peering }}"
   vars:

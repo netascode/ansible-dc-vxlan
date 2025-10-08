@@ -212,9 +212,11 @@
   ansible.builtin.set_fact:
     vars_common_ebgp_vxlan:
       fabric_config: "{{ fabric_config }}"
+      # TODO: Why are these commented out (Here and above)?
       # fabric_links: "{{ fabric_links }}"
       interface_breakout: "{{ interface_breakout }}"
       interface_breakout_preprov: "{{ interface_breakout_preprov }}"
+      # TODO: Why are these commented out (Here and above)?
       # edge_connections: "{{ edge_connections }}"
       interface_access_po: "{{ interface_access_po }}"
       interface_access: "{{ interface_access }}"
