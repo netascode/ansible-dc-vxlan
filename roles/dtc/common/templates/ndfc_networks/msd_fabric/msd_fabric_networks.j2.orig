@@ -38,44 +38,6 @@
   mtu_l3intf: {{ net['mtu_l3intf'] | default(defaults.vxlan.overlay.networks.mtu_l3intf) }}
   route_target_both: {{ net['route_target_both'] | default(defaults.vxlan.overlay.networks.route_target_both) }}
   routing_tag: {{ net['route_tag'] | default(defaults.vxlan.overlay.networks.route_tag) }}
-{% if net.child_fabrics is defined and net.child_fabrics %}
-{% set child_fabrics = net.child_fabrics %}
-  child_fabric_config:
-{% else %}
-{% set child_fabrics = [] %}
-{% endif %}
-{% for child_fabric in child_fabrics %}
-    - fabric_name: {{ child_fabric['name'] | default(omit) }}
-{% if (MD_Multisite.child_fabrics_data[child_fabric['name']]['attributes']['REPLICATION_MODE'] | lower) == 'multicast' %}
-      multicast_group_address: {{ child_fabric['multicast_group_address'] | default(omit) }}
-{% endif %}
-      dhcp_loopback_id: {{ child_fabric['dhcp_loopback_id'] | default(omit) }}
-{% if child_fabric.dhcp_servers is defined %}
-{% if child_fabric.dhcp_servers | length == 1 %}
-      dhcp_srvr1_ip: {{ child_fabric['dhcp_servers'][0]['ip_address'] }}
-      dhcp_srvr1_vrf: {{ child_fabric['dhcp_servers'][0]['vrf'] }}
-{% elif child_fabric.dhcp_servers | length == 2 %}
-      dhcp_srvr1_ip: {{ child_fabric['dhcp_servers'][0]['ip_address'] }}
-      dhcp_srvr1_vrf: {{ child_fabric['dhcp_servers'][0]['vrf'] }}
-      dhcp_srvr2_ip: {{ child_fabric['dhcp_servers'][1]['ip_address'] }}
-      dhcp_srvr2_vrf: {{ child_fabric['dhcp_servers'][1]['vrf'] }}
-{% elif child_fabric.dhcp_servers | length == 3 %}
-      dhcp_srvr1_ip: {{ child_fabric['dhcp_servers'][0]['ip_address'] }}
-      dhcp_srvr1_vrf: {{ child_fabric['dhcp_servers'][0]['vrf'] }}
-      dhcp_srvr2_ip: {{ child_fabric['dhcp_servers'][1]['ip_address'] }}
-      dhcp_srvr2_vrf: {{ child_fabric['dhcp_servers'][1]['vrf'] }}
-      dhcp_srvr3_ip: {{ child_fabric['dhcp_servers'][2]['ip_address'] }}
-      dhcp_srvr3_vrf: {{ child_fabric['dhcp_servers'][2]['vrf'] }}
-{% endif %}
-{% endif %}
-      trm_enable: {{ child_fabric['trm_enable'] | default(omit) }}
-{#      trmv6_enable: {{ child_fabric['trmv6_enable'] | default(omit) }} #}
-      l3gw_on_border: {{ child_fabric['l3gw_on_border'] | default(omit) }}
-      netflow_enable: {{ child_fabric['netflow_enable'] | default(omit) }}
-{% if child_fabric['netflow_enable'] is defined and child_fabric['netflow_enable'] | bool %}
-      vlan_nf_monitor: {{ child_fabric['vlan_netflow_monitor'] | default(omit) }}
-{% endif %}
-{% endfor %}
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
