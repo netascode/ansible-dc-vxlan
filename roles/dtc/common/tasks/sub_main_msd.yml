@@ -65,6 +65,11 @@
 # Build MSD Fabric VRFs Attach List From Template
 # ------------------------------------------------------------------------
 
+# This is not used for MSD as VRFs and Networks are handled in create/sub_main_msd.yml
+# because we need to process the Multsite data first before we can process the VRFs,
+# mainly for switch attachment data as MSD fabrics do not have switches declared in
+# the data model as this a function of the child fabric to manage device inventory.
+
 # - name: Build MSD Fabric VRFs Attach List From Template
 #   ansible.builtin.import_tasks: msd/ndfc_vrfs.yml
 

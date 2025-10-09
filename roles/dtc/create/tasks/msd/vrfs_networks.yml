@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -91,13 +91,13 @@
       - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
       - "----------------------------------------------------------------"
 
-# With the VRFs and Networking pre-processed, we can now send the configuration for the MSD fabric to NDFC
-# based on the detected changes. This is done in the following tasks.
+# With the VRFs and Networking pre-processed, we can now send the configuration for the MSD fabric to ND/NDFC
+# based on the detected changes. This is done in the next task.
 
 # --------------------------------------------------------------------
 # Manage VRF Configuration on NDFC
 # --------------------------------------------------------------------
-# The cisco.dcnm.dcnm_vrf module works for MSD fabrics to create and update VRFs.
+
 - name: Manage MSD Fabric VRFs in Nexus Dashboard
   cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
@@ -108,12 +108,6 @@
     - MD_Extended.vxlan.multisite.overlay.vrfs is defined
     - MD_Extended.vxlan.multisite.overlay.vrfs
     - vars_common_msd.changes_detected_vrfs
-
-- name: Manage Child Fabric VRFs in Nexus Dashboard
-  cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
-    nd_version: "{{ nd_version }}"
-    msite_data: "{{ MD_Multisite }}"
-  register: child_fabric_vrf_results
 
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC
