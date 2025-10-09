@@ -65,21 +65,13 @@
 
 - name: Initialize Interface Config List to All Interfaces
   set_fact:
-    interface_config_list: "{{ vars_common_local.interface_all }}"
+    interface_config_list: "{{ vars_common_local.interface_all_create }}"
 
 - name: Override Interface Config List Based On Diff Run Settings
   set_fact:
     interface_config_list: "{{ vars_common_local.interface_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool
-
-- name: Diff Run Feature Status
-  ansible.builtin.debug:
-    msg:
-      - "-------------------------------------------------------------------------"
-      - "+     Diff Run Feature Status: {{ run_map_read_result.diff_run }}"
-      - "+     Interface Config List Count: {{ interface_config_list | length }}"
-      - "-------------------------------------------------------------------------"
 
 - name: Manage Interface All in Nexus Dashboard
   cisco.dcnm.dcnm_interface:

@@ -21,11 +21,6 @@
 
 ---
 
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_networks: false
-  delegate_to: localhost
-
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_attach_networks.yml"
@@ -70,20 +65,21 @@
     (MD_Extended.vxlan.overlay.networks | default([])) | length > 0
   delegate_to: localhost
 
+- name: Build vPC Domain ID Diff Between Previous and Current Run
+  # This task must be run before the next task because
+  # dtc.diff_model_changes deletes the .old file if it exists
+  cisco.nac_dc_vxlan.dtc.diff_compare:
+    old_file: "{{ path_name }}{{ file_name }}.old"
+    new_file: "{{ path_name }}{{ file_name }}"
+  register: network_diff_result
+  delegate_to: localhost
+
 - name: Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"
     file_name_current: "{{ path_name }}{{ file_name }}"
   register: file_diff_result
   delegate_to: localhost
-
-- name: Set File Change Flag Based on File Diff Result
-  ansible.builtin.set_fact:
-    changes_detected_networks: true
-  delegate_to: localhost
-  when:
-    - file_diff_result.file_data_changed
-    - check_roles['save_previous']
 
 - name: Set File Change Flag Based on File Diff Result
   cisco.nac_dc_vxlan.common.change_flag_manager:

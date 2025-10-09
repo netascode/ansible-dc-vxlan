@@ -21,11 +21,6 @@
 
 ---
 
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_vpc_peering: false
-  delegate_to: localhost
-
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_vpc_peering.yml"
@@ -83,20 +78,12 @@
   register: vpc_peering_diff_result
   delegate_to: localhost
 
-- name: Diff Previous and Current Data Files
+- name: Get MD5 Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"
     file_name_current: "{{ path_name }}{{ file_name }}"
   register: file_diff_result
   delegate_to: localhost
-
-- name: Set File Change Flag Based on File Diff Result
-  ansible.builtin.set_fact:
-    changes_detected_vpc_peering: true
-  delegate_to: localhost
-  when:
-    - file_diff_result.file_data_changed
-    - check_roles['save_previous']
 
 - name: Set File Change Flag Based on File Diff Result
   cisco.nac_dc_vxlan.common.change_flag_manager:

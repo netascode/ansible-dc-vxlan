@@ -102,11 +102,21 @@
 # --------------------------------------------------------------------
 # Manage Network Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
+- name: Initialize Network Config List to All Networks
+  set_fact:
+    network_config_list: "{{ vars_common_local.net_config }}"
+
+- name: Override Network Config List Based On Diff Run Settings
+  set_fact:
+    network_config_list: "{{ vars_common_local.network_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+
 - name: Manage Fabric Networks in Nexus Dashboard
   cisco.dcnm.dcnm_network:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
-    config: "{{ vars_common_local.net_config }}"
+    config: "{{ network_config_list }}"
   register: manage_network_result
   when:
     - MD_Extended.vxlan.overlay.networks is defined

@@ -73,13 +73,6 @@
   register: vpc_domain_id_resource_diff_result
   delegate_to: localhost
 
-- debug: msg="EQUAL {{ vpc_domain_id_resource_diff_result['equal'] }}"
-- debug: msg="REMOVED {{ vpc_domain_id_resource_diff_result['removed'] }}"
-- debug: msg="UPDATED {{ vpc_domain_id_resource_diff_result['updated'] }}"
-- debug: msg="EQUAL {{ vpc_domain_id_resource_diff_result['equal'] | length }}"
-- debug: msg="REMOVED {{ vpc_domain_id_resource_diff_result['removed'] | length }}"
-- debug: msg="UPDATED {{ vpc_domain_id_resource_diff_result['updated'] | length }}"
-
 - name: Get MD5 Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"

@@ -64,22 +64,13 @@
   when: MD_Extended.vxlan.topology.fabric_links | length > 0
   delegate_to: localhost
 
-- cisco.nac_dc_vxlan.dtc.diff_compare:
+- name: Build Fabric Links Diff Between Previous and Current Run
+  # This task must be run before the next task because
+  # dtc.diff_model_changes deletes the .old file if it exists
+  cisco.nac_dc_vxlan.dtc.diff_compare:
     old_file: "{{ path_name }}{{ file_name }}.old"
     new_file: "{{ path_name }}{{ file_name }}"
   register: fabric_links_diff_result
-  delegate_to: localhost
-
-- debug: msg="EQUAL {{ fabric_links_diff_result['equal'] }}"
-- debug: msg="REMOVED {{ fabric_links_diff_result['removed'] }}"
-- debug: msg="UPDATED {{ fabric_links_diff_result['updated'] }}"
-- debug: msg="EQUAL {{ fabric_links_diff_result['equal'] | length }}"
-- debug: msg="REMOVED {{ fabric_links_diff_result['removed'] | length }}"
-- debug: msg="UPDATED {{ fabric_links_diff_result['updated'] | length }}"
-
-- name: Sleep for 5 seconds
-  ansible.builtin.pause:
-    seconds: 5
   delegate_to: localhost
 
 - name: Get MD5 Diff Previous and Current Data Files

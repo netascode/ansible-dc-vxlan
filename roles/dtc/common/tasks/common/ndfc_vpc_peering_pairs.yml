@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -72,13 +72,6 @@
     new_file: "{{ path_name }}{{ file_name }}"
   register: vpc_peering_diff_result
   delegate_to: localhost
-
-- debug: msg="EQUAL {{ vpc_peering_diff_result['equal'] }}"
-- debug: msg="REMOVED {{ vpc_peering_diff_result['removed'] }}"
-- debug: msg="UPDATED {{ vpc_peering_diff_result['updated'] }}"
-- debug: msg="EQUAL {{ vpc_peering_diff_result['equal'] | length }}"
-- debug: msg="REMOVED {{ vpc_peering_diff_result['removed'] | length }}"
-- debug: msg="UPDATED {{ vpc_peering_diff_result['updated'] | length }}"
 
 - name: Get MD5 Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:

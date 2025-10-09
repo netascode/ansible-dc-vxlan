@@ -57,20 +57,29 @@
 # Manage vPC Domain ID
 # --------------------------------------------------------------------
 
-- name: Debug Domain ID
-  ansible.builtin.debug:
-    msg:
-      - "{{ vars_common_vxlan.vpc_domain_id_resource_diff_result }}"
+- name: Initialize vPC Domain ID Resource Config List to All Interfaces
+  set_fact:
+    vpc_domain_id_resource_config_list: "{{ vars_common_vxlan.vpc_domain_id_resource }}"
+  when:
+    - vars_common_vxlan.vpc_domain_id_resource_diff_result is defined
+    - vars_common_vxlan.vpc_domain_id_resource_diff_result.updated | length > 0
+
+- name: Override vPC Domain ID Resource Config List Based On Diff Run Settings
+  set_fact:
+    vpc_domain_id_resource_config_list: "{{ vars_common_vxlan.vpc_domain_id_resource_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+    - vars_common_vxlan.vpc_domain_id_resource_diff_result is defined
+    - vars_common_vxlan.vpc_domain_id_resource_diff_result.updated | length > 0
 
 - name: Manage vPC Domain ID Resource in Nexus Dashboard
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    # config: "{{ vars_common_vxlan.vpc_domain_id_resource }}"
-    config: "{{ vars_common_vxlan.vpc_domain_id_resource_diff_result.updated }}"
+    config: "{{ vpc_domain_id_resource_config_list }}"
   when:
-    - vars_common_vxlan.vpc_domain_id_resource_diff_result is defined
-    - vars_common_vxlan.vpc_domain_id_resource_diff_result.updated | length > 0
+    - vpc_domain_id_resource_config_list is defined
+    - vpc_domain_id_resource_config_list | length > 0
 
 # --------------------------------------------------------------------
 # Manage Intra Fabric Links for vPC Peering in Nexus Dashboard
@@ -90,17 +99,27 @@
 # Manage vPC Peering in Nexus Dashboard
 # --------------------------------------------------------------------
 
-- name: Debug vPC Peering
-  ansible.builtin.debug:
-    msg:
-      # - "{{ vars_common_vxlan }}"
-      - "{{ vars_common_local.vpc_peering_diff_result }}"
+- name: Initialize vPC Peering Config List to All Interfaces
+  set_fact:
+    vpc_peering_config_list: "{{ vars_common_vxlan.vpc_peering }}"
+  when:
+    - vars_common_vxlan.vpc_peering_diff_result is defined
+    - vars_common_vxlan.vpc_peering_diff_result.updated | length > 0
+
+- name: Override vPC Peering Config  List Based On Diff Run Settings
+  set_fact:
+    vpc_peering_config_list: "{{ vars_common_vxlan.vpc_peering_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+    - vars_common_vxlan.vpc_peering_diff_result is defined
+    - vars_common_vxlan.vpc_peering_diff_result.updated | length > 0
 
 - name: Manage vPC Peering in Nexus Dashboard
   cisco.dcnm.dcnm_vpc_pair:
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     deploy: false
     state: replaced
-    # config: "{{ vars_common_local.vpc_peering }}"
-    config: "{{ vars_common_local.vpc_peering_diff_result.updated }}"
-  when: vars_common_local.vpc_peering_diff_result is defined and vars_common_local.vpc_peering_diff_result.updated | length > 0
+    config: "{{ vpc_peering_config_list }}"
+  when:
+    - vpc_peering_config_list is defined
+    - vpc_peering_config_list | length > 0
