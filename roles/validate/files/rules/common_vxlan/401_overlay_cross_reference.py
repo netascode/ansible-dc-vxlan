@@ -136,7 +136,7 @@ class Rule:
         return results
 
     @classmethod
-    def cross_reference_vpc_peers(cls, attach_groups, vpc_peers, target,results):
+    def cross_reference_vpc_peers(cls, attach_groups, vpc_peers, target, results):
         """
         Check if each switch referenced in a vrf_attach_group or network_attach_group
         is part of a vpc_peers entry, either peer1 or peer2, and if the corresponding peer
