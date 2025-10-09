@@ -181,7 +181,7 @@ If you wish to add any ansible callbacks (those listed below expand on displayin
 ```ini
 callback_whitelist=ansible.posix.timer,ansible.posix.profile_tasks,ansible.posix.profile_roles
 callbacks_enabled=ansible.posix.timer,ansible.posix.profile_tasks,ansible.posix.profile_roles
-bin_ansible_callbacks = True
+bin_ansible_callbacks = true
 ```
 
 #### Step 6 - Verify the Installation
