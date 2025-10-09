@@ -26,7 +26,6 @@ __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
 import json
-import re
 import inspect
 import os
 
