@@ -56,6 +56,9 @@
       ansible.builtin.set_fact:
         is_active_child_fabric: "{{ true if selected_fabric[0]['fabricParent'] != 'None' else false }}"
 
+# --------------------------------------------------------------------
+# Manage VRF Configuration in Nexus Dashboard
+# --------------------------------------------------------------------
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage VRFs
   ansible.builtin.fail:
     msg: VRFs cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
@@ -63,14 +66,27 @@
     - is_active_child_fabric
     - vars_common_local.vrf_config | length > 0
 
-# --------------------------------------------------------------------
-# Manage VRF Configuration in Nexus Dashboard
-# --------------------------------------------------------------------
+- name: Initialize VRF Config List to All VRFs
+  set_fact:
+    vrf_config_list: "{{ vars_common_local.vrf_config }}"
+
+- name: Override VRF Config List Based On Diff Run Settings
+  set_fact:
+    vrf_config_list: "{{ vars_common_local.vrf_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+
+- ansible.builtin.debug:
+    var: vrf_config_list
+
+- ansible.builtin.pause:
+    seconds: 300
+
 - name: Manage Fabric VRFs in Nexus Dashboard
   cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: replaced
-    config: "{{ vars_common_local.vrf_config }}"
+    config: "{{ vrf_config_list }}"
   register: manage_vrf_result
   when:
     - MD_Extended.vxlan.overlay.vrfs is defined
@@ -92,6 +108,9 @@
     - change_flags.changes_detected_vrfs
     - not is_active_child_fabric
 
+# --------------------------------------------------------------------
+# Manage Network Configuration in Nexus Dashboard
+# --------------------------------------------------------------------
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
   ansible.builtin.fail:
     msg: Networks cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
@@ -99,9 +118,6 @@
     - is_active_child_fabric
     - vars_common_local.net_config | length > 0
 
-# --------------------------------------------------------------------
-# Manage Network Configuration in Nexus Dashboard
-# --------------------------------------------------------------------
 - name: Initialize Network Config List to All Networks
   set_fact:
     network_config_list: "{{ vars_common_local.net_config }}"
