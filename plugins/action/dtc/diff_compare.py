@@ -129,11 +129,10 @@ class ActionModule(ActionBase):
         try:
             # Remove old file if it exists
             if os.path.exists(output_path):
-             os.remove(output_path)
-            display.v(f"Removed existing file: {output_path}")
+                os.remove(output_path)
 
             with open(output_path, 'w', encoding='utf-8') as f:
-             yaml.dump(output_data, f, default_flow_style=False, sort_keys=False)
+                yaml.dump(output_data, f, default_flow_style=False, sort_keys=False)
         except Exception as e:
             display.warning(f"Failed to write comparison results to {output_path}: {str(e)}")
 

@@ -30,6 +30,7 @@ import re
 import inspect
 import os
 
+
 class ChangeDetectionManager:
     """Manages change detection flags for fabric configurations."""
 
@@ -224,9 +225,9 @@ class ChangeDetectionManager:
         print("-" * 40)
 
         # Print header
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print(f"Change Detection Flags for Fabric: {self.fabric_name}, Type: {self.fabric_type}")
-        print("="*80)
+        print("=" * 80)
 
         if self.fabric_name in self.changes_detected_flags:
             if self.fabric_type in self.changes_detected_flags[self.fabric_name]:
@@ -257,7 +258,8 @@ class ChangeDetectionManager:
         else:
             print(f"Fabric '{self.fabric_name}' not found")
 
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
+
 
 class ActionModule(ActionBase):
 
