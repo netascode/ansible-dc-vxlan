@@ -86,12 +86,6 @@ class ActionModule(ActionBase):
         if self.new_file_path.endswith('ndfc_interface_all.yml'):
             removed_items = self.order_interface_remove(removed_items)
 
-        display.v("New or Modified Items:\n%s", yaml.dump(updated_items, default_flow_style=False))
-        display.v("---------------------------------")
-        display.v("Remove Items:\n%s", yaml.dump(removed_items, default_flow_style=False))
-        display.v("---------------------------------")
-        display.v("Unchanged Items:\n%s", yaml.dump(equal_items, default_flow_style=False))
-
         results['compare'] = {"updated": updated_items, "removed": removed_items, "equal": equal_items}
 
         # Write comparison results to file

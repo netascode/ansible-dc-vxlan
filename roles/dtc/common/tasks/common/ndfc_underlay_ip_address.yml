@@ -76,27 +76,12 @@
   register: underlay_ip_address_diff_result
   delegate_to: localhost
 
-- debug: msg="EQUAL {{ underlay_ip_address_diff_result['equal'] }}"
-- debug: msg="REMOVED {{ underlay_ip_address_diff_result['removed'] }}"
-- debug: msg="UPDATED {{ underlay_ip_address_diff_result['updated'] }}"
-- debug: msg="EQUAL {{ underlay_ip_address_diff_result['equal'] | length }}"
-- debug: msg="REMOVED {{ underlay_ip_address_diff_result['removed'] | length }}"
-- debug: msg="UPDATED {{ underlay_ip_address_diff_result['updated'] | length }}"
-
 - name:  Get MD5 Diff For Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"
     file_name_current: "{{ path_name }}{{ file_name }}"
   register: file_diff_result
   delegate_to: localhost
-
-# - name: Set File Change Flag Based on File Diff Result
-#   ansible.builtin.set_fact:
-#     changes_detected_underlay_ip_address: true
-#   delegate_to: localhost
-#   when:
-#     - file_diff_result.file_data_changed
-#     - check_roles['save_previous']
 
 - name: Set File Change Flag Based on File Diff Result
   cisco.nac_dc_vxlan.common.change_flag_manager:
