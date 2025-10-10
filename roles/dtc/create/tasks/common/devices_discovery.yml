@@ -70,7 +70,7 @@
 # the previous run and the current run, otherwise we manage all underlay IP address's
 # defined in the data model.
 
-- name: Initialize Underlay IP Config List to All Interfaces
+- name: Initialize Underlay IP Config List to All Underlay IP Addresses
   set_fact:
     underlay_ip_config_list: "{{ vars_common_local.underlay_ip_address }}"
   when:
