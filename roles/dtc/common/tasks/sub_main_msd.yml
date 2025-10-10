@@ -62,34 +62,10 @@
   ansible.builtin.import_tasks: msd/ndfc_bgw_anycast_vip.yml
 
 # ------------------------------------------------------------------------
-# Build MSD Fabric VRFs Attach List From Template
-# ------------------------------------------------------------------------
-
-# - name: Build MSD Fabric VRFs Attach List From Template
-#   ansible.builtin.import_tasks: msd/ndfc_vrfs.yml
-
-# ------------------------------------------------------------------------
-# Build MSD Fabric Networks Attach List From Template
-# ------------------------------------------------------------------------
-
-# - name: Build MSD Fabric Networks Attach List From Template
-#   ansible.builtin.import_tasks: msd/ndfc_networks.yml
-
-# ------------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere
 # ------------------------------------------------------------------------
 - name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_msd:
-      # because ansible.builtin.set_fact copmletely rewrites vars_common_msd and we need
-      # to keep alignment with the initialzed false state in common/main.yml.
-      # The proper state will update in create/sub_main_msd.yml as that is where vrfs and networks
-      # data is processed as we must process the vrfs and networks data only after multsite data is prepared.
-      changes_detected_vrfs: false
-      changes_detected_networks: false
       fabric_config: "{{ fabric_config }}"
       bgw_anycast_vip: "{{ bgw_anycast_vip }}"
-      # vrf_config: "{{ vrf_config }}"
-      # net_config: "{{ net_config }}"
-      # Check with Matt and Pete on how to handle this for MSD
-      # vrf_attach_config: "{{ vrf_attach_config }}"

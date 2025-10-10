@@ -75,8 +75,8 @@
   cisco.nac_dc_vxlan.common.change_flag_manager:
     fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-    role_path: "{{ role_path }}"
-    operation: "update"
+    role_path: "{{ common_role_path }}"
+    operation: update
     change_flag: changes_detected_interface_trunk_po
     flag_value: true
   delegate_to: localhost

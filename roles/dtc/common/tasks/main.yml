@@ -21,13 +21,18 @@
 
 ---
 
+- name: Create Fact To Store Common Role Path
+  ansible.builtin.set_fact:
+    common_role_path: "{{ role_path }}"
+  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
+
 - name: Initialize Change Flags
   cisco.nac_dc_vxlan.common.change_flag_manager:
     fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-    role_path: "{{ role_path }}"
-    operation: "initialize"
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
+    role_path: "{{ common_role_path }}"
+    operation: initialize
+  tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost
 
 - name: Import Role Tasks for iBGP VXLAN Fabric
@@ -55,15 +60,19 @@
   tags: "{{ nac_tags.common_role }}"
   when: MD_Extended.vxlan.fabric.type == 'External'
 
-- name: Read Change Flags JSON Data From File
-  ansible.builtin.set_fact:
-    change_flag_data: "{{ lookup('ansible.builtin.file', role_path + '/files/' + MD_Extended.vxlan.fabric.name + '_changes_detected_flags.json') | from_json }}"
+- name: Retrieve Flag Values
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
+    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: get
   tags: "{{ nac_tags.common_role }}"
+  register: change_flag_result
   delegate_to: localhost
 
-- name: Set Change Flags Fact
+- name: Store Change Flags For Use In Subsequent Roles
   ansible.builtin.set_fact:
-    change_flags: "{{ change_flag_data[MD_Extended.vxlan.fabric.name][MD_Extended.vxlan.fabric.type] }}"
+    change_flags: "{{ change_flag_result['flags'] }}"
   tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost
 
@@ -71,7 +80,7 @@
   cisco.nac_dc_vxlan.common.change_flag_manager:
     fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-    role_path: "{{ role_path }}"
-    operation: "display"
+    role_path: "{{ common_role_path }}"
+    operation: display
   tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost

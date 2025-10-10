@@ -50,6 +50,16 @@
     - "{{ nac_tags.remove_networks }}"
     - "{{ nac_tags.remove_vrfs }}"
 
+# ------------------------------------------------------------------------------------
+# This file is only imported in the remove role when the diff_run feature is disabled.
+# If the diff_run feature is enabled, then the vrfs and networks tasks were imported
+# when the create role was run.
+# ------------------------------------------------------------------------------------
+- name: Import VRF and Network Roles From Common If Needed
+  ansible.builtin.import_tasks: msd/vrf_network_common.yml
+  tags: "{{ nac_tags.remove_networks }}"
+  when: not run_map_read_result.diff_run
+
 - name: Remove MSD Fabric Networks from Nexus Dashboard
   ansible.builtin.import_tasks: msd/networks.yml
   tags: "{{ nac_tags.remove_networks }}"

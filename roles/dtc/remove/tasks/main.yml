@@ -66,6 +66,7 @@
     name: cisco.nac_dc_vxlan.dtc.deploy
   when:
     - stage_remove is false|bool
+    - not MD_Extended.vxlan.fabric.type == 'MSD'
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:

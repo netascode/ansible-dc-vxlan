@@ -265,6 +265,7 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
+        results['flags'] = {}
 
         # Get data from Ansible task parameters
         params = {}
@@ -281,9 +282,9 @@ class ActionModule(ActionBase):
                 results['msg'] = f"Missing required parameter '{key}'"
                 return results
 
-        if params['operation'] not in ['initialize', 'update', 'display']:
+        if params['operation'] not in ['initialize', 'update', 'get', 'display']:
             results['failed'] = True
-            results['msg'] = "Parameter 'operation' must be one of: initialize, update, display"
+            results['msg'] = "Parameter 'operation' must be one of: [initialize, update, get, display]"
             return results
 
         # Supported Operations (intialize, update)
@@ -319,6 +320,10 @@ class ActionModule(ActionBase):
                 self.process_write_result(success, 'changes_detected_any', True, params, results)
 
             self.process_write_result(success, params['change_flag'], params['flag_value'], params, results)
+
+        if params['operation'] == 'get':
+            change_detection_manager.changes_detected_flags = change_detection_manager.read_changes_detected_flags_from_file()
+            results['flags'] = change_detection_manager.changes_detected_flags[params['fabric_name']][params['fabric_type']]
 
         if params['operation'] == "display":
             change_detection_manager.changes_detected_flags = change_detection_manager.read_changes_detected_flags_from_file()
