@@ -61,8 +61,8 @@
   set_fact:
     vpc_domain_id_resource_config_list: "{{ vars_common_vxlan.vpc_domain_id_resource }}"
   when:
-    - vars_common_vxlan.vpc_domain_id_resource_diff_result is defined
-    - vars_common_vxlan.vpc_domain_id_resource_diff_result.updated | length > 0
+    - vars_common_vxlan.vpc_domain_id_resource is defined
+    - vars_common_vxlan.vpc_domain_id_resource | length > 0
 
 - name: Override vPC Domain ID Resource Config List Based On Diff Run Settings
   set_fact:

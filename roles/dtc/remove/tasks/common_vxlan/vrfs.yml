@@ -64,15 +64,6 @@
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
     - not is_active_child_fabric
 
-- ansible.builtin.debug:
-    var: vars_common_local.vrf_diff_result
-
-- ansible.builtin.debug:
-    var: vars_common_local.vrf_config
-
-- ansible.builtin.pause:
-    seconds: 300
-
 # -----------------------------------------------------------------------------
 # Remove VRFs Using Diff Run Framework
 # -----------------------------------------------------------------------------

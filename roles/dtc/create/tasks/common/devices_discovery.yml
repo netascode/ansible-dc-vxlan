@@ -60,16 +60,44 @@
     - MD_Extended.vxlan.topology.switches | length > 0
     - change_flags.changes_detected_inventory
 
+# --------------------------------------------------------------------
+# Manage Underlay IP Address Configuration in Nexus Dashboard
+# --------------------------------------------------------------------
+#
+# This section manages the underlay IP address configuration based on the diff_run setting.
+#
+# When the diff_run feature is active we only manage the difference between
+# the previous run and the current run, otherwise we manage all underlay IP address's
+# defined in the data model.
+
+- name: Initialize Underlay IP Config List to All Interfaces
+  set_fact:
+    underlay_ip_config_list: "{{ vars_common_local.underlay_ip_address }}"
+  when:
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
+    - (change_flags.changes_detected_underlay_ip_address is defined and change_flags.changes_detected_underlay_ip_address)
+    - (vars_common_local.underlay_ip_address is defined and vars_common_local.underlay_ip_address | length > 0)
+
+- name: Override Underlay IP Config List Based On Diff Run Settings
+  set_fact:
+    underlay_ip_config_list: "{{ vars_common_local.underlay_ip_address_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
+    - (change_flags.changes_detected_underlay_ip_address is defined and change_flags.changes_detected_underlay_ip_address)
+    - (vars_common_local.underlay_ip_address_diff_result is defined and vars_common_local.underlay_ip_address_diff_result.updated | length > 0)
+
 - name: Allocate Underlay IP Address
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    # config: "{{ vars_common_vxlan.underlay_ip_address }}"
-    config: "{{ vars_common_local.underlay_ip_address_diff_result.updated }}"
+    config: "{{ underlay_ip_config_list }}"
   when:
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
-    - (change_flags.underlay_ip_address_diff_result is defined change_flags.underlay_ip_address_diff_result.updated | length > 0)
+    - (change_flags.changes_detected_underlay_ip_address is defined and change_flags.changes_detected_underlay_ip_address)
 
 # With the addition of the Allocate Underlay IP Address change above we
 # cannot call cisco.dcnm.dcnm_inventory with save: true until after
