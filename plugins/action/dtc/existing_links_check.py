@@ -71,10 +71,12 @@ class ActionModule(ActionBase):
                         # swap also in profile peer1 and peer2
                         # Don't swap IP addresses, bc they are assigned based on existing link
                         # and should not change
-                        if (existing_link['sw1-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
-                         existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower() and
-                         existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower() and
-                         existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower()):
+                        if (
+                            existing_link['sw1-info']['sw-sys-name'].lower() == link['dst_device'].lower()
+                            and existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower()
+                            and existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower()
+                            and existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower()
+                        ):
                             link['src_device'], link['dst_device'] = link['dst_device'], link['src_device']
                             link['src_interface'], link['dst_interface'] = link['dst_interface'], link['src_interface']
                             # Safely swap descriptions without creating keys when absent
