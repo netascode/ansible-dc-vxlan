@@ -21,17 +21,6 @@
 
 ---
 
-# - name: Import MSD Fabric Role Tasks
-#   ansible.builtin.import_tasks: sub_main_msd.yml
-#   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
-#   when: >
-#     (MD_Extended.vxlan.fabric.type == 'MSD') and
-#     (vars_common_msd.changes_detected_fabric or
-#     vars_common_msd.changes_detected_vrfs or
-#     vars_common_msd.changes_detected_networks or
-#     (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0) or
-#     vars_common_msd.changes_detected_bgw_anycast_vip)
-
 - name: Import iBGP VXLAN EVPN Role Tasks
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml

@@ -90,7 +90,7 @@
     fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
-    operation: "update"
+    operation: update
     change_flag: changes_detected_vpc_peering
     flag_value: true
   delegate_to: localhost

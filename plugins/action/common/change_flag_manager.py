@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -321,7 +321,7 @@ class ActionModule(ActionBase):
 
             self.process_write_result(success, params['change_flag'], params['flag_value'], params, results)
 
-        if params['operation'] == 'get':
+        if params['operation'] == "get":
             change_detection_manager.changes_detected_flags = change_detection_manager.read_changes_detected_flags_from_file()
             results['flags'] = change_detection_manager.changes_detected_flags[params['fabric_name']][params['fabric_type']]
 
