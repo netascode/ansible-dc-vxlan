@@ -48,6 +48,13 @@
     - MD_Extended.vxlan.multisite.child_fabrics | length > 0
 
 # TODO: Update cisco.nac_dc_vxlan.dtc.fabric_deploy_manager to handle a list of child fabrics
+- name: Config-Save For MSD Child Fabrics in Nexus Dashboard
+  cisco.nac_dc_vxlan.dtc.fabrics_config_save:
+    fabrics: "{{ child_fabrics_vrfs_networks_changed }}"
+  when: >
+    MD_Extended.vxlan.fabric.type == 'MSD' and
+    (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0)
+
 - name: Deploy For MSD Child Fabrics in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.fabrics_deploy:
     fabrics: "{{ child_fabrics_vrfs_networks_changed }}"
