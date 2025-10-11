@@ -75,7 +75,9 @@ class FabricDeployManager:
 
         if response['response'].get('DATA'):
             for switch in response['response']['DATA']:
-                if switch['ccStatus'] == 'Out-of-Sync':
+                # Devices that are not managable (example: pre-provisioned devices) should be
+                # skipped in this check
+                if str(switch['managable']) == 'True' and switch['ccStatus'] == 'Out-of-Sync':
                     self.fabric_in_sync = False
                     break
 
