@@ -329,7 +329,7 @@ class ActionModule(ActionBase):
             change_detection_manager.changes_detected_flags = change_detection_manager.read_changes_detected_flags_from_file()
             change_detection_manager.display_flag_values(task_vars)
             from time import sleep
-            sleep(10)
+            sleep(2)
 
         return results
 
