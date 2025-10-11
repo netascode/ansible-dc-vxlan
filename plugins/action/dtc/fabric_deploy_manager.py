@@ -31,6 +31,7 @@ import inspect
 
 display = Display()
 
+
 class FabricDeployManager:
     """Manages fabric deployment tasks."""
 
@@ -49,11 +50,12 @@ class FabricDeployManager:
         self.module_name = "cisco.dcnm.dcnm_rest"
 
         # Module API Paths
+        base_path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest"
         self.api_paths = {
-            "get_switches_by_fabric": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{self.fabric_name}/inventory/switchesByFabric",
-            "config_save": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{self.fabric_name}/config-save",
-            "config_deploy": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false",
-            "fabric_history": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/config/delivery/deployerHistoryByFabric/{self.fabric_name}?sort=completedTime%3ADES&limit=5",
+            "get_switches_by_fabric": f"{base_path}/control/fabrics/{self.fabric_name}/inventory/switchesByFabric",
+            "config_save": f"{base_path}/control/fabrics/{self.fabric_name}/config-save",
+            "config_deploy": f"{base_path}/control/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false",
+            "fabric_history": f"{base_path}/config/delivery/deployerHistoryByFabric/{self.fabric_name}?sort=completedTime%3ADES&limit=5",
         }
 
         # Fabric State Booleans
@@ -117,7 +119,6 @@ class FabricDeployManager:
 
         # Get last 2 history entries
         self.fabric_history = response['response'].get('DATA', [])[0:2]
-        
 
     def _send_request(self, method, path, data=None):
         """Helper method to send REST API requests."""
@@ -136,6 +137,7 @@ class FabricDeployManager:
             tmp=self.tmp
         )
         return response
+
 
 class ActionModule(ActionBase):
 
@@ -171,7 +173,7 @@ class ActionModule(ActionBase):
             fabric_manager.fabric_config_save()
             fabric_manager.fabric_deploy()
             fabric_manager.fabric_check_sync()
-            
+
             if not fabric_manager.fabric_in_sync:
                 # If the fabric is out of sync after deployment try one more time before giving up
                 display.warning("Fabric is out of sync after initial deployment. Attempting one more deployment.")
