@@ -27,7 +27,7 @@ __metaclass__ = type
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 import inspect
-
+from time import sleep
 
 display = Display()
 
@@ -71,8 +71,22 @@ class FabricDeployManager:
         method_name = inspect.stack()[0][3]
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
+        self.fabric_in_sync = True
         response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
+        for _ in range(20):
+            self._fabric_check_sync_helper(response)
+            if self.fabric_in_sync:
+                break
+            else:
+                display.warning(f"Fabric {self.fabric_name} is out of sync. Attempt {_ + 1}/20. Sleeping 2 seconds before retry.")
+                sleep(2)
+                self.fabric_in_sync = True
+                response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
 
+
+        display.banner(f">>>> Fabric: ({self.fabric_name}) Type: ({self.fabric_type}) in sync: {self.fabric_in_sync}")
+
+    def _fabric_check_sync_helper(self, response):
         if response['response'].get('DATA'):
             for switch in response['response']['DATA']:
                 # Devices that are not managable (example: pre-provisioned devices) should be
@@ -80,8 +94,6 @@ class FabricDeployManager:
                 if str(switch['managable']) == 'True' and switch['ccStatus'] == 'Out-of-Sync':
                     self.fabric_in_sync = False
                     break
-
-        display.banner(f">>>> Fabric: ({self.fabric_name}) Type: ({self.fabric_type}) in sync: {self.fabric_in_sync}")
 
     def fabric_config_save(self):
         """Trigger a config-save on the fabric."""
@@ -178,9 +190,12 @@ class ActionModule(ActionBase):
 
             if not fabric_manager.fabric_in_sync and params['fabric_type'] != 'MSD':
                 # If the fabric is out of sync after deployment try one more time before giving up
+                fabric_manager.fabric_history_get()
+                display.warning(fabric_manager.fabric_history)
                 display.warning("Fabric is out of sync after initial deployment. Attempting one more deployment.")
                 fabric_manager.fabric_config_save()
                 fabric_manager.fabric_deploy()
+                fabric_manager.fabric_check_sync()
 
             if not fabric_manager.fabric_in_sync and params['fabric_type'] != 'MSD':
                 fabric_manager.fabric_history_get()

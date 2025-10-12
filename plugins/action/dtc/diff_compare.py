@@ -116,7 +116,7 @@ class ActionModule(ActionBase):
         output_data = {
             'comparison_summary': {
                 'timestamp': datetime.datetime.now().isoformat(),
-                'source_file': self.new_file_path,
+                # 'source_file': self.new_file_path,
                 'total_updated': len(compare_results.get('updated', [])),
                 'total_removed': len(compare_results.get('removed', [])),
                 'total_equal': len(compare_results.get('equal', []))
