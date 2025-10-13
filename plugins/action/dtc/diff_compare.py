@@ -81,6 +81,9 @@ class ActionModule(ActionBase):
         except (FileNotFoundError, IOError):
             display.warning(f"New file not found: {self.new_file_path}, using empty list")
 
+        # Normalize omit placeholder strings between old and new items
+        old_items, new_items = self.normalize_omit_placeholders(old_items, new_items)
+
         updated_items, removed_items, equal_items = self.compare_items(old_items, new_items)
 
         if self.new_file_path.endswith('ndfc_interface_all.yml'):
@@ -116,7 +119,7 @@ class ActionModule(ActionBase):
         output_data = {
             'comparison_summary': {
                 'timestamp': datetime.datetime.now().isoformat(),
-                # 'source_file': self.new_file_path,
+                'source_file': self.new_file_path,
                 'total_updated': len(compare_results.get('updated', [])),
                 'total_removed': len(compare_results.get('removed', [])),
                 'total_equal': len(compare_results.get('equal', []))
@@ -142,6 +145,40 @@ class ActionModule(ActionBase):
         """
         with open(filename, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f) or []
+
+    def normalize_omit_placeholders(self, old_items, new_items):
+        """
+        Remove any lines that contain the string '__omit_place_holder__' from both old_items and new_items.
+        Goes through each list item and removes any dictionary key-value pairs where the value contains '__omit_place_holder__'.
+        Returns the cleaned (normalized) old_items and new_items.
+        """
+        def remove_omit_placeholders(items):
+            """Recursively remove any entries containing '__omit_place_holder__' from data structures."""
+            if isinstance(items, list):
+                cleaned_items = []
+                for item in items:
+                    cleaned_item = remove_omit_placeholders(item)
+                    if cleaned_item is not None:  # Only add non-None items
+                        cleaned_items.append(cleaned_item)
+                return cleaned_items
+            elif isinstance(items, dict):
+                cleaned_dict = {}
+                for key, value in items.items():
+                    # Skip any key-value pair where the value contains '__omit_place_holder__'
+                    if isinstance(value, str) and '__omit_place_holder__' in value:
+                        continue
+                    # Recursively clean nested structures
+                    cleaned_value = remove_omit_placeholders(value)
+                    cleaned_dict[key] = cleaned_value
+                return cleaned_dict
+            else:
+                # For primitive types, return as-is
+                return items
+
+        cleaned_old = remove_omit_placeholders(old_items)
+        cleaned_new = remove_omit_placeholders(new_items)
+        display.v("Normalized old_items and new_items by removing __omit_place_holder__ entries")
+        return cleaned_old, cleaned_new
 
     KEY_MAPPING = {
         'ndfc_underlay_ip_address.yml': 'entity_name',

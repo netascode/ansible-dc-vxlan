@@ -73,12 +73,12 @@ class FabricDeployManager:
 
         self.fabric_in_sync = True
         response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
-        for _ in range(20):
+        for attempt in range(20):
             self._fabric_check_sync_helper(response)
             if self.fabric_in_sync:
                 break
             else:
-                display.warning(f"Fabric {self.fabric_name} is out of sync. Attempt {_ + 1}/20. Sleeping 2 seconds before retry.")
+                display.warning(f"Fabric {self.fabric_name} is out of sync. Attempt {attempt + 1}/20. Sleeping 2 seconds before retry.")
                 sleep(2)
                 self.fabric_in_sync = True
                 response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
@@ -199,8 +199,8 @@ class ActionModule(ActionBase):
 
             if not fabric_manager.fabric_in_sync and params['fabric_type'] != 'MSD':
                 fabric_manager.fabric_history_get()
-                display.error(f"Fabric {fabric_manager.fabric_name} is out of sync after deployment.")
-                display.error(fabric_manager.fabric_history)
+                results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync after deployment."
+                results['fabric_history'] = fabric_manager.fabric_history
                 results['failed'] = True
 
         if params['operation'] in ['config_save']:
@@ -217,8 +217,8 @@ class ActionModule(ActionBase):
             fabric_manager.fabric_check_sync()
             if not fabric_manager.fabric_in_sync:
                 fabric_manager.fabric_history_get()
-                display.error(f"Fabric {fabric_manager.fabric_name} is out of sync.")
-                display.error(fabric_manager.fabric_history)
+                results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync."
+                results['fabric_history'] = fabric_manager.fabric_history
                 results['failed'] = True
 
         return results
