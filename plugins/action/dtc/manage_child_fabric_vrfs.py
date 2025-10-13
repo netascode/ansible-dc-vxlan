@@ -287,9 +287,8 @@ class ActionModule(ActionBase):
             # Need to get the child fabric type and ensure it is a VXLAN fabric type
             child_fabric_type = child_fabrics[child_fabric]['type']
             if child_fabric_type in ['Switch_Fabric']:
-                 # Only process child fabrics that have not already been marked as changed
-                 if child_fabric not in results['child_fabrics_changed']:
-
+                # Only process child fabrics that have not already been marked as changed
+                if child_fabric not in results['child_fabrics_changed']:
                     # cf = child_fabrics
                     ndfc_cf_vrfs = self._execute_module(
                         module_name="cisco.dcnm.dcnm_rest",
