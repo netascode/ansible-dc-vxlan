@@ -80,6 +80,13 @@
   ansible.builtin.import_tasks: common/ndfc_vpc_peering_pairs.yml
 
 # --------------------------------------------------------------------
+# Build eBGP VXLAN ToR Pairing Payloads From Template
+# --------------------------------------------------------------------
+
+- name: Build eBGP VXLAN Fabric ToR Pairing Payloads From Template
+  ansible.builtin.import_tasks: common/ndfc_tor_pairing.yml
+
+# --------------------------------------------------------------------
 # Build NDFC Fabric VRFs Attach List From Template
 # --------------------------------------------------------------------
 
@@ -235,6 +242,7 @@
       changes_detected_vpc_peering: "{{ changes_detected_vpc_peering }}"
       changes_detected_vpc_domain_id_resource: "{{ changes_detected_vpc_domain_id_resource }}"
       changes_detected_vrfs: "{{ changes_detected_vrfs }}"
+      changes_detected_tor_pairing: "{{ changes_detected_tor_pairing }}"
       fabric_config: "{{ fabric_config }}"
       # fabric_links: "{{ fabric_links }}"
       interface_breakout: "{{ interface_breakout }}"
@@ -253,6 +261,7 @@
       inv_config: "{{ inv_config }}"
       link_vpc_peering: "{{ link_vpc_peering }}"
       net_config: "{{ net_config }}"
+      tor_pairing: "{{ tor_pairing }}"
       poap_data: "{{ poap_data }}"
       policy_config: "{{ policy_config }}"
       sub_interface_routed: "{{ sub_interface_routed }}"
@@ -272,6 +281,7 @@
       - "+     vPC Link Peer Changes Detected -        [ {{ vars_common_ebgp_vxlan.changes_detected_link_vpc_peering }} ]"
       - "+     vPC Peer Changes Detected -             [ {{ vars_common_ebgp_vxlan.changes_detected_vpc_peering }} ]"
       - "+     vPC Domain ID Detected -                [ {{ vars_common_ebgp_vxlan.changes_detected_vpc_domain_id_resource }} ]"
+      - "+     ToR Pairing Changes Detected -         [ {{ vars_common_ebgp_vxlan.changes_detected_tor_pairing }} ]"
       - "+     ----- Interfaces -----"
       - "+     Interface breakout Changes Detected -   [ {{ vars_common_ebgp_vxlan.changes_detected_interface_breakout }} ]"
       - "+     Interface PreProv breakout Changes Detected -   [ {{ vars_common_ebgp_vxlan.changes_detected_interface_breakout_preprov }} ]"

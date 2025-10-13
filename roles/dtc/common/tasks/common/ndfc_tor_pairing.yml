@@ -1,0 +1,64 @@
+---
+- name: Initialize tor pairing change flag
+  ansible.builtin.set_fact:
+    changes_detected_tor_pairing: false
+  delegate_to: localhost
+
+- name: Set tor pairing file name
+  ansible.builtin.set_fact:
+    file_name: "ndfc_tor_pairing.yml"
+  delegate_to: localhost
+
+- name: Stat previous tor pairing file if it exists
+  ansible.builtin.stat:
+    path: "{{ path_name }}{{ file_name }}"
+  register: tor_pairing_previous
+  delegate_to: localhost
+
+- name: Backup previous tor pairing file if it exists
+  ansible.builtin.copy:
+    src: "{{ path_name }}{{ file_name }}"
+    dest: "{{ path_name }}{{ file_name }}.old"
+    mode: preserve
+  when: tor_pairing_previous.stat.exists
+  delegate_to: localhost
+
+- name: Delete previous tor pairing file if it exists
+  ansible.builtin.file:
+    state: absent
+    path: "{{ path_name }}{{ file_name }}"
+  when: tor_pairing_previous.stat.exists
+  delegate_to: localhost
+
+- name: Build ToR pairing payloads
+  ansible.builtin.template:
+    src: ndfc_tor_pairing.j2
+    dest: "{{ path_name }}{{ file_name }}"
+    mode: '0644'
+  delegate_to: localhost
+
+- name: Set tor_pairing fact default
+  ansible.builtin.set_fact:
+    tor_pairing: []
+  delegate_to: localhost
+
+- name: Load ToR pairing payloads
+  ansible.builtin.set_fact:
+    tor_pairing: "{{ lookup('file', path_name + file_name) | from_yaml | default([], true) }}"
+  delegate_to: localhost
+  when: (lookup('file', path_name + file_name) | length) > 0
+
+- name: Diff ToR pairing payload file
+  cisco.nac_dc_vxlan.dtc.diff_model_changes:
+    file_name_previous: "{{ path_name }}{{ file_name }}.old"
+    file_name_current: "{{ path_name }}{{ file_name }}"
+  register: tor_pairing_diff
+  delegate_to: localhost
+
+- name: Flag ToR pairing changes when detected
+  ansible.builtin.set_fact:
+    changes_detected_tor_pairing: true
+  when:
+    - tor_pairing_diff.file_data_changed
+    - check_roles['save_previous']
+  delegate_to: localhost

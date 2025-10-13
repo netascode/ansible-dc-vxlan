@@ -33,6 +33,7 @@ nac_tags:
     - cr_manage_policy
     - cr_manage_links
     - cr_manage_edge_connections
+    - cr_manage_tor_pairing
     # -------------------------
     - rr_manage_interfaces
     - rr_manage_networks
@@ -81,6 +82,7 @@ nac_tags:
     - cr_manage_vrfs_networks
     - cr_manage_policy
     - cr_manage_edge_connections
+    - cr_manage_tor_pairing
     - rr_manage_edge_connections
     - rr_manage_interfaces
     - rr_manage_networks
@@ -103,6 +105,7 @@ nac_tags:
     - cr_manage_vrfs_networks
     - cr_manage_policy
     - cr_manage_edge_connections
+    - cr_manage_tor_pairing
     - rr_manage_edge_connections
     - rr_manage_interfaces
     - rr_manage_networks
@@ -121,8 +124,11 @@ nac_tags:
     - cr_manage_policy
     - cr_manage_links
     - cr_manage_edge_connections
+    - cr_manage_tor_pairing
   create_edge_connections:
     - cr_manage_edge_connections
+  create_tor_pairing:
+    - cr_manage_tor_pairing
   create_fabric:
     - cr_manage_fabric
   create_switches:

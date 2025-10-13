@@ -73,6 +73,14 @@
         msg: "{{ config_save.msg.DATA }}"
       when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
 
+- name: Manage iBGP VXLAN Fabric ToR Pairing in Nexus Dashboard
+  ansible.builtin.import_tasks: common/tor_pairing.yml
+  when:
+    - vars_common_vxlan.tor_pairing is defined
+    - vars_common_vxlan.tor_pairing | length > 0
+    - vars_common_vxlan.changes_detected_tor_pairing
+  tags: "{{ nac_tags.create_tor_pairing }}"
+
 - name: Manage iBGP VXLAN Fabric Interfaces in Nexus Dashboard
   ansible.builtin.import_tasks: common/interfaces.yml
   when:
