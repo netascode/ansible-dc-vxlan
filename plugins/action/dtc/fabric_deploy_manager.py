@@ -83,7 +83,6 @@ class FabricDeployManager:
                 self.fabric_in_sync = True
                 response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
 
-
         display.banner(f">>>> Fabric: ({self.fabric_name}) Type: ({self.fabric_type}) in sync: {self.fabric_in_sync}")
 
     def _fabric_check_sync_helper(self, response):
