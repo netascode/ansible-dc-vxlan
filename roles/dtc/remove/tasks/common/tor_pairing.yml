@@ -1,0 +1,80 @@
+---
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Set vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+
+- name: Set vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_msd }}"
+  when: MD_Extended.vxlan.fabric.type == "MSD"
+
+- name: Set vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_isn }}"
+  when: MD_Extended.vxlan.fabric.type == "ISN"
+
+- name: Set vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_external }}"
+  when: MD_Extended.vxlan.fabric.type == "External"
+
+- name: Manage ToR Pairing Removal Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Remove Fabric ToR Pairing {{ MD_Extended.vxlan.fabric.name }}"
+      - "----------------------------------------------------------------"
+  when: (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+
+- name: Remove ToR pairings from Nexus Dashboard
+  cisco.dcnm.dcnm_rest:
+    method: DELETE
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{{ MD_Extended.vxlan.fabric.name }}/switches/pair?leaftor={{ leaftor_query }}"
+  loop: "{{ vars_common_local.tor_pairing_removed | default([], true) }}"
+  loop_control:
+    label: "{{ item.pairing_id }}"
+  when:
+    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+    - leaf_serials | length > 0
+    - tor_value | length > 0
+  vars:
+    ansible_command_timeout: 300
+    ansible_connect_timeout: 300
+    leaf_serials: "{{ [item.payload.leafSN1 | default('', true), item.payload.leafSN2 | default('', true)] | map('regex_replace', '\\s+$', '') | reject('equalto', '') | list }}"
+    tor_serials: "{{ [item.payload.torSN1 | default('', true), item.payload.torSN2 | default('', true)] | map('regex_replace', '\\s+$', '') | reject('equalto', '') | list }}"
+    tor_value_vpc: "{{ tor_serials | join(',') }}"
+    tor_value_single: "{{ tor_serials | first | default('', true) }}"
+    tor_value: "{{ tor_value_vpc if item.scenario == 'leaf_vpc_tor_vpc' else tor_value_single }}"
+    leaftor_values: "{{ [tor_value] * (leaf_serials | length) }}"
+    leaftor_map: "{{ dict(leaf_serials | zip(leaftor_values)) }}"
+    leaftor_query: "{{ leaftor_map | to_json | urlencode }}"
+  register: tor_pairing_removal_result
+
+- name: Debug NDFC server response for ToR pairing removal
+  ansible.builtin.debug:
+    msg:
+      - "NDFC Response Status: {{ tor_pairing_removal_result.response.status | default('N/A') }}"
+      - "NDFC Response Headers: {{ tor_pairing_removal_result.response.headers | default('N/A') }}"
+      - "NDFC Response Body: {{ tor_pairing_removal_result.response.json | default(tor_pairing_removal_result.response.body | default('N/A')) }}"
+      - "NDFC Response Message: {{ tor_pairing_removal_result.response.message | default('N/A') }}"
+  when:
+    - ansible_verbosity >= 3
+    - tor_pairing_removal_result is defined
+    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+  loop: "{{ tor_pairing_removal_result.results | default([]) }}"
+  loop_control:
+    label: "Pairing {{ ansible_loop.index }}"
+
+- name: Skip ToR pairing removal when tor_pairing_delete_mode is False
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING ToR pairing removal because tor_pairing_delete_mode flag is set to False                 +"
+      - "----------------------------------------------------------------------------------------------------"
+  when: not ((tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool))

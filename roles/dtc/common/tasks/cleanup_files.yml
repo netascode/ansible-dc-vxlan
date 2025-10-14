@@ -26,6 +26,7 @@
     state: absent
     path: "{{ path_name }}"
   delegate_to: localhost
+  when: cleanup_enabled | default(true)
 
 - name: Recreate the directory
   ansible.builtin.file:

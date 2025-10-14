@@ -18,8 +18,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import re
-
 
 class PreparePlugin:
     def __init__(self, **kwargs):
@@ -40,25 +38,15 @@ class PreparePlugin:
             errors.append(f"Switch '{name}' must define serial_number for tor pairing support")
         return switch
 
-    def _resolve_port_channel_id(self, member, switch, errors):
-        port_channel_id = member.get('port_channel_id')
-        interface = member.get('interface')
-        interface_name = None
-        if isinstance(interface, dict):
-            interface_name = interface.get('name')
-        elif isinstance(interface, str):
-            interface_name = interface
-        if port_channel_id is None and interface_name:
-            match = re.search(r'(\d+)$', interface_name)
-            if match:
-                port_channel_id = int(match.group(1))
-        if port_channel_id is None:
-            errors.append(
-                f"Port-channel identifier is required for switch '{member.get('name')}' in tor_peers. "
-                "Provide port_channel_id or interface name in the data model."
-            )
+    def _normalize_vpc_id(self, value, label, errors):
+        if value is None:
+            errors.append(f"{label} is required when defining tor pairing entries.")
             return None
-        return int(port_channel_id)
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            errors.append(f"{label} must be an integer value. Current value: {value!r}")
+            return None
 
     def _resolve_vpc_domain(self, peer, key, name_a, name_b, topology):
         if peer.get(key) is not None:
@@ -124,8 +112,8 @@ class PreparePlugin:
                     f"tor_peers entry pairing '{leaf1_name}' to '{tor1_name}' defines tor2 but tor_vpc_peer is false"
                 )
 
-            leaf_vpc_domain = self._resolve_vpc_domain(peer, 'leaf_vpc_domain_id', leaf1_name, leaf2_name, topology)
-            tor_vpc_domain = self._resolve_vpc_domain(peer, 'tor_vpc_domain_id', tor1_name, tor2_name, topology)
+            leaf_vpc_domain = self._resolve_vpc_domain(peer, 'leaf_vpc_id', leaf1_name, leaf2_name, topology)
+            tor_vpc_domain = self._resolve_vpc_domain(peer, 'tor_vpc_id', tor1_name, tor2_name, topology)
 
             leaf_is_vpc = bool(leaf2_switch and leaf_vpc_domain)
             tor_is_vpc = bool(tor_vpc_peer and tor2_switch and tor_vpc_domain)
@@ -136,7 +124,7 @@ class PreparePlugin:
                 )
             if tor_vpc_peer and not tor_is_vpc:
                 errors.append(
-                    f"tor_peers entry referencing tors '{tor1_name}' and '{tor2_name}' requires a tor_vpc_domain_id."
+                    f"tor_peers entry referencing tors '{tor1_name}' and '{tor2_name}' requires a tor_vpc_id."
                 )
 
             scenario = 'leaf_standalone_tor_standalone'
@@ -155,14 +143,14 @@ class PreparePlugin:
             pairing_ids.add(pairing_id)
 
             if leaf1_switch:
-                leaf1_po = self._resolve_port_channel_id(parent_leaf1, leaf1_switch, errors)
+                leaf1_po = self._normalize_vpc_id(leaf_vpc_domain, "leaf_vpc_id", errors)
                 leaf1_serial = leaf1_switch.get('serial_number') if leaf1_switch else None
             else:
                 leaf1_po = None
                 leaf1_serial = None
 
             if tor1_switch:
-                tor1_po = self._resolve_port_channel_id(tor1, tor1_switch, errors)
+                tor1_po = self._normalize_vpc_id(tor_vpc_domain, "tor_vpc_id", errors)
                 tor1_serial = tor1_switch.get('serial_number') if tor1_switch else None
             else:
                 tor1_po = None
@@ -171,13 +159,13 @@ class PreparePlugin:
             leaf2_po = None
             leaf2_serial = ''
             if leaf_is_vpc and leaf2_switch:
-                leaf2_po = self._resolve_port_channel_id(parent_leaf2, leaf2_switch, errors)
+                leaf2_po = self._normalize_vpc_id(leaf_vpc_domain, "leaf_vpc_id", errors)
                 leaf2_serial = leaf2_switch.get('serial_number') if leaf2_switch else ''
 
             tor2_po = None
             tor2_serial = ''
             if tor_is_vpc and tor2_switch:
-                tor2_po = self._resolve_port_channel_id(tor2, tor2_switch, errors)
+                tor2_po = self._normalize_vpc_id(tor_vpc_domain, "tor_vpc_id", errors)
                 tor2_serial = tor2_switch.get('serial_number') if tor2_switch else ''
 
             required_serials = [leaf1_serial, tor1_serial]

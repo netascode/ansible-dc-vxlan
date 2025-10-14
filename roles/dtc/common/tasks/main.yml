@@ -48,6 +48,7 @@
       changes_detected_vpc_peering: false
       changes_detected_vrfs: false
       changes_detected_underlay_ip_address: false
+      changes_detected_tor_pairing: false
     vars_common_isn:
       changes_detected_fabric: false
       changes_detected_fabric_links: false
@@ -106,6 +107,7 @@
       changes_detected_sub_interface_routed: false
       changes_detected_vpc_peering: false
       changes_detected_vrfs: false
+      changes_detected_tor_pairing: false
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Import Role Tasks for iBGP VXLAN Fabric

@@ -37,16 +37,42 @@
     mode: '0644'
   delegate_to: localhost
 
-- name: Set tor_pairing fact default
+- name: Initialize ToR pairing facts
   ansible.builtin.set_fact:
     tor_pairing: []
+    tor_pairing_removed: []
+    tor_pairing_previous_list: []
+    tor_pairing_current_list: []
   delegate_to: localhost
+
+- name: Load previous ToR pairing payloads
+  ansible.builtin.set_fact:
+    tor_pairing_previous_list: "{{ lookup('file', path_name + file_name + '.old') | from_yaml | default([], true) }}"
+  delegate_to: localhost
+  when: tor_pairing_previous.stat.exists
 
 - name: Load ToR pairing payloads
   ansible.builtin.set_fact:
-    tor_pairing: "{{ lookup('file', path_name + file_name) | from_yaml | default([], true) }}"
+    tor_pairing_current_list: "{{ lookup('file', path_name + file_name) | from_yaml | default([], true) }}"
   delegate_to: localhost
   when: (lookup('file', path_name + file_name) | length) > 0
+
+- name: Publish current ToR pairing list
+  ansible.builtin.set_fact:
+    tor_pairing: "{{ tor_pairing_current_list }}"
+  delegate_to: localhost
+
+- name: Compute removed ToR pairings
+  ansible.builtin.set_fact:
+    tor_pairing_removed: >-
+      {{ tor_pairing_previous_list
+         | selectattr('pairing_id', 'in',
+             (tor_pairing_previous_list | map(attribute='pairing_id') | list)
+             | difference(tor_pairing_current_list | map(attribute='pairing_id') | list))
+         | list }}
+  delegate_to: localhost
+  when:
+    - tor_pairing_previous_list | length > 0
 
 - name: Diff ToR pairing payload file
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
@@ -61,4 +87,11 @@
   when:
     - tor_pairing_diff.file_data_changed
     - check_roles['save_previous']
+  delegate_to: localhost
+
+- name: Flag ToR pairing removal when differences identified
+  ansible.builtin.set_fact:
+    changes_detected_tor_pairing: true
+  when:
+    - tor_pairing_removed | length > 0
   delegate_to: localhost

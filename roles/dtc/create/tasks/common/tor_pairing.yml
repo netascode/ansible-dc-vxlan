@@ -42,6 +42,4 @@
   when:
     - item.payload.leafSN1
     - item.payload.torSN1
-  vars:
-    ansible_command_timeout: 300
-    ansible_connect_timeout: 300
+

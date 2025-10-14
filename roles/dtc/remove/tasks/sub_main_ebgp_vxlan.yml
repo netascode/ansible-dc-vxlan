@@ -46,6 +46,12 @@
   when:
     - vars_common_ebgp_vxlan.changes_detected_vpc_peering
 
+- name: Remove eBGP VXLAN Fabric ToR Pairing from Nexus Dashboard
+  ansible.builtin.import_tasks: common/tor_pairing.yml
+  tags: "{{ nac_tags.remove_tor_pairing }}"
+  when:
+    - vars_common_ebgp_vxlan.changes_detected_tor_pairing
+
 - name: Remove eBGP VXLAN Fabric Policy from Nexus Dashboard
   ansible.builtin.import_tasks: common/policy.yml
   tags: "{{ nac_tags.remove_policy }}"
