@@ -303,7 +303,7 @@ class ActionModule(ActionBase):
                     ndfc_cf_vrfs_response_data = ndfc_cf_vrfs['response']['DATA']
 
                     for ndfc_vrf in ndfc_cf_vrfs_response_data:
-                        if ndfc_vrf['vrfStatus'] != 'DEPLOYED':
+                        if ndfc_vrf['vrfStatus'] not in ['NA', 'SUCCESS', 'IN-SYNC', 'DEPLOYED']:
                             results['child_fabrics_changed'].append(child_fabric)
 
         return results

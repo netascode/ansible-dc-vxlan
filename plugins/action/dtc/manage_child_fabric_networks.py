@@ -293,7 +293,7 @@ class ActionModule(ActionBase):
                     ndfc_cf_nets_response_data = ndfc_cf_nets['response']['DATA']
 
                     for ndfc_net in ndfc_cf_nets_response_data:
-                        if ndfc_net['networkStatus'] != 'DEPLOYED':
+                        if ndfc_net['networkStatus'] not in ['NA', 'SUCCESS', 'IN-SYNC', 'DEPLOYED']:
                             results['child_fabrics_changed'].append(child_fabric)
 
         return results
