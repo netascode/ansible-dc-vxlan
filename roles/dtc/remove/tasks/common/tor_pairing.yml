@@ -56,21 +56,6 @@
     leaftor_query: "{{ leaftor_map | to_json | urlencode }}"
   register: tor_pairing_removal_result
 
-- name: Debug NDFC server response for ToR pairing removal
-  ansible.builtin.debug:
-    msg:
-      - "NDFC Response Status: {{ tor_pairing_removal_result.response.status | default('N/A') }}"
-      - "NDFC Response Headers: {{ tor_pairing_removal_result.response.headers | default('N/A') }}"
-      - "NDFC Response Body: {{ tor_pairing_removal_result.response.json | default(tor_pairing_removal_result.response.body | default('N/A')) }}"
-      - "NDFC Response Message: {{ tor_pairing_removal_result.response.message | default('N/A') }}"
-  when:
-    - ansible_verbosity >= 3
-    - tor_pairing_removal_result is defined
-    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
-  loop: "{{ tor_pairing_removal_result.results | default([]) }}"
-  loop_control:
-    label: "Pairing {{ ansible_loop.index }}"
-
 - name: Skip ToR pairing removal when tor_pairing_delete_mode is False
   ansible.builtin.debug:
     msg:

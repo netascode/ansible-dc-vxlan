@@ -38,16 +38,7 @@
 - name: Cleanup Files from Previous Run if run_map requires it
   ansible.builtin.import_tasks: cleanup_files.yml
   when:
-    - cleanup_enabled | default(true)
-  vars:
-    cleanup_enabled: (not run_map_read_result.diff_run) and not ((force_run_all | default(false)) | bool)
-
-- name: Ensure ToR artifact directory exists
-  ansible.builtin.file:
-    path: "{{ path_name }}"
-    state: directory
-    mode: '0755'
-  delegate_to: localhost
+    - not run_map_read_result.diff_run or ((force_run_all is defined) and (force_run_all is true|bool))
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric List From Template
