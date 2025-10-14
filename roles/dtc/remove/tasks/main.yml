@@ -56,11 +56,6 @@
     - MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
     - change_flags.changes_detected_any
 
-- name: Log Stage Remove Without Deploy Setting
-  ansible.builtin.debug:
-    msg:
-      - "Stage Remove Without Deploy Is {{ stage_remove }}"
-
 - name: Deploy Remove Changes
   ansible.builtin.include_role:
     name: cisco.nac_dc_vxlan.dtc.deploy

@@ -21,8 +21,6 @@
 
 ---
 
-- debug: msg="{{ MD_Extended.vxlan.fabric.name }}_service_model*.json"
-
 - name: Remove Service Model JSON Files
   ansible.builtin.find:
     paths: "{{ role_path }}/files/"
