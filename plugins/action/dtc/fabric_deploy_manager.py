@@ -73,12 +73,14 @@ class FabricDeployManager:
 
         self.fabric_in_sync = True
         response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
-        for attempt in range(20):
+        for attempt in range(5):
             self._fabric_check_sync_helper(response)
             if self.fabric_in_sync:
                 break
+            if (attempt + 1) == 5 and not self.fabric_in_sync:
+                break
             else:
-                display.warning(f"Fabric {self.fabric_name} is out of sync. Attempt {attempt + 1}/20. Sleeping 2 seconds before retry.")
+                display.warning(f"Fabric {self.fabric_name} is out of sync. Attempt {attempt + 1}/5. Sleeping 2 seconds before retry.")
                 sleep(2)
                 self.fabric_in_sync = True
                 response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
@@ -86,8 +88,8 @@ class FabricDeployManager:
         display.banner(f">>>> Fabric: ({self.fabric_name}) Type: ({self.fabric_type}) in sync: {self.fabric_in_sync}")
 
     def _fabric_check_sync_helper(self, response):
-        if response['response'].get('DATA'):
-            for switch in response['response']['DATA']:
+        if response.get('DATA'):
+            for switch in response['DATA']:
                 # Devices that are not managable (example: pre-provisioned devices) should be
                 # skipped in this check
                 if str(switch['managable']) == 'True' and switch['ccStatus'] == 'Out-of-Sync':
@@ -100,8 +102,7 @@ class FabricDeployManager:
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
         response = self._send_request("POST", self.api_paths["config_save"])
-
-        if response['response'].get('RETURN_CODE') == 200:
+        if response.get('RETURN_CODE') == 200:
             display.banner(f">>>> Succeeded for Fabric {self.fabric_name}")
         else:
             self.fabric_save_succeeded = False
@@ -113,7 +114,7 @@ class FabricDeployManager:
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
         response = self._send_request("POST", self.api_paths["config_deploy"])
-        if response['response'].get('RETURN_CODE') == 200:
+        if response.get('RETURN_CODE') == 200:
             display.banner(f">>>> Succeeded for Fabric {self.fabric_name}")
         else:
             self.fabric_deploy_succeeded = False
@@ -125,13 +126,13 @@ class FabricDeployManager:
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
         response = self._send_request("GET", self.api_paths["fabric_history"])
-        if response['response'].get('RETURN_CODE') == 200:
+        if response.get('RETURN_CODE') == 200:
             display.banner(f">>>> Succeeded for Fabric {self.fabric_name}")
         else:
             display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
 
         # Get last 2 history entries
-        self.fabric_history = response['response'].get('DATA', [])[0:2]
+        self.fabric_history = response.get('DATA', [])[0:2]
 
     def _send_request(self, method, path, data=None):
         """Helper method to send REST API requests."""
@@ -149,6 +150,10 @@ class FabricDeployManager:
             task_vars=self.task_vars,
             tmp=self.tmp
         )
+        if 'response' in response.keys():
+            response = response['response']
+        if 'msg' in response.keys():
+            response = response['msg']
         return response
 
 
