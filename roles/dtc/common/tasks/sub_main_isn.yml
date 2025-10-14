@@ -177,7 +177,6 @@
       interface_access: "{{ interface_access }}"
       interface_all_create: "{{ interface_all_create }}"
       interface_all_remove_overridden: "{{ interface_all_remove_overridden }}"
-      interface_diff_result: "{{ interface_diff_result }}"
       int_loopback_config: "{{ int_loopback_config }}"
       interface_po_routed: "{{ interface_po_routed }}"
       interface_routed: "{{ interface_routed }}"
@@ -191,3 +190,5 @@
       sub_interface_routed: "{{ sub_interface_routed }}"
       updated_inv_config: "{{ updated_inv_config }}"
       updated_inv_config_no_bootstrap: "{{ updated_inv_config_no_bootstrap }}"
+      # Diff Result Data
+      interface_diff_result: "{{ interface_diff_result }}"
