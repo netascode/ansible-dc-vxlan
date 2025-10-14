@@ -151,6 +151,7 @@ class ChangeDetectionManager:
                 'changes_detected_policy': False,
                 'changes_detected_sub_interface_routed': False,
                 'changes_detected_vpc_peering': False,
+                'changes_detected_vpc_domain_id_resource': False,
                 'changes_detected_vrfs': False,
                 'changes_detected_any': False
             }
