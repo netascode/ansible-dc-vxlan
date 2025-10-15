@@ -37,10 +37,20 @@
   when:
     - (multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true|bool)
 
+- name: Set Network Config to MultiSite VRF Data
+  set_fact:
+    network_config: "{{ MD_Multisite }}"
+
+- name: Override Network Config Based On Diff Run Settings
+  set_fact:
+    network_config: "{{ network_diff_result.removed }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+
 - name: Remove Unmanaged Fabric Networks in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_networks:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    msite_data: "{{ MD_Multisite }}"
+    msite_data: "{{ network_config }}"
   register: child_fabric_network_results
   when:
     - multisite_network_delete_mode is defined

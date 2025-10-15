@@ -48,7 +48,7 @@
 # when the create role was run.
 # ------------------------------------------------------------------------------------
 - name: Import VRF and Network Roles From Common If Needed
-  ansible.builtin.import_tasks: msd/vrf_network_common.yml
+  ansible.builtin.include_tasks: msd/vrf_network_common.yml
   tags: "{{ nac_tags.remove_networks }}"
   when: not run_map_read_result.diff_run
 

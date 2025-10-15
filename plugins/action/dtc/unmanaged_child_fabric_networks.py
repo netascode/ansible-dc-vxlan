@@ -32,26 +32,27 @@ display = Display()
 
 
 class ActionModule(ActionBase):
+    """
+    Action plugin to determine what Networks are to be removed from Nexus Dashboard (ND)
+    through comparison with the desired state in data model to ND state or through
+    the diff run framework option.
+    """
+    def __init__(self, *args, **kwargs):
+        super(ActionModule, self).__init__(*args, **kwargs)
+        self.tmp = None
+        self.task_vars = None
+        self.nd_networks = {}
+        self.results = {}
 
-    def run(self, tmp=None, task_vars=None):
-        results = super(ActionModule, self).run(tmp, task_vars)
-        results['changed'] = False
-        results['failed'] = False
-
-        fabric = self._task.args["fabric"]
-        msite_data = self._task.args["msite_data"]
-
-        networks = msite_data['overlay_attach_groups']['networks']
-        network_names = [network['name'] for network in networks]
-
-        ndfc_networks = self._execute_module(
+    def get_nd_networks(self, fabric):
+        self.nd_networks = self._execute_module(
             module_name="cisco.dcnm.dcnm_network",
             module_args={
                 "fabric": fabric,
                 "state": "query"
             },
-            task_vars=task_vars,
-            tmp=tmp
+            task_vars=self.task_vars,
+            tmp=self.tmp
         )
 
         # Failed query:
@@ -67,11 +68,11 @@ class ActionModule(ActionBase):
         #     },
         #     "_ansible_parsed": true
         # }
-        if ndfc_networks.get('failed'):
-            if ndfc_networks['failed']:
-                results['failed'] = True
-                results['msg'] = f"{ndfc_networks['msg']}"
-                return results
+        if self.nd_networks.get('failed'):
+            if self.nd_networks['failed']:
+                self.results['failed'] = True
+                self.results['msg'] = f"{self.nd_networks['msg']}"
+                return self.results
 
         # Successful query:
         # {
@@ -150,16 +151,23 @@ class ActionModule(ActionBase):
         #     },
         #     "_ansible_parsed": true
         # }
+
+    def dm_nd_diff(self, fabric, data):
+        networks = data['overlay_attach_groups']['networks']
+        network_names = [network['name'] for network in networks]
+
         diff_ndfc_network_names = []
-        if ndfc_networks.get('response'):
-            ndfc_network_names = [ndfc_network['parent']['networkName'] for ndfc_network in ndfc_networks['response']]
+        config = []
+
+        if self.nd_networks.get('response'):
+            ndfc_network_names = [ndfc_network['parent']['networkName'] for ndfc_network in self.nd_networks['response']]
+
             # Take the difference between the networks in the data model and the networks in NDFC
             # If the network is in NDFC but not in the data model, delete it
             diff_ndfc_network_names = [ndfc_network_name for ndfc_network_name in ndfc_network_names if ndfc_network_name not in network_names]
 
         display.warning(f"Removing network_names: {diff_ndfc_network_names} from fabric: {fabric}")
         if diff_ndfc_network_names:
-            config = []
             for ndfc_network_name in diff_ndfc_network_names:
                 config.append(
                     {
@@ -168,24 +176,51 @@ class ActionModule(ActionBase):
                     }
                 )
 
-            ndfc_deleted_networks = self._execute_module(
-                module_name="cisco.dcnm.dcnm_network",
-                module_args={
-                    "fabric": fabric,
-                    "config": config,
-                    "state": "deleted"
-                },
-                task_vars=task_vars,
-                tmp=tmp
-            )
+        return config
 
-            # See above for failed query example
-            if ndfc_deleted_networks.get('failed'):
-                if ndfc_deleted_networks['failed']:
-                    results['failed'] = True
-                    results['msg'] = f"{ndfc_deleted_networks['msg']}"
-                    return results
-            else:
-                results['changed'] = True
+    def run(self, tmp=None, task_vars=None):
+        results = super(ActionModule, self).run(tmp, task_vars)
+        results['changed'] = False
+        results['failed'] = False
+
+        self.tmp = tmp
+        self.task_vars = task_vars
+
+        fabric = self._task.args["fabric"]
+        # data to use for deleting unmanaged VRFs based on either
+        # (a) diff run data or (b) data model state compared to ND state
+        data = self._task.args["data"]
+        diff_run = self._task.args.get("diff_run", False)
+
+        if not diff_run:
+            self.get_nd_networks(fabric)
+            if self.results.get('failed'):
+                results['failed'] = self.results['failed']
+                results['msg'] = self.results['msg']
+
+            config = self.dm_nd_diff(fabric, data)
+        else:
+            config = data
+
+
+        ndfc_deleted_networks = self._execute_module(
+            module_name="cisco.dcnm.dcnm_network",
+            module_args={
+                "fabric": fabric,
+                "config": config,
+                "state": "deleted"
+            },
+            task_vars=task_vars,
+            tmp=tmp
+        )
+
+        # See above for failed query example
+        if ndfc_deleted_networks.get('failed'):
+            if ndfc_deleted_networks['failed']:
+                results['failed'] = True
+                results['msg'] = f"{ndfc_deleted_networks['msg']}"
+                return results
+        else:
+            results['changed'] = True
 
         return results

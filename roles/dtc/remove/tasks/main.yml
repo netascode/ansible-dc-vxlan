@@ -61,10 +61,10 @@
     name: cisco.nac_dc_vxlan.dtc.deploy
   when: >
     ((stage_remove is false|bool) and (not MD_Extended.vxlan.fabric.type == 'MSD')) and
-    (change_flags.changes_detected_interfaces) or
+    ((change_flags.changes_detected_interfaces) or
     (change_flags.changes_detected_policy) or
     (change_flags.changes_detected_vpc_peering) or
-    (change_flags.changes_detected_vpc_domain_id_resource)
+    (change_flags.changes_detected_vpc_domain_id_resource))
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:
