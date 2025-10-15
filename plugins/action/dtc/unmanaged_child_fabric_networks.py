@@ -202,7 +202,6 @@ class ActionModule(ActionBase):
         else:
             config = data
 
-
         ndfc_deleted_networks = self._execute_module(
             module_name="cisco.dcnm.dcnm_network",
             module_args={
