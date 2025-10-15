@@ -35,30 +35,27 @@
   tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost
 
-- name: Import Role Tasks for iBGP VXLAN Fabric
-  ansible.builtin.import_tasks: sub_main_vxlan.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
+- block:
+  - name: Import Role Tasks for iBGP VXLAN Fabric
+    ansible.builtin.include_tasks: sub_main_vxlan.yml
+    when: MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
 
-- name: Import Role Tasks for eBGP VXLAN Fabric
-  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
+  - name: Import Role Tasks for eBGP VXLAN Fabric
+    ansible.builtin.include_tasks: sub_main_ebgp_vxlan.yml
+    when: MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
 
-- name: Import Role Tasks for ISN Fabric
-  ansible.builtin.import_tasks: sub_main_isn.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: MD_Extended.vxlan.fabric.type == 'ISN'
+  - name: Import Role Tasks for ISN Fabric
+    ansible.builtin.include_tasks: sub_main_isn.yml
+    when: MD_Extended.vxlan.fabric.type == 'ISN'
 
-- name: Import Role Tasks for MSD Fabric
-  ansible.builtin.import_tasks: sub_main_msd.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: MD_Extended.vxlan.fabric.type == 'MSD'
+  - name: Import Role Tasks for MSD Fabric
+    ansible.builtin.include_tasks: sub_main_msd.yml
+    when: MD_Extended.vxlan.fabric.type == 'MSD'
 
-- name: Import Role Tasks for External Fabric
-  ansible.builtin.import_tasks: sub_main_external.yml
+  - name: Import Role Tasks for External Fabric
+    ansible.builtin.include_tasks: sub_main_external.yml
+    when: MD_Extended.vxlan.fabric.type == 'External'
   tags: "{{ nac_tags.common_role }}"
-  when: MD_Extended.vxlan.fabric.type == 'External'
 
 - name: Retrieve Flag Values
   cisco.nac_dc_vxlan.common.change_flag_manager:

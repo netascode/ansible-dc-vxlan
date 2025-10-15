@@ -41,31 +41,41 @@
   tags: "{{ nac_tags.remove }}"
 
 - name: Remove External Fabric Edge Connections from Nexus Dashboard
-  ansible.builtin.import_tasks: common/edge_connections.yml
-  tags: "{{ nac_tags.remove_edge_connections }}"
+  ansible.builtin.include_tasks:
+    file: common/edge_connections.yml
+    apply:
+      tags: "{{ nac_tags.remove_edge_connections }}"
   when:
     - change_flags.changes_detected_edge_connections
 
 - name: Remove External Fabric Policy from Nexus Dashboard
-  ansible.builtin.import_tasks: common/policy.yml
-  tags: "{{ nac_tags.remove_policy }}"
+  ansible.builtin.include_tasks:
+    file: common/policy.yml
+    apply:
+      tags: "{{ nac_tags.remove_policy }}"
   when:
     - change_flags.changes_detected_policy
 
 - name: Remove External Fabric Interfaces from Nexus Dashboard
-  ansible.builtin.import_tasks: common/interfaces.yml
-  tags: "{{ nac_tags.remove_interfaces }}"
+  ansible.builtin.include_tasks:
+    file: common/interfaces.yml
+    apply:
+      tags: "{{ nac_tags.remove_interfaces }}"
   when:
     - change_flags.changes_detected_interfaces
 
 - name: Remove External Fabric vPC Peering from Nexus Dashboard
-  ansible.builtin.import_tasks: common/vpc_peers.yml
-  tags: "{{ nac_tags.remove_vpc_peers }}"
+  ansible.builtin.include_tasks:
+    file: common/vpc_peers.yml
+    apply:
+      tags: "{{ nac_tags.remove_vpc_peers }}"
   when:
     - change_flags.changes_detected_vpc_peering
 
 - name: Remove External Fabric Switches from Nexus Dashboard
-  ansible.builtin.import_tasks: common/switches.yml
-  tags: "{{ nac_tags.remove_switches }}"
+  ansible.builtin.include_tasks:
+    file: common/switches.yml
+    apply:
+      tags: "{{ nac_tags.remove_switches }}"
   when:
     - change_flags.changes_detected_inventory

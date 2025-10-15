@@ -87,7 +87,6 @@
 # Remove all files from the previous run if force_run_all is true
 # ------------------------------------------------------------------------
 - name: Cleanup Files from Previous Run if run_map requires it
-  ansible.builtin.import_tasks: cleanup_model_files.yml
+  ansible.builtin.include_tasks: cleanup_model_files.yml
   when:
     - ((force_run_all is defined) and (force_run_all is true|bool))
-  delegate_to: localhost

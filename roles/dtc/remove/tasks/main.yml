@@ -22,7 +22,7 @@
 ---
 
 - name: Import iBGP VXLAN Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_vxlan.yml
+  ansible.builtin.include_tasks: sub_main_vxlan.yml
   # Check with Matt on changes_detected_policy here
   # Was not there previously
   when:
@@ -30,26 +30,26 @@
     - change_flags.changes_detected_any
 
 - name: Import MSD Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_msd.yml
+  ansible.builtin.include_tasks: sub_main_msd.yml
   when:
     MD_Extended.vxlan.fabric.type == 'MSD'
   # Current implementation has to leverage the changes_detected flags
   # in the sub_main files to determine if the tasks should be run
 
 - name: Import ISN Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_isn.yml
+  ansible.builtin.include_tasks: sub_main_isn.yml
   when:
     - MD_Extended.vxlan.fabric.type == 'ISN'
     - change_flags.changes_detected_any
 
 - name: Import External Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_external.yml
+  ansible.builtin.include_tasks: sub_main_external.yml
   when:
     - MD_Extended.vxlan.fabric.type == 'External'
     - change_flags.changes_detected_any
 
 - name: Import eBGP Role Tasks
-  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
+  ansible.builtin.include_tasks: sub_main_ebgp_vxlan.yml
   # Check with Matt on changes_detected_policy here
   # Was not there previously
   when:

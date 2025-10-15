@@ -36,7 +36,7 @@
   delegate_to: localhost
 
 - name: Cleanup Files from Previous Run if run_map requires it
-  ansible.builtin.import_tasks: cleanup_files.yml
+  ansible.builtin.include_tasks: cleanup_files.yml
   when:
     - not run_map_read_result.diff_run or ((force_run_all is defined) and (force_run_all is true|bool))
 
@@ -45,173 +45,173 @@
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric List From Template
-  ansible.builtin.import_tasks: common/ndfc_fabric.yml
+  ansible.builtin.include_tasks: common/ndfc_fabric.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Switch Inventory List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Switch Inventory List From Template
-  ansible.builtin.import_tasks: common/ndfc_inventory.yml
+  ansible.builtin.include_tasks: common/ndfc_inventory.yml
 
 # We need to also build an inventory list without bootstrap settings
 # This will be used for device removal.
 - name: Build iBGP VXLAN Fabric Switch Inventory List From Template - No Bootstrap
-  ansible.builtin.import_tasks: common/ndfc_inventory_no_bootstrap.yml
+  ansible.builtin.include_tasks: common/ndfc_inventory_no_bootstrap.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric vPC Domain ID Resource From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric vPC Domain ID Resource From Template
-  ansible.builtin.import_tasks: common/ndfc_vpc_domain_id_resource.yml
+  ansible.builtin.include_tasks: common/ndfc_vpc_domain_id_resource.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Intra Links for vPC Peering From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Intra Links for vPC Peering From Template
-  ansible.builtin.import_tasks: common/ndfc_vpc_fabric_peering_links.yml
+  ansible.builtin.include_tasks: common/ndfc_vpc_fabric_peering_links.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric vPC Peering Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric vPC Peering Template
-  ansible.builtin.import_tasks: common/ndfc_vpc_peering_pairs.yml
+  ansible.builtin.include_tasks: common/ndfc_vpc_peering_pairs.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric VRFs and Attach List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric VRFs and Attach List From Template
-  ansible.builtin.import_tasks: vxlan/ndfc_vrfs.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_vrfs.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Networks and Attach List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Networks and Attach List From Template
-  ansible.builtin.import_tasks: vxlan/ndfc_networks.yml
+  ansible.builtin.include_tasks: vxlan/ndfc_networks.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Breakout Interfaces List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Breakout Interfaces List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_breakout.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_breakout.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric PreProv Breakout Interfaces List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Breakout PreProv Interfaces List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_breakout_preprov.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_breakout_preprov.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Loopback Interfaces List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Loopback Interfaces List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_loopback.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_loopback.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Access Port-Channel Interfaces List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Access Port-Channel Interfaces List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_access_po.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_access_po.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Trunk Port-Channel Interfaces List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Trunk Port-Channel Interfaces List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_trunk_po.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_trunk_po.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Interface Routed List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Interface Routed List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_routed.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_routed.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Sub-Interface Routed List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Sub-Interface Routed List From Template
-  ansible.builtin.import_tasks: common/ndfc_sub_interface_routed.yml
+  ansible.builtin.include_tasks: common/ndfc_sub_interface_routed.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Routed Port-Channel Interface List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Routed Port-Channel Interface List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_po_routed.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_po_routed.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Trunk Interfaces List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Trunk Interfaces List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_trunk.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_trunk.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Access Interfaces List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Access Interfaces List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_access.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_access.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Dot1q Interfaces List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Dot1q Interfaces List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_dot1q.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_dot1q.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric vPC Interfaces List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric vPC Interfaces List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_vpc.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_vpc.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Interface All List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Interface All List From Template
-  ansible.builtin.import_tasks: common/ndfc_interface_all.yml
+  ansible.builtin.include_tasks: common/ndfc_interface_all.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Policy List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Policy List From Template
-  ansible.builtin.import_tasks: common/ndfc_policy.yml
+  ansible.builtin.include_tasks: common/ndfc_policy.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Links List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Links List From Template
-  ansible.builtin.import_tasks: common/ndfc_fabric_links.yml
+  ansible.builtin.include_tasks: common/ndfc_fabric_links.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Underlay Resources List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Underlay Resources List From Template
-  ansible.builtin.import_tasks: common/ndfc_underlay_ip_address.yml
+  ansible.builtin.include_tasks: common/ndfc_underlay_ip_address.yml
 
 # ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric Edge Connections List From Template
 # ------------------------------------------------------------------------
 
 - name: Build iBGP VXLAN Fabric Edge Connections List From Template
-  ansible.builtin.import_tasks: common/ndfc_edge_connections.yml
+  ansible.builtin.include_tasks: common/ndfc_edge_connections.yml
 
 # ------------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere

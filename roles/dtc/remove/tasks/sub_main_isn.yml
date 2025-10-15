@@ -41,25 +41,33 @@
   tags: "{{ nac_tags.remove }}"
 
 - name: Remove ISN Fabric Edge Connections from Nexus Dashboard
-  ansible.builtin.import_tasks: common/edge_connections.yml
-  tags: "{{ nac_tags.remove_edge_connections }}"
+  ansible.builtin.include_tasks:
+    file: common/edge_connections.yml
+    apply:
+      tags: "{{ nac_tags.remove_edge_connections }}"
   when:
     - change_flags.changes_detected_edge_connections
 
 - name: Remove ISN Fabric Policy from Nexus Dashboard
-  ansible.builtin.import_tasks: common/policy.yml
-  tags: "{{ nac_tags.remove_policy }}"
+  ansible.builtin.include_tasks:
+    file: common/policy.yml
+    apply:
+      tags: "{{ nac_tags.remove_policy }}"
   when:
     - change_flags.changes_detected_policy
 
 - name: Remove ISN Fabric Interfaces from Nexus Dashboard
-  ansible.builtin.import_tasks: common/interfaces.yml
-  tags: "{{ nac_tags.remove_interfaces }}"
+  ansible.builtin.include_tasks:
+    file: common/interfaces.yml
+    apply:
+      tags: "{{ nac_tags.remove_interfaces }}"
   when:
     - change_flags.changes_detected_interfaces
 
 - name: Remove ISN Fabric Switches from Nexus Dashboard
-  ansible.builtin.import_tasks: common/switches.yml
-  tags: "{{ nac_tags.remove_switches }}"
+  ansible.builtin.include_tasks:
+    file: common/switches.yml
+    apply:
+      tags: "{{ nac_tags.remove_switches }}"
   when:
     - change_flags.changes_detected_inventory

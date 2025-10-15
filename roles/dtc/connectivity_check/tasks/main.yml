@@ -21,12 +21,12 @@
 
 ---
 
-- name: Verify Connection to Nexus Dashboard
-  ansible.builtin.import_tasks: verify_ndfc_connectivity.yml
-  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
+- block:
+  - name: Verify Connection to Nexus Dashboard
+    ansible.builtin.include_tasks: verify_ndfc_connectivity.yml
 
-- name: Verify Authorization to Nexus Dashboard
-  ansible.builtin.import_tasks: verify_ndfc_authorization.yml
+  - name: Verify Authorization to Nexus Dashboard
+    ansible.builtin.include_tasks: verify_ndfc_authorization.yml
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Get Cisco Nexus Dashboard Version
