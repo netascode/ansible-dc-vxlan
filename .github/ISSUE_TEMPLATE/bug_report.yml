@@ -39,10 +39,10 @@ body:
       required: true
 
   - type: textarea
-    id: ndfc-version
+    id: nd-version
     attributes:
-      label: Cisco NDFC Version
-      description: Please provide your Cisco NDFC version used when encountering this issue
+      label: Cisco Nexus Dashboard Version
+      description: Please provide your Cisco Nexus Dashboard version used when encountering this issue
       render: shell
     validations:
       required: true
