@@ -91,5 +91,7 @@ class ActionModule(ActionBase):
         with open(run_map_file_path, 'w') as outfile:
             outfile.write("### This File Is Auto Generated, Do Not Edit ###\n")
             yaml.dump(updated_run_map, outfile, default_flow_style=False)
+            # Add run map to results dictonary
+            results['updated'] = updated_run_map
 
         return results

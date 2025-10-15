@@ -42,25 +42,23 @@
     - "{{ nac_tags.remove_networks }}"
     - "{{ nac_tags.remove_vrfs }}"
 
-# ------------------------------------------------------------------------------------
-# This file is only imported in the remove role when the diff_run feature is disabled.
-# If the diff_run feature is enabled, then the vrfs and networks tasks were imported
-# when the create role was run.
-# ------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
+# These task files are only imported in the remove role if the create role did NOT run
+# -------------------------------------------------------------------------------------
 
 - name: Set path_name Var
   ansible.builtin.set_fact:
     path_name: "{{ role_path }}/../common/files/msd/{{ MD_Extended.vxlan.fabric.name }}/"
   delegate_to: localhost
-  when: run_map_read_result.diff_run is false|bool
+  when: run_map.updated.role_create_completed is false|bool
 
 - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
   ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
-  when: run_map_read_result.diff_run is false|bool
+  when: run_map.updated.role_create_completed is false|bool
 
 - name: Run dtc.common.tasks.msd.ndfc_networks.yml
   ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_networks.yml"
-  when: run_map_read_result.diff_run is false|bool
+  when: run_map.updated.role_create_completed is false|bool
 
 # ----------------------------------------------------------------------------------
 # Changes detected flags for Multisite VRF and Networks is set when the tasks above
@@ -75,14 +73,14 @@
   tags: "{{ nac_tags.common_role }}"
   register: change_flag_multisite_result
   delegate_to: localhost
-  when: run_map_read_result.diff_run is false|bool
+  when: run_map.updated.role_create_completed is false|bool
 
 - name: Store Change Flags For Use In Subsequent Roles
   ansible.builtin.set_fact:
     change_flags_multisite: "{{ change_flag_multisite_result['flags'] }}"
   tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost
-  when: run_map_read_result.diff_run is false|bool
+  when: run_map.updated.role_create_completed is false|bool
 # ----------------------------------------------------------------------------------
 
 - name: Remove MSD Fabric Networks from Nexus Dashboard

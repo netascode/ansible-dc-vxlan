@@ -202,6 +202,11 @@ class ActionModule(ActionBase):
         else:
             config = data
 
+        # If config is an empty list then we can return early as
+        # there is nothing to delete
+        if not config:
+            return results
+
         ndfc_deleted_networks = self._execute_module(
             module_name="cisco.dcnm.dcnm_network",
             module_args={
