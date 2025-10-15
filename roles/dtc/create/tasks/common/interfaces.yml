@@ -64,11 +64,11 @@
 # defined in the data model.
 
 - name: Initialize Interface Config List to All Interfaces
-  set_fact:
+  ansible.builtin.set_fact:
     interface_config_list: "{{ vars_common_local.interface_all_create }}"
 
 - name: Override Interface Config List Based On Diff Run Settings
-  set_fact:
+  ansible.builtin.set_fact:
     interface_config_list: "{{ vars_common_local.interface_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool
@@ -79,8 +79,8 @@
     state: replaced
     config: "{{ interface_config_list }}"
   vars:
-      ansible_command_timeout: 5000
-      ansible_connect_timeout: 5000
+    ansible_command_timeout: 5000
+    ansible_connect_timeout: 5000
   when:
     - MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
     - interface_config_list | length > 0

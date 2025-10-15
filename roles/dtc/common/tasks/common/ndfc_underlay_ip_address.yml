@@ -76,7 +76,7 @@
   register: underlay_ip_address_diff_result
   delegate_to: localhost
 
-- name:  Get MD5 Diff For Previous and Current Data Files
+- name: Get MD5 Diff For Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"
     file_name_current: "{{ path_name }}{{ file_name }}"
