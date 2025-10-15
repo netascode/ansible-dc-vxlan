@@ -86,6 +86,7 @@ class FabricDeployManager:
                 response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
 
         display.banner(f">>>> Fabric: ({self.fabric_name}) Type: ({self.fabric_type}) in sync: {self.fabric_in_sync}")
+        display.banner(">>>>")
 
     def _fabric_check_sync_helper(self, response):
         if response.get('DATA'):
@@ -103,7 +104,7 @@ class FabricDeployManager:
 
         response = self._send_request("POST", self.api_paths["config_save"])
         if response.get('RETURN_CODE') == 200:
-            display.banner(f">>>> Succeeded for Fabric {self.fabric_name}")
+            pass
         else:
             self.fabric_save_succeeded = False
             display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
@@ -115,7 +116,7 @@ class FabricDeployManager:
 
         response = self._send_request("POST", self.api_paths["config_deploy"])
         if response.get('RETURN_CODE') == 200:
-            display.banner(f">>>> Succeeded for Fabric {self.fabric_name}")
+            pass
         else:
             self.fabric_deploy_succeeded = False
             display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
@@ -127,7 +128,7 @@ class FabricDeployManager:
 
         response = self._send_request("GET", self.api_paths["fabric_history"])
         if response.get('RETURN_CODE') == 200:
-            display.banner(f">>>> Succeeded for Fabric {self.fabric_name}")
+            pass
         else:
             display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
 

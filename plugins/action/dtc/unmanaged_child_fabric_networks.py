@@ -166,7 +166,6 @@ class ActionModule(ActionBase):
             # If the network is in NDFC but not in the data model, delete it
             diff_ndfc_network_names = [ndfc_network_name for ndfc_network_name in ndfc_network_names if ndfc_network_name not in network_names]
 
-        display.warning(f"Removing network_names: {diff_ndfc_network_names} from fabric: {fabric}")
         if diff_ndfc_network_names:
             for ndfc_network_name in diff_ndfc_network_names:
                 config.append(
@@ -206,6 +205,9 @@ class ActionModule(ActionBase):
         # there is nothing to delete
         if not config:
             return results
+
+        network_names = [network['net_name'] for network in config]
+        display.warning(f"Removing network_names: {network_names} from fabric: {fabric}")
 
         ndfc_deleted_networks = self._execute_module(
             module_name="cisco.dcnm.dcnm_network",

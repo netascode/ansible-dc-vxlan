@@ -162,7 +162,6 @@ class ActionModule(ActionBase):
             # If the vrf is in NDFC but not in the data model, delete it
             diff_ndfc_vrf_names = [ndfc_vrf_name for ndfc_vrf_name in ndfc_vrf_names if ndfc_vrf_name not in vrf_names]
 
-        display.warning(f"Removing vrf_names: {diff_ndfc_vrf_names} from fabric: {fabric}")
         if diff_ndfc_vrf_names:
             for ndfc_vrf_name in diff_ndfc_vrf_names:
                 config.append(
@@ -202,6 +201,9 @@ class ActionModule(ActionBase):
         # there is nothing to delete
         if not config:
             return results
+
+        vrf_names = [vrf['vrf_name'] for vrf in config]
+        display.warning(f"Removing vrf_names: {vrf_names} from fabric: {fabric}")
 
         ndfc_deleted_vrfs = self._execute_module(
             module_name="cisco.dcnm.dcnm_vrf",
