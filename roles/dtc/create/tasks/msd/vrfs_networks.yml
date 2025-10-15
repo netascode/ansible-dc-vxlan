@@ -92,7 +92,7 @@
   delegate_to: localhost
 
 - name: Override Networks List Based On Diff Run Settings
-  set_fact:
+  ansible.builtin.set_fact:
     net_config: "{{ network_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool
@@ -100,7 +100,7 @@
     - (network_diff_result is defined and network_diff_result.updated | length > 0)
 
 - name: Override Networks List Based On Diff Run Settings
-  set_fact:
+  ansible.builtin.set_fact:
     vrf_config: "{{ vrf_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool

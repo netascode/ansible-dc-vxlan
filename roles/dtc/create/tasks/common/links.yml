@@ -57,11 +57,11 @@
   register: result_links
 
 - name: Initialize Fabric Links Config List to All Links
-  set_fact:
+  ansible.builtin.set_fact:
     fabric_links_config_list: "{{ fabric_links }}"
 
 - name: Override Fabric Links Config List Based On Diff Run Settings
-  set_fact:
+  ansible.builtin.set_fact:
     fabric_links_config_list: "{{ fabric_links_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool

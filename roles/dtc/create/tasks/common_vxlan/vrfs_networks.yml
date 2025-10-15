@@ -67,11 +67,11 @@
     - vars_common_local.vrf_config | length > 0
 
 - name: Initialize VRF Config List to All VRFs
-  set_fact:
+  ansible.builtin.set_fact:
     vrf_config_list: "{{ vars_common_local.vrf_config }}"
 
 - name: Override VRF Config List Based On Diff Run Settings
-  set_fact:
+  ansible.builtin.set_fact:
     vrf_config_list: "{{ vars_common_local.vrf_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool
@@ -115,11 +115,11 @@
     - vars_common_local.net_config | length > 0
 
 - name: Initialize Network Config List to All Networks
-  set_fact:
+  ansible.builtin.set_fact:
     network_config_list: "{{ vars_common_local.net_config }}"
 
 - name: Override Network Config List Based On Diff Run Settings
-  set_fact:
+  ansible.builtin.set_fact:
     network_config_list: "{{ vars_common_local.network_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool
