@@ -73,8 +73,6 @@
   when: run_map_read_result.validate_only_run is true|bool
   delegate_to: localhost
 
-- debug: msg="{{ run_map_read_result}}"
-
 - name: No Model Changes Detected
   ansible.builtin.meta: end_play
   when:

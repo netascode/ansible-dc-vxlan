@@ -52,13 +52,6 @@
     - switch_list.response.DATA | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
 
-- name: Diff Run Feature Status
-  ansible.builtin.debug:
-    msg:
-      - "-------------------------------------------------------------------------"
-      - "+     Diff Run Feature Status: {{ run_map_read_result.diff_run }}"
-      - "-------------------------------------------------------------------------"
-
 # -----------------------------------------------------------------------------
 # Remove Interfaces Using Diff Run Framework
 # -----------------------------------------------------------------------------

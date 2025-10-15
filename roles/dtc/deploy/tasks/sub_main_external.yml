@@ -28,13 +28,6 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
-- name: External FABRIC
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+    External FABRIC                                          +"
-      - "----------------------------------------------------------------"
-
 - name: Manage Fabric Deployment for External Fabric in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"

@@ -82,13 +82,6 @@
     - (vpc_delete_mode is defined) and (vpc_delete_mode is true|bool)
     - run_map_read_result.diff_run is false|bool or force_run_all is true|bool
 
-- debug: msg="Config {{ vars_common_local.vpc_peering }}"
-- debug: msg="{{ vars_common_local.vpc_peering | length }}"
-
-- debug: msg="INT DEL MODE {{ interface_delete_mode }}"
-- debug: msg="DIFF RUN {{ run_map_read_result.diff_run }}"
-- debug: msg="FORCE RUN ALL {{ force_run_all }}"
-
 - name: Skip Remove Unmanaged vPC Peering Task If vpc_delete_mode is False
   ansible.builtin.debug:
     msg:

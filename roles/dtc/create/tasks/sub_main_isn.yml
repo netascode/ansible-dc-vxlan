@@ -29,14 +29,6 @@
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
-- name: ISN FABRIC
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+    ISN FABRIC                                             +"
-      - "----------------------------------------------------------------"
-  tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
-
 - name: Display Device Configuration Method
   ansible.builtin.debug:
     msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"
