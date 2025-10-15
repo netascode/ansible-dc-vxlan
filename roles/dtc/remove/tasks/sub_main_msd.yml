@@ -44,7 +44,7 @@
 
 # -------------------------------------------------------------------------------------
 # There is an issue in Ansible were data that is needed to remove the networks and
-# vrfs gets overwritten by the import_tasks on line 69 and 73.  To get around this
+# vrfs gets overwritten by the import_tasks from common.  To get around this
 # issue we include the tasks to remove networks and vrfs here WHEN the create role
 # has already been run.
 # -------------------------------------------------------------------------------------
