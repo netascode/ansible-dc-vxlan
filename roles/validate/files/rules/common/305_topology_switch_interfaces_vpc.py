@@ -49,7 +49,7 @@ class Rule:
                         if not is_peer:
                             results.append(
                                 f"Switch {switch_name} is not part of a vPC peer group but "
-                                f"has vPC id : {vpc_id} defined on interface {interface_name}."
+                                f"has vPC id {vpc_id} defined on interface {interface_name}."
                             )
                             return results
 
