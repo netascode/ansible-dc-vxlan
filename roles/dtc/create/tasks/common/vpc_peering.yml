@@ -24,33 +24,33 @@
 - name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
 
 - name: Set vars_common Based On Fabric Type - eBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+  when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Set vars_common Based On Fabric Type - MSD
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
-  when: MD_Extended.vxlan.fabric.type == "MSD"
+  when: data_model_extended.vxlan.fabric.type == "MSD"
 
 - name: Set vars_common Based On Fabric Type - ISN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
-  when: MD_Extended.vxlan.fabric.type == "ISN"
+  when: data_model_extended.vxlan.fabric.type == "ISN"
 
 - name: Set vars_common Based On Fabric Type - External
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
-  when: MD_Extended.vxlan.fabric.type == "External"
+  when: data_model_extended.vxlan.fabric.type == "External"
 
 - name: Manage Fabric vPC Peers Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric vPC Peers {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric vPC Peers {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
@@ -75,7 +75,7 @@
 - name: Manage vPC Domain ID Resource in Nexus Dashboard
   cisco.dcnm.dcnm_resource_manager:
     state: merged
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     config: "{{ vpc_domain_id_resource_config_list }}"
   when:
     - vpc_domain_id_resource_config_list is defined
@@ -88,7 +88,7 @@
 - name: Manage Intra Fabric Links for vPC Peering in Nexus Dashboard
   cisco.dcnm.dcnm_links:
     state: replaced
-    src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    src_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     config: "{{ vars_common_local.link_vpc_peering }}"
   vars:
     ansible_command_timeout: 3000
@@ -116,7 +116,7 @@
 
 - name: Manage vPC Peering in Nexus Dashboard
   cisco.dcnm.dcnm_vpc_pair:
-    src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    src_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     deploy: false
     state: replaced
     config: "{{ vpc_peering_config_list }}"

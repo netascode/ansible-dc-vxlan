@@ -89,7 +89,7 @@ class PreparePlugin:
                                     group_policies.append(group_name)
 
                             output = template.render(
-                                MD_Extended=model_data,
+                                data_model_extended=model_data,
                                 item=model_data["vxlan"]["overlay_extensions"]["route_control"],
                                 switch=switch['name'],
                                 group_item=group_policies,

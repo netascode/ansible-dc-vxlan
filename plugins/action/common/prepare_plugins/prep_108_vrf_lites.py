@@ -241,7 +241,7 @@ class PreparePlugin:
                                             switch_bgp_af[key] = value
 
                         output = template.render(
-                            MD_Extended=model_data, item=vrf_lite, switch_item=switch, defaults=default_values)
+                            data_model_extended=model_data, item=vrf_lite, switch_item=switch, defaults=default_values)
 
                         new_policy = {
                             "name": unique_name,
