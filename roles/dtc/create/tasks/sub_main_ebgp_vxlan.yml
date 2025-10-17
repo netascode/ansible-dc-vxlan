@@ -35,6 +35,7 @@
   tags: "{{ nac_tags.create }}"
 
 - name: Create eBGP VXLAN Fabric in Nexus Dashboard
+  tags: "{{ nac_tags.create_fabric }}"
   ansible.builtin.include_tasks:
     file: ebgp_vxlan/fabric.yml
     apply:
@@ -46,6 +47,7 @@
     - change_flags.changes_detected_fabric
 
 - name: Manage eBGP VXLAN Fabric Switches in Nexus Dashboard
+  tags: "{{ nac_tags.create_switches }}"
   ansible.builtin.include_tasks:
     file: common/devices.yml
     apply:
@@ -55,6 +57,7 @@
     - change_flags.changes_detected_inventory
 
 - name: Manage eBGP VXLAN vPC Peering in Nexus Dashboard
+  tags: "{{ nac_tags.create_vpc_peers }}"
   ansible.builtin.include_tasks:
     file: common/vpc_peering.yml
     apply:
@@ -83,6 +86,7 @@
         - change_flags.changes_detected_vpc_peering or change_flags.changes_detected_vpc_domain_id_resource
 
 - name: Manage eBGP VXLAN Fabric Interfaces in Nexus Dashboard
+  tags: "{{ nac_tags.create_interfaces }}"
   ansible.builtin.include_tasks:
     file: common/interfaces.yml
     apply:
@@ -92,6 +96,7 @@
     - change_flags.changes_detected_interfaces
 
 - name: Manage eBGP VXLAN Fabric VRFs and Networks in Nexus Dashboard
+  tags: "{{ nac_tags.create_vrfs_networks }}"
   ansible.builtin.include_tasks:
     file: common_vxlan/vrfs_networks.yml
     apply:
@@ -102,6 +107,7 @@
     - change_flags.changes_detected_vrfs or change_flags.changes_detected_networks
 
 - name: Manage eBGP VXLAN Fabric Policies in Nexus Dashboard
+  tags: "{{ nac_tags.create_policy }}"
   ansible.builtin.include_tasks:
     file: common/policies.yml
     apply:
