@@ -44,18 +44,22 @@
 
 # -------------------------------------------------------------------------------------
 # There is an issue in Ansible were data that is needed to remove the networks and
-# vrfs gets overwritten by the import_tasks from common.  To get around this
+# vrfs gets overwritten by the include_tasks from common.  To get around this
 # issue we include the tasks to remove networks and vrfs here WHEN the create role
 # has already been run.
 # -------------------------------------------------------------------------------------
 - name: Remove MSD Fabric Networks from Nexus Dashboard
-  ansible.builtin.import_tasks: msd/networks.yml
-  tags: "{{ nac_tags.remove_networks }}"
+  ansible.builtin.include_tasks:
+    file: msd/networks.yml
+    apply:
+      tags: "{{ nac_tags.remove_networks }}"
   when: run_map.updated.role_create_completed is true|bool
 
 - name: Remove MSD Fabric VRFs from Nexus Dashboard
-  ansible.builtin.import_tasks: msd/vrfs.yml
-  tags: "{{ nac_tags.remove_vrfs }}"
+  ansible.builtin.include_tasks:
+    file: msd/vrfs.yml
+    apply:
+      tags: "{{ nac_tags.remove_vrfs }}"
   when: run_map.updated.role_create_completed is true|bool
 
 # -------------------------------------------------------------------------------------
@@ -69,11 +73,11 @@
   when: run_map.updated.role_create_completed is false|bool
 
 - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
-  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
+  ansible.builtin.include_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
   when: run_map.updated.role_create_completed is false|bool
 
 - name: Run dtc.common.tasks.msd.ndfc_networks.yml
-  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_networks.yml"
+  ansible.builtin.include_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_networks.yml"
   when: run_map.updated.role_create_completed is false|bool
 
 # ----------------------------------------------------------------------------------
@@ -104,14 +108,18 @@
 # create role did NOT run
 # -------------------------------------------------------------------------------------
 - name: Remove MSD Fabric Networks from Nexus Dashboard
-  ansible.builtin.import_tasks: msd/networks.yml
-  tags: "{{ nac_tags.remove_networks }}"
+  ansible.builtin.include_tasks:
+    file: msd/networks.yml
+    apply:
+      tags: "{{ nac_tags.remove_networks }}"
   when: run_map.updated.role_create_completed is false|bool
 
 - name: Remove MSD Fabric VRFs from Nexus Dashboard
-  ansible.builtin.import_tasks: msd/vrfs.yml
-  tags: "{{ nac_tags.remove_vrfs }}"
+  ansible.builtin.include_tasks:
+    file: msd/vrfs.yml
+    apply:
+      tags: "{{ nac_tags.remove_vrfs }}"
   when: run_map.updated.role_create_completed is false|bool
 
 - name: Remove MSD Fabric Child Fabrics from Nexus Dashboard
-  ansible.builtin.import_tasks: msd/child_fabrics.yml
+  ansible.builtin.include_tasks: msd/child_fabrics.yml

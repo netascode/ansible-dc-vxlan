@@ -35,46 +35,63 @@
   tags: "{{ nac_tags.create }}"
 
 - name: Create External Fabric in Nexus Dashboard
-  ansible.builtin.import_tasks: external/fabric.yml
+  tags: "{{ nac_tags.create_fabric }}"
+  ansible.builtin.include_tasks:
+    file: external/fabric.yml
+    apply:
+      tags: "{{ nac_tags.create_fabric }}"
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "External"
     - MD_Extended.vxlan.global.external is defined
     - change_flags.changes_detected_fabric
-  tags: "{{ nac_tags.create_fabric }}"
 
 - name: Manage External Fabric Switches in Nexus Dashboard
-  ansible.builtin.import_tasks: common/devices.yml
+  tags: "{{ nac_tags.create_switches }}"
+  ansible.builtin.include_tasks:
+    file: common/devices.yml
+    apply:
+      tags: "{{ nac_tags.create_switches }}"
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
     - change_flags.changes_detected_inventory
-  tags: "{{ nac_tags.create_switches }}"
 
 - name: Manage NDFC External VPC Peering
-  ansible.builtin.import_tasks: common/vpc_peering.yml
+  tags: "{{ nac_tags.create_vpc_peers }}"
+  ansible.builtin.include_tasks:
+    file: common/vpc_peering.yml
+    apply:
+      tags: "{{ nac_tags.create_vpc_peers }}"
   when:
     - MD_Extended.vxlan.topology.vpc_peers | length > 0
     - change_flags.changes_detected_vpc_peering
-  tags: "{{ nac_tags.create_vpc_peers }}"
-
 
 - name: Manage External Fabric Inter Links in Nexus Dashboard
-  ansible.builtin.import_tasks: common/edge_connections.yml
+  tags: "{{ nac_tags.create_links }}"
+  ansible.builtin.include_tasks:
+    file: common/edge_connections.yml
+    apply:
+      tags: "{{ nac_tags.create_links }}"
   when:
     - MD_Extended.vxlan.topology.edge_connections | length > 0
     - change_flags.changes_detected_edge_connections
-  tags: "{{ nac_tags.create_links }}"
 
 - name: Manage External Fabric Interfaces in Nexus Dashboard
-  ansible.builtin.import_tasks: common/interfaces.yml
+  tags: "{{ nac_tags.create_interfaces }}"
+  ansible.builtin.include_tasks:
+    file: common/interfaces.yml
+    apply:
+      tags: "{{ nac_tags.create_interfaces }}"
   when:
     - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
     - change_flags.changes_detected_interfaces
-  tags: "{{ nac_tags.create_interfaces }}"
 
 - name: Manage External Fabric Policies in Nexus Dashboard
-  ansible.builtin.import_tasks: common/policies.yml
+  tags: "{{ nac_tags.create_policy }}"
+  ansible.builtin.include_tasks:
+    file: common/policies.yml
+    apply:
+      tags: "{{ nac_tags.create_policy }}"
   when:
     - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
     - change_flags.changes_detected_policy
-  tags: "{{ nac_tags.create_policy }}"

@@ -58,10 +58,10 @@
   delegate_to: localhost
 
 - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
-  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
+  ansible.builtin.include_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
 
 - name: Run dtc.common.tasks.msd.ndfc_networks.yml
-  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_networks.yml"
+  ansible.builtin.include_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_networks.yml"
 
 # ----------------------------------------------------------------------------------
 # Changes detected flags for Multisite VRF and Networks is set when the tasks above

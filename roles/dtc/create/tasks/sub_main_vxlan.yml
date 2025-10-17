@@ -35,27 +35,36 @@
   tags: "{{ nac_tags.create }}"
 
 - name: Create iBGP VXLAN Fabric in Nexus Dashboard
-  ansible.builtin.import_tasks: common/fabric.yml
+  tags: "{{ nac_tags.create_fabric }}"
+  ansible.builtin.include_tasks:
+    file: common/fabric.yml
+    apply:
+      tags: "{{ nac_tags.create_fabric }}"
   when:
     - MD_Extended.vxlan.fabric.name is defined
     - MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
     - MD_Extended.vxlan.global.ibgp is defined
     - change_flags.changes_detected_fabric
-  tags: "{{ nac_tags.create_fabric }}"
 
 - name: Manage iBGP VXLAN Fabric Switches in Nexus Dashboard
-  ansible.builtin.import_tasks: common/devices.yml
+  tags: "{{ nac_tags.create_switches }}"
+  ansible.builtin.include_tasks:
+    file: common/devices.yml
+    apply:
+      tags: "{{ nac_tags.create_switches }}"
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
     - change_flags.changes_detected_inventory or change_flags.changes_detected_underlay_ip_address
-  tags: "{{ nac_tags.create_switches }}"
 
 - name: Manage iBGP VXLAN vPC Peering in Nexus Dashboard
-  ansible.builtin.import_tasks: common/vpc_peering.yml
+  tags: "{{ nac_tags.create_vpc_peers }}"
+  ansible.builtin.include_tasks:
+    file: common/vpc_peering.yml
+    apply:
+      tags: "{{ nac_tags.create_vpc_peers }}"
   when:
     - MD_Extended.vxlan.topology.vpc_peers | length > 0
     - change_flags.changes_detected_vpc_peering or change_flags.changes_detected_vpc_domain_id_resource
-  tags: "{{ nac_tags.create_vpc_peers }}"
 
 - name: Config-Save Block to Propagate vPC Changes to iBGP VXLAN Fabric in Nexus Dashboard
   block:
@@ -78,37 +87,52 @@
         - change_flags.changes_detected_vpc_peering or change_flags.changes_detected_vpc_domain_id_resource
 
 - name: Manage iBGP VXLAN Fabric Interfaces in Nexus Dashboard
-  ansible.builtin.import_tasks: common/interfaces.yml
+  tags: "{{ nac_tags.create_interfaces }}"
+  ansible.builtin.include_tasks:
+    file: common/interfaces.yml
+    apply:
+      tags: "{{ nac_tags.create_interfaces }}"
   when:
     - (MD_Extended.vxlan.topology.interfaces.modes.all.count >0) and (MD_Extended.vxlan.topology.switches | length > 0)
     - change_flags.changes_detected_interfaces
-  tags: "{{ nac_tags.create_interfaces }}"
 
 - name: Manage iBGP VXLAN Fabric Inter Links in Nexus Dashboard
-  ansible.builtin.import_tasks: common/edge_connections.yml
+  tags: "{{ nac_tags.create_links }}"
+  ansible.builtin.include_tasks:
+    file: common/edge_connections.yml
+    apply:
+      tags: "{{ nac_tags.create_links }}"
   when:
     - MD_Extended.vxlan.topology.edge_connections | length > 0
     - change_flags.changes_detected_edge_connections
-  tags: "{{ nac_tags.create_links }}"
 
 - name: Manage iBGP VXLAN Fabric VRFs and Networks in Nexus Dashboard
-  ansible.builtin.import_tasks: common_vxlan/vrfs_networks.yml
+  tags: "{{ nac_tags.create_vrfs_networks }}"
+  ansible.builtin.include_tasks:
+    file: common_vxlan/vrfs_networks.yml
+    apply:
+      tags: "{{ nac_tags.create_vrfs_networks }}"
   when:
     - MD_Extended.vxlan.overlay is defined
     - MD_Extended.vxlan.topology.switches | length > 0
     - change_flags.changes_detected_vrfs or change_flags.changes_detected_networks
-  tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Manage iBGP VXLAN Fabric Intra Links in Nexus Dashboard
-  ansible.builtin.import_tasks: common/links.yml
+  tags: "{{ nac_tags.create_links }}"
+  ansible.builtin.include_tasks:
+    file: common/links.yml
+    apply:
+      tags: "{{ nac_tags.create_links }}"
   when:
     - MD_Extended.vxlan.topology.fabric_links | length > 0
     - change_flags.changes_detected_fabric_links
-  tags: "{{ nac_tags.create_links }}"
 
 - name: Manage iBGP VXLAN Fabric Policies in Nexus Dashboard
-  ansible.builtin.import_tasks: common/policies.yml
+  tags: "{{ nac_tags.create_policy }}"
+  ansible.builtin.include_tasks:
+    file: common/policies.yml
+    apply:
+      tags: "{{ nac_tags.create_policy }}"
   when:
     - (MD_Extended.vxlan.policy is defined) and (MD_Extended.vxlan.policy.policies | length > 0)
     - change_flags.changes_detected_policy
-  tags: "{{ nac_tags.create_policy }}"

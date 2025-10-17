@@ -36,7 +36,7 @@
   delegate_to: localhost
 
 - name: Cleanup Files from Previous Run if run_map requires it
-  ansible.builtin.import_tasks: cleanup_files.yml
+  ansible.builtin.include_tasks: cleanup_files.yml
   when:
     - not run_map_read_result.diff_run or ((force_run_all is defined) and (force_run_all is true|bool))
 
@@ -45,21 +45,21 @@
 # ------------------------------------------------------------------------
 
 - name: Build MSD Fabric List From Template
-  ansible.builtin.import_tasks: common/ndfc_fabric.yml
+  ansible.builtin.include_tasks: common/ndfc_fabric.yml
 
 # ------------------------------------------------------------------------
 # Build MSD Child Fabric Inventory List From Template
 # ------------------------------------------------------------------------
 
 - name: Build MSD Child Fabric Inventory List From Template
-  ansible.builtin.import_tasks: msd/ndfc_child_fabrics.yml
+  ansible.builtin.include_tasks: msd/ndfc_child_fabrics.yml
 
 # ------------------------------------------------------------------------
 # Build NDFC Child Fabric BGW Anycast VIP List From Template
 # ------------------------------------------------------------------------
 
 - name: Build MSD Child Fabric BGW Anycast VIP List From Template
-  ansible.builtin.import_tasks: msd/ndfc_bgw_anycast_vip.yml
+  ansible.builtin.include_tasks: msd/ndfc_bgw_anycast_vip.yml
 
 # ------------------------------------------------------------------------
 # Save Local Variables To NameSpace Dict For Use Elsewhere
