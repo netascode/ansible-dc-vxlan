@@ -1,6 +1,6 @@
 class Rule:
     id = "207"
-    description = "Verify fabric replication and spine roles."
+    description = "Verify fabric replication and spine roles"
     severity = "HIGH"
 
     @classmethod

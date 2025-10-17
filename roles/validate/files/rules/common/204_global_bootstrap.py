@@ -1,6 +1,6 @@
 class Rule:
     id = "204"
-    description = "Verify Bootstrap Configuration"
+    description = "Verify bootstrap configuration"
     severity = "HIGH"
 
     @classmethod

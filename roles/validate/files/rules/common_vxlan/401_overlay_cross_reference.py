@@ -1,6 +1,6 @@
 class Rule:
     id = "401"
-    description = "Cross Reference VRFs and Networks items in the Service Model"
+    description = "Verify VRFs and Networks cross reference items"
     severity = "HIGH"
 
     @classmethod

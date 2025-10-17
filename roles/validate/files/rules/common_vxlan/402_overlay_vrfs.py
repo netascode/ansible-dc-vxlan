@@ -1,6 +1,6 @@
 class Rule:
     id = "402"
-    description = "Verify VRF elements are enabled in fabric overlay services"
+    description = "Verify VRF attributes are enabled in fabric overlay services"
     severity = "HIGH"
 
     @classmethod
