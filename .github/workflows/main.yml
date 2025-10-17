@@ -122,7 +122,7 @@ jobs:
       - name: Download migrated collection artifacts
         uses: actions/download-artifact@v5
         with:
-          name: collection-${{ matrix.ansible_version }}
+          name: collection-${{ matrix.python_version }}-${{ matrix.ansible_version }}
           path: .cache/collection-tarballs
 
       - name: Install the collection tarball
