@@ -144,6 +144,8 @@ jobs:
     name: Ansible-Lint (${{ matrix.python_version }}/Ⓐ${{ matrix.ansible_version }})
     needs:
       - collection_build
+    env:
+      ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
