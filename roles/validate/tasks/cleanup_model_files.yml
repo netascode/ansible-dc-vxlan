@@ -21,21 +21,18 @@
 
 ---
 
-- name: Manage Policies Entry Point
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Manage Policies Fabric {{ MD_Extended.vxlan.fabric.name }}"
-      - "----------------------------------------------------------------"
+- name: Remove Service Model JSON Files
+  ansible.builtin.find:
+    paths: "{{ role_path }}/files/"
+    patterns: "{{ MD_Extended.vxlan.fabric.name }}_service_model*.json"
+    file_type: file
+    recurse: false
+  register: files_to_delete
+  delegate_to: localhost
 
-# --------------------------------------------------------------------
-# Manage Fabric Policy Configuration in Nexus Dashboard
-# --------------------------------------------------------------------
-- name: Manage Fabric Policies in Nexus Dashboard
-  cisco.dcnm.dcnm_policy:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    use_desc_as_key: true
-    config: "{{ vars_common_external.policy_config }}"
-    deploy: false
-    state: merged
-  register: manage_policies_result
+- name: Delete the found files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ files_to_delete.files }}"
+  delegate_to: localhost

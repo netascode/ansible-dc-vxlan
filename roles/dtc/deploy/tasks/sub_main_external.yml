@@ -28,34 +28,14 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
-- name: Display Device Configuration Method
-  ansible.builtin.debug:
-    msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"
-
-- name: Config-Save Block for External Fabric in Nexus Dashboard
-  block:
-    - name: Config-Save for External Fabric in Nexus Dashboard
-      cisco.dcnm.dcnm_rest:
-        method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-      register: config_save
-      when: >
-        (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
-      # TODO: Need to add logic to only save if changes are made
-
-  rescue:
-    - name: Config-Save for External Fabric in Nexus Dashboard - Failed
-      ansible.builtin.debug:
-        msg: "{{ config_save.msg.DATA }}"
-      when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
-
-- name: Deploy for External Fabric in Nexus Dashboard
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
+- name: Manage Fabric Deployment for External Fabric in Nexus Dashboard
+  cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
+    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
+    operation: all
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
-  when: >
-    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
-  # TODO: Need to add logic to only deploy if changes are made
+  when:
+    - MD_Extended.vxlan.topology.switches is defined
+    - MD_Extended.vxlan.topology.switches | length > 0

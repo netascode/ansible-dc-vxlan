@@ -80,6 +80,7 @@ nac_tags:
     - cr_manage_interfaces
     - cr_manage_vrfs_networks
     - cr_manage_policy
+    - cr_manage_links
     - cr_manage_edge_connections
     - rr_manage_edge_connections
     - rr_manage_interfaces
@@ -102,6 +103,7 @@ nac_tags:
     - cr_manage_interfaces
     - cr_manage_vrfs_networks
     - cr_manage_policy
+    - cr_manage_links
     - cr_manage_edge_connections
     - rr_manage_edge_connections
     - rr_manage_interfaces
