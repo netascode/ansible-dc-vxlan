@@ -15,33 +15,37 @@ on:
 
   # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 
+env:
+  python_version: '3.11'
+
 jobs:
   build:
-    name: Build DC VXLAN collection
+    name: Build collection
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        ansible: [2.14.15, 2.15.10, 2.16.5, 2.17.8]
+        ansible: [stable-2.15, stable-2.16, stable-2.17, stable-2.18]
     steps:
-    - name: Check out code
-      uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v5
 
-    - name: Set up Python 3.10.14
-      uses: actions/setup-python@v5
-      with:
-        python-version: 3.10.14
+      - name: Set up Python ${{ env.python_version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.python_version }}
 
-    - name: Install ansible-base (v${{ matrix.ansible }})
-      run: pip install https://github.com/ansible/ansible/archive/v${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+      - name: Install ansible-base (${{ matrix.ansible }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
-    - name: Build a DCNM collection tarball
-      run: ansible-galaxy collection build --output-path "${GITHUB_WORKSPACE}/.cache/collection-tarballs"
+      - name: Build collection tarball
+        run: ansible-galaxy collection build --output-path "${GITHUB_WORKSPACE}/.cache/collection-tarballs"
 
-    - name: Store migrated collection artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: collection-${{ matrix.ansible }}
-        path: .cache/collection-tarballs
+      - name: Store migrated collection artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: collection-${{ matrix.ansible }}
+          path: .cache/collection-tarballs
 
   sanity:
     name: Sanity (Ⓐ${{ matrix.ansible }})
@@ -49,24 +53,23 @@ jobs:
       - build
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        ansible: [2.14.15, 2.15.10, 2.16.5, 2.17.8]
-        python: ['3.10']
+        ansible: [stable-2.16, stable-2.17, stable-2.18, stable-2.19]
     steps:
-    - name: Set up Python 3.10.14
-      uses: actions/setup-python@v5
+    - name: Set up Python ${{ env.python_version }}
+      uses: actions/setup-python@v6
       with:
-        python-version: 3.10.14
-
-    - name: Upgrade pip
-      run: |
-        pip install --upgrade pip
+        python-version: ${{ env.python_version }}
 
     - name: Install ansible-base (v${{ matrix.ansible }})
       run: pip install https://github.com/ansible/ansible/archive/v${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
+    - name: Install coverage (v4.5.4)
+      run: pip install coverage==4.5.4
+
     - name: Download migrated collection artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: collection-${{ matrix.ansible }}
         path: .cache/collection-tarballs
@@ -74,6 +77,18 @@ jobs:
     - name: Install the collection tarball
       run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz
 
+    # - name: Run sanity tests
+    #   run: ansible-test sanity --docker --python ${{matrix.python}} -v --color --truncate 0
+    #   working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+
     - name: Run sanity tests
-      run: ansible-test sanity --docker --python ${{matrix.python}} -v --color --truncate 0
+      run: ansible-test sanity --docker -v --color --truncate 0 --coverage
+      working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+
+    - name: Generate coverage report
+      run: ansible-test coverage xml -v --requirements --group-by command --group-by version
+      working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+
+    - name: Push coverage report to codecov.io
+      run: bash <(curl -s https://codecov.io/bash) -s 'tests/output/reports/' -F sanity
       working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
