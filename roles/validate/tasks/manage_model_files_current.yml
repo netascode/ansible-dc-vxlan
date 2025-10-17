@@ -50,5 +50,44 @@
   ansible.utils.fact_diff:
     before: "{{ smd_golden_previous }}"
     after: "{{ smd_golden_current }}"
+  register: smd_golden_diff
   when: check_roles['save_previous']
+  delegate_to: localhost
+
+- name: Mark All Stages Completed When No Model Changes Detected
+  cisco.nac_dc_vxlan.common.run_map:
+    model_data: "{{ MD_Extended }}"
+    stage: role_all_completed
+  when:
+    - check_roles['save_previous']
+    - smd_golden_diff.diff_lines | length == 0
+    - smd_golden_diff.diff_text | length == 0
+    - run_map_read_result.diff_run is true
+    - force_run_all is false|bool
+  delegate_to: localhost
+
+- name: Mark All Stages Completed When Only The Validate Role Is Run
+  cisco.nac_dc_vxlan.common.run_map:
+    model_data: "{{ MD_Extended }}"
+    stage: role_all_completed
+  when: run_map_read_result.validate_only_run is true|bool
+  delegate_to: localhost
+
+- name: No Model Changes Detected
+  ansible.builtin.meta: end_play
+  when:
+    - check_roles['save_previous']
+    - smd_golden_diff.diff_lines | length == 0
+    - smd_golden_diff.diff_text | length == 0
+    - run_map_read_result.diff_run is true|bool
+    - force_run_all is false|bool
+  delegate_to: localhost
+
+# ------------------------------------------------------------------------
+# Remove all files from the previous run if force_run_all is true
+# ------------------------------------------------------------------------
+- name: Cleanup Files from Previous Run if run_map requires it
+  ansible.builtin.import_tasks: cleanup_model_files.yml
+  when:
+    - ((force_run_all is defined) and (force_run_all is true|bool))
   delegate_to: localhost

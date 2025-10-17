@@ -283,4 +283,27 @@ class ActionModule(ActionBase):
                                 results['failed'] = True
                                 results['msg'] = f"For fabric {child_fabric} and VRF {vrf['name']}; {ndfc_vrf_update['msg']['DATA']['message']}"
 
+        for child_fabric in child_fabrics.keys():
+            # Need to get the child fabric type and ensure it is a VXLAN fabric type
+            child_fabric_type = child_fabrics[child_fabric]['type']
+            if child_fabric_type in ['Switch_Fabric']:
+                # Only process child fabrics that have not already been marked as changed
+                if child_fabric not in results['child_fabrics_changed']:
+                    # cf = child_fabrics
+                    ndfc_cf_vrfs = self._execute_module(
+                        module_name="cisco.dcnm.dcnm_rest",
+                        module_args={
+                            "method": "GET",
+                            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs"
+                        },
+                        task_vars=task_vars,
+                        tmp=tmp
+                    )
+
+                    ndfc_cf_vrfs_response_data = ndfc_cf_vrfs['response']['DATA']
+
+                    for ndfc_vrf in ndfc_cf_vrfs_response_data:
+                        if ndfc_vrf['vrfStatus'] not in ['NA', 'SUCCESS', 'IN-SYNC', 'DEPLOYED']:
+                            results['child_fabrics_changed'].append(child_fabric)
+
         return results
