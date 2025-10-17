@@ -15,25 +15,23 @@ on:
 
   # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 
-env:
-  python_version: '3.11'
-
 jobs:
-  build:
-    name: Build collection
+  collection_build:
+    name: Build collection (Ⓐ${{ matrix.ansible }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        python_version: ['3.10', '3.11', '3.12','3.13']
         ansible: [stable-2.14, stable-2.15, stable-2.16, stable-2.17]
     steps:
       - name: Check out code
         uses: actions/checkout@v5
 
-      - name: Set up Python ${{ env.python_version }}
+      - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ env.python_version }}
+          python-version: ${{ matrix.python_version }}
 
       - name: Install ansible-base (${{ matrix.ansible }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
@@ -47,48 +45,70 @@ jobs:
           name: collection-${{ matrix.ansible }}
           path: .cache/collection-tarballs
 
-  sanity:
+  ansible_sanity:
     name: Sanity (Ⓐ${{ matrix.ansible }})
     needs:
-      - build
+      - collection_build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        python_version: ['3.10', '3.11', '3.12','3.13']
         ansible: [stable-2.14, stable-2.15, stable-2.16, stable-2.17]
     steps:
-    - name: Set up Python ${{ env.python_version }}
-      uses: actions/setup-python@v6
-      with:
-        python-version: ${{ env.python_version }}
+      - name: Set up Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python_version }}
 
-    - name: Install ansible-base (v${{ matrix.ansible }})
-      run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+      - name: Install ansible-base (v${{ matrix.ansible }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
-    - name: Install coverage (v4.5.4)
-      run: pip install coverage==4.5.4
+      - name: Install coverage (v4.5.4)
+        run: pip install coverage==4.5.4
 
-    - name: Download migrated collection artifacts
-      uses: actions/download-artifact@v5
-      with:
-        name: collection-${{ matrix.ansible }}
-        path: .cache/collection-tarballs
+      - name: Download migrated collection artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: collection-${{ matrix.ansible }}
+          path: .cache/collection-tarballs
 
-    - name: Install the collection tarball
-      run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz
+      - name: Install the collection tarball
+        run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz
 
-    # - name: Run sanity tests
-    #   run: ansible-test sanity --docker --python ${{matrix.python}} -v --color --truncate 0
-    #   working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+      # - name: Run sanity tests
+      #   run: ansible-test sanity --docker --python ${{matrix.python}} -v --color --truncate 0
+      #   working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
 
-    - name: Run sanity tests
-      run: ansible-test sanity --docker -v --color --truncate 0 --coverage
-      working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+      - name: Run sanity tests
+        run: ansible-test sanity --docker -v --color --truncate 0 --coverage
+        working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
 
-    - name: Generate coverage report
-      run: ansible-test coverage xml -v --requirements --group-by command --group-by version
-      working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+      # - name: Generate coverage report
+      #   run: ansible-test coverage xml -v --requirements --group-by command --group-by version
+      #   working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
 
-    - name: Push coverage report to codecov.io
-      run: bash <(curl -s https://codecov.io/bash) -s 'tests/output/reports/' -F sanity
-      working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
+  ansible_lint:
+    name: Ansible-Lint (Ⓐ${{ matrix.ansible }})
+    needs:
+      - collection_build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version: ['3.10', '3.11', '3.12','3.13']
+        ansible: [stable-2.14, stable-2.15, stable-2.16, stable-2.17]
+    steps:
+      - name: Set up Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Install ansible-lint
+        run: pip install ansible-lint
+
+      - name: Dump location
+        run: pwd && ls -al
+
+      - name: Run ansible-lint
+        run: ansible-lint --force-color --strict -v
