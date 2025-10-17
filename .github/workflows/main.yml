@@ -68,7 +68,7 @@ jobs:
       - name: Store migrated collection artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: collection-${{ matrix.ansible }}
+          name: collection-${{ matrix.python_version }}-${{ matrix.ansible_version }}
           path: .cache/collection-tarballs
 
   ansible_sanity:
