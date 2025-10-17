@@ -62,56 +62,62 @@
 # These task files are only imported in the remove role if the create role did NOT run
 # -------------------------------------------------------------------------------------
 
-- name: Set path_name Var
-  ansible.builtin.set_fact:
-    path_name: "{{ role_path }}/../common/files/msd/{{ MD_Extended.vxlan.fabric.name }}/"
-  delegate_to: localhost
+- name: Run Multisite Data Preparatin Tasks Since Create Role Did Not Run
   when: run_map.updated.role_create_completed is false|bool
+  block:
+    - name: Set path_name Var
+      ansible.builtin.set_fact:
+        path_name: "{{ role_path }}/../common/files/msd/{{ MD_Extended.vxlan.fabric.name }}/"
+      tags:
+        - "{{ nac_tags.remove_networks }}"
+        - "{{ nac_tags.remove_vrfs }}"
+      delegate_to: localhost
 
-- name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
-  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
-  when: run_map.updated.role_create_completed is false|bool
+    - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
+      ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
+      tags: "{{ nac_tags.remove_vrfs }}"
 
-- name: Run dtc.common.tasks.msd.ndfc_networks.yml
-  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_networks.yml"
-  when: run_map.updated.role_create_completed is false|bool
+    - name: Run dtc.common.tasks.msd.ndfc_networks.yml
+      ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_networks.yml"
+      tags: "{{ nac_tags.remove_networks }}"
 
-# ----------------------------------------------------------------------------------
-# Changes detected flags for Multisite VRF and Networks is set when the tasks above
-# are imported.  We need to retrieve and store the values.
-# ----------------------------------------------------------------------------------
-- name: Retrieve Multisite Flag Values
-  cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-    role_path: "{{ common_role_path }}"
-    operation: get
-  tags: "{{ nac_tags.common_role }}"
-  register: change_flag_multisite_result
-  delegate_to: localhost
-  when: run_map.updated.role_create_completed is false|bool
+    # ----------------------------------------------------------------------------------
+    # Changes detected flags for Multisite VRF and Networks is set when the tasks above
+    # are imported.  We need to retrieve and store the values.
+    # ----------------------------------------------------------------------------------
+    - name: Retrieve Multisite Flag Values
+      cisco.nac_dc_vxlan.common.change_flag_manager:
+        fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
+        fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+        role_path: "{{ common_role_path }}"
+        operation: get
+      tags:
+        - "{{ nac_tags.remove_networks }}"
+        - "{{ nac_tags.remove_vrfs }}"
+      register: change_flag_multisite_result
+      delegate_to: localhost
 
-- name: Store Change Flags For Use In Subsequent Roles
-  ansible.builtin.set_fact:
-    change_flags_multisite: "{{ change_flag_multisite_result['flags'] }}"
-  tags: "{{ nac_tags.common_role }}"
-  delegate_to: localhost
-  when: run_map.updated.role_create_completed is false|bool
-# ----------------------------------------------------------------------------------
+    - name: Store Change Flags For Use In Subsequent Roles
+      ansible.builtin.set_fact:
+        change_flags_multisite: "{{ change_flag_multisite_result['flags'] }}"
+      tags:
+        - "{{ nac_tags.remove_networks }}"
+        - "{{ nac_tags.remove_vrfs }}"
+      delegate_to: localhost
+    # ----------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------
-# These task files here to remove networks and vrfs are only imported here if the
-# create role did NOT run
-# -------------------------------------------------------------------------------------
-- name: Remove MSD Fabric Networks from Nexus Dashboard
-  ansible.builtin.import_tasks: msd/networks.yml
-  tags: "{{ nac_tags.remove_networks }}"
-  when: run_map.updated.role_create_completed is false|bool
+    # -------------------------------------------------------------------------------------
+    # These task files here to remove networks and vrfs are only imported here if the
+    # create role did NOT run
+    # -------------------------------------------------------------------------------------
+    - name: Remove MSD Fabric Networks from Nexus Dashboard
+      ansible.builtin.import_tasks: msd/networks.yml
+      tags: "{{ nac_tags.remove_networks }}"
 
-- name: Remove MSD Fabric VRFs from Nexus Dashboard
-  ansible.builtin.import_tasks: msd/vrfs.yml
-  tags: "{{ nac_tags.remove_vrfs }}"
-  when: run_map.updated.role_create_completed is false|bool
+    - name: Remove MSD Fabric VRFs from Nexus Dashboard
+      ansible.builtin.import_tasks: msd/vrfs.yml
+      tags: "{{ nac_tags.remove_vrfs }}"
 
 - name: Remove MSD Fabric Child Fabrics from Nexus Dashboard
   ansible.builtin.import_tasks: msd/child_fabrics.yml
+  tags: "{{ nac_tags.remove }}"
