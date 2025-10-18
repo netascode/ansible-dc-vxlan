@@ -63,7 +63,7 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
 
-      - name: Install ansible-base (${{ matrix.ansible_version }})
+      - name: Install ansible-core (${{ matrix.ansible_version }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
 
       - name: Build collection tarball
@@ -132,17 +132,9 @@ jobs:
       - name: Install the collection tarball
         run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz
 
-      # - name: Run sanity tests
-      #   run: ansible-test sanity --docker --python ${{matrix.python}} -v --color --truncate 0
-      #   working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
-
       - name: Run sanity tests
         run: ansible-test sanity --docker -v --color --truncate 0 --coverage
         working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
-
-      # - name: Generate coverage report
-      #   run: ansible-test coverage xml -v --requirements --group-by command --group-by version
-      #   working-directory: /home/runner/.ansible/collections/ansible_collections/cisco/nac_dc_vxlan
 
   ansible_lint:
     name: Ansible-Lint (${{ matrix.python_version }}/Ⓐ${{ matrix.ansible_version }})
