@@ -52,14 +52,29 @@ class ActionModule(ActionBase):
             dm_switches = []
             if model_data["vxlan"]["fabric"]["type"] in ('VXLAN_EVPN', 'eBGP_VXLAN', 'ISN', 'External'):
                 dm_switches = model_data["vxlan"]["topology"]["switches"]
-            # elif model_data["vxlan"]["fabric"]["type"] in ('ISN'):
-            #     dm_switches = model_data["vxlan"]["multisite"]["isn"]["topology"]["switches"]
 
             switch_match = next((item for item in dm_switches if item["serial_number"] == switch_serial_number))
 
-            if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match["name"]:
+            if policy_match:
+                if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match["name"]:
+                    results['changed'] = True
+                    policy_match["nvPairs"]["SWITCH_NAME"] = switch_match["name"]
+                    policy_update.update({switch_serial_number: policy_match})
+
+            if not policy_match:
                 results['changed'] = True
-                policy_match["nvPairs"]["SWITCH_NAME"] = switch_match["name"]
+                policy_match = {
+                    "nvPairs": {
+                        "SWITCH_NAME": switch_match["name"]
+                    },
+                    "entityName": "SWITCH",
+                    "entityType": "SWITCH",
+                    "source": "",
+                    "priority": "100",
+                    "description": "",
+                    "templateName": "host_11_1",
+                    "serialNumber": switch_serial_number
+                }
                 policy_update.update({switch_serial_number: policy_match})
 
         if policy_update:
