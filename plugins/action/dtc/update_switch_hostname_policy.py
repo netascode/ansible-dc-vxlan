@@ -88,8 +88,6 @@ class ActionModule(ActionBase):
             tmp=self.tmp
         )
 
-        import epdb; epdb.st()
-
         if nd_policy_add.get('response'):
             if nd_policy_add['response']['RETURN_CODE'] == 200:
                 self.results['changed'] = True
@@ -110,7 +108,6 @@ class ActionModule(ActionBase):
         """
         Bulk update switch hostname policy in Nexus Dashboard.
         """
-        import epdb; epdb.st()
         policy_ids = ",".join([str(value["policyId"]) for key, value in self.policy_update.items()])
 
         nd_policy_update = self._execute_module(
