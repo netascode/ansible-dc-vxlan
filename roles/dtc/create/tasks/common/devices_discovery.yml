@@ -129,4 +129,5 @@
     switch_serial_numbers: "{{ md_serial_numbers }}"
     template_name: host_11_1
   register: results
+  when: MD_Extended.vxlan.topology.switches | length > 0
 # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
