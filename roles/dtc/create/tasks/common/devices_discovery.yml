@@ -115,19 +115,14 @@
     ansible_connect_timeout: 3000
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
     - change_flags.changes_detected_inventory or
       (change_flags.changes_detected_underlay_ip_address is defined and change_flags.changes_detected_underlay_ip_address)
-
-- name: Create List of Switch Serial Numbers from Data Model
-  ansible.builtin.set_fact:
-    md_serial_numbers: "{{ MD_Extended.vxlan.topology.switches | map(attribute='serial_number') | list }}"
-  delegate_to: localhost
 
 - name: Build Switch Hostname Policy Payload from Data Model Update
   cisco.nac_dc_vxlan.dtc.update_switch_hostname_policy:
     model_data: "{{ MD_Extended }}"
-    switch_serial_numbers: "{{ md_serial_numbers }}"
     template_name: host_11_1
-  register: results
   when: MD_Extended.vxlan.topology.switches | length > 0
 # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest

@@ -24,6 +24,8 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import json
+
 from ansible.plugins.action import ActionBase
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_switch_policy_using_template
 
@@ -43,7 +45,6 @@ class ActionModule(ActionBase):
         # self.policy_add = {}
         self.policy_update = {}
 
-
     def _get_switch_policy(self, switch_serial_number, template_name):
         """
         Get switch hostname policy from Nexus Dashboard using
@@ -56,7 +57,6 @@ class ActionModule(ActionBase):
             switch_serial_number=switch_serial_number,
             template_name=template_name
         )
-
 
     def nd_policy_add(self, switch_name, switch_serial_number):
         """
@@ -80,7 +80,7 @@ class ActionModule(ActionBase):
             module_args={
                 "method": "POST",
                 "path": "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies",
-                "data": policy
+                "data": json.dumps(policy)
             },
             task_vars=self.task_vars,
             tmp=self.tmp
@@ -95,15 +95,12 @@ class ActionModule(ActionBase):
                 self.results['failed'] = True
                 self.results['msg'] = f"For switch {switch_name} addition; {nd_policy_add['msg']['DATA']['message']}"
 
-
     def build_policy_update(self, policy, switch_name, switch_serial_number):
         """
         Build switch hostname policy update data structure.
         """
-        if policy["nvPairs"]["SWITCH_NAME"] != switch_name:
-            policy["nvPairs"]["SWITCH_NAME"] = switch_name
-            self.policy_update({switch_serial_number: policy})
-
+        policy["nvPairs"]["SWITCH_NAME"] = switch_name
+        self.policy_update.update({switch_serial_number: policy})
 
     def nd_policy_update(self):
         """
@@ -131,7 +128,6 @@ class ActionModule(ActionBase):
                 self.results['failed'] = True
                 self.results['msg'] = f"Bulk update failed; {nd_policy_update['msg']['DATA']['message']}"
 
-
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['changed'] = False
@@ -140,12 +136,13 @@ class ActionModule(ActionBase):
         self.tmp = tmp
 
         model_data = self._task.args["model_data"]
-        switch_serial_numbers = self._task.args["switch_serial_numbers"]
         template_name = self._task.args["template_name"]
 
         dm_switches = []
+        switch_serial_numbers = []
         if model_data["vxlan"]["fabric"]["type"] in ('VXLAN_EVPN', 'eBGP_VXLAN', 'ISN', 'External'):
             dm_switches = model_data["vxlan"]["topology"]["switches"]
+            switch_serial_numbers = [dm_switch['serial_number'] for dm_switch in dm_switches]
 
         for switch_serial_number in switch_serial_numbers:
             policy_match = self._get_switch_policy(switch_serial_number, template_name)
@@ -167,11 +164,12 @@ class ActionModule(ActionBase):
                     results['changed'] = self.results['changed']
 
             if policy_match:
-                self.build_policy_update(
-                    policy=policy_match,
-                    switch_name=switch_match['name'],
-                    switch_serial_number=switch_serial_number
-                )
+                if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match['name']:
+                    self.build_policy_update(
+                        policy=policy_match,
+                        switch_name=switch_match['name'],
+                        switch_serial_number=switch_serial_number
+                    )
 
         if self.policy_update:
             self.nd_policy_update()
