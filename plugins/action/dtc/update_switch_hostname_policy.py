@@ -42,6 +42,8 @@ class ActionModule(ActionBase):
         self.tmp = None
         self.task_vars = None
         self.results = {}
+        self.results['failed'] = False
+        self.results['changed'] = False
         # self.policy_add = {}
         self.policy_update = {}
 
