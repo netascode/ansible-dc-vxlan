@@ -191,11 +191,11 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
 
-      - name: Install ansible-lint
-        run: pip install ansible-lint
+      - name: Install ansible-base (v${{ matrix.ansible }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
 
-      - name: Dump location
-        run: pwd && ls -al
+      - name: Install ansible-lint (25.9.2)
+        run: pip install ansible-lint==25.9.2
 
       - name: Run ansible-lint
         run: ansible-lint --force-color --strict -v
