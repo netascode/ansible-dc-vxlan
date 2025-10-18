@@ -130,16 +130,3 @@
     template_name: host_11_1
   register: results
 # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
-
-- name: Join List of Switch Hostname Policy IDs from Nexus Dashboard
-  ansible.builtin.set_fact:
-    policy_ids: "{{ results.policy_update.values() | map(attribute='policyId') | list | join('%2C') }}"
-  when: results.policy_update | length > 0
-  delegate_to: localhost
-
-- name: Update Switch Hostname Policy in Nexus Dashboard
-  cisco.dcnm.dcnm_rest:
-    method: PUT
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"
-    json_data: "{{ results.policy_update.values() | list | to_json }}"
-  when: results.policy_update | length > 0

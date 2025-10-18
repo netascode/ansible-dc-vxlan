@@ -55,15 +55,8 @@ class ActionModule(ActionBase):
 
             switch_match = next((item for item in dm_switches if item["serial_number"] == switch_serial_number))
 
-            if policy_match:
-                if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match["name"]:
-                    results['changed'] = True
-                    policy_match["nvPairs"]["SWITCH_NAME"] = switch_match["name"]
-                    policy_update.update({switch_serial_number: policy_match})
-
             if not policy_match:
-                results['changed'] = True
-                policy_match = {
+                policy = {
                     "nvPairs": {
                         "SWITCH_NAME": switch_match["name"]
                     },
@@ -75,11 +68,56 @@ class ActionModule(ActionBase):
                     "templateName": "host_11_1",
                     "serialNumber": switch_serial_number
                 }
-                policy_update.update({switch_serial_number: policy_match})
 
-        if policy_update:
-            results['changed'] = True
+                # /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies
+                # /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/bulk-create
+                nd_policy_add = self._execute_module(
+                    module_name="cisco.dcnm.dcnm_rest",
+                    module_args={
+                        "method": "PUT",
+                        "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies",
+                        "data": policy
+                    },
+                    task_vars=task_vars,
+                    tmp=tmp
+                )
 
-        results['policy_update'] = policy_update
+                if nd_policy_add.get('response'):
+                    if nd_policy_add['response']['RETURN_CODE'] == 200:
+                        results['changed'] = True
+
+                if nd_policy_add.get('msg'):
+                    if nd_policy_add['msg']['RETURN_CODE'] != 200:
+                        results['failed'] = True
+                        results['msg'] = f"For switch {switch_match["name"]}; {nd_policy_add['msg']['DATA']['message']}"
+
+
+            if policy_match:
+                if policy_match["nvPairs"]["SWITCH_NAME"] != switch_match["name"]:
+                    policy_match["nvPairs"]["SWITCH_NAME"] = switch_match["name"]
+                    policy_update.update({switch_serial_number: policy_match})
+
+            if policy_update:
+                policy_ids = ",".join([str(value["policyId"]) for key, value in policy_update.items()])
+
+                nd_policy_update = self._execute_module(
+                    module_name="cisco.dcnm.dcnm_rest",
+                    module_args={
+                        "method": "PUT",
+                        "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{policy_ids}/bulk",
+                        "data": policy
+                    },
+                    task_vars=task_vars,
+                    tmp=tmp
+                )
+
+                if nd_policy_update.get('response'):
+                    if nd_policy_update['response']['RETURN_CODE'] == 200:
+                        results['changed'] = True
+
+                if nd_policy_update.get('msg'):
+                    if nd_policy_update['msg']['RETURN_CODE'] != 200:
+                        results['failed'] = True
+                        results['msg'] = f"For switch {switch_match["name"]}; {nd_policy_update['msg']['DATA']['message']}"
 
         return results
