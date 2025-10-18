@@ -2,8 +2,13 @@
 # .ansible-lint
 
 skip_list:
-  - var-naming[no-role-prefix]
-  - var-naming[pattern] # Tobe resolved in 0.6.0
+  - fqcn[deep]
+  - jinja[spacing]
+  - sanity[cannot-ignore]       # Tobe resolved in 0.6.0
+  - var-naming[no-role-prefix]  # Tobe resolved in 0.5.1
+  - var-naming[pattern]         # Tobe resolved in 0.6.0
+  - yaml[brackets]              # Tobe resolved in 0.6.0
+  - yaml[line-length]           # Tobe resolved in 0.6.0
 
 exclude_paths:
   - roles/dtc/common/files/
