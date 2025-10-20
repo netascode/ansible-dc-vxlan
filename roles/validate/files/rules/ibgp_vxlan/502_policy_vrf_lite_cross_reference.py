@@ -22,6 +22,7 @@ Validation Rules scenarios:
 
 OSPF_VERSIONS = ["ospf", "ospfv3"]
 
+
 class Rule:
     """
     Class 502 - Verify VRF-Lites Cross Reference Between Policies, Groups, and Switches
