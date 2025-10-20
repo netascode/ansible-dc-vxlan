@@ -56,9 +56,15 @@ class PreparePlugin:
                 for vrf_lite in model_data["vxlan"]["overlay_extensions"]["vrf_lites"]:
                     ospf_enabled = True if vrf_lite.get(
                         "ospf") is not None else False
-                    default_area = vrf_lite.get("ospf", {}).get(
+                    default_ospf_area = vrf_lite.get("ospf", {}).get(
                         "default_area",
                         default_values["vxlan"]["overlay_extensions"]["vrf_lites"]["ospf"]["default_area"]
+                    )
+                    ospfv3_enabled = True if vrf_lite.get(
+                        "ospfv3") is not None else False
+                    default_ospfv3_area = vrf_lite.get("ospfv3", {}).get(
+                        "default_area",
+                        default_values["vxlan"]["overlay_extensions"]["vrf_lites"]["ospfv3"]["default_area"]
                     )
                     for switch in vrf_lite["switches"]:
                         unique_name = f"{vrf_lite['name']}_{switch['name']}"
@@ -151,10 +157,22 @@ class PreparePlugin:
                                 continue
                             if intf.get("ospf") is None:
                                 intf["ospf"] = {
-                                    "area": default_area
+                                    "area": default_ospf_area
                                 }
                             else:
-                                intf["ospf"]["area"] = default_area
+                                intf["ospf"]["area"] = default_ospf_area
+                            switch["interfaces"][intf_index] = intf
+
+                        for intf_index in range(len(switch.get("interfaces", []))):
+                            intf = switch["interfaces"][intf_index]
+                            if not ospfv3_enabled or (intf.get("ospfv3") is not None and intf["ospfv3"].get("area", -1) != -1):
+                                continue
+                            if intf.get("ospfv3") is None:
+                                intf["ospfv3"] = {
+                                    "area": default_ospfv3_area
+                                }
+                            else:
+                                intf["ospfv3"]["area"] = default_ospfv3_area
                             switch["interfaces"][intf_index] = intf
 
                         # Adding address_family_ipv4_unicast and address_family_ipv6_unicast and child keys

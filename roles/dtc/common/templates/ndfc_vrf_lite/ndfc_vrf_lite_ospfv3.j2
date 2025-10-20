@@ -1,0 +1,302 @@
+! This NDFC VRF-Lite OSPFv3 config data structure is auto-generated
+! DO NOT EDIT MANUALLY
+!
+!
+{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
+{%- set areas_default_information_originate = [] -%}
+{# macro render_ospf_interface to render ospf area part #}
+{% macro render_ospf_area(area, defaults) %}
+  {% if area.id and (area.id != 0 or area.id != '0.0.0.0') %}
+    {% if (area.area_type and area.area_type == 'stub') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.areas.area_type == 'stub') %}
+  area {{ area.id | ipaddr('address') }} stub
+    {% elif (area.area_type and area.area_type == 'totally_stub') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.areas.area_type == 'totally_stub') %}
+  area {{ area.id | ipaddr('address') }} stub no-summary
+    {% elif (area.area_type and area.area_type == 'nssa') or (area.area_type is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.areas.area_type == 'nssa') %}
+      {% if area.nssa is not defined %}
+  area {{ area.id | ipaddr('address') }} nssa
+      {% else %}
+        {%- set nssa_options = {
+          'no_redistribution': area.nssa.no_redistribution | default(defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.nssa.no_redistribution),
+          'no_summary': area.nssa.no_summary | default(defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.nssa.no_summary),
+          'default_information_originate': area.nssa.default_information_originate | default(defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.nssa.default_information_originate),
+          'translate_always': area.nssa.translate.always | default(defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.nssa.translate.always),
+          'translate_supress_fa': area.nssa.translate.supress_fa | default(defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.nssa.translate.supress_fa),
+          'translate_never': area.nssa.translate.never | default(defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.nssa.translate.never)
+        } -%}
+        {%- set nssa_options_flags = [] -%}
+        {%- set nssa_options_translate = [] -%}
+        {%- set nssa_options_flags_enabled = false -%}
+        {%- set nssa_options_translate_enabled = false -%}
+        {% if nssa_options.no_summary is true %}
+          {%- set _= nssa_options_flags.append("no-summary") -%}
+          {%- set nssa_options_flags_enabled = true -%}
+        {% endif %}
+        {% if nssa_options.no_redistribution is true %}
+          {% set _= nssa_options_flags.append("no-redistribution") -%}
+          {%- set nssa_options_flags_enabled = true -%}
+        {% endif %}
+        {% if nssa_options.default_information_originate is true %}
+          {% set _= nssa_options_flags.append("default-information-originate") %}
+          {% if area.nssa.route_map %}
+            {% set _= nssa_options_flags.append("route-map") %}
+            {% set _= nssa_options_flags.append(area.nssa.route_map) %}
+            {% set nssa_options_flags_enabled = true %}
+          {% endif %}
+        {% endif %}
+        {% if nssa_options.translate_always is true %}
+          {% set _= nssa_options_translate.append("always") %}
+          {% set nssa_options_translate_enabled = true %}
+        {% endif %}
+        {% if nssa_options.translate_supress_fa is true %}
+          {% set _= nssa_options_translate.append("supress-fa") %}
+          {% set nssa_options_translate_enabled = true %}
+        {% endif %}
+        {% if nssa_options.translate_never is true %}
+          {% set _= nssa_options_translate.append("never") %}
+          {% set nssa_options_translate_enabled = true %}
+        {% endif %}
+        {% if nssa_options_flags_enabled is true %}
+  area {{ area.id | ipaddr('address') }} nssa {{ nssa_options_flags | join(' ') }}
+        {% endif %}
+        {% if nssa_options_translate_enabled is true %}
+  area {{ area.id | ipaddr('address') }} nssa translate type7 {{ nssa_options_translate | join(' ') }}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+  {% if area.area_cost is defined and area.area_cost != 1 and area.id != 0 %}
+  area {{ area.id | ipaddr('address') }} default-cost {{ area.area_cost }}
+  {% elif area.area_cost is defined and area.area_cost != 1 %}
+  area 0.0.0.0 default-cost {{ area.area_cost }}
+  {% endif %}
+  {% if area.default_information_originate is defined %}
+    {% if area.default_information_originate.always is not defined %}
+      {% set default_information_originate_always = defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.default_information_originate.always %}
+    {% else %}
+      {% set default_information_originate_always = area.default_information_originate.always %}
+    {% endif %}
+    {% if (default_information_originate_always is true and area.default_information_originate.route_map is defined) %}
+    {# default-information originate always route-map {{ area.default_information_originate.route_map }} #}
+      {%- set _= areas_default_information_originate.append('default-information originate always route-map ' ~ area.default_information_originate.route_map) -%}
+    {% elif default_information_originate_always is true and area.default_information_originate.route_map is not defined %}
+    {# default-information originate always #}
+      {%- set _= areas_default_information_originate.append('default-information originate always') -%}
+    {% elif default_information_originate_always is false and area.default_information_originate.route_map is defined %}
+    {# default-information originate route-map {{ area.default_information_originate.route_map }} #}
+      {%- set _= areas_default_information_originate.append('default-information originate route-map ' ~ area.default_information_originate.route_map) -%}
+    {% else %}
+    {# default-information originate #}
+    {%- set _= areas_default_information_originate.append('default-information originate') -%}
+    {% endif %}
+  {% endif %}
+{% endmacro %}
+
+feature ospfv3
+{% set redistribute = {} %}
+{% set feature = {} %}
+{% if item.ospfv3.bfd.enabled | default(defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.bfd.enabled) %}
+  {% set _ = feature.update({'bfd': true}) %}
+{% endif %}
+{% if switch_item.interfaces %}
+  {% for interface in switch_item.interfaces %}
+    {% if interface.ospfv3.bfd.enabled | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.bfd.enabled) %}
+      {% set _ = feature.update({'bfd': true}) %}
+    {% endif %}
+    {% if interface.ospfv3.authentication.auth_type != 'none' | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.authentication.auth_type != 'none' )%}
+      {% set _ = feature.update({'imp': true}) %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{% if feature['bfd']%}
+feature bfd
+!
+{% endif %}
+{% if feature['imp']%}
+feature imp
+!
+{% endif %}
+!
+router ospfv3 {{ item.ospfv3['process'] }}
+{# GRT #}
+{% if item.vrf.lower() == "default" %}
+{% if item.ospfv3.areas is defined and item.ospfv3.areas %}
+{% for area in item.ospfv3.areas %}
+  {% if area.authentication['auth_type'] != 'none' and area.authentication['auth_key'] %}
+    {% set spi = area.authentication['security_parameter_index'] | default(defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.areas.authentication.security_parameter_index) %}
+    {% if area.id is defined %}
+      {% set area_id = '' %}
+      {% if area.id == 0 or area.id == '0.0.0.0' %}
+        {% set area_id = '0.0.0.0' %}
+      {% else %}
+        {% set area_id = area.id | ipaddr('address') %}
+    {% endif %}
+  area {{ area_id }} authentication ipsec spi {{ spi }} {{ area.authentication['auth_type'] }} 3 {{ area.authentication['auth_key'] }}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+{% endif %}
+{% if item.ospfv3.authentication['auth_type'] != 'none' and item.ospfv3.authentication['auth_key'] %}
+  {% set spi = item.ospfv3.authentication['security_parameter_index'] | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.authentication.security_parameter_index) %}
+  authentication ipsec spi {{ spi }} {{ item.ospfv3.authentication['auth_type'] }} 3 {{ item.ospfv3.authentication['auth_key'] }}
+{% endif %}
+{% if switch_item['router_id'] %}
+  router-id {{ switch_item['router_id'] }}
+{% endif %}
+{% if item.ospfv3.areas is defined and item.ospfv3.areas %}
+{% for area in item.ospfv3.areas %}
+  {{- render_ospf_area(area, defaults) -}}
+{% endfor %}
+{% endif %}
+  address-family ipv6 unicast
+  {% for item in areas_default_information_originate %}
+    {{ item }}
+  {% endfor %}
+  {%- set areas_default_information_originate = [] -%}
+  {% if (item.ospfv3.distance and item.ospfv3.distance != 110) or (item.ospfv3.distance is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.distance != 110) %}
+    distance {{ item.ospfv3.distance }}
+  {% endif %}
+  {# Redistribution configuration #}
+  {% if switch_item.redistribution %}
+    {% for switch_redist in switch_item.redistribution %}
+      {% if switch_redist.source == 'direct' and switch_redist.route_map_ipv6 %}
+    redistribute direct route-map {{ switch_redist.route_map_ipv6 }}
+      {% endif %}
+      {% if switch_redist.source == 'static' and switch_redist.route_map_ipv6 %}
+    redistribute static route-map {{ switch_redist.route_map_ipv6 }}
+      {% endif %}
+      {% if switch_redist.source == 'bgp' and switch_redist.route_map_ipv6 %}
+    redistribute bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }} route-map {{ switch_redist.route_map_ipv6 }}
+      {% endif %}
+      {% if switch_redist.source == 'ospfv3' and switch_redist.route_map_ipv6 %}
+        {% set _ = redistribute.update({'ospfv3': switch_redist.route_map_ipv6}) %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% else %}
+{# Other vrfs #}
+  vrf {{ item.vrf }}
+    {% if item.ospfv3.areas is defined and item.ospfv3.areas %}
+    {% for area in item.ospfv3.areas %}
+      {% if area.authentication['auth_type'] != 'none' and area.authentication['auth_key'] %}
+        {% set spi = area.authentication['security_parameter_index'] | default(defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.areas.authentication.security_parameter_index) %}
+        {% set area_id = '' %}
+        {% if area.id is defined %}
+          {% if area.id == 0 or area.id == '0.0.0.0' %}
+            {% set area_id = '0.0.0.0' %}
+          {% else %}
+            {% set area_id = area.id | ipaddr('address') %}
+        {% endif %}
+    area {{ area_id }} authentication ipsec spi {{ spi }} {{ area.authentication['auth_type'] }} 3 {{ area.authentication['auth_key'] }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% if item.ospfv3.authentication['auth_type'] != 'none' and item.ospfv3.authentication['auth_key'] %}
+    {% set spi = item.ospfv3.authentication['security_parameter_index'] | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.authentication.security_parameter_index) %}
+    authentication ipsec spi {{ spi }} {{ item.ospfv3.authentication['auth_type'] }} 3 {{ item.ospfv3.authentication['auth_key'] }}
+    {% endif %}
+    {% if switch_item['router_id'] %}
+    router-id {{ switch_item['router_id'] }}
+    {% endif %}
+    {% if item.ospfv3.areas is defined and item.ospfv3.areas %}
+    {% for area in item.ospfv3.areas %}
+      {{- render_ospf_area(area, defaults) | indent(2, True) -}}
+    {% endfor %}
+    {% endif %}
+    address-family ipv6 unicast
+    {% for item in areas_default_information_originate %}
+      {{ item }}
+    {% endfor %}
+    {% if (item.ospfv3.distance and item.ospfv3.distance != 110) or (item.ospfv3.distance is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospfv3.distance != 110) %}
+      distance {{ item.ospfv3.distance }}
+    {% endif %}
+    {# Redistribution configuration #}
+    {% if switch_item.redistribution %}
+      {% for switch_redist in switch_item.redistribution %}
+        {% if switch_redist.source == 'direct' and switch_redist.route_map_ipv6 %}
+      redistribute direct route-map {{ switch_redist.route_map_ipv6 }}
+        {% endif %}
+        {% if switch_redist.source == 'static' and switch_redist.route_map_ipv6 %}
+      redistribute static route-map {{ switch_redist.route_map_ipv6 }}
+        {% endif %}
+        {% if switch_redist.source == 'bgp' and switch_redist.route_map_ipv6 %}
+      redistribute bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }} route-map {{ switch_redist.route_map_ipv6 }}
+        {% endif %}
+        {% if switch_redist.source == 'ospfv3' and switch_redist.route_map_ipv6 %}
+          {% set _ = redistribute.update({'ospfv3': switch_redist.route_map_ipv6}) %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+{% endif %}
+!
+{% if simplified_fabric_type == 'ibgp' %}
+  {% if redistribute['ospfv3'] %}
+router bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }}
+    {% if item.vrf.lower() != "default" %}
+  vrf {{ item.vrf }}
+    address-family ipv6 unicast
+      redistribute ospfv3 {{ item.ospfv3['process'] }} route-map {{ redistribute['ospfv3'] }}
+    {% endif %}
+  {% endif %}
+{% endif %}
+!
+{% if switch_item.interfaces %}
+  {% for interface in switch_item.interfaces %}
+    {% set interface_name = interface['name'] | lower %}
+interface {{ interface['name'] }}
+    {% if interface.ospfv3.authentication['auth_type'] != 'none' and interface.ospfv3.authentication['auth_key'] %}
+      {% set spi = interface.ospfv3.authentication['security_parameter_index'] | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.authentication.security_parameter_index) %}
+  ospfv3 authentication ipsec spi {{ spi }} {{ interface.ospfv3.authentication['auth_type'] }} 3 {{ interface.ospfv3.authentication['auth_key'] }}
+    {% endif %}
+    {% if interface_name.startswith('lo') %}
+      {% if interface.ospfv3['network_type'] and interface.ospfv3['network_type'] != 'broadcast' %}
+  ospfv3 network {{ interface.ospf['network_type'] }}
+      {% endif %}
+    {% elif interface.ospfv3['network_type'] %}
+  ospfv3 network {{ interface.ospfv3['network_type'] }}
+    {% endif %}
+    {% if interface.ospfv3['area'] is defined and interface.ospfv3['area'] != 0 %}
+  ipv6 router ospfv3 {{ item.ospfv3['process'] }} area {{ interface.ospfv3['area'] | ipaddr('address') }}
+    {% else %}
+  ipv6 router ospfv3 {{ item.ospfv3['process'] }} area 0.0.0.0
+    {% endif %}
+    {% if interface.ospfv3.cost %}
+  ospfv3 cost {{ interface.ospfv3.cost }}
+    {% elif defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.cost and defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.cost != 1 %}
+  ospfv3 cost {{ defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.cost }}
+    {% endif %}
+    {% if interface_name.startswith('lo') %}
+    {% elif interface.ospfv3.passive_interface | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.passive_interface )  %}
+  ospfv3 passive-interface
+    {% endif %}
+    {% if interface.ospfv3.mtu_ignore | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.mtu_ignore) %}
+  ospfv3 mtu-ignore
+    {% endif %}
+    {% if interface.ospfv3.bfd.enabled == false %}
+    {% elif interface.ospfv3.bfd.enabled or (interface.ospfv3.bfd.enabled is not defined and feature['bfd']) %}
+  ospfv3 bfd
+    {% endif %}
+    {% if interface.ospfv3.hello_interval and interface.ospfv3.hello_interval != 10 %}
+  ospfv3 hello-interval {{ interface.ospfv3.hello_interval }}
+    {% elif defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.hello_interval and defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.hello_interval != 10 %}
+  ospfv3 hello-interval {{ defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.hello_interval }}
+    {% endif %}
+  ospfv3 dead-interval {{ interface.ospfv3.dead_interval | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.dead_interval) }}
+    {% if interface.ospfv3.priority and interface.ospfv3.priority != 1 %}
+  ospfv3 priority {{ interface.ospfv3.priority }}
+    {% elif defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.priority and defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.priority != 1 %}
+  ospfv3 priority {{ defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.priority }}
+    {% endif %}
+    {% if interface.ospfv3.lsa_retransmit_interval and interface.ospfv3.lsa_retransmit_interval != 5 %}
+  ospfv3 retransmit-interval {{ interface.ospfv3.lsa_retransmit_interval }}
+    {% elif defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.lsa_retransmit_interval and defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.lsa_retransmit_interval != 5 %}
+  ospfv3 retransmit-interval {{ defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.lsa_retransmit_interval }}
+    {% endif %}
+    {% if interface.ospfv3.lsa_transmit_delay and interface.ospfv3.lsa_transmit_delay != 1 %}
+  ospfv3 transmit-delay {{ interface.ospfv3.lsa_transmit_delay }}
+    {% elif defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.lsa_transmit_delay and defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.lsa_transmit_delay != 1 %}
+  ospfv3 transmit-delay {{ defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.lsa_transmit_delay }}
+    {% endif %}
+!
+  {% endfor %}
+{% endif %}
