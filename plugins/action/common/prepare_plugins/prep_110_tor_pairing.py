@@ -25,17 +25,16 @@ class PreparePlugin:
         self.keys = ['vxlan', 'topology', 'tor_peers']
 
     def _get_switch(self, name, expected_role, switches, errors):
+        """
+        Get switch from switches map.
+        Note: Basic validation is now handled by validation rule 312.
+        This method focuses on data retrieval for payload generation.
+        """
         switch = switches.get(name)
         if not switch:
+            # Validation rule should have caught this
             errors.append(f"Switch '{name}' referenced in tor_peers is not defined in vxlan.topology.switches")
             return None
-        role = switch.get('role')
-        if role != expected_role:
-            errors.append(
-                f"Switch '{name}' referenced in tor_peers must have role '{expected_role}', current role is '{role}'"
-            )
-        if not switch.get('serial_number'):
-            errors.append(f"Switch '{name}' must define serial_number for tor pairing support")
         return switch
 
     def _normalize_vpc_id(self, value, label, errors):
