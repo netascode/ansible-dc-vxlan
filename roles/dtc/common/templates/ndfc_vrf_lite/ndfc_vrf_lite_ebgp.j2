@@ -49,7 +49,7 @@
     {% if switch_redist.source == 'static' and switch_redist.route_map_ipv4 %}
     redistribute static route-map {{ switch_redist.route_map_ipv4 }}
     {% endif %}
-    {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
+    {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 and switch_redist.protocol_tag %}
     redistribute ospf {{ switch_redist.protocol_tag }} route-map {{ switch_redist.route_map_ipv4 }}
     {% endif %}
   {% endfor %}
