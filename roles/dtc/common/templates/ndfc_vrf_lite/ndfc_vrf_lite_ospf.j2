@@ -143,7 +143,7 @@ router ospf {{ item.ospf['process'] }}
     {% endif %}
     {% if item.ospf.areas %}
       {% for area in item.ospf.areas %}
-    {{- render_ospf_area(area, defaults) -}}
+    {{- render_ospf_area(area, defaults) | indent(2) -}}
       {% endfor %}
     {% endif %}
     {% if (item.ospf.distance and item.ospf.distance != 110) or (item.ospf.distance is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.distance != 110) %}
