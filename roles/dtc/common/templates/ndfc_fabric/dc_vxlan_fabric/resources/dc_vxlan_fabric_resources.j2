@@ -77,5 +77,3 @@
 {% endif %}
   VRF_VLAN_RANGE: {{ l3_vlan_range }}
   SUBINTERFACE_RANGE: {{ vxlan.global.ibgp.sub_int_range | default(defaults.vxlan.global.ibgp.sub_int_range) }}
-  DCI_SUBNET_RANGE: {{ vxlan.underlay.ipv4.underlay_vrf_lite_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_vrf_lite_ip_range) }}
-  DCI_SUBNET_TARGET_MASK: {{ vxlan.underlay.ipv4.underlay_vrf_lite_subnet_mask | default(defaults.vxlan.underlay.ipv4.underlay_vrf_lite_subnet_mask) }}
