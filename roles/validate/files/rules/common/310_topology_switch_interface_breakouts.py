@@ -5,8 +5,7 @@ class Rule:
     description = "Verify if interfaces with sub-levels are part of the defined interface breakouts"
     severity = "HIGH"
     
-    # Compiled regex patterns for better performance
-    # FEX pattern: Ethernet[101-199]/1/[1-99]
+    # FEX regex pattern: Ethernet[101-199]/1/[1-99]
     FEX_PATTERN = re.compile(r'^e(?:th(?:ernet)?)?1(0[1-9]|[1-9][0-9])/1/([1-9]|[1-9][0-9])$', re.IGNORECASE)
 
     @classmethod
