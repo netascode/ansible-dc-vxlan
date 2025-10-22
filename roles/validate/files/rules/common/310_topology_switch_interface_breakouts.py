@@ -1,5 +1,6 @@
 import re
 
+
 class Rule:
     id = "310"
     description = "Verify if interfaces with sub-levels are part of the defined interface breakouts"
