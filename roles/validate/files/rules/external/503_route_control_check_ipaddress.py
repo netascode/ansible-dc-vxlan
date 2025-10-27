@@ -95,16 +95,14 @@ class Rule:
 
             # Check if the IP matches the expected regex
             if not re.match(ip_regex, ip):
-                message = f"""Invalid format. '{ip
-                }' must not include a CIDR prefix when wildcard is configured."""
+                message = f"Invalid format. '{ip}' must not include a CIDR prefix when wildcard is configured."
                 cls.results.append(f"In {address_family} ACL: {acl_name} {message}")
 
         elif ip:
             # Validate the IP as a CIDR if no wildcard is provided
             is_valid, message = cls.is_ip_cidr(ip)
             if not is_valid:
-                cls.results.append(f"""In {address_family} ACL: {acl_name} {message
-                } or use wildcard.""")
+                cls.results.append(f"In {address_family} ACL: {acl_name} {message} or use wildcard.")
 
     @classmethod
     def validate_prefix_lists(cls, data, prefix_list_key, address_family):
@@ -125,8 +123,7 @@ class Rule:
                         if "prefix" in entry:
                             is_valid, message = cls.is_ip_cidr(entry["prefix"])
                             if not is_valid:
-                                cls.results.append(f"""In {address_family
-                                } Prefix-List: {prefix['name']} {message}""")
+                                cls.results.append(f"In {address_family} Prefix-List: {prefix['name']} {message}")
 
     @classmethod
     def is_ip_cidr(cls, ip_cidr):
@@ -138,8 +135,7 @@ class Rule:
 
         # Check if the input matches the CIDR regex pattern
         if not re.match(cidr_regex, ip_cidr):
-            return False, f"""Invalid format. '{ip_cidr
-            }' must include a CIDR prefix (e.g., /24 for IPv4 or /64 for IPv6)"""
+            return False, f"Invalid format. '{ip_cidr}' must include a CIDR prefix (e.g., /24 for IPv4 or /64 for IPv6)"
 
         try:
             # Check if it can be parsed as a valid IPv4 or IPv6 network
