@@ -38,6 +38,7 @@ class ActionModule(ActionBase):
         # self._supports_async = True
         results = super(ActionModule, self).run(tmp, task_vars)
         results['diff_run'] = True
+        results['validate_only_run'] = False
 
         model_data = self._task.args.get('model_data')
         play_tags = self._task.args.get('play_tags')
@@ -69,8 +70,18 @@ class ActionModule(ActionBase):
             if not previous_run_map.get(role):
                 results['diff_run'] = False
                 break
+        # All stages of the automation must run for the diff_run framework to be enabled
         if play_tags and 'all' not in play_tags:
             results['diff_run'] = False
+        # If force_run_all is True then set the diff_run flag to false
+        if task_vars.get('force_run_all') is True:
+            results['diff_run'] = False
+
+        # If only the role_validate tag is present then set validate_only_run to true
+        # This is used to prevent the diff_run map from being reset when the validate role
+        # gets run in isolation.
+        if len(play_tags) == 1 and 'role_validate' in play_tags:
+            results['validate_only_run'] = True
 
         # If diff_run is false display an ansible warning message
         if not results['diff_run']:

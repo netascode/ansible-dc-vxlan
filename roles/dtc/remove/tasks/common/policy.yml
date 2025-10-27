@@ -20,21 +20,27 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- name: Choose vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
+
+- name: Set vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
-- ansible.builtin.set_fact:
+
+- name: Set vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
   when: MD_Extended.vxlan.fabric.type == "MSD"
-- name: Choose vars_common Based On Fabric Type - ISN
+
+- name: Set vars_common Based On Fabric Type - ISN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
   when: MD_Extended.vxlan.fabric.type == "ISN"
-- name: Choose vars_common Based On Fabric Type - External
+
+- name: Set vars_common Based On Fabric Type - External
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
   when: MD_Extended.vxlan.fabric.type == "External"
@@ -65,7 +71,7 @@
         fabric: "{{ MD_Extended.vxlan.fabric.name }}"
         use_desc_as_key: true
         config: "{{ unmanaged_policy_config.unmanaged_policies }}"
-        deploy: true
+        deploy: false
         state: deleted
       when: unmanaged_policy_config.unmanaged_policies | length > 0
       vars:

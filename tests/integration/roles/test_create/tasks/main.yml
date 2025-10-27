@@ -21,7 +21,9 @@
 
 ---
 
-- debug: msg="Test Role Path - {{ role_path }}"
+- name: Display Role Path
+  ansible.builtin.debug:
+    msg: "Test Role Path - {{ role_path }}"
 
 - name: Execute Create Role Tests
   ansible.builtin.import_tasks: tests/test.yml

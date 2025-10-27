@@ -20,10 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_underlay_ip_address: false
-  delegate_to: localhost
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
@@ -62,7 +58,7 @@
     underlay_ip_address: []
   delegate_to: localhost
 
-- name: Set inv_config Var
+- name: Set underlay_ip_address Var
   ansible.builtin.set_fact:
     underlay_ip_address: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   when:
@@ -71,7 +67,16 @@
     - vxlan.underlay.general.manual_underlay_allocation
   delegate_to: localhost
 
-- name: Diff Previous and Current Data Files
+- name: Build Underlay IP Address Diff Between Previous and Current Run
+  # This task must be run before the next task because
+  # dtc.diff_model_changes deletes the .old file if it exists
+  cisco.nac_dc_vxlan.dtc.diff_compare:
+    old_file: "{{ path_name }}{{ file_name }}.old"
+    new_file: "{{ path_name }}{{ file_name }}"
+  register: underlay_ip_address_diff_result
+  delegate_to: localhost
+
+- name: Get MD5 Diff For Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"
     file_name_current: "{{ path_name }}{{ file_name }}"
@@ -79,8 +84,13 @@
   delegate_to: localhost
 
 - name: Set File Change Flag Based on File Diff Result
-  ansible.builtin.set_fact:
-    changes_detected_underlay_ip_address: true
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
+    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: update
+    change_flag: changes_detected_underlay_ip_address
+    flag_value: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

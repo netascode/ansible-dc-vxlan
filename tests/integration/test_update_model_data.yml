@@ -48,14 +48,19 @@
 # It will copy the content from tests/integration/host_vars/examples/fabric_* to the new directories
 # and replace the placeholders with the real data from tests/integration/fabric_vars.yml
 
-- hosts: localhost
-  gather_facts: no
+- name: Main Playbook
+  hosts: localhost
+  gather_facts: false
 
   tasks:
-    - name: Create New Directories for fabric_empty, fabric_full_large, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm, fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir, fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
+    # Create New Directories for fabric_empty, fabric_full_large, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm,
+    # fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir,
+    # fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
+    - name: Create New Directories
       ansible.builtin.file:
         path: "{{ playbook_dir }}/host_vars/{{ item }}"
         state: directory
+        mode: '0644'
       delegate_to: 127.0.0.1
       loop:
         - fabric_empty
@@ -68,10 +73,15 @@
         - fabric_full_small_ospf_ingress
         - fabric_full_small_isis_ingress
 
-    - name: Copy content from host_vars/examples/fabric_* to fabric_empty, fabric_full_large, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm, fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir, fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
+    # Copy content from host_vars/examples/fabric_* to fabric tests:
+    # fabric_empty, fabric_full_large, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm,
+    # fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir,
+    # fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
+    - name: Copy content from host_vars/examples/fabric_* to fabric tests
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/host_vars/examples/{{ item.source_name }}/"
         dest: "{{ playbook_dir }}/host_vars/{{ item.dest_name }}"
+        mode: preserve
       delegate_to: 127.0.0.1
       loop:
         - source_name: fabric_empty_example
@@ -97,6 +107,7 @@
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/group_vars/ndfc/examples/main.yml"
         dest: "{{ playbook_dir }}/group_vars/ndfc/main.yml"
+        mode: preserve
       delegate_to: 127.0.0.1
       loop:
         - source_name: fabric_empty_example
@@ -118,8 +129,18 @@
         - source_name: fabric_full_small_isis_ingress_example
           dest_name: fabric_full_small_isis_ingress
 
-- hosts: fabric_empty, fabric_full_large, fabric_full_small_sha, fabric_full_small_ospf_multicast_asm, fabric_full_small_isis_multicast_asm, fabric_full_small_ospf_multicast_bidir, fabric_full_small_isis_multicast_bidir, fabric_full_small_ospf_ingress, fabric_full_small_isis_ingress
-  gather_facts: no
+- name: Update Model Data Playbook
+  hosts:
+    - fabric_empty
+    - fabric_full_large
+    - fabric_full_small_sha
+    - fabric_full_small_ospf_multicast_asm
+    - fabric_full_small_isis_multicast_asm
+    - fabric_full_small_ospf_multicast_bidir
+    - fabric_full_small_isis_multicast_bidir
+    - fabric_full_small_ospf_ingress
+    - fabric_full_small_isis_ingress
+  gather_facts: false
 
   roles:
     - test_update_model_data

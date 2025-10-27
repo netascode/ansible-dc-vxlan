@@ -28,69 +28,14 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
-- name: Display Device Configuration Method
-  ansible.builtin.debug:
-    msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"
-
-- name: Config-Save Block for iBGP VXLAN Fabric
-  block:
-    - name: Config-Save for iBGP VXLAN Fabric
-      cisco.dcnm.dcnm_rest:
-        method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-      register: config_save
-      when: >
-        (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
-
-  rescue:
-    - name: Config-Save for iBGP VXLAN Fabric - Failed
-      ansible.builtin.debug:
-        msg: "{{ config_save.msg.DATA }}"
-      when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
-
-- name: Deploy for iBGP VXLAN Fabric
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
-  vars:
-    ansible_command_timeout: 3000
-    ansible_connect_timeout: 3000
-  when: >
-    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
-
-- name: Check Switch Sync in iBGP VXLAN Fabric
-  cisco.nac_dc_vxlan.dtc.fabric_check_sync:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-  register: results
-  when: >
-    (MD_Extended.vxlan.topology.switches is defined and MD_Extended.vxlan.topology.switches | length > 0)
-
-- name: Retrying Config-Save Block for iBGP VXLAN Fabric
-  block:
-    - name: Retrying Config-Save for iBGP VXLAN Fabric
-      cisco.dcnm.dcnm_rest:
-        method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-      register: config_save
-      when:
-        - MD_Extended.vxlan.topology.switches is defined
-        - MD_Extended.vxlan.topology.switches | length > 0
-        - results.changed
-
-  rescue:
-    - name: Retrying Config-Save for iBGP VXLAN Fabric - Failed
-      ansible.builtin.debug:
-        msg: "{{ config_save.msg.DATA }}"
-      when: config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
-
-- name: Retrying Deploy for iBGP VXLAN Fabric
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy?forceShowRun=false"
+- name: Manage Fabric Deployment for iBGP VXLAN Fabric in Nexus Dashboard
+  cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
+    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
+    operation: all
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
   when:
     - MD_Extended.vxlan.topology.switches is defined
     - MD_Extended.vxlan.topology.switches | length > 0
-    - results.changed

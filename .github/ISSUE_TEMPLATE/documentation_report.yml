@@ -10,7 +10,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for creating a documentation issue to help us improve the VXLAN as Code collection. 
+        Thanks for creating a documentation issue to help us improve the VXLAN as Code collection.
         Please fill out the sections below to help us understand and reproduce the issue you are facing.
 
   - type: markdown
@@ -93,12 +93,12 @@ body:
       render: shell
     validations:
       required: false
-    
+
   - type: textarea
-    id: ndfc-version
+    id: nd-version
     attributes:
-      label: Cisco NDFC Version
-      description: Please provide your Cisco NDFC version used when encountering this issue
+      label: Cisco Nexus Dashboard Version
+      description: Please provide your Cisco Nexus Dashboard version used when encountering this issue
       render: shell
     validations:
       required: false

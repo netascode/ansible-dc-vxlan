@@ -8,12 +8,14 @@ class Rule:
         results = []
 
         switches = None
+        vpc_peers = None
         sm_networks = None
         sm_vrfs = None
         network_attach_groups = None
         vrf_attach_groups = None
 
         switch_keys = ['vxlan', 'topology', 'switches']
+        vpc_peers_keys = ['vxlan', 'topology', 'vpc_peers']
 
         # Remove the check for overlay_services after deprecation
         # Remove lines 21 - 23
@@ -29,13 +31,17 @@ class Rule:
             network_attach_keys = ['vxlan', overlay_key, 'network_attach_groups']
             vrf_attach_keys = ['vxlan', overlay_key, 'vrf_attach_groups']
 
-            # Check if vrfs, network and switch data is defined in the service model
+            # Check if vrfs, network, switch, and vpc_peers data is defined in the service model
             check = cls.data_model_key_check(data_model, switch_keys)
             if 'switches' in check['keys_data']:
                 switches = cls.safeget(data_model, switch_keys)
             if not switches:
                 # No switches defined in the service model, no reason to continue
                 return results
+
+            check = cls.data_model_key_check(data_model, vpc_peers_keys)
+            if 'vpc_peers' in check['keys_data']:
+                vpc_peers = cls.safeget(data_model, vpc_peers_keys)
 
             check = cls.data_model_key_check(data_model, network_keys)
             if 'networks' in check['keys_data']:
@@ -58,8 +64,10 @@ class Rule:
 
             if sm_vrfs and vrf_attach_groups:
                 results = cls.cross_reference_switches(vrf_attach_groups, switches, 'vrf', results)
+                results = cls.cross_reference_vpc_peers(vrf_attach_groups, vpc_peers, 'vrf', results)
             if sm_networks and network_attach_groups:
                 results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
+                results = cls.cross_reference_vpc_peers(network_attach_groups, vpc_peers, 'network', results)
 
         return results
 
@@ -124,5 +132,50 @@ class Rule:
                                 ag = attach_group.get("name")
                                 hn = switch.get("hostname")
                                 results.append(f"{target} attach group {ag} hostname {hn} does not match any switch in the topology.")
+
+        return results
+
+    @classmethod
+    def cross_reference_vpc_peers(cls, attach_groups, vpc_peers, target, results):
+        """
+        Check if each switch referenced in a vrf_attach_group or network_attach_group
+        is part of a vpc_peers entry, either peer1 or peer2, and if the corresponding peer
+        in the vpc_peers is also found in the vrf_attach_group.
+        """
+
+        if not attach_groups or not vpc_peers:
+            return results
+
+        # Build a mapping of vPC peers: hostname -> peer_hostname
+        vpc_peer_mapping = {}
+        for vpc_pair in vpc_peers:
+            peer1 = vpc_pair.get('peer1')
+            peer2 = vpc_pair.get('peer2')
+            if peer1 and peer2:
+                vpc_peer_mapping[peer1] = peer2
+                vpc_peer_mapping[peer2] = peer1
+
+        # Check each attach group
+        for attach_group in attach_groups:
+            group_name = attach_group.get('name')
+            group_switches = attach_group.get('switches', [])
+
+            # Get all hostnames in this attach group
+            group_hostnames = set()
+            for switch in group_switches:
+                hostname = switch.get('hostname')
+                if hostname:
+                    group_hostnames.add(hostname)
+
+            # Check for missing vPC peers
+            for hostname in group_hostnames:
+                if hostname in vpc_peer_mapping:
+                    vpc_peer = vpc_peer_mapping[hostname]
+                    if vpc_peer not in group_hostnames:
+                        results.append(
+                            f"{target}_attach_group '{group_name}' contains switch '{hostname}' "
+                            f"which has vPC peer '{vpc_peer}', but the vPC peer is not included "
+                            f"in the same attach group. Both vPC peers should be in the same attach group."
+                        )
 
         return results
