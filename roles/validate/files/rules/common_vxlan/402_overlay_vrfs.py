@@ -29,9 +29,9 @@ class Rule:
             check = cls.data_model_key_check(data_model, netflow_keys)
 
         if 'enable' in check['keys_found']:
-                fabric_netflow_status = cls.safeget(data_model, netflow_keys)
-                if fabric_netflow_status is None:
-                    fabric_netflow_status = False
+            fabric_netflow_status = cls.safeget(data_model, netflow_keys)
+            if fabric_netflow_status is None:
+                fabric_netflow_status = False
 
         underlay_trm_keys = ['vxlan', 'underlay', 'multicast', 'ipv4', 'trm_enable']
         check = cls.data_model_key_check(data_model, underlay_trm_keys)
