@@ -13,11 +13,6 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 **Release Date:** ``2025-10-27``
 
-Added
------
-
-* 
-
 Modified
 --------
 
