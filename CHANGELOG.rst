@@ -26,6 +26,7 @@ Modified
 Fixed
 -----
 * https://github.com/netascode/ansible-dc-vxlan/issues/649
+* https://github.com/netascode/ansible-dc-vxlan/issues/652
 * https://github.com/netascode/ansible-dc-vxlan/pull/622
 * https://github.com/netascode/ansible-dc-vxlan/pull/623
 * https://github.com/netascode/ansible-dc-vxlan/pull/624
