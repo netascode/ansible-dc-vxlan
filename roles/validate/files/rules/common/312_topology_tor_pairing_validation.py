@@ -1,6 +1,6 @@
 class Rule:
     id = "312"
-    description = "Verify ToR pairing configuration is valid and complete"
+    description = "Verify ToR pairing configuration with scenario-specific validation"
     severity = "HIGH"
 
     @classmethod
@@ -51,179 +51,111 @@ class Rule:
         for idx, peer in enumerate(tor_peers):
             entry_label = f"vxlan.topology.tor_peers[{idx}]"
             
-            # Extract names from the peer entry
-            parent_leaf1 = peer.get('parent_leaf1')
-            parent_leaf2 = peer.get('parent_leaf2')
-            tor1 = peer.get('tor1')
-            tor2 = peer.get('tor2')
+            # Handle both dict and string formats (backward compatibility)
+            leaf1_name = cls._extract_name(peer.get('parent_leaf1'))
+            leaf2_name = cls._extract_name(peer.get('parent_leaf2'))
+            tor1_name = cls._extract_name(peer.get('tor1'))
+            tor2_name = cls._extract_name(peer.get('tor2'))
             
-            # Check required fields
-            if not parent_leaf1:
-                results.append(f"{entry_label}: 'parent_leaf1' is required")
-                continue
-            if not tor1:
-                results.append(f"{entry_label}: 'tor1' is required")
+            if not leaf1_name or not tor1_name:
+                results.append(f"{entry_label}: 'parent_leaf1' and 'tor1' are required")
                 continue
             
-            # Handle both dict and string formats for switch references
-            leaf1_name = parent_leaf1.get('name') if isinstance(parent_leaf1, dict) else parent_leaf1
-            leaf2_name = parent_leaf2.get('name') if isinstance(parent_leaf2, dict) and parent_leaf2 else None
-            tor1_name = tor1.get('name') if isinstance(tor1, dict) else tor1
-            tor2_name = tor2.get('name') if isinstance(tor2, dict) and tor2 else None
+            # Determine scenario
+            scenario = cls._detect_scenario(leaf1_name, leaf2_name, tor1_name, tor2_name)
             
-            # Validate leaf1 exists and has correct role
-            if leaf1_name not in switch_map:
-                results.append(
-                    f"{entry_label}: parent_leaf1 switch '{leaf1_name}' not found in vxlan.topology.switches"
-                )
+            # Scenario-specific validation
+            if scenario == 'vpc_to_vpc':
+                # Validate: leafs must be VPC paired
+                if not cls._find_vpc_domain(leaf1_name, leaf2_name, vpc_domain_map):
+                    results.append(
+                        f"{entry_label}: vpc-to-vpc scenario requires leafs '{leaf1_name}' and '{leaf2_name}' "
+                        f"to be VPC paired in vxlan.topology.vpc_peers"
+                    )
+                # Validate: tors must be VPC paired
+                if not cls._find_vpc_domain(tor1_name, tor2_name, vpc_domain_map):
+                    results.append(
+                        f"{entry_label}: vpc-to-vpc scenario requires TORs '{tor1_name}' and '{tor2_name}' "
+                        f"to be VPC paired in vxlan.topology.vpc_peers"
+                    )
+                # Validate: all 4 switches must exist with correct roles
+                cls._validate_switch_role(leaf1_name, 'leaf', switch_map, results, entry_label)
+                cls._validate_switch_role(leaf2_name, 'leaf', switch_map, results, entry_label)
+                cls._validate_switch_role(tor1_name, 'tor', switch_map, results, entry_label)
+                cls._validate_switch_role(tor2_name, 'tor', switch_map, results, entry_label)
+                
+            elif scenario == 'vpc_to_standalone':
+                # Validate: leafs must be VPC paired
+                if not cls._find_vpc_domain(leaf1_name, leaf2_name, vpc_domain_map):
+                    results.append(
+                        f"{entry_label}: vpc-to-standalone scenario requires leafs '{leaf1_name}' and '{leaf2_name}' "
+                        f"to be VPC paired in vxlan.topology.vpc_peers"
+                    )
+                # Validate: switches must exist with correct roles
+                cls._validate_switch_role(leaf1_name, 'leaf', switch_map, results, entry_label)
+                cls._validate_switch_role(leaf2_name, 'leaf', switch_map, results, entry_label)
+                cls._validate_switch_role(tor1_name, 'tor', switch_map, results, entry_label)
+                
+            elif scenario == 'standalone_to_standalone':
+                # Validate: switches must exist with correct roles
+                cls._validate_switch_role(leaf1_name, 'leaf', switch_map, results, entry_label)
+                cls._validate_switch_role(tor1_name, 'tor', switch_map, results, entry_label)
+                
             else:
-                leaf1_sw = switch_map[leaf1_name]
-                if leaf1_sw.get('role') != 'leaf':
-                    results.append(
-                        f"{entry_label}: parent_leaf1 switch '{leaf1_name}' must have role 'leaf', "
-                        f"current role is '{leaf1_sw.get('role')}'"
-                    )
-                if not leaf1_sw.get('serial_number'):
-                    results.append(
-                        f"{entry_label}: parent_leaf1 switch '{leaf1_name}' must have a serial_number defined"
-                    )
-            
-            # Validate leaf2 if provided
-            if leaf2_name:
-                if leaf2_name not in switch_map:
-                    results.append(
-                        f"{entry_label}: parent_leaf2 switch '{leaf2_name}' not found in vxlan.topology.switches"
-                    )
-                else:
-                    leaf2_sw = switch_map[leaf2_name]
-                    if leaf2_sw.get('role') != 'leaf':
-                        results.append(
-                            f"{entry_label}: parent_leaf2 switch '{leaf2_name}' must have role 'leaf', "
-                            f"current role is '{leaf2_sw.get('role')}'"
-                        )
-                    if not leaf2_sw.get('serial_number'):
-                        results.append(
-                            f"{entry_label}: parent_leaf2 switch '{leaf2_name}' must have a serial_number defined"
-                        )
-            
-            # Validate tor1 exists and has correct role
-            if tor1_name not in switch_map:
                 results.append(
-                    f"{entry_label}: tor1 switch '{tor1_name}' not found in vxlan.topology.switches"
+                    f"{entry_label}: Invalid ToR pairing scenario. "
+                    f"Supported: vpc-to-vpc (2 leafs + 2 TORs), vpc-to-standalone (2 leafs + 1 TOR), "
+                    f"standalone-to-standalone (1 leaf + 1 TOR). "
+                    f"Unsupported: standalone leaf with VPC TORs"
                 )
-            else:
-                tor1_sw = switch_map[tor1_name]
-                if tor1_sw.get('role') != 'tor':
-                    results.append(
-                        f"{entry_label}: tor1 switch '{tor1_name}' must have role 'tor', "
-                        f"current role is '{tor1_sw.get('role')}'"
-                    )
-                if not tor1_sw.get('serial_number'):
-                    results.append(
-                        f"{entry_label}: tor1 switch '{tor1_name}' must have a serial_number defined"
-                    )
-            
-            # Validate tor2 if provided
-            if tor2_name:
-                if tor2_name not in switch_map:
-                    results.append(
-                        f"{entry_label}: tor2 switch '{tor2_name}' not found in vxlan.topology.switches"
-                    )
-                else:
-                    tor2_sw = switch_map[tor2_name]
-                    if tor2_sw.get('role') != 'tor':
-                        results.append(
-                            f"{entry_label}: tor2 switch '{tor2_name}' must have role 'tor', "
-                            f"current role is '{tor2_sw.get('role')}'"
-                        )
-                    if not tor2_sw.get('serial_number'):
-                        results.append(
-                            f"{entry_label}: tor2 switch '{tor2_name}' must have a serial_number defined"
-                        )
-            
-            # Validate tor_vpc_peer consistency
-            tor_vpc_peer = peer.get('tor_vpc_peer', peer.get('vpc_peer', False))
-            
-            if tor_vpc_peer and not tor2:
-                results.append(
-                    f"{entry_label}: tor_vpc_peer is true but tor2 is not provided. "
-                    f"ToR vPC requires both tor1 and tor2."
-                )
-            elif tor2 and not tor_vpc_peer:
-                results.append(
-                    f"{entry_label}: tor2 is defined but tor_vpc_peer is false. "
-                    f"Set tor_vpc_peer to true when defining a ToR vPC pair."
-                )
-            
-            # Validate VPC domain IDs
-            leaf_vpc_id = peer.get('leaf_vpc_id')
-            tor_vpc_id = peer.get('tor_vpc_id')
-            
-            # Check if leaf VPC domain is needed
-            if leaf2_name:
-                # Leaf vPC scenario - need domain ID
-                if not leaf_vpc_id:
-                    # Try to find it from vpc_peers
-                    if leaf1_name and leaf2_name:
-                        domain_id = vpc_domain_map.get((leaf1_name, leaf2_name))
-                        if not domain_id:
-                            results.append(
-                                f"{entry_label}: parent_leaf1 '{leaf1_name}' and parent_leaf2 '{leaf2_name}' "
-                                f"form a vPC but no leaf_vpc_id is defined and no matching entry found in "
-                                f"vxlan.topology.vpc_peers"
-                            )
-                else:
-                    # Verify leaf_vpc_id is an integer
-                    if not isinstance(leaf_vpc_id, int):
-                        results.append(
-                            f"{entry_label}: leaf_vpc_id must be an integer, got {type(leaf_vpc_id).__name__}"
-                        )
-            
-            # Check if tor VPC domain is needed
-            if tor_vpc_peer and tor2_name:
-                if not tor_vpc_id:
-                    # Try to find it from vpc_peers
-                    if tor1_name and tor2_name:
-                        domain_id = vpc_domain_map.get((tor1_name, tor2_name))
-                        if not domain_id:
-                            results.append(
-                                f"{entry_label}: tor1 '{tor1_name}' and tor2 '{tor2_name}' "
-                                f"form a vPC but no tor_vpc_id is defined and no matching entry found in "
-                                f"vxlan.topology.vpc_peers"
-                            )
-                else:
-                    # Verify tor_vpc_id is an integer
-                    if not isinstance(tor_vpc_id, int):
-                        results.append(
-                            f"{entry_label}: tor_vpc_id must be an integer, got {type(tor_vpc_id).__name__}"
-                        )
-            
-            # Validate supported scenarios
-            # Scenario: tor vPC with standalone leaf is NOT supported
-            if tor_vpc_peer and not leaf2_name:
-                results.append(
-                    f"{entry_label}: Unsupported ToR pairing scenario - ToR vPC with standalone leaf. "
-                    f"ToR vPC (tor1='{tor1_name}', tor2='{tor2_name}') requires a leaf vPC "
-                    f"(both parent_leaf1 and parent_leaf2 must be defined)."
-                )
-            
-            # Validate unique pairing ID
-            pairing_id = peer.get('pairing_id')
-            if not pairing_id and leaf1_name and tor1_name:
-                # Generate default pairing_id
-                pairing_id = f"{leaf1_name}-{tor1_name}"
-            
-            if pairing_id:
-                if pairing_id in pairing_ids:
-                    results.append(
-                        f"{entry_label}: Duplicate pairing_id '{pairing_id}'. "
-                        f"Each ToR pairing must have a unique pairing_id."
-                    )
-                else:
-                    pairing_ids.add(pairing_id)
         
         return results
-
+    
+    @classmethod
+    def _extract_name(cls, value):
+        """Extract switch name from dict or string."""
+        if not value:
+            return None
+        return value.get('name') if isinstance(value, dict) else value
+    
+    @classmethod
+    def _detect_scenario(cls, leaf1, leaf2, tor1, tor2):
+        """Detect ToR pairing scenario."""
+        if leaf2 and tor2:
+            return 'vpc_to_vpc'
+        elif leaf2 and not tor2:
+            return 'vpc_to_standalone'
+        elif not leaf2 and not tor2:
+            return 'standalone_to_standalone'
+        else:
+            return 'invalid'  # standalone leaf + vpc tor
+    
+    @classmethod
+    def _find_vpc_domain(cls, switch1, switch2, vpc_domain_map):
+        """Check if two switches form a VPC pair."""
+        return vpc_domain_map.get((switch1, switch2)) is not None
+    
+    @classmethod
+    def _validate_switch_role(cls, switch_name, expected_role, switch_map, results, entry_label):
+        """Validate switch exists and has correct role."""
+        if switch_name not in switch_map:
+            results.append(
+                f"{entry_label}: Switch '{switch_name}' not found in vxlan.topology.switches"
+            )
+            return
+        
+        switch = switch_map[switch_name]
+        if switch.get('role') != expected_role:
+            results.append(
+                f"{entry_label}: Switch '{switch_name}' must have role '{expected_role}', "
+                f"found '{switch.get('role')}'"
+            )
+        
+        if not switch.get('serial_number'):
+            results.append(
+                f"{entry_label}: Switch '{switch_name}' must have serial_number defined"
+            )
+    
     @classmethod
     def data_model_key_check(cls, tested_object, keys):
         """

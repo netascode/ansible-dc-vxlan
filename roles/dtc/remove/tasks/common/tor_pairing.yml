@@ -41,20 +41,30 @@
     label: "{{ item.pairing_id }}"
   when:
     - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
-    - leaf_serials | length > 0
-    - tor_value | length > 0
+    - changes_detected_tor_pairing | default(false)
+    - item.payload.leafSN1 | default('')
+    - item.payload.torSN1 | default('')
   vars:
     ansible_command_timeout: 300
     ansible_connect_timeout: 300
-    leaf_serials: "{{ [item.payload.leafSN1 | default('', true), item.payload.leafSN2 | default('', true)] | map('regex_replace', '\\s+$', '') | reject('equalto', '') | list }}"
-    tor_serials: "{{ [item.payload.torSN1 | default('', true), item.payload.torSN2 | default('', true)] | map('regex_replace', '\\s+$', '') | reject('equalto', '') | list }}"
-    tor_value_vpc: "{{ tor_serials | join(',') }}"
-    tor_value_single: "{{ tor_serials | first | default('', true) }}"
-    tor_value: "{{ tor_value_vpc if item.scenario == 'leaf_vpc_tor_vpc' else tor_value_single }}"
-    leaftor_values: "{{ [tor_value] * (leaf_serials | length) }}"
-    leaftor_map: "{{ dict(leaf_serials | zip(leaftor_values)) }}"
+    # Build leaftor map: {leafSN1: torSN1,torSN2, leafSN2: torSN1,torSN2}
+    tor_list: "{{ [item.payload.torSN1, item.payload.torSN2 | default('')] | reject('equalto', '') | list }}"
+    tor_string: "{{ tor_list | join(',') }}"
+    leaf_list: "{{ [item.payload.leafSN1, item.payload.leafSN2 | default('')] | reject('equalto', '') | list }}"
+    leaftor_map: "{{ dict(leaf_list | map('regex_replace', '^(.*)$', '\\1') | zip([tor_string] * (leaf_list | length))) }}"
     leaftor_query: "{{ leaftor_map | to_json | urlencode }}"
   register: tor_pairing_removal_result
+  failed_when:
+    - tor_pairing_removal_result is failed
+    - "'not found' not in (tor_pairing_removal_result.msg | default('') | lower)"
+    - "'does not exist' not in (tor_pairing_removal_result.msg | default('') | lower)"
+
+- name: Report ToR pairing removal results
+  ansible.builtin.debug:
+    msg: "Removed {{ vars_common_local.tor_pairing_removed | default([]) | length }} ToR pairing(s)"
+  when:
+    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+    - changes_detected_tor_pairing | default(false)
 
 - name: Skip ToR pairing removal when tor_pairing_delete_mode is False
   ansible.builtin.debug:

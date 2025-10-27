@@ -8,9 +8,8 @@
   scenario: "{{ pair.scenario }}"
   payload:
     leafSN1: "{{ pair.payload.leafSN1 }}"
-    leafSN2: "{{ pair.payload.leafSN2 }}"
+    leafSN2: "{{ pair.payload.leafSN2 | default('') }}"
     torSN1: "{{ pair.payload.torSN1 }}"
-    torSN2: "{{ pair.payload.torSN2 }}"
-  po_map: {{ pair.po_map | to_nice_json }}
+    torSN2: "{{ pair.payload.torSN2 | default('') }}"
 {% endfor %}
 {% endif %}

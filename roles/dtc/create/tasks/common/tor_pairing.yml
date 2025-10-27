@@ -34,8 +34,8 @@
 - name: Pair ToR switches in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/tor_testing/switches/pair/custom-id"
-    json_data: "{{ {'leafSN1': item.payload.leafSN1, 'leafSN2': item.payload.leafSN2, 'torSN1': item.payload.torSN1, 'torSN2': item.payload.torSN2, 'poVpc': item.po_map | to_json } | to_json }}"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{{ MD_Extended.vxlan.fabric.name }}/switches/pair/custom-id"
+    json_data: "{{ item.payload | to_json }}"
   loop: "{{ vars_common_local.tor_pairing }}"
   loop_control:
     label: "{{ item.pairing_id }}"
