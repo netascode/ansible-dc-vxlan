@@ -10,28 +10,35 @@ class Rule:
         fabric_trm_status = False
         networks = []
 
-        if data_model.get("vxlan", None):
-            if data_model["vxlan"].get("global", None):
-                if data_model["vxlan"].get("global").get("netflow", None):
-                    fabric_netflow_status = data_model["vxlan"]["global"]["netflow"].get("enable", False)
+        # Map fabric types to the keys used in the data model based on controller fabric types
+        fabric_type_map = {
+            "VXLAN_EVPN": "ibgp",
+            "eBGP_VXLAN": "ebgp",
+        }
 
-        # Uncomment 19-22 when verified to work and remove line 13-16.
-        # netflow_keys = ['vxlan', 'global', 'netflow', 'enable']
-        # check = cls.data_model_key_check(data_model, netflow_keys)
-        # if 'enable' in check['keys_data']:
-        #     fabric_netflow_status = cls.safeget(data_model, netflow_keys)
+        fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
 
-        if data_model.get("vxlan", None):
-            if data_model["vxlan"].get("underlay", None):
-                if data_model["vxlan"].get("underlay").get("multicast", None):
-                    if data_model["vxlan"].get("underlay").get("multicast").get("ipv4", None):
-                        fabric_trm_status = data_model["vxlan"]["underlay"]["multicast"]["ipv4"].get("trm_enable", False)
+        netflow_keys = ['vxlan', 'global', fabric_type]
+        check = cls.data_model_key_check(data_model, netflow_keys)
+        if fabric_type in check['keys_found']:
+            netflow_keys = ['vxlan', 'global', fabric_type, 'netflow', 'enable']
+            check = cls.data_model_key_check(data_model, netflow_keys)
 
-        # Uncomment 31-34 when verified to work and remove line 25-28.
-        # trm_keys = ['vxlan', 'underlay', 'multicast', 'trm_enabled']
-        # check = cls.data_model_key_check(data_model, trm_keys)
-        # if 'trm_enable' in check['keys_data']:
-        #     fabric_trm_status = cls.safeget(data_model, trm_keys)
+        if fabric_type in check['keys_not_found'] or 'enable' in check['keys_not_found']:
+            netflow_keys = ['vxlan', 'global', 'netflow', 'enable']
+            check = cls.data_model_key_check(data_model, netflow_keys)
+
+        if 'enable' in check['keys_found']:
+            fabric_netflow_status = cls.safeget(data_model, netflow_keys)
+            if fabric_netflow_status is None:
+                fabric_netflow_status = False
+
+        underlay_trm_keys = ['vxlan', 'underlay', 'multicast', 'ipv4', 'trm_enable']
+        check = cls.data_model_key_check(data_model, underlay_trm_keys)
+        if 'trm_enable' in check['keys_found']:
+            # Cannot use safeget yet without updating code check below as it looks for False vs None
+            # fabric_trm_status = cls.safeget(data_model, trm_keys)
+            fabric_trm_status = data_model["vxlan"]["underlay"]["multicast"]["ipv4"].get("trm_enable", False)
 
         network_keys = ['vxlan', 'overlay', 'networks']
         check = cls.data_model_key_check(data_model, network_keys)
