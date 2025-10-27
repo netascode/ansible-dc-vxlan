@@ -40,8 +40,6 @@ class Rule:
             # fabric_trm_status = cls.safeget(data_model, trm_keys)
             fabric_trm_status = data_model["vxlan"]["underlay"]["multicast"]["ipv4"].get("trm_enable", False)
 
-        import epdb; epdb.st()
-
         vrf_keys = ['vxlan', 'overlay', 'vrfs']
         check = cls.data_model_key_check(data_model, vrf_keys)
         if 'vrfs' in check['keys_data']:
