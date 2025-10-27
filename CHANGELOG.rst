@@ -16,12 +16,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Modified
 --------
 
-* Deprecated keys under `vxlan.global` that are available under the following fabric types:
+* Deprecated keys under `vxlan.global` that are now available only under the following fabric types:
     * iBGP EVPN fabric type: `vxlan.global.ibgp`
-    * eBGP EVPN fabric type: `vxlan.global.ebgp`
     * External fabric type: `vxlan.global.external`
 
-* Improved performance when managing interfaces, fabric links, networks, VRFs, VPC peers, VPC Domain IDs, and underlay IP addresses when the `force_run_all` flag is set to `false`. These performance improvements are not currently supported for pipeline workflows.
+* Improved performance when managing interfaces, fabric links, networks, VRFs, vPC peers, vPC Domain IDs, and underlay IP addresses when the `force_run_all` flag is set to `false`. These performance improvements are not currently supported for pipeline workflows.
 
 Fixed
 -----
