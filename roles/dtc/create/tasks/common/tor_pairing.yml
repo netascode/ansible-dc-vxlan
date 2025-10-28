@@ -30,6 +30,8 @@
       - "----------------------------------------------------------------"
       - "+     Manage Fabric ToR Pairing {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
+  when:
+    - vars_common_local.changes_detected_tor_pairing | default(false)
 
 - name: Pair ToR switches in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
@@ -40,6 +42,7 @@
   loop_control:
     label: "{{ item.pairing_id }}"
   when:
+    - vars_common_local.changes_detected_tor_pairing | default(false)
     - item.payload.leafSN1
     - item.payload.torSN1
 
