@@ -55,11 +55,11 @@
 
 - name: Set int_loopback_config Var
   ansible.builtin.set_fact:
-    int_loopback_config: >- 
-      {{ 
+    int_loopback_config: >-
+      {{
         (lookup('file', path_name + file_name) | from_yaml)
         if (lookup('file', path_name + file_name) | from_yaml) is sequence
-        else [] 
+        else []
       }}
   when: >
     (MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0) or
