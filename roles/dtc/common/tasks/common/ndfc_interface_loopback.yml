@@ -58,9 +58,14 @@
     int_loopback_config: []
   delegate_to: localhost
 
-- name: Set int_loopback_config Var
+- name: Set int_loopback_config_pre Var
   ansible.builtin.set_fact:
-    int_loopback_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
+    int_loopback_config: >- 
+      {{ 
+        (lookup('file', path_name + file_name) | from_yaml)
+        if (lookup('file', path_name + file_name) | from_yaml) is sequence
+        else [] 
+      }}
   when: >
     (MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0) or
     (MD_Extended.vxlan.topology.interfaces.modes.fabric_loopback.count > 0) or
