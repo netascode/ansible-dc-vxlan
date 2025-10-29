@@ -58,7 +58,7 @@
     int_loopback_config: []
   delegate_to: localhost
 
-- name: Set int_loopback_config_pre Var
+- name: Set int_loopback_config Var
   ansible.builtin.set_fact:
     int_loopback_config: >- 
       {{ 
