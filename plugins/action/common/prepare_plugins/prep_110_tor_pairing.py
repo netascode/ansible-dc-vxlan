@@ -20,14 +20,51 @@
 
 
 class PreparePlugin:
+    """
+    ToR Pairing Prepare Plugin.
+    
+    Transforms user YAML configuration into NDFC API payloads and optionally
+    performs diff detection for removal scenarios.
+    
+    """
+    
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.keys = ['vxlan', 'topology', 'tor_peers']
 
+    def _normalize_serials(self, payload):
+        """
+        Create order-independent serial tuple for comparison.
+        
+        Handles VPC pairs where serial numbers can appear in any order
+        between NDFC response and prepare plugin output.
+        
+        Args:
+            payload: dict with leafSN1, leafSN2, torSN1, torSN2 keys
+            
+        Returns:
+            tuple: ((sorted_tor_serials), (sorted_leaf_serials))
+        """
+        # Extract and filter empty strings
+        tor_serials = [
+            payload.get('torSN1', ''),
+            payload.get('torSN2', '')
+        ]
+        tor_serials = [s for s in tor_serials if s]
+        
+        leaf_serials = [
+            payload.get('leafSN1', ''),
+            payload.get('leafSN2', '')
+        ]
+        leaf_serials = [s for s in leaf_serials if s]
+        
+        # Sort for order-independent comparison
+        return (tuple(sorted(tor_serials)), tuple(sorted(leaf_serials)))
+
     def _get_switch(self, name, expected_role, switches, errors):
         """
         Get switch from switches map.
-        Note: Basic validation is now handled by validation rule 312.
+        Note: Basic validation is now handled by validation rule 311.
         This method focuses on data retrieval for payload generation.
         """
         switch = switches.get(name)
@@ -279,6 +316,42 @@ class PreparePlugin:
             results['msg'] = '\n'.join(errors)
             return results
 
+        # Store processed pairings in model_extended
         model_data['vxlan']['topology']['tor_pairing'] = processed_pairs
+        
+        # Perform diff detection for removals (merged from prep_115)
+        # Get previous pairings (passed from ndfc_tor_pairing.yml)
+        previous_pairings = self.kwargs.get('tor_pairing_previous_list', [])
+        
+        if previous_pairings:
+            # Build lookup set of current pairing serials
+            current_serial_sets = {}
+            for pairing in processed_pairs:
+                serial_key = self._normalize_serials(pairing['payload'])
+                current_serial_sets[serial_key] = pairing
+            
+            # Find removals by checking which previous pairings no longer exist
+            removed = []
+            for prev_pairing in previous_pairings:
+                prev_serial_key = self._normalize_serials(prev_pairing['payload'])
+                if prev_serial_key not in current_serial_sets:
+                    removed.append(prev_pairing)
+            
+            # Store results in model_extended for downstream tasks
+            model_data['vxlan']['topology']['tor_pairing_removed'] = removed
+            
+            # Add debug information
+            results['tor_pairing_diff_stats'] = {
+                'previous_count': len(previous_pairings),
+                'current_count': len(processed_pairs),
+                'removed_count': len(removed),
+                'previous_ids': [p.get('pairing_id', 'unknown') for p in previous_pairings],
+                'current_ids': [p.get('pairing_id', 'unknown') for p in processed_pairs],
+                'removed_ids': [p.get('pairing_id', 'unknown') for p in removed]
+            }
+        else:
+            # No previous state, nothing to remove
+            model_data['vxlan']['topology']['tor_pairing_removed'] = []
+        
         results['model_extended'] = model_data
         return results
