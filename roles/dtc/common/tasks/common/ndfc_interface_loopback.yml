@@ -55,11 +55,6 @@
 
 - name: Set int_loopback_config Var
   ansible.builtin.set_fact:
-    int_loopback_config: []
-  delegate_to: localhost
-
-- name: Set int_loopback_config Var
-  ansible.builtin.set_fact:
     int_loopback_config: >- 
       {{ 
         (lookup('file', path_name + file_name) | from_yaml)
