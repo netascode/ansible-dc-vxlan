@@ -48,12 +48,6 @@ jobs:
             python_version: "3.11"
           - ansible_version: "stable-2.15"
             python_version: "3.10"
-
-          # Ansible 2.14: supports Python 3.9 - 3.11
-          - ansible_version: "stable-2.14"
-            python_version: "3.11"
-          - ansible_version: "stable-2.14"
-            python_version: "3.10"
     steps:
       - name: Check out code
         uses: actions/checkout@v5
@@ -104,12 +98,6 @@ jobs:
           - ansible_version: "stable-2.15"
             python_version: "3.11"
           - ansible_version: "stable-2.15"
-            python_version: "3.10"
-
-          # Ansible 2.14: supports Python 3.9 - 3.11
-          - ansible_version: "stable-2.14"
-            python_version: "3.11"
-          - ansible_version: "stable-2.14"
             python_version: "3.10"
     steps:
       - name: Set up Python ${{ matrix.python_version }}
@@ -167,12 +155,6 @@ jobs:
           # - ansible_version: "stable-2.15"
           #   python_version: "3.11"
           # - ansible_version: "stable-2.15"
-          #   python_version: "3.10"
-
-          # # Ansible 2.14: supports Python 3.9 - 3.11
-          # - ansible_version: "stable-2.14"
-          #   python_version: "3.11"
-          # - ansible_version: "stable-2.14"
           #   python_version: "3.10"
     steps:
       - name: Check out code
