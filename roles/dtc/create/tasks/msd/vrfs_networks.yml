@@ -178,7 +178,6 @@
 #     msite_data: "{{ MD_Multisite }}"
 #   register: child_fabric_network_results
 
-
 - name: Update Child Fabrics VRFs and Networks Changed State
   ansible.builtin.set_fact:
     child_fabrics_vrfs_networks_changed: "{{ vrf_changed | ansible.builtin.union(network_changed) }}"
