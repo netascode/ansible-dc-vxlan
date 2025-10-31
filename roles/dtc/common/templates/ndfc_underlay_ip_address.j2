@@ -12,6 +12,7 @@
   switch.name: {
   'management_ipv4_address': switch.management.management_ipv4_address,
   'serial_number': switch.serial_number
+  'role': switch.role
   }
 }) %}
 {%- endfor %}
@@ -23,6 +24,7 @@
 {%- set ns.ipv4 = interface.ipv4_address %}
 {%- endif %}
 {%- endfor %}
+{% if not (switch.role == 'spine' and loopback_id == vtep_lo_id) %}
 - entity_name: "{{ switch_list[switch.name].serial_number }}~loopback{{ loopback_id }}"
   pool_type: IP
   pool_name: "LOOPBACK{{ loopback_id }}_IP_POOL"
@@ -30,6 +32,7 @@
   resource: "{{ ns.ipv4 }}"
   switch:
     - "{{ switch_list[switch.name].management_ipv4_address }}"
+{% endif %} 
 {% endfor %}
 {% endmacro %}
 {# resource for routing loopback #}
