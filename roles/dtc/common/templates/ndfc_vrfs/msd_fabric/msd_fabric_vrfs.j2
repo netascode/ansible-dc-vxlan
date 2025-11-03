@@ -8,7 +8,7 @@
 {% for vrf in vrfs %}
 - vrf_name: {{ vrf['name'] }}
 {# ------------------------------------------------------ #}
-{# Parent MSD Properties Section #}
+{# Properties Section #}
 {# ------------------------------------------------------ #}
   vrf_id: {{ vrf['vrf_id'] | default(omit) }}
   vlan_id: {{ vrf['vlan_id'] | default(omit) }}
@@ -29,18 +29,18 @@
 {% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) %}
   v6_redist_direct_rmap: {{ vrf['ipv6_redist_direct_routemap'] | default(defaults.vxlan.overlay.vrfs.ipv6_redist_direct_routemap) }}
 {% endif %}
-{# ------------------------------------------------------ #}
-{# Child MSD Fabric Configuration Section #}
-{# ------------------------------------------------------ #}
 {% if vrf.child_fabrics is defined and vrf.child_fabrics %}
 {% set child_fabrics = vrf.child_fabrics %}
+{% else %}
+{% set child_fabrics = [] %}
+{% endif %}
   child_fabric_config:
 {% for child_fabric in child_fabrics %}
     - fabric: {{ child_fabric['name'] | default(omit) }}
-      l3vni_wo_vlan: {{ child_fabric['l3vni_wo_vlan'] | default(omit) }}
-      adv_host_routes: {{ child_fabric['adv_host_routes'] | default(omit) }}
-      adv_default_routes: {{ child_fabric['adv_default_routes'] | default(omit) }}
-      static_default_route: {{ child_fabric['static_default_route'] | default(omit) }}
+      l3vni_wo_vlan: {{ child_fabric['enable_l3_vni_no_vlan'] | default(omit) }}
+      adv_host_routes: {{ child_fabric['adv_host_routes'] | default(omit)  }}
+      adv_default_routes: {{ child_fabric['adv_default_routes'] | default(omit)  }}
+      static_default_route: {{ child_fabric['static_default_route'] | default(omit)  }}
       bgp_password: {{ child_fabric['bgp_password'] | default(omit) }}
       bgp_passwd_encrypt: {{ child_fabric['bgp_password_encryption_type'] | default(omit) }}
       import_mvpn_rt: {{ child_fabric['import_mvpn_rt'] | default(omit) }}
@@ -66,7 +66,6 @@
       underlay_mcast_ip: {{ child_fabric['underlay_mcast_ip'] | default(omit) }}
 {% endif %}
 {% endfor %}
-{% endif %}
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
@@ -74,13 +73,11 @@
   attach:
 {% if MD_Multisite.overlay_attach_groups.vrf_attach_groups_dict is defined and MD_Multisite.overlay_attach_groups.vrf_attach_groups_dict %}
 {% set vrf_attach_groups_dict = MD_Multisite.overlay_attach_groups.vrf_attach_groups_dict %}
+{% endif %}
 {% for attach in vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
-{% if attach['vrf_lite'] is defined and attach['vrf_lite'] %}
-      vrf_lite: {{ attach['vrf_lite'] }}
-{% endif %}
 {% endfor %}
 {% endif %}
   deploy: false
-{% endif %}
 {% endfor %}
+
