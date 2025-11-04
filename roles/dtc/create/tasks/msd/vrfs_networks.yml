@@ -176,10 +176,8 @@
   ansible.builtin.set_fact:
     child_fabrics_vrfs_networks_changed: "{{ vrf_changed | ansible.builtin.union(network_changed) }}"
   vars:
-    vrf_changed: "{{ manage_vrf_result.changed | default([]) }}"
+    vrf_changed: []
     network_changed: "{{ child_fabric_network_results.child_fabrics_changed | default([]) }}"
   when: >
-    (manage_vrf_result.changed is defined and
-      manage_vrf_result.changed | length > 0) or
     (child_fabric_network_results.child_fabrics_changed is defined and
      child_fabric_network_results.child_fabrics_changed | length > 0)

@@ -33,6 +33,7 @@
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
     fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
     operation: all
+    child_fabric_vrf_data: "{{ manage_vrf_result }}"
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000

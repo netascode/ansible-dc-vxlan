@@ -165,9 +165,78 @@ class ActionModule(ActionBase):
         results['failed'] = False
 
         params = {}
+        # Module Execution Context Parameters
+        params['task_vars'] = task_vars
+        params['tmp'] = tmp
+        params['action_module'] = self
+
         params['fabric_name'] = self._task.args["fabric_name"]
         params['fabric_type'] = self._task.args["fabric_type"]
         params['operation'] = self._task.args.get("operation")
+
+        # Manage Deployment For Multisite or Standalone Fabric
+        results = self.manage_fabrics(results, params)
+        if results.get('failed'):
+            return results
+
+        params['child_fabric_vrf_data'] = self._task.args.get("child_fabric_vrf_data", {})
+        import epdb ; epdb.set_trace()
+
+        return results
+        # for key in ['fabric_type', 'fabric_name', 'operation']:
+        #     if params[key] is None:
+        #         results['failed'] = True
+        #         results['msg'] = f"Missing required parameter '{key}'"
+        #         return results
+
+        # if params['operation'] not in ['all', 'config_save', 'config_deploy', 'check_sync']:
+        #     results['failed'] = True
+        #     results['msg'] = "Parameter 'operation' must be one of: [all, config_save, config_deploy, check_sync]"
+        #     return results
+
+        # fabric_manager = FabricDeployManager(params)
+
+        # # Workflows
+        # if params['operation'] in ['all']:
+        #     fabric_manager.fabric_config_save()
+        #     fabric_manager.fabric_deploy()
+        #     fabric_manager.fabric_check_sync()
+
+        #     if not fabric_manager.fabric_in_sync and params['fabric_type'] != 'MSD':
+        #         # If the fabric is out of sync after deployment try one more time before giving up
+        #         fabric_manager.fabric_history_get()
+        #         display.warning(fabric_manager.fabric_history)
+        #         display.warning("Fabric is out of sync after initial deployment. Attempting one more deployment.")
+        #         fabric_manager.fabric_config_save()
+        #         fabric_manager.fabric_deploy()
+        #         fabric_manager.fabric_check_sync()
+
+        #     if not fabric_manager.fabric_in_sync and params['fabric_type'] != 'MSD':
+        #         fabric_manager.fabric_history_get()
+        #         results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync after deployment."
+        #         results['fabric_history'] = fabric_manager.fabric_history
+        #         results['failed'] = True
+
+        # if params['operation'] in ['config_save']:
+        #     fabric_manager.fabric_config_save()
+        #     if not fabric_manager.fabric_save_succeeded:
+        #         results['failed'] = True
+
+        # if params['operation'] in ['config_deploy']:
+        #     fabric_manager.fabric_deploy()
+        #     if not fabric_manager.fabric_deploy_succeeded:
+        #         results['failed'] = True
+
+        # if params['operation'] in ['check_sync']:
+        #     fabric_manager.fabric_check_sync()
+        #     if not fabric_manager.fabric_in_sync:
+        #         fabric_manager.fabric_history_get()
+        #         results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync."
+        #         results['fabric_history'] = fabric_manager.fabric_history
+        #         results['failed'] = True
+
+
+    def manage_fabrics(self, results, params):
 
         for key in ['fabric_type', 'fabric_name', 'operation']:
             if params[key] is None:
@@ -179,11 +248,6 @@ class ActionModule(ActionBase):
             results['failed'] = True
             results['msg'] = "Parameter 'operation' must be one of: [all, config_save, config_deploy, check_sync]"
             return results
-
-        # Module Execution Context Parameters
-        params['task_vars'] = task_vars
-        params['tmp'] = tmp
-        params['action_module'] = self
 
         fabric_manager = FabricDeployManager(params)
 
