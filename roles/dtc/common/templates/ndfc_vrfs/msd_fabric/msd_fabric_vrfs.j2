@@ -38,9 +38,9 @@
 {% for child_fabric in child_fabrics %}
     - fabric: {{ child_fabric['name'] | default(omit) }}
       l3vni_wo_vlan: {{ child_fabric['enable_l3_vni_no_vlan'] | default(omit) }}
-      adv_host_routes: {{ child_fabric['adv_host_routes'] | default(omit)  }}
-      adv_default_routes: {{ child_fabric['adv_default_routes'] | default(omit)  }}
-      static_default_route: {{ child_fabric['static_default_route'] | default(omit)  }}
+      adv_host_routes: {{ child_fabric['adv_host_routes'] | default(omit) }}
+      adv_default_routes: {{ child_fabric['adv_default_routes'] | default(omit) }}
+      static_default_route: {{ child_fabric['static_default_route'] | default(omit) }}
       bgp_password: {{ child_fabric['bgp_password'] | default(omit) }}
       bgp_passwd_encrypt: {{ child_fabric['bgp_password_encryption_type'] | default(omit) }}
       import_mvpn_rt: {{ child_fabric['import_mvpn_rt'] | default(omit) }}
@@ -80,4 +80,3 @@
 {% endif %}
   deploy: false
 {% endfor %}
-
