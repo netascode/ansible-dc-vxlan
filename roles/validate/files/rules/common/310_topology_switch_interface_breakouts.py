@@ -6,8 +6,8 @@ class Rule:
     description = "Verify if interfaces with sub-levels are part of the defined interface breakouts"
     severity = "HIGH"
 
-    # FEX regex pattern: Ethernet[101-199]/1/[1-99]
-    FEX_PATTERN = re.compile(r'^e(?:th(?:ernet)?)?1(0[1-9]|[1-9][0-9])/1/([1-9]|[1-9][0-9])$', re.IGNORECASE)
+    # regex pattern: Ethernet[101-199]/1/[1-99]
+    IGNORE_FEX = re.compile(r'^(?:Ethernet)(?:(?:10[1-9]|1[1-9]\d)\/1\/([1-9]|[1-5][0-9])$)', re.IGNORECASE)
 
     @classmethod
     def match(cls, data_model):
@@ -40,7 +40,7 @@ class Rule:
                 normalized_interface = interface_name.lower().replace("ethernet", "e").replace("eth", "e")
 
                 # Check if it's a FEX interface - skip validation
-                if cls.FEX_PATTERN.match(interface_name):
+                if cls.IGNORE_FEX.match(interface_name):
                     continue
 
                 # Skip interfaces without sub-levels (e.g., E1/x)
