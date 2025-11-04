@@ -180,7 +180,6 @@ class ActionModule(ActionBase):
             return results
 
         params['child_fabric_vrf_data'] = self._task.args.get("child_fabric_vrf_data", {})
-        import epdb ; epdb.set_trace()
 
         return results
         # for key in ['fabric_type', 'fabric_name', 'operation']:
