@@ -133,13 +133,19 @@ class ActionModule(ActionBase):
                         display.deprecated(msg=deprecated_msg, version='1.0.0', collection_name='cisco.nac_dc_vxlan')
 
                         if results['data']['vxlan']['global']['fabric_type'] in ('VXLAN_EVPN'):
+                            rules_list.append(f'{rules}common')
                             rules_list.append(f'{rules}ibgp_vxlan/')
+                            rules_list.append(f'{rules}common_vxlan')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCF'):
                             rules_list.append(f'{rules}multisite/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('ISN'):
                             rules_list.append(f'{rules}isn/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('External'):
+                            rules_list.append(f'{rules}common')
                             rules_list.append(f'{rules}external/')
+                        elif results['data']['vxlan']['global']['fabric_type'] in ('eBGP_VXLAN'):
+                            results['failed'] = True
+                            results['msg'] = f"Fabric type {results['data']['vxlan']['global']['fabric_type']} requires using vxlan.fabric.type."
                         else:
                             results['failed'] = True
                             results['msg'] = f"vxlan.fabric.type {results['data']['vxlan']['global']['fabric_type']} is not a supported fabric type."
