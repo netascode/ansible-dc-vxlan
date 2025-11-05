@@ -134,6 +134,10 @@ dmypy.json
 # Mac OSX
 *.DS_Store
 
+# Ansible
+.ansible/
+tests/output/
+
 # Ignore Roles Files Directories
 roles/prepare_model/files
 roles/dtc/common/files/*

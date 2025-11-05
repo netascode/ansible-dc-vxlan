@@ -58,17 +58,46 @@
     ansible_connect_timeout: 3000
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
-    - vars_common_local.changes_detected_inventory
+    - change_flags.changes_detected_inventory
+
+# --------------------------------------------------------------------
+# Manage Underlay IP Address Configuration in Nexus Dashboard
+# --------------------------------------------------------------------
+#
+# This section manages the underlay IP address configuration based on the diff_run setting.
+#
+# When the diff_run feature is active we only manage the difference between
+# the previous run and the current run, otherwise we manage all underlay IP address's
+# defined in the data model.
+
+- name: Initialize Underlay IP Config List to All Underlay IP Addresses
+  ansible.builtin.set_fact:
+    underlay_ip_config_list: "{{ vars_common_local.underlay_ip_address }}"
+  when:
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
+    - (change_flags.changes_detected_underlay_ip_address is defined and change_flags.changes_detected_underlay_ip_address)
+    - (vars_common_local.underlay_ip_address is defined and vars_common_local.underlay_ip_address | length > 0)
+
+- name: Override Underlay IP Config List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    underlay_ip_config_list: "{{ vars_common_local.underlay_ip_address_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
+    - (change_flags.changes_detected_underlay_ip_address is defined and change_flags.changes_detected_underlay_ip_address)
+    - (vars_common_local.underlay_ip_address_diff_result is defined and vars_common_local.underlay_ip_address_diff_result.updated | length > 0)
 
 - name: Allocate Underlay IP Address
   cisco.dcnm.dcnm_resource_manager:
     state: merged
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    config: "{{ vars_common_vxlan.underlay_ip_address }}"
+    config: "{{ underlay_ip_config_list }}"
   when:
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
     - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
-    - (vars_common_local.changes_detected_underlay_ip_address is defined and vars_common_local.changes_detected_underlay_ip_address)
+    - (change_flags.changes_detected_underlay_ip_address is defined and change_flags.changes_detected_underlay_ip_address)
 
 # With the addition of the Allocate Underlay IP Address change above we
 # cannot call cisco.dcnm.dcnm_inventory with save: true until after
@@ -86,31 +115,14 @@
     ansible_connect_timeout: 3000
   when:
     - MD_Extended.vxlan.topology.switches | length > 0
-    - vars_common_local.changes_detected_inventory or
-      (vars_common_local.changes_detected_underlay_ip_address is defined and vars_common_local.changes_detected_underlay_ip_address)
-
-- name: Create List of Switch Serial Numbers from Data Model
-  ansible.builtin.set_fact:
-    md_serial_numbers: "{{ MD_Extended.vxlan.topology.switches | map(attribute='serial_number') | list }}"
-  delegate_to: localhost
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation is defined
+    - MD_Extended.vxlan.underlay.general.manual_underlay_allocation
+    - change_flags.changes_detected_inventory or
+      (change_flags.changes_detected_underlay_ip_address is defined and change_flags.changes_detected_underlay_ip_address)
 
 - name: Build Switch Hostname Policy Payload from Data Model Update
   cisco.nac_dc_vxlan.dtc.update_switch_hostname_policy:
     model_data: "{{ MD_Extended }}"
-    switch_serial_numbers: "{{ md_serial_numbers }}"
     template_name: host_11_1
-  register: results
+  when: MD_Extended.vxlan.topology.switches | length > 0
 # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
-
-- name: Join List of Switch Hostname Policy IDs from Nexus Dashboard
-  ansible.builtin.set_fact:
-    policy_ids: "{{ results.policy_update.values() | map(attribute='policyId') | list | join('%2C') }}"
-  when: results.policy_update | length > 0
-  delegate_to: localhost
-
-- name: Update Switch Hostname Policy in Nexus Dashboard
-  cisco.dcnm.dcnm_rest:
-    method: PUT
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{{ policy_ids }}/bulk"
-    json_data: "{{ results.policy_update.values() | list | to_json }}"
-  when: results.policy_update | length > 0

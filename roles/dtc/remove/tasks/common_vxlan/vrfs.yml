@@ -64,7 +64,35 @@
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
     - not is_active_child_fabric
 
-- name: Remove Unmanaged Fabric VRFs in Nexus Dashboard
+# -----------------------------------------------------------------------------
+# Remove VRFs Using Diff Run Framework
+# -----------------------------------------------------------------------------
+#
+# The following conditions must be met for this task to execute:
+#  -  The number of VRFs to be removed/defaulted as compared to the
+#     previous run must be non-zero.
+#  -  The diff_run feature must be active
+#       Combination of the (diff_run flag and force_run_all_flag state)
+- name: Remove Unmanaged Fabric VRFs in Nexus Dashboard - Diff Run Feature Active
+  cisco.dcnm.dcnm_vrf:
+    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: deleted
+    config: "{{ vars_common_local.vrf_diff_result.removed }}"
+  vars:
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
+  when:
+    - switch_list.response.DATA | length > 0
+    - vars_common_local.vrf_diff_result.removed | length > 0
+    - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+    - run_map_read_result.diff_run is true|bool
+    - force_run_all is false|bool
+    - not is_active_child_fabric
+
+# -----------------------------------------------------------------------------
+# Remove VRFs Default Mode
+# -----------------------------------------------------------------------------
+- name: Remove Unmanaged Fabric VRFs in Nexus Dashboard - Diff Run Feature Disabled
   cisco.dcnm.dcnm_vrf:
     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     state: overridden
@@ -75,6 +103,7 @@
   when:
     - switch_list.response.DATA | length > 0
     - (vrf_delete_mode is defined) and (vrf_delete_mode is true|bool)
+    - run_map_read_result.diff_run is false|bool or force_run_all is true|bool
     - not is_active_child_fabric
 
 - name: Skip Remove Unmanaged Fabric VRFs Task If vrf_delete_mode is False

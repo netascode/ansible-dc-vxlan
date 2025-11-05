@@ -25,58 +25,43 @@
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   # Check with Matt on changes_detected_policy here
   # Was not there previously
-  when: >
-    (MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN') and
-    (vars_common_vxlan.changes_detected_fabric_links or
-    vars_common_vxlan.changes_detected_interfaces or
-    vars_common_vxlan.changes_detected_inventory or
-    vars_common_vxlan.changes_detected_networks or
-    vars_common_vxlan.changes_detected_policy or
-    vars_common_vxlan.changes_detected_vpc_peering or
-    vars_common_vxlan.changes_detected_vrfs or
-    vars_common_vxlan.changes_detected_edge_connections or
-    vars_common_vxlan.changes_detected_tor_pairing)
+  when:
+    - MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
+    - change_flags.changes_detected_any
 
 - name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
-  when: >
+  when:
     MD_Extended.vxlan.fabric.type == 'MSD'
   # Current implementation has to leverage the changes_detected flags
   # in the sub_main files to determine if the tasks should be run
 
 - name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
-  when: >
-    (MD_Extended.vxlan.fabric.type == 'ISN') and
-    (vars_common_isn.changes_detected_interfaces or
-    vars_common_isn.changes_detected_inventory or
-    vars_common_isn.changes_detected_policy or
-    vars_common_isn.changes_detected_edge_connections)
+  when:
+    - MD_Extended.vxlan.fabric.type == 'ISN'
+    - change_flags.changes_detected_any
 
 - name: Import External Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_external.yml
-  when: >
-    (MD_Extended.vxlan.fabric.type == 'External') and
-    (vars_common_external.changes_detected_interfaces or
-    vars_common_external.changes_detected_inventory or
-    vars_common_external.changes_detected_policy or
-    vars_common_external.changes_detected_edge_connections)
+  when:
+    - MD_Extended.vxlan.fabric.type == 'External'
+    - change_flags.changes_detected_any
 
 - name: Import eBGP Role Tasks
   ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
   # Check with Matt on changes_detected_policy here
   # Was not there previously
-  when: >
-    (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
-    (vars_common_ebgp_vxlan.changes_detected_fabric_links or
-    vars_common_ebgp_vxlan.changes_detected_vpc_peering or
-    vars_common_ebgp_vxlan.changes_detected_vrfs or
-    vars_common_ebgp_vxlan.changes_detected_interfaces or
-    vars_common_ebgp_vxlan.changes_detected_policy or
-    vars_common_ebgp_vxlan.changes_detected_inventory or
-    vars_common_ebgp_vxlan.changes_detected_networks or
-    vars_common_ebgp_vxlan.changes_detected_tor_pairing)
-  # Additional conditions to be added when needed:
+  when:
+    - MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
+    - change_flags.changes_detected_any
+
+- name: Deploy Remove Changes
+  ansible.builtin.include_role:
+    name: cisco.nac_dc_vxlan.dtc.deploy
+  when:
+    - stage_remove is false|bool
+    - not MD_Extended.vxlan.fabric.type == 'MSD'
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:

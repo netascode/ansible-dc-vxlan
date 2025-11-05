@@ -56,6 +56,16 @@
       - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
   register: result_links
 
+- name: Initialize Fabric Links Config List to All Links
+  ansible.builtin.set_fact:
+    fabric_links_config_list: "{{ fabric_links }}"
+
+- name: Override Fabric Links Config List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    fabric_links_config_list: "{{ fabric_links_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+
 - name: Create empty result List
   ansible.builtin.set_fact:
     required_links: []
@@ -63,7 +73,7 @@
 - name: Create a List of Links that Already Exist from Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.existing_links_check:
     existing_links: "{{ result_links.response }}"
-    fabric_links: "{{ fabric_links }}"
+    fabric_links: "{{ fabric_links_config_list }}"
     switch_data_model: "{{ MD_Extended.vxlan.topology.switches }}"
   register: required_links
   when: result_links.response is defined
@@ -76,5 +86,5 @@
     src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
     config: "{{ required_links['required_links'] }}"
     deploy: false
-    state: merged
+    state: replaced
   register: manage_fabric_links_result

@@ -56,6 +56,9 @@
   hosts: '{{ fabric_profile }}'
   gather_facts: false
 
+  vars:
+    fabric_profile: fabric_placeholder  # This will be overridden by the command line extra var
+
   roles:
     - test_create
 
