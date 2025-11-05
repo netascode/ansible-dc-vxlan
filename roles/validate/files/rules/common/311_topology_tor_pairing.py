@@ -1,16 +1,23 @@
 class Rule:
     id = "311"
-    description = "Validate ToR pairing configuration and verify no network attachments on ToRs being removed"
+    description = "Validate ToR pairing configuration (scenarios, VPC requirements, switch roles)"
     severity = "HIGH"
 
     @classmethod
     def match(cls, data_model):
         """
-        Comprehensive ToR pairing validation:
-        1. Validate ToR pairing entries before they are processed by prepare plugins
-        2. Verify that ToRs being removed do not have networks attached
+        Validate ToR pairing configuration before it's processed by prepare plugins.
         
-        This catches configuration errors early in the validation phase.
+        Checks:
+        1. Required fields (parent_leaf1, tor1) are present
+        2. Scenario detection (vpc-to-vpc, vpc-to-standalone, standalone-to-standalone)
+        3. VPC requirements (leafs/ToRs must be VPC paired per scenario)
+        4. Switch existence and role validation
+        5. Serial number presence
+        
+        Note: Network attachment validation for ToR removal cannot be done here
+        because validation runs before diff detection. That check happens in the
+        common phase after diff is computed.
         """
         results = []
         
@@ -120,101 +127,6 @@ class Rule:
                     f"standalone-to-standalone (1 leaf + 1 TOR). "
                     f"Unsupported: standalone leaf with VPC TORs"
                 )
-        
-        # Now check for network attachments on ToRs being removed
-        # Identify ToRs that are being removed (in tor_peers but NOT in switches inventory)
-        removed_tors = tor_switch_names - switch_names
-        
-        # If no ToRs are being removed, skip network attachment validation
-        if removed_tors:
-            network_attachment_errors = cls._validate_network_attachments(data_model, removed_tors)
-            results.extend(network_attachment_errors)
-        
-        return results
-    
-    @classmethod
-    def _validate_network_attachments(cls, data_model, removed_tors):
-        """
-        Check if any networks are attached to ToR switches that are being removed.
-        """
-        results = []
-        
-        # Check for network attachments to removed ToRs
-        # Check both overlay.networks and multisite.overlay.networks
-        networks_to_check = []
-        
-        # Standard overlay path
-        overlay_networks_keys = ['vxlan', 'overlay', 'networks']
-        dm_check = cls.data_model_key_check(data_model, overlay_networks_keys)
-        if 'networks' in dm_check['keys_data']:
-            networks_to_check.extend(data_model['vxlan']['overlay']['networks'])
-        
-        # Multisite overlay path
-        multisite_networks_keys = ['vxlan', 'multisite', 'overlay', 'networks']
-        dm_check = cls.data_model_key_check(data_model, multisite_networks_keys)
-        if 'networks' in dm_check['keys_data']:
-            networks_to_check.extend(data_model['vxlan']['multisite']['overlay']['networks'])
-        
-        # Check network attach groups
-        network_attach_groups = []
-        
-        # Standard overlay attach groups
-        overlay_groups_keys = ['vxlan', 'overlay', 'network_attach_groups']
-        dm_check = cls.data_model_key_check(data_model, overlay_groups_keys)
-        if 'network_attach_groups' in dm_check['keys_data']:
-            network_attach_groups.extend(data_model['vxlan']['overlay']['network_attach_groups'])
-        
-        # Multisite overlay attach groups
-        multisite_groups_keys = ['vxlan', 'multisite', 'overlay', 'network_attach_groups']
-        dm_check = cls.data_model_key_check(data_model, multisite_groups_keys)
-        if 'network_attach_groups' in dm_check['keys_data']:
-            network_attach_groups.extend(data_model['vxlan']['multisite']['overlay']['network_attach_groups'])
-        
-        # Build a map of network_attach_group name to the networks using it
-        group_to_networks = {}
-        for network in networks_to_check:
-            if 'network_attach_group' in network:
-                group_name = network['network_attach_group']
-                if group_name not in group_to_networks:
-                    group_to_networks[group_name] = []
-                group_to_networks[group_name].append(network['name'])
-        
-        # Check each attach group for ToR attachments
-        for group in network_attach_groups:
-            group_name = group.get('name')
-            if not group_name:
-                continue
-            
-            # Get switches in this group
-            group_switches = group.get('switches', [])
-            
-            for switch_entry in group_switches:
-                hostname = switch_entry.get('hostname')
-                
-                # Check if this hostname is a ToR being removed
-                if hostname in removed_tors:
-                    # Get the networks using this attach group
-                    affected_networks = group_to_networks.get(group_name, [])
-                    for network_name in affected_networks:
-                        results.append(
-                            f"Network '{network_name}' is attached to ToR switch '{hostname}' "
-                            f"which is being removed. Remove network attachment from "
-                            f"vxlan.overlay.network_attach_groups.{group_name} before removing the ToR pairing."
-                        )
-                
-                # Also check tors within the switch entry
-                tors = switch_entry.get('tors', [])
-                for tor_entry in tors:
-                    tor_hostname = tor_entry.get('hostname')
-                    if tor_hostname in removed_tors:
-                        affected_networks = group_to_networks.get(group_name, [])
-                        for network_name in affected_networks:
-                            results.append(
-                                f"Network '{network_name}' has ports attached to ToR switch '{tor_hostname}' "
-                                f"which is being removed. Remove network attachment from "
-                                f"vxlan.overlay.network_attach_groups.{group_name}.switches.{hostname}.tors "
-                                f"before removing the ToR pairing."
-                            )
         
         return results
     

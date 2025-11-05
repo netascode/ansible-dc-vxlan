@@ -256,3 +256,5 @@
       vpc_peering_diff_result: "{{ vpc_peering_diff_result }}"
       vpc_domain_id_resource_diff_result: "{{ vpc_domain_id_resource_diff_result }}"
       vrf_diff_result: "{{ vrf_diff_result }}"
+      # Change detection flags
+      changes_detected_tor_pairing: "{{ changes_detected_tor_pairing | default(false) }}"
