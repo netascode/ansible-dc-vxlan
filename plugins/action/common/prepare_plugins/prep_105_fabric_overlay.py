@@ -75,6 +75,17 @@ class PreparePlugin:
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
                         elif found_switch.get('management').get('management_ipv6_address'):
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
+                    
+                    # Process nested TOR entries and resolve their management IPs
+                    if 'tors' in switch and switch['tors']:
+                        for tor in switch['tors']:
+                            tor_hostname = tor.get('hostname')
+                            if tor_hostname and any(sw['name'] == tor_hostname for sw in switches):
+                                found_tor = next((item for item in switches if item["name"] == tor_hostname))
+                                if found_tor.get('management').get('management_ipv4_address'):
+                                    tor['mgmt_ip_address'] = found_tor['management']['management_ipv4_address']
+                                elif found_tor.get('management').get('management_ipv6_address'):
+                                    tor['mgmt_ip_address'] = found_tor['management']['management_ipv6_address']
 
             # Remove network_attach_group from net if the group_name is not defined
             for net in model_data['vxlan']['overlay']['networks']:
@@ -131,6 +142,18 @@ class PreparePlugin:
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
                         elif found_switch.get('management').get('management_ipv6_address'):
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
+                    
+                    # Process nested TOR entries and resolve their management IPs
+                    if 'tors' in switch and switch['tors']:
+                        for tor in switch['tors']:
+                            tor_hostname = tor.get('hostname')
+                            if tor_hostname and any(sw['name'] == tor_hostname for sw in switches):
+                                found_tor = next((item for item in switches if item["name"] == tor_hostname))
+                                if found_tor.get('management').get('management_ipv4_address'):
+                                    tor['mgmt_ip_address'] = found_tor['management']['management_ipv4_address']
+                                elif found_tor.get('management').get('management_ipv6_address'):
+                                    tor['mgmt_ip_address'] = found_tor['management']['management_ipv6_address']
+                    
                     # Append switch to a flat list of switches for cross comparison later when we query the
                     # MSD fabric information.  We need to stop execution if the list returned by the MSD query
                     # does not include one of these switches.

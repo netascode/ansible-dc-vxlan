@@ -82,6 +82,12 @@
   when:
     - change_flags.changes_detected_vpc_peering
 
+- name: Remove iBGP VXLAN Fabric ToR Pairing from Nexus Dashboard
+  ansible.builtin.import_tasks: common/tor_pairing.yml
+  tags: "{{ nac_tags.remove_tor_pairing }}"
+  when:
+    - vars_common_vxlan.changes_detected_tor_pairing
+
 - name: Remove iBGP VXLAN Fabric Switches from Nexus Dashboard
   ansible.builtin.import_tasks: common/switches.yml
   tags: "{{ nac_tags.remove_switches }}"

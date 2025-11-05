@@ -1,0 +1,48 @@
+---
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Set vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+
+- name: Set vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_msd }}"
+  when: MD_Extended.vxlan.fabric.type == "MSD"
+
+- name: Set vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_isn }}"
+  when: MD_Extended.vxlan.fabric.type == "ISN"
+
+- name: Set vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_external }}"
+  when: MD_Extended.vxlan.fabric.type == "External"
+
+- name: Manage ToR Pairing Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage Fabric ToR Pairing {{ MD_Extended.vxlan.fabric.name }}"
+      - "----------------------------------------------------------------"
+  when:
+    - vars_common_local.changes_detected_tor_pairing | default(false)
+
+- name: Pair ToR switches in Nexus Dashboard
+  cisco.dcnm.dcnm_rest:
+    method: POST
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{{ MD_Extended.vxlan.fabric.name }}/switches/pair/custom-id"
+    json_data: "{{ item.payload | to_json }}"
+  loop: "{{ vars_common_local.tor_pairing }}"
+  loop_control:
+    label: "{{ item.pairing_id }}"
+  when:
+    - vars_common_local.changes_detected_tor_pairing | default(false)
+    - item.payload.leafSN1
+    - item.payload.torSN1
+

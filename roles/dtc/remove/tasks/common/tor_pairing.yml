@@ -1,0 +1,75 @@
+---
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Set vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+
+- name: Set vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_msd }}"
+  when: MD_Extended.vxlan.fabric.type == "MSD"
+
+- name: Set vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_isn }}"
+  when: MD_Extended.vxlan.fabric.type == "ISN"
+
+- name: Set vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_external }}"
+  when: MD_Extended.vxlan.fabric.type == "External"
+
+- name: Manage ToR Pairing Removal Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Remove Fabric ToR Pairing {{ MD_Extended.vxlan.fabric.name }}"
+      - "----------------------------------------------------------------"
+  when: (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+
+- name: Remove ToR pairings from Nexus Dashboard
+  cisco.dcnm.dcnm_rest:
+    method: DELETE
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{{ MD_Extended.vxlan.fabric.name }}/switches/pair?leaftor={{ leaftor_query }}"
+  loop: "{{ vars_common_local.tor_pairing_removed | default([], true) }}"
+  loop_control:
+    label: "{{ item.pairing_id }}"
+  when:
+    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+    - changes_detected_tor_pairing | default(false)
+    - item.payload.leafSN1 | default('')
+    - item.payload.torSN1 | default('')
+  vars:
+    ansible_command_timeout: 300
+    ansible_connect_timeout: 300
+    # Build leaftor map: {leafSN1: torSN1,torSN2, leafSN2: torSN1,torSN2}
+    tor_list: "{{ [item.payload.torSN1, item.payload.torSN2 | default('')] | reject('equalto', '') | list }}"
+    tor_string: "{{ tor_list | join(',') }}"
+    leaf_list: "{{ [item.payload.leafSN1, item.payload.leafSN2 | default('')] | reject('equalto', '') | list }}"
+    leaftor_map: "{{ dict(leaf_list | map('regex_replace', '^(.*)$', '\\1') | zip([tor_string] * (leaf_list | length))) }}"
+    leaftor_query: "{{ leaftor_map | to_json | urlencode }}"
+  register: tor_pairing_removal_result
+  failed_when:
+    - tor_pairing_removal_result is failed
+    - "'not found' not in (tor_pairing_removal_result.msg | default('') | lower)"
+    - "'does not exist' not in (tor_pairing_removal_result.msg | default('') | lower)"
+
+- name: Report ToR pairing removal results
+  ansible.builtin.debug:
+    msg: "Removed {{ vars_common_local.tor_pairing_removed | default([]) | length }} ToR pairing(s)"
+  when:
+    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+    - changes_detected_tor_pairing | default(false)
+
+- name: Skip ToR pairing removal when tor_pairing_delete_mode is False
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING ToR pairing removal because tor_pairing_delete_mode flag is set to False                 +"
+      - "----------------------------------------------------------------------------------------------------"
+  when: not ((tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool))
