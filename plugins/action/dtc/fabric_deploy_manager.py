@@ -234,9 +234,7 @@ class ActionModule(ActionBase):
         #         results['fabric_history'] = fabric_manager.fabric_history
         #         results['failed'] = True
 
-
     def manage_fabrics(self, results, params):
-
         for key in ['fabric_type', 'fabric_name', 'operation']:
             if params[key] is None:
                 results['failed'] = True
