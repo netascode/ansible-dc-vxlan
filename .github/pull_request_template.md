@@ -35,8 +35,8 @@
 <!--- Please provide notes or description of testing -->
 
 
-## Cisco NDFC Version
-<!-- Please provide Cisco NDFC version developed against -->
+## Cisco Nexus Dashboard Version
+<!-- Please provide Cisco Nexus Dashboard version developed against -->
 
 
 ## Checklist
