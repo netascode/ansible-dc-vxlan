@@ -96,9 +96,7 @@ class Rule:
         check = cls.data_model_key_check(data_model["vxlan"], rm_keys)
         if 'route_maps' in check['keys_data']:
             route_maps = data_model["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]
-            cls.check_route_maps(
-                route_maps
-            )
+            cls.check_route_maps(route_maps)
 
         return cls.results
 

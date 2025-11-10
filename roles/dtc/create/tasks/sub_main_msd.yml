@@ -49,7 +49,7 @@
 
 - name: Prepare Multisite Data
   cisco.nac_dc_vxlan.dtc.prepare_msite_data:
-    model_data: "{{ data_model_extended }}"
+    data_model: "{{ data_model_extended }}"
     parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
   register: data_model_multisite
   tags: "{{ nac_tags.create_vrfs_networks }}"

@@ -34,6 +34,14 @@
       mtu: "{{ link.mtu | default(defaults.vxlan.topology.fabric_links.mtu) }}"
       peer1_description: "{{ link.source_description | default('') }}"
       peer2_description: "{{ link.destination_description | default('') }}"
+{% if link.peer1_freeform is defined %}
+      peer1_cmds: |2
+        {{ link.peer1_freeform | indent(8) }}
+{% endif %}
+{% if link.peer2_freeform is defined %}
+      peer2_cmds: |2
+        {{ link.peer2_freeform | indent(8) }}
+{% endif %}
 {%- endif %}
 {%- endfor %}
 {%- endif %}

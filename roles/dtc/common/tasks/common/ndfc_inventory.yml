@@ -23,7 +23,7 @@
 
 - name: Get POAP Data From POAP Enabled Devices
   cisco.nac_dc_vxlan.dtc.get_poap_data:
-    model_data: "{{ data_model_extended }}"
+    data_model: "{{ data_model_extended }}"
   register: poap_data
 
 - name: Set file_name Var
@@ -77,7 +77,7 @@
 - name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
   cisco.nac_dc_vxlan.common.get_credentials:
     inv_list: "{{ inv_config }}"
-    model_data: "{{ data_model_extended }}"
+    data_model: "{{ data_model_extended }}"
   register: updated_inv_config
   no_log: true
 

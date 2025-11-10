@@ -62,7 +62,7 @@
     - name: Build Unmanaged Fabric Policy Payload
       cisco.nac_dc_vxlan.dtc.unmanaged_policy:
         switch_serial_numbers: "{{ switch_serial_numbers }}"
-        model_data: "{{ data_model_extended }}"
+        data_model: "{{ data_model_extended }}"
       register: unmanaged_policy_config
       # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
 

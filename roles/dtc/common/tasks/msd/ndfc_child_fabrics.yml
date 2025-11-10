@@ -45,7 +45,7 @@
 
 - name: Prepare Multisite Add and Remove Child Fabric Data
   cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data:
-    model_data: "{{ data_model_extended }}"
+    data_model: "{{ data_model_extended }}"
     parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
   when:

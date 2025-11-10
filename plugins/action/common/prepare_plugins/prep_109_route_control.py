@@ -38,7 +38,7 @@ class PreparePlugin:
         function to prepare data for route_control
         """
         templates_path = self.kwargs['templates_path']
-        model_data = self.kwargs['results']['model_extended']
+        data_model = self.kwargs['results']['model_extended']
         default_values = self.kwargs['default_values']
 
         template_filename = "ndfc_route_control.j2"
@@ -55,42 +55,42 @@ class PreparePlugin:
         template = env.get_template(template_filename)
 
         parent_keys = ['vxlan', 'overlay_extensions', 'route_control', 'route_maps']
-        dm_check = data_model_key_check(model_data, parent_keys)
+        dm_check = data_model_key_check(data_model, parent_keys)
 
         # Check Route-Maps
         if 'route_maps' in dm_check['keys_data']:
-            self.update_route_maps(model_data)
+            self.update_route_maps(data_model)
 
         # Check IPv4 ACL
         parent_keys = ['vxlan', 'overlay_extensions', 'route_control', 'ipv4_access_lists']
-        dm_check = data_model_key_check(model_data, parent_keys)
+        dm_check = data_model_key_check(data_model, parent_keys)
         if 'ipv4_access_lists' in dm_check['keys_data']:
-            for acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv4_access_lists"]:
+            for acl in data_model["vxlan"]["overlay_extensions"]["route_control"]["ipv4_access_lists"]:
                 self.update_ip_access_lists(acl, 'ipv4')
 
         # Check IPv6 ACL
         parent_keys = ['vxlan', 'overlay_extensions', 'route_control', 'ipv6_access_lists']
-        dm_check = data_model_key_check(model_data, parent_keys)
+        dm_check = data_model_key_check(data_model, parent_keys)
         if 'ipv6_access_lists' in dm_check['keys_data']:
-            for acl in model_data["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"]:
+            for acl in data_model["vxlan"]["overlay_extensions"]["route_control"]["ipv6_access_lists"]:
                 self.update_ip_access_lists(acl, 'ipv6')
 
         parent_keys = ['vxlan', 'overlay_extensions', 'route_control']
-        dm_check = data_model_key_check(model_data, parent_keys)
+        dm_check = data_model_key_check(data_model, parent_keys)
         if 'route_control' in dm_check['keys_data']:
-            for route_control in model_data["vxlan"]["overlay_extensions"]["route_control"]:
+            for route_control in data_model["vxlan"]["overlay_extensions"]["route_control"]:
                 if "switches" == route_control:
-                    for switch in model_data["vxlan"]["overlay_extensions"]["route_control"]["switches"]:
+                    for switch in data_model["vxlan"]["overlay_extensions"]["route_control"]["switches"]:
                         for sw_group in switch['groups']:
                             unique_name = f"route_control_{sw_group}"
                             group_policies = []
-                            for group_name in model_data["vxlan"]["overlay_extensions"]["route_control"]["groups"]:
+                            for group_name in data_model["vxlan"]["overlay_extensions"]["route_control"]["groups"]:
                                 if sw_group == group_name["name"]:
                                     group_policies.append(group_name)
 
                             output = template.render(
-                                data_model_extended=model_data,
-                                item=model_data["vxlan"]["overlay_extensions"]["route_control"],
+                                data_model_extended=data_model,
+                                item=data_model["vxlan"]["overlay_extensions"]["route_control"],
                                 switch=switch['name'],
                                 group_item=group_policies,
                                 defaults=default_values)
@@ -103,26 +103,26 @@ class PreparePlugin:
                                 }
                             }
 
-                            if not any(policy['name'] == unique_name for policy in model_data["vxlan"]["policy"]["policies"]):
-                                model_data["vxlan"]["policy"]["policies"].append(new_policy)
+                            if not any(policy['name'] == unique_name for policy in data_model["vxlan"]["policy"]["policies"]):
+                                data_model["vxlan"]["policy"]["policies"].append(new_policy)
 
-                            if any(sw['name'] == switch['name'] for sw in model_data["vxlan"]["policy"]["switches"]):
+                            if any(sw['name'] == switch['name'] for sw in data_model["vxlan"]["policy"]["switches"]):
                                 found_switch = next(([idx, i] for idx, i in enumerate(
-                                    model_data["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
+                                    data_model["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
                                 if "groups" in found_switch[1].keys():
-                                    model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(
+                                    data_model["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(
                                         unique_name)
                                 else:
-                                    model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [
+                                    data_model["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [
                                         unique_name]
                             else:
                                 new_switch = {
                                     "name": switch["name"],
                                     "groups": [unique_name]
                                 }
-                                model_data["vxlan"]["policy"]["switches"].append(new_switch)
+                                data_model["vxlan"]["policy"]["switches"].append(new_switch)
 
-                            if not any(group['name'] == unique_name for group in model_data["vxlan"]["policy"]["groups"]):
+                            if not any(group['name'] == unique_name for group in data_model["vxlan"]["policy"]["groups"]):
                                 new_group = {
                                     "name": unique_name,
                                     "policies": [
@@ -130,15 +130,15 @@ class PreparePlugin:
                                     ],
                                     "priority": 500
                                 }
-                                model_data["vxlan"]["policy"]["groups"].append(new_group)
+                                data_model["vxlan"]["policy"]["groups"].append(new_group)
 
-            model_data = hostname_to_ip_mapping(model_data)
-        self.kwargs['results']['model_extended'] = model_data
+            data_model = hostname_to_ip_mapping(data_model)
+        self.kwargs['results']['model_extended'] = data_model
         return self.kwargs['results']
 
-    def update_route_maps(self, model_data):
+    def update_route_maps(self, data_model):
         """function to rewrite parameters in route_maps"""
-        for route_map in model_data["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]:
+        for route_map in data_model["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]:
             if "entries" in route_map:
                 for entry in route_map["entries"]:
                     if "match" in entry:

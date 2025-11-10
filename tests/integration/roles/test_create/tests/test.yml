@@ -37,4 +37,4 @@
 - name: Run inventory tests
   cisco.nac_dc_vxlan.test.inventory:
     test_data: "{{ fabric_query }}"
-    model_data: "{{ data_model_extended }}"
+    data_model: "{{ data_model_extended }}"

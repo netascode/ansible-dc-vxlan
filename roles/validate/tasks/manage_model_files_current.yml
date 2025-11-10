@@ -56,7 +56,7 @@
 
 - name: Mark All Stages Completed When No Model Changes Detected
   cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ data_model_extended }}"
+    data_model: "{{ data_model_extended }}"
     stage: role_all_completed
   when:
     - check_roles['save_previous']
@@ -68,7 +68,7 @@
 
 - name: Mark All Stages Completed When Only The Validate Role Is Run
   cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ data_model_extended }}"
+    data_model: "{{ data_model_extended }}"
     stage: role_all_completed
   when: run_map_read_result.validate_only_run is true|bool
   delegate_to: localhost

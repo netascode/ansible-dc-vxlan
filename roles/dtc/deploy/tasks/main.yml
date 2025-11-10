@@ -59,7 +59,7 @@
 
 - name: Mark Stage Role Deploy Completed
   cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ data_model_extended }}"
+    data_model: "{{ data_model_extended }}"
     stage: role_deploy_completed
   register: run_map
   tags: "{{ nac_tags.deploy }}"

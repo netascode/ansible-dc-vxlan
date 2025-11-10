@@ -67,7 +67,7 @@
     schema: "{{ schema_path }}"
     mdata: "{{ data_path }}"
     rules: "{{ rules_path }}"
-  register: model_data
+  register: data_model
   vars:
     data_path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
     rules_path: "{{ role_path }}/files/rules/"
@@ -98,7 +98,7 @@
 - name: Merge factory and custom defaults
   cisco.nac_dc_vxlan.common.merge_defaults:
     factory_defaults: "{{ factory_defaults }}"
-    model_data: "{{ model_data['data'] }}"
+    data_model: "{{ data_model['data'] }}"
   register: defaults
   delegate_to: localhost
 
@@ -111,7 +111,7 @@
   cisco.nac_dc_vxlan.common.prepare_service_model:
     inventory_hostname: "{{ inventory_hostname }}"
     hostvars: "{{ hostvars }}"
-    model_data: "{{ model_data['data'] }}"
+    data_model: "{{ data_model['data'] }}"
     default_values: "{{ defaults }}"
     templates_path: "{{ role_path }}/../dtc/common/templates/"
   register: smd
@@ -135,14 +135,14 @@
 
 - name: Read Run Map From Previous Run
   cisco.nac_dc_vxlan.common.read_run_map:
-    model_data: "{{ data_model_extended }}"
+    data_model: "{{ data_model_extended }}"
     play_tags: "{{ ansible_run_tags }}"
   register: run_map_read_result
   delegate_to: localhost
 
 - name: Initialize Run Map
   cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ data_model_extended }}"
+    data_model: "{{ data_model_extended }}"
     stage: starting_execution
   register: run_map
   delegate_to: localhost
