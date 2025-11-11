@@ -34,29 +34,11 @@
   arp_suppress: {{ net['arp_suppress'] | default(defaults.vxlan.overlay.networks.arp_supress) }}
   dhcp_loopback_id: {{ net['dhcp_loopback_id'] | default(omit) }}
 {% if net.dhcp_servers is defined %}
-{% if net.dhcp_servers | length == 1 %}
-  dhcp_srvr1_ip: {{ net['dhcp_servers'][0]['ip_address'] }}
-  dhcp_srvr1_vrf: {{ net['dhcp_servers'][0]['vrf'] }}
-{% elif net.dhcp_servers | length == 2 %}
-  dhcp_srvr1_ip: {{ net['dhcp_servers'][0]['ip_address'] }}
-  dhcp_srvr1_vrf: {{ net['dhcp_servers'][0]['vrf'] }}
-  dhcp_srvr2_ip: {{ net['dhcp_servers'][1]['ip_address'] }}
-  dhcp_srvr2_vrf: {{ net['dhcp_servers'][1]['vrf'] }}
-{% elif net.dhcp_servers | length >= 3 %}
-  dhcp_srvr1_ip: {{ net['dhcp_servers'][0]['ip_address'] }}
-  dhcp_srvr1_vrf: {{ net['dhcp_servers'][0]['vrf'] }}
-  dhcp_srvr2_ip: {{ net['dhcp_servers'][1]['ip_address'] }}
-  dhcp_srvr2_vrf: {{ net['dhcp_servers'][1]['vrf'] }}
-  dhcp_srvr3_ip: {{ net['dhcp_servers'][2]['ip_address'] }}
-  dhcp_srvr3_vrf: {{ net['dhcp_servers'][2]['vrf'] }}
-{% endif %}
-{% if net.dhcp_servers | length > 0 %}
+{% if net.dhcp_servers | length > 0 and net.dhcp_servers | length <= 16 %}
   dhcp_servers:
 {% for dhcp_server in net.dhcp_servers[:16] %}
     - srvr_ip: {{ dhcp_server['ip_address'] }}
-{% if dhcp_server['vrf'] is defined %}
       srvr_vrf: {{ dhcp_server['vrf'] }}
-{% endif %}
 {% endfor %}
 {% endif %}
 {% endif %}

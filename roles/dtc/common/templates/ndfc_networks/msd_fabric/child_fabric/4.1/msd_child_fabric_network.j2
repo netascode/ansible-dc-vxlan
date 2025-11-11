@@ -5,7 +5,7 @@
   {%- for srvr in dm['dhcp_servers'] -%}
     {%- if srvr['ip_address'] is defined and srvr['ip_address'] -%}
       {%- set _ = _dhcp_pairs.append({
-        "srvrAddr": srvr['ip_address'], "srvrVrf":  srvr['vrf']
+        "srvrAddr": srvr['ip_address'], "srvrVrf": srvr['vrf']
       }) -%}
     {%- endif -%}
   {%- endfor -%}
@@ -37,12 +37,6 @@
       "secondaryGW3": ndfc.secondaryGW3,
       "secondaryGW4": ndfc.secondaryGW4,
       "loopbackId": dm.dhcp_loopback_id | default(ndfc.loopbackId),
-      "dhcpServerAddr1": dm['dhcp_servers'][0]['ip_address'] if dm['dhcp_servers'][0]['ip_address'] is defined else "",
-      "vrfDhcp": dm['dhcp_servers'][0]['vrf'] if dm['dhcp_servers'][0]['ip_address'] is defined else ndfc.vrfDhcp,
-      "dhcpServerAddr2": dm['dhcp_servers'][1]['ip_address'] if dm['dhcp_servers'][1]['ip_address'] is defined else ndfc.dhcpServerAddr2,
-      "vrfDhcp2": dm['dhcp_servers'][1]['vrf'] if dm['dhcp_servers'][1]['ip_address'] is defined else "",
-      "dhcpServerAddr3": dm['dhcp_servers'][2]['ip_address'] if dm['dhcp_servers'][2]['ip_address'] is defined else ndfc.dhcpServerAddr3,
-      "vrfDhcp3": dm['dhcp_servers'][2]['vrf'] if dm['dhcp_servers'][2]['vrf'] is defined else "",
       "dhcpServers": dhcpServers,
       "ENABLE_NETFLOW": dm.netflow_enable if dm.netflow_enable is defined else ndfc.ENABLE_NETFLOW,
       "SVI_NETFLOW_MONITOR": ndfc.SVI_NETFLOW_MONITOR,
