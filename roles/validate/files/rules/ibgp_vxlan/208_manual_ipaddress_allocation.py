@@ -149,11 +149,12 @@ class Rule:
         for peer in vpc_peers:
             peer1 = f"{peer.get('peer1')}-{peer.get('peer2')}"
             peer2 = f"{peer.get('peer2')}-{peer.get('peer1')}"
-            if not (peer1 in fabric_links_list or peer2 in fabric_links_list):
-                cls.results.append(
-                    f"Fabric link between '{peer1}' and '{peer2}' is missing."
-                )
-
+            fabric_peering = peer.get("fabric_peering", False)
+            if fabric_peering is False:
+                if not (peer1 in fabric_links_list or peer2 in fabric_links_list):
+                    cls.results.append(
+                        f"Fabric link between '{peer1}' and '{peer2}' is missing."
+                    )
     @classmethod
     def check_interface_with_ipv4(cls, interfaces, loopback_name):
         """
