@@ -72,7 +72,6 @@ class ActionModule(ActionBase):
 
         nd_version = self._task.args["nd_version"]
         msite_data = self._task.args["msite_data"]
-        fabric_type = self._task.args["fabric_type"]
 
         # Extract major, minor, patch and patch letter from nd_version
         # that is set in nac_dc_vxlan.dtc.connectivity_check role
@@ -100,7 +99,6 @@ class ActionModule(ActionBase):
                 child_fabric_type = child_fabrics[child_fabric]['type']
                 if child_fabric_type in ['Switch_Fabric']:
                     child_fabric_attributes = child_fabrics[child_fabric]['attributes']
-                    child_fabric_cluster = child_fabrics[child_fabric].get('cluster')
 
                     vrf_child_fabric = []
                     if vrf_child_fabrics:
@@ -152,17 +150,12 @@ class ActionModule(ActionBase):
                     #         results['failed'] = True
                     #         results['msg'] = error_msg
                     #         return results
-                    if fabric_type == 'MCFG':
-                        get_path = (f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/"
-                                    f"rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}")
-                    else:
-                        get_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}"
 
                     ndfc_vrf = self._execute_module(
                         module_name="cisco.dcnm.dcnm_rest",
                         module_args={
                             "method": "GET",
-                            "path": get_path,
+                            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}"
                         },
                         task_vars=task_vars,
                         tmp=tmp
@@ -225,17 +218,11 @@ class ActionModule(ActionBase):
                         rendered_content = templar.template(template_content)
                         rendered_to_nice_json = templar.environment.filters['to_nice_json'](rendered_content)
 
-                        if fabric_type == 'MCFG':
-                            put_path = (f"/onepath/{child_fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/"
-                                        f"rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}")
-                        else:
-                            put_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}"
-
                         ndfc_vrf_update = self._execute_module(
                             module_name="cisco.dcnm.dcnm_rest",
                             module_args={
                                 "method": "PUT",
-                                "path": put_path,
+                                "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/vrfs/{vrf['name']}",
                                 "data": rendered_to_nice_json
                             },
                             task_vars=task_vars,

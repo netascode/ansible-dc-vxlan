@@ -141,7 +141,6 @@
   cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
     nd_version: "{{ nd_version }}"
     msite_data: "{{ MD_Multisite }}"
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
   register: child_fabric_vrf_results
 
 # --------------------------------------------------------------------
@@ -177,7 +176,6 @@
   cisco.nac_dc_vxlan.dtc.manage_child_fabric_networks:
     nd_version: "{{ nd_version }}"
     msite_data: "{{ MD_Multisite }}"
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
   register: child_fabric_network_results
 
 - name: Update Child Fabrics VRFs and Networks Changed State

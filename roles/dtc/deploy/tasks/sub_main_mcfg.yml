@@ -28,7 +28,7 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
-- name: Manage Fabric Deployment for MSD Fabric in Nexus Dashboard
+- name: Manage Fabric Deployment for MCFG Fabric in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
     fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"

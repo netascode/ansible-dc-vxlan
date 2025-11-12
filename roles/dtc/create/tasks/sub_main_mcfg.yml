@@ -41,5 +41,3 @@
     - MD_Extended.vxlan.fabric.type == "MCFG"
     - change_flags.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
-
-- ansible.builtin.meta: end_play
