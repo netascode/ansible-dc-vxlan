@@ -155,6 +155,7 @@ class Rule:
                     cls.results.append(
                         f"Fabric link between '{peer1}' and '{peer2}' is missing."
                     )
+
     @classmethod
     def check_interface_with_ipv4(cls, interfaces, loopback_name):
         """
