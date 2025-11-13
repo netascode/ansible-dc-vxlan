@@ -137,13 +137,13 @@ class ActionModule(ActionBase):
         self.task_vars = task_vars
         self.tmp = tmp
 
-        model_data = self._task.args["model_data"]
+        data_model = self._task.args["data_model"]
         template_name = self._task.args["template_name"]
 
         dm_switches = []
         switch_serial_numbers = []
-        if model_data["vxlan"]["fabric"]["type"] in ('VXLAN_EVPN', 'eBGP_VXLAN', 'ISN', 'External'):
-            dm_switches = model_data["vxlan"]["topology"]["switches"]
+        if data_model["vxlan"]["fabric"]["type"] in ('VXLAN_EVPN', 'eBGP_VXLAN', 'ISN', 'External'):
+            dm_switches = data_model["vxlan"]["topology"]["switches"]
             switch_serial_numbers = [dm_switch['serial_number'] for dm_switch in dm_switches]
 
         for switch_serial_number in switch_serial_numbers:
