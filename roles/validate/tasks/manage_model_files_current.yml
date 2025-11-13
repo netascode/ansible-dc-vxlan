@@ -74,7 +74,7 @@
   delegate_to: localhost
 
 - name: No Model Changes Detected
-  ansible.builtin.meta: end_play
+  ansible.builtin.meta: end_host
   when:
     - check_roles['save_previous']
     - smd_golden_diff.diff_lines | length == 0
