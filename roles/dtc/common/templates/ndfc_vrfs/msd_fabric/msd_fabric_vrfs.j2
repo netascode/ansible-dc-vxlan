@@ -1,6 +1,6 @@
 {# Auto-generated NDFC MSD VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
-{% if MD_Extended.vxlan.multisite.overlay.vrfs is defined and MD_Extended.vxlan.multisite.overlay.vrfs %}
-{% set vrfs = MD_Extended.vxlan.multisite.overlay.vrfs %}
+{% if data_model_extended.vxlan.multisite.overlay.vrfs is defined and data_model_extended.vxlan.multisite.overlay.vrfs %}
+{% set vrfs = data_model_extended.vxlan.multisite.overlay.vrfs %}
 {# This else block may not be needed after the prepare plugin work #}
 {% else %}
 {% set vrfs = [] %}
@@ -34,8 +34,8 @@
 {# ------------------------------------------------------ #}
 {% if vrf['vrf_attach_group'] is defined %}
   attach:
-{% if MD_Multisite.overlay_attach_groups.vrf_attach_groups_dict is defined and MD_Multisite.overlay_attach_groups.vrf_attach_groups_dict %}
-{% set vrf_attach_groups_dict = MD_Multisite.overlay_attach_groups.vrf_attach_groups_dict %}
+{% if data_model_multisite.overlay_attach_groups.vrf_attach_groups_dict is defined and data_model_multisite.overlay_attach_groups.vrf_attach_groups_dict %}
+{% set vrf_attach_groups_dict = data_model_multisite.overlay_attach_groups.vrf_attach_groups_dict %}
 {% endif %}
 {% for attach in vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}

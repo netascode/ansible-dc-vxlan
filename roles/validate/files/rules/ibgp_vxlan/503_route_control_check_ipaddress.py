@@ -5,11 +5,11 @@ import re
 
 class Rule:
     """
-    Class 503 - Verify IP address format for Route-Control
+    Class 503 - Verify IP address format for route control
     """
 
     id = "503"
-    description = "Verify IP address format for Route-Control"
+    description = "Verify IP address format for route control"
     severity = "HIGH"
     results = []
 

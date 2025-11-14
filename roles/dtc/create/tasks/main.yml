@@ -24,34 +24,34 @@
 - name: Import iBGP VXLAN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   when:
-    - MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
+    - data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN'
     - change_flags.changes_detected_any
 
 - name: Import eBGP VXLAN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
   when:
-    - MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
+    - data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
     - change_flags.changes_detected_any
 
 - name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
   when:
-    - MD_Extended.vxlan.fabric.type == 'ISN'
+    - data_model_extended.vxlan.fabric.type == 'ISN'
     - change_flags.changes_detected_any
 
 - name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
-  when: MD_Extended.vxlan.fabric.type == 'MSD'
+  when: data_model_extended.vxlan.fabric.type == 'MSD'
 
 - name: Import External Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_external.yml
   when:
-    - MD_Extended.vxlan.fabric.type == 'External'
+    - data_model_extended.vxlan.fabric.type == 'External'
     - change_flags.changes_detected_any
 
 - name: Mark Stage Role Create Completed
   cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ MD_Extended }}"
+    data_model: "{{ data_model_extended }}"
     stage: role_create_completed
   register: run_map
   delegate_to: localhost

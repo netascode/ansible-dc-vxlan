@@ -1,6 +1,6 @@
 class Rule:
     id = "403"
-    description = "Verify Network elements are enabled in fabric overlay services"
+    description = "Verify Network attributes are enabled in fabric overlay services"
     severity = "HIGH"
 
     @classmethod

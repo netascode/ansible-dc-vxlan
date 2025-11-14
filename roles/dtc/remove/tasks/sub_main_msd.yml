@@ -35,9 +35,9 @@
 
 - name: Prepare Multisite Data
   cisco.nac_dc_vxlan.dtc.prepare_msite_data:
-    model_data: "{{ MD_Extended }}"
-    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-  register: MD_Multisite
+    data_model: "{{ data_model_extended }}"
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+  register: data_model_multisite
   tags:
     - "{{ nac_tags.remove_networks }}"
     - "{{ nac_tags.remove_vrfs }}"
@@ -67,7 +67,7 @@
   block:
     - name: Set path_name Var
       ansible.builtin.set_fact:
-        path_name: "{{ role_path }}/../common/files/msd/{{ MD_Extended.vxlan.fabric.name }}/"
+        path_name: "{{ role_path }}/../common/files/msd/{{ data_model_extended.vxlan.fabric.name }}/"
       tags:
         - "{{ nac_tags.remove_networks }}"
         - "{{ nac_tags.remove_vrfs }}"
@@ -87,8 +87,8 @@
     # ----------------------------------------------------------------------------------
     - name: Retrieve Multisite Flag Values
       cisco.nac_dc_vxlan.common.change_flag_manager:
-        fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-        fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+        fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+        fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
         role_path: "{{ common_role_path }}"
         operation: get
       tags:

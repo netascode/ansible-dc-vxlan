@@ -61,13 +61,13 @@ class POAPDevice:
         #         version: 9.3(9)
         #         modulesModel: [N9K-X9364v, N9K-vSUP]
 
-        self.model_data = params['model_data']
+        self.data_model = params['data_model']
         self.execute_module = params['action_plugin']
         self.task_vars = params['task_vars']
         self.tmp = params['tmp']
 
-        self.fabric_name = self.model_data['vxlan']['fabric']['name']
-        self.switches = self.model_data['vxlan']['topology']['switches']
+        self.fabric_name = self.data_model['vxlan']['fabric']['name']
+        self.switches = self.data_model['vxlan']['topology']['switches']
         self.poap_supported_switches = False
         self.poap_switches = []
         self.preprovision_supported_switches = False
@@ -218,7 +218,7 @@ class ActionModule(ActionBase):
 
         # Get data from Ansible task parameters
         params = {}
-        params['model_data'] = self._task.args["model_data"]
+        params['data_model'] = self._task.args["data_model"]
 
         params['action_plugin'] = self._execute_module
         params['task_vars'] = task_vars
