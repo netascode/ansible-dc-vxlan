@@ -62,7 +62,7 @@ def update_nested_dict(nested_dict, keys, new_value):
 
     ```python
 
-    update_nested_dict(self.model_data, keys, [])
+    update_nested_dict(self.data_model, keys, [])
 
     ```
     """
@@ -98,7 +98,7 @@ class PreparePlugin:
 
         ## Updates
 
-        Updates self.model_data
+        Updates self.data_model
 
         ## Usage
 
@@ -111,16 +111,16 @@ class PreparePlugin:
         ```
         """
         keys = parent_keys + [target_key]
-        dm_check = data_model_key_check(self.model_data, keys)
+        dm_check = data_model_key_check(self.data_model, keys)
         if target_key in dm_check['keys_not_found'] or \
            target_key in dm_check['keys_no_data']:
-            update_nested_dict(self.model_data, keys, [])
+            update_nested_dict(self.data_model, keys, [])
 
-    def set_nested_list_default(self, model_data_subset, target_key):
+    def set_nested_list_default(self, data_model_subset, target_key):
         """
         # Summary
 
-        Update part of a model_data dictionary that has an arbitrary
+        Update part of a data_model dictionary that has an arbitrary
         list of items that needs to be set to empty list []
 
         ## Raises
@@ -129,39 +129,39 @@ class PreparePlugin:
 
         ## Parameters
 
-        -   model_data_subset: Model data subset entry point
+        -   data_model_subset: Model data subset entry point
         -   target_key: The target key for each list item under the entry point
 
         ## Updates
 
-        Updates self.model_data
+        Updates self.data_model
 
         ## Usage
 
         ```python
 
-        model_data_subset = self.model_data['vxlan']['topology']['switches']
+        data_model_subset = self.data_model['vxlan']['topology']['switches']
         target_key = 'freeforms'
 
-        self.set_nested_list_default(model_data_subset, target_key)
+        self.set_nested_list_default(data_model_subset, target_key)
 
         ```
         """
         list_index = 0
-        for item in model_data_subset:
+        for item in data_model_subset:
             dm_check = data_model_key_check(item, [target_key])
             if target_key in dm_check['keys_not_found'] or target_key in dm_check['keys_no_data']:
-                model_data_subset[list_index][target_key] = []
+                data_model_subset[list_index][target_key] = []
 
             list_index += 1
 
         # The code in this set_nested_list_default function effectively replaces this pattern:
         #
-        # for switch in self.model_data['vxlan']['topology']['switches']:
+        # for switch in self.data_model['vxlan']['topology']['switches']:
         #     dm_check = data_model_key_check(switch, ['freeforms'])
         #     if 'freeforms' in dm_check['keys_not_found'] or \
         #     'freeforms' in dm_check['keys_no_data']:
-        #         self.model_data['vxlan']['topology']['switches'][list_index]['freeforms'] = []
+        #         self.data_model['vxlan']['topology']['switches'][list_index]['freeforms'] = []
 
         #     list_index += 1
 
@@ -172,12 +172,12 @@ class PreparePlugin:
     # This is to ensure that the model data is consistent and can be
     # used by other plugins without having to check if the key exists.
     def prepare(self):
-        self.model_data = self.kwargs['results']['model_extended']
+        self.data_model = self.kwargs['results']['model_extended']
 
         # --------------------------------------------------------------------
         # Fabric Global List Defaults
         # --------------------------------------------------------------------
-        fabric_type = self.model_data['vxlan']['fabric']['type']
+        fabric_type = self.data_model['vxlan']['fabric']['type']
 
         # for path in paths:
         for path in model_keys[fabric_type]:
@@ -186,15 +186,15 @@ class PreparePlugin:
             parent_keys = model_keys[fabric_type][path][:-2]
             target_key = model_keys[fabric_type][path][-2]
             if path_type == 'KEY':
-                dm_check = data_model_key_check(self.model_data, parent_keys + [target_key])
+                dm_check = data_model_key_check(self.data_model, parent_keys + [target_key])
                 if target_key in dm_check['keys_not_found'] or target_key in dm_check['keys_no_data']:
-                    update_nested_dict(self.model_data, parent_keys + [target_key], {})
+                    update_nested_dict(self.data_model, parent_keys + [target_key], {})
             if path_type == 'LIST':
                 self.set_list_default(parent_keys, target_key)
             if path_type == 'LIST_INDEX':
                 # model_keys['VXLAN_EVPN']['topology.switches.freeform'] = [root_key, 'topology', 'switches', 'freeform', 'LIST_INDEX']
-                model_data_subset = getFromDict(self.model_data, parent_keys)
-                self.set_nested_list_default(model_data_subset, target_key)
+                data_model_subset = getFromDict(self.data_model, parent_keys)
+                self.set_nested_list_default(data_model_subset, target_key)
 
         # Quick Sanity Check:
         #
@@ -204,13 +204,13 @@ class PreparePlugin:
         # There might actualy be data but one of the other model files might
         # have a bug or everything except the top level vxlan key is commented out.
         if fabric_type in ['VXLAN_EVPN', 'External', 'eBGP_VXLAN']:
-            fn = self.model_data['vxlan']['fabric']['name']
-            if not bool(self.model_data['vxlan'].get('underlay')):
+            fn = self.data_model['vxlan']['fabric']['name']
+            if not bool(self.data_model['vxlan'].get('underlay')):
                 msg = "((vxlan.underlay)) data is empty! Check your host_vars model data for fabric {fn}."
                 display.warning(msg=msg, formatted=True)
-            if not bool(self.model_data['vxlan'].get('global')):
+            if not bool(self.data_model['vxlan'].get('global')):
                 msg = "((vxlan.global)) data is empty! Check your host_vars model data for fabric {fn}."
                 display.warning(msg=msg, formatted=True)
 
-        self.kwargs['results']['model_extended'] = self.model_data
+        self.kwargs['results']['model_extended'] = self.data_model
         return self.kwargs['results']

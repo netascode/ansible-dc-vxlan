@@ -28,8 +28,8 @@
 
 - name: Initialize Change Flags
   cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
     operation: initialize
   tags: "{{ nac_tags.common_role }}"
@@ -38,22 +38,22 @@
 - name: Import Role Tasks for iBGP VXLAN Fabric
   ansible.builtin.import_tasks: sub_main_vxlan.yml
   tags: "{{ nac_tags.common_role }}"
-  when: MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
+  when: data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN'
 
 - name: Import Role Tasks for eBGP VXLAN Fabric
   ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
   tags: "{{ nac_tags.common_role }}"
-  when: MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
+  when: data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
 
 - name: Import Role Tasks for ISN Fabric
   ansible.builtin.import_tasks: sub_main_isn.yml
   tags: "{{ nac_tags.common_role }}"
-  when: MD_Extended.vxlan.fabric.type == 'ISN'
+  when: data_model_extended.vxlan.fabric.type == 'ISN'
 
 - name: Import Role Tasks for MSD Fabric
   ansible.builtin.import_tasks: sub_main_msd.yml
   tags: "{{ nac_tags.common_role }}"
-  when: MD_Extended.vxlan.fabric.type == 'MSD'
+  when: data_model_extended.vxlan.fabric.type == 'MSD'
 
 - name: Import Role Tasks for MCFG Fabric
   ansible.builtin.import_tasks: sub_main_mcfg.yml
@@ -63,12 +63,12 @@
 - name: Import Role Tasks for External Fabric
   ansible.builtin.import_tasks: sub_main_external.yml
   tags: "{{ nac_tags.common_role }}"
-  when: MD_Extended.vxlan.fabric.type == 'External'
+  when: data_model_extended.vxlan.fabric.type == 'External'
 
 - name: Retrieve Flag Values
   cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
     operation: get
   tags: "{{ nac_tags.common_role }}"
@@ -83,8 +83,8 @@
 
 - name: Display Flag Values
   cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
     operation: display
   tags: "{{ nac_tags.common_role }}"

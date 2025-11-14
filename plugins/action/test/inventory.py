@@ -37,10 +37,10 @@ class ActionModule(ActionBase):
         results['failed'] = False
 
         test_data = self._task.args['test_data']['response']
-        model_data = self._task.args['model_data']
+        data_model = self._task.args['data_model']
 
         num_fabric_devices = len(test_data)
-        num_model_devices = len(model_data['vxlan']['topology']['switches'])
+        num_model_devices = len(data_model['vxlan']['topology']['switches'])
         if num_fabric_devices != num_model_devices:
             results['msg'] = 'There should be {0} switches in the fabric but only found {1}'.format(num_model_devices, num_fabric_devices)
             results['failed'] = True

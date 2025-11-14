@@ -1,6 +1,6 @@
 class Rule:
     id = "308"
-    description = "Verify duplex mode"
+    description = "Verify interface duplex mode"
     severity = "HIGH"
 
     @classmethod

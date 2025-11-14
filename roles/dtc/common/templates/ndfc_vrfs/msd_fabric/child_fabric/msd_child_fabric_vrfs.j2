@@ -1,7 +1,7 @@
 {# Auto-generated NDFC VXLAN EVPN MSD VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
 {% set vrfs = [] %}
-{% if MD_Extended.vxlan.multisite.overlay.vrfs is defined and MD_Extended.vxlan.multisite.overlay.vrfs %}
-{% set vrfs = MD_Extended.vxlan.multisite.overlay.vrfs %}
+{% if data_model_extended.vxlan.multisite.overlay.vrfs is defined and data_model_extended.vxlan.multisite.overlay.vrfs %}
+{% set vrfs = data_model_extended.vxlan.multisite.overlay.vrfs %}
 {% endif %}
 {% for vrf in vrfs %}
 - vrf_name: {{ vrf['name'] }}

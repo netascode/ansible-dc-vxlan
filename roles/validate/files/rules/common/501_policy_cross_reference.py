@@ -1,6 +1,6 @@
 class Rule:
     id = "501"
-    description = "Verify Policy Cross Reference Between Policies, Groups, and Switches"
+    description = "Verify policy cross reference between policies, groups, and switches"
     severity = "HIGH"
 
     @classmethod

@@ -29,8 +29,8 @@
 
 - name: Display Flag Values - Changes Detected VRFs
   cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
     operation: display
   delegate_to: localhost
@@ -39,7 +39,7 @@
 
 - name: Set VRF Config to MultiSite VRF Data
   ansible.builtin.set_fact:
-    vrf_config: "{{ MD_Multisite }}"
+    vrf_config: "{{ data_model_multisite }}"
 
 - name: Override VRF Config Based On Diff Run Settings
   ansible.builtin.set_fact:
@@ -49,7 +49,7 @@
 
 - name: Remove Unmanaged Fabric VRFs in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_vrfs:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     data: "{{ vrf_config }}"
     diff_run: "{{ run_map_read_result.diff_run }}"
   register: child_fabric_vrf_results
@@ -57,7 +57,7 @@
     - multisite_vrf_delete_mode is defined
     - multisite_vrf_delete_mode is true | bool
     - change_flags_multisite.changes_detected_vrfs
-    - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
+    - data_model_extended.vxlan.multisite.child_fabrics is defined and data_model_extended.vxlan.multisite.child_fabrics | length > 0
 
 - name: Skip Remove Unmanaged Fabric VRFs Task If multisite_vrf_delete_mode is False
   ansible.builtin.debug:
