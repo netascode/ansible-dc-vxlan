@@ -33,14 +33,12 @@
 {% endif %}
   arp_suppress: {{ net['arp_suppress'] | default(defaults.vxlan.overlay.networks.arp_supress) }}
   dhcp_loopback_id: {{ net['dhcp_loopback_id'] | default(omit) }}
-{% if net.dhcp_servers is defined %}
-{% if net.dhcp_servers | length > 0 and net.dhcp_servers | length <= 16 %}
+{% if net.dhcp_servers is defined and net.dhcp_servers %}
   dhcp_servers:
-{% for dhcp_server in net.dhcp_servers[:16] %}
+{% for dhcp_server in net.dhcp_servers %}
     - srvr_ip: {{ dhcp_server['ip_address'] }}
       srvr_vrf: {{ dhcp_server['vrf'] }}
 {% endfor %}
-{% endif %}
 {% endif %}
   gw_ipv6_subnet: {{ net['gw_ipv6_address'] | default(omit) }}
   int_desc: {{ net['int_desc'] | default(defaults.vxlan.overlay.networks.net_description) }}

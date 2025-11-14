@@ -1,13 +1,11 @@
 {# Auto-generated NDFC VXLAN EVPN MSD Child Fabric Network config data structure for fabric {{ fabric_name }} #}
 {%- set _dhcp_pairs = [] -%}
-{%- if dm is defined and dm['dhcp_servers'] is defined and dm['dhcp_servers'] -%}
-  {%- for srvr in dm['dhcp_servers'] -%}
-    {%- if srvr['ip_address'] is defined and srvr['ip_address'] -%}
-      {%- set _ = _dhcp_pairs.append({
-        "srvrAddr": srvr['ip_address'], "srvrVrf":  srvr['vrf'] | default("")
-      }) -%}
-    {%- endif -%}
-  {%- endfor -%}
+{%- if dm['dhcp_servers'] is defined and dm['dhcp_servers'] -%}
+{%- for srvr in dm['dhcp_servers'] -%}
+{%- set _ = _dhcp_pairs.append({
+  "srvrAddr": srvr['ip_address'], "srvrVrf":  srvr['vrf'] | default("")
+}) -%}
+{%- endfor -%}
 {%- endif -%}
 {%- set _dhcp_obj = {'dhcpServers': _dhcp_pairs} -%}
 {%- set dhcpServers = _dhcp_obj if (_dhcp_pairs|length > 0) else '' -%}
