@@ -56,10 +56,7 @@
     method: GET
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{{ MD_Extended.vxlan.fabric.name }}/switches/{{ leaf_switches_for_query[0].serial_number }}"
   register: ndfc_tor_discovery
-  failed_when: >-
-    (not tor_pairing_previous.stat.exists)
-    and (leaf_switches_for_query | length > 0)
-    and (ndfc_tor_discovery.failed | default(false))
+  failed_when: false
   when:
     - not tor_pairing_previous.stat.exists
     - leaf_switches_for_query is defined
@@ -95,6 +92,7 @@
   when:
     - not tor_pairing_previous.stat.exists
     - ndfc_tor_discovery is defined
+    - not (ndfc_tor_discovery.failed | default(false))
     - ndfc_tor_discovery.response is defined
     - ndfc_tor_discovery.response.DATA is defined
     - ndfc_tor_discovery.response.DATA.torPairs is defined
@@ -107,6 +105,8 @@
   delegate_to: localhost
   when:
     - not tor_pairing_previous.stat.exists
+    - ndfc_tor_discovery is defined
+    - not (ndfc_tor_discovery.failed | default(false))
     - ndfc_discovered_pairings is defined
     - ndfc_discovered_pairings | length > 0
 
