@@ -288,13 +288,15 @@ class ActionModule(ActionBase):
             child_fabric_type = child_fabrics[child_fabric]['type']
             if child_fabric_type in ['Switch_Fabric']:
                 # Only process child fabrics that have not already been marked as changed
+                # Networks must be in the DEPLOYED state when no changes are present.
+                # To reduce data, we filter by excluding networkStatus values that are not DEPLOYED.
                 if child_fabric not in results['child_fabrics_changed']:
                     # cf = child_fabrics
                     ndfc_cf_nets = self._execute_module(
                         module_name="cisco.dcnm.dcnm_rest",
                         module_args={
                             "method": "GET",
-                            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks"
+                            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{child_fabric}/networks?filter=networkStatus!=DEPLOYED"
                         },
                         task_vars=task_vars,
                         tmp=tmp
