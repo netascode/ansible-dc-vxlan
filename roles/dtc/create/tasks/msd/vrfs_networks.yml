@@ -176,6 +176,7 @@
   cisco.nac_dc_vxlan.dtc.manage_child_fabric_networks:
     nd_version: "{{ nd_version }}"
     msite_data: "{{ data_model_multisite }}"
+    netconfig: "{{ vars_common_msd.net_config }}"
   register: child_fabric_network_results
 
 - name: Update Child Fabrics VRFs and Networks Changed State
