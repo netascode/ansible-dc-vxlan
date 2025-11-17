@@ -9,68 +9,99 @@
 {% set ndfc_ge_12_4_1 = ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>') %}
   ENABLE_EVPN: true
   OVERLAY_MODE: {{ vxlan.global.ebgp.overlay_mode | default(defaults.vxlan.global.ebgp.overlay_mode) }}
+{# IF: NDFC between 12.2.2 and 12.4.0 START #}
 {% if ndfc_ge_12_2_2 and ndfc_lt_12_4_1 %}
   ALLOW_L3VNI_NO_VLAN:  {{ vxlan.global.ebgp.enable_mvpn_vri_id_range | default(defaults.vxlan.global.ebgp.enable_mvpn_vri_id_range) }}
-  {% elif ndfc_ge_12_4_1 %}
+{% elif ndfc_ge_12_4_1 %}
   ENABLE_L3VNI_NO_VLAN:  {{ vxlan.global.ebgp.enable_l3_vni_no_vlan | default(defaults.vxlan.global.ebgp.enable_l3_vni_no_vlan) }}
-  {% endif %}
+{% endif %}
+{# IF: NDFC between 12.2.2 and 12.4.0 END #}
   ANYCAST_GW_MAC: {{ vxlan.global.ebgp.anycast_gateway_mac | default(defaults.vxlan.global.ebgp.anycast_gateway_mac) }}
   ADVERTISE_PIP_BGP: {{ (vxlan.global.ebgp.vpc.advertise_pip | default(defaults.vxlan.global.ebgp.vpc.advertise_pip) | title) }}
+{# IF: Multisite SITE_ID START #}
 {% if vxlan.global.ebgp.multisite_site_id is defined %}
   SITE_ID: {{ vxlan.global.ebgp.multisite_site_id | default(vxlan.global.ebgp.spine_bgp_asn) }}
 {% endif %}
+{# IF: Multisite SITE_ID END #}
   ANYCAST_BGW_ADVERTISE_PIP: {{ vxlan.global.ebgp.vpc.advertise_pip_border_gateway | default(defaults.vxlan.global.ebgp.vpc.advertise_pip_border_gateway) }}
+{# IF: Advertise PIP toggle START #}
 {% if not (vxlan.global.ebgp.vpc.advertise_pip | default(defaults.vxlan.global.ebgp.vpc.advertise_pip) | ansible.builtin.bool) %}
   ADVERTISE_PIP_ON_BORDER: {{ vxlan.global.ebgp.vpc.advertise_pip_border_only | default(defaults.vxlan.global.ebgp.vpc.advertise_pip_border_only) | title }}
 {% endif %}
+{# IF: Advertise PIP toggle END #}
   REPLICATION_MODE: {{ replication_mode }}
+{# IF: Manual underlay disabled START #}
 {% if not manual_underlay %}
+{# IF: IPv4 underlay START #}
 {% if not ipv6_underlay %}
   LOOPBACK1_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_vtep_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_vtep_loopback_ip_range) }}
 {% else %}
   LOOPBACK1_IPV6_RANGE: {{ vxlan.underlay.ipv6.underlay_vtep_loopback_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_vtep_loopback_ip_range) }}
 {% endif %}
+{# IF: IPv4 underlay END #}
 {% endif %}
+{# IF: Manual underlay disabled END #}
+{# IF: Replication mode multicast START #}
 {% if replication_mode == 'Multicast' %}
   RP_LB_ID: {{ vxlan.underlay.multicast.underlay_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_rp_loopback_id) }}
   RP_COUNT: "{{ rp_count }}"
   RP_MODE: {{ rp_mode }}
   ENABLE_TRM: {{ vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | title }}
+  {# IF: NDFC >= 12.2.2 START #}
 {% if ndfc_ge_12_2_2 %}
   ENABLE_TRMv6: {{ vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | title }}
 {% endif %}
+  {# IF: NDFC >= 12.2.2 END #}
+  {# IF: IPv4 multicast START #}
 {% if not ipv6_underlay %}
+  {# IF: Manual underlay disabled (IPv4 multicast) START #}
 {% if not manual_underlay %}
   ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
 {% endif %}
+  {# IF: Manual underlay disabled (IPv4 multicast) END #}
   MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.ipv4.group_subnet | default(defaults.vxlan.underlay.multicast.ipv4.group_subnet) }}
 {# {% if (vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) %} #}
 {#   L3VNI_MCAST_GROUP: {{ vxlan.underlay.multicast.ipv4.trm_default_group | default(defaults.vxlan.underlay.multicast.ipv4.trm_default_group) }} #}
 {# {% endif %} #}
+  {# IF: TRMv6 group START #}
 {% if ndfc_ge_12_2_2 and (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool) %}
   L3VNI_IPv6_MCAST_GROUP: "{{ vxlan.underlay.multicast.ipv6.trmv6_default_group | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_default_group) }}"
 {% endif %}
+  {# IF: TRMv6 group END #}
+  {# IF: RP mode bidir START #}
 {% if rp_mode == 'bidir' %}
   PHANTOM_RP_LB_ID1: {{ vxlan.underlay.multicast.underlay_primary_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_primary_rp_loopback_id) }}
   PHANTOM_RP_LB_ID2: {{ vxlan.underlay.multicast.underlay_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_backup_rp_loopback_id) }}
+    {# IF: RP count equals 4 START #}
 {% if rp_count == 4 %}
   PHANTOM_RP_LB_ID3: {{ vxlan.underlay.multicast.underlay_second_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_second_backup_rp_loopback_id) }}
   PHANTOM_RP_LB_ID4: {{ vxlan.underlay.multicast.underlay_third_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_third_backup_rp_loopback_id) }}
 {% endif %}
+    {# IF: RP count equals 4 END #}
 {% endif %}
+  {# IF: RP mode bidir END #}
 {% else %}
+  {# IF: IPv6 multicast START #}
 {% if not manual_underlay %}
   IPv6_ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv6.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_rp_loopback_ip_range) }}
 {% endif %}
   IPv6_MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.ipv6.group_subnet | default(defaults.vxlan.underlay.multicast.ipv6.group_subnet) }}
+  {# IF: IPv6 multicast END #}
 {% endif %}
+  {# IF: IPv4 multicast END #}
 {% endif %}
+{# IF: Replication mode multicast END #}
+{# IF: L2 VNI start defined START #}
 {% if vxlan.global.ebgp.layer2_vni_range.from is defined %}
 {% set l2_vni_start = vxlan.global.ebgp.layer2_vni_range.from %}
+  {# IF: L2 VNI end defined START #}
 {% if vxlan.global.ebgp.layer2_vni_range.to is defined %}
 {% set l2_vni_end = vxlan.global.ebgp.layer2_vni_range.to %}
 {% endif %}
+  {# IF: L2 VNI end defined END #}
 {% endif %}
+{# IF: L2 VNI start defined END #}
+{# IF: L2 VNI range derive START #}
 {% if l2_vni_start is defined and l2_vni_end is not defined %}
 {% set l2_vni_range = l2_vni_start %}
 {% elif l2_vni_start is defined and l2_vni_end is defined %}
@@ -78,13 +109,19 @@
 {% else %}
 {% set l2_vni_range = defaults.vxlan.global.ebgp.layer2_vni_range.from ~ '-' ~ defaults.vxlan.global.ebgp.layer2_vni_range.to %}
 {% endif %}
+{# IF: L2 VNI range derive END #}
   L2_SEGMENT_ID_RANGE: {{ l2_vni_range }}
+{# IF: L3 VNI start defined START #}
 {% if vxlan.global.ebgp.layer3_vni_range.from is defined %}
 {% set l3_vni_start = vxlan.global.ebgp.layer3_vni_range.from %}
+  {# IF: L3 VNI end defined START #}
 {% if vxlan.global.ebgp.layer3_vni_range.to is defined %}
 {% set l3_vni_end = vxlan.global.ebgp.layer3_vni_range.to %}
 {% endif %}
+  {# IF: L3 VNI end defined END #}
 {% endif %}
+{# IF: L3 VNI start defined END #}
+{# IF: L3 VNI range derive START #}
 {% if l3_vni_start is defined and l3_vni_end is not defined %}
 {% set l3_vni_range = l3_vni_start %}
 {% elif l3_vni_start is defined and l3_vni_end is defined %}
@@ -92,13 +129,19 @@
 {% else %}
 {% set l3_vni_range = defaults.vxlan.global.ebgp.layer3_vni_range.from ~ '-' ~ defaults.vxlan.global.ebgp.layer3_vni_range.to %}
 {% endif %}
+{# IF: L3 VNI range derive END #}
   L3_PARTITION_ID_RANGE: {{ l3_vni_range }}
+{# IF: L2 VLAN start defined START #}
 {% if vxlan.global.ebgp.layer2_vlan_range.from is defined %}
 {% set l2_vlan_start = vxlan.global.ebgp.layer2_vlan_range.from %}
+  {# IF: L2 VLAN end defined START #}
 {% if vxlan.global.ebgp.layer2_vlan_range.to is defined %}
 {% set l2_vlan_end = vxlan.global.ebgp.layer2_vlan_range.to %}
 {% endif %}
+  {# IF: L2 VLAN end defined END #}
 {% endif %}
+{# IF: L2 VLAN start defined END #}
+{# IF: L2 VLAN range derive START #}
 {% if l2_vlan_start is defined and l2_vlan_end is not defined %}
 {% set l2_vlan_range = l2_vlan_start %}
 {% elif l2_vlan_start is defined and l2_vlan_end is defined %}
@@ -106,13 +149,19 @@
 {% else %}
 {% set l2_vlan_range = defaults.vxlan.global.ebgp.layer2_vlan_range.from ~ '-' ~ defaults.vxlan.global.ebgp.layer2_vlan_range.to %}
 {% endif %}
+{# IF: L2 VLAN range derive END #}
   NETWORK_VLAN_RANGE: {{ l2_vlan_range }}
+{# IF: L3 VLAN start defined START #}
 {% if vxlan.global.ebgp.layer3_vlan_range.from is defined %}
 {% set l3_vlan_start = vxlan.global.ebgp.layer3_vlan_range.from %}
+  {# IF: L3 VLAN end defined START #}
 {% if vxlan.global.ebgp.layer3_vlan_range.to is defined %}
 {% set l3_vlan_end = vxlan.global.ebgp.layer3_vlan_range.to %}
 {% endif %}
+  {# IF: L3 VLAN end defined END #}
 {% endif %}
+{# IF: L3 VLAN start defined END #}
+{# IF: L3 VLAN range derive START #}
 {% if l3_vlan_start is defined and l3_vlan_end is not defined %}
 {% set l3_vlan_range = l3_vlan_start %}
 {% elif l3_vlan_start is defined and l3_vlan_end is defined %}
@@ -120,4 +169,5 @@
 {% else %}
 {% set l3_vlan_range = defaults.vxlan.global.ebgp.layer3_vlan_range.from ~ '-' ~ defaults.vxlan.global.ebgp.layer3_vlan_range.to %}
 {% endif %}
+{# IF: L3 VLAN range derive END #}
   VRF_VLAN_RANGE: {{ l3_vlan_range }}
