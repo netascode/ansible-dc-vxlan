@@ -1,7 +1,14 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN config data structure for fabric {{ vxlan.fabric.name }} #}
+{% set manual_underlay = (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation)) %}
+{% set ipv6_underlay = (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay)) %}
+{% set replication_mode = (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) %}
+{% set rp_mode = vxlan.underlay.multicast.rp_mode | default(defaults.vxlan.underlay.multicast.rp_mode) %}
+{% set rp_count = vxlan.underlay.multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) %}
+{% set ndfc_ge_12_2_2 = ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
+{% set ndfc_lt_12_4_1 = ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '<') %}
   ENABLE_EVPN: true
   OVERLAY_MODE: {{ vxlan.global.ebgp.overlay_mode | default(defaults.vxlan.global.ebgp.overlay_mode) }}
-{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') and ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '<') %}
+{% if ndfc_ge_12_2_2 and ndfc_lt_12_4_1 %}
   ALLOW_L3VNI_NO_VLAN:  {{ vxlan.global.ebgp.enable_mvpn_vri_id_range | default(defaults.vxlan.global.ebgp.enable_mvpn_vri_id_range) }}
 {% endif %}
   ENABLE_L3VNI_NO_VLAN:  {{ vxlan.global.ebgp.enable_l3_vni_no_vlan | default(defaults.vxlan.global.ebgp.enable_l3_vni_no_vlan) }}
@@ -14,50 +21,46 @@
 {% if not (vxlan.global.ebgp.vpc.advertise_pip | default(defaults.vxlan.global.ebgp.vpc.advertise_pip) | ansible.builtin.bool) %}
   ADVERTISE_PIP_ON_BORDER: {{ vxlan.global.ebgp.vpc.advertise_pip_border_only | default(defaults.vxlan.global.ebgp.vpc.advertise_pip_border_only) | title }}
 {% endif %}
-  REPLICATION_MODE: {{ vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title }}
-{% if not (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | ansible.builtin.bool) %}
-{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
-  ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
+  REPLICATION_MODE: {{ replication_mode }}
+{% if not manual_underlay %}
+{% if not ipv6_underlay %}
   LOOPBACK1_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_vtep_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_vtep_loopback_ip_range) }}
-{% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
+{% else %}
   LOOPBACK1_IPV6_RANGE: {{ vxlan.underlay.ipv6.underlay_vtep_loopback_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_vtep_loopback_ip_range) }}
 {% endif %}
 {% endif %}
-{% endif %}
-{% if ( ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.1', '<=')) and
-        (not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool))) or
-        (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) ) %}
-{% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
+{% if replication_mode == 'Multicast' %}
   RP_LB_ID: {{ vxlan.underlay.multicast.underlay_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_rp_loopback_id) }}
-  RP_COUNT: "{{ vxlan.underlay.multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) }}"
-  RP_MODE: {{ vxlan.underlay.multicast.rp_mode | default(defaults.vxlan.underlay.multicast.rp_mode) }}
+  RP_COUNT: "{{ rp_count }}"
+  RP_MODE: {{ rp_mode }}
   ENABLE_TRM: {{ vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | title }}
-{% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) %}
+{% if ndfc_ge_12_2_2 %}
   ENABLE_TRMv6: {{ vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | title }}
 {% endif %}
-{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
+{% if not ipv6_underlay %}
+{% if not manual_underlay %}
+  ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
+{% endif %}
   MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.ipv4.group_subnet | default(defaults.vxlan.underlay.multicast.ipv4.group_subnet) }}
 {# {% if (vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) %} #}
 {#   L3VNI_MCAST_GROUP: {{ vxlan.underlay.multicast.ipv4.trm_default_group | default(defaults.vxlan.underlay.multicast.ipv4.trm_default_group) }} #}
 {# {% endif %} #}
-{% if ( (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) and
-        (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool) ) %}
+{% if ndfc_ge_12_2_2 and (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool) %}
   L3VNI_IPv6_MCAST_GROUP: "{{ vxlan.underlay.multicast.ipv6.trmv6_default_group | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_default_group) }}"
 {% endif %}
-{% if vxlan.underlay.multicast.rp_mode | default(defaults.vxlan.underlay.multicast.rp_mode) == 'bidir' %}
+{% if rp_mode == 'bidir' %}
   PHANTOM_RP_LB_ID1: {{ vxlan.underlay.multicast.underlay_primary_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_primary_rp_loopback_id) }}
   PHANTOM_RP_LB_ID2: {{ vxlan.underlay.multicast.underlay_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_backup_rp_loopback_id) }}
-{% if vxlan.underlay.multicast.rendezvous_points | default(defaults.vxlan.underlay.multicast.rendezvous_points) == 4 %}
+{% if rp_count == 4 %}
   PHANTOM_RP_LB_ID3: {{ vxlan.underlay.multicast.underlay_second_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_second_backup_rp_loopback_id) }}
   PHANTOM_RP_LB_ID4: {{ vxlan.underlay.multicast.underlay_third_backup_rp_loopback_id | default(defaults.vxlan.underlay.multicast.underlay_third_backup_rp_loopback_id) }}
 {% endif %}
 {% endif %}
-{% elif (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
-{% if not (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | ansible.builtin.bool) %}
+{% else %}
+{% if not manual_underlay %}
   IPv6_ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv6.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_rp_loopback_ip_range) }}
 {% endif %}
   IPv6_MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.ipv6.group_subnet | default(defaults.vxlan.underlay.multicast.ipv6.group_subnet) }}
-{% endif %}
 {% endif %}
 {% endif %}
 {% if vxlan.global.ebgp.layer2_vni_range.from is defined %}
