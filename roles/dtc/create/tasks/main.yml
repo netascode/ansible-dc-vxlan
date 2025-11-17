@@ -45,7 +45,7 @@
 
 - name: Import MCFG Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_mcfg.yml
-  when: MD_Extended.vxlan.fabric.type == 'MCFG'
+  when: data_model_extended.vxlan.fabric.type == 'MCFG'
 
 - name: Import External Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_external.yml

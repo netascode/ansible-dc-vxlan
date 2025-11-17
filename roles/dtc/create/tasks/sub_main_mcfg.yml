@@ -37,7 +37,12 @@
 - name: Create MCFG Fabric in Nexus Dashboard
   ansible.builtin.import_tasks: mcfg/fabric.yml
   when:
-    - MD_Extended.vxlan.fabric.name is defined
-    - MD_Extended.vxlan.fabric.type == "MCFG"
+    - data_model_extended.vxlan.fabric.name is defined
+    - data_model_extended.vxlan.fabric.type == "MCFG"
     - change_flags.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
+
+- name: Manage MCFG Fabric Child Fabrics in Nexus Dashboard
+  ansible.builtin.import_tasks: mcfg/child_fabrics.yml
+  when:
+    - data_model_extended.vxlan.multisite.child_fabrics is defined and data_model_extended.vxlan.multisite.child_fabrics | length > 0

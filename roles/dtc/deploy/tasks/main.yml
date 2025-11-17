@@ -32,7 +32,7 @@
   ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
   tags: "{{ nac_tags.deploy }}"
   when:
-    - MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
+    - data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
     - change_flags.changes_detected_any
 
 - name: Import MSD Fabric Role Tasks
@@ -47,7 +47,7 @@
   ansible.builtin.import_tasks: sub_main_mcfg.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
   when: >
-    (MD_Extended.vxlan.fabric.type == 'MCFG') and
+    (data_model_extended.vxlan.fabric.type == 'MCFG') and
     (change_flags.changes_detected_any)
 
 - name: Import ISN Fabric Role Tasks

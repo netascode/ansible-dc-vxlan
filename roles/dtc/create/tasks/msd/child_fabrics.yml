@@ -21,7 +21,7 @@
 
 ---
 
-- name: Manage Child Fabrics Entry Point
+- name: Manage MSD Child Fabrics Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
@@ -31,6 +31,7 @@
 - name: Add Child Fabrics To MSD Fabric in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
     parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     child_fabrics: "{{ data_model_multisite_child_fabrics.to_be_added }}"
     state: present
   when:

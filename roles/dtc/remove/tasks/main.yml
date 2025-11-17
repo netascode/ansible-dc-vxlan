@@ -34,13 +34,20 @@
   # Check with Matt on changes_detected_policy here
   # Was not there previously
   when:
-    - MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
+    - data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
     - change_flags.changes_detected_any
 
 - name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   when:
     data_model_extended.vxlan.fabric.type == 'MSD'
+  # Current implementation has to leverage the changes_detected flags
+  # in the sub_main files to determine if the tasks should be run
+
+- name: Import MCFG Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_mcfg.yml
+  when:
+    data_model_extended.vxlan.fabric.type == 'MCFG'
   # Current implementation has to leverage the changes_detected flags
   # in the sub_main files to determine if the tasks should be run
 

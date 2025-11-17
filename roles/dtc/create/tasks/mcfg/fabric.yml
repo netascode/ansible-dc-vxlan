@@ -24,16 +24,22 @@
 - name: Set vars_common Based On Fabric Type - MCFG
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_mcfg }}"
-  when: MD_Extended.vxlan.fabric.type == "MCFG"
+  when: data_model_extended.vxlan.fabric.type == "MCFG"
 
 - name: Manage Fabric Entry Point
   ansible.builtin.debug:
     msg:
       - "---------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }}"
       - "---------------------------------------------------------------"
 
 - name: Manage MCFG Fabric in Nexus Dashboard
   cisco.dcnm.dcnm_fabric_group:
     state: merged
     config: "{{ vars_common_mcfg.fabric_config }}"
+
+# - name: Manage MCFG Fabric in Nexus Dashboard
+#   cisco.dcnm.dcnm_fabric_group:
+#     state: deleted
+#     config:
+#       - FABRIC_NAME: nac-mcfg1

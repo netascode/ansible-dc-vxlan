@@ -33,15 +33,6 @@
     msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"
   tags: "{{ nac_tags.remove }}"
 
-- name: Prepare Multisite Data
-  cisco.nac_dc_vxlan.dtc.prepare_msite_data:
-    model_data: "{{ MD_Extended }}"
-    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-  register: MD_Multisite
-  tags:
-    - "{{ nac_tags.remove_networks }}"
-    - "{{ nac_tags.remove_vrfs }}"
-
 - name: Remove MCFG Fabric Child Fabrics from Nexus Dashboard
   ansible.builtin.import_tasks: mcfg/child_fabrics.yml
   tags: "{{ nac_tags.remove }}"

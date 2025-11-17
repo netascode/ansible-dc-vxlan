@@ -21,21 +21,22 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
+- name: Manage MCFG Child Fabrics Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
+      - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }} Child Fabrics"
       - "----------------------------------------------------------------"
 
-- name: Manage Fabric Deployment for MCFG Fabric in Nexus Dashboard
-  cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
-    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
-    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    operation: all
-  vars:
-    ansible_command_timeout: 3000
-    ansible_connect_timeout: 3000
+- name: Run dtc.common.tasks.mcfg.ndfc_child_fabrics.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/mcfg/ndfc_child_fabrics.yml"
+
+- name: Add Child Fabrics To MCFG Fabric in Nexus Dashboard
+  cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    child_fabrics: "{{ data_model_multisite_child_fabrics.to_be_added }}"
+    state: present
   when:
-    - data_model_extended.vxlan.multisite.child_fabrics is defined
-    - data_model_extended.vxlan.multisite.child_fabrics | length > 0
+    - data_model_multisite_child_fabrics.to_be_added is defined
+    - data_model_multisite_child_fabrics.to_be_added | length > 0

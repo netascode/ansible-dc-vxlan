@@ -21,21 +21,15 @@
 
 ---
 
-- name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.deploy]
+- name: Build Multisite Child Fabric Data for Nexus Dashboard
   ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
-      - "----------------------------------------------------------------"
+    msg: "Building MCFG Child Fabric Data"
 
-- name: Manage Fabric Deployment for MCFG Fabric in Nexus Dashboard
-  cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
-    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
-    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    operation: all
-  vars:
-    ansible_command_timeout: 3000
-    ansible_connect_timeout: 3000
+- name: Prepare Multisite Add and Remove Child Fabric Data
+  cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data:
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
   when:
     - data_model_extended.vxlan.multisite.child_fabrics is defined
-    - data_model_extended.vxlan.multisite.child_fabrics | length > 0
+  register: data_model_multisite_child_fabrics
