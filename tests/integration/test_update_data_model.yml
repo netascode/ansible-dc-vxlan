@@ -39,7 +39,7 @@
 # 3. Update the tests/integration/test_inventory.yml file with the NDFC IP address information
 #
 # 4. Run the playbook with the following command:
-#    ansible-playbook -i test_inventory.yml test_update_model_data.yml
+#    ansible-playbook -i test_inventory.yml test_update_data_model.yml
 #
 # This will create 3 new directories under tests/integration/host_vars:
 # - fabric_empty
@@ -143,4 +143,4 @@
   gather_facts: false
 
   roles:
-    - test_update_model_data
+    - test_update_data_model

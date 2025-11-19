@@ -30,9 +30,9 @@ class PreparePlugin:
         self.keys = []
 
     def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
+        data_model = self.kwargs['results']['model_extended']
 
-        if model_data['vxlan']['fabric']['type'] == 'ISN':
+        if data_model['vxlan']['fabric']['type'] == 'ISN':
             return self.kwargs['results']
 
         templates_path = self.kwargs['templates_path']
@@ -51,9 +51,9 @@ class PreparePlugin:
         env.filters["ipv4"] = ipv4.ipv4
         env.filters["ipv6"] = ipv6.ipv6
         template = env.get_template(template_filename)
-        if "overlay_extensions" in model_data["vxlan"]:
-            if "vrf_lites" in model_data["vxlan"]["overlay_extensions"]:
-                for vrf_lite in model_data["vxlan"]["overlay_extensions"]["vrf_lites"]:
+        if "overlay_extensions" in data_model["vxlan"]:
+            if "vrf_lites" in data_model["vxlan"]["overlay_extensions"]:
+                for vrf_lite in data_model["vxlan"]["overlay_extensions"]["vrf_lites"]:
                     ospf_enabled = True if vrf_lite.get(
                         "ospf") is not None else False
                     default_area = vrf_lite.get("ospf", {}).get(
@@ -241,7 +241,7 @@ class PreparePlugin:
                                             switch_bgp_af[key] = value
 
                         output = template.render(
-                            MD_Extended=model_data, item=vrf_lite, switch_item=switch, defaults=default_values)
+                            data_model_extended=data_model, item=vrf_lite, switch_item=switch, defaults=default_values)
 
                         new_policy = {
                             "name": unique_name,
@@ -251,26 +251,26 @@ class PreparePlugin:
                             }
                         }
 
-                        model_data["vxlan"]["policy"]["policies"].append(new_policy)
+                        data_model["vxlan"]["policy"]["policies"].append(new_policy)
 
-                        if any(sw['name'] == switch['name'] for sw in model_data["vxlan"]["policy"]["switches"]):
+                        if any(sw['name'] == switch['name'] for sw in data_model["vxlan"]["policy"]["switches"]):
                             found_switch = next(([idx, i] for idx, i in enumerate(
-                                model_data["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
+                                data_model["vxlan"]["policy"]["switches"]) if i["name"] == switch['name']))
                             if "groups" in found_switch[1].keys():
-                                model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(
+                                data_model["vxlan"]["policy"]["switches"][found_switch[0]]["groups"].append(
                                     unique_name)
                             else:
-                                model_data["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [
+                                data_model["vxlan"]["policy"]["switches"][found_switch[0]]["groups"] = [
                                     unique_name]
                         else:
                             new_switch = {
                                 "name": switch["name"],
                                 "groups": [unique_name]
                             }
-                            model_data["vxlan"]["policy"]["switches"].append(
+                            data_model["vxlan"]["policy"]["switches"].append(
                                 new_switch)
 
-                        if not any(group['name'] == vrf_lite['name'] for group in model_data["vxlan"]["policy"]["groups"]):
+                        if not any(group['name'] == vrf_lite['name'] for group in data_model["vxlan"]["policy"]["groups"]):
                             new_group = {
                                 "name": unique_name,
                                 "policies": [
@@ -278,9 +278,9 @@ class PreparePlugin:
                                 ],
                                 "priority": 500
                             }
-                            model_data["vxlan"]["policy"]["groups"].append(new_group)
+                            data_model["vxlan"]["policy"]["groups"].append(new_group)
 
-            model_data = hostname_to_ip_mapping(model_data)
+            data_model = hostname_to_ip_mapping(data_model)
 
-        self.kwargs['results']['model_extended'] = model_data
+        self.kwargs['results']['model_extended'] = data_model
         return self.kwargs['results']

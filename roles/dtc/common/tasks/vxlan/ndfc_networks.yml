@@ -62,7 +62,7 @@
   ansible.builtin.set_fact:
     net_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   when: >
-    (MD_Extended.vxlan.overlay.networks | default([])) | length > 0
+    (data_model_extended.vxlan.overlay.networks | default([])) | length > 0
   delegate_to: localhost
 
 - name: Build Network Diff Between Previous and Current Run
@@ -83,8 +83,8 @@
 
 - name: Set File Change Flag Based on File Diff Result
   cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
     operation: "update"
     change_flag: changes_detected_networks
