@@ -21,11 +21,6 @@
 
 ---
 
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_link_vpc_peering: false
-  delegate_to: localhost
-
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_link_vpc_peering.yml"
@@ -67,9 +62,9 @@
   ansible.builtin.set_fact:
     link_vpc_peering: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   when:
-    - MD_Extended.vxlan.topology.vpc_peers | length > 0
-    - MD_Extended.vxlan.topology.vpc_peers | selectattr('peer1_peerlink_interfaces', 'defined') | list | length > 0 or
-      MD_Extended.vxlan.topology.vpc_peers | selectattr('peer2_peerlink_interfaces', 'defined') | list | length > 0
+    - data_model_extended.vxlan.topology.vpc_peers | length > 0
+    - data_model_extended.vxlan.topology.vpc_peers | selectattr('peer1_peerlink_interfaces', 'defined') | list | length > 0 or
+      data_model_extended.vxlan.topology.vpc_peers | selectattr('peer2_peerlink_interfaces', 'defined') | list | length > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
@@ -80,8 +75,13 @@
   delegate_to: localhost
 
 - name: Set File Change Flag Based on File Diff Result
-  ansible.builtin.set_fact:
-    changes_detected_link_vpc_peering: true
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: update
+    change_flag: changes_detected_link_vpc_peering
+    flag_value: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

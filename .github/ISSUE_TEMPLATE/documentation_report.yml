@@ -10,16 +10,17 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for creating a documentation issue to help us improve the VXLAN as Code collection. 
+        Thanks for creating a documentation issue to help us improve the VXLAN as Code collection.
         Please fill out the sections below to help us understand and reproduce the issue you are facing.
 
   - type: markdown
     attributes:
       value: |
         ### Community Note
-        Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request
-        Please do not leave "+1" or other comments that do not add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request
-        If you are interested in working on this issue or have submitted a pull request, please leave a comment
+        Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/)
+        to the original issue to help the community and maintainers prioritize this request. Please do not leave "+1" or other comments that do not
+        add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request. If you are
+        interested in working on this issue or have submitted a pull request, please leave a comment
 
   - type: dropdown
     id: role
@@ -93,12 +94,12 @@ body:
       render: shell
     validations:
       required: false
-    
+
   - type: textarea
-    id: ndfc-version
+    id: nd-version
     attributes:
-      label: Cisco NDFC Version
-      description: Please provide your Cisco NDFC version used when encountering this issue
+      label: Cisco Nexus Dashboard Version
+      description: Please provide your Cisco Nexus Dashboard version used when encountering this issue
       render: shell
     validations:
       required: false

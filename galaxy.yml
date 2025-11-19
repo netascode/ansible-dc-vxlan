@@ -1,7 +1,7 @@
 ---
 namespace: cisco
 name: nac_dc_vxlan
-version: 0.5.0-dev
+version: 0.5.1-dev
 readme: README.md
 authors:
   - Devendra Gupta <devegupt>
@@ -29,5 +29,5 @@ tags: [cisco, dc, nd, ndfc, nxos, networking, vxlan, evpn, nac, sac]
 
 dependencies:
   "ansible.netcommon": ">=4.1.0"
-  "cisco.dcnm": ">=3.9.0"
+  "cisco.dcnm": ">=3.9.1"
   "community.general": ">=8.5.0"

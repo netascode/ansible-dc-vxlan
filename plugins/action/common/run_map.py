@@ -41,10 +41,10 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
 
-        model_data = self._task.args.get('model_data')
+        data_model = self._task.args.get('data_model')
         stage = self._task.args['stage']
 
-        fabric_name = model_data['vxlan']['fabric']['name']
+        fabric_name = data_model['vxlan']['fabric']['name']
 
         if 'dtc' in task_vars['role_path']:
             common_role_path = os.path.dirname(task_vars['role_path'])
@@ -82,9 +82,16 @@ class ActionModule(ActionBase):
                 updated_run_map['role_deploy_completed'] = True
             elif stage == 'role_remove_completed':
                 updated_run_map['role_remove_completed'] = True
+            elif stage == 'role_all_completed':
+                updated_run_map['role_validate_completed'] = True
+                updated_run_map['role_create_completed'] = True
+                updated_run_map['role_deploy_completed'] = True
+                updated_run_map['role_remove_completed'] = True
 
         with open(run_map_file_path, 'w') as outfile:
             outfile.write("### This File Is Auto Generated, Do Not Edit ###\n")
             yaml.dump(updated_run_map, outfile, default_flow_style=False)
+            # Add run map to results dictonary
+            results['updated'] = updated_run_map
 
         return results

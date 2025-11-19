@@ -23,68 +23,35 @@
 
 - name: Import iBGP VXLAN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_vxlan.yml
-  when: >
-    (MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN') and
-    (vars_common_vxlan.changes_detected_fabric) or
-    (vars_common_vxlan.changes_detected_inventory) or
-    (vars_common_vxlan.changes_detected_vpc_peering) or
-    (vars_common_vxlan.changes_detected_interfaces) or
-    (vars_common_vxlan.changes_detected_link_vpc_peering) or
-    (vars_common_vxlan.changes_detected_vrfs) or
-    (vars_common_vxlan.changes_detected_networks) or
-    (vars_common_vxlan.changes_detected_policy) or
-    (vars_common_vxlan.changes_detected_edge_connections) or
-    (vars_common_vxlan.changes_detected_fabric_links) or
-    (vars_common_vxlan.changes_detected_underlay_ip_address)
+  when:
+    - data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN'
+    - change_flags.changes_detected_any
 
 - name: Import eBGP VXLAN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
-  when: >
-    (MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN') and
-    (vars_common_ebgp_vxlan.changes_detected_fabric) or
-    (vars_common_ebgp_vxlan.changes_detected_inventory) or
-    (vars_common_ebgp_vxlan.changes_detected_vpc_peering) or
-    (vars_common_ebgp_vxlan.changes_detected_link_vpc_peering) or
-    (vars_common_ebgp_vxlan.changes_detected_policy) or
-    (vars_common_ebgp_vxlan.changes_detected_interfaces) or
-    (vars_common_ebgp_vxlan.changes_detected_vrfs) or
-    (vars_common_ebgp_vxlan.changes_detected_networks)
+  when:
+    - data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
+    - change_flags.changes_detected_any
 
 - name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
-  when: >
-    (MD_Extended.vxlan.fabric.type == 'ISN') and
-    (vars_common_isn.changes_detected_fabric) or
-    (vars_common_isn.changes_detected_inventory) or
-    (vars_common_isn.changes_detected_interfaces) or
-    (vars_common_isn.changes_detected_policy)
+  when:
+    - data_model_extended.vxlan.fabric.type == 'ISN'
+    - change_flags.changes_detected_any
 
 - name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
-  when: >
-    (MD_Extended.vxlan.fabric.type == 'MSD')
+  when: data_model_extended.vxlan.fabric.type == 'MSD'
 
-# Check with Matt and Pete on External Fabrics
 - name: Import External Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_external.yml
-  when: >
-    (MD_Extended.vxlan.fabric.type == 'External') and
-    (vars_common_external.changes_detected_inventory) or
-    (vars_common_external.changes_detected_interfaces) or
-    (vars_common_external.changes_detected_fabric) or
-    (vars_common_external.changes_detected_interface_access_po) or
-    (vars_common_external.changes_detected_interface_access) or
-    (vars_common_external.changes_detected_interface_loopback) or
-    (vars_common_external.changes_detected_interface_po_routed) or
-    (vars_common_external.changes_detected_interface_routed) or
-    (vars_common_external.changes_detected_interface_trunk_po) or
-    (vars_common_external.changes_detected_interface_trunk) or
-    (vars_common_external.changes_detected_sub_interface_routed) or
-    (vars_common_external.changes_detected_policy)
+  when:
+    - data_model_extended.vxlan.fabric.type == 'External'
+    - change_flags.changes_detected_any
 
 - name: Mark Stage Role Create Completed
   cisco.nac_dc_vxlan.common.run_map:
-    model_data: "{{ MD_Extended }}"
+    data_model: "{{ data_model_extended }}"
     stage: role_create_completed
   register: run_map
   delegate_to: localhost

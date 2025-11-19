@@ -25,17 +25,17 @@
   ansible.builtin.debug:
     msg: "Removing Unmanaged Child Fabrics. This could take several minutes..."
   when:
-    - MD_Extended.vxlan.multisite.child_fabrics is defined
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
     - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
 
 - name: Remove Unmanaged Child Fabrics in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
-    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    child_fabrics: "{{ MD_Multisite_Child_Fabrics.to_be_removed }}"
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    child_fabrics: "{{ data_model_multisite_child_fabrics.to_be_removed }}"
     state: absent
   when:
-    - MD_Multisite_Child_Fabrics.to_be_removed is defined
-    - MD_Multisite_Child_Fabrics.to_be_removed
+    - data_model_multisite_child_fabrics.to_be_removed is defined
+    - data_model_multisite_child_fabrics.to_be_removed
     - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
 
 - name: Skip Remove Unmanaged Child Fabrics Task If multisite_child_fabric_delete_mode is False

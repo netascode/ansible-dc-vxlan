@@ -21,114 +21,66 @@
 
 ---
 
-# ------------------------------------------------------------------------
-# Initialize NameSpace Dicts For Variable Sharing
-# ------------------------------------------------------------------------
-- name: Initialize NameSpace Dict For Sharing Variables
+- name: Create Fact To Store Common Role Path
   ansible.builtin.set_fact:
-    vars_common_vxlan:
-      changes_detected_fabric: false
-      changes_detected_fabric_links: false
-      changes_detected_edge_connections: false
-      changes_detected_interface_dot1q: false
-      changes_detected_interface_access_po: false
-      changes_detected_interface_access: false
-      changes_detected_interfaces: false
-      changes_detected_interface_loopback: false
-      changes_detected_interface_po_routed: false
-      changes_detected_interface_routed: false
-      changes_detected_interface_trunk_po: false
-      changes_detected_interface_trunk: false
-      changes_detected_interface_vpc: false
-      changes_detected_inventory: false
-      changes_detected_link_vpc_peering: false
-      changes_detected_networks: false
-      changes_detected_policy: false
-      changes_detected_sub_interface_routed: false
-      changes_detected_vpc_peering: false
-      changes_detected_vrfs: false
-      changes_detected_underlay_ip_address: false
-    vars_common_isn:
-      changes_detected_fabric: false
-      changes_detected_fabric_links: false
-      changes_detected_edge_connections: false
-      changes_detected_interface_dot1q: false
-      changes_detected_interface_access_po: false
-      changes_detected_interface_access: false
-      changes_detected_interfaces: false
-      changes_detected_interface_loopback: false
-      changes_detected_interface_po_routed: false
-      changes_detected_interface_routed: false
-      changes_detected_interface_trunk_po: false
-      changes_detected_interface_trunk: false
-      changes_detected_interface_vpc: false
-      changes_detected_inventory: false
-      changes_detected_policy: false
-      changes_detected_sub_interface_routed: false
-    vars_common_msd:
-      changes_detected_fabric: false
-      changes_detected_bgw_anycast_vip: false
-      changes_detected_vrfs: false
-      changes_detected_networks: false
-    vars_common_external:
-      changes_detected_inventory: false
-      changes_detected_fabric: false
-      changes_detected_interface_dot1q: false
-      changes_detected_interface_access_po: false
-      changes_detected_interface_access: false
-      changes_detected_interfaces: false
-      changes_detected_interface_loopback: false
-      changes_detected_interface_po_routed: false
-      changes_detected_interface_routed: false
-      changes_detected_interface_trunk_po: false
-      changes_detected_interface_trunk: false
-      changes_detected_interface_vpc: false
-      changes_detected_sub_interface_routed: false
-      changes_detected_policy: false
-    vars_common_ebgp_vxlan:
-      changes_detected_fabric: false
-      changes_detected_fabric_links: false
-      changes_detected_edge_connections: false
-      changes_detected_interface_dot1q: false
-      changes_detected_interface_access_po: false
-      changes_detected_interface_access: false
-      changes_detected_interfaces: false
-      changes_detected_interface_loopback: false
-      changes_detected_interface_po_routed: false
-      changes_detected_interface_routed: false
-      changes_detected_interface_trunk_po: false
-      changes_detected_interface_trunk: false
-      changes_detected_interface_vpc: false
-      changes_detected_inventory: false
-      changes_detected_link_vpc_peering: false
-      changes_detected_networks: false
-      changes_detected_policy: false
-      changes_detected_sub_interface_routed: false
-      changes_detected_vpc_peering: false
-      changes_detected_vrfs: false
+    common_role_path: "{{ role_path }}"
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
+
+- name: Initialize Change Flags
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: initialize
+  tags: "{{ nac_tags.common_role }}"
+  delegate_to: localhost
 
 - name: Import Role Tasks for iBGP VXLAN Fabric
   ansible.builtin.import_tasks: sub_main_vxlan.yml
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric.type == 'VXLAN_EVPN'
+  tags: "{{ nac_tags.common_role }}"
+  when: data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN'
 
 - name: Import Role Tasks for eBGP VXLAN Fabric
   ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric.type == 'eBGP_VXLAN'
+  tags: "{{ nac_tags.common_role }}"
+  when: data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
 
 - name: Import Role Tasks for ISN Fabric
   ansible.builtin.import_tasks: sub_main_isn.yml
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric.type == 'ISN'
+  tags: "{{ nac_tags.common_role }}"
+  when: data_model_extended.vxlan.fabric.type == 'ISN'
 
 - name: Import Role Tasks for MSD Fabric
   ansible.builtin.import_tasks: sub_main_msd.yml
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric.type == 'MSD'
+  tags: "{{ nac_tags.common_role }}"
+  when: data_model_extended.vxlan.fabric.type == 'MSD'
 
 - name: Import Role Tasks for External Fabric
   ansible.builtin.import_tasks: sub_main_external.yml
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric.type == 'External'
+  tags: "{{ nac_tags.common_role }}"
+  when: data_model_extended.vxlan.fabric.type == 'External'
+
+- name: Retrieve Flag Values
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: get
+  tags: "{{ nac_tags.common_role }}"
+  register: change_flag_result
+  delegate_to: localhost
+
+- name: Store Change Flags For Use In Subsequent Roles
+  ansible.builtin.set_fact:
+    change_flags: "{{ change_flag_result['flags'] }}"
+  tags: "{{ nac_tags.common_role }}"
+  delegate_to: localhost
+
+- name: Display Flag Values
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: display
+  tags: "{{ nac_tags.common_role }}"
+  delegate_to: localhost

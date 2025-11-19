@@ -36,7 +36,7 @@
 - name: Get List of iBGP VXLAN Fabric Switches from Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/inventory/switchesByFabric"
   register: switch_list
   tags: "{{ nac_tags.remove }}"
 
@@ -44,46 +44,46 @@
   ansible.builtin.import_tasks: common/edge_connections.yml
   tags: "{{ nac_tags.remove_edge_connections }}"
   when:
-    - vars_common_vxlan.changes_detected_edge_connections
+    - change_flags.changes_detected_edge_connections
 
 - name: Remove iBGP VXLAN Fabric Policy from Nexus Dashboard
   ansible.builtin.import_tasks: common/policy.yml
   tags: "{{ nac_tags.remove_policy }}"
   when:
-    - vars_common_vxlan.changes_detected_policy
+    - change_flags.changes_detected_policy
 
 - name: Remove iBGP VXLAN Fabric Interfaces from Nexus Dashboard
   ansible.builtin.import_tasks: common/interfaces.yml
   tags: "{{ nac_tags.remove_interfaces }}"
   when:
-    - vars_common_vxlan.changes_detected_interfaces
+    - change_flags.changes_detected_interfaces
 
 - name: Remove iBGP VXLAN Fabric Networks from Nexus Dashboard
   ansible.builtin.import_tasks: common_vxlan/networks.yml
   tags: "{{ nac_tags.remove_networks }}"
   when:
-    - vars_common_vxlan.changes_detected_networks
+    - change_flags.changes_detected_networks
 
 - name: Remove iBGP VXLAN Fabric VRFs from Nexus Dashboard
   ansible.builtin.import_tasks: common_vxlan/vrfs.yml
   tags: "{{ nac_tags.remove_vrfs }}"
   when:
-    - vars_common_vxlan.changes_detected_vrfs
+    - change_flags.changes_detected_vrfs
 
 - name: Remove iBGP VXLAN Fabric Links from Nexus Dashboard
   ansible.builtin.import_tasks: common/links.yml
   tags: "{{ nac_tags.remove_links }}"
   when:
-    - vars_common_vxlan.changes_detected_fabric_links
+    - change_flags.changes_detected_fabric_links
 
 - name: Remove iBGP VXLAN Fabric vPC Peering from Nexus Dashboard
   ansible.builtin.import_tasks: common/vpc_peers.yml
   tags: "{{ nac_tags.remove_vpc_peers }}"
   when:
-    - vars_common_vxlan.changes_detected_vpc_peering
+    - change_flags.changes_detected_vpc_peering
 
 - name: Remove iBGP VXLAN Fabric Switches from Nexus Dashboard
   ansible.builtin.import_tasks: common/switches.yml
   tags: "{{ nac_tags.remove_switches }}"
   when:
-    - vars_common_vxlan.changes_detected_inventory
+    - change_flags.changes_detected_inventory

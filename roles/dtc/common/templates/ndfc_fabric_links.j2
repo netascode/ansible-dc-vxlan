@@ -19,11 +19,11 @@
 {% endmacro %}
 
 
-{%- if MD_Extended.vxlan.topology.fabric_links is defined and MD_Extended.vxlan.topology.fabric_links %}
-{%- for link in MD_Extended.vxlan.topology.fabric_links %}
+{%- if data_model_extended.vxlan.topology.fabric_links is defined and data_model_extended.vxlan.topology.fabric_links %}
+{%- for link in data_model_extended.vxlan.topology.fabric_links %}
 {%- if link.template is defined and link.source_device_mgmt_ip_address is defined and link.dest_device_mgmt_ip_address is defined %}
 
-  - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+  - dst_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     src_device: "{{ link.source_device_mgmt_ip_address }}"
     src_interface: "{{ normalize_interface(link.source_interface) }}"
     dst_device: "{{ link.dest_device_mgmt_ip_address }}"
@@ -34,6 +34,14 @@
       mtu: "{{ link.mtu | default(defaults.vxlan.topology.fabric_links.mtu) }}"
       peer1_description: "{{ link.source_description | default('') }}"
       peer2_description: "{{ link.destination_description | default('') }}"
+{% if link.peer1_freeform is defined %}
+      peer1_cmds: |2
+        {{ link.peer1_freeform | indent(8) }}
+{% endif %}
+{% if link.peer2_freeform is defined %}
+      peer2_cmds: |2
+        {{ link.peer2_freeform | indent(8) }}
+{% endif %}
 {%- endif %}
 {%- endfor %}
 {%- endif %}

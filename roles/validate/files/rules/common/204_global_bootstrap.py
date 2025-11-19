@@ -1,6 +1,6 @@
 class Rule:
     id = "204"
-    description = "Verify Bootstrap Configuration"
+    description = "Verify bootstrap configuration"
     severity = "HIGH"
 
     @classmethod
@@ -12,6 +12,7 @@ class Rule:
         fabric_type_map = {
             "VXLAN_EVPN": "ibgp",
             "eBGP_VXLAN": "ebgp",
+            "External": "external"
         }
 
         fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
@@ -61,9 +62,10 @@ class Rule:
                 )
                 return results
 
-            if 'domain_name' in check['keys_found']:
+            if 'domain_name' in check['keys_found'] and fabric_type in ("ibgp", "ebgp"):
                 results.append(f"vxlan.global.bootstrap.{dhcp}.domain_name is not supported for bootstrap in a VXLAN type fabric.")
-
+            elif 'domain_name' in check['keys_not_found'] and fabric_type == "external":
+                results.append(f"vxlan.global.bootstrap.{dhcp}.domain_name is required for bootstrap in an External type fabric.")
         return results
 
     @classmethod
