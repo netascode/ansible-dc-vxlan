@@ -59,14 +59,8 @@ class Rule:
                         )
                         if port_channel_match:
                             port_channel_id = port_channel_match.group(1)
-                            try:
-                                vpc_id_int_value = int(vpc_id)
-                            except (TypeError, ValueError):
-                                results.append(
-                                    f"Switch {switch_name} interface {interface_name} has non-numeric vPC id {vpc_id}; use an integer matching the Port-channel ID."
-                                )
-                                continue
-                            if int(port_channel_id) != vpc_id_int_value:
+           
+                            if int(port_channel_id) != int(vpc_id):
                                 results.append(
                                     f"Switch {switch_name} interface {interface_name} uses vPC id {vpc_id} but Port-channel ID {port_channel_id}; these values must match."
                                 )
