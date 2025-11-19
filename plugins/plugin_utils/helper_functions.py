@@ -25,6 +25,52 @@
 # For example in prepare_serice_model.py we can do the following:
 #  from ..helper_functions import do_something
 
+import re
+
+
+def normalize_interface_name(interface_name):
+    """
+    Normalize the interface name to the complete syntaxis:
+        Ethernet
+        Port-channel
+        Loopback
+    :Parameters:
+        :Interface Name (str): Name of the interfaces.
+    :Returns:
+        :interface_name (str): Normalized interface name.
+    :Raises:
+        N/A
+    """
+    # Replace 'eth' or 'e' followed by digits with 'Ethernet' followed by the same digits
+    interface_name = re.sub(
+        r"(?i)^(?:e|eth(?:ernet)?)(\d(?:\/\d+){1,2})$",
+        r"Ethernet\1",
+        interface_name,
+        flags=re.IGNORECASE,
+    )
+    # Replace 'Po' followed by digits with 'Port-channel' followed by the same digits
+    interface_name = re.sub(
+        r"(?i)^(po|port-channel)([1-9]|[1-9][0-9]{1,3}|[1-3][0-9]{3}|40([0-8][0-9]|9[0-6]))$",
+        r"Port-channel\2",
+        interface_name,
+        flags=re.IGNORECASE,
+    )
+    # Replace 'eth' or 'e' followed by digits with 'Ethernet' followed by the same digits (for sub interface)
+    interface_name = re.sub(
+        r"(?i)^(?:e|eth(?:ernet)?)(\d(?:\/\d+){1,2}\.\d{1,4})$",
+        r"Ethernet\1",
+        interface_name,
+        flags=re.IGNORECASE,
+    )
+    # Replace 'Lo' or 'Loopback' followed by digits with 'Loopback' followed by the same digits
+    interface_name = re.sub(
+        r"(?i)^(lo|loopback)([0-9]|[1-9][0-9]{1,2}|10[0-1][0-9]|102[0-3])$",
+        r"Loopback\2",
+        interface_name,
+        flags=re.IGNORECASE,
+    )
+    return interface_name
+
 
 def data_model_key_check(tested_object, keys):
     """
