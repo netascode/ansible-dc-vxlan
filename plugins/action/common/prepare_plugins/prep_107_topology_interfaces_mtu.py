@@ -68,7 +68,7 @@ class PreparePlugin:
                 return 'default'
             case int(n) if n == system_mtu:
                 return 'jumbo'
-            case str(n) if n == 'jumbo' or n == 'default':
+            case str(n) if n in ('jumbo', 'default'):
                 return interface_mtu
             case _:
                 self.kwargs['results']['failed'] = True
