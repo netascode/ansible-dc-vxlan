@@ -2,7 +2,7 @@
 ! DO NOT EDIT MANUALLY
 !
 !
-{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
+{% set simplified_fabric_type = data_model_extended.vxlan.fabric.simplified_type %}
 {% macro vrf_lite_ebgp_vrf_config(item, switch_item, defaults) %}
 
 {% if switch_item.router_id %}
@@ -193,11 +193,11 @@ feature bfd
 {% endif %}
 !
 {% if item.vrf.lower() == "default" %}
-router bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }}
+router bgp {{ data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn }}
   {# GRT #}
   {{- vrf_lite_ebgp_vrf_config(item, switch_item, defaults) -}}
 {% else %}
-router bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }}
+router bgp {{ data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn }}
   {# Other VRFs #}
   vrf {{ item.vrf }}
 

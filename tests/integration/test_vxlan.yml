@@ -24,7 +24,7 @@
 
 # Instructions for using this playbook:
 #
-# 1. Make sure you run the tests/integration/test_update_model_data playbook first
+# 1. Make sure you run the tests/integration/test_update_data_model playbook first
 #
 # 2. Run the playbook with the following command and replacing the fabric pofile name with one of the supported options in the list below:
 #    ansible-playbook -i test_inventory.yml test_vxlan.yml -e 'fabric_profile=<fabric_profile_name>'

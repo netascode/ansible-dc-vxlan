@@ -30,12 +30,12 @@
 
 - name: Manage Fabric Deployment for External Fabric in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     operation: all
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
   when:
-    - MD_Extended.vxlan.topology.switches is defined
-    - MD_Extended.vxlan.topology.switches | length > 0
+    - data_model_extended.vxlan.topology.switches is defined
+    - data_model_extended.vxlan.topology.switches | length > 0

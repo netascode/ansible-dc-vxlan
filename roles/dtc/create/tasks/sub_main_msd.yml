@@ -37,30 +37,30 @@
 - name: Create MSD Fabric in Nexus Dashboard
   ansible.builtin.import_tasks: common/fabric.yml
   when:
-    - MD_Extended.vxlan.fabric.name is defined
-    - MD_Extended.vxlan.fabric.type == "MSD"
+    - data_model_extended.vxlan.fabric.name is defined
+    - data_model_extended.vxlan.fabric.type == "MSD"
     - change_flags.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
 - name: Manage MSD Fabric Child Fabrics in Nexus Dashboard
   ansible.builtin.import_tasks: msd/child_fabrics.yml
   when:
-    - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
+    - data_model_extended.vxlan.multisite.child_fabrics is defined and data_model_extended.vxlan.multisite.child_fabrics | length > 0
 
 - name: Prepare Multisite Data
   cisco.nac_dc_vxlan.dtc.prepare_msite_data:
-    model_data: "{{ MD_Extended }}"
-    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-  register: MD_Multisite
+    data_model: "{{ data_model_extended }}"
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+  register: data_model_multisite
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Create Border Gateway Site Anycast VIP Loopback in Nexus Dashboard
   cisco.dcnm.dcnm_resource_manager:
     state: merged
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     config: "{{ vars_common_msd.bgw_anycast_vip }}"
   when:
-    - (MD_Multisite.child_fabrics_data
+    - (data_model_multisite.child_fabrics_data
        | dict2items
        | selectattr('value.attributes', 'defined')
        | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
@@ -74,6 +74,6 @@
 - name: Manage MSD Fabric VRFs and Networks in Nexus Dashboard
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
   when:
-    - MD_Extended.vxlan.multisite.overlay is defined
-    - MD_Extended.vxlan.multisite.overlay
+    - data_model_extended.vxlan.multisite.overlay is defined
+    - data_model_extended.vxlan.multisite.overlay
   tags: "{{ nac_tags.create_vrfs_networks }}"

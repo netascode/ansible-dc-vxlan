@@ -2,14 +2,14 @@
 # This NDFC vPC Peering config data structure for vPC pairs in External Fabrics is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% if MD_Extended.vxlan.topology.vpc_peers is defined and MD_Extended.vxlan.topology.vpc_peers is not none %}
-{% for vpc_peers_pair in MD_Extended.vxlan.topology.vpc_peers %}
+{% if data_model_extended.vxlan.topology.vpc_peers is defined and data_model_extended.vxlan.topology.vpc_peers is not none %}
+{% for vpc_peers_pair in data_model_extended.vxlan.topology.vpc_peers %}
 - peerOneId: {{ vpc_peers_pair.peer1_mgmt_ip_address }}
   peerTwoId: {{ vpc_peers_pair.peer2_mgmt_ip_address }}
   templateName: "vpc_pair"
   profile:
     DOMAIN_ID: {{ vpc_peers_pair.domain_id }}
-    FABRIC_NAME: {{ MD_Extended.vxlan.fabric.name }}
+    FABRIC_NAME: {{ data_model_extended.vxlan.fabric.name }}
     KEEP_ALIVE_HOLD_TIMEOUT: {{ vpc_peers_pair.keepalive_hold_time | default(defaults.vxlan.topology.vpc_peers.keepalive_hold_time) }}
     KEEP_ALIVE_VRF: {{ vpc_peers_pair.keepalive_vrf }}
     PEER1_DOMAIN_CONF: |2-
@@ -18,8 +18,8 @@
     PEER2_DOMAIN_CONF: |2-
       {{ vpc_peers_pair.peer2_domain_conf | default('') | indent(6, false)}}
     PEER2_KEEP_ALIVE_LOCAL_IP: {{ vpc_peers_pair.peer2_keepalive_ipv4 }}
-{% set peer1_switch = MD_Extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer1) | first %}
-{% set peer2_switch = MD_Extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer2) | first %}
+{% set peer1_switch = data_model_extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer1) | first %}
+{% set peer2_switch = data_model_extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer2) | first %}
 {% if peer1_switch.interfaces is defined %}
 {% set peer1_vpc_interface = peer1_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_peer_link') | first | default({}) %}
 {% endif %}

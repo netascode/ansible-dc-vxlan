@@ -3,7 +3,7 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% for switch in MD_Extended.vxlan.topology.switches %}
+{% for switch in data_model_extended.vxlan.topology.switches %}
 {% if switch.interface_breakouts is defined %}
 {% for breakout in switch.interface_breakouts %}
 {% if not (breakout.enable_during_bootstrap | default(false)) %}

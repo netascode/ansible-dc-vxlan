@@ -25,11 +25,11 @@ OSPF_VERSIONS = ["ospf", "ospfv3"]
 
 class Rule:
     """
-    Class 502 - Verify VRF-Lites Cross Reference Between Policies, Groups, and Switches
+    Class 502 - Verify VRF-Lites cross reference between policies, groups, and switches
     """
 
     id = "502"
-    description = "Verify VRF-Lites Cross Reference Between Policies, Groups, and Switches"
+    description = "Verify VRF-Lites cross reference between policies, groups, and switches"
     severity = "HIGH"
     results = []
 

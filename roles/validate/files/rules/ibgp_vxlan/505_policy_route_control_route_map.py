@@ -27,11 +27,11 @@ Validation Rules scenarios:
 
 class Rule:
     """
-    Class 505 - Verify Route-Control Cross Reference Integrity Between Policies, Groups, and Switches
+    Class 505 - Verify route control cross reference between policies, groups, and switches
     """
 
     id = "505"
-    description = "Verify Route-Control Cross Reference Integrity Between Policies, Groups, and Switches"
+    description = "Verify route control cross reference between policies, groups, and switches"
     severity = "HIGH"
     results = []
 
