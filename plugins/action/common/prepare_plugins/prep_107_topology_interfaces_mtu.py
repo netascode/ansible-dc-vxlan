@@ -46,41 +46,35 @@ class PreparePlugin:
                 parent_interface_mtu = default_routed_int_mtu
         return parent_interface_name, parent_interface_mtu
 
-    # layer2_host_interface_mtu must be an even int
+    # layer2_host_interface_mtu must be an even int or 'default'
     def standarize_global_l2_mtu(self, mtu):
-        n = None
-        match mtu:
-            case 'default':
-                return 1500
-            case int(n) if n % 2 == 0:
-                return mtu
-            case _:
-                self.kwargs['results']['failed'] = True
-                self.kwargs['results']['msg'] = f'vxlan.underlay.general.layer2_host_interface_mtu is not a valid value ({mtu}). MTU cannot be an odd number.'
+        if mtu == 'default':
+            return 1500
+        if mtu % 2 == 0:
+            return mtu
+        self.kwargs['results']['failed'] = True
+        self.kwargs['results']['msg'] = f'vxlan.underlay.general.layer2_host_interface_mtu is not a valid value ({mtu}). MTU cannot be an odd number.'
+        return None
 
-    # Validate that the interfaces mtu is correct, either 1500 or the value of layer2_host_interface_mtu (sysmtem jumbomtu)
+    # Validate that the interfaces mtu is correct, either default, jumbo, 1500 or the value of layer2_host_interface_mtu (sysmtem jumbomtu)
     def standarize_l2_mtu(self, switch_name, interface, system_mtu):
-        n = None
         interface_mtu = interface.get('mtu')
         interface_name = normalize_interface_name(interface.get('name'))
-        match interface_mtu:
-            case 1500:
-                return 'default'
-            case int(n) if n == system_mtu:
-                return 'jumbo'
-            case str(n) if n in ('jumbo', 'default'):
-                return interface_mtu
-            case _:
-                self.kwargs['results']['failed'] = True
-                # Adding space if previous errors exist if not initialize str
-                if self.kwargs['results']['msg']:
-                    self.kwargs['results']['msg'] += ' '
-                else:
-                    self.kwargs['results']['msg'] = ''
-
-                self.kwargs['results']['msg'] += f'vxlan.topology.switches.{switch_name}.interfaces.{interface_name}.mtu ({interface_mtu}) is not a valid \
+        if interface_mtu == 1500:
+            return 'default'
+        if interface_mtu == system_mtu:
+            return 'jumbo'
+        if interface_mtu in ('jumbo', 'default'):
+            return interface_mtu
+        self.kwargs['results']['failed'] = True
+        # Adding space if previous errors exist if not initialize str
+        if self.kwargs['results']['msg']:
+            self.kwargs['results']['msg'] += ' '
+        else:
+            self.kwargs['results']['msg'] = ''
+        self.kwargs['results']['msg'] += f'vxlan.topology.switches.{switch_name}.interfaces.{interface_name}.mtu ({interface_mtu}) is not a valid \
 value. MTU must be 1500 or {system_mtu}.'
-                return None
+        return None
 
     def prepare(self):
         model_data = self.kwargs['results']['model_extended']
