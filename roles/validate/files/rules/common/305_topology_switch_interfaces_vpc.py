@@ -59,10 +59,11 @@ class Rule:
                         )
                         if port_channel_match:
                             port_channel_id = port_channel_match.group(1)
-           
+
                             if int(port_channel_id) != int(vpc_id):
                                 results.append(
-                                    f"Switch {switch_name} interface {interface_name} uses vPC id {vpc_id} but Port-channel ID {port_channel_id}; these values must match."
+                                    f"Switch {switch_name} interface {interface_name} uses vPC id {vpc_id}"
+                                    "but Port-channel ID {port_channel_id}; these values must match."
                                 )
 
                         # Check if vPC id is referenced by more than 1 Port-channel on the switch
