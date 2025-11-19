@@ -6,9 +6,10 @@ plugins/action/common/prepare_plugins/prep_003_list_defaults.py action-plugin-do
 plugins/action/common/prepare_plugins/prep_104_topology_switches.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_105_fabric_overlay.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_106_topology_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_107_topology_vpc_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_108_vrf_lites.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_109_route_control.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_107_topology_interfaces_mtu.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_108_topology_vpc_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_109_vrf_lites.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_110_route_control.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_118_topology_edge_connections.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_999_verify.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
