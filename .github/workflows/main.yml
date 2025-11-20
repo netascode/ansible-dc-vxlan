@@ -194,10 +194,10 @@ jobs:
           path: .cache/collection-tarballs
 
       - name: Install the collection tarball
-        run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz
+        run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz -p ${{GITHUB_WORKSPACE}}/.ansible/
 
       - name: Install the base collection tarball
-        run: ansible-galaxy collection install git+https://github.com/CiscoDevNet/ansible-dcnm.git,develop
+        run: ansible-galaxy collection install git+https://github.com/CiscoDevNet/ansible-dcnm.git,develop -p ${{GITHUB_WORKSPACE}}/.ansible/
 
       - name: Install ansible-lint (25.9.2)
         run: pip install ansible-lint==25.9.2
