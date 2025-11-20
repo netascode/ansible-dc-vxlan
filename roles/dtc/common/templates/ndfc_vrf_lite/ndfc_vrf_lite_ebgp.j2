@@ -200,6 +200,5 @@ router bgp {{ data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn }
 router bgp {{ data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn }}
   {# Other VRFs #}
   vrf {{ item.vrf }}
-
   {{- vrf_lite_ebgp_vrf_config(item, switch_item, defaults) | indent(2) -}}
 {% endif %}
