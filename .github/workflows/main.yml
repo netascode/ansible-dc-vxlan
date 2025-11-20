@@ -187,11 +187,20 @@ jobs:
       - name: Install collection dependencies
         run: pip install -r requirements.txt
 
+      - name: Download migrated collection artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: collection-${{ matrix.python_version }}-${{ matrix.ansible_version }}
+          path: .cache/collection-tarballs
+
+      - name: Install the collection tarball
+        run: ansible-galaxy collection install .cache/collection-tarballs/*.tar.gz
+
       - name: Install the base collection tarball
-        run: ansible-galaxy collection install git+https://github.com/CiscoDevNet/ansible-dcnm.git,develop -p "${GITHUB_WORKSPACE}/.ansible/collections"
+        run: ansible-galaxy collection install git+https://github.com/CiscoDevNet/ansible-dcnm.git,develop
 
       - name: Install ansible-lint (25.9.2)
         run: pip install ansible-lint==25.9.2
 
       - name: Run ansible-lint
-        run: ansible-lint --force-color --strict -v
+        run: ansible-lint --offline --force-color --strict -v
