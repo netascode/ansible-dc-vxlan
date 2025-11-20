@@ -87,18 +87,18 @@ class ActionModule(ActionBase):
         Manage child fabrics associated with the parent fabric
         in Nexus Dashboard for MSD and MCFG parent fabrics.
         """
-        resposne = self._execute_module(
-                        module_name="cisco.dcnm.dcnm_rest",
-                        module_args={
-                            "method": method,
-                            "path": path,
-                            "json_data": data
-                        },
-                        task_vars=self.task_vars,
-                        tmp=self.tmp
-                    )
+        response = self._execute_module(
+            module_name="cisco.dcnm.dcnm_rest",
+            module_args={
+                "method": method,
+                "path": path,
+                "json_data": data
+            },
+            task_vars=self.task_vars,
+            tmp=self.tmp
+        )
 
-        return resposne
+        return response
 
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
@@ -131,7 +131,7 @@ class ActionModule(ActionBase):
             path = self.multisite_operations_map[self.parent_fabric_type][operation]['path'].format(parent_fabric=self.parent_fabric)
 
         for fabric in child_fabrics:
-            data =  self._render_data_template(
+            data = self._render_data_template(
                 template=self.multisite_operations_map[self.parent_fabric_type]['data_template'],
                 child_fabric=fabric,
                 operation=operation

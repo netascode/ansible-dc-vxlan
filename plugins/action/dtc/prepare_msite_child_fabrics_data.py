@@ -45,17 +45,17 @@ class ActionModule(ActionBase):
         Get current child fabrics associated with the parent fabric
         in Nexus Dashboard for MSD and MCFG parent fabrics.
         """
-        resposne = self._execute_module(
-                        module_name="cisco.dcnm.dcnm_rest",
-                        module_args={
-                            "method": "GET",
-                            "path": path,
-                        },
-                        task_vars=self.task_vars,
-                        tmp=self.tmp
-                    )
+        response = self._execute_module(
+            module_name="cisco.dcnm.dcnm_rest",
+            module_args={
+                "method": "GET",
+                "path": path,
+            },
+            task_vars=self.task_vars,
+            tmp=self.tmp
+        )
 
-        return resposne
+        return response
 
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
@@ -97,11 +97,11 @@ class ActionModule(ActionBase):
             associated_child_fabrics = []
             for fabric in multisite_fabric_associations.get('response').get('DATA'):
                 associated_child_fabrics.append(
-                        {
-                            'name': list(fabric['fabrics'].keys())[0],
-                            'cluster': fabric['clusterName'],
-                        }
-                    )
+                    {
+                        'name': list(fabric['fabrics'].keys())[0],
+                        'cluster': fabric['clusterName'],
+                    }
+                )
 
         else:
             results['failed'] = True
