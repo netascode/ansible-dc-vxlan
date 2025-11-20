@@ -86,7 +86,6 @@ area 0.0.0.0 default-cost {{ area.area_cost }}
     {% endif %}
   {% endif %}
 {% endmacro %}
-
 feature ospfv3
 {% set redistribute = {} %}
 {% set feature = {} %}
@@ -140,7 +139,7 @@ router ospfv3 {{ item.ospfv3['process'] }}
 {% endif %}
 {% if item.ospfv3.areas is defined and item.ospfv3.areas %}
 {% for area in item.ospfv3.areas %}
-  {{ render_ospf_area(area, defaults) | indent(2) }}
+  {{ render_ospf_area(area, defaults) | trim | indent(2) }}
 {% endfor %}
 {% endif %}
   address-family ipv6 unicast
@@ -196,7 +195,7 @@ router ospfv3 {{ item.ospfv3['process'] }}
     {% endif %}
     {% if item.ospfv3.areas is defined and item.ospfv3.areas %}
     {% for area in item.ospfv3.areas %}
-    {{ render_ospf_area(area, defaults) | indent(4) }}
+    {{ render_ospf_area(area, defaults) | trim | indent(4) }}
     {% endfor %}
     {% endif %}
     address-family ipv6 unicast
