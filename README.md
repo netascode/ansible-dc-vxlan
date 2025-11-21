@@ -130,7 +130,6 @@ This will clone the example repository into the directory `nac-vxlan`. Next dele
 
 In this directory create a new virtual environment and install a Python version of your choice. At the time writing, Python version 3.10.13 is commonly used. Command `pyenv install 3.10.13` will install this version. For detailed instructions please visit the [pyenv](https://github.com/pyenv/pyenv) site.
 
-
 ```bash
 cd nac-vxlan
 pyenv virtualenv <python_version> nac-nd
@@ -234,14 +233,12 @@ The data model is **required** to exist under the `host_vars` directory structur
 
 The collection is **pre-built** to utilize the `group_vars` and `host_vars` matching what is already constructed in the repository. Currently this methodology is a 1:1 relationship between code repository and NDFC fabric. For more complex environments, the inventory file can be expanded to include multiple groups and hosts including the usage of multi-site fabrics as explained in a separate document.
 
-
 #### Step 1 - Update the Inventory File
 
 In the provided `inventory.yaml` file in the project's root directory, update
 the `ansible_host` variable to point to your ND controller by replacing `"{{ lookup('ansible.builtin.env', 'ND_HOST') }}"` with the IP address of the
 ND controller or setting the ```ND_HOST``` environment variable as described
 in Step 3.
-
 
 #### Step 2 - Configure Ansible Connection File
 
@@ -304,9 +301,9 @@ export NDFC_SW_PASSWORD=Admin_123
 
 This collection supports flexible credential management for network switches with three security levels:
 
-- **🔐 Ansible Vault**: Encrypted credentials for production deployments
-- **✅ Environment Variables**: Secure credential injection for CI/CD pipelines
-- **⚠️ Plain Text**: Simple credentials for lab testing only
+* **🔐 Ansible Vault**: Encrypted credentials for production deployments
+* **✅ Environment Variables**: Secure credential injection for CI/CD pipelines
+* **⚠️ Plain Text**: Simple credentials for lab testing only
 
 The system supports both switch-specific credentials and group-level defaults with automatic fallback. Environment variable lookups can be configured in group_vars for enhanced security and automation compatibility.
 
@@ -328,7 +325,7 @@ This collection is intended for use with the following release versions:
 <!--start requires_ansible-->
 ## Ansible Version Compatibility
 
-This collection has been tested against following Ansible Core versions: 
+This collection has been tested against following Ansible Core versions:
 * `2.14.x`
 * `2.15.x`
 * `2.16.x`
@@ -378,7 +375,6 @@ The first role is `cisco.nac_dc_vxlan.validate` which is going to validate the d
 
 The subsequent roles are the `cisco.nac_dc_vxlan.dtc.create`, `cisco.nac_dc_vxlan.dtc.deploy`, and `cisco.nac_dc_vxlan.dtc.remove` roles. These roles are the primary roles that will invoke changes in ND as described earlier.
 
-
 > [!WARNING]
 > For your safety as indicated [earlier](#remove-role), the `remove` role also
 > requires setting some variables to `true` under the `group_vars` directory.
@@ -417,13 +413,13 @@ For example, if VRFs and Networks are added/changed/removed in the model data fi
 
 This capability is not available under the following conditions:
 
-  * Control flag `force_run_all` under group_vars is set to `true`.
-  * When using ansible tags to control execution.
-  * When one of the following roles failed to complete on the previous run.
-    * `cisco.nac_dc_vxlan.validate`
-    * `cisco.nac_dc_vxlan.create`
-    * `cisco.nac_dc_vxlan.deploy`
-    * `cisco.nac_dc_vxlan.remove`
+* Control flag `force_run_all` under group_vars is set to `true`.
+* When using ansible tags to control execution.
+* When one of the following roles failed to complete on the previous run.
+  * `cisco.nac_dc_vxlan.validate`
+  * `cisco.nac_dc_vxlan.create`
+  * `cisco.nac_dc_vxlan.deploy`
+  * `cisco.nac_dc_vxlan.remove`
 
   If any of these conditions is true then all roles/sections will be run.
 
@@ -432,12 +428,15 @@ This capability is not available under the following conditions:
 * [Ansible Using Collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
 
 ## Multi-Site Domain for VXLAN BGP EVPN Fabrics
+
 A Multi-Site Domain (MSD) is a multifabric administrative domain that is created to manage multiple member fabrics. An MSD is a single point of control for definition of overlay VRFs and Networks that are shared across member fabrics. When you move fabrics under the MSD as child fabrics, the child fabrics share the VRFs and networks created at the MSD-level. This way, you can consistently provision VRFs and networks for different fabrics, at one go. It significantly reduces the time and complexity involving multiple fabric provisionings.
 
-### To configure and manage MSD fabrics with VXLAN as Code, you should use the following workflow:
+### To configure and manage MSD fabrics with VXLAN as Code, you should use the following workflow
+
 1. Create each member/child fabric that will be managed by MSD using the normal data models for each fabric (or use a combined data model with all child fabrics)
 2. Create the MSD fabric. In the data model set the fabric type to MSD and specify each child fabric that will be managed.
    Reference the [VXLAN MultiSite Data Model](https://netascode.cisco.com/docs/data_models/vxlan/multisite/multisite/)
+
 > [!NOTE]
 > Any additional changes can be done using the MSD fabric data model or on an individual fabric basis using the respective playbooks.
 
@@ -453,10 +452,10 @@ We welcome community contributions to this collection. If you find problems, ple
 
 ## More Information
 
-- [Cisco Nexus Dashboard and Services Deployment and Upgrade Guide](https://www.cisco.com/c/en/us/td/docs/dcn/nd/3x/deployment/cisco-nexus-dashboard-and-services-deployment-guide-321.html)
-- [Cisco Nexus Dashboard Fabric Controller (NDFC) User Content for LAN Configuration Guide](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1222/collections/ndfc-user-content-1222-lan.html)
-- [Ansible User Guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
-- [Ansible Developer Guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
+* [Cisco Nexus Dashboard and Services Deployment and Upgrade Guide](https://www.cisco.com/c/en/us/td/docs/dcn/nd/3x/deployment/cisco-nexus-dashboard-and-services-deployment-guide-321.html)
+* [Cisco Nexus Dashboard Fabric Controller (NDFC) User Content for LAN Configuration Guide](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1222/collections/ndfc-user-content-1222-lan.html)
+* [Ansible User Guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
+* [Ansible Developer Guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
 
 ## Licensing
 
