@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,15 +21,19 @@
 
 ---
 
-- name: Build Multisite Child Fabric Data for Nexus Dashboard
-  ansible.builtin.debug:
-    msg: "Building MSD Child Fabric Data"
+- name: Set vars_common Based On Fabric Type - MCFG
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_mcfg }}"
+  when: data_model_extended.vxlan.fabric.type == "MCFG"
 
-- name: Prepare Multisite Add and Remove Child Fabric Data
-  cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data:
-    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
-    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
-  when:
-    - data_model_extended.vxlan.multisite.child_fabrics is defined
-  register: data_model_multisite_child_fabrics
+- name: Manage Fabric Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "---------------------------------------------------------------"
+      - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }}"
+      - "---------------------------------------------------------------"
+
+- name: Manage MCFG Fabric in Nexus Dashboard
+  cisco.dcnm.dcnm_fabric_group:
+    state: merged
+    config: "{{ vars_common_mcfg.fabric_config }}"
