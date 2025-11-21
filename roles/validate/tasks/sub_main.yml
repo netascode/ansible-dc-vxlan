@@ -69,7 +69,7 @@
     rules: "{{ rules_path }}"
   register: data_model
   vars:
-    data_path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
+    data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
     rules_path: "{{ role_path }}/files/rules/"
   delegate_to: localhost
 
@@ -79,7 +79,7 @@
     mdata: "{{ data_path }}"
     rules: "{{ enhanced_rules_path }}"
   vars:
-    data_path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
+    data_path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
   when: enhanced_rules_path is defined and enhanced_rules_path
   delegate_to: localhost
 
