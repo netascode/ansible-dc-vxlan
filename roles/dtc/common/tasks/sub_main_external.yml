@@ -24,7 +24,7 @@
 - name: Fail if Data Model is not defined
   ansible.builtin.fail:
     msg: "Service Model Not Defined. Role cisco.nac_dc_vxlan.validate Must Be Called First"
-  when: MD is undefined
+  when: data_model is undefined
   delegate_to: localhost
 
 # ------------------------------------------------------------------------
@@ -32,7 +32,7 @@
 # ------------------------------------------------------------------------
 - name: Set path_name Var
   ansible.builtin.set_fact:
-    path_name: "{{ role_path }}/files/external/{{ MD_Extended.vxlan.fabric.name }}/"
+    path_name: "{{ role_path }}/files/external/{{ data_model_extended.vxlan.fabric.name }}/"
   delegate_to: localhost
 
 - name: Cleanup Files from Previous Run if run_map requires it
@@ -191,6 +191,7 @@
       interface_trunk_po: "{{ interface_trunk_po }}"
       interface_trunk: "{{ interface_trunk }}"
       interface_dot1q: "{{ interface_dot1q }}"
+      interface_vpc: "{{ interface_vpc }}"
       inv_config: "{{ inv_config }}"
       poap_data: "{{ poap_data }}"
       policy_config: "{{ policy_config }}"

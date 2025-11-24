@@ -3,7 +3,7 @@ import re
 
 class Rule:
     id = "304"
-    description = "\n1)Verify Interface names are Unique per switch\n2)Verify member interfaces are not repeated within a switch\n"
+    description = "Verify per switch interface names are unique and are not repeated"
     severity = "HIGH"
 
     # Check if interface names are unique per switch and member interfaces are not repeated within a switch

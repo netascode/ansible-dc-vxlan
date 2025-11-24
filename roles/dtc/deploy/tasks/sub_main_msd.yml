@@ -30,23 +30,23 @@
 
 - name: Manage Fabric Deployment for MSD Fabric in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     operation: all
     child_fabric_vrf_data: "{{ manage_vrf_result }}"
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
   when:
-    - MD_Extended.vxlan.multisite.child_fabrics is defined
-    - MD_Extended.vxlan.multisite.child_fabrics | length > 0
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
+    - data_model_extended.vxlan.multisite.child_fabrics | length > 0
 
 # TODO: Update cisco.nac_dc_vxlan.dtc.fabric_deploy_manager to handle a list of child fabrics
 - name: Config-Save For MSD Child Fabrics in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.fabrics_config_save:
     fabrics: "{{ child_fabrics_vrfs_networks_changed }}"
   when: >
-    MD_Extended.vxlan.fabric.type == 'MSD' and
+    data_model_extended.vxlan.fabric.type == 'MSD' and
     (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0)
 
 - name: Deploy For MSD Child Fabrics in Nexus Dashboard
@@ -56,5 +56,5 @@
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
   when: >
-    MD_Extended.vxlan.fabric.type == 'MSD' and
+    data_model_extended.vxlan.fabric.type == 'MSD' and
     (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0)

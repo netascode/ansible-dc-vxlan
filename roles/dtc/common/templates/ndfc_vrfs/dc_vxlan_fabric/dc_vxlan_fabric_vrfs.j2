@@ -1,8 +1,8 @@
 {# Auto-generated NDFC DC VXLAN EVPN VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
-{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
+{% set simplified_fabric_type = data_model_extended.vxlan.fabric.simplified_type %}
 {% set vrfs = [] %}
-{% if MD_Extended.vxlan.overlay.vrfs is defined and MD_Extended.vxlan.overlay.vrfs %}
-{% set vrfs = MD_Extended.vxlan.overlay.vrfs %}
+{% if data_model_extended.vxlan.overlay.vrfs is defined and data_model_extended.vxlan.overlay.vrfs %}
+{% set vrfs = data_model_extended.vxlan.overlay.vrfs %}
 {% endif %}
 {% for vrf in vrfs %}
 - vrf_name: {{ vrf['name'] }}
@@ -64,8 +64,8 @@
 {# ------------------------------------------------------ #}
 {% if vrf['vrf_attach_group'] is defined %}
   attach:
-{% if MD_Extended.vxlan.overlay.vrf_attach_groups_dict is defined and MD_Extended.vxlan.overlay.vrf_attach_groups_dict %}
-{% set vrf_attach_groups_dict = MD_Extended.vxlan.overlay.vrf_attach_groups_dict %}
+{% if data_model_extended.vxlan.overlay.vrf_attach_groups_dict is defined and data_model_extended.vxlan.overlay.vrf_attach_groups_dict %}
+{% set vrf_attach_groups_dict = data_model_extended.vxlan.overlay.vrf_attach_groups_dict %}
 {% endif %}
 {% for attach in vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}

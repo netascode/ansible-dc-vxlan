@@ -37,7 +37,7 @@ class ActionModule(ActionBase):
         results['failed'] = False
 
         parent_fabric_name = self._task.args['parent_fabric_name']
-        model_data_overlay = self._task.args['model_data_overlay']
+        data_model_overlay = self._task.args['data_model_overlay']
 
         msd_inventory = self._execute_module(
             module_name="cisco.dcnm.dcnm_inventory",
@@ -68,13 +68,13 @@ class ActionModule(ActionBase):
         # Only makes sense to check this if msd_switches actually has switches.
         if bool(msd_switches):
             results['msg'] = []
-            for switch in model_data_overlay['vrf_attach_switches_list']:
+            for switch in data_model_overlay['vrf_attach_switches_list']:
                 if switch not in msd_switches.keys():
                     results['failed'] = True
                     msg = f"Switch ({switch}) defined under vxlan.multisite.overlay.vrf_attach_groups"
                     msg += f" does not exist under this MSD fabric ({parent_fabric_name})"
                     results['msg'].append(msg)
-            for switch in model_data_overlay['network_attach_switches_list']:
+            for switch in data_model_overlay['network_attach_switches_list']:
                 if switch not in msd_switches.keys():
                     results['failed'] = True
                     msg = f"Switch ({switch}) defined under vxlan.multisite.overlay.network_attach_groups"

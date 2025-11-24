@@ -1,6 +1,6 @@
 class Rule:
     id: str = "208"
-    description: str = "Verify IP address when manual_underlay_allocation is true"
+    description: str = "Verify IP addresses when manual_underlay_allocation is true"
     severity: str = "HIGH"
 
     results = []
