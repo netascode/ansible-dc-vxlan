@@ -79,10 +79,14 @@ class ActionModule(ActionBase):
 
         key_username = 'ndfc_switch_username'
         key_password = 'ndfc_switch_password'
+        key_discovery_username = 'ndfc_switch_discovery_username'
+        key_discovery_password = 'ndfc_switch_discovery_password'
 
         ndfc_host_name = task_vars['inventory_hostname']
         username = task_vars['hostvars'][ndfc_host_name].get(key_username, '')
         password = task_vars['hostvars'][ndfc_host_name].get(key_password, '')
+        discovery_username = task_vars['hostvars'][ndfc_host_name].get(key_discovery_username, '')
+        discovery_password = task_vars['hostvars'][ndfc_host_name].get(key_discovery_password, '')
 
         # Fail if username and password are not set
         if username == '' or password == '':
@@ -128,6 +132,29 @@ class ActionModule(ActionBase):
                 new_device['user_name'] = username
                 new_device['password'] = password
                 display.vvv(f"No individual credentials found in model data for device {device_ip}. Using group_vars credentials.")
+
+            # Handle discovery credentials if applicable
+            if 'poap' in new_device and new_device['poap']:
+                discovery_user = new_device['poap'][0].get('discovery_username')
+                discovery_pass = new_device['poap'][0].get('discovery_password')
+
+                # Check for placeholder values indicating new credentials are needed for discovery
+                is_placeholder = (
+                    discovery_user == 'PLACE_HOLDER_USERNAME' or
+                    discovery_pass == 'PLACE_HOLDER_PASSWORD'
+                )
+                if is_placeholder:
+                    # Use group_vars discovery credentials
+                    if discovery_username == '' or discovery_password == '':
+                        display.warning(
+                            f"No discovery credentials found for new user in group_vars for device {device_ip}. "
+                            f"Skipping discovery credentials assignment and fallback to default behavior."
+                        )
+                        new_device['poap'][0].pop('discovery_username', None)
+                        new_device['poap'][0].pop('discovery_password', None)
+                    else:
+                        new_device['poap'][0]['discovery_username'] = discovery_username
+                        new_device['poap'][0]['discovery_password'] = discovery_password
 
         results['updated_inv_list'] = updated_inv_list
         return results
