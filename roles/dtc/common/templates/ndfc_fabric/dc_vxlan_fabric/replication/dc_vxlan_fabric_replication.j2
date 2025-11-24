@@ -32,5 +32,25 @@
   L3VNI_IPv6_MCAST_GROUP: "{{ vxlan.underlay.multicast.ipv6.trmv6_default_group | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_default_group) }}"
 {% endif %}
 {% endif %}
+
+{% if (((vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) and
+        (vxlan.global.ibgp.enable_mvpn_vri_id_range | default(defaults.vxlan.global.ibgp.enable_mvpn_vri_id_range))) or
+        (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool)) %}
+{% if vxlan.underlay.multicast.mvpn_vri_id_range.from is defined %}
+{% set mvpn_vri_start = vxlan.underlay.multicast.mvpn_vri_id_range.from %}
+{% if vxlan.underlay.multicast.mvpn_vri_id_range.to is defined %}
+{% set mvpn_vri_end = vxlan.underlay.multicast.mvpn_vri_id_range.to %}
+{% endif %}
+{% endif %}
+{% if mvpn_vri_start is defined and mvpn_vri_end is not defined %}
+{% set mvpn_vri_range = mvpn_vri_start %}
+{% elif mvpn_vri_start is defined and mvpn_vri_end is defined %}
+{% set mvpn_vri_range = mvpn_vri_start ~ '-' ~ mvpn_vri_end %}
+{% else %}
+{% set mvpn_vri_range = '""' %}
+{% endif %}
+  MVPN_VRI_ID_RANGE: {{ mvpn_vri_range }}
+{% endif %}
+
 {% endif %}
 {% endif %}

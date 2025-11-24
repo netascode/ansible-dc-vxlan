@@ -56,6 +56,9 @@ vxlan:
       underlay_rp_loopback_id: 128
       trm_enable: true
       trm_default_group: 239.1.1.0
+      mvpn_vri_id_range:
+        from: 2000
+        to: 2999
     bfd:
       enable: false
       ibgp: false
