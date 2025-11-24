@@ -193,7 +193,7 @@ class ActionModule(ActionBase):
             fabric_manager.fabric_deploy()
             fabric_manager.fabric_check_sync()
 
-            if not fabric_manager.fabric_in_sync and params['fabric_type'] != 'MSD':
+            if not fabric_manager.fabric_in_sync and params['fabric_type'] not in ['MSD', 'MCFG']:
                 # If the fabric is out of sync after deployment try one more time before giving up
                 fabric_manager.fabric_history_get()
                 display.warning(fabric_manager.fabric_history)
@@ -202,7 +202,7 @@ class ActionModule(ActionBase):
                 fabric_manager.fabric_deploy()
                 fabric_manager.fabric_check_sync()
 
-            if not fabric_manager.fabric_in_sync and params['fabric_type'] != 'MSD':
+            if not fabric_manager.fabric_in_sync and params['fabric_type'] not in ['MSD', 'MCFG']:
                 fabric_manager.fabric_history_get()
                 results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync after deployment."
                 results['fabric_history'] = fabric_manager.fabric_history
