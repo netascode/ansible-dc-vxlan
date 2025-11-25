@@ -15,9 +15,8 @@ class Rule:
         4. Switch existence and role validation
         5. Serial number presence
         
-        Note: Network attachment validation for ToR removal cannot be done here
-        because validation runs before diff detection. That check happens in the
-        common phase after diff is computed.
+        6. Check if its preprobisioning then failed
+        
         """
         results = []
         
@@ -97,7 +96,7 @@ class Rule:
                         f"{entry_label}: vpc-to-vpc scenario requires TORs '{tor1_name}' and '{tor2_name}' "
                         f"to be VPC paired in vxlan.topology.vpc_peers"
                     )
-                # Validate: all 4 switches must exist with correct roles
+                # Validate: all 4 switches must exist with correct roles - only leaf and tor roles are supported. BGW or BL roles are invalid.
                 cls._validate_switch_role(leaf1_name, 'leaf', switch_map, results, entry_label)
                 cls._validate_switch_role(leaf2_name, 'leaf', switch_map, results, entry_label)
                 cls._validate_switch_role(tor1_name, 'tor', switch_map, results, entry_label)

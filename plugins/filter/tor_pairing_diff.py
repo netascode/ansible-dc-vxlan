@@ -56,9 +56,6 @@ def tor_pairing_diff(current_pairings, previous_pairings):
     Uses order-independent serial number matching to correctly identify
     pairings that should be removed (exist in previous but not in current).
     
-    Performance: O(n+m) where n=current count, m=previous count
-    (vs O(n*m) for nested loop approach)
-    
     Args:
         current_pairings: list of current ToR pairing dicts
         previous_pairings: list of previous ToR pairing dicts
@@ -79,14 +76,12 @@ def tor_pairing_diff(current_pairings, previous_pairings):
         }
     
     # Build lookup set of current pairing serials
-    # Time complexity: O(n) where n = current pairing count
     current_serial_sets = {}
     for pairing in current_pairings:
         serial_key = normalize_serials(pairing['payload'])
         current_serial_sets[serial_key] = pairing
     
     # Find removals by checking which previous pairings no longer exist
-    # Time complexity: O(m) where m = previous pairing count
     removed = []
     for prev_pairing in previous_pairings:
         prev_serial_key = normalize_serials(prev_pairing['payload'])

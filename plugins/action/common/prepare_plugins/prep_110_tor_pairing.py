@@ -64,16 +64,16 @@ class PreparePlugin:
     def _get_switch(self, name, expected_role, switches, errors):
         """
         Get switch from switches map.
-        Note: Basic validation is now handled by validation rule 311.
         This method focuses on data retrieval for payload generation.
         """
         switch = switches.get(name)
         if not switch:
-            # Validation rule should have caught this
+            # Validation rule #311 should have caught this
             errors.append(f"Switch '{name}' referenced in tor_peers is not defined in vxlan.topology.switches")
             return None
         return switch
 
+    # DELETE ME LATER - rule #311 checks VPC
     def _normalize_vpc_id(self, value, label, errors):
         if value is None:
             errors.append(f"{label} is required when defining tor pairing entries.")
@@ -84,6 +84,7 @@ class PreparePlugin:
             errors.append(f"{label} must be an integer value. Current value: {value!r}")
             return None
 
+    # DELETE ME LATER - rule #311 checks VPC
     def _resolve_vpc_domain(self, peer, key, name_a, name_b, topology):
         if peer.get(key) is not None:
             return peer.get(key)
@@ -148,6 +149,30 @@ class PreparePlugin:
         return None
 
     def prepare(self):
+        """
+        Main prepare method - transforms user config to API payloads and performs diff detection.
+        
+        Returns:
+        dict: results with model_extended updated and optional metadata
+            - model_extended['vxlan']['topology']['tor_pairing']: current pairings
+            - model_extended['vxlan']['topology']['tor_pairing_removed']: removals
+            - results['tor_pairing_diff_stats']: debug statistics (when previous state supplied)
+            or results['failed'] = True with aggregated error messages
+        Examples:
+        [
+            {
+                'pairing_id': 'LEAF_11-TOR_24',
+                'scenario': 'vpc_to_vpc',
+                'payload': {
+                    'leafSN1': '9BUXESV382R',
+                    'leafSN2': '99FYP2OV1NS',
+                    'torSN1': '9Q2X9XATUNL',
+                    'torSN2': '9M81OZOOCWM'
+                }
+            }
+        ]
+        
+        """
         results = self.kwargs['results']
         model_data = results['model_extended']
         topology = model_data.get('vxlan', {}).get('topology', {})
@@ -272,7 +297,6 @@ class PreparePlugin:
 
             # Skip if scenario validation already failed
             if scenario != 'standalone_to_standalone' and not leaf_is_vpc:
-                # scenario with additional members but no vpc support already logged
                 continue
 
             if len(errors) > error_count_start:
@@ -294,11 +318,15 @@ class PreparePlugin:
             results['failed'] = True
             results['msg'] = '\n'.join(errors)
             return results
+        
+        #############################################
+        ## Diff Detection for ToR Pairing Removals ##
+        #############################################
 
         # Store processed pairings in model_extended
         model_data['vxlan']['topology']['tor_pairing'] = processed_pairs
         
-        # Perform diff detection for removals (merged from prep_115)
+        # Perform diff detection for removals
         # Get previous pairings (passed from ndfc_tor_pairing.yml)
         previous_pairings = self.kwargs.get('tor_pairing_previous_list', [])
         

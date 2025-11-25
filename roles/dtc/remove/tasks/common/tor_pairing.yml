@@ -9,21 +9,6 @@
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
 
-- name: Set vars_common Based On Fabric Type - MSD
-  ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_msd }}"
-  when: MD_Extended.vxlan.fabric.type == "MSD"
-
-- name: Set vars_common Based On Fabric Type - ISN
-  ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_isn }}"
-  when: MD_Extended.vxlan.fabric.type == "ISN"
-
-- name: Set vars_common Based On Fabric Type - External
-  ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_external }}"
-  when: MD_Extended.vxlan.fabric.type == "External"
-
 - name: Manage ToR Pairing Removal Entry Point
   ansible.builtin.debug:
     msg:
@@ -31,6 +16,29 @@
       - "+     Remove Fabric ToR Pairing {{ MD_Extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
   when: (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+
+###################################
+## Remove ToR Pairings from NDFC ##
+###################################
+
+### Query Building Logic:
+# Step 1: Build ToR serial list
+# tor_list: ["9Q2X9XATUNL", "9M81OZOOCWM"]
+
+# # Step 2: Join ToRs with comma
+# tor_string: "9Q2X9XATUNL,9M81OZOOCWM"
+
+# # Step 3: Build leaf serial list
+# leaf_list: ["9BUXESV382R", "99FYP2OV1NS"]
+
+# # Step 4: Create dict mapping each leaf to all tors
+# leaftor_map: {
+#   "9BUXESV382R": "9Q2X9XATUNL,9M81OZOOCWM",
+#   "99FYP2OV1NS": "9Q2X9XATUNL,9M81OZOOCWM"
+# }
+
+# # Step 5: Convert to JSON and URL encode
+# leaftor_query: "%7B%229BUXESV382R%22%3A%22..."
 
 - name: Remove ToR pairings from Nexus Dashboard
   cisco.dcnm.dcnm_rest:
