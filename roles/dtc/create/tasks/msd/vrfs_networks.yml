@@ -137,6 +137,9 @@
     - data_model_extended.vxlan.multisite.overlay.vrfs
     - change_flags_multisite.changes_detected_vrfs
 
+- ansible.builtin.pause:
+    minutes: 600
+
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC
 # --------------------------------------------------------------------

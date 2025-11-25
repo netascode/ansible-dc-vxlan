@@ -481,6 +481,7 @@ factory_defaults:
           no_rp: false
           rp_external: false
           redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
+          ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
           trm_enable: false
           trm_bgw_msite: false
         networks:

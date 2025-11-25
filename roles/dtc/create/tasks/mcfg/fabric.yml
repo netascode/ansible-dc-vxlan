@@ -33,7 +33,7 @@
       - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }}"
       - "---------------------------------------------------------------"
 
-- name: Manage MCFG Fabric in Nexus Dashboard
-  cisco.dcnm.dcnm_fabric_group:
-    state: merged
-    config: "{{ vars_common_mcfg.fabric_config }}"
+# - name: Manage MCFG Fabric in Nexus Dashboard
+#   cisco.dcnm.dcnm_fabric_group:
+#     state: merged
+#     config: "{{ vars_common_mcfg.fabric_config }}"
