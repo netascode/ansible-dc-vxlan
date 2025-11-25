@@ -49,13 +49,11 @@ class ActionModule(ActionBase):
             filename = policy.get('filename')
 
             if filename:
-                # Normalize tilde (~) and environment variables if present
                 abs_path = os.path.expanduser(filename)
 
                 with open(abs_path, 'r', encoding='utf-8') as file:
                     data = file.read()
 
-                # import epdb; epdb.serve(port=5555)
                 # Define a pattern to normalize old and new data
                 pattern = r'__omit_place_holder__\S+'
                 data = re.sub(pattern, 'NORMALIZED', data, flags=re.MULTILINE)
