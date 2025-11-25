@@ -61,7 +61,7 @@ class ActionModule(ActionBase):
 
         nd_version = self._task.args["nd_version"]
         msite_data = self._task.args["msite_data"]
-        net_config = self._task.args.get("net_config")
+        net_config = self._task.args["net_config"]
 
         # Extract net_name values from net_config list of dicts
         # net_config contains network(s) to be updated.
@@ -87,6 +87,7 @@ class ActionModule(ActionBase):
 
             # Skip network if its name is not in net_names list
             # This reduce iteration to all networks x child_fabrics.
+
             if network['name'] not in net_names:
                 continue
 
