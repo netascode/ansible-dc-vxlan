@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,15 +21,22 @@
 
 ---
 
-- name: Build Multisite Child Fabric Data for Nexus Dashboard
+- name: Manage MCFG Child Fabrics Entry Point
   ansible.builtin.debug:
-    msg: "Building MSD Child Fabric Data"
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }} Child Fabrics"
+      - "----------------------------------------------------------------"
 
-- name: Prepare Multisite Add and Remove Child Fabric Data
-  cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data:
+- name: Run dtc.common.tasks.mcfg.ndfc_child_fabrics.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/mcfg/ndfc_child_fabrics.yml"
+
+- name: Add Child Fabrics To MCFG Fabric in Nexus Dashboard
+  cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
     parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
+    child_fabrics: "{{ data_model_multisite_child_fabrics.to_be_added }}"
+    state: present
   when:
-    - data_model_extended.vxlan.multisite.child_fabrics is defined
-  register: data_model_multisite_child_fabrics
+    - data_model_multisite_child_fabrics.to_be_added is defined
+    - data_model_multisite_child_fabrics.to_be_added | length > 0

@@ -19,6 +19,11 @@
 {# Include NDFC MSD Base Template #}
 {% include '/ndfc_fabric/msd_fabric/msd_fabric_base.j2' %}
 
+{% elif vxlan.fabric.type == 'MCFG'%}
+
+{# Include NDFC MCFG Base Template #}
+{% include '/ndfc_fabric/mcfg_fabric/mcfg_fabric_base.j2' %}
+
 {% elif vxlan.fabric.type == 'ISN'%}
 
 {# Include NDFC ISN Base Template #}
@@ -29,5 +34,5 @@
 {# Include NDFC External Fabric Base Template #}
 {% include '/ndfc_fabric/dc_external_fabric/dc_external_fabric_base.j2' %}
 
-{# Supported fabric types are: DC VXLAN EVPN, MSD, ISN, External #}
+{# Supported fabric types are: VXLAN_EVPN (iBGP), eBGP_VXLAN, MSD, MCFG, ISN, and External #}
 {% endif %}

@@ -191,6 +191,7 @@
       interface_trunk_po: "{{ interface_trunk_po }}"
       interface_trunk: "{{ interface_trunk }}"
       interface_dot1q: "{{ interface_dot1q }}"
+      interface_vpc: "{{ interface_vpc }}"
       inv_config: "{{ inv_config }}"
       poap_data: "{{ poap_data }}"
       policy_config: "{{ policy_config }}"

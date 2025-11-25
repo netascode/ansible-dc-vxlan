@@ -1,0 +1,12 @@
+{# Auto-generated NDFC MCFG Resources config data structure for fabric {{ vxlan.fabric.name }} #}
+{% if not (vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) | ansible.builtin.bool) %}
+  LOOPBACK100_IP_RANGE: {{ vxlan.multisite.ipv4_vtep_loopback_range | default(defaults.vxlan.multisite.ipv4_vtep_loopback_range) }}
+  DCI_SUBNET_RANGE: {{ vxlan.multisite.overlay_dci.ipv4_dci_subnet_range | default(defaults.vxlan.multisite.overlay_dci.ipv4_dci_subnet_range) }}
+  DCI_SUBNET_TARGET_MASK: "{{ vxlan.multisite.overlay_dci.ipv4_dci_subnet_mask | default(defaults.vxlan.multisite.overlay_dci.ipv4_dci_subnet_mask) }}"
+{% endif %}
+{% if ( (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) and
+        (vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) | ansible.builtin.bool) ) %}
+  LOOPBACK100_IPV6_RANGE: {{ vxlan.multisite.ipv6_vtep_loopback_range | default(defaults.vxlan.multisite.ipv6_vtep_loopback_range) }}
+  V6_DCI_SUBNET_RANGE: {{ vxlan.multisite.overlay_dci.ipv6_dci_subnet_range | default(defaults.vxlan.multisite.overlay_dci.ipv6_dci_subnet_range) }}
+  V6_DCI_SUBNET_TARGET_MASK: {{ vxlan.multisite.overlay_dci.ipv6_dci_subnet_mask | default(defaults.vxlan.multisite.overlay_dci.ipv6_dci_subnet_mask) }}
+{% endif %}
