@@ -37,7 +37,7 @@ class PreparePlugin:
         data_model = self.kwargs['results']['model_extended']
 
         # This plugin does not apply to the follwing fabric types
-        if data_model['vxlan']['fabric']['type'] in ['MSD', 'MCF']:
+        if data_model['vxlan']['fabric']['type'] in ['MSD', 'MCFG']:
             return self.kwargs['results']
 
         data_model['vxlan']['topology']['interfaces'] = {}
