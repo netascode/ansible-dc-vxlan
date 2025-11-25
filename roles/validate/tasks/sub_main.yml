@@ -83,17 +83,6 @@
   when: enhanced_rules_path is defined and enhanced_rules_path
   delegate_to: localhost
 
-- name: Update Data Model With Enhanced Validation Results
-  cisco.nac_dc_vxlan.dtc.update_data_model:
-    data_model: "{{ data_model['data'] }}"
-  register: updated_data_model
-  delegate_to: localhost
-
-- name: Override Data Model With Updated Results
-  ansible.builtin.set_fact:
-    data_model: "{{ updated_data_model }}"
-  delegate_to: localhost
-
 - name: Stat Factory Defaults
   ansible.builtin.stat:
     path: "{{ role_path }}/files/defaults.yml"
