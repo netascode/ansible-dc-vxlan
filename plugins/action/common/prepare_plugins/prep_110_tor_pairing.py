@@ -73,18 +73,6 @@ class PreparePlugin:
             return None
         return switch
 
-    # DELETE ME LATER - rule #311 checks VPC
-    def _normalize_vpc_id(self, value, label, errors):
-        if value is None:
-            errors.append(f"{label} is required when defining tor pairing entries.")
-            return None
-        try:
-            return int(value)
-        except (TypeError, ValueError):
-            errors.append(f"{label} must be an integer value. Current value: {value!r}")
-            return None
-
-    # DELETE ME LATER - rule #311 checks VPC
     def _resolve_vpc_domain(self, peer, key, name_a, name_b, topology):
         if peer.get(key) is not None:
             return peer.get(key)
@@ -95,57 +83,6 @@ class PreparePlugin:
             peers = {candidate.get('peer1'), candidate.get('peer2')}
             if {name_a, name_b} == peers:
                 return candidate.get('domain_id')
-        return None
-
-    def _detect_scenario(self, peer, topology):
-        """
-        Auto-detect ToR pairing scenario based on configuration.
-
-        Returns: tuple (scenario, leaf_vpc_domain, tor_vpc_domain)
-        """
-        parent_leaf1 = peer.get('parent_leaf1')
-        parent_leaf2 = peer.get('parent_leaf2')
-        tor1 = peer.get('tor1')
-        tor2 = peer.get('tor2')
-
-        # Simple string handling (new model)
-        leaf1_name = parent_leaf1 if isinstance(parent_leaf1, str) else parent_leaf1.get('name')
-        leaf2_name = parent_leaf2 if isinstance(parent_leaf2, str) else parent_leaf2.get('name') if parent_leaf2 else None
-        tor1_name = tor1 if isinstance(tor1, str) else tor1.get('name')
-        tor2_name = tor2 if isinstance(tor2, str) else tor2.get('name') if tor2 else None
-
-        # Auto-resolve VPC domains from vpc_peers
-        leaf_vpc_domain = self._resolve_vpc_domain_auto(leaf1_name, leaf2_name, topology) if leaf2_name else None
-        tor_vpc_domain = self._resolve_vpc_domain_auto(tor1_name, tor2_name, topology) if tor2_name else None
-
-        # Determine scenario
-        if leaf2_name and tor2_name:
-            if not leaf_vpc_domain or not tor_vpc_domain:
-                return None, None, None  # Invalid configuration
-            return 'vpc_to_vpc', leaf_vpc_domain, tor_vpc_domain
-        elif leaf2_name and not tor2_name:
-            if not leaf_vpc_domain:
-                return None, None, None  # Invalid configuration
-            return 'vpc_to_standalone', leaf_vpc_domain, None
-        elif not leaf2_name and not tor2_name:
-            return 'standalone_to_standalone', None, None
-        else:
-            # Unsupported: standalone leaf with vpc tor
-            return None, None, None
-
-    def _resolve_vpc_domain_auto(self, switch1_name, switch2_name, topology):
-        """
-        Auto-resolve VPC domain ID from vpc_peers configuration.
-        """
-        if not (switch1_name and switch2_name):
-            return None
-
-        vpc_peers = topology.get('vpc_peers', [])
-        for vpc_pair in vpc_peers:
-            peer1 = vpc_pair.get('peer1')
-            peer2 = vpc_pair.get('peer2')
-            if {peer1, peer2} == {switch1_name, switch2_name}:
-                return vpc_pair.get('domain_id')
         return None
 
     def prepare(self):
@@ -226,18 +163,6 @@ class PreparePlugin:
             leaf_is_vpc = bool(leaf2_switch and leaf_vpc_domain)
             tor_is_vpc = bool(tor2_switch and tor_vpc_domain)
 
-            # Validate VPC domain IDs are present when needed
-            if parent_leaf2 and not leaf_vpc_domain:
-                errors.append(
-                    f"tor_peers entry referencing leaves '{leaf1_name}' and '{leaf2_name}' requires a vPC domain ID. "
-                    f"Ensure these switches are defined in vxlan.topology.vpc_peers."
-                )
-            if tor2 and not tor_vpc_domain:
-                errors.append(
-                    f"tor_peers entry referencing tors '{tor1_name}' and '{tor2_name}' requires a vPC domain ID. "
-                    f"Ensure these switches are defined in vxlan.topology.vpc_peers."
-                )
-
             # Determine scenario based on configuration
             scenario = 'standalone_to_standalone'
             if leaf_is_vpc and tor_is_vpc:
@@ -265,21 +190,6 @@ class PreparePlugin:
                 tor1_serial = tor1_switch.get('serial_number')
             else:
                 tor1_serial = None
-
-            # For VPC scenarios, normalize VPC domain IDs
-            # Only normalize if we actually have a VPC (domain_id exists)
-            leaf1_po = None
-            leaf2_po = None
-            tor1_po = None
-            tor2_po = None
-            
-            if leaf_is_vpc:
-                leaf1_po = self._normalize_vpc_id(leaf_vpc_domain, "leaf_vpc_id", errors)
-                leaf2_po = leaf1_po  # Same VPC domain for both leafs
-            
-            if tor_is_vpc:
-                tor1_po = self._normalize_vpc_id(tor_vpc_domain, "tor_vpc_id", errors)
-                tor2_po = tor1_po  # Same VPC domain for both tors
 
             leaf2_serial = ''
             if leaf_is_vpc and leaf2_switch:

@@ -14,8 +14,7 @@ class Rule:
         3. VPC requirements (leafs/ToRs must be VPC paired per scenario)
         4. Switch existence and role validation
         5. Serial number presence
-        
-        6. Check if its preprobisioning then failed
+        6. Check if the switch (leaf or tor) is selected to preprovision - vxlan.topology.switches.name.poap.preprovision. If yes, raise a validation error as ToR pairing cannot be preprovisioned.
         
         """
         results = []
@@ -78,6 +77,17 @@ class Rule:
             if not leaf1_name or not tor1_name:
                 results.append(f"{entry_label}: 'parent_leaf1' and 'tor1' are required")
                 continue
+            
+            # Preprovision check
+            for switch_name in [leaf1_name, leaf2_name, tor1_name, tor2_name]:
+                if switch_name and switch_name in switch_map:
+                    sw = switch_map[switch_name]
+                    poap = sw.get('poap', {})
+                    if poap.get('preprovision', False):
+                        results.append(
+                            f"{entry_label}: Switch '{switch_name}' is set to preprovision in "
+                            f"ToR pairing cannot be preprovisioned."
+                        )
             
             # Determine scenario
             scenario = cls._detect_scenario(leaf1_name, leaf2_name, tor1_name, tor2_name)

@@ -9,75 +9,34 @@
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
 
-- name: Manage ToR Pairing Removal Entry Point
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Remove Fabric ToR Pairing {{ MD_Extended.vxlan.fabric.name }}"
-      - "----------------------------------------------------------------"
-  when: (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
 
-###################################
-## Remove ToR Pairings from NDFC ##
-###################################
-
-### Query Building Logic:
-# Step 1: Build ToR serial list
-# tor_list: ["9Q2X9XATUNL", "9M81OZOOCWM"]
-
-# # Step 2: Join ToRs with comma
-# tor_string: "9Q2X9XATUNL,9M81OZOOCWM"
-
-# # Step 3: Build leaf serial list
-# leaf_list: ["9BUXESV382R", "99FYP2OV1NS"]
-
-# # Step 4: Create dict mapping each leaf to all tors
-# leaftor_map: {
-#   "9BUXESV382R": "9Q2X9XATUNL,9M81OZOOCWM",
-#   "99FYP2OV1NS": "9Q2X9XATUNL,9M81OZOOCWM"
-# }
-
-# # Step 5: Convert to JSON and URL encode
-# leaftor_query: "%7B%229BUXESV382R%22%3A%22..."
+- name: Process TOR pairing removals
+  cisco.nac_dc_vxlan.dtc.process_tor_removal:
+    tor_pairing_removed: "{{ vars_common_local.tor_pairing_removed | default([], true) }}"
+    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+  register: tor_removal_operations
+  delegate_to: localhost
+  when:
+    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+    - vars_common_local.changes_detected_tor_pairing | default(false)
 
 - name: Remove ToR pairings from Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: DELETE
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{{ MD_Extended.vxlan.fabric.name }}/switches/pair?leaftor={{ leaftor_query }}"
-  loop: "{{ vars_common_local.tor_pairing_removed | default([], true) }}"
+    path: "{{ item.path }}"
+  loop: "{{ tor_removal_operations.removal_operations | default([]) }}"
   loop_control:
     label: "{{ item.pairing_id }}"
-  when:
-    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
-    - changes_detected_tor_pairing | default(false)
-    - item.payload.leafSN1 | default('')
-    - item.payload.torSN1 | default('')
   vars:
     ansible_command_timeout: 300
     ansible_connect_timeout: 300
-    # Build leaftor map: {leafSN1: torSN1,torSN2, leafSN2: torSN1,torSN2}
-    tor_list: "{{ [item.payload.torSN1, item.payload.torSN2 | default('')] | reject('equalto', '') | list }}"
-    tor_string: "{{ tor_list | join(',') }}"
-    leaf_list: "{{ [item.payload.leafSN1, item.payload.leafSN2 | default('')] | reject('equalto', '') | list }}"
-    leaftor_map: "{{ dict(leaf_list | map('regex_replace', '^(.*)$', '\\1') | zip([tor_string] * (leaf_list | length))) }}"
-    leaftor_query: "{{ leaftor_map | to_json | urlencode }}"
   register: tor_pairing_removal_result
   failed_when:
     - tor_pairing_removal_result is failed
     - "'not found' not in (tor_pairing_removal_result.msg | default('') | lower)"
     - "'does not exist' not in (tor_pairing_removal_result.msg | default('') | lower)"
-
-- name: Report ToR pairing removal results
-  ansible.builtin.debug:
-    msg: "Removed {{ vars_common_local.tor_pairing_removed | default([]) | length }} ToR pairing(s)"
   when:
     - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
-    - changes_detected_tor_pairing | default(false)
-
-- name: Skip ToR pairing removal when tor_pairing_delete_mode is False
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING ToR pairing removal because tor_pairing_delete_mode flag is set to False                 +"
-      - "----------------------------------------------------------------------------------------------------"
-  when: not ((tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool))
+    - vars_common_local.changes_detected_tor_pairing | default(false)
+    - tor_removal_operations.removal_operations is defined
+    - tor_removal_operations.removal_operations | length > 0

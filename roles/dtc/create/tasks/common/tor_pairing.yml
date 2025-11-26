@@ -9,25 +9,25 @@
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
   when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
 
-- name: Manage ToR Pairing Entry Point
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Manage Fabric ToR Pairing {{ MD_Extended.vxlan.fabric.name }}"
-      - "----------------------------------------------------------------"
+- name: Process TOR pairing creates
+  cisco.nac_dc_vxlan.dtc.process_tor_create:
+    tor_pairing: "{{ vars_common_local.tor_pairing }}"
+    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+  register: tor_create_operations
+  delegate_to: localhost
   when:
     - vars_common_local.changes_detected_tor_pairing | default(false)
 
 - name: Pair ToR switches in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{{ MD_Extended.vxlan.fabric.name }}/switches/pair/custom-id"
+    path: "{{ item.path }}"
     json_data: "{{ item.payload | to_json }}"
-  loop: "{{ vars_common_local.tor_pairing }}"
+  loop: "{{ tor_create_operations.create_operations | default([]) }}"
   loop_control:
     label: "{{ item.pairing_id }}"
   when:
     - vars_common_local.changes_detected_tor_pairing | default(false)
-    - item.payload.leafSN1
-    - item.payload.torSN1
+    - tor_create_operations.create_operations is defined
+    - tor_create_operations.create_operations | length > 0
 

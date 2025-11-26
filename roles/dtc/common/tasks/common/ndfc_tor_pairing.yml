@@ -1,7 +1,5 @@
-## Migrate chage flags
-
 ---
-- name: Initialize ToR pairing context
+- name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_tor_pairing.yml"
     changes_detected_tor_pairing: false
@@ -18,13 +16,6 @@
     src: "{{ path_name }}{{ file_name }}"
     dest: "{{ path_name }}{{ file_name }}.old"
     mode: preserve
-  when: tor_pairing_previous.stat.exists
-  delegate_to: localhost
-
-- name: Delete previous tor pairing file if it exists
-  ansible.builtin.file:
-    state: absent
-    path: "{{ path_name }}{{ file_name }}"
   when: tor_pairing_previous.stat.exists
   delegate_to: localhost
 
@@ -84,41 +75,24 @@
     - leaf_switches_for_query is defined
     - leaf_switches_for_query | length > 0
 
-- name: Extract existing ToR pairings from NDFC response
-  ansible.builtin.set_fact:
-    ndfc_discovered_pairings: "{{ _updated_pairings }}"
-    tor_pairing_previous_list: "{{ _updated_pairings }}"
-  vars:
-    _updated_pairings: >-
-      {{ (ndfc_discovered_pairings | default([])) + [
-        {
-          'pairing_id': (tor_pair.torName | replace('~', '-')),
-          'scenario': (
-            'vpc_to_vpc' if (tor_pair.torPeerSN is not none and ',' in (tor_pair.leafSNs | default('')))
-            else 'vpc_to_standalone' if (',' in (tor_pair.leafSNs | default('')) and tor_pair.torPeerSN is none)
-            else 'standalone_to_standalone'
-          ),
-          'payload': {
-            'leafSN1': (tor_pair.leafSNs.split(',')[0] if tor_pair.leafSNs and ',' in tor_pair.leafSNs else tor_pair.leafSNs | default('')),
-            'leafSN2': (tor_pair.leafSNs.split(',')[1] if tor_pair.leafSNs and ',' in tor_pair.leafSNs and tor_pair.leafSNs.split(',') | length > 1 else ''),
-            'torSN1': (tor_pair.torSN.split(',')[0] if ',' in (tor_pair.torSN | default('')) else tor_pair.torSN | default('')),
-            'torSN2': (tor_pair.torSN.split(',')[1] if ',' in (tor_pair.torSN | default('')) and tor_pair.torSN.split(',') | length > 1 else '')
-          }
-        }
-      ] }}
-  loop: "{{ ndfc_tor_discovery.response.DATA.torPairs | default([]) | selectattr('remarks', 'search', 'Already paired') }}"     
-  # Move loop to plugin
-  loop_control:
-    loop_var: tor_pair
-    label: "{{ tor_pair.torName }} - {{ tor_pair.remarks }}"
-  delegate_to: localhost
+- name: Process and store NDFC TOR discovery response
+  block:
+    - name: Process discovery response
+      cisco.nac_dc_vxlan.dtc.process_tor_discovery:
+        discovery_response: "{{ ndfc_tor_discovery.response }}"
+      register: tor_discovery_result
+      delegate_to: localhost
+
+    - name: Store discovered pairings
+      ansible.builtin.set_fact:
+        ndfc_discovered_pairings: "{{ tor_discovery_result.discovered_pairings }}"
+        tor_pairing_previous_list: "{{ tor_discovery_result.discovered_pairings }}"
+      delegate_to: localhost
   when:
     - not tor_pairing_previous.stat.exists
     - ndfc_tor_discovery is defined
     - not (ndfc_tor_discovery.failed | default(false))
     - ndfc_tor_discovery.response is defined
-    - ndfc_tor_discovery.response.DATA is defined
-    - ndfc_tor_discovery.response.DATA.torPairs is defined
 
 - name: Cache NDFC discovered pairings for future reference
   ansible.builtin.copy:
@@ -142,20 +116,13 @@
   delegate_to: localhost
   when: (lookup('file', path_name + file_name) | length) > 0
 
-- name: Compute ToR pairing diff
+- name: Compute ToR pairing diff and extract removals
   ansible.builtin.set_fact:
     tor_pairing_diff_result: "{{ tor_pairing_current_list | cisco.nac_dc_vxlan.tor_pairing_diff(tor_pairing_previous_list) }}"
+    tor_pairing_removed: "{{ (tor_pairing_current_list | cisco.nac_dc_vxlan.tor_pairing_diff(tor_pairing_previous_list)).removed | default([]) }}"
   delegate_to: localhost
   when:
     - tor_pairing_previous_list | length > 0
-
-- name: Compute removed ToR pairings
-  ansible.builtin.set_fact:
-    tor_pairing_removed: "{{ tor_pairing_diff_result.removed | default([]) }}"
-  delegate_to: localhost
-  when:
-    - tor_pairing_previous_list | length > 0
-    - tor_pairing_diff_result is defined
 
 - name: Diff ToR pairing payload file
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
@@ -164,29 +131,22 @@
   register: tor_pairing_diff
   delegate_to: localhost
 
-- name: Flag ToR pairing changes when detected
-  ansible.builtin.set_fact:
-    changes_detected_tor_pairing: true
-  when:
-    - tor_pairing_diff.file_data_changed
-    - check_roles['save_previous']
-  delegate_to: localhost
+- name: Update flags when change detected
+  block:
+    - name: Set local change flag
+      ansible.builtin.set_fact:
+        changes_detected_tor_pairing: true
+      delegate_to: localhost
 
-- name: Flag ToR pairing removal when differences identified
-  ansible.builtin.set_fact:
-    changes_detected_tor_pairing: true
-  when:
-    - tor_pairing_removed | length > 0
-  delegate_to: localhost
-
-- name: Update change detection flag for ToR pairing changes
-  cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-    role_path: "{{ common_role_path }}"
-    operation: update
-    change_flag: changes_detected_tor_pairing
-    flag_value: true
-  delegate_to: localhost
-  when:
-    - changes_detected_tor_pairing | default(false)
+    - name: Update change flag Manager
+      cisco.nac_dc_vxlan.common.change_flag_manager:
+        fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
+        fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+        role_path: "{{ common_role_path }}"
+        operation: update
+        change_flag: changes_detected_tor_pairing
+        flag_value: true
+      delegate_to: localhost
+  when: >
+    (tor_pairing_diff.file_data_changed and check_roles['save_previous']) or
+    (tor_pairing_removed | length > 0)
