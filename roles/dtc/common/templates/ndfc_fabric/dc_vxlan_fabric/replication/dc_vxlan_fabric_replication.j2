@@ -32,7 +32,6 @@
   L3VNI_IPv6_MCAST_GROUP: "{{ vxlan.underlay.multicast.ipv6.trmv6_default_group | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_default_group) }}"
 {% endif %}
 {% endif %}
-
 {% if (((vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) and
         (vxlan.global.ibgp.enable_mvpn_vri_id_range | default(defaults.vxlan.global.ibgp.enable_mvpn_vri_id_range))) or
         (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool)) %}
@@ -51,6 +50,5 @@
 {% endif %}
   MVPN_VRI_ID_RANGE: {{ mvpn_vri_range }}
 {% endif %}
-
 {% endif %}
 {% endif %}
