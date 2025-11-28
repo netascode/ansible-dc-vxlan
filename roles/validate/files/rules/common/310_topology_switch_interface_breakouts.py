@@ -7,7 +7,7 @@ class Rule:
     severity = "HIGH"
 
     # regex pattern: Ethernet[101-199]/1/[1-99]
-    IGNORE_FEX = re.compile(r'^(?:Ethernet)(?:(?:10[1-9]|1[1-9]\d)\/1\/([1-9]|[1-5][0-9])$)', re.IGNORECASE)
+    IGNORE_FEX = re.compile(r'^(?:Ethernet)(?:10[1-9]|1[1-9]\d)/1/(?:[1-9]|[1-5]\d|6[0-4])$', re.IGNORECASE)
 
     @classmethod
     def match(cls, data_model):
