@@ -1,4 +1,6 @@
 import os
+
+
 class Rule:
     id = "501"
     description = "Verify policy cross reference between policies, groups, and switches"
