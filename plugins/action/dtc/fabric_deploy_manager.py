@@ -73,17 +73,18 @@ class FabricDeployManager:
 
         self.fabric_in_sync = True
         response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
-        for attempt in range(5):
-            self._fabric_check_sync_helper(response)
-            if self.fabric_in_sync:
-                break
-            if (attempt + 1) == 5 and not self.fabric_in_sync:
-                break
-            else:
-                display.warning(f"Fabric {self.fabric_name} is out of sync. Attempt {attempt + 1}/5. Sleeping 2 seconds before retry.")
-                sleep(2)
-                self.fabric_in_sync = True
-                response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
+        if self.fabric_type not in ['MSD', 'MCFG']:
+            for attempt in range(5):
+                self._fabric_check_sync_helper(response)
+                if self.fabric_in_sync:
+                    break
+                if (attempt + 1) == 5 and not self.fabric_in_sync:
+                    break
+                else:
+                    display.warning(f"Fabric {self.fabric_name} is out of sync. Attempt {attempt + 1}/5. Sleeping 2 seconds before retry.")
+                    sleep(2)
+                    self.fabric_in_sync = True
+                    response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
 
         display.banner(f">>>> Fabric: ({self.fabric_name}) Type: ({self.fabric_type}) in sync: {self.fabric_in_sync}")
         display.banner(">>>>")
@@ -172,67 +173,62 @@ class ActionModule(ActionBase):
 
         params['fabric_name'] = self._task.args["fabric_name"]
         params['fabric_type'] = self._task.args["fabric_type"]
+
+        # Operations supported include 'all', 'config_save', 'config_deploy', 'check_sync'
         params['operation'] = self._task.args.get("operation")
+
+        # If force_run_all is set to True, all operations will be executed regardless of change detection
+        force_run_all = self._task.args.get("force_run_all")
 
         # Manage Deployment For Multisite or Standalone Fabric
         results = self.manage_fabrics(results, params)
         if results.get('failed'):
             return results
 
-        params['child_fabric_vrf_data'] = self._task.args.get("child_fabric_vrf_data", {})
+
+        changed_fabrics = []
+        if self._task.args["vrf_response_data"]:
+            vrf_changed_fabrics = []
+            vrf_response_data = self._task.args.get("vrf_response_data")
+            if vrf_response_data.get('child_fabrics'):
+                child_fabric_vrf_data = vrf_response_data['child_fabrics']
+
+                if force_run_all:
+                    vrf_changed_fabrics = [item['fabric'] for item in child_fabric_vrf_data]
+                else:
+                    vrf_changed_fabrics = [item['fabric'] for item in child_fabric_vrf_data if item.get('changed')]
+
+        if self._task.args["network_response_data"]:
+            network_changed_fabrics = []
+            network_response_data = self._task.args.get("network_response_data")
+            if network_response_data.get('child_fabrics'):
+                child_fabric_network_data = network_response_data['child_fabrics']
+
+                if force_run_all:
+                    network_changed_fabrics = [
+                        item['fabric']
+                        for item in child_fabric_network_data
+                        if item['fabric'] not in vrf_changed_fabrics
+                    ]
+                else:
+                    network_changed_fabrics = [
+                        item['fabric']
+                        for item in child_fabric_network_data
+                        if item.get('changed') and item['fabric'] not in vrf_changed_fabrics
+                    ]
+
+
+        changed_fabrics = list(set(vrf_changed_fabrics) | set(network_changed_fabrics))
+
+        if changed_fabrics:
+            params['fabric_type'] = "Multi-Site_Child_Fabric"
+            for changed_fabric in changed_fabrics:
+                params['fabric_name'] = changed_fabric
+                results = self.manage_fabrics(results, params)
+                if results.get('failed'):
+                    return results
 
         return results
-        # for key in ['fabric_type', 'fabric_name', 'operation']:
-        #     if params[key] is None:
-        #         results['failed'] = True
-        #         results['msg'] = f"Missing required parameter '{key}'"
-        #         return results
-
-        # if params['operation'] not in ['all', 'config_save', 'config_deploy', 'check_sync']:
-        #     results['failed'] = True
-        #     results['msg'] = "Parameter 'operation' must be one of: [all, config_save, config_deploy, check_sync]"
-        #     return results
-
-        # fabric_manager = FabricDeployManager(params)
-
-        # # Workflows
-        # if params['operation'] in ['all']:
-        #     fabric_manager.fabric_config_save()
-        #     fabric_manager.fabric_deploy()
-        #     fabric_manager.fabric_check_sync()
-
-        #     if not fabric_manager.fabric_in_sync and params['fabric_type'] != 'MSD':
-        #         # If the fabric is out of sync after deployment try one more time before giving up
-        #         fabric_manager.fabric_history_get()
-        #         display.warning(fabric_manager.fabric_history)
-        #         display.warning("Fabric is out of sync after initial deployment. Attempting one more deployment.")
-        #         fabric_manager.fabric_config_save()
-        #         fabric_manager.fabric_deploy()
-        #         fabric_manager.fabric_check_sync()
-
-        #     if not fabric_manager.fabric_in_sync and params['fabric_type'] != 'MSD':
-        #         fabric_manager.fabric_history_get()
-        #         results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync after deployment."
-        #         results['fabric_history'] = fabric_manager.fabric_history
-        #         results['failed'] = True
-
-        # if params['operation'] in ['config_save']:
-        #     fabric_manager.fabric_config_save()
-        #     if not fabric_manager.fabric_save_succeeded:
-        #         results['failed'] = True
-
-        # if params['operation'] in ['config_deploy']:
-        #     fabric_manager.fabric_deploy()
-        #     if not fabric_manager.fabric_deploy_succeeded:
-        #         results['failed'] = True
-
-        # if params['operation'] in ['check_sync']:
-        #     fabric_manager.fabric_check_sync()
-        #     if not fabric_manager.fabric_in_sync:
-        #         fabric_manager.fabric_history_get()
-        #         results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync."
-        #         results['fabric_history'] = fabric_manager.fabric_history
-        #         results['failed'] = True
 
     def manage_fabrics(self, results, params):
         for key in ['fabric_type', 'fabric_name', 'operation']:

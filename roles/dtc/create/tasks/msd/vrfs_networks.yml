@@ -137,9 +137,6 @@
     - data_model_extended.vxlan.multisite.overlay.vrfs
     - change_flags_multisite.changes_detected_vrfs
 
-- ansible.builtin.pause:
-    minutes: 600
-
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC
 # --------------------------------------------------------------------
@@ -168,13 +165,3 @@
     - data_model_extended.vxlan.multisite.overlay.networks is defined
     - data_model_extended.vxlan.multisite.overlay.networks
     - change_flags_multisite.changes_detected_networks
-
-- name: Update Child Fabrics VRFs and Networks Changed State
-  ansible.builtin.set_fact:
-    child_fabrics_vrfs_networks_changed: "{{ vrf_changed | ansible.builtin.union(network_changed) }}"
-  vars:
-    vrf_changed: []
-    network_changed: "{{ child_fabric_network_results.child_fabrics_changed | default([]) }}"
-  when: >
-    (child_fabric_network_results.child_fabrics_changed is defined and
-     child_fabric_network_results.child_fabrics_changed | length > 0)

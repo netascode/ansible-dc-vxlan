@@ -138,6 +138,4 @@ class ActionModule(ActionBase):
 
         results['overlay_attach_groups'] = data_model['vxlan']['multisite']['overlay']
 
-        import epdb ; epdb.set_trace()
-
         return results
