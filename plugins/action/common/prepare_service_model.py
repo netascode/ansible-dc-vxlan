@@ -57,20 +57,21 @@ class ActionModule(ActionBase):
 
         # Loop through policies and extract 'filename' when present and calculate md5
         policies = sm_data['vxlan'].get('policy', [])
-        for policy in policies['policies']:
-            filename = policy.get('filename')
+        if policies:
+            for policy in policies['policies']:
+                filename = policy.get('filename')
 
-            if filename:
-                abs_path = os.path.expanduser(filename)
+                if filename:
+                    abs_path = os.path.expanduser(filename)
 
-                with open(abs_path, 'r', encoding='utf-8') as file:
-                    data = file.read()
+                    with open(abs_path, 'r', encoding='utf-8') as file:
+                        data = file.read()
 
-                # Define a pattern to normalize old and new data
-                pattern = r'__omit_place_holder__\S+'
-                data = re.sub(pattern, 'NORMALIZED', data, flags=re.MULTILINE)
-                md5 = hashlib.md5(data.encode()).hexdigest()
-                policy.update({'md5': md5})
+                    # Define a pattern to normalize old and new data
+                    pattern = r'__omit_place_holder__\S+'
+                    data = re.sub(pattern, 'NORMALIZED', data, flags=re.MULTILINE)
+                    md5 = hashlib.md5(data.encode()).hexdigest()
+                    policy.update({'md5': md5})
 
         # results['model_extended'] contains the data that can be extended by the plugins
         results['model_extended'] = copy.deepcopy(sm_data)
