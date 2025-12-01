@@ -62,9 +62,10 @@
 {% endif %}
 {% endif %}
 {% endif %}
-{% if (((vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) and
+{% if ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) and
+       (((vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) and
         (vxlan.global.ebgp.enable_mvpn_vri_id_range | default(defaults.vxlan.global.ebgp.enable_mvpn_vri_id_range))) or
-        (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool)) %}
+        (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool))) %}
 {% if vxlan.underlay.multicast.mvpn_vri_id_range.from is defined %}
 {% set mvpn_vri_start = vxlan.underlay.multicast.mvpn_vri_id_range.from %}
 {% if vxlan.underlay.multicast.mvpn_vri_id_range.to is defined %}
