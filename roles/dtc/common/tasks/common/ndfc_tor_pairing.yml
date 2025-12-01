@@ -2,7 +2,7 @@
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_tor_pairing.yml"
-    changes_detected_tor_pairing: false
+    # changes_detected_tor_pairing: false
   delegate_to: localhost
 
 - name: Stat previous tor pairing file if it exists
@@ -78,7 +78,7 @@
 - name: Process and store NDFC TOR discovery response
   block:
     - name: Process discovery response
-      cisco.nac_dc_vxlan.dtc.process_tor_discovery:
+      cisco.nac_dc_vxlan.dtc.process_tor_pairing:
         discovery_response: "{{ ndfc_tor_discovery.response }}"
       register: tor_discovery_result
       delegate_to: localhost

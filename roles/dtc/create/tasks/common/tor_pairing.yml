@@ -10,7 +10,7 @@
   when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Process TOR pairing creates
-  cisco.nac_dc_vxlan.dtc.process_tor_create:
+  cisco.nac_dc_vxlan.dtc.process_tor_pairing:
     tor_pairing: "{{ vars_common_local.tor_pairing }}"
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
   register: tor_create_operations
@@ -19,6 +19,7 @@
     - vars_common_local.changes_detected_tor_pairing | default(false)
 
 - name: Pair ToR switches in Nexus Dashboard
+# Move that task to "Process TOR pairing creates", call API call from Python module
   cisco.dcnm.dcnm_rest:
     method: POST
     path: "{{ item.path }}"

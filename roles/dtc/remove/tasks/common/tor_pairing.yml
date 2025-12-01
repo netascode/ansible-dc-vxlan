@@ -11,7 +11,7 @@
 
 
 - name: Process TOR pairing removals
-  cisco.nac_dc_vxlan.dtc.process_tor_removal:
+  cisco.nac_dc_vxlan.dtc.process_tor_pairing:
     tor_pairing_removed: "{{ vars_common_local.tor_pairing_removed | default([], true) }}"
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
   register: tor_removal_operations
