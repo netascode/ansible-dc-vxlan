@@ -185,7 +185,6 @@ class ActionModule(ActionBase):
         if results.get('failed'):
             return results
 
-
         changed_fabrics = []
         if self._task.args["vrf_response_data"]:
             vrf_changed_fabrics = []
@@ -216,7 +215,6 @@ class ActionModule(ActionBase):
                         for item in child_fabric_network_data
                         if item.get('changed') and item['fabric'] not in vrf_changed_fabrics
                     ]
-
 
         changed_fabrics = list(set(vrf_changed_fabrics) | set(network_changed_fabrics))
 
