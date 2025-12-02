@@ -178,7 +178,8 @@ class ActionModule(ActionBase):
         params['operation'] = self._task.args.get("operation")
 
         # If force_run_all is set to True, all operations will be executed regardless of change detection
-        force_run_all = self._task.args.get("force_run_all")
+        if "force_run_all" in self._task.args:
+            force_run_all = self._task.args.get("force_run_all")
 
         # Manage Deployment For Multisite or Standalone Fabric
         results = self.manage_fabrics(results, params)
@@ -186,7 +187,7 @@ class ActionModule(ActionBase):
             return results
 
         changed_fabrics = []
-        if self._task.args["vrf_response_data"]:
+        if "vrf_response_data" in self._task.args:
             vrf_changed_fabrics = []
             vrf_response_data = self._task.args.get("vrf_response_data")
             if vrf_response_data.get('child_fabrics'):
@@ -197,7 +198,7 @@ class ActionModule(ActionBase):
                 else:
                     vrf_changed_fabrics = [item['fabric'] for item in child_fabric_vrf_data if item.get('changed')]
 
-        if self._task.args["network_response_data"]:
+        if "network_response_data" in self._task.args:
             network_changed_fabrics = []
             network_response_data = self._task.args.get("network_response_data")
             if network_response_data.get('child_fabrics'):
