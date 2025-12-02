@@ -178,6 +178,7 @@ class ActionModule(ActionBase):
         params['operation'] = self._task.args.get("operation")
 
         # If force_run_all is set to True, all operations will be executed regardless of change detection
+        force_run_all = False
         if "force_run_all" in self._task.args:
             force_run_all = self._task.args.get("force_run_all")
 
