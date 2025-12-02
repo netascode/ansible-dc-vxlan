@@ -64,22 +64,13 @@
 #   }
 # }
 
-- name: Query NDFC from first leaf switch for ToR pairing discovery
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{{ MD_Extended.vxlan.fabric.name }}/switches/{{ leaf_switches_for_query[0].serial_number }}"
-  register: ndfc_tor_discovery
-  failed_when: false
-  when:
-    - not tor_pairing_previous.stat.exists
-    - leaf_switches_for_query is defined
-    - leaf_switches_for_query | length > 0
-
-- name: Process and store NDFC TOR discovery response
+- name: Query NDFC and process ToR pairing discovery
   block:
-    - name: Process discovery response
+    - name: Discover existing TOR pairings from NDFC
       cisco.nac_dc_vxlan.dtc.process_tor_pairing:
-        discovery_response: "{{ ndfc_tor_discovery.response }}"
+        operation: discovery
+        fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+        leaf_serial_number: "{{ leaf_switches_for_query[0].serial_number }}"
       register: tor_discovery_result
       delegate_to: localhost
 
@@ -88,11 +79,13 @@
         ndfc_discovered_pairings: "{{ tor_discovery_result.discovered_pairings }}"
         tor_pairing_previous_list: "{{ tor_discovery_result.discovered_pairings }}"
       delegate_to: localhost
+      when:
+        - tor_discovery_result.discovered_pairings is defined
+        - tor_discovery_result.discovered_pairings | length > 0
   when:
     - not tor_pairing_previous.stat.exists
-    - ndfc_tor_discovery is defined
-    - not (ndfc_tor_discovery.failed | default(false))
-    - ndfc_tor_discovery.response is defined
+    - leaf_switches_for_query is defined
+    - leaf_switches_for_query | length > 0
 
 - name: Cache NDFC discovered pairings for future reference
   ansible.builtin.copy:
@@ -102,8 +95,8 @@
   delegate_to: localhost
   when:
     - not tor_pairing_previous.stat.exists
-    - ndfc_tor_discovery is defined
-    - not (ndfc_tor_discovery.failed | default(false))
+    - tor_discovery_result is defined
+    - not (tor_discovery_result.failed | default(false))
     - ndfc_discovered_pairings is defined
     - ndfc_discovered_pairings | length > 0
 

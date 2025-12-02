@@ -10,33 +10,15 @@
   when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 
-- name: Process TOR pairing removals
+- name: Remove TOR pairings from NDFC
   cisco.nac_dc_vxlan.dtc.process_tor_pairing:
+    operation: remove
     tor_pairing_removed: "{{ vars_common_local.tor_pairing_removed | default([], true) }}"
     fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-  register: tor_removal_operations
+    execute_api: true
+  register: tor_remove_result
   delegate_to: localhost
   when:
     - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
     - vars_common_local.changes_detected_tor_pairing | default(false)
-
-- name: Remove ToR pairings from Nexus Dashboard
-  cisco.dcnm.dcnm_rest:
-    method: DELETE
-    path: "{{ item.path }}"
-  loop: "{{ tor_removal_operations.removal_operations | default([]) }}"
-  loop_control:
-    label: "{{ item.pairing_id }}"
-  vars:
-    ansible_command_timeout: 300
-    ansible_connect_timeout: 300
-  register: tor_pairing_removal_result
-  failed_when:
-    - tor_pairing_removal_result is failed
-    - "'not found' not in (tor_pairing_removal_result.msg | default('') | lower)"
-    - "'does not exist' not in (tor_pairing_removal_result.msg | default('') | lower)"
-  when:
-    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
-    - vars_common_local.changes_detected_tor_pairing | default(false)
-    - tor_removal_operations.removal_operations is defined
-    - tor_removal_operations.removal_operations | length > 0
+    - vars_common_local.tor_pairing_removed | default([]) | length > 0

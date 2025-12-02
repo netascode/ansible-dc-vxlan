@@ -23,13 +23,12 @@
 Unified TOR Pairing Action Plugin for NDFC.
 
 This module consolidates all TOR pairing operations (discovery, create, removal)
-into a single action plugin that detects the calling role and delegates to the
-appropriate processor class.
+into a single action plugin that handles both data processing and NDFC API calls.
 
 Supported operations:
-    - discovery: Process NDFC TOR discovery API response
-    - create: Prepare TOR pairing POST operations
-    - remove: Prepare TOR pairing DELETE operations
+    - discovery: Query NDFC for existing TOR pairings and process the response
+    - create: Create TOR pairings via NDFC POST API
+    - remove: Remove TOR pairings via NDFC DELETE API
 """
 
 from __future__ import absolute_import, division, print_function
@@ -41,6 +40,9 @@ import json
 from urllib.parse import quote
 
 from ansible.plugins.action import ActionBase  # type: ignore
+from ansible.utils.display import Display
+
+display = Display()
 
 
 # =============================================================================
@@ -61,7 +63,6 @@ class TorDiscoveryProcessor:
             params: Dictionary containing:
                 - discovery_response: NDFC API response from tor discovery query
         """
-        self.class_name = self.__class__.__name__
         self.discovery_response = params.get('discovery_response', {})
         self.discovered_pairings = []
 
@@ -188,10 +189,7 @@ class TorDiscoveryProcessor:
 
 class TorCreateProcessor:
     """
-    Process TOR pairing create list and prepare NDFC API POST operations.
-
-    This processor takes a list of TOR pairings to be created and validates
-    each one before preparing it for the NDFC API POST call.
+    Process TOR pairing create list and prepare/execute NDFC API POST operations.
     """
 
     def __init__(self, params):
@@ -203,10 +201,8 @@ class TorCreateProcessor:
                 - tor_pairing: List of TOR pairing dicts to be created
                 - fabric_name: Name of the fabric
         """
-        self.class_name = self.__class__.__name__
         self.tor_pairing = params.get('tor_pairing', [])
         self.fabric_name = params.get('fabric_name', '')
-        self.create_operations = []
 
     def _validate_payload(self, payload):
         """
@@ -220,13 +216,15 @@ class TorCreateProcessor:
         """
         return bool(payload.get('leafSN1') and payload.get('torSN1'))
 
-    def process(self):
+    def build_operations(self):
         """
-        Process all TOR pairings to be created and build create operations.
+        Build the list of create operations without executing them.
 
         Returns:
-            dict: Results containing create_operations and count
+            list: List of create operation dictionaries
         """
+        create_operations = []
+
         for pairing in self.tor_pairing:
             # Validate payload has required fields
             payload = pairing.get('payload', {})
@@ -240,25 +238,17 @@ class TorCreateProcessor:
                 f"fabrics/{self.fabric_name}/switches/pair/custom-id"
             )
 
-            # Convert payload to JSON string
-            json_data = json.dumps(payload)
-
             # Create operation
             create_op = {
                 'pairing_id': pairing.get('pairing_id', 'unknown'),
                 'path': api_path,
-                'json_data': json_data,
                 'payload': payload,
                 'scenario': pairing.get('scenario', 'unknown')
             }
 
-            self.create_operations.append(create_op)
+            create_operations.append(create_op)
 
-        return {
-            'create_operations': self.create_operations,
-            'count': len(self.create_operations),
-            'msg': f'Prepared {len(self.create_operations)} TOR pairing create operation(s)'
-        }
+        return create_operations
 
 
 # =============================================================================
@@ -267,10 +257,7 @@ class TorCreateProcessor:
 
 class TorRemovalProcessor:
     """
-    Process TOR pairing removal list and build NDFC API query parameters.
-
-    This processor takes a list of TOR pairings to be removed and transforms
-    each into the proper NDFC API DELETE query format.
+    Process TOR pairing removal list and prepare/execute NDFC API DELETE operations.
     """
 
     def __init__(self, params):
@@ -282,10 +269,8 @@ class TorRemovalProcessor:
                 - tor_pairing_removed: List of TOR pairing dicts to be removed
                 - fabric_name: Name of the fabric
         """
-        self.class_name = self.__class__.__name__
         self.tor_pairing_removed = params.get('tor_pairing_removed', [])
         self.fabric_name = params.get('fabric_name', '')
-        self.removal_operations = []
 
     def _build_leaftor_query(self, payload):
         """
@@ -342,13 +327,15 @@ class TorRemovalProcessor:
         """
         return bool(payload.get('leafSN1') and payload.get('torSN1'))
 
-    def process(self):
+    def build_operations(self):
         """
-        Process all TOR pairings to be removed and build removal operations.
+        Build the list of removal operations without executing them.
 
         Returns:
-            dict: Results containing removal_operations and count
+            list: List of removal operation dictionaries
         """
+        removal_operations = []
+
         for pairing in self.tor_pairing_removed:
             # Validate payload has required fields
             payload = pairing.get('payload', {})
@@ -373,13 +360,9 @@ class TorRemovalProcessor:
                 'scenario': pairing.get('scenario', 'unknown')
             }
 
-            self.removal_operations.append(removal_op)
+            removal_operations.append(removal_op)
 
-        return {
-            'removal_operations': self.removal_operations,
-            'count': len(self.removal_operations),
-            'msg': f'Prepared {len(self.removal_operations)} TOR pairing removal operation(s)'
-        }
+        return removal_operations
 
 
 # =============================================================================
@@ -390,48 +373,55 @@ class ActionModule(ActionBase):
     """
     Unified Ansible action plugin for TOR pairing operations.
 
-    This plugin automatically detects the operation type based on the Ansible
-    role path or explicit 'operation' parameter, then delegates to the
-    appropriate processor class.
+    This plugin handles both data processing and NDFC API execution for TOR
+    pairing operations. It can operate in two modes:
 
-    Operation Detection:
-        1. Explicit 'operation' parameter: 'discovery', 'create', or 'remove'
-        2. Role path detection:
-           - 'dtc/common' or 'dtc/create' → 'discovery' or 'create' based on params
-           - 'dtc/remove' → 'remove'
+    1. **Prepare mode** (execute_api=false, default for backwards compatibility):
+       Only prepares the operations and returns them for external execution.
+
+    2. **Execute mode** (execute_api=true):
+       Prepares AND executes the NDFC API calls directly.
+
+    Operations:
+        - discovery: Query NDFC for existing TOR pairings
+        - create: Create TOR pairings via POST
+        - remove: Delete TOR pairings via DELETE
 
     Usage Examples:
 
-        # Discovery (auto-detected from role or explicit)
+        # Discovery - Query NDFC and process response
+        - name: Discover existing TOR pairings from NDFC
+          cisco.nac_dc_vxlan.dtc.process_tor_pairing:
+            operation: discovery
+            fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+            leaf_serial_number: "{{ leaf_switches_for_query[0].serial_number }}"
+          register: tor_discovery_result
+
+        # Discovery - Process existing response (backwards compatible)
         - name: Process NDFC TOR discovery response
           cisco.nac_dc_vxlan.dtc.process_tor_pairing:
             operation: discovery
             discovery_response: "{{ ndfc_tor_discovery.response }}"
           register: tor_discovery_result
 
-        # Create (auto-detected from role or explicit)
-        - name: Process TOR create operations
+        # Create - Execute API calls directly
+        - name: Create TOR pairings in NDFC
           cisco.nac_dc_vxlan.dtc.process_tor_pairing:
             operation: create
             tor_pairing: "{{ vars_common_local.tor_pairing }}"
             fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-          register: tor_create_operations
+            execute_api: true
+          register: tor_create_result
 
-        # Remove (auto-detected from role or explicit)
-        - name: Process TOR removal operations
+        # Remove - Execute API calls directly
+        - name: Remove TOR pairings from NDFC
           cisco.nac_dc_vxlan.dtc.process_tor_pairing:
             operation: remove
             tor_pairing_removed: "{{ vars_common_local.tor_pairing_removed }}"
             fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
-          register: tor_removal_operations
+            execute_api: true
+          register: tor_remove_result
     """
-
-    # Mapping of operations to processor classes
-    PROCESSORS = {
-        'discovery': TorDiscoveryProcessor,
-        'create': TorCreateProcessor,
-        'remove': TorRemovalProcessor,
-    }
 
     def _detect_operation(self, task_vars):
         """
@@ -445,7 +435,7 @@ class ActionModule(ActionBase):
         """
         # Check for explicit operation parameter first
         explicit_op = self._task.args.get('operation')
-        if explicit_op and explicit_op in self.PROCESSORS:
+        if explicit_op and explicit_op in ('discovery', 'create', 'remove'):
             return explicit_op
 
         # Try to detect from role path
@@ -454,18 +444,20 @@ class ActionModule(ActionBase):
         if 'dtc/remove' in role_path:
             return 'remove'
         elif 'dtc/create' in role_path:
-            # In create role, check which params are provided
             if self._task.args.get('tor_pairing'):
                 return 'create'
             elif self._task.args.get('discovery_response'):
                 return 'discovery'
         elif 'dtc/common' in role_path:
-            # In common role, discovery is typically called
             if self._task.args.get('discovery_response'):
+                return 'discovery'
+            elif self._task.args.get('leaf_serial_number'):
                 return 'discovery'
 
         # Fallback: detect based on which parameters are provided
         if self._task.args.get('discovery_response'):
+            return 'discovery'
+        elif self._task.args.get('leaf_serial_number'):
             return 'discovery'
         elif self._task.args.get('tor_pairing'):
             return 'create'
@@ -474,68 +466,292 @@ class ActionModule(ActionBase):
 
         return None
 
-    def _build_params(self, operation):
+    def _execute_ndfc_rest(self, method, path, json_data=None, task_vars=None, tmp=None):
         """
-        Build the parameter dictionary for the processor.
+        Execute an NDFC REST API call using cisco.dcnm.dcnm_rest module.
 
         Args:
-            operation: The detected operation type
+            method: HTTP method (GET, POST, DELETE)
+            path: API path
+            json_data: Optional JSON payload for POST requests
+            task_vars: Ansible task variables
+            tmp: Temporary directory
 
         Returns:
-            dict: Parameters for the processor
+            dict: Module execution result
         """
-        if operation == 'discovery':
-            return {
-                'discovery_response': self._task.args.get('discovery_response', {})
-            }
-        elif operation == 'create':
-            return {
-                'tor_pairing': self._task.args.get('tor_pairing', []),
-                'fabric_name': self._task.args.get('fabric_name', '')
-            }
-        elif operation == 'remove':
-            return {
-                'tor_pairing_removed': self._task.args.get('tor_pairing_removed', []),
-                'fabric_name': self._task.args.get('fabric_name', '')
-            }
-        return {}
+        module_args = {
+            "method": method,
+            "path": path,
+        }
 
-    def _validate_params(self, operation, params):
+        if json_data is not None:
+            module_args["json_data"] = json_data
+
+        result = self._execute_module(
+            module_name="cisco.dcnm.dcnm_rest",
+            module_args=module_args,
+            task_vars=task_vars,
+            tmp=tmp
+        )
+
+        return result
+
+    def _run_discovery(self, task_vars, tmp):
         """
-        Validate required parameters for the operation.
+        Execute TOR pairing discovery operation.
 
-        Args:
-            operation: The operation type
-            params: The parameter dictionary
+        If leaf_serial_number is provided, queries NDFC first.
+        If discovery_response is provided, processes it directly.
 
         Returns:
-            tuple: (is_valid: bool, error_message: str or None)
+            dict: Results with discovered_pairings
         """
-        if operation == 'discovery':
-            if not params.get('discovery_response'):
-                return False, 'No discovery response provided'
-        elif operation == 'create':
-            if not params.get('fabric_name'):
-                return False, 'Missing required parameter: fabric_name'
-            if not params.get('tor_pairing'):
-                return True, None  # Empty list is valid, just no work to do
-        elif operation == 'remove':
-            if not params.get('fabric_name'):
-                return False, 'Missing required parameter: fabric_name'
-            if not params.get('tor_pairing_removed'):
-                return True, None  # Empty list is valid, just no work to do
+        results = {
+            'failed': False,
+            'operation': 'discovery',
+            'discovered_pairings': [],
+            'count': 0
+        }
 
-        return True, None
+        fabric_name = self._task.args.get('fabric_name', '')
+        leaf_serial_number = self._task.args.get('leaf_serial_number', '')
+        discovery_response = self._task.args.get('discovery_response')
+
+        # If leaf_serial_number provided, query NDFC first
+        if leaf_serial_number and fabric_name:
+            api_path = (
+                f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/"
+                f"fabrics/{fabric_name}/switches/{leaf_serial_number}"
+            )
+
+            display.v(f"TOR Discovery: Querying NDFC at {api_path}")
+
+            ndfc_result = self._execute_ndfc_rest(
+                method="GET",
+                path=api_path,
+                task_vars=task_vars,
+                tmp=tmp
+            )
+
+            # Check for failure - but don't fail on expected errors
+            if ndfc_result.get('failed'):
+                # If the API returns an error, treat as no pairings found
+                results['msg'] = f"NDFC query returned: {ndfc_result.get('msg', 'unknown error')}"
+                results['ndfc_response'] = ndfc_result
+                return results
+
+            discovery_response = ndfc_result.get('response', {})
+            results['ndfc_response'] = ndfc_result
+
+        # Process the discovery response
+        if not discovery_response:
+            results['msg'] = 'No discovery response to process'
+            return results
+
+        processor = TorDiscoveryProcessor({'discovery_response': discovery_response})
+        processor_results = processor.process()
+        results.update(processor_results)
+
+        return results
+
+    def _run_create(self, task_vars, tmp):
+        """
+        Execute TOR pairing create operation.
+
+        Returns:
+            dict: Results with create operations and API results
+        """
+        results = {
+            'failed': False,
+            'operation': 'create',
+            'create_operations': [],
+            'api_results': [],
+            'count': 0,
+            'success_count': 0,
+            'failure_count': 0
+        }
+
+        tor_pairing = self._task.args.get('tor_pairing', [])
+        fabric_name = self._task.args.get('fabric_name', '')
+        execute_api = self._task.args.get('execute_api', False)
+
+        if not fabric_name:
+            results['failed'] = True
+            results['msg'] = 'Missing required parameter: fabric_name'
+            return results
+
+        if not tor_pairing:
+            results['msg'] = 'No TOR pairings to create'
+            return results
+
+        # Build operations
+        processor = TorCreateProcessor({
+            'tor_pairing': tor_pairing,
+            'fabric_name': fabric_name
+        })
+        create_operations = processor.build_operations()
+        results['create_operations'] = create_operations
+        results['count'] = len(create_operations)
+
+        if not execute_api:
+            results['msg'] = f'Prepared {len(create_operations)} TOR pairing create operation(s)'
+            return results
+
+        # Execute API calls
+        display.v(f"TOR Create: Executing {len(create_operations)} POST operations")
+
+        for op in create_operations:
+            pairing_id = op['pairing_id']
+            api_path = op['path']
+            payload = op['payload']
+
+            display.v(f"TOR Create: Creating pairing {pairing_id}")
+
+            api_result = self._execute_ndfc_rest(
+                method="POST",
+                path=api_path,
+                json_data=json.dumps(payload),
+                task_vars=task_vars,
+                tmp=tmp
+            )
+
+            op_result = {
+                'pairing_id': pairing_id,
+                'path': api_path,
+                'success': not api_result.get('failed', False),
+                'response': api_result.get('response'),
+                'msg': api_result.get('msg', '')
+            }
+
+            results['api_results'].append(op_result)
+
+            if op_result['success']:
+                results['success_count'] += 1
+            else:
+                results['failure_count'] += 1
+                display.warning(f"TOR Create: Failed to create pairing {pairing_id}: {op_result['msg']}")
+
+        # Set overall status
+        if results['failure_count'] > 0 and results['success_count'] == 0:
+            results['failed'] = True
+            results['msg'] = f"All {results['failure_count']} TOR pairing create(s) failed"
+        elif results['failure_count'] > 0:
+            results['msg'] = (
+                f"Created {results['success_count']} TOR pairing(s), "
+                f"{results['failure_count']} failed"
+            )
+        else:
+            results['msg'] = f"Successfully created {results['success_count']} TOR pairing(s)"
+
+        return results
+
+    def _run_remove(self, task_vars, tmp):
+        """
+        Execute TOR pairing removal operation.
+
+        Returns:
+            dict: Results with removal operations and API results
+        """
+        results = {
+            'failed': False,
+            'operation': 'remove',
+            'removal_operations': [],
+            'api_results': [],
+            'count': 0,
+            'success_count': 0,
+            'failure_count': 0
+        }
+
+        tor_pairing_removed = self._task.args.get('tor_pairing_removed', [])
+        fabric_name = self._task.args.get('fabric_name', '')
+        execute_api = self._task.args.get('execute_api', False)
+
+        if not fabric_name:
+            results['failed'] = True
+            results['msg'] = 'Missing required parameter: fabric_name'
+            return results
+
+        if not tor_pairing_removed:
+            results['msg'] = 'No TOR pairings to remove'
+            return results
+
+        # Build operations
+        processor = TorRemovalProcessor({
+            'tor_pairing_removed': tor_pairing_removed,
+            'fabric_name': fabric_name
+        })
+        removal_operations = processor.build_operations()
+        results['removal_operations'] = removal_operations
+        results['count'] = len(removal_operations)
+
+        if not execute_api:
+            results['msg'] = f'Prepared {len(removal_operations)} TOR pairing removal operation(s)'
+            return results
+
+        # Execute API calls
+        display.v(f"TOR Remove: Executing {len(removal_operations)} DELETE operations")
+
+        for op in removal_operations:
+            pairing_id = op['pairing_id']
+            api_path = op['path']
+
+            display.v(f"TOR Remove: Removing pairing {pairing_id}")
+
+            api_result = self._execute_ndfc_rest(
+                method="DELETE",
+                path=api_path,
+                task_vars=task_vars,
+                tmp=tmp
+            )
+
+            # Check for acceptable "not found" errors
+            is_not_found_error = False
+            error_msg = (api_result.get('msg') or '').lower()
+            if 'not found' in error_msg or 'does not exist' in error_msg:
+                is_not_found_error = True
+
+            op_result = {
+                'pairing_id': pairing_id,
+                'path': api_path,
+                'success': not api_result.get('failed', False) or is_not_found_error,
+                'response': api_result.get('response'),
+                'msg': api_result.get('msg', ''),
+                'already_removed': is_not_found_error
+            }
+
+            results['api_results'].append(op_result)
+
+            if op_result['success']:
+                results['success_count'] += 1
+                if is_not_found_error:
+                    display.v(f"TOR Remove: Pairing {pairing_id} already removed or not found")
+            else:
+                results['failure_count'] += 1
+                display.warning(f"TOR Remove: Failed to remove pairing {pairing_id}: {op_result['msg']}")
+
+        # Set overall status
+        if results['failure_count'] > 0 and results['success_count'] == 0:
+            results['failed'] = True
+            results['msg'] = f"All {results['failure_count']} TOR pairing removal(s) failed"
+        elif results['failure_count'] > 0:
+            results['msg'] = (
+                f"Removed {results['success_count']} TOR pairing(s), "
+                f"{results['failure_count']} failed"
+            )
+        else:
+            results['msg'] = f"Successfully removed {results['success_count']} TOR pairing(s)"
+
+        return results
 
     def run(self, tmp=None, task_vars=None):
         """
         Execute the action plugin.
 
-        Detects the operation type, validates parameters, and delegates
-        to the appropriate processor class.
+        Detects the operation type and delegates to the appropriate handler.
 
         Returns:
-            dict: Results from the processor, containing operation-specific data
+            dict: Results from the operation
         """
         results = super(ActionModule, self).run(tmp, task_vars)
         results['failed'] = False
@@ -547,59 +763,22 @@ class ActionModule(ActionBase):
             results['msg'] = (
                 "Could not detect operation type. Provide 'operation' parameter "
                 "(discovery, create, remove) or ensure appropriate input parameters "
-                "(discovery_response, tor_pairing, tor_pairing_removed) are set."
+                "(discovery_response, leaf_serial_number, tor_pairing, tor_pairing_removed) are set."
             )
             return results
 
-        results['operation'] = operation
-
-        # Build parameters for the processor
-        params = self._build_params(operation)
-
-        # Validate parameters
-        is_valid, error_msg = self._validate_params(operation, params)
-        if not is_valid:
-            results['failed'] = True
-            results['msg'] = error_msg
-            return results
-
-        # Handle empty input cases (valid but no work to do)
-        if operation == 'create' and not params.get('tor_pairing'):
-            results['create_operations'] = []
-            results['count'] = 0
-            results['msg'] = 'No TOR pairings to create'
-            return results
-
-        if operation == 'remove' and not params.get('tor_pairing_removed'):
-            results['removal_operations'] = []
-            results['count'] = 0
-            results['msg'] = 'No TOR pairings to remove'
-            return results
-
-        if operation == 'discovery' and not params.get('discovery_response'):
-            results['discovered_pairings'] = []
-            results['count'] = 0
-            results['msg'] = 'No discovery response provided'
-            return results
-
-        # Get the processor class and instantiate
-        processor_class = self.PROCESSORS[operation]
-        processor = processor_class(params)
-
-        # Process and return results
+        # Execute the appropriate operation
         try:
-            processor_results = processor.process()
-            results.update(processor_results)
+            if operation == 'discovery':
+                return self._run_discovery(task_vars, tmp)
+            elif operation == 'create':
+                return self._run_create(task_vars, tmp)
+            elif operation == 'remove':
+                return self._run_remove(task_vars, tmp)
         except Exception as e:
             results['failed'] = True
-            results['msg'] = f'Failed to process TOR {operation}: {str(e)}'
-            # Set empty result keys based on operation
-            if operation == 'discovery':
-                results['discovered_pairings'] = []
-            elif operation == 'create':
-                results['create_operations'] = []
-            elif operation == 'remove':
-                results['removal_operations'] = []
-            results['count'] = 0
+            results['msg'] = f'Failed to execute TOR {operation}: {str(e)}'
+            results['operation'] = operation
+            return results
 
         return results
