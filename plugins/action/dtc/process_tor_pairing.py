@@ -184,6 +184,130 @@ class TorDiscoveryProcessor:
 
 
 # =============================================================================
+# TOR Diff Processor
+# =============================================================================
+
+class TorDiffProcessor:
+    """
+    Compare current and previous ToR pairings to identify additions and removals.
+    
+    Uses order-independent serial number matching to correctly identify
+    pairings that should be removed (exist in previous but not in current).
+    """
+
+    def __init__(self, params):
+        """
+        Initialize the TOR diff processor.
+
+        Args:
+            params: Dictionary containing:
+                - current_pairings: List of current ToR pairing dicts
+                - previous_pairings: List of previous ToR pairing dicts
+        """
+        self.current_pairings = params.get('current_pairings', [])
+        self.previous_pairings = params.get('previous_pairings', [])
+
+    def _normalize_serials(self, payload):
+        """
+        Create order-independent serial tuple for comparison.
+        
+        Handles VPC pairs where serial numbers can appear in any order
+        between NDFC response and prepare plugin output.
+        
+        Args:
+            payload: dict with leafSN1, leafSN2, torSN1, torSN2 keys
+            
+        Returns:
+            tuple: ((sorted_tor_serials), (sorted_leaf_serials))
+        """
+        # Extract and filter empty strings
+        tor_serials = [
+            payload.get('torSN1', ''),
+            payload.get('torSN2', '')
+        ]
+        tor_serials = [s for s in tor_serials if s]
+        
+        leaf_serials = [
+            payload.get('leafSN1', ''),
+            payload.get('leafSN2', '')
+        ]
+        leaf_serials = [s for s in leaf_serials if s]
+        
+        # Sort for order-independent comparison
+        return (tuple(sorted(tor_serials)), tuple(sorted(leaf_serials)))
+
+    def compute_diff(self):
+        """
+        Compare current and previous ToR pairings to identify changes.
+        
+        Returns:
+            dict with keys:
+                - removed: list of pairings to remove (in previous but not current)
+                - added: list of pairings to add (in current but not previous)
+                - unchanged: list of pairings that exist in both
+                - stats: dict with counts and IDs for debugging
+        """
+        if not self.previous_pairings:
+            return {
+                'removed': [],
+                'added': self.current_pairings,
+                'unchanged': [],
+                'stats': {
+                    'previous_count': 0,
+                    'current_count': len(self.current_pairings),
+                    'removed_count': 0,
+                    'added_count': len(self.current_pairings),
+                    'unchanged_count': 0
+                }
+            }
+        
+        # Build lookup of current pairing serials
+        current_serial_map = {}
+        for pairing in self.current_pairings:
+            serial_key = self._normalize_serials(pairing.get('payload', {}))
+            current_serial_map[serial_key] = pairing
+        
+        # Build lookup of previous pairing serials
+        previous_serial_map = {}
+        for pairing in self.previous_pairings:
+            serial_key = self._normalize_serials(pairing.get('payload', {}))
+            previous_serial_map[serial_key] = pairing
+        
+        # Find removals (in previous but not in current)
+        removed = []
+        unchanged_from_previous = []
+        for serial_key, prev_pairing in previous_serial_map.items():
+            if serial_key not in current_serial_map:
+                removed.append(prev_pairing)
+            else:
+                unchanged_from_previous.append(prev_pairing)
+        
+        # Find additions (in current but not in previous)
+        added = []
+        for serial_key, curr_pairing in current_serial_map.items():
+            if serial_key not in previous_serial_map:
+                added.append(curr_pairing)
+        
+        # Return results with statistics for debugging
+        return {
+            'removed': removed,
+            'added': added,
+            'unchanged': unchanged_from_previous,
+            'stats': {
+                'previous_count': len(self.previous_pairings),
+                'current_count': len(self.current_pairings),
+                'removed_count': len(removed),
+                'added_count': len(added),
+                'unchanged_count': len(unchanged_from_previous),
+                'previous_ids': [p.get('pairing_id', 'unknown') for p in self.previous_pairings],
+                'current_ids': [p.get('pairing_id', 'unknown') for p in self.current_pairings],
+                'removed_ids': [p.get('pairing_id', 'unknown') for p in removed],
+                'added_ids': [p.get('pairing_id', 'unknown') for p in added]
+            }
+        }
+
+
+# =============================================================================
 # TOR Create Processor
 # =============================================================================
 
@@ -384,6 +508,7 @@ class ActionModule(ActionBase):
 
     Operations:
         - discovery: Query NDFC for existing TOR pairings
+        - diff: Compare current and previous pairings to identify changes
         - create: Create TOR pairings via POST
         - remove: Delete TOR pairings via DELETE
 
@@ -403,6 +528,15 @@ class ActionModule(ActionBase):
             operation: discovery
             discovery_response: "{{ ndfc_tor_discovery.response }}"
           register: tor_discovery_result
+
+        # Diff - Compare current and previous pairings
+        - name: Compute ToR pairing diff
+          cisco.nac_dc_vxlan.dtc.process_tor_pairing:
+            operation: diff
+            current_pairings: "{{ tor_pairing_current_list }}"
+            previous_pairings: "{{ tor_pairing_previous_list }}"
+          register: tor_diff_result
+          # Returns: removed, added, unchanged, stats
 
         # Create - Execute API calls directly
         - name: Create TOR pairings in NDFC
@@ -431,11 +565,11 @@ class ActionModule(ActionBase):
             task_vars: Ansible task variables
 
         Returns:
-            str: Operation type ('discovery', 'create', 'remove') or None
+            str: Operation type ('discovery', 'diff', 'create', 'remove') or None
         """
         # Check for explicit operation parameter first
         explicit_op = self._task.args.get('operation')
-        if explicit_op and explicit_op in ('discovery', 'create', 'remove'):
+        if explicit_op and explicit_op in ('discovery', 'diff', 'create', 'remove'):
             return explicit_op
 
         # Try to detect from role path
@@ -453,9 +587,13 @@ class ActionModule(ActionBase):
                 return 'discovery'
             elif self._task.args.get('leaf_serial_number'):
                 return 'discovery'
+            elif self._task.args.get('current_pairings') is not None:
+                return 'diff'
 
         # Fallback: detect based on which parameters are provided
-        if self._task.args.get('discovery_response'):
+        if self._task.args.get('current_pairings') is not None:
+            return 'diff'
+        elif self._task.args.get('discovery_response'):
             return 'discovery'
         elif self._task.args.get('leaf_serial_number'):
             return 'discovery'
@@ -560,6 +698,54 @@ class ActionModule(ActionBase):
         processor = TorDiscoveryProcessor({'discovery_response': discovery_response})
         processor_results = processor.process()
         results.update(processor_results)
+
+        return results
+
+    def _run_diff(self, task_vars, tmp):
+        """
+        Compute diff between current and previous TOR pairings.
+
+        Returns:
+            dict: Results with removed, added, unchanged pairings and stats
+        """
+        results = {
+            'failed': False,
+            'operation': 'diff',
+            'removed': [],
+            'added': [],
+            'unchanged': [],
+            'stats': {}
+        }
+
+        current_pairings = self._task.args.get('current_pairings', [])
+        previous_pairings = self._task.args.get('previous_pairings', [])
+
+        # Handle None values
+        if current_pairings is None:
+            current_pairings = []
+        if previous_pairings is None:
+            previous_pairings = []
+
+        display.vvv(f"TOR Diff: Comparing {len(current_pairings)} current vs {len(previous_pairings)} previous pairings")
+
+        # Process the diff
+        processor = TorDiffProcessor({
+            'current_pairings': current_pairings,
+            'previous_pairings': previous_pairings
+        })
+        diff_results = processor.compute_diff()
+
+        results['removed'] = diff_results['removed']
+        results['added'] = diff_results['added']
+        results['unchanged'] = diff_results['unchanged']
+        results['stats'] = diff_results['stats']
+        results['msg'] = (
+            f"Diff complete: {len(diff_results['added'])} added, "
+            f"{len(diff_results['removed'])} removed, "
+            f"{len(diff_results['unchanged'])} unchanged"
+        )
+
+        display.v(f"TOR Diff: {results['msg']}")
 
         return results
 
@@ -804,8 +990,8 @@ class ActionModule(ActionBase):
             results['failed'] = True
             results['msg'] = (
                 "Could not detect operation type. Provide 'operation' parameter "
-                "(discovery, create, remove) or ensure appropriate input parameters "
-                "(discovery_response, leaf_serial_number, tor_pairing, tor_pairing_removed) are set."
+                "(discovery, diff, create, remove) or ensure appropriate input parameters "
+                "(discovery_response, leaf_serial_number, current_pairings, tor_pairing, tor_pairing_removed) are set."
             )
             return results
 
@@ -813,6 +999,8 @@ class ActionModule(ActionBase):
         try:
             if operation == 'discovery':
                 return self._run_discovery(task_vars, tmp)
+            elif operation == 'diff':
+                return self._run_diff(task_vars, tmp)
             elif operation == 'create':
                 return self._run_create(task_vars, tmp)
             elif operation == 'remove':

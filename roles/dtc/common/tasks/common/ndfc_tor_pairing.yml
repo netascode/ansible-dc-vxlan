@@ -110,12 +110,22 @@
   when: (lookup('file', path_name + file_name) | length) > 0
 
 - name: Compute ToR pairing diff and extract removals
-  ansible.builtin.set_fact:
-    tor_pairing_diff_result: "{{ tor_pairing_current_list | cisco.nac_dc_vxlan.tor_pairing_diff(tor_pairing_previous_list) }}"
-    tor_pairing_removed: "{{ (tor_pairing_current_list | cisco.nac_dc_vxlan.tor_pairing_diff(tor_pairing_previous_list)).removed | default([]) }}"
+  cisco.nac_dc_vxlan.dtc.process_tor_pairing:
+    operation: diff
+    current_pairings: "{{ tor_pairing_current_list }}"
+    previous_pairings: "{{ tor_pairing_previous_list }}"
+  register: tor_pairing_diff_result
   delegate_to: localhost
   when:
     - tor_pairing_previous_list | length > 0
+
+- name: Extract removed pairings from diff result
+  ansible.builtin.set_fact:
+    tor_pairing_removed: "{{ tor_pairing_diff_result.removed | default([]) }}"
+  delegate_to: localhost
+  when:
+    - tor_pairing_diff_result is defined
+    - tor_pairing_diff_result.removed is defined
 
 - name: Diff ToR pairing payload file
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
