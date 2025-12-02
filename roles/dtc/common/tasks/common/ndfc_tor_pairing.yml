@@ -116,8 +116,6 @@
     previous_pairings: "{{ tor_pairing_previous_list }}"
   register: tor_pairing_diff_result
   delegate_to: localhost
-  when:
-    - tor_pairing_previous_list | length > 0
 
 - name: Extract removed pairings from diff result
   ansible.builtin.set_fact:
@@ -126,13 +124,6 @@
   when:
     - tor_pairing_diff_result is defined
     - tor_pairing_diff_result.removed is defined
-
-- name: Diff ToR pairing payload file
-  cisco.nac_dc_vxlan.dtc.diff_model_changes:
-    file_name_previous: "{{ path_name }}{{ file_name }}.old"
-    file_name_current: "{{ path_name }}{{ file_name }}"
-  register: tor_pairing_diff
-  delegate_to: localhost
 
 - name: Update flags when change detected
   block:
@@ -151,5 +142,5 @@
         flag_value: true
       delegate_to: localhost
   when: >
-    (tor_pairing_diff.file_data_changed and check_roles['save_previous']) or
-    (tor_pairing_removed | length > 0)
+    (tor_pairing_diff_result.added | default([]) | length > 0) or
+    (tor_pairing_diff_result.removed | default([]) | length > 0)
