@@ -21,43 +21,16 @@
 
 ---
 
-# - name: Display Removing Unmanaged Fabric VRFs Message
-#   ansible.builtin.debug:
-#     msg: "Removing Unmanaged Fabric VRFs. This could take several minutes..."
-#   when:
-#     - (multisite_vrf_delete_mode is defined) and (multisite_vrf_delete_mode is true|bool)
-
-# - name: Display Flag Values - Changes Detected VRFs
-#   cisco.nac_dc_vxlan.common.change_flag_manager:
-#     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-#     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
-#     role_path: "{{ common_role_path }}"
-#     operation: display
-#   delegate_to: localhost
-#   when:
-#     - (multisite_vrf_delete_mode is defined) and (multisite_vrf_delete_mode is true|bool)
-
-# - name: Set VRF Config to MultiSite VRF Data
-#   ansible.builtin.set_fact:
-#     vrf_config: "{{ data_model_multisite }}"
-
-# - name: Override VRF Config Based On Diff Run Settings
-#   ansible.builtin.set_fact:
-#     vrf_config: "{{ vrf_diff_result.removed }}"
-#   when:
-#     - run_map_read_result.diff_run is true|bool
-
-# - name: Remove Unmanaged Fabric VRFs in Nexus Dashboard
-#   cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_vrfs:
-#     fabric: "{{ data_model_extended.vxlan.fabric.name }}"
-#     data: "{{ vrf_config }}"
-#     diff_run: "{{ run_map_read_result.diff_run }}"
-#   register: child_fabric_vrf_results
-#   when:
-#     - multisite_vrf_delete_mode is defined
-#     - multisite_vrf_delete_mode is true | bool
-#     - change_flags_multisite.changes_detected_vrfs
-#     - data_model_extended.vxlan.multisite.child_fabrics is defined and data_model_extended.vxlan.multisite.child_fabrics | length > 0
+- name: Display Flag Values - Changes Detected VRFs
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: display
+  delegate_to: localhost
+  when:
+    - multisite_vrf_delete_mode is defined
+    - multisite_vrf_delete_mode is true | bool
 
 - name: Unmanaged Fabric VRFs Removal Status Message
   ansible.builtin.debug:
@@ -105,7 +78,6 @@
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
   when:
-    - vrf_config | length > 0
     - multisite_vrf_delete_mode is defined
     - multisite_vrf_delete_mode is true | bool
     - run_map_read_result.diff_run is false | bool or force_run_all is true | bool
