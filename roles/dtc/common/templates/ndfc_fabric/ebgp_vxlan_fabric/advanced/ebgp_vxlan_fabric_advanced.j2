@@ -27,3 +27,7 @@
 {% endif %}
 {% endif %}
 {% endif %}
+{% if vxlan.global.ebgp.intra_fabric_link_freeform is defined %}
+  EXTRA_CONF_INTRA_LINKS: |2
+    {{ vxlan.global.ebgp.intra_fabric_link_freeform | indent(4) }}
+{% endif %}

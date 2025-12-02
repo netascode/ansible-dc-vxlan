@@ -48,3 +48,7 @@
   STP_BRIDGE_PRIORITY: {{ vxlan.global.ibgp.spanning_tree.bridge_priority | default(defaults.vxlan.global.ibgp.spanning_tree.bridge_priority) }}
 {% endif %}
 {% endif %}
+{% if vxlan.global.ibgp.intra_fabric_link_freeform is defined %}
+  EXTRA_CONF_INTRA_LINKS: |2
+    {{ vxlan.global.ibgp.intra_fabric_link_freeform | indent(4) }}
+{% endif %}
