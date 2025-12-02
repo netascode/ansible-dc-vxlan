@@ -73,6 +73,9 @@ class FabricDeployManager:
 
         self.fabric_in_sync = True
         response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
+
+        # For non-Multisite fabrics, retry up to 5 times if out-of-sync
+        # Exclude Multisite parent fabrics (MSD or MCFG) as they are dependent on child fabrics being in sync
         if self.fabric_type not in ['MSD', 'MCFG']:
             for attempt in range(5):
                 self._fabric_check_sync_helper(response)
@@ -177,20 +180,19 @@ class ActionModule(ActionBase):
         # Operations supported include 'all', 'config_save', 'config_deploy', 'check_sync'
         params['operation'] = self._task.args.get("operation")
 
-        # If force_run_all is set to True, all operations will be executed regardless of change detection
-        force_run_all = False
-        if "force_run_all" in self._task.args:
-            force_run_all = self._task.args.get("force_run_all")
-
-        # Manage Deployment For Multisite or Standalone Fabric
+        # Manage Deployment For Multisite (MSD or MCFG) Parent or Standalone Fabric
         results = self.manage_fabrics(results, params)
         if results.get('failed'):
             return results
 
-        changed_fabrics = []
-        if "vrf_response_data" in self._task.args:
-            vrf_changed_fabrics = []
-            vrf_response_data = self._task.args.get("vrf_response_data")
+        # Manage Deployment For Child Fabrics if Multisite (MSD or MCFG)
+        # Child Fabrics are only deployed if there are VRF or Network changes detected by passing in the response data from those tasks
+        # Additionally, if force_run_all is set to True, all child fabrics will be deployed regardless of change detection
+        force_run_all = self._task.args.get("force_run_all", False)
+
+        vrf_changed_fabrics = []
+        vrf_response_data = self._task.args.get("vrf_response_data")
+        if vrf_response_data:
             if vrf_response_data.get('child_fabrics'):
                 child_fabric_vrf_data = vrf_response_data['child_fabrics']
 
@@ -199,12 +201,13 @@ class ActionModule(ActionBase):
                 else:
                     vrf_changed_fabrics = [item['fabric'] for item in child_fabric_vrf_data if item.get('changed')]
 
-        if "network_response_data" in self._task.args:
-            network_changed_fabrics = []
-            network_response_data = self._task.args.get("network_response_data")
+        network_changed_fabrics = []
+        network_response_data = self._task.args.get("network_response_data")
+        if network_response_data:
             if network_response_data.get('child_fabrics'):
                 child_fabric_network_data = network_response_data['child_fabrics']
 
+                # As part of Network changes detected, exclude fabrics that have already been marked as changed due to VRF changes
                 if force_run_all:
                     network_changed_fabrics = [
                         item['fabric']
@@ -218,8 +221,10 @@ class ActionModule(ActionBase):
                         if item.get('changed') and item['fabric'] not in vrf_changed_fabrics
                     ]
 
+        # Combine changed fabrics from VRF and Network changes
         changed_fabrics = list(set(vrf_changed_fabrics) | set(network_changed_fabrics))
 
+        # If there are changed child fabrics, manage their deployment
         if changed_fabrics:
             params['fabric_type'] = "Multi-Site_Child_Fabric"
             for changed_fabric in changed_fabrics:
@@ -250,6 +255,8 @@ class ActionModule(ActionBase):
             fabric_manager.fabric_deploy()
             fabric_manager.fabric_check_sync()
 
+            # For non-Multisite fabrics, check fabric history and retry deployment if out-of-sync
+            # Multisite parent fabrics (MSD or MCFG) are excluded as they are dependent on child fabrics being in sync
             if not fabric_manager.fabric_in_sync and params['fabric_type'] not in ['MSD', 'MCFG']:
                 # If the fabric is out of sync after deployment try one more time before giving up
                 fabric_manager.fabric_history_get()
