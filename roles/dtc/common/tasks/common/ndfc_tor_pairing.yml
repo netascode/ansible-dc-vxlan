@@ -33,7 +33,7 @@
     tor_pairing_previous_list: []
     tor_pairing_current_list: []
     leaf_switches_for_query: >-
-      {{ MD_Extended.vxlan.topology.switches
+      {{ data_model_extended.vxlan.topology.switches
          | selectattr('role', 'equalto', 'leaf')
          | list }}
   delegate_to: localhost
@@ -69,7 +69,7 @@
     - name: Discover existing TOR pairings from NDFC
       cisco.nac_dc_vxlan.dtc.process_tor_pairing:
         operation: discovery
-        fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+        fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
         leaf_serial_number: "{{ leaf_switches_for_query[0].serial_number }}"
       register: tor_discovery_result
       delegate_to: localhost
@@ -134,8 +134,8 @@
 
     - name: Update change flag Manager
       cisco.nac_dc_vxlan.common.change_flag_manager:
-        fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-        fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+        fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+        fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
         role_path: "{{ common_role_path }}"
         operation: update
         change_flag: changes_detected_tor_pairing

@@ -2,18 +2,18 @@
 - name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
 
 - name: Set vars_common Based On Fabric Type - eBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+  when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Create TOR pairings in NDFC
   cisco.nac_dc_vxlan.dtc.process_tor_pairing:
     operation: create
     tor_pairing: "{{ vars_common_local.tor_pairing }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     execute_api: true
   register: tor_create_result
   when:
