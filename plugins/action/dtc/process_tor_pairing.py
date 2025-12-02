@@ -485,8 +485,12 @@ class ActionModule(ActionBase):
             "path": path,
         }
 
+        # Use 'data' instead of 'json_data' for dcnm_rest module
+        # This is the primary parameter name, json_data is just an alias
         if json_data is not None:
-            module_args["json_data"] = json_data
+            module_args["data"] = json_data
+
+        display.vvv(f"TOR API: Executing {method} {path} with args: {module_args}")
 
         result = self._execute_module(
             module_name="cisco.dcnm.dcnm_rest",
@@ -494,6 +498,10 @@ class ActionModule(ActionBase):
             task_vars=task_vars,
             tmp=tmp
         )
+
+        display.vvv(f"TOR API: Result keys: {result.keys() if result else 'None'}")
+        if result and result.get('failed'):
+            display.vvv(f"TOR API: Full failure result: {result}")
 
         return result
 
@@ -616,12 +624,21 @@ class ActionModule(ActionBase):
                 tmp=tmp
             )
 
+            # Capture MODULE FAILURE details from stdout/stderr
+            error_msg = api_result.get('msg', '')
+            if api_result.get('failed') and 'MODULE FAILURE' in error_msg:
+                stdout = api_result.get('module_stdout', api_result.get('stdout', ''))
+                stderr = api_result.get('module_stderr', api_result.get('stderr', ''))
+                error_msg = f"{error_msg} | stdout: {stdout} | stderr: {stderr}"
+                display.warning(f"TOR Create MODULE FAILURE details: {api_result}")
+
             op_result = {
                 'pairing_id': pairing_id,
                 'path': api_path,
                 'success': not api_result.get('failed', False),
                 'response': api_result.get('response'),
-                'msg': api_result.get('msg', '')
+                'msg': error_msg,
+                'raw_result': api_result  # Include full result for debugging
             }
 
             results['api_results'].append(op_result)
@@ -711,13 +728,22 @@ class ActionModule(ActionBase):
             if 'not found' in error_msg or 'does not exist' in error_msg:
                 is_not_found_error = True
 
+            # Capture MODULE FAILURE details from stdout/stderr
+            full_error_msg = api_result.get('msg', '')
+            if api_result.get('failed') and 'MODULE FAILURE' in full_error_msg.upper():
+                stdout = api_result.get('module_stdout', api_result.get('stdout', ''))
+                stderr = api_result.get('module_stderr', api_result.get('stderr', ''))
+                full_error_msg = f"{full_error_msg} | stdout: {stdout} | stderr: {stderr}"
+                display.warning(f"TOR Remove MODULE FAILURE details: {api_result}")
+
             op_result = {
                 'pairing_id': pairing_id,
                 'path': api_path,
                 'success': not api_result.get('failed', False) or is_not_found_error,
                 'response': api_result.get('response'),
-                'msg': api_result.get('msg', ''),
-                'already_removed': is_not_found_error
+                'msg': full_error_msg,
+                'already_removed': is_not_found_error,
+                'raw_result': api_result  # Include full result for debugging
             }
 
             results['api_results'].append(op_result)
