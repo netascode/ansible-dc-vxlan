@@ -624,9 +624,16 @@ class ActionModule(ActionBase):
                 tmp=tmp
             )
 
+            # Extract error message - handle both string and dict formats from dcnm_rest
+            raw_msg = api_result.get('msg', '')
+            if isinstance(raw_msg, dict):
+                # dcnm_rest returns errors as dict with RETURN_CODE, MESSAGE, DATA
+                error_msg = json.dumps(raw_msg)
+            else:
+                error_msg = str(raw_msg) if raw_msg else ''
+
             # Capture MODULE FAILURE details from stdout/stderr
-            error_msg = api_result.get('msg', '')
-            if api_result.get('failed') and 'MODULE FAILURE' in error_msg:
+            if api_result.get('failed') and 'MODULE FAILURE' in str(error_msg).upper():
                 stdout = api_result.get('module_stdout', api_result.get('stdout', ''))
                 stderr = api_result.get('module_stderr', api_result.get('stderr', ''))
                 error_msg = f"{error_msg} | stdout: {stdout} | stderr: {stderr}"
@@ -722,14 +729,23 @@ class ActionModule(ActionBase):
                 tmp=tmp
             )
 
+            # Extract error message - handle both string and dict formats from dcnm_rest
+            raw_msg = api_result.get('msg', '')
+            if isinstance(raw_msg, dict):
+                # dcnm_rest returns errors as dict with RETURN_CODE, MESSAGE, DATA
+                error_msg_str = str(raw_msg.get('DATA', '')) + ' ' + str(raw_msg.get('MESSAGE', ''))
+                full_error_msg = json.dumps(raw_msg)
+            else:
+                error_msg_str = str(raw_msg) if raw_msg else ''
+                full_error_msg = error_msg_str
+
             # Check for acceptable "not found" errors
             is_not_found_error = False
-            error_msg = (api_result.get('msg') or '').lower()
-            if 'not found' in error_msg or 'does not exist' in error_msg:
+            error_msg_lower = error_msg_str.lower()
+            if 'not found' in error_msg_lower or 'does not exist' in error_msg_lower:
                 is_not_found_error = True
 
             # Capture MODULE FAILURE details from stdout/stderr
-            full_error_msg = api_result.get('msg', '')
             if api_result.get('failed') and 'MODULE FAILURE' in full_error_msg.upper():
                 stdout = api_result.get('module_stdout', api_result.get('stdout', ''))
                 stderr = api_result.get('module_stderr', api_result.get('stderr', ''))
