@@ -58,11 +58,11 @@ class ActionModule(ActionBase):
 
         return credential
 
-    def _get_switch_credentials_from_datamodel(self, model_data, management_ipv4_address):
+    def _get_switch_credentials_from_datamodel(self, data_model, management_ipv4_address):
 
-        model_data_switches = model_data['vxlan']['topology']['switches']
+        data_model_switches = data_model['vxlan']['topology']['switches']
 
-        for switch in model_data_switches:
+        for switch in data_model_switches:
             if switch['management']['management_ipv4_address'] == management_ipv4_address:
                 username = switch['management'].get('username', '')
                 password = switch['management'].get('password', '')
@@ -75,7 +75,7 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['retrieve_failed'] = False
 
-        model_data = self._task.args.get('model_data')
+        data_model = self._task.args.get('data_model')
 
         key_username = 'ndfc_switch_username'
         key_password = 'ndfc_switch_password'
@@ -99,7 +99,7 @@ class ActionModule(ActionBase):
             device_ip = new_device.get('seed_ip', 'unknown')
 
             # Try to get individual credentials from model data
-            individual_credentials = self._get_switch_credentials_from_datamodel(model_data, device_ip)
+            individual_credentials = self._get_switch_credentials_from_datamodel(data_model, device_ip)
             if individual_credentials:
                 switch_username, switch_password = individual_credentials
 

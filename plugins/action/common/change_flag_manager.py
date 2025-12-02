@@ -47,7 +47,7 @@ class ChangeDetectionManager:
         self.changes_detected_flags[self.fabric_name] = {}
         self.changes_detected_flags[self.fabric_name][self.fabric_type] = {}
 
-        # Supported Fabric Types VXLAN_EVPN, MSD, ISN, External, eBGP_VXLAN
+        # Supported Fabric Types VXLAN_EVPN, eBGP_VXLAN, MSD, MCFG, ISN, External
         if self.fabric_type == "VXLAN_EVPN":
             self.changes_detected_flags[self.fabric_name][self.fabric_type] = {
                 'changes_detected_fabric': False,
@@ -75,6 +75,34 @@ class ChangeDetectionManager:
                 'changes_detected_vpc_domain_id_resource': False,
                 'changes_detected_vrfs': False,
                 'changes_detected_underlay_ip_address': False,
+                'changes_detected_any': False
+            }
+        if self.fabric_type == "eBGP_VXLAN":
+            self.changes_detected_flags[self.fabric_name][self.fabric_type] = {
+                'changes_detected_fabric': False,
+                'changes_detected_fabric_links': False,
+                'changes_detected_edge_connections': False,
+                'changes_detected_interface_dot1q': False,
+                'changes_detected_interface_access_po': False,
+                'changes_detected_interface_access': False,
+                'changes_detected_interfaces': False,
+                'changes_detected_interface_loopback': False,
+                'changes_detected_interface_po_routed': False,
+                'changes_detected_interface_routed': False,
+                'changes_detected_interface_trunk_po': False,
+                'changes_detected_interface_trunk': False,
+                'changes_detected_interface_vpc': False,
+                'changes_detected_interface_breakout': False,
+                'changes_detected_interface_breakout_preprov': False,
+                'changes_detected_inventory': False,
+                'changes_detected_link_vpc_peering': False,
+                'changes_detected_tor_pairing': False,
+                'changes_detected_networks': False,
+                'changes_detected_policy': False,
+                'changes_detected_sub_interface_routed': False,
+                'changes_detected_vpc_peering': False,
+                'changes_detected_vpc_domain_id_resource': False,
+                'changes_detected_vrfs': False,
                 'changes_detected_any': False
             }
         if self.fabric_type == "ISN":
@@ -107,32 +135,15 @@ class ChangeDetectionManager:
                 'changes_detected_networks': False,
                 'changes_detected_any': False
             }
+        if self.fabric_type == "MCFG":
+            self.changes_detected_flags[self.fabric_name][self.fabric_type] = {
+                'changes_detected_fabric': False,
+                'changes_detected_any': False
+            }
         if self.fabric_type == "External":
             self.changes_detected_flags[self.fabric_name][self.fabric_type] = {
                 'changes_detected_inventory': False,
                 'changes_detected_fabric': False,
-                'changes_detected_edge_connections': False,
-                'changes_detected_interface_dot1q': False,
-                'changes_detected_interface_access_po': False,
-                'changes_detected_interface_access': False,
-                'changes_detected_interfaces': False,
-                'changes_detected_interface_loopback': False,
-                'changes_detected_interface_po_routed': False,
-                'changes_detected_interface_routed': False,
-                'changes_detected_interface_trunk_po': False,
-                'changes_detected_interface_trunk': False,
-                'changes_detected_interface_vpc': False,
-                'changes_detected_interface_breakout': False,
-                'changes_detected_interface_breakout_preprov': False,
-                'changes_detected_sub_interface_routed': False,
-                'changes_detected_vpc_peering': False,
-                'changes_detected_policy': False,
-                'changes_detected_any': False
-            }
-        if self.fabric_type == "eBGP_VXLAN":
-            self.changes_detected_flags[self.fabric_name][self.fabric_type] = {
-                'changes_detected_fabric': False,
-                'changes_detected_fabric_links': False,
                 'changes_detected_edge_connections': False,
                 'changes_detected_interface_dot1q': False,
                 'changes_detected_interface_access_po': False,
@@ -153,8 +164,6 @@ class ChangeDetectionManager:
                 'changes_detected_policy': False,
                 'changes_detected_sub_interface_routed': False,
                 'changes_detected_vpc_peering': False,
-                'changes_detected_vpc_domain_id_resource': False,
-                'changes_detected_vrfs': False,
                 'changes_detected_any': False
             }
 
