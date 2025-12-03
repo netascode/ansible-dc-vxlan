@@ -45,6 +45,10 @@
   when: tor_pairing_previous.stat.exists
 
 - name: Query NDFC and process ToR pairing discovery
+  when:
+    - not tor_pairing_previous.stat.exists
+    - leaf_switches_for_query is defined
+    - leaf_switches_for_query | length > 0
   block:
     - name: Discover existing TOR pairings from NDFC
       cisco.nac_dc_vxlan.dtc.process_tor_pairing:
@@ -62,10 +66,6 @@
       when:
         - tor_discovery_result.discovered_pairings is defined
         - tor_discovery_result.discovered_pairings | length > 0
-  when:
-    - not tor_pairing_previous.stat.exists
-    - leaf_switches_for_query is defined
-    - leaf_switches_for_query | length > 0
 
 - name: Cache NDFC discovered pairings for future reference
   ansible.builtin.copy:
@@ -106,6 +106,9 @@
     - tor_pairing_diff_result.removed is defined
 
 - name: Update flags when change detected
+  when: >
+    (tor_pairing_diff_result.added | default([]) | length > 0) or
+    (tor_pairing_diff_result.removed | default([]) | length > 0)
   block:
     - name: Set local change flag
       ansible.builtin.set_fact:
@@ -121,6 +124,3 @@
         change_flag: changes_detected_tor_pairing
         flag_value: true
       delegate_to: localhost
-  when: >
-    (tor_pairing_diff_result.added | default([]) | length > 0) or
-    (tor_pairing_diff_result.removed | default([]) | length > 0)
