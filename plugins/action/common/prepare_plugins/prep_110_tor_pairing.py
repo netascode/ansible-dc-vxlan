@@ -18,27 +18,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
-
-DOCUMENTATION = r'''
----
-action: prep_110_tor_pairing
-short_description: Prepare ToR pairing
-description:
-  - Prepare ToR pairing
-options: {}
-author:
-  - Cisco
-'''
-
-EXAMPLES = r'''
-'''
-
-RETURN = r'''
-'''
-
-
 class PreparePlugin:
     """
     ToR Pairing Prepare Plugin.

@@ -19,42 +19,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
-
-DOCUMENTATION = r'''
----
-action: process_tor_pairing
-short_description: Process ToR pairing
-description:
-  - Process ToR pairing
-options: {}
-author:
-  - Cisco
-'''
-
-EXAMPLES = r'''
-'''
-
-RETURN = r'''
-'''
-
-
-"""
-Unified TOR Pairing Action Plugin for NDFC.
-
-This module consolidates all TOR pairing operations (discovery, create, removal)
-into a single action plugin that handles both data processing and NDFC API calls.
-
-Supported operations:
-    - discovery: Query NDFC for existing TOR pairings and process the response
-    - create: Create TOR pairings via NDFC POST API
-    - remove: Remove TOR pairings via NDFC DELETE API
-"""
-
-
-__metaclass__ = type
-
 import json
 from urllib.parse import quote
 
