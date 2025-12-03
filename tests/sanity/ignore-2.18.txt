@@ -42,3 +42,5 @@ plugins/action/test/inventory.py action-plugin-docs # action plugin has no match
 plugins/action/dtc/diff_compare.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/fabric_deploy_manager.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/change_flag_manager.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_110_tor_pairing.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/process_tor_pairing.py action-plugin-docs # action plugin has no matching module to provide documentation

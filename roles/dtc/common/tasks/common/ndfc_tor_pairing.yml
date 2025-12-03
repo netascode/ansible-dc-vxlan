@@ -44,26 +44,6 @@
   delegate_to: localhost
   when: tor_pairing_previous.stat.exists
 
-# ###########################################
-## NDFC Discovery of Existing ToR Pairings ##
-# ###########################################
-# Note: This step is only performed if no previous ToR pairing file exists.
-
-#### Response Structure:
-# {
-#   "DATA": {
-#     "torPairs": [
-#       {
-#         "torName": "TOR_23~TOR_24",
-#         "torSN": "9M81OZOOCWM,9Q2X9XATUNL",
-#         "leafSNs": "99FYP2OV1NS,9BUXESV382R",
-#         "torPeerSN": "9Q2X9XATUNL",
-#         "remarks": "Already paired"
-#       }
-#     ]
-#   }
-# }
-
 - name: Query NDFC and process ToR pairing discovery
   block:
     - name: Discover existing TOR pairings from NDFC
