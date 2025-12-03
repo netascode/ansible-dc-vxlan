@@ -19,6 +19,27 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
+DOCUMENTATION = r'''
+---
+action: process_tor_pairing
+short_description: Process ToR pairing
+description:
+  - Process ToR pairing
+options: {}
+author:
+  - Cisco
+'''
+
+EXAMPLES = r'''
+'''
+
+RETURN = r'''
+'''
+
+
 """
 Unified TOR Pairing Action Plugin for NDFC.
 
@@ -190,7 +211,7 @@ class TorDiscoveryProcessor:
 class TorDiffProcessor:
     """
     Compare current and previous ToR pairings to identify additions and removals.
-    
+
     Uses order-independent serial number matching to correctly identify
     pairings that should be removed (exist in previous but not in current).
     """
@@ -210,13 +231,13 @@ class TorDiffProcessor:
     def _normalize_serials(self, payload):
         """
         Create order-independent serial tuple for comparison.
-        
+
         Handles VPC pairs where serial numbers can appear in any order
         between NDFC response and prepare plugin output.
-        
+
         Args:
             payload: dict with leafSN1, leafSN2, torSN1, torSN2 keys
-            
+
         Returns:
             tuple: ((sorted_tor_serials), (sorted_leaf_serials))
         """
@@ -226,20 +247,20 @@ class TorDiffProcessor:
             payload.get('torSN2', '')
         ]
         tor_serials = [s for s in tor_serials if s]
-        
+
         leaf_serials = [
             payload.get('leafSN1', ''),
             payload.get('leafSN2', '')
         ]
         leaf_serials = [s for s in leaf_serials if s]
-        
+
         # Sort for order-independent comparison
         return (tuple(sorted(tor_serials)), tuple(sorted(leaf_serials)))
 
     def compute_diff(self):
         """
         Compare current and previous ToR pairings to identify changes.
-        
+
         Returns:
             dict with keys:
                 - removed: list of pairings to remove (in previous but not current)
@@ -260,19 +281,19 @@ class TorDiffProcessor:
                     'unchanged_count': 0
                 }
             }
-        
+
         # Build lookup of current pairing serials
         current_serial_map = {}
         for pairing in self.current_pairings:
             serial_key = self._normalize_serials(pairing.get('payload', {}))
             current_serial_map[serial_key] = pairing
-        
+
         # Build lookup of previous pairing serials
         previous_serial_map = {}
         for pairing in self.previous_pairings:
             serial_key = self._normalize_serials(pairing.get('payload', {}))
             previous_serial_map[serial_key] = pairing
-        
+
         # Find removals (in previous but not in current)
         removed = []
         unchanged_from_previous = []
@@ -281,13 +302,13 @@ class TorDiffProcessor:
                 removed.append(prev_pairing)
             else:
                 unchanged_from_previous.append(prev_pairing)
-        
+
         # Find additions (in current but not in previous)
         added = []
         for serial_key, curr_pairing in current_serial_map.items():
             if serial_key not in previous_serial_map:
                 added.append(curr_pairing)
-        
+
         # Return results with statistics for debugging
         return {
             'removed': removed,

@@ -75,7 +75,7 @@ class PreparePlugin:
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
                         elif found_switch.get('management').get('management_ipv6_address'):
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
-                    
+
                     # Process nested TOR entries and resolve their management IPs
                     if 'tors' in switch and switch['tors']:
                         for tor in switch['tors']:
@@ -142,7 +142,7 @@ class PreparePlugin:
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
                         elif found_switch.get('management').get('management_ipv6_address'):
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
-                    
+
                     # Process nested TOR entries and resolve their management IPs
                     if 'tors' in switch and switch['tors']:
                         for tor in switch['tors']:
@@ -153,7 +153,7 @@ class PreparePlugin:
                                     tor['mgmt_ip_address'] = found_tor['management']['management_ipv4_address']
                                 elif found_tor.get('management').get('management_ipv6_address'):
                                     tor['mgmt_ip_address'] = found_tor['management']['management_ipv6_address']
-                    
+
                     # Append switch to a flat list of switches for cross comparison later when we query the
                     # MSD fabric information.  We need to stop execution if the list returned by the MSD query
                     # does not include one of these switches.

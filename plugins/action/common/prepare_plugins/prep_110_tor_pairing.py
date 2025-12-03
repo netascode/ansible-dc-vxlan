@@ -18,22 +18,43 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
+DOCUMENTATION = r'''
+---
+action: prep_110_tor_pairing
+short_description: Prepare ToR pairing
+description:
+  - Prepare ToR pairing
+options: {}
+author:
+  - Cisco
+'''
+
+EXAMPLES = r'''
+'''
+
+RETURN = r'''
+'''
+
+
 
 class PreparePlugin:
     """
     ToR Pairing Prepare Plugin.
-    
+
     Transforms user YAML configuration (tor_peers) into NDFC API payloads.
-    
+
     This plugin runs during the validation/prepare phase to:
     - Resolve switch names to serial numbers
     - Auto-detect VPC scenarios based on configuration
     - Build standardized payload format for NDFC API calls
-    
+
     Note: Diff detection for removals is handled separately by the
     process_tor_pairing action plugin's 'diff' operation.
     """
-    
+
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.keys = ['vxlan', 'topology', 'tor_peers']
@@ -65,7 +86,7 @@ class PreparePlugin:
     def prepare(self):
         """
         Main prepare method - transforms user config to API payloads and performs diff detection.
-        
+
         Returns:
         dict: results with model_extended updated and optional metadata
             - model_extended['vxlan']['topology']['tor_pairing']: current pairings
@@ -85,7 +106,7 @@ class PreparePlugin:
                 }
             }
         ]
-        
+
         """
         results = self.kwargs['results']
         model_data = results['model_extended']
@@ -131,7 +152,7 @@ class PreparePlugin:
 
             # Auto-detect VPC scenarios based on presence of tor2/leaf2
             # No need for explicit tor_vpc_peer flag with new simplified model
-            
+
             # Auto-resolve VPC domain IDs from vpc_peers configuration
             leaf_vpc_domain = self._resolve_vpc_domain(peer, 'leaf_vpc_id', leaf1_name, leaf2_name, topology)
             tor_vpc_domain = self._resolve_vpc_domain(peer, 'tor_vpc_id', tor1_name, tor2_name, topology)
@@ -205,9 +226,9 @@ class PreparePlugin:
             results['failed'] = True
             results['msg'] = '\n'.join(errors)
             return results
-        
+
         # Store processed pairings in model_extended for downstream tasks
         model_data['vxlan']['topology']['tor_pairing'] = processed_pairs
-        
+
         results['model_extended'] = model_data
         return results

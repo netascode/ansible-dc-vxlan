@@ -157,7 +157,6 @@ class ChangeDetectionManager:
                 'changes_detected_interface_vpc': False,
                 'changes_detected_interface_breakout': False,
                 'changes_detected_interface_breakout_preprov': False,
-                'changes_detected_inventory': False,
                 'changes_detected_link_vpc_peering': False,
                 'changes_detected_tor_pairing': False,
                 'changes_detected_networks': False,

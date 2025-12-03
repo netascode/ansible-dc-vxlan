@@ -7,34 +7,35 @@ class Rule:
     def match(cls, data_model):
         """
         Validate ToR pairing configuration before it's processed by prepare plugins.
-        
+
         Checks:
         1. Required fields (parent_leaf1, tor1) are present
         2. Scenario detection (vpc-to-vpc, vpc-to-standalone, standalone-to-standalone)
         3. VPC requirements (leafs/ToRs must be VPC paired per scenario)
         4. Switch existence and role validation
         5. Serial number presence
-        6. Check if the switch (leaf or tor) is selected to preprovision - vxlan.topology.switches.name.poap.preprovision. If yes, raise a validation error as ToR pairing cannot be preprovisioned.
-        
+        6. Check if the switch (leaf or tor) is selected to preprovision - vxlan.topology.switches.name.poap.preprovision.
+           If yes, raise a validation error as ToR pairing cannot be preprovisioned.
+
         """
         results = []
-        
+
         # Get topology
         topology_keys = ['vxlan', 'topology']
         dm_check = cls.data_model_key_check(data_model, topology_keys)
         if 'topology' not in dm_check['keys_data']:
             return results
-        
+
         topology = data_model['vxlan']['topology']
-        
+
         # Get tor_peers
         if 'tor_peers' not in topology or not topology['tor_peers']:
             return results
-        
+
         tor_peers = topology['tor_peers']
         switches = topology.get('switches', [])
         vpc_peers = topology.get('vpc_peers', [])
-        
+
         # Build switch lookup map
         switch_map = {}
         switch_names = set()
@@ -42,7 +43,7 @@ class Rule:
             if 'name' in sw:
                 switch_map[sw['name']] = sw
                 switch_names.add(sw['name'])
-        
+
         # Build VPC domain lookup map
         vpc_domain_map = {}
         for vpc_pair in vpc_peers:
@@ -53,31 +54,31 @@ class Rule:
                 # Store both directions for easy lookup
                 vpc_domain_map[(peer1, peer2)] = domain_id
                 vpc_domain_map[(peer2, peer1)] = domain_id
-        
+
         # Collect all ToR switch names referenced in tor_peers
         tor_switch_names = set()
-        
+
         # Validate each tor_peers entry
         for idx, peer in enumerate(tor_peers):
             entry_label = f"vxlan.topology.tor_peers[{idx}]"
-            
+
             # Handle both dict and string formats (backward compatibility)
             leaf1_name = cls._extract_name(peer.get('parent_leaf1'))
             leaf2_name = cls._extract_name(peer.get('parent_leaf2'))
             tor1_name = cls._extract_name(peer.get('tor1'))
             tor2_name = cls._extract_name(peer.get('tor2'))
-            
+
             # Track ToR names
             if tor1_name:
                 tor_switch_names.add(tor1_name)
             if tor2_name:
                 tor_switch_names.add(tor2_name)
-            
+
             # Basic required field check
             if not leaf1_name or not tor1_name:
                 results.append(f"{entry_label}: 'parent_leaf1' and 'tor1' are required")
                 continue
-            
+
             # Preprovision check
             for switch_name in [leaf1_name, leaf2_name, tor1_name, tor2_name]:
                 if switch_name and switch_name in switch_map:
@@ -88,10 +89,10 @@ class Rule:
                             f"{entry_label}: Switch '{switch_name}' is set to preprovision in "
                             f"ToR pairing cannot be preprovisioned."
                         )
-            
+
             # Determine scenario
             scenario = cls._detect_scenario(leaf1_name, leaf2_name, tor1_name, tor2_name)
-            
+
             # Scenario-specific validation
             if scenario == 'vpc_to_vpc':
                 # Validate: leafs must be VPC paired
@@ -111,7 +112,7 @@ class Rule:
                 cls._validate_switch_role(leaf2_name, 'leaf', switch_map, results, entry_label)
                 cls._validate_switch_role(tor1_name, 'tor', switch_map, results, entry_label)
                 cls._validate_switch_role(tor2_name, 'tor', switch_map, results, entry_label)
-                
+
             elif scenario == 'vpc_to_standalone':
                 # Validate: leafs must be VPC paired
                 if not cls._find_vpc_domain(leaf1_name, leaf2_name, vpc_domain_map):
@@ -123,12 +124,12 @@ class Rule:
                 cls._validate_switch_role(leaf1_name, 'leaf', switch_map, results, entry_label)
                 cls._validate_switch_role(leaf2_name, 'leaf', switch_map, results, entry_label)
                 cls._validate_switch_role(tor1_name, 'tor', switch_map, results, entry_label)
-                
+
             elif scenario == 'standalone_to_standalone':
                 # Validate: switches must exist with correct roles
                 cls._validate_switch_role(leaf1_name, 'leaf', switch_map, results, entry_label)
                 cls._validate_switch_role(tor1_name, 'tor', switch_map, results, entry_label)
-                
+
             else:
                 results.append(
                     f"{entry_label}: Invalid ToR pairing scenario. "
@@ -136,16 +137,16 @@ class Rule:
                     f"standalone-to-standalone (1 leaf + 1 TOR). "
                     f"Unsupported: standalone leaf with VPC TORs"
                 )
-        
+
         return results
-    
+
     @classmethod
     def _extract_name(cls, value):
         """Extract switch name from dict or string."""
         if not value:
             return None
         return value.get('name') if isinstance(value, dict) else value
-    
+
     @classmethod
     def _detect_scenario(cls, leaf1, leaf2, tor1, tor2):
         """Detect ToR pairing scenario."""
@@ -157,12 +158,12 @@ class Rule:
             return 'standalone_to_standalone'
         else:
             return 'invalid'  # standalone leaf + vpc tor
-    
+
     @classmethod
     def _find_vpc_domain(cls, switch1, switch2, vpc_domain_map):
         """Check if two switches form a VPC pair."""
         return vpc_domain_map.get((switch1, switch2)) is not None
-    
+
     @classmethod
     def _validate_switch_role(cls, switch_name, expected_role, switch_map, results, entry_label):
         """Validate switch exists and has correct role."""
@@ -171,19 +172,19 @@ class Rule:
                 f"{entry_label}: Switch '{switch_name}' not found in vxlan.topology.switches"
             )
             return
-        
+
         switch = switch_map[switch_name]
         if switch.get('role') != expected_role:
             results.append(
                 f"{entry_label}: Switch '{switch_name}' must have role '{expected_role}', "
                 f"found '{switch.get('role')}'"
             )
-        
+
         if not switch.get('serial_number'):
             results.append(
                 f"{entry_label}: Switch '{switch_name}' must have serial_number defined"
             )
-    
+
     @classmethod
     def data_model_key_check(cls, tested_object, keys):
         """
