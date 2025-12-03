@@ -52,8 +52,6 @@ Supported operations:
     - remove: Remove TOR pairings via NDFC DELETE API
 """
 
-from __future__ import absolute_import, division, print_function
-
 
 __metaclass__ = type
 

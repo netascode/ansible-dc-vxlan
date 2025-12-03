@@ -1,13 +1,13 @@
 class Rule:
     """
     Validate TOR switches in network_attach_groups are properly paired.
-    
+
     This rule ensures that any TOR switch referenced in overlay network attachments
     (network_attach_groups) is also defined in topology.tor_peers. This prevents
     the scenario where a user removes a TOR pairing but forgets to remove the
     network attachments, which would cause NDFC API failures with:
     "Switches [serial] have overlays. Please undeploy and try again"
-    
+
     Validation sequence matters:
     - When ADDING a TOR: First add to tor_peers, then add to network_attach_groups
     - When REMOVING a TOR: First remove from network_attach_groups, then remove from tor_peers
@@ -21,7 +21,7 @@ class Rule:
         """
         Check that all TOR switches referenced in network_attach_groups
         are also defined in topology.tor_peers.
-        
+
         Returns:
             list: List of validation error messages
         """

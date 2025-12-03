@@ -39,7 +39,6 @@ RETURN = r'''
 '''
 
 
-
 class PreparePlugin:
     """
     ToR Pairing Prepare Plugin.
