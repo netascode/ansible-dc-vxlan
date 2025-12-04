@@ -41,11 +41,8 @@
 {% if net.child_fabrics is defined and net.child_fabrics %}
 {% set child_fabrics = net.child_fabrics %}
   child_fabric_config:
-{% else %}
-{% set child_fabrics = [] %}
-{% endif %}
 {% for child_fabric in child_fabrics %}
-    - fabric_name: {{ child_fabric['name'] | default(omit) }}
+    - fabric: {{ child_fabric['name'] | default(omit) }}
 {% if (data_model_multisite.child_fabrics_data[child_fabric['name']]['attributes']['REPLICATION_MODE'] | lower) == 'multicast' %}
       multicast_group_address: {{ child_fabric['multicast_group_address'] | default(omit) }}
 {% endif %}
@@ -76,6 +73,7 @@
       vlan_nf_monitor: {{ child_fabric['vlan_netflow_monitor'] | default(omit) }}
 {% endif %}
 {% endfor %}
+{% endif %}
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
