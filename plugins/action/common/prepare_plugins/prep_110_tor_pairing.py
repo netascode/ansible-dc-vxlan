@@ -49,6 +49,20 @@ class PreparePlugin:
             return None
         return switch
 
+    def _is_vpc_paired(self, name_a, name_b, topology):
+        """
+        Check if two switches form a VPC pair.
+        Returns True if they are VPC paired, False otherwise.
+        """
+        if not (name_a and name_b):
+            return False
+        vpc_peers = topology.get('vpc_peers') or []
+        for candidate in vpc_peers:
+            peers = {candidate.get('peer1'), candidate.get('peer2')}
+            if {name_a, name_b} == peers:
+                return True
+        return False
+
     def _resolve_vpc_domain(self, peer, key, name_a, name_b, topology):
         if peer.get(key) is not None:
             return peer.get(key)
@@ -131,13 +145,18 @@ class PreparePlugin:
             # Auto-detect VPC scenarios based on presence of tor2/leaf2
             # No need for explicit tor_vpc_peer flag with new simplified model
 
-            # Auto-resolve VPC domain IDs from vpc_peers configuration
+            # Check if switches are VPC paired (domain_id is optional)
+            leaf_is_vpc_paired = self._is_vpc_paired(leaf1_name, leaf2_name, topology)
+            tor_is_vpc_paired = self._is_vpc_paired(tor1_name, tor2_name, topology)
+
+            # Auto-resolve VPC domain IDs from vpc_peers configuration (optional, for payload)
             leaf_vpc_domain = self._resolve_vpc_domain(peer, 'leaf_vpc_id', leaf1_name, leaf2_name, topology)
             tor_vpc_domain = self._resolve_vpc_domain(peer, 'tor_vpc_id', tor1_name, tor2_name, topology)
 
-            # Determine if this is a VPC scenario based on switch definitions
-            leaf_is_vpc = bool(leaf2_switch and leaf_vpc_domain)
-            tor_is_vpc = bool(tor2_switch and tor_vpc_domain)
+            # Determine if this is a VPC scenario based on switch definitions and VPC pairing
+            # VPC scenario requires: both switches present AND they are VPC paired
+            leaf_is_vpc = bool(leaf2_switch and leaf_is_vpc_paired)
+            tor_is_vpc = bool(tor2_switch and tor_is_vpc_paired)
 
             # Determine scenario based on configuration
             scenario = 'standalone_to_standalone'

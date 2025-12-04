@@ -2,8 +2,8 @@
 # This NDFC ToR pairing config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% if MD_Extended.vxlan.topology.tor_pairing is defined and MD_Extended.vxlan.topology.tor_pairing %}
-{% for pair in MD_Extended.vxlan.topology.tor_pairing %}
+{% if data_model_extended.vxlan.topology.tor_pairing is defined and data_model_extended.vxlan.topology.tor_pairing %}
+{% for pair in data_model_extended.vxlan.topology.tor_pairing %}
 - pairing_id: "{{ pair.pairing_id }}"
   scenario: "{{ pair.scenario }}"
   payload:
