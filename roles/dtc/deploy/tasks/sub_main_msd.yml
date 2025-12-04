@@ -32,8 +32,8 @@
   cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    vrf_response_data: "{{ manage_vrf_result }}"
-    network_response_data: "{{ manage_network_result }}"
+    vrf_response_data: "{{ manage_vrf_result | default(omit) }}"
+    network_response_data: "{{ manage_network_result | default(omit) }}"
     force_run_all: "{{ force_run_all }}"
     operation: all
   vars:
