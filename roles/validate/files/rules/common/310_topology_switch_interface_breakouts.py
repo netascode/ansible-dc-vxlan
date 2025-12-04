@@ -1,7 +1,13 @@
+import re
+
+
 class Rule:
     id = "310"
     description = "Verify interface breakouts"
     severity = "HIGH"
+
+    # regex pattern: Ethernet[101-199]/1/[1-99]
+    IGNORE_FEX = re.compile(r'^(?:Ethernet)(?:10[1-9]|1[1-9]\d)/1/(?:[1-9]|[1-5]\d|6[0-4])$', re.IGNORECASE)
 
     @classmethod
     def match(cls, data_model):
@@ -32,6 +38,10 @@ class Rule:
             for interface in interfaces:
                 interface_name = interface.get("name", "")
                 normalized_interface = interface_name.lower().replace("ethernet", "e").replace("eth", "e")
+
+                # Check if it's a FEX interface - skip validation
+                if cls.IGNORE_FEX.match(interface_name):
+                    continue
 
                 # Skip interfaces without sub-levels (e.g., E1/x)
                 if cls.has_sub_level(normalized_interface):
