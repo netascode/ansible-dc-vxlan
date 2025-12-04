@@ -20,8 +20,6 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- debug: msg="Building NDFC MCFG Child Fabric Data"
-
 - name: Initialize changes_detected Var
   ansible.builtin.set_fact:
     changes_detected_fabric: false
@@ -42,6 +40,7 @@
   ansible.builtin.copy:
     src: "{{ path_name }}{{ file_name }}"
     dest: "{{ path_name }}{{ file_name }}.old"
+    mode: preserve
   when: data_file_previous.stat.exists
 
 - name: Delete Previous Data File If It Exists
@@ -55,10 +54,7 @@
   ansible.builtin.template:
     src: ndfc_fabric_children.j2
     dest: "{{ path_name }}{{ file_name }}"
-  delegate_to: localhost
-
-- ansible.builtin.set_fact:
-    fabric_children: "{{ lookup('file', path_name + file_name) | from_yaml }}"
+    mode: '0644'
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files

@@ -34,13 +34,13 @@
 
 - name: Get existing VRFs in Federated Fabric
   cisco.dcnm.dcnm_rest:
-      method: GET
-      path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs"
+    method: GET
+    path: "/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs"
   register: dcnm_vrf_existing
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Check if VRF Exists
-  set_fact:
+  ansible.builtin.set_fact:
     vrf_exist_result: "{{ dcnm_vrf_existing | json_query(vrf_query) }}"
   vars:
     vrf_query: "response.DATA[?vrfName=='{{vrf.displayName}}'].vrfName"

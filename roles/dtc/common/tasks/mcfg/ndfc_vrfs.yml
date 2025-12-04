@@ -40,6 +40,7 @@
   ansible.builtin.copy:
     src: "{{ path_name }}{{ file_name }}"
     dest: "{{ path_name }}{{ file_name }}.old"
+    mode: preserve
   when: data_file_previous.stat.exists
 
 - name: Delete Previous File If It Exists

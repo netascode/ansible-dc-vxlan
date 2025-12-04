@@ -29,7 +29,8 @@
   tags: "{{ nac_tags.create }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Debug message
-  ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+  ansible.builtin.debug:
+      msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"
   tags: "{{ nac_tags.create }}"
 
 - name: Create NDFC Fabric
@@ -38,10 +39,6 @@
     - MD_Extended.vxlan.fabric.name is defined
     - vars_common_mcfg.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
-
-- name: Debug message
-  ansible.builtin.debug: msg="Query NDFC for List of Fabric Switches"
-  tags: "{{ nac_tags.create }}"
 
 - name: Collect switch data from NDFC
   cisco.dcnm.dcnm_rest:

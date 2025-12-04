@@ -36,7 +36,7 @@
   failed_when: false
 
 - name: Set payload
-  set_fact:
+  ansible.builtin.set_fact:
     payload:
       templateName: "MSD_Fabric"
       fabricName: "{{ MD_Extended.vxlan.fabric.name }}"
@@ -62,9 +62,6 @@
   when: get_result.response is not defined
   register: post_result
 
-- ansible.builtin.debug:
-    var: fabric_children
-
 - name: Check if fabric already a member of NDFC
   cisco.dcnm.dcnm_rest:
     method: GET
@@ -72,14 +69,14 @@
   register: member_result
 
 - name: Set fact for existing fabric names
-  set_fact:
+  ansible.builtin.set_fact:
     existing_fabric_names: >-
       {{
         member_result.response.DATA | map(attribute='fabrics') | map('dict2items') | flatten | map(attribute='key') | list
       }}
 
 - name: Add Child Fabrics To Fabric - {{ MD_Extended.vxlan.fabric.name }}
-  include_tasks: child_fabrics.yml
+  ansible.builtin.include_tasks: child_fabrics.yml
   loop: "{{ fabric_children }}"
   loop_control:
     loop_var: child

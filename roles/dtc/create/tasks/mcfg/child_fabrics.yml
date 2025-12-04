@@ -35,3 +35,4 @@
     json_data: '{{ child | to_json }}'
   register: post_result
   when: child.fabricName not in existing_fabric_names
+  
