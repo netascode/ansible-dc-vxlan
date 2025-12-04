@@ -44,16 +44,15 @@ class Rule:
                 switch_map[sw['name']] = sw
                 switch_names.add(sw['name'])
 
-        # Build VPC domain lookup map
-        vpc_domain_map = {}
+        # Build VPC pairs set for lookup (domain_id is optional)
+        vpc_pairs_set = set()
         for vpc_pair in vpc_peers:
             peer1 = vpc_pair.get('peer1')
             peer2 = vpc_pair.get('peer2')
-            domain_id = vpc_pair.get('domain_id')
-            if peer1 and peer2 and domain_id:
+            if peer1 and peer2:
                 # Store both directions for easy lookup
-                vpc_domain_map[(peer1, peer2)] = domain_id
-                vpc_domain_map[(peer2, peer1)] = domain_id
+                vpc_pairs_set.add((peer1, peer2))
+                vpc_pairs_set.add((peer2, peer1))
 
         # Collect all ToR switch names referenced in tor_peers
         tor_switch_names = set()
@@ -96,13 +95,13 @@ class Rule:
             # Scenario-specific validation
             if scenario == 'vpc_to_vpc':
                 # Validate: leafs must be VPC paired
-                if not cls._find_vpc_domain(leaf1_name, leaf2_name, vpc_domain_map):
+                if not cls._is_vpc_paired(leaf1_name, leaf2_name, vpc_pairs_set):
                     results.append(
                         f"{entry_label}: vpc-to-vpc scenario requires leafs '{leaf1_name}' and '{leaf2_name}' "
                         f"to be VPC paired in vxlan.topology.vpc_peers"
                     )
                 # Validate: tors must be VPC paired
-                if not cls._find_vpc_domain(tor1_name, tor2_name, vpc_domain_map):
+                if not cls._is_vpc_paired(tor1_name, tor2_name, vpc_pairs_set):
                     results.append(
                         f"{entry_label}: vpc-to-vpc scenario requires TORs '{tor1_name}' and '{tor2_name}' "
                         f"to be VPC paired in vxlan.topology.vpc_peers"
@@ -115,7 +114,7 @@ class Rule:
 
             elif scenario == 'vpc_to_standalone':
                 # Validate: leafs must be VPC paired
-                if not cls._find_vpc_domain(leaf1_name, leaf2_name, vpc_domain_map):
+                if not cls._is_vpc_paired(leaf1_name, leaf2_name, vpc_pairs_set):
                     results.append(
                         f"{entry_label}: vpc-to-standalone scenario requires leafs '{leaf1_name}' and '{leaf2_name}' "
                         f"to be VPC paired in vxlan.topology.vpc_peers"
@@ -160,9 +159,9 @@ class Rule:
             return 'invalid'  # standalone leaf + vpc tor
 
     @classmethod
-    def _find_vpc_domain(cls, switch1, switch2, vpc_domain_map):
+    def _is_vpc_paired(cls, switch1, switch2, vpc_pairs_set):
         """Check if two switches form a VPC pair."""
-        return vpc_domain_map.get((switch1, switch2)) is not None
+        return (switch1, switch2) in vpc_pairs_set
 
     @classmethod
     def _validate_switch_role(cls, switch_name, expected_role, switch_map, results, entry_label):
