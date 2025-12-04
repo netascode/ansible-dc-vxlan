@@ -46,7 +46,7 @@
 {% endif %}
 {% for child_fabric in child_fabrics %}
     - fabric_name: {{ child_fabric['name'] | default(omit) }}
-{% if (MD_Multisite.child_fabrics_data[child_fabric['name']]['attributes']['REPLICATION_MODE'] | lower) == 'multicast' %}
+{% if (data_model_multisite.child_fabrics_data[child_fabric['name']]['attributes']['REPLICATION_MODE'] | lower) == 'multicast' %}
       multicast_group_address: {{ child_fabric['multicast_group_address'] | default(omit) }}
 {% endif %}
       dhcp_loopback_id: {{ child_fabric['dhcp_loopback_id'] | default(omit) }}
