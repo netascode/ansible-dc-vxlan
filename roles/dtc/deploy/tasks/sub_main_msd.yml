@@ -35,6 +35,7 @@
     vrf_response_data: "{{ manage_vrf_result | default(omit) }}"
     network_response_data: "{{ manage_network_result | default(omit) }}"
     force_run_all: "{{ force_run_all }}"
+    data_model_child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
     operation: all
   vars:
     ansible_command_timeout: 3000

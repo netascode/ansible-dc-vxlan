@@ -224,6 +224,12 @@ class ActionModule(ActionBase):
         # Combine changed fabrics from VRF and Network changes
         changed_fabrics = list(set(vrf_changed_fabrics) | set(network_changed_fabrics))
 
+        if not changed_fabrics:
+            data_model_child_fabrics = self._task.args.get("data_model_child_fabrics")
+            for data_model_child_fabric in data_model_child_fabrics:
+                fabric_name = data_model_child_fabric['name']
+                changed_fabrics.append(fabric_name)
+
         # If there are changed child fabrics, manage their deployment
         if changed_fabrics:
             params['fabric_type'] = "Multi-Site_Child_Fabric"
