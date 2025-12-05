@@ -416,8 +416,9 @@ class TorRemovalProcessor:
         for leaf_sn in leaf_serials:
             leaftor_map[leaf_sn] = tor_string
 
-        # Step 5: Convert to JSON and URL encode
-        leaftor_json = json.dumps(leaftor_map)
+        # Step 5: Convert to JSON (compact format, no spaces) and URL encode
+        # NDFC expects compact JSON: {"leafSN1":"torSN1,torSN2","leafSN2":"torSN1,torSN2"}
+        leaftor_json = json.dumps(leaftor_map, separators=(',', ':'))
         leaftor_query = quote(leaftor_json, safe='')
 
         return leaftor_query

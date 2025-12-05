@@ -56,7 +56,6 @@
         fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
         leaf_serial_number: "{{ leaf_switches_for_query[0].serial_number }}"
       register: tor_discovery_result
-      delegate_to: localhost
 
     - name: Store discovered pairings
       ansible.builtin.set_fact:
