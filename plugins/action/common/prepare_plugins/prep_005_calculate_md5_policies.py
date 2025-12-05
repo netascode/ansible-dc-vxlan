@@ -21,7 +21,6 @@
 
 import hashlib
 import os
-from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import hostname_to_ip_mapping, data_model_key_check
 
 
 class PreparePlugin:
