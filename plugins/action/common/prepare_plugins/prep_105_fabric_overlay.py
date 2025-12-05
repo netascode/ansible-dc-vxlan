@@ -76,11 +76,17 @@ class PreparePlugin:
                         elif found_switch.get('management').get('management_ipv6_address'):
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
 
-            # Remove network_attach_group from net if the group_name is not defined
+            # Remove network_attach_group or attach_groups from net if the group_name is not defined
             for net in data_model['vxlan']['overlay']['networks']:
                 if 'network_attach_group' in net:
                     if net.get('network_attach_group') not in net_grp_name_list:
                         del net['network_attach_group']
+                elif 'attach_groups' in net:
+                    for grp in net.get('attach_groups'):
+                        if grp not in net_grp_name_list:
+                            net['attach_groups'].remove(grp)
+                    if net.get('attach_groups') == []:
+                        del net['attach_groups']
 
         if data_model['vxlan']['fabric']['type'] in ('MSD', 'MCFG'):
             # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
@@ -136,11 +142,17 @@ class PreparePlugin:
                     # does not include one of these switches.
                     data_model['vxlan']['multisite']['overlay']['network_attach_switches_list'].append(switch['hostname'])
 
-            # Remove network_attach_group from net if the group_name is not defined
+            # Remove network_attach_group or attach_groups from net if the group_name is not defined
             for net in data_model['vxlan']['multisite']['overlay']['networks']:
                 if 'network_attach_group' in net:
                     if net.get('network_attach_group') not in net_grp_name_list:
                         del net['network_attach_group']
+                elif 'attach_groups' in net:
+                    for grp in net.get('attach_groups'):
+                        if grp not in net_grp_name_list:
+                            net['attach_groups'].remove(grp)
+                    if net.get('attach_groups') == []:
+                        del net['attach_groups']
 
         self.kwargs['results']['model_extended'] = data_model
         return self.kwargs['results']
