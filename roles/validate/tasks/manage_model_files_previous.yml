@@ -42,8 +42,8 @@
   when: golden_stat.stat.exists and check_roles['save_previous']
   delegate_to: localhost
 
-# Read previous golden service model data into a variable called 'smd_golden_current'
-- name: Read previous Service Model Data from Host
+# Read previous extended service model data into a variable called 'data_model_extended_previous'
+- name: Read Previous Extended Service Model Data from Host
   ansible.builtin.include_vars:
     file: "{{ role_path }}/files/{{ data_model_extended.vxlan.fabric.name }}_service_model_extended_previous.json"
   register: data_model_extended_previous

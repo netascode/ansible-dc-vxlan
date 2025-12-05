@@ -54,7 +54,7 @@
   when: check_roles['save_previous']
   delegate_to: localhost
 
-- name: Display extended Model File Changes
+- name: Display Extended Service Model File Changes
   ansible.utils.fact_diff:
     before: "{{ data_model_extended_previous['ansible_facts'] }}"
     after: "{{ data_model_extended }}"
