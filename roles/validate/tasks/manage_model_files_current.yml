@@ -54,6 +54,14 @@
   when: check_roles['save_previous']
   delegate_to: localhost
 
+- name: Display extended Model File Changes
+  ansible.utils.fact_diff:
+    before: "{{ data_model_extended_previous['ansible_facts'] }}"
+    after: "{{ data_model_extended }}"
+  register: data_model_extended_diff
+  when: check_roles['save_previous']
+  delegate_to: localhost
+
 - name: Mark All Stages Completed When No Model Changes Detected
   cisco.nac_dc_vxlan.common.run_map:
     data_model: "{{ data_model_extended }}"
@@ -62,6 +70,8 @@
     - check_roles['save_previous']
     - smd_golden_diff.diff_lines | length == 0
     - smd_golden_diff.diff_text | length == 0
+    - data_model_extended_diff.diff_lines | length == 0
+    - data_model_extended_diff.diff_text | length == 0
     - run_map_read_result.diff_run is true
     - force_run_all is false|bool
   delegate_to: localhost
@@ -79,6 +89,8 @@
     - check_roles['save_previous']
     - smd_golden_diff.diff_lines | length == 0
     - smd_golden_diff.diff_text | length == 0
+    - data_model_extended_diff.diff_lines | length == 0
+    - data_model_extended_diff.diff_text | length == 0
     - run_map_read_result.diff_run is true|bool
     - force_run_all is false|bool
   delegate_to: localhost
