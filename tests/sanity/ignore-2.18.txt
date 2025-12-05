@@ -3,6 +3,7 @@ plugins/action/common/nac_dc_validate.py action-plugin-docs # action plugin has 
 plugins/action/common/prepare_plugins/prep_001_fabric.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_002_global.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_003_list_defaults.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_004_calculate_md5_policies.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_104_topology_switches.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_105_fabric_overlay.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_106_topology_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
