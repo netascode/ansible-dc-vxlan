@@ -103,7 +103,6 @@
     - change_flags.changes_detected_vrfs
     - not is_active_child_fabric
 
-
 # --------------------------------------------------------------------
 # Manage Network Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
