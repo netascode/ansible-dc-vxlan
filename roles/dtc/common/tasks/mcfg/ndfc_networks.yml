@@ -20,10 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_networks: false
-  delegate_to: localhost
 
 - name: Set file_name Var
   ansible.builtin.set_fact:
@@ -40,6 +36,7 @@
   ansible.builtin.copy:
     src: "{{ path_name }}{{ file_name }}"
     dest: "{{ path_name }}{{ file_name }}.old"
+    mode: preserve
   when: data_file_previous.stat.exists
 
 - name: Delete Previous Data File If It Exists
@@ -64,7 +61,16 @@
 - name: Set net_config Var
   ansible.builtin.set_fact:
     net_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: (MD_Extended.vxlan.multisite.overlay.networks | default([])) | length > 0
+  when: (data_model_extended.vxlan.multisite.overlay.networks | default([])) | length > 0
+  delegate_to: localhost
+
+- name: Build Network Diff Between Previous and Current Run
+  # This task must be run before the next task because
+  # dtc.diff_model_changes deletes the .old file if it exists
+  cisco.nac_dc_vxlan.dtc.diff_compare:
+    old_file: "{{ path_name }}{{ file_name }}.old"
+    new_file: "{{ path_name }}{{ file_name }}"
+  register: network_diff_result
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
@@ -75,52 +81,14 @@
   delegate_to: localhost
 
 - name: Set File Change Flag Based on File Diff Result
-  ansible.builtin.set_fact:
-    changes_detected_networks: true
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: update
+    change_flag: changes_detected_networks
+    flag_value: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed
     - check_roles['save_previous']
-
-- name: Set file_name Var for switches and port attachments
-  ansible.builtin.set_fact:
-    file_name: "ndfc_attach_network_switches_ports.yml"
-    file_name2: "ndfc_attach_network_switches.yml"
-    switches: []  # check why this is defined here to be used in the template
-    networks: []  # same for this
-    network_switches: []
-    network_switches_ports: []
-  delegate_to: localhost
-
-- name: Build Network Attach List for switches From Template
-  ansible.builtin.template:
-    src: "{{ role_path }}/../common/templates/ndfc_networks/mcfg_fabric/ndfc_attach_networks_switches.j2"
-    dest: "{{ path_name }}{{ file_name }}"
-    mode: '0644'
-  delegate_to: localhost
-
-- name: Build Network Attach List for switches and ports From Template
-  ansible.builtin.template:
-    src: "{{ role_path }}/../common/templates/ndfc_networks/mcfg_fabric/ndfc_attach_networks_switches_ports.j2"
-    dest: "{{ path_name }}{{ file_name2 }}"
-    mode: '0644'
-  delegate_to: localhost
-
-# - name: Build Network attach list for switches on Federated
-#   ansible.builtin.template:
-#     src: ndfc_attach_networks_switches_fed.j2
-#     dest: "{{ path_name }}{{ file_name }}"
-#   delegate_to: localhost
-
-# - name: Build Network attach list for switches and ports on Federated
-#   ansible.builtin.template:
-#     src: ndfc_attach_networks_switches_ports_fed.j2
-#     dest: "{{ path_name }}{{ file_name2 }}"
-#   delegate_to: localhost
-
-- name: Set network_switches Var
-  ansible.builtin.set_fact:
-    network_switches: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-    network_switches_ports: "{{ lookup('file', path_name + file_name2) | from_yaml }}"
-  when: (MD_Extended.vxlan.multisite.overlay.networks | default([])) | length > 0
-  delegate_to: localhost
