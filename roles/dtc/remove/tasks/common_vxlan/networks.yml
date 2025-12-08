@@ -22,7 +22,7 @@
 
 - name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_local }}"
+    vars_common_local: "{{ vars_common_vxlan }}"
   when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
 
 - name: Set vars_common Based On Fabric Type - eBGP_VXLAN
@@ -63,6 +63,14 @@
     - switch_list.response.DATA | length > 0
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
     - not is_active_child_fabric
+
+
+- ansible.builtin.debug:
+    var: vars_common_local.net_config
+
+- ansible.builtin.pause:
+    seconds: 300
+
 
 # -----------------------------------------------------------------------------
 # Remove Networks Using Diff Run Framework

@@ -45,7 +45,8 @@
 - name: Manage MSD Fabric Child Fabrics in Nexus Dashboard
   ansible.builtin.import_tasks: msd/child_fabrics.yml
   when:
-    - data_model_extended.vxlan.multisite.child_fabrics is defined and data_model_extended.vxlan.multisite.child_fabrics | length > 0
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
+    - data_model_extended.vxlan.multisite.child_fabrics | length > 0
 
 - name: Prepare Multisite Data
   cisco.nac_dc_vxlan.dtc.prepare_msite_data:
@@ -61,13 +62,13 @@
     config: "{{ vars_common_msd.bgw_anycast_vip }}"
   when:
     - (data_model_multisite.child_fabrics_data
-       | dict2items
-       | selectattr('value.attributes', 'defined')
-       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
-       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["true", true])
-       | map(attribute='key')
-       | list
-       | length > 0)
+      | dict2items
+      | selectattr('value.attributes', 'defined')
+      | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
+      | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["true", true])
+      | map(attribute='key')
+      | list
+      | length > 0)
     - vars_common_msd.bgw_anycast_vip | length > 0
     - change_flags.changes_detected_bgw_anycast_vip
 
