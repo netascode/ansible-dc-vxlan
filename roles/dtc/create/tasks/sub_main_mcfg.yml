@@ -45,3 +45,17 @@
   ansible.builtin.import_tasks: mcfg/child_fabrics.yml
   when:
     - data_model_extended.vxlan.multisite.child_fabrics is defined and data_model_extended.vxlan.multisite.child_fabrics | length > 0
+
+- name: Prepare Multisite Data
+  cisco.nac_dc_vxlan.dtc.prepare_msite_data:
+    data_model: "{{ data_model_extended }}"
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+  register: data_model_multisite
+  tags: "{{ nac_tags.create_vrfs_networks }}"
+
+- name: Manage MCFG Fabric VRFs and Networks in Nexus Dashboard
+  ansible.builtin.import_tasks: mcfg/vrfs_networks.yml
+  when:
+    - data_model_extended.vxlan.multisite.overlay is defined
+    - data_model_extended.vxlan.multisite.overlay
+  tags: "{{ nac_tags.create_vrfs_networks }}"

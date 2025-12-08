@@ -1,0 +1,91 @@
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+---
+
+- name: Display Flag Values - Changes Detected Networks
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: display
+  delegate_to: localhost
+  when:
+    - multisite_network_delete_mode is defined
+    - multisite_network_delete_mode is true | bool
+
+- name: Unmanaged Fabric Networks Removal Status Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged Fabric Networks. This could take several minutes..."
+  when:
+    - multisite_network_delete_mode is defined
+    - multisite_network_delete_mode is true | bool
+
+# -----------------------------------------------------------------------------
+# Remove Networks Using Diff Run Framework
+# -----------------------------------------------------------------------------
+#
+# The following conditions must be met for this task to execute:
+#  -  The number of Networks to be removed/defaulted as compared to the
+#     previous run must be non-zero.
+#  -  The diff_run feature must be active
+#       Combination of the (diff_run flag and force_run_all_flag state)
+- name: Remove Unmanaged Fabric Networks in Nexus Dashboard - Diff Run Feature Active
+  cisco.dcnm.dcnm_network:
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    state: deleted
+    config: "{{ network_diff_result.removed }}"
+  vars:
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
+  when:
+    - multisite_network_delete_mode is defined
+    - multisite_network_delete_mode is true | bool
+    - change_flags_multisite.changes_detected_networks
+    - network_diff_result.removed | length > 0
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
+    - data_model_extended.vxlan.multisite.child_fabrics | length > 0
+    - run_map_read_result.diff_run is true | bool
+    - force_run_all is false | bool
+
+# -----------------------------------------------------------------------------
+# Remove Networks Default Mode
+# -----------------------------------------------------------------------------
+- name: Remove Unmanaged Fabric Networks in Nexus Dashboard - Diff Run Feature Disabled
+  cisco.dcnm.dcnm_network:
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    state: overridden
+    config: "{{ net_config }}"
+  vars:
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
+  when:
+    - multisite_network_delete_mode is defined
+    - multisite_network_delete_mode is true | bool
+    - run_map_read_result.diff_run is false | bool or force_run_all is true | bool
+
+- name: Skip Remove Unmanaged Fabric Networks Task If multisite_network_delete_mode is False
+  ansible.builtin.debug:
+    msg:
+      - "---------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Fabric Networks task because multisite_network_delete_mode flag is set to False   +"
+      - "---------------------------------------------------------------------------------------------------------------"
+  when: not ((multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true | bool))
