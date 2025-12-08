@@ -64,6 +64,14 @@
     - (network_delete_mode is defined) and (network_delete_mode is true|bool)
     - not is_active_child_fabric
 
+
+- ansible.builtin.debug:
+    var: vars_common_local.net_config
+
+- ansible.builtin.pause:
+    seconds: 300
+
+
 # -----------------------------------------------------------------------------
 # Remove Networks Using Diff Run Framework
 # -----------------------------------------------------------------------------

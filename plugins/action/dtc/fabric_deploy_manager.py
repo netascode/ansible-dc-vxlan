@@ -185,63 +185,24 @@ class ActionModule(ActionBase):
         if results.get('failed'):
             return results
 
-        # Manage Deployment For Child Fabrics if Multisite (MSD or MCFG)
-        # Child Fabrics are only deployed if there are VRF or Network changes detected by passing in the response data from those tasks
-        # Additionally, if force_run_all is set to True, all child fabrics will be deployed regardless of change detection
-        force_run_all = self._task.args.get("force_run_all", False)
+        if params['fabric_type'] in ['MSD', 'MCFG']:
+            # Manage Deployment For Child Fabrics if Multisite (MSD or MCFG)
+            # Child Fabrics are only deployed if there are VRF or Network changes detected by passing in the response data from those tasks
+            # Additionally, if force_run_all is set to True, all child fabrics will be deployed regardless of change detection
+            params['force_run_all'] = self._task.args.get("force_run_all", False)
+            params['msite_data'] = self._task.args.get("msite_data")
+            params['vrf_response_data'] = self._task.args.get("vrf_response_data", False)
+            params['network_response_data'] = self._task.args.get("network_response_data", False)
 
-        vrf_changed_fabrics = []
-        vrf_response_data = self._task.args.get("vrf_response_data")
-        if vrf_response_data:
-            if vrf_response_data.get('child_fabrics'):
-                child_fabric_vrf_data = vrf_response_data['child_fabrics']
-
-                if force_run_all:
-                    vrf_changed_fabrics = [item['fabric'] for item in child_fabric_vrf_data]
-                else:
-                    vrf_changed_fabrics = [item['fabric'] for item in child_fabric_vrf_data if item.get('changed')]
-
-        network_changed_fabrics = []
-        network_response_data = self._task.args.get("network_response_data")
-        if network_response_data:
-            if network_response_data.get('child_fabrics'):
-                child_fabric_network_data = network_response_data['child_fabrics']
-
-                # As part of Network changes detected, exclude fabrics that have already been marked as changed due to VRF changes
-                if force_run_all:
-                    network_changed_fabrics = [
-                        item['fabric']
-                        for item in child_fabric_network_data
-                        if item['fabric'] not in vrf_changed_fabrics
-                    ]
-                else:
-                    network_changed_fabrics = [
-                        item['fabric']
-                        for item in child_fabric_network_data
-                        if item.get('changed') and item['fabric'] not in vrf_changed_fabrics
-                    ]
-
-        # Combine changed fabrics from VRF and Network changes
-        changed_fabrics = list(set(vrf_changed_fabrics) | set(network_changed_fabrics))
-
-        if not changed_fabrics:
-            data_model_child_fabrics = self._task.args.get("data_model_child_fabrics")
-            for data_model_child_fabric in data_model_child_fabrics:
-                fabric_name = data_model_child_fabric['name']
-                changed_fabrics.append(fabric_name)
-
-        # If there are changed child fabrics, manage their deployment
-        if changed_fabrics:
-            params['fabric_type'] = "Multi-Site_Child_Fabric"
-            for changed_fabric in changed_fabrics:
-                params['fabric_name'] = changed_fabric
-                results = self.manage_fabrics(results, params)
-                if results.get('failed'):
-                    return results
+            results = self.process_child_fabric_changes(results, params)
+            if results.get('failed'):
+                return results
 
         return results
 
     def manage_fabrics(self, results, params):
+        """Manage fabric deployments based on operation parameter."""
+
         for key in ['fabric_type', 'fabric_name', 'operation']:
             if params[key] is None:
                 results['failed'] = True
@@ -297,3 +258,63 @@ class ActionModule(ActionBase):
                 results['failed'] = True
 
         return results
+
+    def process_child_fabric_changes(self, results, params):
+        """Process child fabric changes for Multisite (MSD or MCFG) deployments."""
+
+        for key in ['force_run_all', 'msite_data', 'vrf_response_data', 'network_response_data']:
+            if params[key] is None:
+                results['failed'] = True
+                results['msg'] = f"Missing required parameter '{key}'"
+                return results
+
+        changed_fabrics = []
+        if params['force_run_all']:
+            # Process all child fabrics
+            msite_child_fabric_data = params['msite_data'].get('child_fabrics_data', [])
+            changed_fabrics = [k for k, v in msite_child_fabric_data.items() if v['type'] == 'Switch_Fabric']
+
+        else:
+            # Process child fabric changes for VRFs and Networks
+            changed_fabrics = self._process_child_fabric_changes(params)
+
+        # Manage child fabric deployments based on force_run_all or detected changes in VRFs or Networks
+        if changed_fabrics:
+            params['fabric_type'] = "Multi-Site_Child_Fabric"
+            for changed_fabric in changed_fabrics:
+                params['fabric_name'] = changed_fabric
+                results = self.manage_fabrics(results, params)
+                if results.get('failed'):
+                    return results
+
+        return results
+
+    def _process_child_fabric_changes(self, params):
+        """Helper for processing child fabric changes for Multisite (MSD or MCFG) deployments."""
+        vrf_response_data = params['vrf_response_data']
+        network_response_data = params['network_response_data']
+
+        vrf_changed_fabrics = []
+        network_changed_fabrics = []
+
+        # Process VRF Changes
+        if vrf_response_data:
+            if vrf_response_data.get('child_fabrics'):
+                child_fabric_vrf_data = vrf_response_data['child_fabrics']
+
+                # As part of VRF changes detected, get list of changed fabrics
+                vrf_changed_fabrics = [item['fabric'] for item in child_fabric_vrf_data if item.get('changed')]
+
+        # Process Network Changes
+        if network_response_data:
+            if network_response_data.get('child_fabrics'):
+                child_fabric_network_data = network_response_data['child_fabrics']
+
+                # As part of Network changes detected, exclude fabrics that have already been marked as changed due to VRF changes
+                network_changed_fabrics = [
+                    item['fabric']
+                    for item in child_fabric_network_data
+                    if item.get('changed') and item['fabric'] not in vrf_changed_fabrics
+                ]
+
+        return list(set(vrf_changed_fabrics) | set(network_changed_fabrics))
