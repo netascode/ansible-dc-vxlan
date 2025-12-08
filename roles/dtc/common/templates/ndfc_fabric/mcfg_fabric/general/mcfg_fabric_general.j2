@@ -1,21 +1,42 @@
-{# Auto-generated NDFC MSD General config data structure for fabric {{ vxlan.fabric.name }} #}
+{# Auto-generated NDFC MCFG General config data structure for fabric {{ vxlan.fabric.name }} #}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
   VXLAN_UNDERLAY_IS_V6: {{ vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) }}
-{% if not vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) %}
+{% endif %}
+{% if not (vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) | ansible.builtin.bool) %}
   ENABLE_PVLAN: false
 {% endif %}
   ANYCAST_GW_MAC: {{ vxlan.multisite.anycast_gateway_mac | default(defaults.vxlan.multisite.anycast_gateway_mac) }}
-  MS_LOOPBACK_ID: "{{ vxlan.multisite.vtep_loopback_id | default(defaults.vxlan.multisite.vtep_loopback_id) }}"
-  BGW_ROUTING_TAG: "{{ vxlan.multisite.bgw_ip_tag | default(defaults.vxlan.multisite.bgw_ip_tag) }}"
+  MS_LOOPBACK_ID: {{ vxlan.multisite.vtep_loopback_id | default(defaults.vxlan.multisite.vtep_loopback_id) }}
+  BGW_ROUTING_TAG: {{ vxlan.multisite.bgw_ip_tag | default(defaults.vxlan.multisite.bgw_ip_tag) }}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.3', '<=') %}
   TOR_AUTO_DEPLOY: false
-  FF: "MSD"
-  FABRIC_TYPE: "MFD"
-  FABRIC_NAME: "{{ vxlan.fabric.name }}"
-  L2_SEGMENT_ID_RANGE: "{{ (vxlan.multisite.layer2_vni_range.from | default(defaults.vxlan.multisite.layer2_vni_range.from)) ~ "-" ~ (vxlan.multisite.layer2_vni_range.to  | default(defaults.vxlan.multisite.layer2_vni_range.to))  }}"
-  L3_PARTITION_ID_RANGE: "{{ (vxlan.multisite.layer3_vni_range.from | default(defaults.vxlan.multisite.layer3_vni_range.from)) ~ "-" ~ (vxlan.multisite.layer3_vni_range.to | default(defaults.vxlan.multisite.layer3_vni_range.to))  }}"
-  default_vrf: "Default_VRF_Universal"
-  default_network: "Default_Network_Universal"
-  vrf_extension_template: "Default_VRF_Extension_Universal"
-  network_extension_template: "Default_Network_Extension_Universal"
-  enableScheduledBackup: ""
-  scheduledTime: ""
+{% endif %}
+{% if vxlan.multisite.layer2_vni_range.from is defined %}
+{% set l2_vni_start = vxlan.multisite.layer2_vni_range.from %}
+{% if vxlan.multisite.layer2_vni_range.to is defined %}
+{% set l2_vni_end = vxlan.multisite.layer2_vni_range.to %}
+{% endif %}
+{% endif %}
+{% if l2_vni_start is defined and l2_vni_end is not defined %}
+{% set l2_vni_range = l2_vni_start %}
+{% elif l2_vni_start is defined and l2_vni_end is defined %}
+{% set l2_vni_range = l2_vni_start ~ '-' ~ l2_vni_end %}
+{% else %}
+{% set l2_vni_range = defaults.vxlan.multisite.layer2_vni_range.from ~ '-' ~ defaults.vxlan.multisite.layer2_vni_range.to %}
+{% endif %}
+  L2_SEGMENT_ID_RANGE: {{ l2_vni_range }}
+{% if vxlan.multisite.layer3_vni_range.from is defined %}
+{% set l3_vni_start = vxlan.multisite.layer3_vni_range.from %}
+{% if vxlan.multisite.layer3_vni_range.to is defined %}
+{% set l3_vni_end = vxlan.multisite.layer3_vni_range.to %}
+{% endif %}
+{% endif %}
+{% if l3_vni_start is defined and l3_vni_end is not defined %}
+{% set l3_vni_range = l3_vni_start %}
+{% elif l3_vni_start is defined and l3_vni_end is defined %}
+{% set l3_vni_range = l3_vni_start ~ '-' ~ l3_vni_end %}
+{% else %}
+{% set l3_vni_range = defaults.vxlan.multisite.layer3_vni_range.from ~ '-' ~ defaults.vxlan.multisite.layer3_vni_range.to %}
+{% endif %}
+  L3_PARTITION_ID_RANGE: {{ l3_vni_range }}
 {# #}

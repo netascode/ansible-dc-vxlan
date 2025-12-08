@@ -4,6 +4,7 @@
 
 ## Related Issue(s)
 <!--- Please link the relevant issue(s) -->
+<!--- To link the issue to the PR, use one of the keywords: Fixes #xxx or Closes #xxx or Resolves #xxx -->
 
 
 ## Related Collection Role

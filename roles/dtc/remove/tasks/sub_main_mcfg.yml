@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -18,7 +18,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # SPDX-License-Identifier: MIT
-
 ---
 
 - name: Role Entry Point - [cisco.nac_dc_vxlan.dtc.remove]
@@ -29,34 +28,11 @@
       - "----------------------------------------------------------------"
   tags: "{{ nac_tags.remove }}" # Tags defined in roles/common_global/vars/main.yml
 
-- ansible.builtin.debug: msg="Configuring NXOS Devices using NDFC (Direct to Controller)"
+- name: Display Device Configuration Method
+  ansible.builtin.debug:
+    msg: "Configuring NXOS Devices using Nexus Dashboard (Direct to Controller)"
   tags: "{{ nac_tags.remove }}"
 
-- ansible.builtin.debug: msg="Query NDFC for List of Fabric Switches"
-  tags: "{{ nac_tags.remove }}"
-
-- cisco.dcnm.dcnm_rest:
-    method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
-  register: result
-  tags: "{{ nac_tags.remove }}"
-
-- name: set facts for result
-  ansible.builtin.set_fact:
-    switch_list: "{{result}}"
-
-- name: Remove Fabric Networks
-  ansible.builtin.import_tasks: mcfg/networks_fed.yml
-  tags: "{{ nac_tags.remove_networks }}"
-  when:
-    - vars_common_mcfg.changes_detected_networks
-
-- name: Remove Fabric VRFs
-  ansible.builtin.import_tasks: mcfg/vrfs_fed.yml
-  tags: "{{ nac_tags.remove_vrfs }}"
-  when:
-    - vars_common_mcfg.changes_detected_vrfs
-
-- name: Remove Child Fabrics
+- name: Remove MCFG Fabric Child Fabrics from Nexus Dashboard
   ansible.builtin.import_tasks: mcfg/child_fabrics.yml
-  # tags: "{{ nac_tags.remove_child_fabrics }}"
+  tags: "{{ nac_tags.remove }}"

@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,65 +21,19 @@
 
 ---
 
+- name: Set vars_common Based On Fabric Type - MCFG
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_mcfg }}"
+  when: data_model_extended.vxlan.fabric.type == "MCFG"
+
 - name: Manage Fabric Entry Point
   ansible.builtin.debug:
     msg:
-      - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
-      - "----------------------------------------------------------------"
+      - "---------------------------------------------------------------"
+      - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }}"
+      - "---------------------------------------------------------------"
 
-- name: Check if fabric MCFG {{ MD_Extended.vxlan.fabric.name }} exists in NDFC
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}"
-  register: get_result
-  failed_when: false
-
-- name: Set payload
-  set_fact:
-    payload:
-      templateName: "MSD_Fabric"
-      fabricName: "{{ MD_Extended.vxlan.fabric.name }}"
-      fabricType: "MFD"
-      fabricTechnology: "VXLANFabric"
-      nvPairs: "{{ fabric_config }}"
-
-- name: Manage fabric federated {{ MD_Extended.vxlan.fabric.name }} in NDFC (PUT)
-  cisco.dcnm.dcnm_rest:
-    method: PUT
-    path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}'
-    json_data: '{{ payload | to_json }}'
-  when:
-    - get_result.response is defined
-    - get_result.response.RETURN_CODE == 200
-  register: put_result
-
-- name: Manage fabric federated {{ MD_Extended.vxlan.fabric.name }} in NDFC (POST)
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics'
-    json_data: '{{ payload | to_json }}'
-  when: get_result.response is not defined
-  register: post_result
-
-- ansible.builtin.debug:
-    var: fabric_children
-
-- name: Check if fabric already a member of NDFC
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/members'
-  register: member_result
-
-- name: Set fact for existing fabric names
-  set_fact:
-    existing_fabric_names: >-
-      {{
-        member_result.response.DATA | map(attribute='fabrics') | map('dict2items') | flatten | map(attribute='key') | list
-      }}
-
-- name: Add Child Fabrics To Fabric - {{ MD_Extended.vxlan.fabric.name }}
-  include_tasks: child_fabrics.yml
-  loop: "{{ fabric_children }}"
-  loop_control:
-    loop_var: child
+- name: Manage MCFG Fabric in Nexus Dashboard
+  cisco.dcnm.dcnm_fabric_group:
+    state: merged
+    config: "{{ vars_common_mcfg.fabric_config }}"

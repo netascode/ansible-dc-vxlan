@@ -28,49 +28,49 @@ class PreparePlugin:
         self.keys = []
 
     def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
+        data_model = self.kwargs['results']['model_extended']
 
         # This plugin does not apply to the follwing fabric types
-        if model_data['vxlan']['fabric']['type'] in ['MSD', 'MCFG']:
+        if data_model['vxlan']['fabric']['type'] in ['MSD', 'MCFG']:
             return self.kwargs['results']
         else:
-            switches = model_data['vxlan']['topology']['switches']
+            switches = data_model['vxlan']['topology']['switches']
 
         #  Loop over all the roles in vxlan.topology.switches.role
-        model_data['vxlan']['topology']['spine'] = {}
-        model_data['vxlan']['topology']['leaf'] = {}
-        model_data['vxlan']['topology']['border'] = {}
-        model_data['vxlan']['topology']['border_spine'] = {}
-        model_data['vxlan']['topology']['border_gateway'] = {}
-        model_data['vxlan']['topology']['border_gateway_spine'] = {}
-        model_data['vxlan']['topology']['super_spine'] = {}
-        model_data['vxlan']['topology']['border_super_spine'] = {}
-        model_data['vxlan']['topology']['border_gateway_super_spine'] = {}
-        model_data['vxlan']['topology']['tor'] = {}
-        model_data['vxlan']['topology']['core_router'] = {}
-        model_data['vxlan']['topology']['edge_router'] = {}
-        sm_switches = model_data['vxlan']['topology']['switches']
+        data_model['vxlan']['topology']['spine'] = {}
+        data_model['vxlan']['topology']['leaf'] = {}
+        data_model['vxlan']['topology']['border'] = {}
+        data_model['vxlan']['topology']['border_spine'] = {}
+        data_model['vxlan']['topology']['border_gateway'] = {}
+        data_model['vxlan']['topology']['border_gateway_spine'] = {}
+        data_model['vxlan']['topology']['super_spine'] = {}
+        data_model['vxlan']['topology']['border_super_spine'] = {}
+        data_model['vxlan']['topology']['border_gateway_super_spine'] = {}
+        data_model['vxlan']['topology']['tor'] = {}
+        data_model['vxlan']['topology']['core_router'] = {}
+        data_model['vxlan']['topology']['edge_router'] = {}
+        sm_switches = data_model['vxlan']['topology']['switches']
         for switch in sm_switches:
             # Build list of switch IP's based on role keyed by switch name
             name = switch.get('name')
             role = switch.get('role')
-            model_data['vxlan']['topology'][role][name] = {}
+            data_model['vxlan']['topology'][role][name] = {}
             v4_key = 'management_ipv4_address'
             v6_key = 'management_ipv6_address'
             v4ip = switch.get('management').get(v4_key)
             v6ip = switch.get('management').get(v6_key)
-            model_data['vxlan']['topology'][role][name][v4_key] = v4ip
-            model_data['vxlan']['topology'][role][name][v6_key] = v6ip
+            data_model['vxlan']['topology'][role][name][v4_key] = v4ip
+            data_model['vxlan']['topology'][role][name][v6_key] = v6ip
 
-        model_data = hostname_to_ip_mapping(model_data)
+        data_model = hostname_to_ip_mapping(data_model)
 
         # Check for vpc_peers in the data model
         # If found, update the data model with the management IP address of the peer switches
         # for templating later.
         vpc_peers_keys = ['vxlan', 'topology', 'vpc_peers']
-        dm_check = data_model_key_check(model_data, vpc_peers_keys)
+        dm_check = data_model_key_check(data_model, vpc_peers_keys)
         if 'vpc_peers' in dm_check['keys_found'] and 'vpc_peers' in dm_check['keys_data']:
-            vpc_peers_pairs = model_data['vxlan']['topology']['vpc_peers']
+            vpc_peers_pairs = data_model['vxlan']['topology']['vpc_peers']
 
             # Before:
             # 'vpc_peers': [
@@ -153,9 +153,9 @@ class PreparePlugin:
         # Check for fabric_links in the data model
         # If found, update the data model with the management IP address of the switches for templating later.
         fabric_links_keys = ['vxlan', 'topology', 'fabric_links']
-        dm_check = data_model_key_check(model_data, fabric_links_keys)
+        dm_check = data_model_key_check(data_model, fabric_links_keys)
         if 'fabric_links' in dm_check['keys_found'] and 'fabric_links' in dm_check['keys_data']:
-            fabric_links = model_data['vxlan']['topology']['fabric_links']
+            fabric_links = data_model['vxlan']['topology']['fabric_links']
 
             # Similar before and after transformation as above with vpc_peers
             # source_device_mgmt_ip_address and dest_device_mgmt_ip_address are added to the fabric_links part of the model
@@ -173,6 +173,6 @@ class PreparePlugin:
                     elif found_switch.get('management').get('management_ipv6_address'):
                         fabric_link['dest_device_mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
 
-        self.kwargs['results']['model_extended'] = model_data
+        self.kwargs['results']['model_extended'] = data_model
 
         return self.kwargs['results']

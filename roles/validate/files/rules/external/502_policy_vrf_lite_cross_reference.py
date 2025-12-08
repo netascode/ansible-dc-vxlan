@@ -27,14 +27,14 @@ class Rule:
     """
 
     id = "502"
-    description = "Verify VRF-Lites Cross Reference Between Policies, Groups, and Switches"
+    description = "Verify VRF-Lites cross reference between policies, groups, and switches"
     severity = "HIGH"
     results = []
 
     @classmethod
     def match(cls, data_model):
         """
-        function used by iac-validate
+        function used by nac-validate
         """
         vrf_lites = []
         topology_switches = []

@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,17 +21,22 @@
 
 ---
 
-- name: Manage Fabric Children Entry Point
+- name: Manage MCFG Child Fabrics Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric Children {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }} Child Fabrics"
       - "----------------------------------------------------------------"
 
-- name: Manage fabric Federated {{ MD_Extended.vxlan.fabric.name }} in NDFC (PUT)
-  cisco.dcnm.dcnm_rest:
-    method: PUT
-    path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/members'
-    json_data: '{{ child | to_json }}'
-  register: post_result
-  when: child.fabricName not in existing_fabric_names
+- name: Run dtc.common.tasks.mcfg.ndfc_child_fabrics.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/mcfg/ndfc_child_fabrics.yml"
+
+- name: Add Child Fabrics To MCFG Fabric in Nexus Dashboard
+  cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    child_fabrics: "{{ data_model_multisite_child_fabrics.to_be_added }}"
+    state: present
+  when:
+    - data_model_multisite_child_fabrics.to_be_added is defined
+    - data_model_multisite_child_fabrics.to_be_added | length > 0

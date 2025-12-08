@@ -37,15 +37,15 @@ class ActionModule(ActionBase):
         # List of switch serial numbes obtained directly from NDFC
         ndfc_sw_serial_numbers = self._task.args["switch_serial_numbers"]
         # Data from data model
-        model_data = self._task.args["model_data"]
+        data_model = self._task.args["data_model"]
 
         # Switches list from data model
-        dm_topology_switches = model_data["vxlan"]["topology"]["switches"]
+        dm_topology_switches = data_model["vxlan"]["topology"]["switches"]
 
         # Policy, Poilcy Groups, and Switches Policy Group lists from data model
-        dm_policy_policies = model_data["vxlan"]["policy"]["policies"]
-        dm_policy_groups = model_data["vxlan"]["policy"]["groups"]
-        dm_policy_switches = model_data["vxlan"]["policy"]["switches"]
+        dm_policy_policies = data_model["vxlan"]["policy"]["policies"]
+        dm_policy_groups = data_model["vxlan"]["policy"]["groups"]
+        dm_policy_switches = data_model["vxlan"]["policy"]["switches"]
 
         # For each switch current_sw_policies will be used to store a list of policies currently associated to the switch
         # For each switch that has unmanaged policies, the switch IP address and the list of unmanaged policies will be stored
@@ -74,6 +74,10 @@ class ActionModule(ActionBase):
                 )
                 dm_management_ipv4_address = dm_switch_found["management"].get("management_ipv4_address", None)
                 dm_management_ipv6_address = dm_switch_found["management"].get("management_ipv6_address", None)
+
+            # Skip this switch if no management ip address is found in the data model that matches the serial number from NDFC
+            if not dm_management_ipv4_address and not dm_management_ipv6_address:
+                continue
 
             # Check if the name matching either the IPv4 or IPv6 mgmt address is found in the policy switches data model
             # If found, grab the specific entry from the policy switches data model and store

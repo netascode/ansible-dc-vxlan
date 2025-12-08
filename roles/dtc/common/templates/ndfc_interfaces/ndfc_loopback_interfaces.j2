@@ -4,13 +4,13 @@
 #
 {% set is_manual_allocation = false %}
 {% set skip = false %}
-{% if MD_Extended.vxlan.underlay is defined %}
-{% set is_manual_allocation = MD_Extended.vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) %}
-{% set routing_lo_id =  MD_Extended.vxlan.underlay.general.underlay_routing_loopback_id %}
-{% set vtep_lo_id =  MD_Extended.vxlan.underlay.general.underlay_vtep_loopback_id %}
+{% if data_model_extended.vxlan.underlay is defined %}
+{% set is_manual_allocation = data_model_extended.vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) %}
+{% set routing_lo_id =  data_model_extended.vxlan.underlay.general.underlay_routing_loopback_id %}
+{% set vtep_lo_id =  data_model_extended.vxlan.underlay.general.underlay_vtep_loopback_id %}
 {% endif %}
 
-{% for switch in MD_Extended.vxlan.topology.switches %}
+{% for switch in data_model_extended.vxlan.topology.switches %}
 {% if switch.interfaces is defined %}
 {% for interface in switch.interfaces %}
 {% if interface.mode is defined and interface.mode in ['loopback', 'mpls_loopback', 'fabric_loopback'] %}

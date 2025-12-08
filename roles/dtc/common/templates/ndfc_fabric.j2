@@ -2,7 +2,7 @@
 # This NDFC fabric config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% set vxlan = MD_Extended.vxlan %}
+{% set vxlan = data_model_extended.vxlan %}
 
 {% if vxlan.fabric.type == 'VXLAN_EVPN' %}
 
@@ -34,5 +34,5 @@
 {# Include NDFC External Fabric Base Template #}
 {% include '/ndfc_fabric/dc_external_fabric/dc_external_fabric_base.j2' %}
 
-{# Supported fabric types are: DC VXLAN EVPN, MSD, MCFG, ISN, External #}
+{# Supported fabric types are: VXLAN_EVPN (iBGP), eBGP_VXLAN, MSD, MCFG, ISN, and External #}
 {% endif %}

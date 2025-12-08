@@ -24,40 +24,40 @@
 - name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
 
 - name: Set vars_common Based On Fabric Type - MSD
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
-  when: MD_Extended.vxlan.fabric.type == "MSD"
+  when: data_model_extended.vxlan.fabric.type == "MSD"
 
 - name: Set vars_common Based On Fabric Type - ISN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
-  when: MD_Extended.vxlan.fabric.type == "ISN"
+  when: data_model_extended.vxlan.fabric.type == "ISN"
 
 - name: Set vars_common Based On Fabric Type - External
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
-  when: MD_Extended.vxlan.fabric.type == "External"
+  when: data_model_extended.vxlan.fabric.type == "External"
 
 - name: Manage Fabric Entry Point
   ansible.builtin.debug:
     msg:
       - "---------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }}"
       - "---------------------------------------------------------------"
 
 - name: Manage Fabric in Nexus Dashboard
   cisco.dcnm.dcnm_fabric:
     state: merged
-    skip_validation: "{{ True if MD_Extended.vxlan.fabric.type == 'ISN' else omit }}"
+    skip_validation: "{{ True if data_model_extended.vxlan.fabric.type == 'ISN' else omit }}"
     config: "{{ vars_common_local.fabric_config }}"
 
 - name: Create ANYCAST_RP in Nexus Dashboard
   cisco.dcnm.dcnm_resource_manager:
     state: merged
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     config:
       - entity_name: "ANYCAST_RP"
         pool_type: "IP"
