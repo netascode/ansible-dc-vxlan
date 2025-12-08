@@ -56,6 +56,9 @@ class Rule:
 
         # Collect all ToR switch names referenced in tor_peers
         tor_switch_names = set()
+        
+        # Build set of ToR pairings (for orphaned VPC peer check)
+        tor_pairing_pairs = set()  # Will store (tor1, tor2) and (leaf1, leaf2) tuples
 
         # Validate each tor_peers entry
         for idx, peer in enumerate(tor_peers):
@@ -72,6 +75,12 @@ class Rule:
                 tor_switch_names.add(tor1_name)
             if tor2_name:
                 tor_switch_names.add(tor2_name)
+            
+            # Track VPC-to-VPC pairing pairs for orphaned VPC check
+            if tor1_name and tor2_name and leaf1_name and leaf2_name:
+                # Add both ToR and Leaf VPC pairs
+                tor_pairing_pairs.add(tuple(sorted([tor1_name, tor2_name])))
+                tor_pairing_pairs.add(tuple(sorted([leaf1_name, leaf2_name])))
 
             # Basic required field check
             if not leaf1_name or not tor1_name:
@@ -111,7 +120,6 @@ class Rule:
                 cls._validate_switch_role(leaf2_name, 'leaf', switch_map, results, entry_label)
                 cls._validate_switch_role(tor1_name, 'tor', switch_map, results, entry_label)
                 cls._validate_switch_role(tor2_name, 'tor', switch_map, results, entry_label)
-
             elif scenario == 'vpc_to_standalone':
                 # Validate: leafs must be VPC paired
                 if not cls._is_vpc_paired(leaf1_name, leaf2_name, vpc_pairs_set):
@@ -136,6 +144,27 @@ class Rule:
                     f"standalone-to-standalone (1 leaf + 1 TOR). "
                     f"Unsupported: standalone leaf with VPC TORs"
                 )
+        
+        # Check for orphaned VPC peers (VPC peers involving ToRs without corresponding ToR pairing)
+        # This catches cases where ToR pairing is removed but VPC peer remains
+        for vpc_pair in vpc_peers:
+            peer1 = vpc_pair.get('peer1')
+            peer2 = vpc_pair.get('peer2')
+            if not peer1 or not peer2:
+                continue
+            
+            # Check if this VPC pair involves ToR switches
+            peer1_is_tor = peer1 in switch_map and switch_map[peer1].get('role') == 'tor'
+            peer2_is_tor = peer2 in switch_map and switch_map[peer2].get('role') == 'tor'
+            
+            # If both are ToRs, check if there's a corresponding ToR pairing
+            if peer1_is_tor and peer2_is_tor:
+                vpc_pair_key = tuple(sorted([peer1, peer2]))
+                if vpc_pair_key not in tor_pairing_pairs:
+                    results.append(
+                        f"vxlan.topology.vpc_peers: VPC peer ({peer1} <-> {peer2}) involves ToR switches but has no "
+                        f"corresponding ToR pairing in vxlan.topology.tor_peers. Either add the ToR pairing or remove the VPC peer."
+                    )
 
         return results
 
