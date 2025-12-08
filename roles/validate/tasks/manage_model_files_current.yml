@@ -46,6 +46,13 @@
   register: smd_golden_current
   delegate_to: localhost
 
+# Read current extended service model data into a variable called 'data_model_extended_current'
+- name: Read Current Extended Service Model Data from Host
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/files/{{ data_model_extended.vxlan.fabric.name }}_service_model_extended.json"
+  register: data_model_extended_current
+  delegate_to: localhost
+
 - name: Display Model File Changes
   ansible.utils.fact_diff:
     before: "{{ smd_golden_previous }}"
@@ -56,8 +63,8 @@
 
 - name: Display Extended Service Model File Changes
   ansible.utils.fact_diff:
-    before: "{{ data_model_extended_previous['ansible_facts'] }}"
-    after: "{{ data_model_extended }}"
+    before: "{{ data_model_extended_previous }}"
+    after: "{{ data_model_extended_current }}"
   register: data_model_extended_diff
   when: check_roles['save_previous']
   delegate_to: localhost
