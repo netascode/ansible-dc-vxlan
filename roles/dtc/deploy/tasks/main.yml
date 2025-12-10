@@ -35,20 +35,25 @@
     - data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
     - change_flags.changes_detected_any
 
+- ansible.builtin.debug:
+    var: change_flags_multisite
+
+- ansible.builtin.pause:
+
 - name: Import MSD Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_msd.yml
   tags: "{{ nac_tags.deploy }}"
-  when: >
-    (data_model_extended.vxlan.fabric.type == 'MSD') and
-    (change_flags.changes_detected_any or
-    (child_fabrics_vrfs_networks_changed is defined and child_fabrics_vrfs_networks_changed | length > 0))
+  when:
+    - data_model_extended.vxlan.fabric.type == 'MSD'
+    - (change_flags.changes_detected_any) or
+      (change_flag_multisite_result.changes_detected_any is defined and change_flag_multisite_result.changes_detected_any)
 
 - name: Import MCFG Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_mcfg.yml
   tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
-  when: >
-    (data_model_extended.vxlan.fabric.type == 'MCFG') and
-    (change_flags.changes_detected_any)
+  when:
+    - data_model_extended.vxlan.fabric.type == 'MCFG'
+    - change_flags.changes_detected_any
 
 - name: Import ISN Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_isn.yml
