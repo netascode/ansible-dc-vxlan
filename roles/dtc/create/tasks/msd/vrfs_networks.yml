@@ -91,6 +91,14 @@
     operation: display
   delegate_to: localhost
 
+- name: Override VRFs List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    vrf_config: "{{ vrf_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+    - (change_flags_multisite.changes_detected_vrfs is defined and change_flags_multisite.changes_detected_vrfs)
+    - (vrf_diff_result is defined and vrf_diff_result.updated | length > 0)
+
 - name: Override Networks List Based On Diff Run Settings
   ansible.builtin.set_fact:
     net_config: "{{ network_diff_result.updated }}"
@@ -98,14 +106,6 @@
     - run_map_read_result.diff_run is true|bool
     - (change_flags_multisite.changes_detected_networks is defined and change_flags_multisite.changes_detected_networks)
     - (network_diff_result is defined and network_diff_result.updated | length > 0)
-
-- name: Override Networks List Based On Diff Run Settings
-  ansible.builtin.set_fact:
-    vrf_config: "{{ vrf_diff_result.updated }}"
-  when:
-    - run_map_read_result.diff_run is true|bool
-    - (change_flags_multisite.changes_detected_vrfs is defined and change_flags_multisite.changes_detected_vrfs)
-    - (vrf_diff_result is defined and vrf_diff_result.updated | length > 0)
 
 # ----------------------------------------------------------------------------------
 # Likewise, the vrf_config and net_config data is created when the tasks above
