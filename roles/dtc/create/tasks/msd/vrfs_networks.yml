@@ -165,8 +165,3 @@
     - data_model_extended.vxlan.multisite.overlay.networks is defined
     - data_model_extended.vxlan.multisite.overlay.networks
     - change_flags_multisite.changes_detected_networks
-
-- ansible.builtin.debug:
-    var: change_flags_multisite
-
-- ansible.builtin.pause:
