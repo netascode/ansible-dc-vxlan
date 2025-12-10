@@ -52,7 +52,6 @@ class ActionModule(ActionBase):
 
         # sm_data contains the golden untouched model data
         sm_data = self._task.args['data_model']
-
         # results['model_extended'] contains the data that can be extended by the plugins
         results['model_extended'] = copy.deepcopy(sm_data)
 
