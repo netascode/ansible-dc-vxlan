@@ -47,33 +47,33 @@ class Rule:
             ['vxlan', 'overlay'],
             ['vxlan', 'multisite', 'overlay']
         ]
-        
+
         all_interface_references = {}
-        
+
         for overlay_path in overlay_paths:
             # Check if this overlay path exists
             check = cls.data_model_key_check(data_model, overlay_path)
             if overlay_path[-1] not in check['keys_data']:
                 # This overlay path doesn't exist, try next one
                 continue
-            
+
             # Get network attach groups from this overlay location
             network_attach_groups_keys = overlay_path + ['network_attach_groups']
             check = cls.data_model_key_check(data_model, network_attach_groups_keys)
-            
+
             if 'network_attach_groups' in check['keys_data']:
                 network_attach_groups = cls.safeget(data_model, network_attach_groups_keys)
-                
+
                 if network_attach_groups:
                     # Build interface references from this overlay location
                     interface_references = cls.build_network_attach_references(network_attach_groups)
-                    
+
                     # Merge with all collected references
                     for key, group_names in interface_references.items():
                         if key not in all_interface_references:
                             all_interface_references[key] = []
                         all_interface_references[key].extend(group_names)
-        
+
         # If no network attach groups found in any location, nothing to validate
         if not all_interface_references:
             return cls.results
@@ -93,18 +93,18 @@ class Rule:
             check = cls.data_model_key_check(data_model, overlay_path)
             if overlay_path[-1] not in check['keys_data']:
                 continue
-            
+
             # Get networks and network attach groups from this overlay location
             networks_keys = overlay_path + ['networks']
             network_attach_groups_keys = overlay_path + ['network_attach_groups']
-            
+
             check_networks = cls.data_model_key_check(data_model, networks_keys)
             check_nag = cls.data_model_key_check(data_model, network_attach_groups_keys)
-            
+
             if 'networks' in check_networks['keys_data'] and 'network_attach_groups' in check_nag['keys_data']:
                 networks = cls.safeget(data_model, networks_keys)
                 network_attach_groups = cls.safeget(data_model, network_attach_groups_keys)
-                
+
                 if networks and network_attach_groups:
                     cls.validate_network_attach_group_reuse(
                         networks,
@@ -177,7 +177,7 @@ class Rule:
                         interface_name = port.get('name')
                     else:
                         continue
-                    
+
                     if not interface_name:
                         continue
 
@@ -185,14 +185,14 @@ class Rule:
                     if key not in interface_references:
                         interface_references[key] = []
                     interface_references[key].append(group_name)
-                
+
                 # Also check ports under tors (for TOR/leaf switch configurations)
                 tors = attach_switch.get('tors', [])
                 for tor in tors:
                     tor_hostname = tor.get('hostname')
                     if not tor_hostname:
                         continue
-                    
+
                     tor_ports = tor.get('ports', [])
                     for port in tor_ports:
                         # Handle both string format and object format
@@ -202,7 +202,7 @@ class Rule:
                             interface_name = port.get('name')
                         else:
                             continue
-                        
+
                         if not interface_name:
                             continue
 
@@ -258,20 +258,20 @@ class Rule:
             # Skip 2-tuple keys (already validated above)
             if len(ref_key) != 3:
                 continue
-            
+
             leaf_hostname, tor_hostname, interface_name = ref_key
-            
+
             # Check if this TOR interface exists in access_interfaces_map
             tor_key = (tor_hostname, interface_name)
             if tor_key not in access_interfaces_map:
                 # Interface not defined in topology, skip validation
                 continue
-            
+
             interface_info = access_interfaces_map[tor_key]
             has_access_vlan = interface_info['has_access_vlan']
-            
+
             reference_count = len(group_names)
-            
+
             if has_access_vlan:
                 # Interface has access_vlan defined - it cannot be referenced in network attach groups
                 if reference_count > 0:
@@ -301,29 +301,29 @@ class Rule:
         """
         # Build a map of network attach group names that contain access interfaces
         nag_with_access_ports = set()
-        
+
         for ref_key in interface_references.keys():
             # Get the network attach group names that reference this interface
             group_names = interface_references[ref_key]
             for group_name in group_names:
                 nag_with_access_ports.add(group_name)
-        
+
         # Build a map of network attach groups to networks that reference them
         nag_to_networks = {}
-        
+
         for network in networks:
             network_name = network.get('name')
             network_attach_group = network.get('network_attach_group')
-            
+
             if not network_name or not network_attach_group:
                 continue
-            
+
             # Only track network attach groups that contain access ports
             if network_attach_group in nag_with_access_ports:
                 if network_attach_group not in nag_to_networks:
                     nag_to_networks[network_attach_group] = []
                 nag_to_networks[network_attach_group].append(network_name)
-        
+
         # Check for network attach groups referenced by multiple networks
         for nag_name, network_names in nag_to_networks.items():
             if len(network_names) > 1:
