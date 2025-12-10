@@ -312,9 +312,9 @@ class ActionModule(ActionBase):
 
                 # As part of Network changes detected, exclude fabrics that have already been marked as changed due to VRF changes
                 network_changed_fabrics = [
-                    item['fabric']
+                    item['fabric_name']
                     for item in child_fabric_network_data
-                    if item.get('changed') and item['fabric'] not in vrf_changed_fabrics
+                    if item.get('changed') and item['fabric_name'] not in vrf_changed_fabrics
                 ]
 
         return list(set(vrf_changed_fabrics) | set(network_changed_fabrics))
