@@ -130,11 +130,17 @@ class ActionModule(ActionBase):
                 # does not include one of these switches.
                 data_model['vxlan']['multisite']['overlay']['network_attach_switches_list'].append(switch['hostname'])
 
-        # Remove network_attach_group from net if the group_name is not defined
+        # Remove network_attach_group or attach_groups from net if the group_name is not defined
         for net in data_model['vxlan']['multisite']['overlay']['networks']:
             if 'network_attach_group' in net:
                 if net.get('network_attach_group') not in net_grp_name_list:
                     del net['network_attach_group']
+                elif 'attach_groups' in net:
+                    for grp in net.get('attach_groups'):
+                        if grp not in net_grp_name_list:
+                            net['attach_groups'].remove(grp)
+                    if net.get('attach_groups') == []:
+                        del net['attach_groups']
 
         results['overlay_attach_groups'] = data_model['vxlan']['multisite']['overlay']
 

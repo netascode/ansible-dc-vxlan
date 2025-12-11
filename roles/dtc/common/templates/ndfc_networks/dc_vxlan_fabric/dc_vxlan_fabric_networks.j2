@@ -69,18 +69,27 @@
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
-{% if net['network_attach_group'] is defined %}
-  attach:
 {% if data_model_extended.vxlan.overlay.network_attach_groups_dict is defined and data_model_extended.vxlan.overlay.network_attach_groups_dict %}
 {% set network_attach_groups_dict = data_model_extended.vxlan.overlay.network_attach_groups_dict %}
-{% endif %}
+{% if net['network_attach_group'] is defined %}
+  attach:
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
 {% if attach['ports'] is defined %}
       ports: {{ attach['ports'] }}
 {% endif %}
 {% endfor %}
+{% elif net['attach_groups'] is defined and net['attach_groups'] | length >= 1 %}
+  attach:
+{% for group in net['attach_groups'] %}
+{% for attach in network_attach_groups_dict[group] %}
+    - ip_address: {{ attach['mgmt_ip_address'] }}
+{% if attach['ports'] is defined %}
+      ports: {{ attach['ports'] }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
   deploy: false
 {% endif %}
-
 {% endfor %}
