@@ -349,6 +349,8 @@ class ActionModule(ActionBase):
                 params['fabric_name'] = changed_fabric['name']
                 params['cluster_name'] = changed_fabric.get('cluster', None)
 
+                import epdb; epdb.set_trace()
+
                 results = self.manage_fabrics(results, params)
                 if results.get('failed'):
                     return results
@@ -369,7 +371,14 @@ class ActionModule(ActionBase):
                 child_fabric_vrf_data = vrf_response_data['child_fabrics']
 
                 # As part of VRF changes detected, get list of changed fabrics
-                vrf_changed_fabrics = [item['fabric'] for item in child_fabric_vrf_data if item.get('changed')]
+                vrf_changed_fabrics = [
+                    {
+                        'name': item['fabric'],
+                        'cluster': item.get('cluster')
+                    }
+                    for item in child_fabric_vrf_data
+                    if item.get('changed')
+                ]
 
         # Process Network Changes
         if network_response_data:
@@ -378,9 +387,20 @@ class ActionModule(ActionBase):
 
                 # As part of Network changes detected, exclude fabrics that have already been marked as changed due to VRF changes
                 network_changed_fabrics = [
-                    item['fabric_name']
+                    {
+                        'name': item['fabric_name'],
+                        'cluster': item.get('cluster_name')
+                    }
                     for item in child_fabric_network_data
                     if item.get('changed') and item['fabric_name'] not in vrf_changed_fabrics
                 ]
 
-        return list(set(vrf_changed_fabrics) | set(network_changed_fabrics))
+        merged_fabric_changes = vrf_changed_fabrics + [
+            network_changed_fabric
+            for network_changed_fabric in network_changed_fabrics
+            if network_changed_fabric['name'] not in {
+                network_changed_fabric['name'] for network_changed_fabric in vrf_changed_fabrics
+            }
+        ]
+
+        return merged_fabric_changes
