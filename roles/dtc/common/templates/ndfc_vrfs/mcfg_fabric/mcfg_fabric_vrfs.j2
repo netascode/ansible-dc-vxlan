@@ -70,8 +70,8 @@
 {# ------------------------------------------------------ #}
 {% if vrf['vrf_attach_group'] is defined %}
   attach:
-{% if data_model_multisite.overlay_attach_groups.vrf_attach_groups_dict is defined and data_model_multisite.overlay_attach_groups.vrf_attach_groups_dict %}
-{% set vrf_attach_groups_dict = data_model_multisite.overlay_attach_groups.vrf_attach_groups_dict %}
+{% if runtime_mcfg_data_model.overlay_attach_groups.vrf_attach_groups_dict is defined and runtime_mcfg_data_model.overlay_attach_groups.vrf_attach_groups_dict %}
+{% set vrf_attach_groups_dict = runtime_mcfg_data_model.overlay_attach_groups.vrf_attach_groups_dict %}
 {% endif %}
 {% for attach in vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}

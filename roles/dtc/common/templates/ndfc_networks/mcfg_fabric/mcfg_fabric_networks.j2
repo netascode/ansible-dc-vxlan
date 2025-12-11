@@ -44,7 +44,7 @@
 {% for child_fabric in child_fabrics %}
     - fabric: {{ child_fabric['name'] | default(omit) }}
       cluster: {{ child_fabric['cluster'] | default(omit) }}
-{% if (data_model_multisite.child_fabrics_data[child_fabric['name']]['attributes']['REPLICATION_MODE'] | lower) == 'multicast' %}
+{% if (runtime_mcfg_data_model.child_fabrics_data[child_fabric['name']]['attributes']['REPLICATION_MODE'] | lower) == 'multicast' %}
       multicast_group_address: {{ child_fabric['multicast_group_address'] | default(omit) }}
 {% endif %}
       dhcp_loopback_id: {{ child_fabric['dhcp_loopback_id'] | default(omit) }}
@@ -81,8 +81,8 @@
 {# Don't need to attach vrfs if there are no msd_switches #}
 {% if net['network_attach_group'] is defined %}
   attach:
-{% if data_model_multisite.overlay_attach_groups.network_attach_groups_dict is defined and data_model_multisite.overlay_attach_groups.network_attach_groups_dict %}
-{% set network_attach_groups_dict = data_model_multisite.overlay_attach_groups.network_attach_groups_dict %}
+{% if runtime_mcfg_data_model.overlay_attach_groups.network_attach_groups_dict is defined and runtime_mcfg_data_model.overlay_attach_groups.network_attach_groups_dict %}
+{% set network_attach_groups_dict = runtime_mcfg_data_model.overlay_attach_groups.network_attach_groups_dict %}
 {% endif %}
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
