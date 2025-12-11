@@ -190,7 +190,7 @@ class ActionModule(ActionBase):
             # Child Fabrics are only deployed if there are VRF or Network changes detected by passing in the response data from those tasks
             # Additionally, if force_run_all is set to True, all child fabrics will be deployed regardless of change detection
             params['force_run_all'] = self._task.args.get("force_run_all", False)
-            params['msite_data'] = self._task.args.get("runtime_msite_data")
+            params['dm_child_fabrics'] = self._task.args.get("data_model_child_fabrics")
             params['vrf_response_data'] = self._task.args.get("vrf_response_data", False)
             params['network_response_data'] = self._task.args.get("network_response_data", False)
 
@@ -262,7 +262,7 @@ class ActionModule(ActionBase):
     def process_child_fabric_changes(self, results, params):
         """Process child fabric changes for Multisite (MSD or MCFG) deployments."""
 
-        for key in ['force_run_all', 'msite_data', 'vrf_response_data', 'network_response_data']:
+        for key in ['force_run_all', 'dm_child_fabrics', 'vrf_response_data', 'network_response_data']:
             if params[key] is None:
                 results['failed'] = True
                 results['msg'] = f"Missing required parameter '{key}'"
@@ -271,9 +271,7 @@ class ActionModule(ActionBase):
         changed_fabrics = []
         if params['force_run_all']:
             # Process all child fabrics
-            msite_child_fabric_data = params['msite_data'].get('child_fabrics_data', [])
-            changed_fabrics = [k for k, v in msite_child_fabric_data.items() if v['type'] == 'Switch_Fabric']
-
+            changed_fabrics = params['dm_child_fabrics']
         else:
             # Process child fabric changes for VRFs and Networks
             changed_fabrics = self._process_child_fabric_changes(params)
@@ -282,7 +280,7 @@ class ActionModule(ActionBase):
         if changed_fabrics:
             params['fabric_type'] = "Multi-Site_Child_Fabric"
             for changed_fabric in changed_fabrics:
-                params['fabric_name'] = changed_fabric
+                params['fabric_name'] = changed_fabric['name']
                 results = self.manage_fabrics(results, params)
                 if results.get('failed'):
                     return results
@@ -303,7 +301,14 @@ class ActionModule(ActionBase):
                 child_fabric_vrf_data = vrf_response_data['child_fabrics']
 
                 # As part of VRF changes detected, get list of changed fabrics
-                vrf_changed_fabrics = [item['fabric'] for item in child_fabric_vrf_data if item.get('changed')]
+                vrf_changed_fabrics = [
+                    {
+                        'name': item['fabric'],
+                        'cluster': item.get('cluster')
+                    }
+                    for item in child_fabric_vrf_data
+                    if item.get('changed')
+                ]
 
         # Process Network Changes
         if network_response_data:
@@ -312,9 +317,20 @@ class ActionModule(ActionBase):
 
                 # As part of Network changes detected, exclude fabrics that have already been marked as changed due to VRF changes
                 network_changed_fabrics = [
-                    item['fabric_name']
+                    {
+                        'name': item['fabric_name'],
+                        'cluster': item.get('cluster_name')
+                    }
                     for item in child_fabric_network_data
                     if item.get('changed') and item['fabric_name'] not in vrf_changed_fabrics
                 ]
 
-        return list(set(vrf_changed_fabrics) | set(network_changed_fabrics))
+        merged_fabric_changes = vrf_changed_fabrics + [
+            network_changed_fabric
+            for network_changed_fabric in network_changed_fabrics
+            if network_changed_fabric['name'] not in {
+                network_changed_fabric['name'] for network_changed_fabric in vrf_changed_fabrics
+            }
+        ]
+
+        return merged_fabric_changes

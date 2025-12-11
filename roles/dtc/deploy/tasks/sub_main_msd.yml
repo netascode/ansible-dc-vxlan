@@ -32,7 +32,7 @@
   cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    runtime_msite_data: "{{ runtime_msd_data_model }}"
+    data_model_child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
     vrf_response_data: "{{ manage_vrf_result | default([]) }}"
     network_response_data: "{{ manage_network_result | default([]) }}"
     force_run_all: "{{ force_run_all }}"
@@ -43,29 +43,31 @@
   when:
     - data_model_extended.vxlan.multisite.child_fabrics is defined
     - data_model_extended.vxlan.multisite.child_fabrics | length > 0
-    - run_map.updated.role_create_completed is true | bool
+    # - run_map.updated.role_create_completed is true | bool
 
-- name: Run Multisite Data Preparatin Tasks Since Create Role Did Not Run Then Deploy
-  when: run_map.updated.role_create_completed is false | bool
-  block:
-    - name: Prepare Multisite Data
-      cisco.nac_dc_vxlan.dtc.prepare_msite_data:
-        data_model: "{{ data_model_extended }}"
-        parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
-      register: runtime_msd_data_model
+# - name: Run Multisite Data Preparatin Tasks Since Create Role Did Not Run Then Deploy
+#   when: run_map.updated.role_create_completed is false | bool
+#   block:
+#     - name: Prepare Multisite Data
+#       cisco.nac_dc_vxlan.dtc.prepare_msite_data:
+#         data_model: "{{ data_model_extended }}"
+#         parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+#         parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+#         nd_version: "{{ nd_version }}"
+#       register: runtime_msd_data_model
 
-    - name: Manage Fabric Deployment for MSD Fabric in Nexus Dashboard
-      cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
-        fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
-        fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-        runtime_msite_data: "{{ runtime_msd_data_model }}"
-        vrf_response_data: "{{ manage_vrf_result | default([]) }}"
-        network_response_data: "{{ manage_network_result | default([]) }}"
-        force_run_all: "{{ force_run_all }}"
-        operation: all
-      vars:
-        ansible_command_timeout: 3000
-        ansible_connect_timeout: 3000
-      when:
-        - data_model_extended.vxlan.multisite.child_fabrics is defined
-        - data_model_extended.vxlan.multisite.child_fabrics | length > 0
+#     - name: Manage Fabric Deployment for MSD Fabric in Nexus Dashboard
+#       cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
+#         fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+#         fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+#         data_model_child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
+#         vrf_response_data: "{{ manage_vrf_result | default([]) }}"
+#         network_response_data: "{{ manage_network_result | default([]) }}"
+#         force_run_all: "{{ force_run_all }}"
+#         operation: all
+#       vars:
+#         ansible_command_timeout: 3000
+#         ansible_connect_timeout: 3000
+#       when:
+#         - data_model_extended.vxlan.multisite.child_fabrics is defined
+#         - data_model_extended.vxlan.multisite.child_fabrics | length > 0
