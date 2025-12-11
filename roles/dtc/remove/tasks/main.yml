@@ -64,11 +64,11 @@
     - change_flags.changes_detected_any
 
 - name: Deploy Remove Changes
-  ansible.builtin.include_role:
+  ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.deploy
   when:
     - stage_remove is false|bool
-    - not data_model_extended.vxlan.fabric.type == 'MSD'
+    - (not data_model_extended.vxlan.fabric.type == 'MSD') or (not data_model_extended.vxlan.fabric.type == 'MCFG')
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:
