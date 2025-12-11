@@ -43,6 +43,7 @@ class ActionModule(ActionBase):
 
         data_model = self._task.args["data_model"]
         parent_fabric = self._task.args["parent_fabric"]
+        parent_fabric_type = self._task.args["parent_fabric_type"]
 
         # This is actaully not an accurrate API endpoint as it returns all fabrics in NDFC, not just the fabrics associated with MSD
         # Therefore, we need to get the fabric associations response and filter out the fabrics that are not associated with the parent fabric (MSD)

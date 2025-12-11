@@ -32,6 +32,10 @@
   cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    msite_data: "{{ data_model_multisite }}"
+    vrf_response_data: "{{ manage_vrf_result | default([]) }}"
+    network_response_data: "{{ manage_network_result | default([]) }}"
+    force_run_all: "{{ force_run_all }}"
     operation: all
   vars:
     ansible_command_timeout: 3000
@@ -39,3 +43,31 @@
   when:
     - data_model_extended.vxlan.multisite.child_fabrics is defined
     - data_model_extended.vxlan.multisite.child_fabrics | length > 0
+    - run_map.updated.role_create_completed is true | bool
+
+- name: Run Multisite Data Preparatin Tasks Since Create Role Did Not Run Then Deploy
+  when: run_map.updated.role_create_completed is false | bool
+  block:
+    - name: Prepare Multisite Data
+      cisco.nac_dc_vxlan.dtc.prepare_msite_data:
+        data_model: "{{ data_model_extended }}"
+        parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+      register: data_model_multisite
+
+    - name: Manage Fabric Deployment for MCFG Fabric in Nexus Dashboard
+      cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
+        fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+        fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+        msite_data: "{{ data_model_multisite }}"
+        vrf_response_data: "{{ manage_vrf_result | default([]) }}"
+        network_response_data: "{{ manage_network_result | default([]) }}"
+        force_run_all: "{{ force_run_all }}"
+        operation: all
+      vars:
+        ansible_command_timeout: 3000
+        ansible_connect_timeout: 3000
+      when:
+        - data_model_extended.vxlan.multisite.child_fabrics is defined
+        - data_model_extended.vxlan.multisite.child_fabrics | length > 0
+
+- ansible.builtin.meta: end_play

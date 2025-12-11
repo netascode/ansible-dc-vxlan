@@ -56,6 +56,9 @@ class FabricDeployManager:
             "config_save": f"{base_path}/control/fabrics/{self.fabric_name}/config-save",
             "config_deploy": f"{base_path}/control/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false",
             "fabric_history": f"{base_path}/config/delivery/deployerHistoryByFabric/{self.fabric_name}?sort=completedTime%3ADES&limit=5",
+            "onemanage_get_switches_by_fabric": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/inventory/switchesByFabric",
+            "onemanage_config_save": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/config-save",
+            "onemanage_config_deploy": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false",
         }
 
         # Fabric State Booleans
@@ -72,7 +75,11 @@ class FabricDeployManager:
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
         self.fabric_in_sync = True
-        response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
+
+        if self.fabric_type not in ['MCFG']:
+            response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
+        elif self.fabric_type in ['MCFG']:
+            response = self._send_request("GET", self.api_paths["onemanage_get_switches_by_fabric"])
 
         # For non-Multisite fabrics, retry up to 5 times if out-of-sync
         # Exclude Multisite parent fabrics (MSD or MCFG) as they are dependent on child fabrics being in sync
@@ -106,7 +113,11 @@ class FabricDeployManager:
         method_name = inspect.stack()[0][3]
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
-        response = self._send_request("POST", self.api_paths["config_save"])
+        if self.fabric_type not in ['MCFG']:
+            response = self._send_request("POST", self.api_paths["config_save"])
+        elif self.fabric_type in ['MCFG']:
+            response = self._send_request("POST", self.api_paths["onemanage_config_save"])
+
         if response.get('RETURN_CODE') == 200:
             pass
         else:
@@ -118,7 +129,11 @@ class FabricDeployManager:
         method_name = inspect.stack()[0][3]
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
-        response = self._send_request("POST", self.api_paths["config_deploy"])
+        if self.fabric_type not in ['MCFG']:
+            response = self._send_request("POST", self.api_paths["config_deploy"])
+        elif self.fabric_type in ['MCFG']:
+            response = self._send_request("POST", self.api_paths["onemanage_config_deploy"])
+
         if response.get('RETURN_CODE') == 200:
             pass
         else:
