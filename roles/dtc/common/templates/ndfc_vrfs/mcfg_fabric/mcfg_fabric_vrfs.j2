@@ -34,7 +34,6 @@
   child_fabric_config:
 {% for child_fabric in child_fabrics %}
     - fabric: {{ child_fabric['name'] | default(omit) }}
-      cluster: {{ child_fabric['cluster'] | default(omit) }}
       l3vni_wo_vlan: {{ child_fabric['enable_l3_vni_no_vlan'] | default(omit) }}
       adv_host_routes: {{ child_fabric['adv_host_routes'] | default(omit) }}
       adv_default_routes: {{ child_fabric['adv_default_routes'] | default(omit) }}

@@ -62,15 +62,15 @@ class FabricDeployManager:
         if (
             self.fabric_type == 'MCFG_Child_Fabric' and
             self.fabric_cluster_name and
-            version_compare(self.nd_version, '3.2.1', '<=')
+            version_compare(self.nd_version, '3.2.2', '<=')
         ):
-            base_path = f"/onepath/{self.fabric_cluster_name}/{base_path}"
+            base_path = f"/onepath/{self.fabric_cluster_name}{base_path}"
         elif (
             self.fabric_type == 'MCFG_Child_Fabric' and
             self.fabric_cluster_name and
             version_compare(self.nd_version, '4.1.1', '>=')
         ):
-            base_path = f"/fedproxy/{self.fabric_cluster_name}/{base_path}"
+            base_path = f"/fedproxy/{self.fabric_cluster_name}{base_path}"
 
         self.api_paths = {
             "get_switches_by_fabric": f"{base_path}/control/fabrics/{self.fabric_name}/inventory/switchesByFabric",
@@ -348,8 +348,6 @@ class ActionModule(ActionBase):
             for changed_fabric in changed_fabrics:
                 params['fabric_name'] = changed_fabric['name']
                 params['cluster_name'] = changed_fabric.get('cluster', None)
-
-                import epdb; epdb.set_trace()
 
                 results = self.manage_fabrics(results, params)
                 if results.get('failed'):
