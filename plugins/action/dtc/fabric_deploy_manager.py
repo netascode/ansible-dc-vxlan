@@ -26,8 +26,10 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
 import inspect
 from time import sleep
+import re
 
 display = Display()
 
@@ -42,6 +44,9 @@ class FabricDeployManager:
         # Fabric Parameters
         self.fabric_name = params['fabric_name']
         self.fabric_type = params['fabric_type']
+        self.fabric_cluster_name = params.get('cluster_name', None)
+
+        self.nd_version = params.get('nd_major_minor_patch', None)
 
         # Module Execution Parameters
         self.task_vars = params['task_vars']
@@ -49,8 +54,24 @@ class FabricDeployManager:
         self.action_module = params['action_module']
         self.module_name = "cisco.dcnm.dcnm_rest"
 
+
+
         # Module API Paths
         base_path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest"
+
+        if (
+            self.fabric_type == 'MCFG_Child_Fabric' and
+            self.fabric_cluster_name and
+            version_compare(self.nd_version, '3.2.1', '<=')
+        ):
+            base_path = f"/onepath/{self.fabric_cluster_name}/{base_path}"
+        elif (
+            self.fabric_type == 'MCFG_Child_Fabric' and
+            self.fabric_cluster_name and
+            version_compare(self.nd_version, '4.1.1', '>=')
+        ):
+            base_path = f"/fedproxy/{self.fabric_cluster_name}/{base_path}"
+
         self.api_paths = {
             "get_switches_by_fabric": f"{base_path}/control/fabrics/{self.fabric_name}/inventory/switchesByFabric",
             "config_save": f"{base_path}/control/fabrics/{self.fabric_name}/config-save",
@@ -204,8 +225,27 @@ class ActionModule(ActionBase):
             # Manage Deployment For Child Fabrics if Multisite (MSD or MCFG)
             # Child Fabrics are only deployed if there are VRF or Network changes detected by passing in the response data from those tasks
             # Additionally, if force_run_all is set to True, all child fabrics will be deployed regardless of change detection
+
+            if params['fabric_type'] == 'MCFG':
+
+                nd_version = self._task.args["nd_version"]
+
+                # Extract major, minor, patch and patch letter from nd_version
+                # that is set in nac_dc_vxlan.dtc.connectivity_check role
+                # Example nd_version: "3.1.1l" or "3.2.2m"
+                # where 3.1.1/3.2.2 are major.minor.patch respectively
+                # and l/m are the patch letter respectively
+                nd_major_minor_patch = None
+                nd_patch_letter = None
+                match = re.match(r'^(\d+\.\d+\.\d+)([a-z])?$', nd_version)
+                if match:
+                    nd_major_minor_patch = match.group(1)
+                    nd_patch_letter = match.group(2)
+
+                params['nd_major_minor_patch'] = nd_major_minor_patch
+
             params['force_run_all'] = self._task.args.get("force_run_all", False)
-            params['msite_data'] = self._task.args.get("runtime_msite_data")
+            params['dm_child_fabrics'] = self._task.args.get("data_model_child_fabrics")
             params['vrf_response_data'] = self._task.args.get("vrf_response_data", False)
             params['network_response_data'] = self._task.args.get("network_response_data", False)
 
@@ -277,27 +317,38 @@ class ActionModule(ActionBase):
     def process_child_fabric_changes(self, results, params):
         """Process child fabric changes for Multisite (MSD or MCFG) deployments."""
 
-        for key in ['force_run_all', 'msite_data', 'vrf_response_data', 'network_response_data']:
+        for key in ['fabric_type', 'force_run_all', 'dm_child_fabrics', 'vrf_response_data', 'network_response_data']:
             if params[key] is None:
                 results['failed'] = True
                 results['msg'] = f"Missing required parameter '{key}'"
                 return results
 
+        parent_fabric_type = params['fabric_type']
+
+        if parent_fabric_type == 'MCFG' and params['nd_major_minor_patch'] is None:
+            results['failed'] = True
+            results['msg'] = f"Missing required parameter '{key}'"
+            return results
+
         changed_fabrics = []
         if params['force_run_all']:
             # Process all child fabrics
-            msite_child_fabric_data = params['msite_data'].get('child_fabrics_data', [])
-            changed_fabrics = [k for k, v in msite_child_fabric_data.items() if v['type'] == 'Switch_Fabric']
-
+            changed_fabrics = params['dm_child_fabrics']
         else:
             # Process child fabric changes for VRFs and Networks
             changed_fabrics = self._process_child_fabric_changes(params)
 
         # Manage child fabric deployments based on force_run_all or detected changes in VRFs or Networks
         if changed_fabrics:
-            params['fabric_type'] = "Multi-Site_Child_Fabric"
+            if parent_fabric_type == 'MSD':
+                params['fabric_type'] = "MSD_Child_Fabric"
+            elif parent_fabric_type == 'MCFG':
+                params['fabric_type'] = "MCFG_Child_Fabric"
+
             for changed_fabric in changed_fabrics:
-                params['fabric_name'] = changed_fabric
+                params['fabric_name'] = changed_fabric['name']
+                params['cluster_name'] = changed_fabric.get('cluster', None)
+
                 results = self.manage_fabrics(results, params)
                 if results.get('failed'):
                     return results
