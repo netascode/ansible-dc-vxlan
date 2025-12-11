@@ -41,7 +41,7 @@
   when:
     - data_model_extended.vxlan.fabric.type == 'MSD'
     - (change_flags.changes_detected_any) or
-      (change_flags_multisite.changes_detected_any is defined and change_flags_multisite.changes_detected_any)
+      (change_flags_msd.changes_detected_any is defined and change_flags_msd.changes_detected_any)
 
 - name: Import MCFG Fabric Role Tasks
   ansible.builtin.import_tasks: sub_main_mcfg.yml

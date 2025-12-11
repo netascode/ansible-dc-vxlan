@@ -74,12 +74,12 @@
     role_path: "{{ common_role_path }}"
     operation: get
   tags: "{{ nac_tags.common_role }}"
-  register: change_flag_multisite_result
+  register: change_flag_msd_result
   delegate_to: localhost
 
 - name: Store Change Flags For Use In Subsequent Roles
   ansible.builtin.set_fact:
-    change_flags_multisite: "{{ change_flag_multisite_result['flags'] }}"
+    change_flags_msd: "{{ change_flag_msd_result['flags'] }}"
   tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost
 
@@ -96,7 +96,7 @@
     vrf_config: "{{ vrf_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool
-    - (change_flags_multisite.changes_detected_vrfs is defined and change_flags_multisite.changes_detected_vrfs)
+    - (change_flags_msd.changes_detected_vrfs is defined and change_flags_msd.changes_detected_vrfs)
     - (vrf_diff_result is defined and vrf_diff_result.updated | length > 0)
 
 - name: Override Networks List Based On Diff Run Settings
@@ -104,7 +104,7 @@
     net_config: "{{ network_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool
-    - (change_flags_multisite.changes_detected_networks is defined and change_flags_multisite.changes_detected_networks)
+    - (change_flags_msd.changes_detected_networks is defined and change_flags_msd.changes_detected_networks)
     - (network_diff_result is defined and network_diff_result.updated | length > 0)
 
 # ----------------------------------------------------------------------------------
@@ -135,7 +135,7 @@
   when:
     - data_model_extended.vxlan.multisite.overlay.vrfs is defined
     - data_model_extended.vxlan.multisite.overlay.vrfs
-    - change_flags_multisite.changes_detected_vrfs
+    - change_flags_msd.changes_detected_vrfs
 
 # --------------------------------------------------------------------
 # Manage Loopback VRF attachments on NDFC
@@ -150,7 +150,7 @@
 #   when:
 #     - data_model_extended.vxlan.overlay.vrfs is defined
 #     - data_model_extended.vxlan.overlay.vrfs
-#     - change_flags_multisite.changes_detected_vrfs
+#     - change_flags_msd.changes_detected_vrfs
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
@@ -164,4 +164,4 @@
   when:
     - data_model_extended.vxlan.multisite.overlay.networks is defined
     - data_model_extended.vxlan.multisite.overlay.networks
-    - change_flags_multisite.changes_detected_networks
+    - change_flags_msd.changes_detected_networks
