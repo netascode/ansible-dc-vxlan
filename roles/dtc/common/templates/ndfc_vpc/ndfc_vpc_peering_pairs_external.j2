@@ -1,3 +1,5 @@
+{% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
+
 ---
 # This NDFC vPC Peering config data structure for vPC pairs in External Fabrics is auto-generated
 # DO NOT EDIT MANUALLY
@@ -38,7 +40,7 @@
     PEER2_PCID: {{ peer2_vpc_interface.name | default('') | regex_replace('^(port-channel|po)', '') | default('') }}
     PEER1_MEMBER_INTERFACES: "{{ peer1_vpc_interface.members | default([]) | join(',') }}"
     PEER2_MEMBER_INTERFACES: "{{ peer2_vpc_interface.members | default([]) | join(',') }}"
-    ALLOWED_VLANS: "{{ peer1_vpc_interface.trunk_allowed_vlans | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) }}"
+    ALLOWED_VLANS: "{{ convert_ranges(peer1_vpc_interface.trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans)  | trim }}"
     ADMIN_STATE: {{ peer1_vpc_interface.enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled)}}
 {% endif %}
 {% endfor %}
