@@ -59,7 +59,7 @@
   when:
     - multisite_network_delete_mode is defined
     - multisite_network_delete_mode is true | bool
-    - change_flags_multisite.changes_detected_networks
+    - change_flags_mcfg.changes_detected_networks
     - network_diff_result.removed | length > 0
     - data_model_extended.vxlan.multisite.child_fabrics is defined
     - data_model_extended.vxlan.multisite.child_fabrics | length > 0

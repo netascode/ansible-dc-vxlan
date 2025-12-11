@@ -32,7 +32,7 @@
   cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    msite_data: "{{ runtime_mcfg_data_model }}"
+    runtime_msite_data: "{{ runtime_mcfg_data_model }}"
     vrf_response_data: "{{ manage_vrf_result | default([]) }}"
     network_response_data: "{{ manage_network_result | default([]) }}"
     force_run_all: "{{ force_run_all }}"
@@ -60,7 +60,7 @@
       cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
         fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
         fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-        msite_data: "{{ runtime_mcfg_data_model }}"
+        runtime_msite_data: "{{ runtime_mcfg_data_model }}"
         vrf_response_data: "{{ manage_vrf_result | default([]) }}"
         network_response_data: "{{ manage_network_result | default([]) }}"
         force_run_all: "{{ force_run_all }}"

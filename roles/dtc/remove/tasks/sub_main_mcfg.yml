@@ -96,12 +96,12 @@
       tags:
         - "{{ nac_tags.remove_networks }}"
         - "{{ nac_tags.remove_vrfs }}"
-      register: change_flag_multisite_result
+      register: change_flag_mcfg_result
       delegate_to: localhost
 
     - name: Store Change Flags For Use In Subsequent Roles
       ansible.builtin.set_fact:
-        change_flags_multisite: "{{ change_flag_multisite_result['flags'] }}"
+        change_flags_mcfg: "{{ change_flag_mcfg_result['flags'] }}"
       tags:
         - "{{ nac_tags.remove_networks }}"
         - "{{ nac_tags.remove_vrfs }}"
