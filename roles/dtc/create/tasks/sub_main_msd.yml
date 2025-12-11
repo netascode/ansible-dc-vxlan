@@ -52,7 +52,7 @@
   cisco.nac_dc_vxlan.dtc.prepare_msite_data:
     data_model: "{{ data_model_extended }}"
     parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
-  register: data_model_multisite
+  register: runtime_msd_data_model
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Create Border Gateway Site Anycast VIP Loopback in Nexus Dashboard
@@ -61,7 +61,7 @@
     fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     config: "{{ vars_common_msd.bgw_anycast_vip }}"
   when:
-    - (data_model_multisite.child_fabrics_data
+    - (runtime_msd_data_model.child_fabrics_data
       | dict2items
       | selectattr('value.attributes', 'defined')
       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')

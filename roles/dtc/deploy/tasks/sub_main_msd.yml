@@ -32,7 +32,7 @@
   cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    msite_data: "{{ data_model_multisite }}"
+    runtime_msite_data: "{{ runtime_msd_data_model }}"
     vrf_response_data: "{{ manage_vrf_result | default([]) }}"
     network_response_data: "{{ manage_network_result | default([]) }}"
     force_run_all: "{{ force_run_all }}"
@@ -52,13 +52,13 @@
       cisco.nac_dc_vxlan.dtc.prepare_msite_data:
         data_model: "{{ data_model_extended }}"
         parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
-      register: data_model_multisite
+      register: runtime_msd_data_model
 
     - name: Manage Fabric Deployment for MSD Fabric in Nexus Dashboard
       cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
         fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
         fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-        msite_data: "{{ data_model_multisite }}"
+        runtime_msite_data: "{{ runtime_msd_data_model }}"
         vrf_response_data: "{{ manage_vrf_result | default([]) }}"
         network_response_data: "{{ manage_network_result | default([]) }}"
         force_run_all: "{{ force_run_all }}"
