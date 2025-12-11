@@ -190,7 +190,7 @@ class ActionModule(ActionBase):
             # Child Fabrics are only deployed if there are VRF or Network changes detected by passing in the response data from those tasks
             # Additionally, if force_run_all is set to True, all child fabrics will be deployed regardless of change detection
             params['force_run_all'] = self._task.args.get("force_run_all", False)
-            params['msite_data'] = self._task.args.get("msite_data")
+            params['msite_data'] = self._task.args.get("runtime_msite_data")
             params['vrf_response_data'] = self._task.args.get("vrf_response_data", False)
             params['network_response_data'] = self._task.args.get("network_response_data", False)
 
