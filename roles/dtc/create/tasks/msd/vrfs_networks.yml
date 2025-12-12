@@ -93,19 +93,19 @@
 
 - name: Override VRFs List Based On Diff Run Settings
   ansible.builtin.set_fact:
-    vrf_config: "{{ vrf_diff_result.updated }}"
+    vrf_config: "{{ msd_vrf_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool
     - (change_flags_msd.changes_detected_vrfs is defined and change_flags_msd.changes_detected_vrfs)
-    - (vrf_diff_result is defined and vrf_diff_result.updated | length > 0)
+    - (msd_vrf_diff_result is defined and msd_vrf_diff_result.updated | length > 0)
 
 - name: Override Networks List Based On Diff Run Settings
   ansible.builtin.set_fact:
-    net_config: "{{ network_diff_result.updated }}"
+    net_config: "{{ msd_network_diff_result.updated }}"
   when:
     - run_map_read_result.diff_run is true|bool
     - (change_flags_msd.changes_detected_networks is defined and change_flags_msd.changes_detected_networks)
-    - (network_diff_result is defined and network_diff_result.updated | length > 0)
+    - (msd_network_diff_result is defined and msd_network_diff_result.updated | length > 0)
 
 # ----------------------------------------------------------------------------------
 # Likewise, the vrf_config and net_config data is created when the tasks above
