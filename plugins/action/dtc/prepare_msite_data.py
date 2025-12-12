@@ -122,15 +122,15 @@ class ActionModule(ActionBase):
 
                 proxy = ''
                 if version_compare(nd_major_minor_patch, '3.2.1', '<='):
-                    proxy = '/onepath'
+                    proxy = f'/onepath/{fabric_cluster}'
                 elif version_compare(nd_major_minor_patch, '4.1.1', '>='):
-                    proxy = '/fedproxy'
+                    proxy = f'/fedproxy/{fabric_cluster}'
 
                 mcfg_child_fabric_switches = self._execute_module(
                     module_name="cisco.dcnm.dcnm_rest",
                     module_args={
                         "method": "GET",
-                        "path": f"{proxy}/{fabric_cluster}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric_name}/inventory/switchesByFabric",
+                        "path": f"{proxy}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric_name}/inventory/switchesByFabric",
                     },
                     task_vars=task_vars,
                     tmp=tmp

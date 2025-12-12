@@ -54,8 +54,6 @@ class FabricDeployManager:
         self.action_module = params['action_module']
         self.module_name = "cisco.dcnm.dcnm_rest"
 
-
-
         # Module API Paths
         base_path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest"
 
