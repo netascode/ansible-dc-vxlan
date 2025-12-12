@@ -9,10 +9,10 @@
   {
 
     "vrfName": "{{ vrf["name"] }}",
-    {% for switch in switches_in_fabric %}
-      {% if switch.logicalName == attach["hostname"] %}
-    "fabric": "{{ switch.fabricName }}",
-    "serialNumber": "{{ switch.serialNumber }}",
+    {% for switch in runtime_msd_data_model.switches %}
+      {% if switch.hostname == attach["hostname"] %}
+    "fabric": "{{ switch.fabric_name }}",
+    "serialNumber": "{{ switch.serial_number }}",
       {% endif %}
     {% endfor %}
     "freeformConfig": "{{ attach['freeform_config'] | default('') | replace('\n', '\\n') | replace('"', '\\"') }}",
