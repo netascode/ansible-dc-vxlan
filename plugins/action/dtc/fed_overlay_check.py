@@ -179,7 +179,7 @@ class ActionModule(ActionBase):
                         })
             for vrf in model_data['vxlan']['multisite']['overlay']['vrfs']:
                 for vrf_attach_group in model_data['vxlan']['multisite']['overlay']['vrf_attach_groups']:
-                    if vrf['vrf_attach_group'] == vrf_attach_group['name']:
+                    if vrf.get('vrf_attach_group') == vrf_attach_group['name']:
                         for switch in vrf_attach_group['switches']:
                             for switch_entry in switch_data:
                                 if switch['hostname'] == switch_entry['logicalName']:
