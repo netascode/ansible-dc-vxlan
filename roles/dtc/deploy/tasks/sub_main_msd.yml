@@ -36,6 +36,7 @@
     vrf_response_data: "{{ manage_vrf_result | default([]) }}"
     network_response_data: "{{ manage_network_result | default([]) }}"
     force_run_all: "{{ force_run_all }}"
+    run_map_diff_run: "{{ run_map_read_result.diff_run }}"
     operation: all
   vars:
     ansible_command_timeout: 3000

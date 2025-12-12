@@ -244,7 +244,9 @@ class ActionModule(ActionBase):
 
                 params['nd_major_minor_patch'] = nd_major_minor_patch
 
+            # Additionally, if force_run_all is set to True or run_map_diff_run is set to False, all child fabrics will be deployed regardless of change detection
             params['force_run_all'] = self._task.args.get("force_run_all", False)
+            params['run_map_diff_run'] = self._task.args.get("run_map_diff_run", True)
             params['dm_child_fabrics'] = self._task.args.get("data_model_child_fabrics")
             params['vrf_response_data'] = self._task.args.get("vrf_response_data", False)
             params['network_response_data'] = self._task.args.get("network_response_data", False)
@@ -317,7 +319,7 @@ class ActionModule(ActionBase):
     def process_child_fabric_changes(self, results, params):
         """Process child fabric changes for Multisite (MSD or MCFG) deployments."""
 
-        for key in ['fabric_type', 'force_run_all', 'dm_child_fabrics', 'vrf_response_data', 'network_response_data']:
+        for key in ['fabric_type', 'run_map_diff_run', 'force_run_all', 'dm_child_fabrics', 'vrf_response_data', 'network_response_data']:
             if params[key] is None:
                 results['failed'] = True
                 results['msg'] = f"Missing required parameter '{key}'"
@@ -331,14 +333,14 @@ class ActionModule(ActionBase):
             return results
 
         changed_fabrics = []
-        if params['force_run_all']:
+        if params['force_run_all'] or not params['run_map_diff_run']:
             # Process all child fabrics
             changed_fabrics = params['dm_child_fabrics']
         else:
             # Process child fabric changes for VRFs and Networks
             changed_fabrics = self._process_child_fabric_changes(params)
 
-        # Manage child fabric deployments based on force_run_all or detected changes in VRFs or Networks
+        # Manage child fabric deployments based on force_run_all/run_map_diff_run or detected changes in VRFs or Networks
         if changed_fabrics:
             if parent_fabric_type == 'MSD':
                 params['fabric_type'] = "MSD_Child_Fabric"
