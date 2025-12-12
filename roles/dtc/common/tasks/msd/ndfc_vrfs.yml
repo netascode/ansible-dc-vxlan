@@ -70,7 +70,7 @@
   cisco.nac_dc_vxlan.dtc.diff_compare:
     old_file: "{{ path_name }}{{ file_name }}.old"
     new_file: "{{ path_name }}{{ file_name }}"
-  register: vrf_diff_result
+  register: msd_vrf_diff_result
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
