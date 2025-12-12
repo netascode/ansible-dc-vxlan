@@ -52,7 +52,7 @@
   cisco.dcnm.dcnm_network:
     fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: deleted
-    config: "{{ network_diff_result.removed }}"
+    config: "{{ mcfg_network_diff_result.removed }}"
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
@@ -60,7 +60,7 @@
     - multisite_network_delete_mode is defined
     - multisite_network_delete_mode is true | bool
     - change_flags_mcfg.changes_detected_networks
-    - network_diff_result.removed | length > 0
+    - mcfg_network_diff_result.removed | length > 0
     - data_model_extended.vxlan.multisite.child_fabrics is defined
     - data_model_extended.vxlan.multisite.child_fabrics | length > 0
     - run_map_read_result.diff_run is true | bool
