@@ -26,8 +26,10 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
 import inspect
 from time import sleep
+import re
 
 display = Display()
 
@@ -42,6 +44,9 @@ class FabricDeployManager:
         # Fabric Parameters
         self.fabric_name = params['fabric_name']
         self.fabric_type = params['fabric_type']
+        self.fabric_cluster_name = params.get('cluster_name', None)
+
+        self.nd_version = params.get('nd_major_minor_patch', None)
 
         # Module Execution Parameters
         self.task_vars = params['task_vars']
@@ -51,11 +56,28 @@ class FabricDeployManager:
 
         # Module API Paths
         base_path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest"
+
+        if (
+            self.fabric_type == 'MCFG_Child_Fabric' and
+            self.fabric_cluster_name and
+            version_compare(self.nd_version, '3.2.2', '<=')
+        ):
+            base_path = f"/onepath/{self.fabric_cluster_name}{base_path}"
+        elif (
+            self.fabric_type == 'MCFG_Child_Fabric' and
+            self.fabric_cluster_name and
+            version_compare(self.nd_version, '4.1.1', '>=')
+        ):
+            base_path = f"/fedproxy/{self.fabric_cluster_name}{base_path}"
+
         self.api_paths = {
             "get_switches_by_fabric": f"{base_path}/control/fabrics/{self.fabric_name}/inventory/switchesByFabric",
             "config_save": f"{base_path}/control/fabrics/{self.fabric_name}/config-save",
             "config_deploy": f"{base_path}/control/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false",
             "fabric_history": f"{base_path}/config/delivery/deployerHistoryByFabric/{self.fabric_name}?sort=completedTime%3ADES&limit=5",
+            "onemanage_get_switches_by_fabric": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/inventory/switchesByFabric",
+            "onemanage_config_save": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/config-save",
+            "onemanage_config_deploy": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false",
         }
 
         # Fabric State Booleans
@@ -72,7 +94,11 @@ class FabricDeployManager:
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
         self.fabric_in_sync = True
-        response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
+
+        if self.fabric_type not in ['MCFG']:
+            response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
+        elif self.fabric_type in ['MCFG']:
+            response = self._send_request("GET", self.api_paths["onemanage_get_switches_by_fabric"])
 
         # For non-Multisite fabrics, retry up to 5 times if out-of-sync
         # Exclude Multisite parent fabrics (MSD or MCFG) as they are dependent on child fabrics being in sync
@@ -106,7 +132,11 @@ class FabricDeployManager:
         method_name = inspect.stack()[0][3]
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
-        response = self._send_request("POST", self.api_paths["config_save"])
+        if self.fabric_type not in ['MCFG']:
+            response = self._send_request("POST", self.api_paths["config_save"])
+        elif self.fabric_type in ['MCFG']:
+            response = self._send_request("POST", self.api_paths["onemanage_config_save"])
+
         if response.get('RETURN_CODE') == 200:
             pass
         else:
@@ -118,7 +148,11 @@ class FabricDeployManager:
         method_name = inspect.stack()[0][3]
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
-        response = self._send_request("POST", self.api_paths["config_deploy"])
+        if self.fabric_type not in ['MCFG']:
+            response = self._send_request("POST", self.api_paths["config_deploy"])
+        elif self.fabric_type in ['MCFG']:
+            response = self._send_request("POST", self.api_paths["onemanage_config_deploy"])
+
         if response.get('RETURN_CODE') == 200:
             pass
         else:
@@ -189,6 +223,25 @@ class ActionModule(ActionBase):
             # Manage Deployment For Child Fabrics if Multisite (MSD or MCFG)
             # Child Fabrics are only deployed if there are VRF or Network changes detected by passing in the response data from those tasks
             # If force_run_all is set to True or run_map_diff_run is set to False, all child fabrics will be deployed regardless of change detection
+
+            if params['fabric_type'] == 'MCFG':
+
+                nd_version = self._task.args["nd_version"]
+
+                # Extract major, minor, patch and patch letter from nd_version
+                # that is set in nac_dc_vxlan.dtc.connectivity_check role
+                # Example nd_version: "3.1.1l" or "3.2.2m"
+                # where 3.1.1/3.2.2 are major.minor.patch respectively
+                # and l/m are the patch letter respectively
+                nd_major_minor_patch = None
+                nd_patch_letter = None
+                match = re.match(r'^(\d+\.\d+\.\d+)([a-z])?$', nd_version)
+                if match:
+                    nd_major_minor_patch = match.group(1)
+                    nd_patch_letter = match.group(2)
+
+                params['nd_major_minor_patch'] = nd_major_minor_patch
+
             params['force_run_all'] = self._task.args.get("force_run_all", False)
             params['run_map_diff_run'] = self._task.args.get("run_map_diff_run", True)
             params['dm_child_fabrics'] = self._task.args.get("data_model_child_fabrics")
@@ -263,11 +316,18 @@ class ActionModule(ActionBase):
     def process_child_fabric_changes(self, results, params):
         """Process child fabric changes for Multisite (MSD or MCFG) deployments."""
 
-        for key in ['force_run_all', 'run_map_diff_run', 'dm_child_fabrics', 'vrf_response_data', 'network_response_data']:
+        for key in ['fabric_type', 'run_map_diff_run', 'force_run_all', 'dm_child_fabrics', 'vrf_response_data', 'network_response_data']:
             if params[key] is None:
                 results['failed'] = True
                 results['msg'] = f"Missing required parameter '{key}'"
                 return results
+
+        parent_fabric_type = params['fabric_type']
+
+        if parent_fabric_type == 'MCFG' and params['nd_major_minor_patch'] is None:
+            results['failed'] = True
+            results['msg'] = f"Missing required parameter '{key}'"
+            return results
 
         changed_fabrics = []
         if params['force_run_all'] or not params['run_map_diff_run']:
@@ -279,9 +339,16 @@ class ActionModule(ActionBase):
 
         # Manage child fabric deployments based on force_run_all/run_map_diff_run or detected changes in VRFs or Networks
         if changed_fabrics:
-            params['fabric_type'] = "Multi-Site_Child_Fabric"
+            if parent_fabric_type == 'MSD':
+                params['fabric_type'] = "MSD_Child_Fabric"
+            elif parent_fabric_type == 'MCFG':
+                params['fabric_type'] = "MCFG_Child_Fabric"
+
             for changed_fabric in changed_fabrics:
                 params['fabric_name'] = changed_fabric['name']
+                params['cluster_name'] = changed_fabric.get('cluster', None)
+                display.banner(f"Processing Child Fabric: {params['fabric_name']} Cluster: {params['cluster_name']}")
+
                 results = self.manage_fabrics(results, params)
                 if results.get('failed'):
                     return results

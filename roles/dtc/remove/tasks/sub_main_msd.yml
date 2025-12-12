@@ -37,6 +37,8 @@
   cisco.nac_dc_vxlan.dtc.prepare_msite_data:
     data_model: "{{ data_model_extended }}"
     parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    nd_version: "{{ nd_version }}"
   register: runtime_msd_data_model
   tags:
     - "{{ nac_tags.remove_networks }}"
