@@ -86,7 +86,7 @@
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
-    operation: "update"
+    operation: update
     change_flag: changes_detected_vrfs
     flag_value: true
   delegate_to: localhost

@@ -75,6 +75,12 @@ class ActionModule(ActionBase):
 
         results['child_fabrics_data'] = child_fabrics_data
 
+        all_child_fabric_switches = []
+        for child_fabric in child_fabrics_data.keys():
+            all_child_fabric_switches = all_child_fabric_switches + child_fabrics_data[child_fabric]['switches']
+
+        results['switches'] = all_child_fabric_switches
+
         # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
         # a structure that is easier to use just like data_model_extended.
         vrf_grp_name_list = []

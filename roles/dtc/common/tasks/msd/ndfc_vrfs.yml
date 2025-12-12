@@ -70,7 +70,7 @@
   cisco.nac_dc_vxlan.dtc.diff_compare:
     old_file: "{{ path_name }}{{ file_name }}.old"
     new_file: "{{ path_name }}{{ file_name }}"
-  register: vrf_diff_result
+  register: msd_vrf_diff_result
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
@@ -95,24 +95,23 @@
 
 - name: Set file_name Var for loopback attachments
   ansible.builtin.set_fact:
-    file_name: "{{ data_model_extended.vxlan.fabric.name }}_attach_vrfs_loopbacks.yml"
+    file_name: "ndfc_attach_vrfs_loopbacks.yml"
   delegate_to: localhost
 
-# Check with Matt and Pete on how we want to handle VRF loopbacks for MSD
-# - name: Build VRFs Attach List From Template for loopback
-#   ansible.builtin.template:
-#     src: ndfc_attach_vrfs_loopbacks.j2
-#     dest: "{{ path_name }}{{ file_name }}"
-#   delegate_to: localhost
+- name: Build VRFs Loopback Attach List From Template
+  ansible.builtin.template:
+    src: "{{ role_path }}/../common/templates/ndfc_vrfs/msd_fabric/msd_attach_vrfs_loopbacks.j2"
+    dest: "{{ path_name }}{{ file_name }}"
+    mode: '0644'
+  delegate_to: localhost
 
-# - name: Create Empty vrf_config Var
-#   ansible.builtin.set_fact:
-#     vrf_attach_config: []
-#   delegate_to: localhost
+- name: Create Empty vrf_loopbacks Var
+  ansible.builtin.set_fact:
+    vrf_attach_config: []
+  delegate_to: localhost
 
-# - name: Set vrf_config Var
-#   ansible.builtin.set_fact:
-#     vrf_attach_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-#   when: >
-#     (data_model_extended.vxlan.overlay.vrfs | default([])) | length > 0
-#   delegate_to: localhost
+- name: Set vrf_attach_config Var
+  ansible.builtin.set_fact:
+    vrf_attach_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
+  when: (data_model_extended.vxlan.multisite.overlay.vrfs | default([])) | length > 0
+  delegate_to: localhost
