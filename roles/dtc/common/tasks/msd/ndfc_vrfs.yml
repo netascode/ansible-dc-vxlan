@@ -115,4 +115,3 @@
     vrf_attach_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
   when: (data_model_extended.vxlan.multisite.overlay.vrfs | default([])) | length > 0
   delegate_to: localhost
-  
