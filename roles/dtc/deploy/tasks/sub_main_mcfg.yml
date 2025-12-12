@@ -33,8 +33,8 @@
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     data_model_child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
-    vrf_response_data: "{{ manage_vrf_result | default([]) }}"
-    network_response_data: "{{ manage_network_result | default([]) }}"
+    vrf_response_data: "{{ manage_mcfg_vrf_result | default([]) }}"
+    network_response_data: "{{ manage_mcfg_network_result | default([]) }}"
     nd_version: "{{ nd_version }}"
     force_run_all: "{{ force_run_all }}"
     operation: all

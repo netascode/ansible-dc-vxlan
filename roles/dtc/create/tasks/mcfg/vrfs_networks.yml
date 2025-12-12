@@ -121,7 +121,7 @@
     fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_mcfg.vrf_config }}"
-  register: manage_vrf_result
+  register: manage_mcfg_vrf_result
   when:
     - data_model_extended.vxlan.multisite.overlay.vrfs is defined
     - data_model_extended.vxlan.multisite.overlay.vrfs
@@ -150,7 +150,7 @@
     fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_mcfg.net_config }}"
-  register: manage_network_result
+  register: manage_mcfg_network_result
   when:
     - data_model_extended.vxlan.multisite.overlay.networks is defined
     - data_model_extended.vxlan.multisite.overlay.networks
