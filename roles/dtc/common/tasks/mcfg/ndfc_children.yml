@@ -57,6 +57,11 @@
     mode: '0644'
   delegate_to: localhost
 
+- name: Set fabric children
+  ansible.builtin.set_fact:
+    fabric_children: "{{ lookup('file', path_name + file_name) | from_yaml }}"
+  delegate_to: localhost
+
 - name: Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"
