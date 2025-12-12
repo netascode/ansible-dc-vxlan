@@ -81,8 +81,6 @@ class ActionModule(ActionBase):
 
         results['switches'] = all_child_fabric_switches
 
-        import epdb ; epdb.st()
-
         # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
         # a structure that is easier to use just like data_model_extended.
         vrf_grp_name_list = []
