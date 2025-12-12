@@ -347,6 +347,7 @@ class ActionModule(ActionBase):
             for changed_fabric in changed_fabrics:
                 params['fabric_name'] = changed_fabric['name']
                 params['cluster_name'] = changed_fabric.get('cluster', None)
+                display.banner(f"Processing Child Fabric: {params['fabric_name']} Cluster: {params['cluster_name']}")
 
                 results = self.manage_fabrics(results, params)
                 if results.get('failed'):
