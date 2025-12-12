@@ -63,12 +63,35 @@
     - data_model_extended.vxlan.fabric.type == 'External'
     - change_flags.changes_detected_any
 
+#------------------------------------------------------------------------------
+# If we are not staging removal then we need to deploy any changes
+# that were made during the role remove stage and are now pending deployment.
+#
+# We do NOT need to do this for MSD or MCFG fabrics as those fabric types
+# do not have any changes currently that can be staged for removal.
+#------------------------------------------------------------------------------
+- name: Log Deploy During Remove Info Message
+  ansible.builtin.debug:
+    msg: >
+      Deploying changes during role remove since fabric type is
+      "{{ data_model_extended.vxlan.fabric.type }}".
+  when: >
+    (stage_remove is false|bool) and (change_flags.changes_detected_any) and
+    (data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN' or
+    data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN' or
+    data_model_extended.vxlan.fabric.type == 'ISN' or
+    data_model_extended.vxlan.fabric.type == 'External')
+
 - name: Deploy Remove Changes
   ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.deploy
-  when:
-    - stage_remove is false|bool
-    - (not data_model_extended.vxlan.fabric.type == 'MSD') or (not data_model_extended.vxlan.fabric.type == 'MCFG')
+  when: >
+    (stage_remove is false|bool) and (change_flags.changes_detected_any) and
+    (data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN' or
+    data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN' or
+    data_model_extended.vxlan.fabric.type == 'ISN' or
+    data_model_extended.vxlan.fabric.type == 'External')
+#------------------------------------------------------------------------------
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:

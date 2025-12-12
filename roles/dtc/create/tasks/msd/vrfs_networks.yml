@@ -138,19 +138,18 @@
     - change_flags_msd.changes_detected_vrfs
 
 # --------------------------------------------------------------------
-# Manage Loopback VRF attachments on NDFC
+# Manage Loopback VRF attachments on NDFC (MSD)
 # --------------------------------------------------------------------
 
-# Check with Matt and Pete on how we want to handle this for MSD
-# - name: Attach VRF Loopbacks per VRF
-#   cisco.dcnm.dcnm_rest:
-#     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
-#     method: "POST"
-#     json_data: "{{ vars_common_msd.vrf_attach_config | to_json}}"
-#   when:
-#     - data_model_extended.vxlan.overlay.vrfs is defined
-#     - data_model_extended.vxlan.overlay.vrfs
-#     - change_flags_msd.changes_detected_vrfs
+- name: Call API to attach VRF to Leaf Switches for Federated NDFCs
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
+    method: POST
+    json_data: "{{ vrf_attach_config | to_json }}"
+  when:
+    - data_model_extended.vxlan.multisite.overlay.vrfs is defined
+    - data_model_extended.vxlan.multisite.overlay.vrfs
+    - change_flags_msd.changes_detected_vrfs
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC

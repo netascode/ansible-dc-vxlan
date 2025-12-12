@@ -224,7 +224,7 @@ class ActionModule(ActionBase):
         if params['fabric_type'] in ['MSD', 'MCFG']:
             # Manage Deployment For Child Fabrics if Multisite (MSD or MCFG)
             # Child Fabrics are only deployed if there are VRF or Network changes detected by passing in the response data from those tasks
-            # Additionally, if force_run_all is set to True, all child fabrics will be deployed regardless of change detection
+            # If force_run_all is set to True or run_map_diff_run is set to False, all child fabrics will be deployed regardless of change detection
 
             if params['fabric_type'] == 'MCFG':
 
@@ -244,7 +244,6 @@ class ActionModule(ActionBase):
 
                 params['nd_major_minor_patch'] = nd_major_minor_patch
 
-            # Additionally, if force_run_all is set to True or run_map_diff_run is set to False, all child fabrics will be deployed regardless of change detection
             params['force_run_all'] = self._task.args.get("force_run_all", False)
             params['run_map_diff_run'] = self._task.args.get("run_map_diff_run", True)
             params['dm_child_fabrics'] = self._task.args.get("data_model_child_fabrics")
