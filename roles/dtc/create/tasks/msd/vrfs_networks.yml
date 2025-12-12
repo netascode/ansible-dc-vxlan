@@ -149,7 +149,7 @@
   when:
     - data_model_extended.vxlan.multisite.overlay.vrfs is defined
     - data_model_extended.vxlan.multisite.overlay.vrfs
-    - change_flags_multisite.changes_detected_vrfs
+    - change_flags_msd.changes_detected_vrfs
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
