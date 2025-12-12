@@ -141,7 +141,7 @@
 # Manage Loopback VRF attachments on NDFC (MSD)
 # --------------------------------------------------------------------
 
-- name: Call API to attach VRF to Leaf Switches for Federated NDFCs
+- name: Manage MSD Fabric VRF Loopback Attachments in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
     method: POST
