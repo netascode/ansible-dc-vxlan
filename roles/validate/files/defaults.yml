@@ -448,36 +448,6 @@ factory_defaults:
       bgw_ip_tag: 54321
       ipv4_vtep_loopback_range: 10.10.0.0/24
       ipv6_vtep_loopback_range: fd00::a10:0/120
-      overlay:
-        vrfs:
-          vrf_description: "Configured by Ansible NetAsCode"
-          vrf_intf_desc: "Configured by Ansible NetAsCode"
-          vrf_int_mtu: 9216
-          loopback_route_tag: 12345
-          max_bgp_paths: 1
-          max_ibgp_paths: 2
-          ipv6_linklocal_enable: true
-          adv_host_routes: false
-          adv_default_routes: true
-          static_default_route: true
-          disable_rt_auto: false
-          netflow_enable: false
-          no_rp: false
-          rp_external: false
-          redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
-          trm_enable: false
-          trm_bgw_msite: false
-        networks:
-          net_description: "Configured by Ansible NetAsCode"
-          is_l2_only: false
-          arp_supress: false
-          l3gw_on_border: false
-          mtu_l3intf: 9216
-          multicast_group_address: 239.1.1.1
-          netflow_enable: false
-          route_target_both: false
-          route_tag: 12345
-          trm_enable: false
       overlay_dci:
         deployment_method: Direct_To_BGWS
         route_server:
