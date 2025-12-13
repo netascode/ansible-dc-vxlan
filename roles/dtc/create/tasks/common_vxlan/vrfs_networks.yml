@@ -97,7 +97,7 @@
         - change_flags.changes_detected_vrfs
 
     # --------------------------------------------------------------------
-    # Manage Loopback VRF attachments in Nexus Dashboard
+    # Manage Loopback VRF Attachments in Nexus Dashboard
     # --------------------------------------------------------------------
 
     - name: Attach Loopbacks to VRFs in Nexus Dashboard
