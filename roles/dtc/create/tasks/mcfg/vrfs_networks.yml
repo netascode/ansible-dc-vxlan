@@ -128,10 +128,10 @@
     - change_flags_mcfg.changes_detected_vrfs
 
 # --------------------------------------------------------------------
-# Manage Loopback VRF attachments on NDFC (MSD)
+# Manage Loopback VRF attachments on NDFC (MCFG)
 # --------------------------------------------------------------------
 
-- name: Manage MSD Fabric VRF Loopback Attachments in Nexus Dashboard
+- name: Manage MCFG Fabric VRF Loopback Attachments in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     path: "onemanage/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
     method: POST
