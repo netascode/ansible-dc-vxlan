@@ -145,7 +145,7 @@
   cisco.dcnm.dcnm_rest:
     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
     method: POST
-    json_data: "{{ vrf_attach_config | to_json }}"
+    json_data: "{{ msd_vrf_attach_config | to_json }}"
   when:
     - data_model_extended.vxlan.multisite.overlay.vrfs is defined
     - data_model_extended.vxlan.multisite.overlay.vrfs

@@ -128,19 +128,18 @@
     - change_flags_mcfg.changes_detected_vrfs
 
 # --------------------------------------------------------------------
-# Manage Loopback VRF attachments on NDFC
+# Manage Loopback VRF attachments on NDFC (MSD)
 # --------------------------------------------------------------------
 
-# Check with Matt and Pete on how we want to handle this for MCFG
-# - name: Attach VRF Loopbacks per VRF
-#   cisco.dcnm.dcnm_rest:
-#     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
-#     method: "POST"
-#     json_data: "{{ vars_common_mcfg.vrf_attach_config | to_json}}"
-#   when:
-#     - data_model_extended.vxlan.overlay.vrfs is defined
-#     - data_model_extended.vxlan.overlay.vrfs
-#     - change_flags_mcfg.changes_detected_vrfs
+- name: Manage MSD Fabric VRF Loopback Attachments in Nexus Dashboard
+  cisco.dcnm.dcnm_rest:
+    path: "onemanage/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
+    method: POST
+    json_data: "{{ mcfg_vrf_attach_config | to_json }}"
+  when:
+    - data_model_extended.vxlan.multisite.overlay.vrfs is defined
+    - data_model_extended.vxlan.multisite.overlay.vrfs
+    - change_flags_mcfg.changes_detected_vrfs
 
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
