@@ -60,11 +60,6 @@
   tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
   when: data_model_extended.vxlan.fabric.type == 'MCFG'
 
-- name: Import Role Tasks for MCFG Fabric
-  ansible.builtin.import_tasks: sub_main_mcfg.yml
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: MD_Extended.vxlan.fabric.type == 'MCFG'
-
 - name: Import Role Tasks for External Fabric
   ansible.builtin.import_tasks: sub_main_external.yml
   tags: "{{ nac_tags.common_role }}"
