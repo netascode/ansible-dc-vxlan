@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,20 +21,15 @@
 
 ---
 
-- name: Get all the switches in the MCFG Fabric Group
-  cisco.dcnm.dcnm_rest:
-      method: GET
-      path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD.vxlan.fabric.name }}/inventory/switchesByFabric"
-  register: switch_results
-  delegate_to: "{{ inventory_hostname }}"
-  failed_when: false
+- name: Build Multisite Child Fabric Data for Nexus Dashboard
+  ansible.builtin.debug:
+    msg: "Building MCFG Child Fabric Data"
 
-- name: Store switches in the fabric for MCFG Fabric Group
-  ansible.builtin.set_fact:
-      switches_in_fabric: "{{ switch_results.response.DATA }}"
-  when: switch_results is defined and switch_results.response.DATA is defined
-
-- name: Set switches_in_fabric to empty list if no switches are found
-  ansible.builtin.set_fact:
-      switches_in_fabric: []
-  when: switch_results is not defined or switch_results.response.DATA is not defined
+- name: Prepare Multisite Add and Remove Child Fabric Data
+  cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data:
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
+  when:
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
+  register: data_model_mcfg_child_fabrics

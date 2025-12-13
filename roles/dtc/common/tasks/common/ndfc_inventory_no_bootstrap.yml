@@ -66,13 +66,13 @@
 - name: Set inv_config Var
   ansible.builtin.set_fact:
     inv_config_no_bootstrap: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: (MD_Extended.vxlan.topology.switches | default([])) | length > 0
+  when: (data_model_extended.vxlan.topology.switches | default([])) | length > 0
   delegate_to: localhost
 
 - name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
   cisco.nac_dc_vxlan.common.get_credentials:
     inv_list: "{{ inv_config_no_bootstrap }}"
-    model_data: "{{ MD_Extended }}"
+    data_model: "{{ data_model_extended }}"
   register: updated_inv_config_no_bootstrap
   no_log: true
 

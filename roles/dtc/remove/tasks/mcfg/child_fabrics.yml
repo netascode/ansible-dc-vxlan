@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,50 +21,33 @@
 
 ---
 
-- name: Manage Fabric Children Entry Point
+- name: Display Removing Unmanaged Child Fabrics Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged Child Fabrics. This could take several minutes..."
+  when:
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
+    - multisite_child_fabric_delete_mode is defined
+    - multisite_child_fabric_delete_mode is true | bool
+
+- name: Run dtc.common.tasks.mcfg.ndfc_child_fabrics.yml
+  ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/mcfg/ndfc_child_fabrics.yml"
+
+- name: Remove Unmanaged Child Fabrics in Nexus Dashboard
+  cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    child_fabrics: "{{ data_model_mcfg_child_fabrics.to_be_removed }}"
+    state: absent
+  when:
+    - data_model_mcfg_child_fabrics.to_be_removed is defined
+    - data_model_mcfg_child_fabrics.to_be_removed
+    - multisite_child_fabric_delete_mode is defined
+    - multisite_child_fabric_delete_mode is true | bool
+
+- name: Skip Remove Unmanaged Child Fabrics Task If multisite_child_fabric_delete_mode is False
   ansible.builtin.debug:
     msg:
-      - "----------------------------------------------------------------"
-      - "+     Manage Fabric Children {{ MD_Extended.vxlan.fabric.name }}"
-      - "----------------------------------------------------------------"
-
-- name: Check if fabric already a member of NDFC
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/members'
-  register: member_result
-
-- name: Set fact for existing fabric names and cluster names
-  ansible.builtin.set_fact:
-    existing_fabrics: >-
-      {{
-        member_result.response.DATA | map(attribute='fabrics') | map('dict2items') | flatten | list
-      }}
-
-- name: Set fact for child fabric names
-  ansible.builtin.set_fact:
-    child_fabric_names: >-
-      {{
-        fabric_children | map(attribute='fabricName') | list
-      }}
-
-- name: Generate payload for fabrics to be removed
-  ansible.builtin.set_fact:
-    remove_payload: >-
-      [
-      {% for fabric in existing_fabrics if fabric.key not in child_fabric_names %}
-      {
-        "operation": "remove",
-        "clusterName": "{{ fabric.value.clusterName }}",
-        "fabricName": "{{ fabric.key }}"
-      }{% if not loop.last %},{% endif %}
-      {% endfor %}
-      ]
-
-- name: Remove fabrics from NDFC
-  cisco.dcnm.dcnm_rest:
-    method: PUT
-    path: '/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/members'
-    json_data: '{{ item | to_json }}'
-  loop: "{{ remove_payload }}"
-  when: remove_payload | length > 0
+      - "----------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Child Fabrics task because multisite_child_fabric_delete_mode flag is set to False +"
+      - "----------------------------------------------------------------------------------------------------------------"
+  when: not ((multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool))

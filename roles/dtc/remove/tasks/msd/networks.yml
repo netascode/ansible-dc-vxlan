@@ -21,43 +21,66 @@
 
 ---
 
-- name: Display Removing Unmanaged Fabric Networks Message
-  ansible.builtin.debug:
-    msg: "Removing Unmanaged Fabric Networks. This could take several minutes..."
-  when:
-    - (multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true|bool)
-
 - name: Display Flag Values - Changes Detected Networks
   cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
     operation: display
   delegate_to: localhost
   when:
-    - (multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true|bool)
+    - multisite_network_delete_mode is defined
+    - multisite_network_delete_mode is true | bool
 
-- name: Set Network Config to MultiSite VRF Data
-  ansible.builtin.set_fact:
-    network_config: "{{ MD_Multisite }}"
-
-- name: Override Network Config Based On Diff Run Settings
-  ansible.builtin.set_fact:
-    network_config: "{{ network_diff_result.removed }}"
-  when:
-    - run_map_read_result.diff_run is true|bool
-
-- name: Remove Unmanaged Fabric Networks in Nexus Dashboard
-  cisco.nac_dc_vxlan.dtc.unmanaged_child_fabric_networks:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    data: "{{ network_config }}"
-    diff_run: "{{ run_map_read_result.diff_run }}"
-  register: child_fabric_network_results
+- name: Unmanaged Fabric Networks Removal Status Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged Fabric Networks. This could take several minutes..."
   when:
     - multisite_network_delete_mode is defined
     - multisite_network_delete_mode is true | bool
-    - change_flags_multisite.changes_detected_networks
-    - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
+
+# -----------------------------------------------------------------------------
+# Remove Networks Using Diff Run Framework
+# -----------------------------------------------------------------------------
+#
+# The following conditions must be met for this task to execute:
+#  -  The number of Networks to be removed/defaulted as compared to the
+#     previous run must be non-zero.
+#  -  The diff_run feature must be active
+#       Combination of the (diff_run flag and force_run_all_flag state)
+- name: Remove Unmanaged Fabric Networks in Nexus Dashboard - Diff Run Feature Active
+  cisco.dcnm.dcnm_network:
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    state: deleted
+    config: "{{ msd_network_diff_result.removed }}"
+  vars:
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
+  when:
+    - multisite_network_delete_mode is defined
+    - multisite_network_delete_mode is true | bool
+    - change_flags_msd.changes_detected_networks
+    - msd_network_diff_result.removed | length > 0
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
+    - data_model_extended.vxlan.multisite.child_fabrics | length > 0
+    - run_map_read_result.diff_run is true | bool
+    - force_run_all is false | bool
+
+# -----------------------------------------------------------------------------
+# Remove Networks Default Mode
+# -----------------------------------------------------------------------------
+- name: Remove Unmanaged Fabric Networks in Nexus Dashboard - Diff Run Feature Disabled
+  cisco.dcnm.dcnm_network:
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    state: overridden
+    config: "{{ net_config }}"
+  vars:
+    ansible_command_timeout: 3000
+    ansible_connect_timeout: 3000
+  when:
+    - multisite_network_delete_mode is defined
+    - multisite_network_delete_mode is true | bool
+    - run_map_read_result.diff_run is false | bool or force_run_all is true | bool
 
 - name: Skip Remove Unmanaged Fabric Networks Task If multisite_network_delete_mode is False
   ansible.builtin.debug:
@@ -65,4 +88,4 @@
       - "---------------------------------------------------------------------------------------------------------------"
       - "+ SKIPPING Remove Unmanaged Fabric Networks task because multisite_network_delete_mode flag is set to False   +"
       - "---------------------------------------------------------------------------------------------------------------"
-  when: not ((multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true|bool))
+  when: not ((multisite_network_delete_mode is defined) and (multisite_network_delete_mode is true | bool))

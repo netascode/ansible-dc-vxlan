@@ -1,0 +1,29 @@
+[
+  {% for vrf in data_model_extended.vxlan.multisite.overlay.vrfs %}
+    {% if vrf['vrf_attach_group'] is defined %}
+  {
+    "vrfName": "{{ vrf["name"] }}",
+    "lanAttachList":
+  [
+  {% for attach in data_model_extended.vxlan.multisite.overlay.vrf_attach_groups_dict[vrf["vrf_attach_group"]] %}
+  {
+
+    "vrfName": "{{ vrf["name"] }}",
+    {% for switch in runtime_msd_data_model.switches %}
+      {% if switch.hostname == attach["hostname"] %}
+    "fabric": "{{ switch.fabric_name }}",
+    "serialNumber": "{{ switch.serial_number }}",
+      {% endif %}
+    {% endfor %}
+    "freeformConfig": "{{ attach['freeform_config'] | default('') | replace('\n', '\\n') | replace('"', '\\"') }}",
+    "extensionValues": "",
+    "vlan": {{ vrf["vlan_id"] }},
+    "deployment": true,
+    "instanceValues": "{\"loopbackId\": \"{{ attach['loopback_id'] | default('') }}\", \"loopbackIpAddress\": \"{{ attach['loopback_ipv4'] | default('') }}\", \"loopbackIpV6Address\":\"{{ attach['loopback_ipv6'] | default('') }}\"}"
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+    ]
+  }{% if not loop.last %},{% endif %}
+  {% endif %}
+  {% endfor %}
+]

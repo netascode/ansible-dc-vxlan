@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -28,37 +28,20 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.dtc.deploy]           +"
       - "----------------------------------------------------------------"
 
-- name: Message
-  ansible.builtin.debug:
-    msg: "Configuring NXOS Devices using NDFC (Direct to Controller)"
-
-- name: Config-Save block
-  block:
-    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }}
-      cisco.dcnm.dcnm_rest:
-        method: POST
-        path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-save"
-      register: config_save
-      when: >
-        MD_Extended.vxlan.fabric.type == 'MCFG'
-
-  rescue:
-    - name: Config-Save for Fabric {{ MD_Extended.vxlan.fabric.name }} - Failed
-      ansible.builtin.debug:
-        msg: "{{ config_save.msg.DATA }}"
-
-- name: Extract serial numbers from switches_in_fabric
-  ansible.builtin.set_fact:
-    serial_numbers: "{{ switches_in_fabric | json_query('[*].serialNumber') }}"
-
-- name: Join serial numbers into a comma-separated list
-  ansible.builtin.set_fact:
-    serial_numbers_str: "{{ serial_numbers | join(',') }}"
-
-- name: Deploy for Federated Overlay
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ MD_Extended.vxlan.fabric.name }}/config-deploy/{{ serial_numbers_str }}?forceShowRun=false"
+- name: Manage Fabric Deployment for MCFG Fabric in Nexus Dashboard
+  cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    data_model_child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
+    vrf_response_data: "{{ manage_mcfg_vrf_result | default([]) }}"
+    network_response_data: "{{ manage_mcfg_network_result | default([]) }}"
+    nd_version: "{{ nd_version }}"
+    force_run_all: "{{ force_run_all }}"
+    run_map_diff_run: "{{ run_map_read_result.diff_run }}"
+    operation: all
   vars:
     ansible_command_timeout: 3000
     ansible_connect_timeout: 3000
+  when:
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
+    - data_model_extended.vxlan.multisite.child_fabrics | length > 0

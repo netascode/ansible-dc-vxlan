@@ -1,6 +1,6 @@
 class Rule:
     id = "202"
-    description = "Cross Reference VRFs and Networks Child Fabric References with Child Fabrics in Data Model"
+    description = "Cross reference VRFs and Networks child fabric references"
     severity = "HIGH"
 
     @classmethod

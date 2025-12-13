@@ -23,18 +23,18 @@
 - name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
 
 - name: Set vars_common Based On Fabric Type - eBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+  when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Manage VRFs and Networks Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage VRFs and Networks Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage VRFs and Networks Fabric {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
 - name: Check If Current Fabric Is An Active Multisite Fabric in Nexus Dashboard
@@ -50,7 +50,7 @@
       ansible.builtin.set_fact:
         selected_fabric: "{{ ndfc_msd_fabric_associations['response']['DATA'] | json_query(json_query) }}"
       vars:
-        json_query: "[?fabricName=='{{ MD_Extended.vxlan.fabric.name }}']"
+        json_query: "[?fabricName=='{{ data_model_extended.vxlan.fabric.name }}']"
 
     - name: Set Multisite Check for Current Fabric
       ansible.builtin.set_fact:
@@ -61,7 +61,7 @@
 # --------------------------------------------------------------------
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage VRFs
   ansible.builtin.fail:
-    msg: VRFs cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
+    msg: VRFs cannot be managed from the current fabric {{  data_model_extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
   when:
     - is_active_child_fabric
     - vars_common_local.vrf_config | length > 0
@@ -78,13 +78,13 @@
 
 - name: Manage Fabric VRFs in Nexus Dashboard
   cisco.dcnm.dcnm_vrf:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vrf_config_list }}"
   register: manage_vrf_result
   when:
-    - MD_Extended.vxlan.overlay.vrfs is defined
-    - MD_Extended.vxlan.overlay.vrfs
+    - data_model_extended.vxlan.overlay.vrfs is defined
+    - data_model_extended.vxlan.overlay.vrfs
     - change_flags.changes_detected_vrfs
     - vrf_config_list | length > 0
     - not is_active_child_fabric
@@ -95,21 +95,20 @@
 - name: Attach Loopbacks to VRFs in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
     json_data: "{{ vars_common_local.vrf_attach_config | to_json }}"
   when:
-    - MD_Extended.vxlan.overlay.vrfs is defined
-    - MD_Extended.vxlan.overlay.vrfs
+    - data_model_extended.vxlan.overlay.vrfs is defined
+    - data_model_extended.vxlan.overlay.vrfs
     - change_flags.changes_detected_vrfs
     - not is_active_child_fabric
-
 
 # --------------------------------------------------------------------
 # Manage Network Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
   ansible.builtin.fail:
-    msg: Networks cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
+    msg: Networks cannot be managed from the current fabric {{  data_model_extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
   when:
     - is_active_child_fabric
     - vars_common_local.net_config | length > 0
@@ -126,13 +125,13 @@
 
 - name: Manage Fabric Networks in Nexus Dashboard
   cisco.dcnm.dcnm_network:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ network_config_list }}"
   register: manage_network_result
   when:
-    - MD_Extended.vxlan.overlay.networks is defined
-    - MD_Extended.vxlan.overlay.networks
+    - data_model_extended.vxlan.overlay.networks is defined
+    - data_model_extended.vxlan.overlay.networks
     - change_flags.changes_detected_networks
     - network_config_list | length > 0
     - not is_active_child_fabric

@@ -22,13 +22,13 @@
 
 - name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_local }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
 
 - name: Set vars_common Based On Fabric Type - eBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+  when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Check If Current Fabric Is An Active Multisite Fabric
   when: is_active_child_fabric is not defined
@@ -43,7 +43,7 @@
       ansible.builtin.set_fact:
         selected_fabric: "{{ ndfc_msd_fabric_associations['response']['DATA'] | json_query(json_query) }}"
       vars:
-        json_query: "[?fabricName=='{{ MD_Extended.vxlan.fabric.name }}']"
+        json_query: "[?fabricName=='{{ data_model_extended.vxlan.fabric.name }}']"
 
     - name: Set Multisite Check for Current Fabric
       ansible.builtin.set_fact:
@@ -51,7 +51,7 @@
 
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
   ansible.builtin.fail:
-    msg: Networks cannot be managed from the current fabric {{  MD_Extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
+    msg: Networks cannot be managed from the current fabric {{  data_model_extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
   when:
     - is_active_child_fabric
     - vars_common_local.net_config | length > 0
@@ -75,7 +75,7 @@
 #       Combination of the (diff_run flag and force_run_all_flag state)
 - name: Remove Unmanaged Fabric Networks in Nexus Dashboard - Diff Run Feature Active
   cisco.dcnm.dcnm_network:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: deleted
     config: "{{ vars_common_local.network_diff_result.removed }}"
   vars:
@@ -94,7 +94,7 @@
 # -----------------------------------------------------------------------------
 - name: Remove Unmanaged Fabric Networks in Nexus Dashboard - Diff Run Feature Disabled
   cisco.dcnm.dcnm_network:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: overridden
     config: "{{ vars_common_local.net_config }}"
   vars:

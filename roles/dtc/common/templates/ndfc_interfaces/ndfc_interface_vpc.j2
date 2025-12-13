@@ -4,8 +4,8 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% if MD_Extended.vxlan.topology.vpc_peers is defined %}
-{% for vpc_pair, vpc_data in MD_Extended.vxlan.topology.interfaces.vpc_interfaces.items() %}
+{% if data_model_extended.vxlan.topology.vpc_peers is defined %}
+{% for vpc_pair, vpc_data in data_model_extended.vxlan.topology.interfaces.vpc_interfaces.items() %}
 {% for vpc_id, switches in vpc_data.items() %}
 {% set switch_names = vpc_pair.split('___') %}
 {% set peer1 = switch_names[0] %}
@@ -31,19 +31,21 @@
       {{ switches[peer1].freeform_config | default('') | indent(6, false) }}
     peer2_cmds: |2-
       {{ switches[peer2].freeform_config | default('') | indent(6, false)  }}
-    peer1_description: "{{ switches[peer1].description | default(omit) }}"
-    peer2_description: "{{ switches[peer2].description | default(omit) }}"
     bpdu_guard: {{ switches[peer1].enable_bpdu_guard | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard)   }}
     disable_lacp_suspend_individual: {{ switches[peer1].disable_lacp_suspend_individual | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.disable_lacp_suspend_individual) }}
-    enable_lacp_vpc_convergence: {{ switches[peer1].enable_lacp_vpc_convergence | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_lacp_vpc_convergence) }}    
+    enable_lacp_vpc_convergence: {{ switches[peer1].enable_lacp_vpc_convergence | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_lacp_vpc_convergence) }}
     lacp_port_priority: {{ switches[peer1].lacp_port_priority | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_port_priority) }}
     lacp_rate: {{ switches[peer1].lacp_rate | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_rate) }}
 {% if switches[peer1].mode == 'trunk' %}
     peer1_allowed_vlans: "{{ convert_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
     peer2_allowed_vlans: "{{ convert_ranges(switches[peer2].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
+    peer1_description: "{{ switches[peer1].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.description) }}"
+    peer2_description: "{{ switches[peer2].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.description) }}"
 {% elif switches[peer1].mode == 'access' %}
     peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
     peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan)  }}
+    peer1_description: "{{ switches[peer1].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.description) }}"
+    peer2_description: "{{ switches[peer2].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.description) }}"
 {% endif %}
 {% endfor %}
 {% endfor %}

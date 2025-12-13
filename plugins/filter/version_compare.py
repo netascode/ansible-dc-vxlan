@@ -50,7 +50,7 @@ version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1'
 
 # - ansible.builtin.set_fact:
 #     version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>=') }}"
-#   when: MD_Extended.vxlan.global
+#   when: data_model_extended.vxlan.global
 #   delegate_to: localhost
 """
 

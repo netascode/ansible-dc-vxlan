@@ -1,6 +1,6 @@
 class Rule:
     id = "205"
-    description = "Verify fabric VNI ranges."
+    description = "Verify fabric VNI and VLAN ranges"
     severity = "HIGH"
 
     results = []

@@ -24,33 +24,33 @@
 - name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
 
 - name: Set vars_common Based On Fabric Type - eBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+  when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Set vars_common Based On Fabric Type - MSD
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
-  when: MD_Extended.vxlan.fabric.type == "MSD"
+  when: data_model_extended.vxlan.fabric.type == "MSD"
 
 - name: Set vars_common Based On Fabric Type - ISN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
-  when: MD_Extended.vxlan.fabric.type == "ISN"
+  when: data_model_extended.vxlan.fabric.type == "ISN"
 
 - name: Set vars_common Based On Fabric Type - External
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
-  when: MD_Extended.vxlan.fabric.type == "External"
+  when: data_model_extended.vxlan.fabric.type == "External"
 
 - name: Manage Fabric Interfaces Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric Interfaces {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric Interfaces {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
@@ -75,12 +75,12 @@
 
 - name: Manage Interface All in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ interface_config_list }}"
   vars:
     ansible_command_timeout: 5000
     ansible_connect_timeout: 5000
   when:
-    - MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
+    - data_model_extended.vxlan.topology.interfaces.modes.all.count > 0
     - interface_config_list | length > 0
