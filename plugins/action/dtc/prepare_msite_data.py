@@ -142,7 +142,9 @@ class ActionModule(ActionBase):
                         fabric_switches.append(
                             {
                                 'hostname': fabric_switch['logicalName'],
-                                'mgmt_ip_address': fabric_switch['ipAddress']
+                                'mgmt_ip_address': fabric_switch['ipAddress'],
+                                'fabric_name': fabric_switch['fabricName'],
+                                'serial_number': fabric_switch['serialNumber'],
                             }
                         )
 

@@ -84,7 +84,6 @@
   when:
     - data_model_extended.vxlan.overlay.vrfs is defined
     - data_model_extended.vxlan.overlay.vrfs
-    - change_flags.changes_detected_vrfs
     - vrf_config_list | length > 0
     - not is_active_child_fabric
   block:
@@ -94,6 +93,8 @@
         state: replaced
         config: "{{ vrf_config_list }}"
       register: manage_vrf_result
+      when:
+        - change_flags.changes_detected_vrfs
 
     # --------------------------------------------------------------------
     # Manage Loopback VRF attachments in Nexus Dashboard

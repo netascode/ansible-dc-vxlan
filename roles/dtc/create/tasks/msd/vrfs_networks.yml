@@ -131,7 +131,6 @@
     - data_model_extended.vxlan.multisite.overlay.vrfs is defined
     - data_model_extended.vxlan.multisite.overlay.vrfs
     - vars_common_msd.vrf_config | length > 0
-    - change_flags_msd.changes_detected_vrfs
   block:
     - name: Manage MSD Fabric VRFs in Nexus Dashboard
       cisco.dcnm.dcnm_vrf:
@@ -139,6 +138,8 @@
         state: replaced
         config: "{{ vars_common_msd.vrf_config }}"
       register: manage_msd_vrf_result
+      when:
+        - change_flags_msd.changes_detected_vrfs
 
     # --------------------------------------------------------------------
     # Manage Loopback VRF Attachments in Nexus Dashboard

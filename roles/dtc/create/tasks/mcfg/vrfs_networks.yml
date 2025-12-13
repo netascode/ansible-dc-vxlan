@@ -112,21 +112,15 @@
 # With the VRFs and Networking pre-processed, we can now send the configuration for the MCFG fabric to ND
 # based on the detected changes. This is done in the following tasks.
 
-- ansible.builtin.debug:
-    var: mcfg_vrf_attach_config
-
-- ansible.builtin.pause:
-
 # --------------------------------------------------------------------
 # Manage VRF Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
 
-- name: Manage MSD Fabric VRFs and Loopback Attachments in Nexus Dashboard
+- name: Manage MCFG Fabric VRFs and Loopback Attachments in Nexus Dashboard
   when:
     - data_model_extended.vxlan.multisite.overlay.vrfs is defined
     - data_model_extended.vxlan.multisite.overlay.vrfs
     - vars_common_mcfg.vrf_config | length > 0
-    - change_flags_msd.changes_detected_vrfs
   block:
     - name: Manage MCFG Fabric VRFs in Nexus Dashboard
       cisco.dcnm.dcnm_vrf:
@@ -134,6 +128,8 @@
         state: replaced
         config: "{{ vars_common_mcfg.vrf_config }}"
       register: manage_mcfg_vrf_result
+      when:
+        - change_flags_mcfg.changes_detected_vrfs
 
     # --------------------------------------------------------------------
     # Manage Loopback VRF Attachments in Nexus Dashboard
@@ -141,7 +137,7 @@
 
     - name: Manage MCFG Fabric VRF Loopback Attachments in Nexus Dashboard
       cisco.dcnm.dcnm_rest:
-        path: "onemanage/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
+        path: "/onemanage/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
         method: POST
         json_data: "{{ mcfg_vrf_attach_config | to_json }}"
       when:
