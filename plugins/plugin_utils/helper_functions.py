@@ -198,6 +198,7 @@ def ndfc_get_fabric_attributes(self, task_vars, tmp, fabric):
 
     return fabric_attributes
 
+
 def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
     """
     Get NDFC fabric switches.
