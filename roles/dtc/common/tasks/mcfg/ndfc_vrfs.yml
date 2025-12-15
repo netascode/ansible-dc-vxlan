@@ -93,6 +93,11 @@
     - file_diff_result.file_data_changed
     - check_roles['save_previous']
 
+- name: Create Empty mcfg_vrf_attach_config Var
+  ansible.builtin.set_fact:
+    mcfg_vrf_attach_config: []
+  delegate_to: localhost
+
 - name: Build VRF Loopback Attachments Data File and Var
   when: (data_model_extended.vxlan.multisite.overlay.vrfs | default([])) | length > 0
   block:
@@ -106,11 +111,6 @@
         src: "{{ role_path }}/../common/templates/ndfc_vrfs/mcfg_fabric/mcfg_fabric_attach_vrfs_loopbacks.j2"
         dest: "{{ path_name }}{{ file_name }}"
         mode: '0644'
-      delegate_to: localhost
-
-    - name: Create Empty mcfg_vrf_attach_config Var
-      ansible.builtin.set_fact:
-        mcfg_vrf_attach_config: []
       delegate_to: localhost
 
     - name: Set mcfg_vrf_attach_config Var
