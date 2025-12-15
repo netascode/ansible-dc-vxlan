@@ -137,7 +137,7 @@
 
     - name: Manage MCFG Fabric VRF Loopback Attachments in Nexus Dashboard
       cisco.dcnm.dcnm_rest:
-        path: "/onemanage/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
+        path: "/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
         method: POST
         json_data: "{{ mcfg_vrf_attach_config | to_json }}"
       when:
