@@ -121,7 +121,7 @@ class ActionModule(ActionBase):
                 )
 
                 proxy = ''
-                if version_compare(nd_major_minor_patch, '3.2.3', '<='):
+                if version_compare(nd_major_minor_patch, '3.2.2', '<='):
                     proxy = f'/onepath/{fabric_cluster}'
                 elif version_compare(nd_major_minor_patch, '4.1.1', '>='):
                     proxy = f'/fedproxy/{fabric_cluster}'
