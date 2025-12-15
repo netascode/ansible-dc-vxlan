@@ -123,36 +123,38 @@
 # based on the detected changes. This is done in the following tasks.
 
 # --------------------------------------------------------------------
-# Manage VRF Configuration on NDFC
+# Manage VRF Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
 
-- name: Manage MSD Fabric VRFs in Nexus Dashboard
-  cisco.dcnm.dcnm_vrf:
-    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_msd.vrf_config }}"
-  register: manage_msd_vrf_result
+- name: Manage MSD Fabric VRFs and Loopback Attachments in Nexus Dashboard
   when:
     - data_model_extended.vxlan.multisite.overlay.vrfs is defined
     - data_model_extended.vxlan.multisite.overlay.vrfs
-    - change_flags_msd.changes_detected_vrfs
+    - vars_common_msd.vrf_config | length > 0
+  block:
+    - name: Manage MSD Fabric VRFs in Nexus Dashboard
+      cisco.dcnm.dcnm_vrf:
+        fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+        state: replaced
+        config: "{{ vars_common_msd.vrf_config }}"
+      register: manage_msd_vrf_result
+      when:
+        - change_flags_msd.changes_detected_vrfs
+
+    # --------------------------------------------------------------------
+    # Manage Loopback VRF Attachments in Nexus Dashboard
+    # --------------------------------------------------------------------
+
+    - name: Manage MSD Fabric VRF Loopback Attachments in Nexus Dashboard
+      cisco.dcnm.dcnm_rest:
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
+        method: POST
+        json_data: "{{ msd_vrf_attach_config | to_json }}"
+      when:
+        - msd_vrf_attach_config | length > 0
 
 # --------------------------------------------------------------------
-# Manage Loopback VRF attachments on NDFC (MSD)
-# --------------------------------------------------------------------
-
-- name: Manage MSD Fabric VRF Loopback Attachments in Nexus Dashboard
-  cisco.dcnm.dcnm_rest:
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
-    method: POST
-    json_data: "{{ vrf_attach_config | to_json }}"
-  when:
-    - data_model_extended.vxlan.multisite.overlay.vrfs is defined
-    - data_model_extended.vxlan.multisite.overlay.vrfs
-    - change_flags_msd.changes_detected_vrfs
-
-# --------------------------------------------------------------------
-# Manage Network Configuration on NDFC
+# Manage Network Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
 - name: Manage MSD Fabric Networks in Nexus Dashboard
   cisco.dcnm.dcnm_network:
@@ -163,4 +165,5 @@
   when:
     - data_model_extended.vxlan.multisite.overlay.networks is defined
     - data_model_extended.vxlan.multisite.overlay.networks
+    - vars_common_msd.net_config | length > 0
     - change_flags_msd.changes_detected_networks

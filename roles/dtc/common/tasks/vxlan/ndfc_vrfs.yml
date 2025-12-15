@@ -96,12 +96,12 @@
 
 - name: Set file_name Var for loopback attachments
   ansible.builtin.set_fact:
-    file_name: "attach_vrfs_loopbacks.yml"
+    file_name: attach_vrfs_loopbacks.yml
   delegate_to: localhost
 
 - name: Build VRFs Attach List From Template for loopback
   ansible.builtin.template:
-    src: ndfc_vrfs/ndfc_attach_vrfs_loopbacks.j2
+    src: ndfc_vrfs/dc_vxlan_fabric/dc_vxlan_fabric_attach_vrfs_loopbacks.j2
     dest: "{{ path_name }}{{ file_name }}"
     mode: '0644'
   delegate_to: localhost

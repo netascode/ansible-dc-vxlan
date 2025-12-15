@@ -121,7 +121,7 @@ class ActionModule(ActionBase):
                 )
 
                 proxy = ''
-                if version_compare(nd_major_minor_patch, '3.2.1', '<='):
+                if version_compare(nd_major_minor_patch, '3.2.2', '<='):
                     proxy = f'/onepath/{fabric_cluster}'
                 elif version_compare(nd_major_minor_patch, '4.1.1', '>='):
                     proxy = f'/fedproxy/{fabric_cluster}'
@@ -142,7 +142,9 @@ class ActionModule(ActionBase):
                         fabric_switches.append(
                             {
                                 'hostname': fabric_switch['logicalName'],
-                                'mgmt_ip_address': fabric_switch['ipAddress']
+                                'mgmt_ip_address': fabric_switch['ipAddress'],
+                                'fabric_name': fabric_switch['fabricName'],
+                                'serial_number': fabric_switch['serialNumber'],
                             }
                         )
 
