@@ -135,6 +135,7 @@ When using the same service account for NDFC controller access (`ND_USERNAME`) a
 **Reference Documentation:**
 - [NDFC Overview and Initial Setup - Server Settings 3.2](https://www.cisco.com/c/en/us/td/docs/dcn/ndfc/1222/articles/ndfc-overview-initial-setup-lan/overview-and-initial-setup-of-ndfc-lan.html#_server_settings)
 - [NDFC Overview and Initial Setup - Server Settings 4.1](https://www.cisco.com/c/en/us/td/docs/dcn/nd/4x/articles-411/working-with-system-settings.html#_fabric_management)
+- [NDFC Managing your device credentials](https://www.cisco.com/c/en/us/td/docs/dcn/nd/4x/articles-411/managing-your-device-credentials.html)
 
 ## Example
 
