@@ -16,8 +16,8 @@ authors:
   - Vladimir Joshevski <vjoshevs>
   - Slawomir Kaszlikowski <skaszlik>
   - Michal Kilar <mkilar>
-  - Matt Thurston <mthurston>
-  - Peter Lewis <pelewis2>
+  - Matt Thurston <mthurstocisco>
+  - Peter Lewis <peter8498>
 description: Ansible Solution Collection for VXLAN
 
 repository: https://github.com/netascode/ansible-dc-vxlan
