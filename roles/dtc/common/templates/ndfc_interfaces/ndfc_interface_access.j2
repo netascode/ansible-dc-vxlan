@@ -19,14 +19,14 @@
 {% endif %}
   deploy: false
   profile:
-    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enabled) | lower}}
+    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enabled) | lower }}
     mode: 'access'
     description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.description) }}"
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.speed) }}
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.spanning_tree_portfast) | lower }}
     access_vlan: {{ interface['access_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.access_vlan) }}
-    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_bpdu_guard) | lower}}
+    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_bpdu_guard) | lower }}
     duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.duplex) }}
 {% if interface['orphan_port'] | default(false) %}
     orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.orphan_port) | lower }}
