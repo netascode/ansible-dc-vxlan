@@ -7,7 +7,7 @@
 {% if switch.interfaces is defined %}
 {% for interface in switch['interfaces'] %}
 {% if interface['mode'] == 'routed_po' %}
-- name : {{ interface['name'] }}
+- name: {{ interface['name'] }}
   type: pc
   switch:
 {% if switch.management.management_ipv4_address is defined %}
@@ -17,7 +17,7 @@
 {% endif %}
   deploy: false
   profile:
-    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.enabled) }}
+    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.enabled) | lower }}
     mode: 'l3'
 {% if interface['ipv4_address'] is defined %}
 {% set ipv4_address__mask = interface['ipv4_address'].split('/') %}
