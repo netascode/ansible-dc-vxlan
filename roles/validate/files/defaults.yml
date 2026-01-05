@@ -486,6 +486,22 @@ factory_defaults:
       bgw_ip_tag: 54321
       ipv4_vtep_loopback_range: 10.10.0.0/24
       ipv6_vtep_loopback_range: fd00::a10:0/120
+      overlay_dci:
+        deployment_method: Direct_To_BGWS
+        route_server:
+          redistribute_direct: false
+          ip_tag: 54321
+        ipv4_dci_subnet_range: 10.10.1.0/24
+        ipv4_dci_subnet_mask: 30
+        ipv6_dci_subnet_range: fd00::a11:0/120
+        ipv6_dci_subnet_mask: 126
+        underlay_autoconfig: true
+        enable_bgp_send_community: false
+        enable_bgp_log_neighbor_change: false
+        enable_bgp_bfd: false
+        delay_restore: 300
+        enable_ebgp_password: false
+        enable_trm: false
       overlay:
         vrfs:
           vrf_description: "Configured by Ansible NetAsCode"
@@ -503,6 +519,7 @@ factory_defaults:
           no_rp: false
           rp_external: false
           redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
+          ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
           trm_enable: false
           trm_bgw_msite: false
         networks:
@@ -516,22 +533,6 @@ factory_defaults:
           route_target_both: false
           route_tag: 12345
           trm_enable: false
-      overlay_dci:
-        deployment_method: Direct_To_BGWS
-        route_server:
-          redistribute_direct: false
-          ip_tag: 54321
-        ipv4_dci_subnet_range: 10.10.1.0/24
-        ipv4_dci_subnet_mask: 30
-        ipv6_dci_subnet_range: fd00::a11:0/120
-        ipv6_dci_subnet_mask: 126
-        underlay_autoconfig: true
-        enable_bgp_send_community: false
-        enable_bgp_log_neighbor_change: false
-        enable_bgp_bfd: false
-        delay_restore: 300
-        enable_ebgp_password: false
-        enable_trm: false
       isn:
         auth_proto: MD5
         sub_int_range: 2-511

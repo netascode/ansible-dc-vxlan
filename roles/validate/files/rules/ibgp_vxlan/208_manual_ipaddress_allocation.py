@@ -64,7 +64,9 @@ class Rule:
             vtep_loopback_name = f"loopback{underlay_vtep_loopback_id}"
             vtep_loopback_found = cls.check_interface_with_ipv4(interfaces, vtep_loopback_name)
 
-            if not vtep_loopback_found:
+            switch_role = switch.get("role", "").lower()
+
+            if not vtep_loopback_found and switch_role != "spine":
                 cls.results.append(
                     f"Switch '{switch_name}' is missing a configured interface '{vtep_loopback_name}' with an IPv4 address."
                 )

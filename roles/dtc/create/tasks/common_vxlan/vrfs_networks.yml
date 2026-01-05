@@ -76,33 +76,37 @@
   when:
     - run_map_read_result.diff_run is true|bool
 
-- name: Manage Fabric VRFs in Nexus Dashboard
-  cisco.dcnm.dcnm_vrf:
-    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vrf_config_list }}"
-  register: manage_vrf_result
+# --------------------------------------------------------------------
+# Manage VRF Configuration in Nexus Dashboard
+# --------------------------------------------------------------------
+
+- name: Manage MSD Fabric VRFs and Loopback Attachments in Nexus Dashboard
   when:
     - data_model_extended.vxlan.overlay.vrfs is defined
     - data_model_extended.vxlan.overlay.vrfs
-    - change_flags.changes_detected_vrfs
     - vrf_config_list | length > 0
     - not is_active_child_fabric
+  block:
+    - name: Manage Fabric VRFs in Nexus Dashboard
+      cisco.dcnm.dcnm_vrf:
+        fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+        state: replaced
+        config: "{{ vrf_config_list }}"
+      register: manage_vrf_result
+      when:
+        - change_flags.changes_detected_vrfs
 
-# --------------------------------------------------------------------
-# Manage Loopback VRF attachments in Nexus Dashboard
-# --------------------------------------------------------------------
-- name: Attach Loopbacks to VRFs in Nexus Dashboard
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
-    json_data: "{{ vars_common_local.vrf_attach_config | to_json }}"
-  when:
-    - data_model_extended.vxlan.overlay.vrfs is defined
-    - data_model_extended.vxlan.overlay.vrfs
-    - change_flags.changes_detected_vrfs
-    - not is_active_child_fabric
+    # --------------------------------------------------------------------
+    # Manage Loopback VRF Attachments in Nexus Dashboard
+    # --------------------------------------------------------------------
 
+    - name: Attach Loopbacks to VRFs in Nexus Dashboard
+      cisco.dcnm.dcnm_rest:
+        method: POST
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
+        json_data: "{{ vars_common_local.vrf_attach_config | to_json }}"
+      when:
+        - vars_common_local.vrf_attach_config | length > 0
 
 # --------------------------------------------------------------------
 # Manage Network Configuration in Nexus Dashboard

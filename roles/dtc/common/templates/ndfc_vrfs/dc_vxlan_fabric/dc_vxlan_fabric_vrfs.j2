@@ -11,6 +11,7 @@
 {# ------------------------------------------------------ #}
   vrf_id: {{ vrf['vrf_id'] | default(omit) }}
   vlan_id: {{ vrf['vlan_id'] | default(omit) }}
+  l3vni_wo_vlan: {{ vrf['enable_l3_vni_no_vlan'] | default(defaults.vxlan.global[simplified_fabric_type].enable_l3_vni_no_vlan) }}
   vrf_vlan_name: {{ vrf['vrf_vlan_name'] | default(omit) }}
   vrf_intf_desc: {{ vrf['vrf_intf_desc'] | default(defaults.vxlan.overlay.vrfs.vrf_intf_desc) }}
   vrf_description: {{ vrf['vrf_description'] | default(defaults.vxlan.overlay.vrfs.vrf_description) }}
@@ -32,7 +33,6 @@
   import_mvpn_rt: {{ vrf['import_mvpn_rt'] | default(omit) }}
   import_vpn_rt: {{ vrf['import_vpn_rt'] | default(omit) }}
   netflow_enable: {{ vrf['netflow_enable'] | default(defaults.vxlan.overlay.vrfs.netflow_enable) }}
-  l3vni_wo_vlan: {{ vrf['enable_l3_vni_no_vlan'] | default(defaults.vxlan.global[simplified_fabric_type].enable_l3_vni_no_vlan) }}
 {% if vrf['netflow_enable'] is defined and vrf['netflow_enable'] | bool %}
   nf_monitor: {{ vrf['netflow_monitor'] }}
 {% endif %}
