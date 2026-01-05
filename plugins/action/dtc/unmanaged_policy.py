@@ -75,6 +75,10 @@ class ActionModule(ActionBase):
                 dm_management_ipv4_address = dm_switch_found["management"].get("management_ipv4_address", None)
                 dm_management_ipv6_address = dm_switch_found["management"].get("management_ipv6_address", None)
 
+            # Skip this switch if no management ip address is found in the data model that matches the serial number from NDFC
+            if not dm_management_ipv4_address and not dm_management_ipv6_address:
+                continue
+
             # Check if the name matching either the IPv4 or IPv6 mgmt address is found in the policy switches data model
             # If found, grab the specific entry from the policy switches data model and store
             # This stores the current switches policy group list

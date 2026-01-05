@@ -90,15 +90,15 @@ class ActionModule(ActionBase):
 
         elif parent_fabric_type == 'MCFG':
             # Returns list of child fabrics associated with MCFG parent fabric with their respect fabric settings and attributes
-            path = f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{parent_fabric}/members"
+            path = f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{parent_fabric}"
             multisite_fabric_associations = self._get_child_fabrics_membership(path)
 
             # Build a list of child fabrics that are associated with the parent fabric (MCFG)
             associated_child_fabrics = []
-            for fabric in multisite_fabric_associations.get('response').get('DATA'):
+            for fabric in multisite_fabric_associations.get('response').get('DATA').get('members'):
                 associated_child_fabrics.append(
                     {
-                        'name': list(fabric['fabrics'].keys())[0],
+                        'name': fabric['fabricName'],
                         'cluster': fabric['clusterName'],
                     }
                 )
