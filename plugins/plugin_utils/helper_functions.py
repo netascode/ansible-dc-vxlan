@@ -231,7 +231,9 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
             fabric_switches.append(
                 {
                     'hostname': fabric_switch['logicalName'],
-                    'mgmt_ip_address': fabric_switch['ipAddress']
+                    'mgmt_ip_address': fabric_switch['ipAddress'],
+                    'fabric_name': fabric_switch['fabricName'],
+                    'serial_number': fabric_switch['serialNumber'],
                 }
             )
 
