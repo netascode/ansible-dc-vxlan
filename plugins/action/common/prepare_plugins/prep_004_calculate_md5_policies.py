@@ -43,6 +43,38 @@ class PreparePlugin:
                     with open(abs_path, 'r', encoding='utf-8') as file:
                         data = file.read()
 
+                    # Calculate MD5 checksum and update model_extended
+
+                    # Golden
+                    #   {
+                    #     "filename": "./data/bgp_peer_template_isn.yaml",
+                    #     "name": "bgp_peer_template_ISN-UNDERLAY",
+                    #     "template_name": "bgp_peer_template"
+                    # },
+
+                    # Extended
+                    #   {
+                    #     "filename": "./data/bgp_peer_template_isn.yaml",
+                    #     "md5": "22089bea6f290f2082968a93658f564d",
+                    #     "name": "bgp_peer_template_ISN-UNDERLAY",
+                    #     "template_name": "bgp_peer_template"
+                    #   },
+
+                    # Detection during validation will compare between extended and previous_extended
+                    # --- before
+                    # +++ after
+                    # @@ -420,7 +420,7 @@
+                    #                     },
+                    #                     {
+                    #                         "filename": "./data/bgp_peer_template_isn.yaml",
+                    # -                        "md5": "22089bea6f290f2082968a93658f564d",
+                    # +                        "md5": "d76a6d60168f0d59449045c68bd3454d",
+                    #                         "name": "bgp_peer_template_ISN-UNDERLAY",
+                    #                         "template_name": "bgp_peer_template"
+                    #                     },
+
+                    # Task: Mark All Stages Completed When No Model Changes Detected will be skipped
+
                     md5 = hashlib.md5(data.encode()).hexdigest()
                     policy.update({'md5': md5})
 
