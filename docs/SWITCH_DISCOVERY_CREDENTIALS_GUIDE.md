@@ -85,7 +85,7 @@ ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') 
 ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
 ```
 
-Configure switches to use discovery credentials for ongoing monitoring, set the `discovery_new_user: true` flag in your switch configuration within the `topology_switches.nac.yaml` file:
+Configure switches to use discovery credentials, set the `discovery_creds: true` flag in your switch configuration within the `topology_switches.nac.yaml` file:
 
 ```yaml
 vxlan:
@@ -100,7 +100,7 @@ vxlan:
           subnet_mask_ipv4: 24
         poap:
           bootstrap: false
-          discovery_new_user: true  # Use discovery credentials for ongoing polling
+          discovery_creds: true  # Use discovery credentials for ongoing polling
           preprovision:
             serial_number: FDO12345678
             model: N9K-C93180YC-EX
@@ -137,7 +137,92 @@ When using the same service account for ND controller access (`ND_USERNAME`) and
 - [ND Overview and Initial Setup - Server Settings 4.1](https://www.cisco.com/c/en/us/td/docs/dcn/nd/4x/articles-411/working-with-system-settings.html#_fabric_management)
 - [ND Managing your device credentials](https://www.cisco.com/c/en/us/td/docs/dcn/nd/4x/articles-411/managing-your-device-credentials.html)
 
-## Example
+## Examples
+
+Additionally, we can configure directly discovery credential per switch using key discover_username and discover_password.
+
+**Not recommended in production with plain text**
+
+```
+vxlan:
+  topology:
+    switches:
+      - name: netascode-leaf-01
+        role: leaf
+        serial_number: FDO12345678
+        management:
+          default_gateway_v4: 10.10.10.1
+          management_ipv4_address: 10.10.10.101
+          subnet_mask_ipv4: 24
+        poap:
+          bootstrap: false
+          discovery_creds: true  # Enable discovery credentials
+          discovery_usename: svc_account
+          discvoery_password: cisco1234
+          preprovision:
+            serial_number: FDO12345678
+            model: N9K-C93180YC-EX
+            version: 10.4(2)
+            modulesModel: [N9K-X9364v]
+```
+
+**Using Ansible Vault**
+
+```
+vxlan:
+  topology:
+    switches:
+      - name: netascode-leaf-01
+        role: leaf
+        serial_number: FDO12345678
+        management:
+          default_gateway_v4: 10.10.10.1
+          management_ipv4_address: 10.10.10.101
+          subnet_mask_ipv4: 24
+        poap:
+          bootstrap: false
+          discovery_creds: true  # Enable discovery credentials
+          discovery_usename: svc_account
+          discovery_password: !vault |
+              $ANSIBLE_VAULT;1.1;AES256
+              63386330333766383135353230346633373936613261373334306666336436303435336338363335
+              3361376436336134363865633864313033643439633964350a623536396165303431316366336135
+              61363233343334376231663937313234306538323766326538313332626238663338386534633038
+              6333326263363565620a636334303336616361646535393332306465616535616536353933396564
+              6231
+          preprovision:
+            serial_number: FDO12345678
+            model: N9K-C93180YC-EX
+            version: 10.4(2)
+            modulesModel: [N9K-X9364v]
+```
+
+**Using environment variables starting by `env_var_`**
+
+```
+vxlan:
+  topology:
+    switches:
+      - name: netascode-leaf-01
+        role: leaf
+        serial_number: FDO12345678
+        management:
+          default_gateway_v4: 10.10.10.1
+          management_ipv4_address: 10.10.10.101
+          subnet_mask_ipv4: 24
+        poap:
+          bootstrap: false
+          discovery_creds: true  # Enable discovery credentials
+          discovery_usename: svc_account
+          discovery_password: env_var_netascode-leaf-01_password
+          preprovision:
+            serial_number: FDO12345678
+            model: N9K-C93180YC-EX
+            version: 10.4(2)
+            modulesModel: [N9K-X9364v]
+```
+
+**Using global common environment in the group_vars**
 
 ```yaml
 # When using same service account for ND and discovery
@@ -165,7 +250,7 @@ vxlan:
           subnet_mask_ipv4: 24
         poap:
           bootstrap: false
-          discovery_new_user: true  # Enable discovery credentials
+          discovery_creds: true  # Enable discovery credentials
           preprovision:
             serial_number: FDO12345678
             model: N9K-C93180YC-EX

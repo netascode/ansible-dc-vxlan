@@ -27,7 +27,7 @@
       hostname: {{ switch['name'] }}
       model: {{ pdata['model'] }}
       version: {{ pdata['version'] }}
-{% if switch['poap'].discovery_new_user is defined and switch['poap'].discovery_new_user %}
+{% if switch['poap'].discovery_creds is defined and switch['poap'].discovery_creds %}
       discovery_username: PLACE_HOLDER_USERNAME
       discovery_password: PLACE_HOLDER_PASSWORD
 {% endif %}
@@ -47,7 +47,7 @@
     - preprovision_serial: {{ switch['poap']['preprovision']['serial_number'] }}
       model: {{  switch['poap']['preprovision']['model'] }}
       version: {{ switch['poap']['preprovision']['version']  }}
-{% if switch['poap'].discovery_new_user is defined and switch['poap'].discovery_new_user %}
+{% if switch['poap'].discovery_creds is defined and switch['poap'].discovery_creds %}
       discovery_username: PLACE_HOLDER_USERNAME
       discovery_password: PLACE_HOLDER_PASSWORD
 {% endif %}

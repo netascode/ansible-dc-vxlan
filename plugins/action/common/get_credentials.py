@@ -71,6 +71,20 @@ class ActionModule(ActionBase):
                 else:
                     return None
 
+    def _get_discovery_switch_credentials_from_datamodel(self, data_model, management_ipv4_address):
+
+        data_model_switches = data_model['vxlan']['topology']['switches']
+
+        for switch in data_model_switches:
+            if switch['management']['management_ipv4_address'] == management_ipv4_address:
+                if switch.get('poap') and switch['poap'].get('discovery_creds', False):
+                    username = switch['poap'].get('discovery_username', '')
+                    password = switch['poap'].get('discovery_password', '')
+                    if username and password:
+                        return username, password
+                    else:
+                        return None
+
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['retrieve_failed'] = False
@@ -79,14 +93,18 @@ class ActionModule(ActionBase):
 
         key_username = 'ndfc_switch_username'
         key_password = 'ndfc_switch_password'
-        key_discovery_username = 'ndfc_switch_discovery_username'
-        key_discovery_password = 'ndfc_switch_discovery_password'
 
         ndfc_host_name = task_vars['inventory_hostname']
         username = task_vars['hostvars'][ndfc_host_name].get(key_username, '')
         password = task_vars['hostvars'][ndfc_host_name].get(key_password, '')
-        discovery_username = task_vars['hostvars'][ndfc_host_name].get(key_discovery_username, '')
-        discovery_password = task_vars['hostvars'][ndfc_host_name].get(key_discovery_password, '')
+
+        # Discovery credential keys (global, similar to ndfc_switch_username/password)
+        key_discovery_username = 'ndfc_switch_discovery_username'
+        key_discovery_password = 'ndfc_switch_discovery_password'
+
+        # Try to get discovery credentials from group_vars (direct key)
+        global_discovery_username = task_vars['hostvars'][ndfc_host_name].get(key_discovery_username, '')
+        global_discovery_password = task_vars['hostvars'][ndfc_host_name].get(key_discovery_password, '')
 
         # Fail if username and password are not set
         if username == '' or password == '':
@@ -133,28 +151,45 @@ class ActionModule(ActionBase):
                 new_device['password'] = password
                 display.vvv(f"No individual credentials found in model data for device {device_ip}. Using group_vars credentials.")
 
-            # Handle discovery credentials if applicable
-            if 'poap' in new_device and new_device['poap']:
-                discovery_user = new_device['poap'][0].get('discovery_username')
-                discovery_pass = new_device['poap'][0].get('discovery_password')
+            # Discovery credential logic for POAP
+            # poap:
+            #   discovery_creds: true
+            #   discovery_username: <username>
+            #   discovery_password: <password>
+            if new_device.get('poap') and new_device['poap'][0].get('discovery_username'):
+                discovery_creds = self._get_discovery_switch_credentials_from_datamodel(data_model, device_ip)
 
-                # Check for placeholder values indicating new credentials are needed for discovery
-                is_placeholder = (
-                    discovery_user == 'PLACE_HOLDER_USERNAME' or
-                    discovery_pass == 'PLACE_HOLDER_PASSWORD'
-                )
-                if is_placeholder:
-                    # Use group_vars discovery credentials
-                    if discovery_username == '' or discovery_password == '':
-                        display.warning(
-                            f"No discovery credentials found for new user in group_vars for device {device_ip}. "
-                            f"Skipping discovery credentials assignment and fallback to default behavior."
-                        )
-                        new_device['poap'][0].pop('discovery_username', None)
-                        new_device['poap'][0].pop('discovery_password', None)
-                    else:
-                        new_device['poap'][0]['discovery_username'] = discovery_username
-                        new_device['poap'][0]['discovery_password'] = discovery_password
+                # Discovery credentials means discovery_username and discovery_password is set and discovery_creds is true
+                if discovery_creds:
+                    poap_discovery_username, poap_discovery_password = discovery_creds
+
+                    # Handle env_var_ prefix for switch-specific username
+                    if poap_discovery_username.startswith('env_var_'):
+                        env_var_name = poap_discovery_username
+                        poap_discovery_username = self._get_credentials_from_env(env_var_name)
+                        if poap_discovery_username == 'not_set':
+                            display.vv(f"Environment variable '{env_var_name}' not found for device {device_ip}. Using group_vars username.")
+                            poap_discovery_username = global_discovery_username
+
+                    # Handle env_var_ prefix for switch-specific password
+                    if poap_discovery_password.startswith('env_var_'):
+                        env_var_name = poap_discovery_password
+                        poap_discovery_password = self._get_credentials_from_env(env_var_name)
+                        if poap_discovery_password == 'not_set':
+                            display.vv(f"Environment variable '{env_var_name}' not found for device {device_ip}. Using group_vars password.")
+                            poap_discovery_password = global_discovery_password
+
+                    if poap_discovery_username == '' or poap_discovery_password == '':
+                        results['msg'] = (f"Individual discovery credentials incomplete for device {device_ip}. Using group_vars discovery credentials.")
+                        return results
+
+                    new_device['poap'][0]['discovery_username'] = poap_discovery_username
+                    new_device['poap'][0]['discovery_password'] = poap_discovery_password
+                    display.vvv(f"Using individual discovery credentials from model data for device {device_ip}")
+                else:
+                    new_device['poap'][0]['discovery_username'] = global_discovery_username
+                    new_device['poap'][0]['discovery_password'] = global_discovery_password
+                    display.vvv(f"Using individual discovery credentials from model data for device {device_ip}")
 
         results['updated_inv_list'] = updated_inv_list
         return results
