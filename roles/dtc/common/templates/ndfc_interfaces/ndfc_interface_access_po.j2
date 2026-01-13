@@ -26,7 +26,7 @@
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.speed) }}
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.spanning_tree_portfast) }}
-    pc_mode: {{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.pc_mode) }}
+    pc_mode: "{{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.pc_mode) }}"
     members: {{ interface['members'] | default(omit) }}
     access_vlan: {{ interface['access_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_bpdu_guard) }}

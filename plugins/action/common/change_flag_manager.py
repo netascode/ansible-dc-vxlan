@@ -138,6 +138,8 @@ class ChangeDetectionManager:
         if self.fabric_type == "MCFG":
             self.changes_detected_flags[self.fabric_name][self.fabric_type] = {
                 'changes_detected_fabric': False,
+                'changes_detected_vrfs': False,
+                'changes_detected_networks': False,
                 'changes_detected_any': False
             }
         if self.fabric_type == "External":

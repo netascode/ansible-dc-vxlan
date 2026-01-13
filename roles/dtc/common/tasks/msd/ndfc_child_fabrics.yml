@@ -32,4 +32,4 @@
     child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
   when:
     - data_model_extended.vxlan.multisite.child_fabrics is defined
-  register: data_model_multisite_child_fabrics
+  register: data_model_msd_child_fabrics
