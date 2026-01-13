@@ -79,6 +79,15 @@
 {% if attach['ports'] is defined %}
       ports: {{ attach['ports'] }}
 {% endif %}
+{% if 'tors' in attach and attach['tors'] %}
+      tor_ports:
+{% for tor in attach['tors'] %}
+        - ip_address: {{ tor['mgmt_ip_address'] | default(tor['hostname']) }}
+{% if tor['ports'] is defined %}
+          ports: {{ tor['ports'] }}
+{% endif %}
+{% endfor %}
+{% endif %}
 {% endfor %}
   deploy: false
 {% endif %}
