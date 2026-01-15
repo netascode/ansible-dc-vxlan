@@ -49,13 +49,6 @@
       ansible.builtin.set_fact:
         is_active_child_fabric: "{{ true if selected_fabric[0]['fabricParent'] != 'None' else false }}"
 
-- name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
-  ansible.builtin.fail:
-    msg: Networks cannot be managed from the current fabric {{  data_model_extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
-  when:
-    - is_active_child_fabric
-    - vars_common_local.net_config | length > 0
-
 - name: Unmanaged Fabric Networks Removal Status Message
   ansible.builtin.debug:
     msg: "Removing Unmanaged Fabric Networks. This could take several minutes..."
