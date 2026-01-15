@@ -156,10 +156,11 @@ class ActionModule(ActionBase):
             #   discovery_creds: true
             #   discovery_username: <username>
             #   discovery_password: <password>
+            # Enter here if discovery creds are desired
             if new_device.get('poap') and new_device['poap'][0].get('discovery_username'):
                 discovery_creds = self._get_discovery_switch_credentials_from_datamodel(data_model, device_ip)
 
-                # Discovery credentials means discovery_username and discovery_password is set and discovery_creds is true
+                # Discovery credentials means discovery_username and discovery_password is set individually
                 if discovery_creds:
                     poap_discovery_username, poap_discovery_password = discovery_creds
 
@@ -186,10 +187,18 @@ class ActionModule(ActionBase):
                     new_device['poap'][0]['discovery_username'] = poap_discovery_username
                     new_device['poap'][0]['discovery_password'] = poap_discovery_password
                     display.vvv(f"Using individual discovery credentials from model data for device {device_ip}")
+                # No individual discovery creds, use global ones
                 else:
+                    # If global discovery creds are not set, fail
+                    if global_discovery_username == '' or global_discovery_password == '':
+                        display.vvv(f"Discovery credentials incomplete for device {device_ip}. Ensure global discovery credentials are set.")
+                        results['retrieve_failed'] = True
+                        results['failed'] = True
+                        results['msg'] = (f"Discovery credentials incomplete for device {device_ip}. Ensure global discovery credentials are set.")
+                        return results
                     new_device['poap'][0]['discovery_username'] = global_discovery_username
                     new_device['poap'][0]['discovery_password'] = global_discovery_password
-                    display.vvv(f"Using individual discovery credentials from model data for device {device_ip}")
+                    display.vvv(f"Using group_vars discovery credentials from model data for device {device_ip}")
 
         results['updated_inv_list'] = updated_inv_list
         return results
