@@ -1,0 +1,41 @@
+# This NDFC VRF loopback config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+[
+{% for vrf in data_model_extended.vxlan.overlay.vrfs %}
+{% if vrf['vrf_attach_group'] is defined %}
+{% if runtime_msd_data_model.overlay_attach_groups.vrf_attach_groups_dict[vrf['vrf_attach_group']] is defined %}
+  {
+    "vrfName": "{{ vrf["name"] }}",
+    "lanAttachList":
+    [
+{% for attach in runtime_msd_data_model.overlay_attach_groups.vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
+{% if attach.loopback_id is defined and attach.loopback_id %}
+      {
+        "vrfName": "{{ vrf["name"] }}",
+{% for switch in runtime_msd_data_model.switches %}
+{% if switch["hostname"] == attach["hostname"] %}
+        "fabric": "{{ switch["fabric_name"] }}",
+        "serialNumber": "{{ switch["serial_number"] }}",
+{% endif %}
+{% endfor %}
+        "freeformConfig": "{{ attach['freeform_config'] | default('') | replace('\n', '\\n') | replace('"', '\\"') }}",
+        "extensionValues": "",
+{% if vrf["vlan_id"] is defined  %}
+        "vlan": "{{ vrf["vlan_id"] }}",
+{% endif %}
+        "deployment": true,
+        "instanceValues": "{\"loopbackId\": \"{{ attach['loopback_id'] | default('')}}\", \"loopbackIpAddress\": \"{{ attach['loopback_ipv4'] | default('') }}\", \"loopbackIpV6Address\":\"{{ attach['loopback_ipv6'] | default('') }}\"}"
+      }{% if not loop.last %},{% endif %}
+{# Empty space needed to prettify and correctly represent the comma in a list continuation #}
+
+{% endif %}
+{% endfor %}
+    ]
+  }{% if not loop.last %},{% endif %}
+{# Empty space needed to prettify and correctly represent the comma in a list continuation #}
+
+{% endif %}
+{% endif %}
+{% endfor %}
+]

@@ -46,11 +46,26 @@
   register: smd_golden_current
   delegate_to: localhost
 
+# Read current extended service model data into a variable called 'data_model_extended_current'
+- name: Read Current Extended Service Model Data from Host
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/files/{{ data_model_extended.vxlan.fabric.name }}_service_model_extended.json"
+  register: data_model_extended_current
+  delegate_to: localhost
+
 - name: Display Model File Changes
   ansible.utils.fact_diff:
     before: "{{ smd_golden_previous }}"
     after: "{{ smd_golden_current }}"
   register: smd_golden_diff
+  when: check_roles['save_previous']
+  delegate_to: localhost
+
+- name: Display Extended Service Model File Changes
+  ansible.utils.fact_diff:
+    before: "{{ data_model_extended_previous }}"
+    after: "{{ data_model_extended_current }}"
+  register: data_model_extended_diff
   when: check_roles['save_previous']
   delegate_to: localhost
 
@@ -62,6 +77,8 @@
     - check_roles['save_previous']
     - smd_golden_diff.diff_lines | length == 0
     - smd_golden_diff.diff_text | length == 0
+    - data_model_extended_diff.diff_lines | length == 0
+    - data_model_extended_diff.diff_text | length == 0
     - run_map_read_result.diff_run is true
     - force_run_all is false|bool
   delegate_to: localhost
@@ -79,6 +96,8 @@
     - check_roles['save_previous']
     - smd_golden_diff.diff_lines | length == 0
     - smd_golden_diff.diff_text | length == 0
+    - data_model_extended_diff.diff_lines | length == 0
+    - data_model_extended_diff.diff_text | length == 0
     - run_map_read_result.diff_run is true|bool
     - force_run_all is false|bool
   delegate_to: localhost
