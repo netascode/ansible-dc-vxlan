@@ -35,9 +35,9 @@
   dhcp_loopback_id: {{ net['dhcp_loopback_id'] | default(omit) }}
 {% if net.dhcp_servers is defined and net.dhcp_servers %}
   dhcp_servers:
-{% for dhcp_server in net.dhcp_servers %}
-    - srvr_ip: {{ dhcp_server['ip_address'] }}
-      srvr_vrf: {{ dhcp_server['vrf'] }}
+{% for dhcp_srvr in net.dhcp_servers %}
+    - srvr_ip: {{ dhcp_srvr['ip_address'] }}
+      srvr_vrf: {{ dhcp_srvr['vrf'] }}
 {% endfor %}
 {% endif %}
   gw_ipv6_subnet: {{ net['gw_ipv6_address'] | default(omit) }}
