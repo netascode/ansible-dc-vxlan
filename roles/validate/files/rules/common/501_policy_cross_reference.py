@@ -1,3 +1,6 @@
+import os
+
+
 class Rule:
     id = "501"
     description = "Verify policy cross reference between policies, groups, and switches"
@@ -16,6 +19,14 @@ class Rule:
                     policies = data_model["vxlan"]["policy"]["policies"]
                     for policy in policies:
                         filename = policy.get("filename", None)
+
+                        # Test if filename exists
+                        if filename:
+                            if not os.path.exists(os.path.expanduser(filename)):
+                                results.append(
+                                    f"Filename {filename} does not exist in policy: {policy.get('name')} "
+                                )
+                                break
 
                         if ((filename and policy.get("template_name", None) and policy.get("template_vars", None)) or
                                 (filename and policy.get("template_vars", None))):
