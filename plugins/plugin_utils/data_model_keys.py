@@ -142,7 +142,7 @@ model_keys['External']['policy.switches'] = [root_key, 'policy', 'switches', 'LI
 
 # ---
 model_keys['MSD']['multisite'] = [root_key, 'multisite', 'KEY']
-model_keys['MSD']['multisite.child_fabrics'] = [root_key, 'multisite', 'child_fabrics', 'KEY']
+model_keys['MSD']['multisite.child_fabrics'] = [root_key, 'multisite', 'child_fabrics', 'LIST']
 model_keys['MSD']['multisite.overlay'] = [root_key, 'multisite', 'overlay', 'KEY']
 model_keys['MSD']['multisite.overlay.vrfs'] = [root_key, 'multisite', 'overlay', 'vrfs', 'LIST']
 model_keys['MSD']['multisite.overlay.vrf_attach_groups'] = [root_key, 'multisite', 'overlay', 'vrf_attach_groups', 'LIST']
@@ -155,7 +155,7 @@ model_keys['MSD']['multisite.overlay.network_attach_groups.switches'] = [root_ke
 
 # ---
 model_keys['MCFG']['multisite'] = [root_key, 'multisite', 'KEY']
-model_keys['MCFG']['multisite.child_fabrics'] = [root_key, 'multisite', 'child_fabrics', 'KEY']
+model_keys['MCFG']['multisite.child_fabrics'] = [root_key, 'multisite', 'child_fabrics', 'LIST']
 model_keys['MCFG']['multisite.overlay'] = [root_key, 'multisite', 'overlay', 'KEY']
 model_keys['MCFG']['multisite.overlay.vrfs'] = [root_key, 'multisite', 'overlay', 'vrfs', 'LIST']
 model_keys['MCFG']['multisite.overlay.vrf_attach_groups'] = [root_key, 'multisite', 'overlay', 'vrf_attach_groups', 'LIST']
