@@ -22,7 +22,7 @@
 
 - name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_local }}"
+    vars_common_local: "{{ vars_common_vxlan }}"
   when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
 
 - name: Set vars_common Based On Fabric Type - eBGP_VXLAN

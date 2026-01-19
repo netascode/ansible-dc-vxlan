@@ -21,33 +21,15 @@
 
 ---
 
-- name: Build NDFC Multisite Child Fabric Data Message
+- name: Build Multisite Child Fabric Data for Nexus Dashboard
   ansible.builtin.debug:
-    msg: "Building NDFC MSD Child Fabric Data"
-
-# Notes on items that still need support for MSD
-#
-# - Fabric Settings for MSD (Need Customer Requirements Here)
-# - Fabric Settings for ISN (Need Customer Requirements Here)
-# - Enable Interface Management under ISN workflow
-# - Enable Policy Management under ISN/MSD worflows
-# - Verify addition of multiple ISN Fabrics/Devies
-#    (Test Two ISN Fabrics with two ISN devices - Full Mesh)
-#    (Configure interfaces between the ISN devices)
-#    (What policy should be applied between the ISN devices)
-# - Verify support of VRF / Network properties at MSD level
-# - Enable support of VRF / Netowrk properties at Child level under MSD fabric
-# - Verify Order of Operations
-#    - Create VXLAN / ISN Fabrics then MSD Fabric + Association
-#    - Create MSD Fabric then VXLAN / ISN Fabrics + Association
-#    - VRF / Network problem when child fabrics moved under MSD but MSD level VRF/Net model data is empty
-#      (Result is all VRF/Networks are removed after they get moved under MSD - can be controlled with flag)
+    msg: "Building MSD Child Fabric Data"
 
 - name: Prepare Multisite Add and Remove Child Fabric Data
   cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data:
-    data_model: "{{ data_model_extended }}"
     parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
   when:
     - data_model_extended.vxlan.multisite.child_fabrics is defined
-  register: data_model_multisite_child_fabrics
+  register: data_model_msd_child_fabrics
