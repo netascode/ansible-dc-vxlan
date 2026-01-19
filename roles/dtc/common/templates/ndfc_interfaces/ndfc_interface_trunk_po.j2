@@ -26,8 +26,8 @@
     description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.description) }}"
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.speed) }}
-    port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_portfast) | lower }}
-    pc_mode: {{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.pc_mode) }}
+    port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_portfast) }}
+    pc_mode: "{{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.pc_mode) }}"
     members: {{ interface['members'] | default(omit) }}
     bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard) | lower }}
     allowed_vlans: "{{ convert_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
