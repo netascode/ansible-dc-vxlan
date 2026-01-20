@@ -69,7 +69,7 @@
 {#      trmv6_enable: {{ child_fabric['trmv6_enable'] | default(omit) }} #}
       l3gw_on_border: {{ child_fabric['l3gw_on_border'] | default(omit) }}
       netflow_enable: {{ child_fabric['netflow_enable'] | default(omit) }}
-{% if child_fabric['netflow_enable'] is defined and child_fabric['netflow_enable'] | bool %}
+{% if child_fabric['netflow_enable'] is defined and child_fabric['netflow_enable'] | ansible.builtin.bool %}
       vlan_nf_monitor: {{ child_fabric['vlan_netflow_monitor'] | default(omit) }}
 {% endif %}
 {% endfor %}
