@@ -46,6 +46,7 @@
   ansible.builtin.import_tasks: mcfg/child_fabrics.yml
   when:
     - data_model_extended.vxlan.multisite.child_fabrics is defined and data_model_extended.vxlan.multisite.child_fabrics | length > 0
+  tags: "{{ nac_tags.create_fabric }}"
 
 - name: Config-Save Block to Propagate Child Fabrics MCFG Fabric in Nexus Dashboard
   block:
@@ -57,6 +58,7 @@
         - data_model_extended.vxlan.multisite.child_fabrics | length > 0
       register: config_save
       # TODO: Need to add logic to only save if changes to the child fabrics were made
+  tags: "{{ nac_tags.create_fabric }}"
 
   rescue:
     - name: Config-Save for MCFG Fabric in Nexus Dashboard - Failed
