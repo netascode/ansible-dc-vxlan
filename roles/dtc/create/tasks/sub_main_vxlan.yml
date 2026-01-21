@@ -82,7 +82,7 @@
   when:
     - vars_common_vxlan.tor_pairing is defined
     - vars_common_vxlan.tor_pairing | length > 0
-    - vars_common_vxlan.changes_detected_tor_pairing
+    - change_flags.changes_detected_tor_pairing
   tags: "{{ nac_tags.create_tor_pairing }}"
 
 - name: Manage iBGP VXLAN Fabric Interfaces in Nexus Dashboard
