@@ -1,0 +1,125 @@
+---
+- name: Set file_name Var
+  ansible.builtin.set_fact:
+    file_name: "ndfc_tor_pairing.yml"
+    # changes_detected_tor_pairing: false
+  delegate_to: localhost
+
+- name: Stat previous tor pairing file if it exists
+  ansible.builtin.stat:
+    path: "{{ path_name }}{{ file_name }}"
+  register: tor_pairing_previous
+  delegate_to: localhost
+
+- name: Backup previous tor pairing file if it exists
+  ansible.builtin.copy:
+    src: "{{ path_name }}{{ file_name }}"
+    dest: "{{ path_name }}{{ file_name }}.old"
+    mode: preserve
+  when: tor_pairing_previous.stat.exists
+  delegate_to: localhost
+
+- name: Build ToR pairing payloads
+  ansible.builtin.template:
+    src: ndfc_tor_pairing.j2
+    dest: "{{ path_name }}{{ file_name }}"
+    mode: '0644'
+  delegate_to: localhost
+
+- name: Initialize ToR pairing facts
+  ansible.builtin.set_fact:
+    tor_pairing: []
+    tor_pairing_removed: []
+    tor_pairing_previous_list: []
+    tor_pairing_current_list: []
+    leaf_switches_for_query: >-
+      {{ data_model_extended.vxlan.topology.switches
+         | selectattr('role', 'equalto', 'leaf')
+         | list }}
+  delegate_to: localhost
+
+- name: Load previous ToR pairing payloads
+  ansible.builtin.set_fact:
+    tor_pairing_previous_list: "{{ lookup('file', path_name + file_name + '.old') | from_yaml | default([], true) }}"
+  delegate_to: localhost
+  when: tor_pairing_previous.stat.exists
+
+- name: Query NDFC and process ToR pairing discovery
+  when:
+    - not tor_pairing_previous.stat.exists
+    - leaf_switches_for_query is defined
+    - leaf_switches_for_query | length > 0
+  block:
+    - name: Discover existing TOR pairings from NDFC
+      cisco.nac_dc_vxlan.dtc.process_tor_pairing:
+        operation: discovery
+        fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+        leaf_serial_number: "{{ leaf_switches_for_query[0].serial_number }}"
+      register: tor_discovery_result
+
+    - name: Store discovered pairings
+      ansible.builtin.set_fact:
+        ndfc_discovered_pairings: "{{ tor_discovery_result.discovered_pairings }}"
+        tor_pairing_previous_list: "{{ tor_discovery_result.discovered_pairings }}"
+      delegate_to: localhost
+      when:
+        - tor_discovery_result.discovered_pairings is defined
+        - tor_discovery_result.discovered_pairings | length > 0
+
+- name: Cache NDFC discovered pairings for future reference
+  ansible.builtin.copy:
+    content: "{{ ndfc_discovered_pairings | to_nice_yaml }}"
+    dest: "{{ path_name }}ndfc_tor_pairing_discovered.yml"
+    mode: '0644'
+  delegate_to: localhost
+  when:
+    - not tor_pairing_previous.stat.exists
+    - tor_discovery_result is defined
+    - not (tor_discovery_result.failed | default(false))
+    - ndfc_discovered_pairings is defined
+    - ndfc_discovered_pairings | length > 0
+
+- name: Load ToR pairing payloads
+  ansible.builtin.set_fact:
+    tor_pairing_current_list: "{{ _current_payloads }}"
+    tor_pairing: "{{ _current_payloads }}"
+  vars:
+    _current_payloads: "{{ lookup('file', path_name + file_name) | from_yaml | default([], true) }}"
+  delegate_to: localhost
+  when: (lookup('file', path_name + file_name) | length) > 0
+
+- name: Compute ToR pairing diff and extract removals
+  cisco.nac_dc_vxlan.dtc.process_tor_pairing:
+    operation: diff
+    current_pairings: "{{ tor_pairing_current_list }}"
+    previous_pairings: "{{ tor_pairing_previous_list }}"
+  register: tor_pairing_diff_result
+  delegate_to: localhost
+
+- name: Extract removed pairings from diff result
+  ansible.builtin.set_fact:
+    tor_pairing_removed: "{{ tor_pairing_diff_result.removed | default([]) }}"
+  delegate_to: localhost
+  when:
+    - tor_pairing_diff_result is defined
+    - tor_pairing_diff_result.removed is defined
+
+- name: Update flags when change detected
+  when: >
+    (tor_pairing_diff_result.added | default([]) | length > 0) or
+    (tor_pairing_diff_result.removed | default([]) | length > 0)
+  block:
+    - name: Set local change flag
+      ansible.builtin.set_fact:
+        changes_detected_tor_pairing: true
+      delegate_to: localhost
+
+    - name: Update change flag Manager
+      cisco.nac_dc_vxlan.common.change_flag_manager:
+        fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+        fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+        role_path: "{{ common_role_path }}"
+        operation: update
+        change_flag: changes_detected_tor_pairing
+        flag_value: true
+      delegate_to: localhost

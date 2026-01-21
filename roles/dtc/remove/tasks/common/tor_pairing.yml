@@ -1,0 +1,22 @@
+---
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Set vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
+
+- name: Remove TOR pairings from NDFC
+  cisco.nac_dc_vxlan.dtc.process_tor_pairing:
+    operation: remove
+    tor_pairing_removed: "{{ vars_common_local.tor_pairing_removed | default([], true) }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    execute_api: true
+  register: tor_remove_result
+  when:
+    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+    - vars_common_local.changes_detected_tor_pairing | default(false)
+    - vars_common_local.tor_pairing_removed | default([]) | length > 0
