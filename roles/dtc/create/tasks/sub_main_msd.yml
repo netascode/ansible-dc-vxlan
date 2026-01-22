@@ -50,6 +50,7 @@
   tags: "{{ nac_tags.create_fabric }}"
 
 - name: Config-Save Block to Propagate Child Fabrics MSD Fabric in Nexus Dashboard
+  tags: "{{ nac_tags.create_fabric }}"
   block:
     - name: Config-Save for MSD Fabric in Nexus Dashboard
       cisco.dcnm.dcnm_rest:
@@ -58,8 +59,6 @@
       when:
         - data_model_extended.vxlan.multisite.child_fabrics | length > 0
       register: config_save
-      # TODO: Need to add logic to only save if changes to the child fabrics were made
-  tags: "{{ nac_tags.create_fabric }}"
 
   rescue:
     - name: Config-Save for MSD Fabric in Nexus Dashboard - Failed
