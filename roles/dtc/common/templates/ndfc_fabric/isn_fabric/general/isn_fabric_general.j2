@@ -1,4 +1,8 @@
 {# Auto-generated NDFC ISN General config data structure for fabric {{ vxlan.fabric.name }} #}
   BGP_AS: "{{ vxlan.multisite.isn.bgp_asn }}"
+{% if not (vxlan.multisite.isn.bootstrap.enable_bootstrap | default(defaults.vxlan.multisite.isn.bootstrap.enable_bootstrap) | ansible.builtin.bool) %}
   IS_READ_ONLY: false
+{% else %}
+  IS_READ_ONLY: ""
+{% endif %}
 {# #}

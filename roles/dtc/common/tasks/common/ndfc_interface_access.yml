@@ -21,11 +21,6 @@
 
 ---
 
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_interface_access: false
-  delegate_to: localhost
-
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_interface_access.yml"
@@ -41,6 +36,7 @@
   ansible.builtin.copy:
     src: "{{ path_name }}{{ file_name }}"
     dest: "{{ path_name }}{{ file_name }}.old"
+    mode: preserve
   when: data_file_previous.stat.exists
 
 - name: Delete Previous Data File If It Exists
@@ -54,6 +50,7 @@
   ansible.builtin.template:
     src: ndfc_interfaces/ndfc_interface_access.j2
     dest: "{{ path_name }}{{ file_name }}"
+    mode: '0644'
   delegate_to: localhost
 
 - name: Set interface_access Var
@@ -64,7 +61,7 @@
 - name: Set interface_access Var
   ansible.builtin.set_fact:
     interface_access: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.access.count > 0
+  when: data_model_extended.vxlan.topology.interfaces.modes.access.count > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
@@ -75,8 +72,13 @@
   delegate_to: localhost
 
 - name: Set File Change Flag Based on File Diff Result
-  ansible.builtin.set_fact:
-    changes_detected_interface_access: true
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: update
+    change_flag: changes_detected_interface_access
+    flag_value: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

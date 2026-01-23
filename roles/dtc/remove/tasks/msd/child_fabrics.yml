@@ -21,24 +21,28 @@
 
 ---
 
-- ansible.builtin.debug: msg="Removing Unmanaged Child Fabrics. This could take several minutes..."
+- name: Display Removing Unmanaged Child Fabrics Message
+  ansible.builtin.debug:
+    msg: "Removing Unmanaged Child Fabrics. This could take several minutes..."
   when:
-    - MD_Extended.vxlan.multisite.child_fabrics is defined
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
     - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
 
-- name: Remove Unmanaged Child Fabrics from NDFC
+- name: Remove Unmanaged Child Fabrics in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
-    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    child_fabrics: "{{ MD_Multisite_Child_Fabrics.to_be_removed }}"
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    child_fabrics: "{{ data_model_msd_child_fabrics.to_be_removed }}"
     state: absent
   when:
-    - MD_Multisite_Child_Fabrics.to_be_removed is defined
-    - MD_Multisite_Child_Fabrics.to_be_removed
+    - data_model_msd_child_fabrics.to_be_removed is defined
+    - data_model_msd_child_fabrics.to_be_removed
     - (multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool)
 
-- ansible.builtin.debug:
+- name: Skip Remove Unmanaged Child Fabrics Task If multisite_child_fabric_delete_mode is False
+  ansible.builtin.debug:
     msg:
-      - "---------------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Child Fabrics task because multisite_child_fabric_delete_mode flag is set to False           +"
-      - "---------------------------------------------------------------------------------------------------------------"
+      - "----------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Child Fabrics task because multisite_child_fabric_delete_mode flag is set to False +"
+      - "----------------------------------------------------------------------------------------------------------------"
   when: not ((multisite_child_fabric_delete_mode is defined) and (multisite_child_fabric_delete_mode is true|bool))

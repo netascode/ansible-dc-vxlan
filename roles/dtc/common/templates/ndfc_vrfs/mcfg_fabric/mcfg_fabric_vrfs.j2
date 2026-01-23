@@ -1,0 +1,80 @@
+{# Auto-generated NDFC MCFG VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
+{% if data_model_extended.vxlan.multisite.overlay.vrfs is defined and data_model_extended.vxlan.multisite.overlay.vrfs %}
+{% set vrfs = data_model_extended.vxlan.multisite.overlay.vrfs %}
+{# This else block may not be needed after the prepare plugin work #}
+{% else %}
+{% set vrfs = [] %}
+{% endif %}
+{% for vrf in vrfs %}
+- vrf_name: {{ vrf['name'] }}
+{# ------------------------------------------------------ #}
+{# Properties Section #}
+{# ------------------------------------------------------ #}
+  vrf_id: {{ vrf['vrf_id'] | default(omit) }}
+  vlan_id: {{ vrf['vlan_id'] | default(omit) }}
+  vrf_vlan_name: {{ vrf['vrf_vlan_name'] | default(omit) }}
+  vrf_intf_desc: {{ vrf['vrf_intf_desc'] | default(defaults.vxlan.multisite.overlay.vrfs.vrf_intf_desc) }}
+  vrf_description: {{ vrf['vrf_description'] | default(defaults.vxlan.multisite.overlay.vrfs.vrf_description) }}
+  vrf_int_mtu: {{ vrf['vrf_int_mtu'] | default(defaults.vxlan.multisite.overlay.vrfs.vrf_int_mtu) }}
+  loopback_route_tag: {{ vrf['loopback_route_tag'] | default(defaults.vxlan.multisite.overlay.vrfs.loopback_route_tag) }}
+  max_bgp_paths: {{ vrf['max_bgp_paths'] | default(defaults.vxlan.multisite.overlay.vrfs.max_bgp_paths) }}
+  max_ibgp_paths: {{ vrf['max_ibgp_paths'] | default(defaults.vxlan.multisite.overlay.vrfs.max_ibgp_paths) }}
+  ipv6_linklocal_enable: {{ vrf['ipv6_linklocal_enable'] | default(defaults.vxlan.multisite.overlay.vrfs.ipv6_linklocal_enable) }}
+  disable_rt_auto: {{ vrf['disable_rt_auto'] | default(defaults.vxlan.multisite.overlay.vrfs.disable_rt_auto) }}
+  export_evpn_rt: {{ vrf['export_evpn_rt'] | default(omit) }}
+  export_vpn_rt: {{ vrf['export_vpn_rt'] | default(omit) }}
+  import_evpn_rt: {{ vrf['import_evpn_rt'] | default(omit) }}
+  import_vpn_rt: {{ vrf['import_vpn_rt'] | default(omit) }}
+  redist_direct_rmap: {{ vrf['redist_direct_routemap'] | default(defaults.vxlan.multisite.overlay.vrfs.redist_direct_routemap) }}
+{% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) %}
+  v6_redist_direct_rmap: {{ vrf['ipv6_redist_direct_routemap'] | default(defaults.vxlan.multisite.overlay.vrfs.ipv6_redist_direct_routemap) }}
+{% endif %}
+{% if vrf.child_fabrics is defined and vrf.child_fabrics %}
+{% set child_fabrics = vrf.child_fabrics %}
+  child_fabric_config:
+{% for child_fabric in child_fabrics %}
+    - fabric: {{ child_fabric['name'] | default(omit) }}
+      l3vni_wo_vlan: {{ child_fabric['enable_l3_vni_no_vlan'] | default(omit) }}
+      adv_host_routes: {{ child_fabric['adv_host_routes'] | default(omit) }}
+      adv_default_routes: {{ child_fabric['adv_default_routes'] | default(omit) }}
+      static_default_route: {{ child_fabric['static_default_route'] | default(omit) }}
+      bgp_password: {{ child_fabric['bgp_password'] | default(omit) }}
+      bgp_passwd_encrypt: {{ child_fabric['bgp_password_encryption_type'] | default(omit) }}
+      import_mvpn_rt: {{ child_fabric['import_mvpn_rt'] | default(omit) }}
+      export_mvpn_rt: {{ child_fabric['export_mvpn_rt'] | default(omit) }}
+      netflow_enable: {{ child_fabric['netflow_enable'] | default(omit) }}
+{% if child_fabric['netflow_enable'] is defined and child_fabric['netflow_enable'] | bool %}
+      nf_monitor: {{ child_fabric['netflow_monitor'] | default(omit) }}
+{% endif %}
+      no_rp: {{ child_fabric['no_rp'] | default(omit) }}
+      trm_enable: {{ child_fabric['trm_enable'] | default(omit) }}
+{% if child_fabric['trm_enable'] is defined and child_fabric['trm_enable'] | bool %}
+      overlay_mcast_group: {{ child_fabric['overlay_multicast_group'] | default(omit) }}
+      rp_address: {{ child_fabric['rp_address'] | default(omit) }}
+      rp_external: {{ child_fabric['rp_external'] | default(omit) }}
+      rp_loopback_id: {{ child_fabric['rp_loopback_id'] | default(omit) }}
+      trm_bgw_msite: {{ child_fabric['trm_bgw_msite'] | default(omit) }}
+{# Staging trmv6 attributes for later usage after low-level collection adds support. #}
+{#      trmv6_enable: {{ child_fabric['trmv6_enable'] | default(omit) }} #}
+{#      trmv6_no_rp: {{ child_fabric['trmv6_no_rp'] | default(omit) }} #}
+{#      trmv6_overlay_mcast_group: {{ child_fabric['trmv6_overlay_multicast_group'] | default(omit) }} #}
+{#      trmv6_rp_address: {{ child_fabric['trmv6_rp_address'] | default(omit) }} #}
+{#      trmv6_rp_external: {{ child_fabric['trmv6_rp_external'] | default(omit) }} #}
+      underlay_mcast_ip: {{ child_fabric['underlay_mcast_ip'] | default(omit) }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{# ------------------------------------------------------ #}
+{# Attach Group Section #}
+{# ------------------------------------------------------ #}
+{% if vrf['vrf_attach_group'] is defined %}
+  attach:
+{% if runtime_mcfg_data_model.overlay_attach_groups.vrf_attach_groups_dict is defined and runtime_mcfg_data_model.overlay_attach_groups.vrf_attach_groups_dict %}
+{% set vrf_attach_groups_dict = runtime_mcfg_data_model.overlay_attach_groups.vrf_attach_groups_dict %}
+{% endif %}
+{% for attach in vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
+    - ip_address: {{ attach['mgmt_ip_address'] }}
+{% endfor %}
+{% endif %}
+  deploy: false
+{% endfor %}

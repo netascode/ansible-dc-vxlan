@@ -2,17 +2,27 @@
 # This NDFC fabric config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% set vxlan = MD_Extended.vxlan %}
+{% set vxlan = data_model_extended.vxlan %}
 
 {% if vxlan.fabric.type == 'VXLAN_EVPN' %}
 
-{# Include NDFC DC VXLAN EVPN Base Template #}
+{# Include NDFC iBGP VXLAN EVPN Base Template #}
 {% include '/ndfc_fabric/dc_vxlan_fabric/dc_vxlan_fabric_base.j2' %}
+
+{% elif vxlan.fabric.type == 'eBGP_VXLAN'%}
+
+{# Include NDFC eBGP VXLAN EVPN Base Template #}
+{% include '/ndfc_fabric/ebgp_vxlan_fabric/ebgp_vxlan_fabric_base.j2' %}
 
 {% elif vxlan.fabric.type == 'MSD'%}
 
 {# Include NDFC MSD Base Template #}
 {% include '/ndfc_fabric/msd_fabric/msd_fabric_base.j2' %}
+
+{% elif vxlan.fabric.type == 'MCFG'%}
+
+{# Include NDFC MCFG Base Template #}
+{% include '/ndfc_fabric/mcfg_fabric/mcfg_fabric_base.j2' %}
 
 {% elif vxlan.fabric.type == 'ISN'%}
 
@@ -24,5 +34,5 @@
 {# Include NDFC External Fabric Base Template #}
 {% include '/ndfc_fabric/dc_external_fabric/dc_external_fabric_base.j2' %}
 
-{# Supported fabric types are: DC VXLAN EVPN, MSD, ISN, External #}
+{# Supported fabric types are: VXLAN_EVPN (iBGP), eBGP_VXLAN, MSD, MCFG, ISN, and External #}
 {% endif %}

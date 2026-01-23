@@ -1,13 +1,15 @@
 plugins/action/common/check_roles.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/nac_dc_validate.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_001_fabric.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_002_list_defaults.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_103_topology_switches.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_104_fabric_overlay.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_105_topology_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_106_topology_vpc_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_107_vrf_lites.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/common/prepare_plugins/prep_108_route_control.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_002_global.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_003_list_defaults.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_004_calculate_md5_policies.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_104_topology_switches.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_105_fabric_overlay.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_106_topology_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_107_topology_vpc_interfaces.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_108_vrf_lites.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/prepare_plugins/prep_109_route_control.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_118_topology_edge_connections.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_plugins/prep_999_verify.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/common/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
@@ -19,8 +21,7 @@ plugins/action/dtc/add_device_check.py action-plugin-docs # action plugin has no
 plugins/action/dtc/manage_child_fabrics.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/prepare_msite_child_fabrics_data.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/prepare_msite_data.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/dtc/manage_child_fabric_vrfs.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/dtc/manage_child_fabric_networks.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/fabric_check_sync.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/fabrics_config_save.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/fabrics_deploy.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/vpc_pair_check.py action-plugin-docs # action plugin has no matching module to provide documentation
@@ -28,12 +29,9 @@ plugins/action/dtc/verify_tags.py action-plugin-docs # action plugin has no matc
 plugins/action/dtc/diff_model_changes.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/update_switch_hostname_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/links_filter_and_remove.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/dtc/unmanaged_child_fabric_vrfs.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/dtc/unmanaged_child_fabric_networks.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/unmanaged_policy.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/unmanaged_edge_connections.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/get_poap_data.py action-plugin-docs # action plugin has no matching module to provide documentation
-plugins/action/dtc/map_msd_inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/existing_links_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtd/prepare_service_model.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/test/inventory.py action-plugin-docs # action plugin has no matching module to provide documentation
@@ -41,5 +39,9 @@ plugins/action/common/nac_dc_validate.py import-3.10!skip
 plugins/action/test/inventory.py import-3.10!skip
 plugins/action/common/run_map.py import-3.10!skip
 plugins/action/common/read_run_map.py import-3.10!skip
+plugins/action/common/change_flag_manager.py import-3.10!skip
 plugins/action/dtc/diff_model_changes.py import-3.10!skip
 plugins/filter/version_compare.py import-3.10!skip
+plugins/action/dtc/diff_compare.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/dtc/fabric_deploy_manager.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/change_flag_manager.py action-plugin-docs # action plugin has no matching module to provide documentation

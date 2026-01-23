@@ -21,138 +21,66 @@
 
 ---
 
-- name: Choose vars_common Based On Fabric Type
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Set vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
+
+- name: Set vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
-  when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
+  when: data_model_extended.vxlan.fabric.type == "MSD"
+
+- name: Set vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
-  when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
+  when: data_model_extended.vxlan.fabric.type == "ISN"
+
+- name: Set vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
-  when: MD_Extended.vxlan.fabric.type == "External"
+  when: data_model_extended.vxlan.fabric.type == "External"
 
 - name: Manage Fabric Interfaces Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric Interfaces {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric Interfaces {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
 # --------------------------------------------------------------------
-# Manage Interface Trunk Configuration on NDFC
+# Manage Interface All Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
+#
+# This section manages all of the interfaces based on the diff_run setting.
+#
+# When the diff_run feature is active we only manage the difference between
+# the previous run and the current run, otherwise we manage all interfaces
+# defined in the data model.
 
-- name: Manage Interface Trunk
+- name: Initialize Interface Config List to All Interfaces
+  ansible.builtin.set_fact:
+    interface_config_list: "{{ vars_common_local.interface_all_create }}"
+
+- name: Override Interface Config List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    interface_config_list: "{{ vars_common_local.interface_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+
+- name: Manage Interface All in Nexus Dashboard
   cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: replaced
-    config: "{{ vars_common_local.interface_trunk }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.trunk.count > 0
-
-# --------------------------------------------------------------------
-# Manage Interface Access Configuration on NDFC
-# --------------------------------------------------------------------
-
-- name: Manage Interface Access
-  cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_local.interface_access }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.access.count > 0
-
-# --------------------------------------------------------------------
-# Manage Interface Access Port-Channel Configuration on NDFC
-# --------------------------------------------------------------------
-
-- name: Manage Access Port-Channel Interface
-  cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_local.interface_access_po }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.access_po.count > 0
-
-# --------------------------------------------------------------------
-# Manage Interface Trunk Port-Channel Configuration on NDFC
-# --------------------------------------------------------------------
-
-- name: Manage Trunk Port-Channel Interface
-  cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_local.interface_trunk_po }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.trunk_po.count > 0
-
-# --------------------------------------------------------------------
-# Manage Interface Routed Configuration on NDFC
-# --------------------------------------------------------------------
-
-- name: Manage Interface Routed
-  cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_local.interface_routed }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.routed.count > 0
-
-# --------------------------------------------------------------------
-# Manage Sub-Interface Routed Configuration on NDFC
-# --------------------------------------------------------------------
-
-- name: Manage Sub-Interface Routed
-  cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_local.sub_interface_routed }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.routed_sub.count > 0
-
-# --------------------------------------------------------------------
-# Manage Interface Port-Channel Routed Configuration on NDFC
-# --------------------------------------------------------------------
-
-- name: Manage Interface Port-Channel Routed
-  cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_local.interface_po_routed }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.routed_po.count > 0
-
-# --------------------------------------------------------------------
-# Manage Interface Loopback Configuration on NDFC
-# --------------------------------------------------------------------
-
-- name: Manage Interface Loopback
-  cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_local.int_loopback_config }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.loopback.count > 0
-
-# --------------------------------------------------------------------
-# Manage Interface vPC Configuration on NDFC
-# --------------------------------------------------------------------
-
-- name: Manage Interface vPC
-  cisco.dcnm.dcnm_interface:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_local.interface_vpc }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.access_vpc.count > 0 or MD_Extended.vxlan.topology.interfaces.modes.trunk_vpc.count > 0
-
-## Will discuss with team and switchover to the below code and remove the above code
-# # --------------------------------------------------------------------
-# # Manage Interface All Configuration on NDFC
-# # --------------------------------------------------------------------
-
-# - name: Manage Interface All
-#   cisco.dcnm.dcnm_interface:
-#     fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-#     state: replaced
-#     config: "{{ vars_common_local.interface_all }}"
-#   vars:
-#       ansible_command_timeout: 3000
-#       ansible_connect_timeout: 3000
-#   when: MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
-#   delegate_to: localhost
+    config: "{{ interface_config_list }}"
+  vars:
+    ansible_command_timeout: 5000
+    ansible_connect_timeout: 5000
+  when:
+    - data_model_extended.vxlan.topology.interfaces.modes.all.count > 0
+    - interface_config_list | length > 0

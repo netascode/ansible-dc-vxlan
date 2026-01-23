@@ -1,6 +1,7 @@
 requests
-iac-validate==0.2.6
-iac-test==0.2.6
+nac-yaml==1.0.0
+nac-validate==1.0.0
 macaddress
 netaddr
-packaging==24.1
+packaging
+jmespath

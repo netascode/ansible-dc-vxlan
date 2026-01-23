@@ -21,17 +21,19 @@
 
 ---
 
-- name: Manage Child Fabrics Entry Point
+- name: Manage MSD Child Fabrics Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }} Child Fabrics"
       - "----------------------------------------------------------------"
 
-- name: Add Child Fabrics To Fabric - {{ MD_Extended.vxlan.fabric.name }}
+- name: Add Child Fabrics To MSD Fabric in Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.manage_child_fabrics:
-    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    child_fabrics: "{{ MD_Multisite_Child_Fabrics.to_be_added }}"
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    child_fabrics: "{{ data_model_msd_child_fabrics.to_be_added }}"
     state: present
   when:
-    - MD_Multisite_Child_Fabrics.to_be_added is defined and MD_Multisite_Child_Fabrics.to_be_added | length > 0
+    - data_model_msd_child_fabrics.to_be_added is defined
+    - data_model_msd_child_fabrics.to_be_added | length > 0

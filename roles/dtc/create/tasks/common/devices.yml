@@ -25,8 +25,8 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Devices Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Devices Fabric {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Manage Devices Discovery
+- name: Manage Devices Discovery in Nexus Dashboard
   ansible.builtin.import_tasks: devices_discovery.yml

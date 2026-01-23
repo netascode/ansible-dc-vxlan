@@ -40,7 +40,7 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         existing_links = self._task.args['existing_links']
         fabric_links = self._task.args['fabric_links']
-
+        switch_list = self._task.args['switch_data_model']
         required_links = []
         links_to_be_removed = []
         filtered_existing_links = []
@@ -48,18 +48,27 @@ class ActionModule(ActionBase):
             # Cannot assume the existing_link has the 'templateName' key so use get for safety
             if existing_link.get('templateName') == "int_pre_provision_intra_fabric_link" or existing_link.get('templateName') == "int_intra_fabric_num_link":
                 filtered_existing_links.append(existing_link)
-                for link in fabric_links:
-                    if ('sw1-info' in existing_link and 'sw2-info' in existing_link and
-                        'sw-sys-name' in existing_link['sw1-info'] and 'sw-sys-name' in existing_link['sw2-info'] and
-                        (existing_link['sw1-info']['sw-sys-name'] == link['src_device'] and
-                         existing_link['sw1-info']['if-name'] == link['src_interface'] and
-                         existing_link['sw2-info']['sw-sys-name'] == link['dst_device'] and
-                         existing_link['sw2-info']['if-name'] == link['dst_interface']) or
-                        (existing_link['sw1-info']['sw-sys-name'] == link['dst_device'] and
-                         existing_link['sw1-info']['if-name'] == link['dst_interface'] and
-                         existing_link['sw2-info']['sw-sys-name'] == link['src_device'] and
-                         existing_link['sw2-info']['if-name'] == link['src_interface'])):
-                        required_links.append(existing_link)
+                if (
+                    'sw1-info' in existing_link and
+                    'sw2-info' in existing_link and
+                    'sw-sys-name' in existing_link['sw1-info'] and
+                    'sw-sys-name' in existing_link['sw2-info']
+                ):
+                    for switch in switch_list:
+                        if existing_link['sw1-info']['sw-sys-name'].lower() == switch['name'].lower():
+                            existing_link['sw1-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
+                        if existing_link['sw2-info']['sw-sys-name'].lower() == switch['name'].lower():
+                            existing_link['sw2-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
+                    for link in fabric_links:
+                        if ((existing_link['sw1-info']['sw-sys-name'].lower() == link['src_device'].lower() and
+                             existing_link['sw1-info']['if-name'].lower() == link['src_interface'].lower() and
+                             existing_link['sw2-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
+                             existing_link['sw2-info']['if-name'].lower() == link['dst_interface'].lower()) or
+                            (existing_link['sw1-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
+                             existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower() and
+                             existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower() and
+                             existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower())):
+                            required_links.append(existing_link)
         for link in filtered_existing_links:
             link_found = False
             for required_link in required_links:

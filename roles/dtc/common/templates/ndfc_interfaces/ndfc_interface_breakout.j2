@@ -1,0 +1,39 @@
+---
+# This NDFC breakout interface data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% for switch in data_model_extended.vxlan.topology.switches %}
+{% if switch.interface_breakouts is defined %}
+{% for breakout in switch.interface_breakouts %}
+{% if not (breakout.enable_during_bootstrap | default(false)) %}
+{% if breakout.to is defined %}
+{% for port in range(breakout.from, breakout.to + 1) %}
+- name: Ethernet{{ breakout.module }}/{{ port }}
+  type: breakout
+  switch:
+{% if switch.management.management_ipv4_address is defined %}
+    - {{ switch.management.management_ipv4_address }}
+{% elif (switch.management.management_ipv4_address is not defined) and (switch.management.management_ipv6_address is defined) %}
+    - {{ switch.management.management_ipv6_address }}
+{% endif %}
+  deploy: true
+  profile:
+    map: {{ breakout.map }}
+{% endfor %}
+{% else %}
+- name: Ethernet{{ breakout.module }}/{{ breakout.from }}
+  type: breakout
+  switch:
+{% if switch.management.management_ipv4_address is defined %}
+    - {{ switch.management.management_ipv4_address }}
+{% elif (switch.management.management_ipv4_address is not defined) and (switch.management.management_ipv6_address is defined) %}
+    - {{ switch.management.management_ipv6_address }}
+{% endif %}
+  deploy: true
+  profile:
+    map: {{ breakout.map }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}

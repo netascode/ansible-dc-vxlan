@@ -1,0 +1,142 @@
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+---
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Set vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
+
+- name: Manage VRFs and Networks Entry Point
+  ansible.builtin.debug:
+    msg:
+      - "----------------------------------------------------------------"
+      - "+     Manage VRFs and Networks Fabric {{ data_model_extended.vxlan.fabric.name }}"
+      - "----------------------------------------------------------------"
+
+- name: Check If Current Fabric Is An Active Multisite Fabric in Nexus Dashboard
+  when: is_active_child_fabric is not defined
+  block:
+    - name: Get Multisite Fabric Associations in Nexus Dashboard
+      cisco.dcnm.dcnm_rest:
+        method: GET
+        path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
+      register: ndfc_msd_fabric_associations
+
+    - name: Find Current Fabric by Name In Multisite Associations from Nexus Dashboard
+      ansible.builtin.set_fact:
+        selected_fabric: "{{ ndfc_msd_fabric_associations['response']['DATA'] | json_query(json_query) }}"
+      vars:
+        json_query: "[?fabricName=='{{ data_model_extended.vxlan.fabric.name }}']"
+
+    - name: Set Multisite Check for Current Fabric
+      ansible.builtin.set_fact:
+        is_active_child_fabric: "{{ true if selected_fabric[0]['fabricParent'] != 'None' else false }}"
+
+# --------------------------------------------------------------------
+# Manage VRF Configuration in Nexus Dashboard
+# --------------------------------------------------------------------
+- name: Fail If Current Fabric is Part of Multisite And Attempting to Manage VRFs
+  ansible.builtin.fail:
+    msg: VRFs cannot be managed from the current fabric {{  data_model_extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
+  when:
+    - is_active_child_fabric
+    - vars_common_local.vrf_config | length > 0
+
+- name: Initialize VRF Config List to All VRFs
+  ansible.builtin.set_fact:
+    vrf_config_list: "{{ vars_common_local.vrf_config }}"
+
+- name: Override VRF Config List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    vrf_config_list: "{{ vars_common_local.vrf_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+
+# --------------------------------------------------------------------
+# Manage VRF Configuration in Nexus Dashboard
+# --------------------------------------------------------------------
+
+- name: Manage MSD Fabric VRFs and Loopback Attachments in Nexus Dashboard
+  when:
+    - data_model_extended.vxlan.overlay.vrfs is defined
+    - data_model_extended.vxlan.overlay.vrfs
+    - vrf_config_list | length > 0
+    - not is_active_child_fabric
+  block:
+    - name: Manage Fabric VRFs in Nexus Dashboard
+      cisco.dcnm.dcnm_vrf:
+        fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+        state: replaced
+        config: "{{ vrf_config_list }}"
+      register: manage_vrf_result
+      when:
+        - change_flags.changes_detected_vrfs
+
+    # --------------------------------------------------------------------
+    # Manage Loopback VRF Attachments in Nexus Dashboard
+    # --------------------------------------------------------------------
+
+    - name: Attach Loopbacks to VRFs in Nexus Dashboard
+      cisco.dcnm.dcnm_rest:
+        method: POST
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
+        json_data: "{{ vars_common_local.vrf_attach_config | to_json }}"
+      when:
+        - vars_common_local.vrf_attach_config | length > 0
+
+# --------------------------------------------------------------------
+# Manage Network Configuration in Nexus Dashboard
+# --------------------------------------------------------------------
+- name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
+  ansible.builtin.fail:
+    msg: Networks cannot be managed from the current fabric {{  data_model_extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
+  when:
+    - is_active_child_fabric
+    - vars_common_local.net_config | length > 0
+
+- name: Initialize Network Config List to All Networks
+  ansible.builtin.set_fact:
+    network_config_list: "{{ vars_common_local.net_config }}"
+
+- name: Override Network Config List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    network_config_list: "{{ vars_common_local.network_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+
+- name: Manage Fabric Networks in Nexus Dashboard
+  cisco.dcnm.dcnm_network:
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    state: replaced
+    config: "{{ network_config_list }}"
+  register: manage_network_result
+  when:
+    - data_model_extended.vxlan.overlay.networks is defined
+    - data_model_extended.vxlan.overlay.networks
+    - change_flags.changes_detected_networks
+    - network_config_list | length > 0
+    - not is_active_child_fabric

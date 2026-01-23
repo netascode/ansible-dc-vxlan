@@ -21,53 +21,70 @@
 
 ---
 
-- name: Choose vars_common Based On Fabric Type
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Set vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
-  when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
+  when: data_model_extended.vxlan.fabric.type == "MSD"
+
+- name: Set vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
-  when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
+  when: data_model_extended.vxlan.fabric.type == "ISN"
+
+- name: Set vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
-  when: MD_Extended.vxlan.fabric.type == "External"
+  when: data_model_extended.vxlan.fabric.type == "External"
 
 - name: Manage Fabric Intra Fabric Links Entry Point
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric Links {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric Links {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
-- name: Query Links - with Src & Dst Fabric
+- name: Query Links with Src & Dst Fabrics in Nexus Dashboard
   cisco.dcnm.dcnm_links:
-    state: query # choose from [merged, replaced, deleted, query]
-    src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    state: query
+    src_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     config:
-      - dst_fabric: "{{ MD_Extended.vxlan.fabric.name }}" # Destination fabric
+      - dst_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
   register: result_links
+
+- name: Initialize Fabric Links Config List to All Links
+  ansible.builtin.set_fact:
+    fabric_links_config_list: "{{ fabric_links }}"
+
+- name: Override Fabric Links Config List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    fabric_links_config_list: "{{ fabric_links_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
 
 - name: Create empty result List
   ansible.builtin.set_fact:
     required_links: []
 
-- name: Create a list of links that already exist
+- name: Create a List of Links that Already Exist from Nexus Dashboard
   cisco.nac_dc_vxlan.dtc.existing_links_check:
     existing_links: "{{ result_links.response }}"
-    fabric_links: "{{ fabric_links }}"
+    fabric_links: "{{ fabric_links_config_list }}"
+    switch_data_model: "{{ data_model_extended.vxlan.topology.switches }}"
   register: required_links
   when: result_links.response is defined
 
 # --------------------------------------------------------------------
-# Manage VRF Configuration on NDFC
+# Manage Links Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
-- name: Manage NDFC Fabric Links
+- name: Manage Fabric Links in Nexus Dashboard
   cisco.dcnm.dcnm_links:
-    src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    src_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     config: "{{ required_links['required_links'] }}"
     deploy: false
-    state: merged
+    state: replaced
   register: manage_fabric_links_result

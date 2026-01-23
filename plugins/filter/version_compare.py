@@ -43,16 +43,15 @@ DOCUMENTATION = r"""
 
 EXAMPLES = r"""
 
-    version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>') }}"
-    # => True
+version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>') }}"
+# => True
 
-    # {% if ndfc_version.response.DATA.version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
+# {% if ndfc_version.response.DATA.version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
 
-    # - ansible.builtin.set_fact:
-    #     version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>=') }}"
-    #   when: MD_Extended.vxlan.global
-    #   delegate_to: localhost
-
+# - ansible.builtin.set_fact:
+#     version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>=') }}"
+#   when: data_model_extended.vxlan.global
+#   delegate_to: localhost
 """
 
 RETURN = r"""
@@ -66,10 +65,15 @@ import operator
 from jinja2.runtime import Undefined
 from jinja2.exceptions import UndefinedError
 
-from packaging.version import Version
+try:
+    from packaging.version import Version
+except ImportError as imp_exc:
+    PACKAGING_LIBRARY_IMPORT_ERROR = imp_exc
+else:
+    PACKAGING_LIBRARY_IMPORT_ERROR = None
 
 from ansible.module_utils.six import string_types
-from ansible.errors import AnsibleFilterError, AnsibleFilterTypeError
+from ansible.errors import AnsibleError, AnsibleFilterError, AnsibleFilterTypeError
 from ansible.module_utils.common.text.converters import to_native
 
 
@@ -77,6 +81,22 @@ SUPPORTED_COMPARISON_OPERATORS = ['==', '!=', '>', '>=', '<', '<=']
 
 
 def version_compare(version1, version2, op):
+    """
+    Compare two version strings using the specified operator.
+    Args:
+        version1 (str): The first version string to compare.
+        version2 (str): The second version string to compare.
+        op (str): The comparison operator as a string. Supported: '==', '!=', '>', '>=', '<', '<='.
+    Returns:
+        bool: The result of the comparison.
+    Raises:
+        AnsibleError: If the 'packaging' library is not installed.
+        AnsibleFilterTypeError: If the version arguments are not strings.
+        AnsibleFilterError: If the operator is unsupported or version parsing fails.
+    """
+    if PACKAGING_LIBRARY_IMPORT_ERROR:
+        raise AnsibleError('packaging must be installed to use this filter plugin') from PACKAGING_LIBRARY_IMPORT_ERROR
+
     if not isinstance(version1, (string_types, Undefined)):
         raise AnsibleFilterTypeError(f"Can only check string versions, however version1 is: {type(version1)}")
 

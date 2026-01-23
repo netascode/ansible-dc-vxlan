@@ -21,11 +21,6 @@
 
 ---
 
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_interfaces: false
-  delegate_to: localhost
-
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_interface_all.yml"
@@ -41,6 +36,7 @@
   ansible.builtin.copy:
     src: "{{ path_name }}{{ file_name }}"
     dest: "{{ path_name }}{{ file_name }}.old"
+    mode: preserve
   when: data_file_previous.stat.exists
 
 - name: Delete Previous Data File If It Exists
@@ -50,24 +46,73 @@
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
-- name: Set interface_all Var
+- name: Set interface_all_remove_overridden Var
   ansible.builtin.set_fact:
-    interface_all: []
+    interface_all_remove_overridden: []
+  delegate_to: localhost
+
+- name: Set interface_all_create Var
+  ansible.builtin.set_fact:
+    interface_all_create: []
   delegate_to: localhost
 
 - name: Set interface_all Var
   ansible.builtin.set_fact:
-    interface_all: "{{ interface_access + interface_access_po + interface_trunk + interface_trunk_po + interface_routed + interface_po_routed + sub_interface_routed + interface_vpc + int_loopback_config }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
+    interface_all_remove_overridden: "{{
+      interface_breakout +
+      interface_breakout_preprov +
+      interface_trunk +
+      interface_routed +
+      sub_interface_routed +
+      interface_access +
+      interface_trunk_po +
+      interface_access_po +
+      interface_po_routed +
+      int_loopback_config +
+      interface_dot1q +
+      interface_vpc }}"
+  when: >
+    data_model_extended.vxlan.topology.interfaces.modes.breakout.count > 0 or
+    data_model_extended.vxlan.topology.interfaces.modes.breakout_preprov.count > 0 or
+    data_model_extended.vxlan.topology.interfaces.modes.all.count > 0
   delegate_to: localhost
 
-- name: Save interface_all
+- name: Set interface_all Var
+  ansible.builtin.set_fact:
+    interface_all_create: "{{
+      interface_breakout +
+      interface_trunk +
+      interface_routed +
+      sub_interface_routed +
+      interface_access +
+      interface_trunk_po +
+      interface_access_po +
+      interface_po_routed +
+      int_loopback_config +
+      interface_dot1q +
+      interface_vpc }}"
+  when: >
+    data_model_extended.vxlan.topology.interfaces.modes.breakout.count > 0 or
+    data_model_extended.vxlan.topology.interfaces.modes.all.count > 0
+  delegate_to: localhost
+
+- name: Save interface_all_create
   ansible.builtin.copy:
-    content: "{{ interface_all | to_nice_yaml }}"
+    content: "{{ interface_all_create | to_nice_yaml }}"
     dest: "{{ path_name }}{{ file_name }}"
+    mode: preserve
   delegate_to: localhost
 
-- name: Diff Previous and Current Data Files
+- name: Build Interface Diff Between Previous and Current Run
+  # This task must be run before the next task because
+  # dtc.diff_model_changes deletes the .old file if it exists
+  cisco.nac_dc_vxlan.dtc.diff_compare:
+    old_file: "{{ path_name }}{{ file_name }}.old"
+    new_file: "{{ path_name }}{{ file_name }}"
+  register: interface_diff_result
+  delegate_to: localhost
+
+- name: Get MD5 Diff For Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"
     file_name_current: "{{ path_name }}{{ file_name }}"
@@ -75,8 +120,13 @@
   delegate_to: localhost
 
 - name: Set File Change Flag Based on File Diff Result
-  ansible.builtin.set_fact:
-    changes_detected_interfaces: true
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: update
+    change_flag: changes_detected_interfaces
+    flag_value: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

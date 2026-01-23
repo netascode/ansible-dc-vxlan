@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,11 +21,6 @@
 
 ---
 
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_vpc_peering: false
-  delegate_to: localhost
-
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_vpc_peering.yml"
@@ -41,6 +36,7 @@
   ansible.builtin.copy:
     src: "{{ path_name }}{{ file_name }}"
     dest: "{{ path_name }}{{ file_name }}.old"
+    mode: preserve
   when: data_file_previous.stat.exists
 
 - name: Delete Previous Data File If It Exists
@@ -54,6 +50,7 @@
   ansible.builtin.template:
     src: ndfc_vpc/ndfc_vpc_peering_pairs.j2
     dest: "{{ path_name }}{{ file_name }}"
+    mode: '0644'
   delegate_to: localhost
 
 - name: Set vpc_peering Var default
@@ -64,10 +61,19 @@
 - name: Set vpc_peering Var
   ansible.builtin.set_fact:
     vpc_peering: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.vpc_peers | length > 0
+  when: data_model_extended.vxlan.topology.vpc_peers | length > 0
   delegate_to: localhost
 
-- name: Diff Previous and Current Data Files
+- name: Build vPC Peering Diff Between Previous and Current Run
+  # This task must be run before the next task because
+  # dtc.diff_model_changes deletes the .old file if it exists
+  cisco.nac_dc_vxlan.dtc.diff_compare:
+    old_file: "{{ path_name }}{{ file_name }}.old"
+    new_file: "{{ path_name }}{{ file_name }}"
+  register: vpc_peering_diff_result
+  delegate_to: localhost
+
+- name: Get MD5 Diff Previous and Current Data Files
   cisco.nac_dc_vxlan.dtc.diff_model_changes:
     file_name_previous: "{{ path_name }}{{ file_name }}.old"
     file_name_current: "{{ path_name }}{{ file_name }}"
@@ -75,8 +81,13 @@
   delegate_to: localhost
 
 - name: Set File Change Flag Based on File Diff Result
-  ansible.builtin.set_fact:
-    changes_detected_vpc_peering: true
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: update
+    change_flag: changes_detected_vpc_peering
+    flag_value: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

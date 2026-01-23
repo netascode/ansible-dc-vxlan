@@ -1,0 +1,90 @@
+---
+# This NDFC policy and switch attachments config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% if vxlan.underlay.general.manual_underlay_allocation is true %}
+{% set routing_lo_id = vxlan.underlay.general.underlay_routing_loopback_id %}
+{% set vtep_lo_id = vxlan.underlay.general.underlay_vtep_loopback_id %}
+{%- set switch_secondary_ip = {} -%}
+{%- set switch_list = {} %}
+{%- for switch in vxlan.topology.switches %}
+{%- set _ = switch_list.update({
+  switch.name: {
+  'management_ipv4_address': switch.management.management_ipv4_address,
+  'serial_number': switch.serial_number,
+  'role': switch.role
+  }
+}) %}
+{%- endfor %}
+{% macro generate_loopback_config(loopback_id) %}
+{%- for switch in vxlan.topology.switches %}
+{%- set ns = namespace(ipv4="") %}
+{%- for interface in switch.interfaces %}
+{%- if interface.name.lower() == "loopback" ~ loopback_id or interface.name.lower() == "lo" ~ loopback_id %}
+{%- set ns.ipv4 = interface.ipv4_address %}
+{%- endif %}
+{%- endfor %}
+{% if not (switch.role == 'spine' and loopback_id == vtep_lo_id) %}
+- entity_name: "{{ switch_list[switch.name].serial_number }}~loopback{{ loopback_id }}"
+  pool_type: IP
+  pool_name: "LOOPBACK{{ loopback_id }}_IP_POOL"
+  scope_type: device_interface
+  resource: "{{ ns.ipv4 }}"
+  switch:
+    - "{{ switch_list[switch.name].management_ipv4_address }}"
+{% endif %} 
+{% endfor %}
+{% endmacro %}
+{# resource for routing loopback #}
+{{ generate_loopback_config(routing_lo_id) }}
+{# resource for vtep loopback #}
+{{ generate_loopback_config(vtep_lo_id) }}
+{# resource for leaf in vPC #}
+{% if vxlan.topology.vpc_peers is defined %}
+{% for peer in vxlan.topology.vpc_peers %}
+- entity_name: "{{ switch_list[peer.peer1].serial_number }}~{{ switch_list[peer.peer2].serial_number }}~loopback{{ vtep_lo_id }}"
+  pool_type: IP
+  pool_name: "LOOPBACK{{ vtep_lo_id }}_IP_POOL"
+  scope_type: device_interface
+  resource: "{{ peer.vtep_vip }}"
+  switch:
+    - "{{ switch_list[peer.peer1].management_ipv4_address }}"
+{% endfor %}
+{% endif %}
+{# build p2p links - Check if ipv4 or ipv6 is present to distinct with fabric_link with template #}
+{# build subnet #}
+
+{% if vxlan.topology.fabric_links is defined %}
+{% for switch in vxlan.topology.fabric_links %}
+{% if switch.ipv4 is defined and switch.ipv4 is iterable %}
+- entity_name: "{{ switch_list[switch.source_device].serial_number }}~{{ switch.source_interface }}~{{ switch_list[switch.dest_device].serial_number }}~{{ switch.dest_interface }}"
+  pool_type: SUBNET
+  pool_name: "SUBNET"
+  scope_type: link
+  resource: "{{ switch.ipv4.subnet }}"
+  switch:
+    - "{{ switch_list[switch.source_device].management_ipv4_address }}"
+
+{# assign ips #}
+{% if switch.ipv4.source_ipv4 is defined and switch.ipv4.dest_ipv4 is defined %}
+- entity_name: "{{ switch_list[switch.source_device].serial_number }}~{{ switch.source_interface }}"
+  pool_type: IP
+  pool_name: "{{switch.ipv4.subnet}}"
+  scope_type: device_interface
+  resource: "{{ switch.ipv4.source_ipv4 }}"
+  switch:
+    - "{{ switch_list[switch.source_device].management_ipv4_address }}"
+
+- entity_name: "{{ switch_list[switch.dest_device].serial_number }}~{{ switch.dest_interface }}"
+  pool_type: IP
+  pool_name: "{{switch.ipv4.subnet}}"
+  scope_type: device_interface
+  resource: "{{ switch.ipv4.dest_ipv4 }}"
+  switch:
+    - "{{ switch_list[switch.dest_device].management_ipv4_address }}"
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% endif %}
+{% endif %}

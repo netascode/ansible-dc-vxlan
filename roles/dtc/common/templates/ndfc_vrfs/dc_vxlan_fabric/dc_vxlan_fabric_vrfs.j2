@@ -1,7 +1,8 @@
 {# Auto-generated NDFC DC VXLAN EVPN VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
+{% set simplified_fabric_type = data_model_extended.vxlan.fabric.simplified_type %}
 {% set vrfs = [] %}
-{% if MD_Extended.vxlan.overlay.vrfs is defined and MD_Extended.vxlan.overlay.vrfs %}
-{% set vrfs = MD_Extended.vxlan.overlay.vrfs %}
+{% if data_model_extended.vxlan.overlay.vrfs is defined and data_model_extended.vxlan.overlay.vrfs %}
+{% set vrfs = data_model_extended.vxlan.overlay.vrfs %}
 {% endif %}
 {% for vrf in vrfs %}
 - vrf_name: {{ vrf['name'] }}
@@ -10,6 +11,7 @@
 {# ------------------------------------------------------ #}
   vrf_id: {{ vrf['vrf_id'] | default(omit) }}
   vlan_id: {{ vrf['vlan_id'] | default(omit) }}
+  l3vni_wo_vlan: {{ vrf['enable_l3_vni_no_vlan'] | default(defaults.vxlan.global[simplified_fabric_type].enable_l3_vni_no_vlan) }}
   vrf_vlan_name: {{ vrf['vrf_vlan_name'] | default(omit) }}
   vrf_intf_desc: {{ vrf['vrf_intf_desc'] | default(defaults.vxlan.overlay.vrfs.vrf_intf_desc) }}
   vrf_description: {{ vrf['vrf_description'] | default(defaults.vxlan.overlay.vrfs.vrf_description) }}
@@ -54,13 +56,16 @@
   underlay_mcast_ip: {{ vrf['underlay_mcast_ip'] | default(omit) }}
 {% endif %}
   redist_direct_rmap: {{ vrf['redist_direct_routemap'] | default(defaults.vxlan.overlay.vrfs.redist_direct_routemap) }}
+{% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) %}
+  v6_redist_direct_rmap: {{ vrf['ipv6_redist_direct_routemap'] | default(defaults.vxlan.overlay.vrfs.ipv6_redist_direct_routemap) }}
+{% endif %}
 {# ------------------------------------------------------ #}
 {# Attach Group Section                                   #}
 {# ------------------------------------------------------ #}
 {% if vrf['vrf_attach_group'] is defined %}
   attach:
-{% if MD_Extended.vxlan.overlay.vrf_attach_groups_dict is defined and MD_Extended.vxlan.overlay.vrf_attach_groups_dict %}
-{% set vrf_attach_groups_dict = MD_Extended.vxlan.overlay.vrf_attach_groups_dict %}
+{% if data_model_extended.vxlan.overlay.vrf_attach_groups_dict is defined and data_model_extended.vxlan.overlay.vrf_attach_groups_dict %}
+{% set vrf_attach_groups_dict = data_model_extended.vxlan.overlay.vrf_attach_groups_dict %}
 {% endif %}
 {% for attach in vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}

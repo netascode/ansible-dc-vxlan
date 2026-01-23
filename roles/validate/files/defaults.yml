@@ -23,46 +23,136 @@
 factory_defaults:
   vxlan:
     global:
-      route_reflectors: 2
-      anycast_gateway_mac: 20:20:00:00:00:aa
-      auth_proto: MD5
-      enable_nxapi_http: false
-      nxapi_http_port: 80
-      enable_nxapi_https: true
-      nxapi_https_port: 443
-      vpc:
-        peer_link_vlan: 3600
-        peer_keep_alive: management
-        auto_recovery_time: 360
-        delay_restore_time: 150
-        peer_link_port_channel_id: 500
-        ipv6_nd_sync: true
-        advertise_pip: false
-        advertise_pip_border_only: true
-        domain_id_range: 1-1000
-        fabric_vpc_qos: false
-        fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
-      spanning_tree:
-        root_bridge_protocol: unmanaged
-        vlan_range:
-          - from: 1
-            to: 3967
-        mst_instance_range:
-          - from: 0
-        bridge_priority: 0
-      netflow:
-        enable: false
-      ptp:
-        enable: false
-      snmp_server_host_trap: true
-      bootstrap:
-        enable_bootstrap: false
-        enable_local_dhcp_server: false
-        enable_cdp_mgmt: false
+      ebgp:
+        bgp_asn_mode: Multi-AS
+        leaf_same_bgp_asn: false
+        anycast_gateway_mac: 20:20:00:00:00:aa
+        auth_proto: MD5
+        enable_nxapi_http: false
+        nxapi_http_port: 80
+        enable_nxapi_https: true
+        nxapi_https_port: 443
+        overlay_mode: cli
+        layer2_vni_range:
+          from: 30000
+          to: 49000
+        layer3_vni_range:
+          from: 50000
+          to: 59000
+        layer2_vlan_range:
+          from: 2300
+          to: 2999
+        layer3_vlan_range:
+          from: 2000
+          to: 2299
+        enable_mvpn_vri_id_range: true
+        enable_l3_vni_no_vlan: false
+        vpc:
+          peer_link_vlan: 3600
+          peer_keep_alive: management
+          auto_recovery_time: 360
+          delay_restore_time: 150
+          peer_link_port_channel_id: 500
+          ipv6_nd_sync: true
+          advertise_pip: false
+          advertise_pip_border_only: true
+          advertise_pip_border_gateway: false
+          domain_id_range: 1-1000
+          fabric_vpc_qos: false
+          fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
+        netflow:
+          enable: false
+        ptp:
+          enable: false
+          domain_id: 0
+          lb_id: 0
+        snmp_server_host_trap: true
+        bootstrap:
+          enable_bootstrap: false
+          enable_local_dhcp_server: false
+          enable_cdp_mgmt: false
+      ibgp:
+        route_reflectors: 2
+        anycast_gateway_mac: 20:20:00:00:00:aa
+        auth_proto: MD5
+        enable_nxapi_http: false
+        nxapi_http_port: 80
+        enable_nxapi_https: true
+        nxapi_https_port: 443
+        overlay_mode: cli
+        layer2_vni_range:
+          from: 30000
+          to: 49000
+        layer3_vni_range:
+          from: 50000
+          to: 59000
+        layer2_vlan_range:
+          from: 2300
+          to: 2999
+        layer3_vlan_range:
+          from: 2000
+          to: 2299
+        enable_mvpn_vri_id_range: true
+        enable_l3_vni_no_vlan: false
+        vpc:
+          peer_link_vlan: 3600
+          peer_keep_alive: management
+          auto_recovery_time: 360
+          delay_restore_time: 150
+          peer_link_port_channel_id: 500
+          ipv6_nd_sync: true
+          advertise_pip: false
+          advertise_pip_border_only: true
+          domain_id_range: 1-1000
+          fabric_vpc_qos: false
+          fabric_vpc_qos_policy_name: spine_qos_for_fabric_vpc_peering
+        spanning_tree:
+          root_bridge_protocol: unmanaged
+          vlan_range:
+            - from: 1
+              to: 3967
+          mst_instance_range:
+            - from: 0
+          bridge_priority: 0
+        netflow:
+          enable: false
+        ptp:
+          enable: false
+          domain_id: 0
+          lb_id: 0
+        snmp_server_host_trap: true
+        bootstrap:
+          enable_bootstrap: false
+          enable_local_dhcp_server: false
+          enable_cdp_mgmt: false
+        tcam_allocation: true
+      external:
+        auth_proto: MD5
+        enable_nxapi_http: false
+        nxapi_http_port: 80
+        enable_nxapi_https: true
+        nxapi_https_port: 443
+        netflow:
+          enable: false
+        ptp:
+          enable: false
+          domain_id: 0
+          lb_id: 0
+        snmp_server_host_trap: true
+        bootstrap:
+          enable_bootstrap: false
+          enable_local_dhcp_server: false
+          enable_cdp_mgmt: false
     topology:
       switches:
         routing_loopback_id: 0
         vtep_loopback_id: 1
+        interface_breakouts:
+          module: 1
+          from: 1
+          to: 1
+          map: '10g-4x'
+          enable_during_bootstrap: false
         interfaces:
           topology_switch_access_interface:
             description: "NetAsCode Access Interface"
@@ -72,6 +162,18 @@ factory_defaults:
             access_vlan: 1
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+          topology_switch_dot1q_interface:
+            description: "NetAsCode Dot1q Interface"
+            mtu: jumbo
+            speed: auto
+            enabled: true
+            access_vlan: 1
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
@@ -80,6 +182,9 @@ factory_defaults:
             trunk_allowed_vlans: none
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            native_vlan: ""
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
             mtu: jumbo
@@ -89,6 +194,12 @@ factory_defaults:
             pc_mode: active
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            disable_lacp_suspend_individual: false
+            enable_lacp_vpc_convergence: false
+            lacp_port_priority: 32768
+            lacp_rate: normal
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -98,6 +209,13 @@ factory_defaults:
             pc_mode: active
             spanning_tree_portfast: true
             enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            native_vlan: ""
+            disable_lacp_suspend_individual: false
+            enable_lacp_vpc_convergence: false
+            lacp_port_priority: 32768
+            lacp_rate: normal
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
@@ -117,8 +235,11 @@ factory_defaults:
           topology_switch_loopback_interface:
             description: "NetAsCode Loopback Interface"
             enabled: true
+        poap:
+          bootstrap: false
       vpc_peers:
         domain_id: 1
+        keepalive_hold_time: 3
       fabric_links:
         mtu: 9216
         admin_state: true
@@ -156,7 +277,7 @@ factory_defaults:
         authentication_key_id: 127
       isis:
         level: level-2
-        net_area_number: 001
+        net_area_number: "0001"
         network_point_to_point: true
         authentication_enable: false
         authentication_key_id: 127
@@ -165,6 +286,7 @@ factory_defaults:
       bgp:
         authentication_enable: false
         authentication_key_type: 3
+        max_paths: 4  # Review
       multicast:
         rendezvous_points: 2
         rp_mode: asm
@@ -199,8 +321,6 @@ factory_defaults:
         max_bgp_paths: 1
         max_ibgp_paths: 2
         ipv6_linklocal_enable: true
-        # Staging ipv6 route-map attribute for later usage after low-level collection adds support.
-        # ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         adv_host_routes: false
         adv_default_routes: true
         static_default_route: true
@@ -209,6 +329,7 @@ factory_defaults:
         no_rp: false
         rp_external: false
         redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
+        ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
         trm_enable: false
         trm_bgw_msite: false
         # Staging trmv6 attributes for later usage after low-level collection adds support.
@@ -296,7 +417,6 @@ factory_defaults:
             disable_connected_check: false
             remove_private_as: false
             remove_private_as_all: false
-            ebgp_multihop: 2
             address_family_ipv4_unicast:
               send_community: false
               send_ext_community: false
@@ -316,6 +436,12 @@ factory_defaults:
               default_originate: false
               next_hop_self: false
     multisite:
+      layer2_vni_range:
+        from: 30000
+        to: 49000
+      layer3_vni_range:
+        from: 50000
+        to: 59000
       enable_ipv6_underlay: false
       anycast_gateway_mac: 20:20:00:00:00:aa
       vtep_loopback_id: 100
@@ -338,5 +464,51 @@ factory_defaults:
         delay_restore: 300
         enable_ebgp_password: false
         enable_trm: false
+      overlay:
+        vrfs:
+          vrf_description: "Configured by Ansible NetAsCode"
+          vrf_intf_desc: "Configured by Ansible NetAsCode"
+          vrf_int_mtu: 9216
+          loopback_route_tag: 12345
+          max_bgp_paths: 1
+          max_ibgp_paths: 2
+          ipv6_linklocal_enable: true
+          adv_host_routes: false
+          adv_default_routes: true
+          static_default_route: true
+          disable_rt_auto: false
+          netflow_enable: false
+          no_rp: false
+          rp_external: false
+          redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
+          ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
+          trm_enable: false
+          trm_bgw_msite: false
+        networks:
+          net_description: "Configured by Ansible NetAsCode"
+          is_l2_only: false
+          arp_supress: false
+          l3gw_on_border: false
+          mtu_l3intf: 9216
+          multicast_group_address: 239.1.1.1
+          netflow_enable: false
+          route_target_both: false
+          route_tag: 12345
+          trm_enable: false
       isn:
+        auth_proto: MD5
         sub_int_range: 2-511
+        enable_nxapi_http: false
+        nxapi_http_port: 80
+        enable_nxapi_https: true
+        nxapi_https_port: 443
+        netflow:
+          enable: false
+        ptp:
+          enable: false
+          domain_id: 0
+          lb_id: 0
+        snmp_server_host_trap: true
+        bootstrap:
+          enable_bootstrap: false
+          enable_local_dhcp_server: false

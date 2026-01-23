@@ -61,18 +61,20 @@ class POAPDevice:
         #         version: 9.3(9)
         #         modulesModel: [N9K-X9364v, N9K-vSUP]
 
-        self.model_data = params['model_data']
+        self.data_model = params['data_model']
         self.execute_module = params['action_plugin']
         self.task_vars = params['task_vars']
         self.tmp = params['tmp']
 
-        self.fabric_name = self.model_data['vxlan']['fabric']['name']
-        self.switches = self.model_data['vxlan']['topology']['switches']
+        self.fabric_name = self.data_model['vxlan']['fabric']['name']
+        self.switches = self.data_model['vxlan']['topology']['switches']
         self.poap_supported_switches = False
+        self.poap_switches = []
         self.preprovision_supported_switches = False
         self.poap_data = []
         self.poap_get_method = "GET"
         self.poap_get_path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{self.fabric_name}/inventory/poap"
+        self.discovered_switch_data = []
 
     def check_poap_supported_switches(self) -> None:
         """
@@ -83,6 +85,14 @@ class POAPDevice:
         """
         for switch in self.switches:
             if 'poap' in switch and switch['poap'].get('bootstrap'):
+                ip = switch['management']['management_ipv4_address']
+                role = switch['role']
+                hostname = switch['name']
+                if self._get_discovered(ip, role, hostname):
+                    # This switch is already discovered by the fabric so does not need to be POAP'd
+                    continue
+                # Append switch to self.poap_switches list
+                self.poap_switches.append(switch)
                 self.poap_supported_switches = True
 
     def check_preprovision_supported_switches(self) -> None:
@@ -95,6 +105,42 @@ class POAPDevice:
         for switch in self.switches:
             if 'poap' in switch and switch['poap'].get('preprovision'):
                 self.preprovision_supported_switches = True
+
+    def refresh_discovered(self) -> None:
+        """
+        ### Summary
+        Refresh discovered device data
+
+        """
+        data = self.execute_module(
+            module_name="cisco.dcnm.dcnm_inventory",
+            module_args={
+                "fabric": self.fabric_name,
+                "state": "query",
+            },
+            task_vars=self.task_vars,
+            tmp=self.tmp
+        )
+
+        if isinstance(data.get('response'), list):
+            if len(data.get('response')) > 0:
+                self.discovered_switch_data = data['response']
+
+    def _get_discovered(self, ip, role, hostname):
+        """
+        ### Summary
+        Check if device with ip, role is already discovered
+
+        """
+        discovered = False
+        for switch in self.discovered_switch_data:
+            if switch['ipAddress'] == ip and \
+               switch['switchRole'] == role and \
+               switch['logicalName'] == hostname:
+
+                discovered = True
+
+        return discovered
 
     def refresh(self) -> None:
         """
@@ -172,7 +218,7 @@ class ActionModule(ActionBase):
 
         # Get data from Ansible task parameters
         params = {}
-        params['model_data'] = self._task.args["model_data"]
+        params['data_model'] = self._task.args["data_model"]
 
         params['action_plugin'] = self._execute_module
         params['task_vars'] = task_vars
@@ -180,10 +226,13 @@ class ActionModule(ActionBase):
 
         # Instantiate POAPDevice workflow object with params
         workflow = POAPDevice(params)
+        workflow.refresh_discovered()
         workflow.check_poap_supported_switches()
-        workflow.check_preprovision_supported_switches()
+        #
+        # TBD: Don't think we need this
+        # workflow.check_preprovision_supported_switches()
 
-        if workflow.poap_supported_switches and not workflow.preprovision_supported_switches:
+        if workflow.poap_supported_switches:
             workflow.refresh()
 
             if workflow.refresh_succeeded:
@@ -195,11 +244,19 @@ class ActionModule(ActionBase):
                 # fabric setting for this might be modified if/when the create
                 # role is executed later in this run.
                 fail_msg = workflow.refresh_message
-                match_text = r"Please\s+enable\s+the\s+DHCP\s+in\s+Fabric\s+Settings\s+to\s+start\s+the\s+bootstrap"
-                if re.search(match_text, fail_msg, re.IGNORECASE):
-                    pass
+                match_cases = [
+                    r"Please\s+enable\s+the\s+DHCP\s+in\s+Fabric\s+Settings\s+to\s+start\s+the\s+bootstrap",
+                    r"Invalid\s+Fabric",
+                ]
+                for match_text in match_cases:
+                    if re.search(match_text, fail_msg, re.IGNORECASE):
+                        # If we match one of the expected messages then we
+                        # just ignore it and continue.
+                        results['poap_data'] = {}
+                        break
                 else:
-                    # Return any messages we don't recognize and fail
+                    # If we did not match any of the expected messages then
+                    # we return a failure message.
                     results['failed'] = True
                     results['message'] = "Unrecognized Failure Attempting To Get POAP Data: {0}".format(fail_msg)
                     return results
@@ -209,10 +266,12 @@ class ActionModule(ActionBase):
                 # model then we should not continue until we have POAP data
                 # from NDFC
                 results['failed'] = True
-                msg = "POAP is enabled on at least one switch in the service model but "
+                msg = "POAP is enabled on at least one switch in the service model that is NOT currently discovered but "
                 msg += "POAP bootstrap data is not yet available from NDFC. "
                 msg += "To disable poap on a device set (poap.boostrap) to (False) under (vxlan.topology.switches)"
                 results['message'] = msg
+                results['poap_switches'] = workflow.poap_switches
+                results['hints'] = "Double check that the role in the data model matches if a device with this same IP has been discovered"
                 return results
 
         return results

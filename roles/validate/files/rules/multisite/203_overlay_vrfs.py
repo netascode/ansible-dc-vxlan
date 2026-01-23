@@ -6,7 +6,7 @@ class Rule:
     msg = "VRF {0} attribute '{1}' must be defined under vxlan.multisite.overlay.vrfs under the 'child_fabrics:' key."
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         child_fabric_attributes = [
             'adv_host_routes',
@@ -29,9 +29,9 @@ class Rule:
         ]
 
         vrf_keys = ['vxlan', 'multisite', 'overlay', 'vrfs']
-        check = cls.data_model_key_check(inventory, vrf_keys)
+        check = cls.data_model_key_check(data_model, vrf_keys)
         if 'vrfs' in check['keys_found'] and 'vrfs' in check['keys_data']:
-            vrfs = inventory['vxlan']['multisite']['overlay']['vrfs']
+            vrfs = data_model['vxlan']['multisite']['overlay']['vrfs']
             for vrf in vrfs:
                 for attr in vrf:
                     if attr in child_fabric_attributes:
@@ -49,8 +49,6 @@ class Rule:
                     current_vrf_trm_rp_loopback_id = child_fabric.get("rp_loopback_id")
                     current_vrf_trm_underlay_mcast_ip = child_fabric.get("underlay_mcast_ip")
                     current_vrf_trm_overlay_multicast_group = child_fabric.get("overlay_multicast_group")
-
-                    # import epdb; epdb.st()
 
                     if child_fabric.get('trm_enable'):
                         if (

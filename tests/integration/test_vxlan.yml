@@ -24,7 +24,7 @@
 
 # Instructions for using this playbook:
 #
-# 1. Make sure you run the tests/integration/test_update_model_data playbook first
+# 1. Make sure you run the tests/integration/test_update_data_model playbook first
 #
 # 2. Run the playbook with the following command and replacing the fabric pofile name with one of the supported options in the list below:
 #    ansible-playbook -i test_inventory.yml test_vxlan.yml -e 'fabric_profile=<fabric_profile_name>'
@@ -44,22 +44,28 @@
 
 
 # Reset Fabric
-- hosts: fabric_empty
-  gather_facts: no
+- name: Test Remove
+  hosts: fabric_empty
+  gather_facts: false
 
   roles:
     - test_remove
 
 # Create and Deploy Fabric Configuration
-- hosts: '{{ fabric_profile }}'
-  gather_facts: no
+- name: Test Create
+  hosts: '{{ fabric_profile }}'
+  gather_facts: false
+
+  vars:
+    fabric_profile: fabric_placeholder  # This will be overridden by the command line extra var
 
   roles:
     - test_create
 
 # Reset Fabric Back to Empty
-- hosts: fabric_empty
-  gather_facts: no
+- name: Test Remove
+  hosts: fabric_empty
+  gather_facts: false
 
   roles:
     - test_remove

@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -25,7 +25,7 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage VRFs and Networks Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage VRFs and Networks Fabric {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
 # cisco.nac_dc_vxlan.dtc.prepare_msite_data is called after cisco.nac_dc_vxlan.dtc.manage_child_fabrics
@@ -34,13 +34,14 @@
 # Given that the MSD instance is the source of truth for the child fabric state, we cannot pre-process all the
 # VRFs and Networks data in the dtc.common role. We must wait until the child fabric state is available.
 # The first availability of the child fabric state for VRFs and Networks is here, but we still need to pre-process
-# the VRFs and Networks data before we can build the configuration. 
+# the VRFs and Networks data before we can build the configuration.
 # While not ideal and while this is not done directly in the common role, maintaining our pre-processing file strucutre can
 # be done by importing specific tasks files from dtc.common here. This is done in the two following tasks for VRFs and Networks.
 # Once done, the deteced state changes are added to the vars_common_msd dictionary initially created in dtc.common when
 # pre-processing is done for the MSD fabric itself (and child fabrics when functionality is added).
 
 # The import_role tasks were removed due to a bug in ansible-core 2.16.5 not finding the role and tasks_from file whereas ansible-core 2.17.8+ works.
+# Do Not Remove (Historical Context)
 # - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
 #   ansible.builtin.import_role:
 #     name: dtc.common
@@ -51,95 +52,118 @@
 #     name: dtc.common
 #     tasks_from: msd/ndfc_networks.yml
 
+- name: Set path_name Var
+  ansible.builtin.set_fact:
+    path_name: "{{ role_path }}/../common/files/msd/{{ data_model_extended.vxlan.fabric.name }}/"
+  delegate_to: localhost
+
 - name: Run dtc.common.tasks.msd.ndfc_vrfs.yml
   ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_vrfs.yml"
 
 - name: Run dtc.common.tasks.msd.ndfc_networks.yml
   ansible.builtin.import_tasks: "{{ role_path }}/../common/tasks/msd/ndfc_networks.yml"
 
-# --------------------------------------------------------------------
-# Update Local Variables To NameSpace Dict For Use Elsewhere
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
+# Changes detected flags for Multisite VRF and Networks is set when the tasks above
+# are imported.  We need to retrieve and store the values.
+# ----------------------------------------------------------------------------------
+- name: Retrieve Multisite Flag Values
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: get
+  tags: "{{ nac_tags.common_role }}"
+  register: change_flag_msd_result
+  delegate_to: localhost
+
+- name: Store Change Flags For Use In Subsequent Roles
+  ansible.builtin.set_fact:
+    change_flags_msd: "{{ change_flag_msd_result['flags'] }}"
+  tags: "{{ nac_tags.common_role }}"
+  delegate_to: localhost
+
+- name: Display Flag Values
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: display
+  delegate_to: localhost
+
+- name: Override VRFs List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    vrf_config: "{{ msd_vrf_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+    - (change_flags_msd.changes_detected_vrfs is defined and change_flags_msd.changes_detected_vrfs)
+    - (msd_vrf_diff_result is defined and msd_vrf_diff_result.updated | length > 0)
+
+- name: Override Networks List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    net_config: "{{ msd_network_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+    - (change_flags_msd.changes_detected_networks is defined and change_flags_msd.changes_detected_networks)
+    - (msd_network_diff_result is defined and msd_network_diff_result.updated | length > 0)
+
+# ----------------------------------------------------------------------------------
+# Likewise, the vrf_config and net_config data is created when the tasks above
+# are imported so we need to update and store them in vars_common_msd
+# ----------------------------------------------------------------------------------
 - name: Update Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_msd: "{{ vars_common_msd | ansible.builtin.combine(update_data) }}"
   vars:
     update_data:
-        changes_detected_vrfs: "{{ changes_detected_vrfs }}"
-        changes_detected_networks: "{{ changes_detected_networks }}"
-        vrf_config: "{{ vrf_config }}"
-        net_config: "{{ net_config }}"
-        # Check with Matt and Pete on how to handle this for MSD
-        # vrf_attach_config: "{{ vrf_attach_config }}"
+      vrf_config: "{{ vrf_config }}"
+      net_config: "{{ net_config }}"
 
-- name: Run Diff Flags
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Fabric Changes Detected -               [ {{ vars_common_msd.changes_detected_fabric }} ]"
-      - "+     VRFs Changes Detected -                 [ {{ vars_common_msd.changes_detected_vrfs }} ]"
-      - "+     Networks Changes Detected -             [ {{ vars_common_msd.changes_detected_networks }} ]"
-      - "+     ----- Run Map -----"
-      - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
-      - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
-      - "----------------------------------------------------------------"
-
-# With the VRFs and Networking pre-processed, we can now send the configuration for the MSD fabric to NDFC
+# With the VRFs and Networking pre-processed, we can now send the configuration for the MSD fabric to ND
 # based on the detected changes. This is done in the following tasks.
 
 # --------------------------------------------------------------------
-# Manage VRF Configuration on NDFC
+# Manage VRF Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
-# The cisco.dcnm.dcnm_vrf module works for MSD fabrics to create and update VRFs.
-- name: Manage NDFC MSD Fabric VRFs
-  cisco.dcnm.dcnm_vrf:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    state: replaced
-    config: "{{ vars_common_msd.vrf_config }}"
-  register: manage_vrf_result
+
+- name: Manage MSD Fabric VRFs and Loopback Attachments in Nexus Dashboard
   when:
-    - MD_Extended.vxlan.multisite.overlay.vrfs is defined
-    - MD_Extended.vxlan.multisite.overlay.vrfs
-    - vars_common_msd.changes_detected_vrfs
+    - data_model_extended.vxlan.multisite.overlay.vrfs is defined
+    - data_model_extended.vxlan.multisite.overlay.vrfs
+    - vars_common_msd.vrf_config | length > 0
+  block:
+    - name: Manage MSD Fabric VRFs in Nexus Dashboard
+      cisco.dcnm.dcnm_vrf:
+        fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+        state: replaced
+        config: "{{ vars_common_msd.vrf_config }}"
+      register: manage_msd_vrf_result
+      when:
+        - change_flags_msd.changes_detected_vrfs
 
-- name: Manage NDFC Child Fabric VRFs
-  cisco.nac_dc_vxlan.dtc.manage_child_fabric_vrfs:
-    msite_data: "{{ MD_Multisite}}"
-  register: child_fabric_vrf_results
+    # --------------------------------------------------------------------
+    # Manage Loopback VRF Attachments in Nexus Dashboard
+    # --------------------------------------------------------------------
+
+    - name: Manage MSD Fabric VRF Loopback Attachments in Nexus Dashboard
+      cisco.dcnm.dcnm_rest:
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
+        method: POST
+        json_data: "{{ msd_vrf_attach_config | to_json }}"
+      when:
+        - msd_vrf_attach_config | length > 0
 
 # --------------------------------------------------------------------
-# Manage Loopback VRF attachments on NDFC
+# Manage Network Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
-
-# Check with Matt and Pete on how we want to handle this for MSD
-# - name: Attach VRF Loopbacks per VRF
-#   cisco.dcnm.dcnm_rest:
-#     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
-#     method: "POST"
-#     json_data: "{{ vars_common_msd.vrf_attach_config | to_json}}"
-#   when:
-#     - MD_Extended.vxlan.overlay.vrfs is defined
-#     - MD_Extended.vxlan.overlay.vrfs
-#     - vars_common_msd.changes_detected_vrfs
-
-# --------------------------------------------------------------------
-# Manage Network Configuration on NDFC
-# --------------------------------------------------------------------
-- name: Manage NDFC MSD Fabric Networks
+- name: Manage MSD Fabric Networks in Nexus Dashboard
   cisco.dcnm.dcnm_network:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     state: replaced
     config: "{{ vars_common_msd.net_config }}"
-  register: manage_network_result
+  register: manage_msd_network_result
   when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined
-    - MD_Extended.vxlan.multisite.overlay.networks
-    - vars_common_msd.changes_detected_networks
-
-- name: Manage NDFC Child Fabric Networks
-  cisco.nac_dc_vxlan.dtc.manage_child_fabric_networks:
-    msite_data: "{{ MD_Multisite }}"
-  register: child_fabric_network_results
-
-- ansible.builtin.set_fact:
-    child_fabrics_vrfs_networks_changed: "{{ child_fabric_vrf_results.child_fabrics_changed | ansible.builtin.union(child_fabric_network_results.child_fabrics_changed) }}"
+    - data_model_extended.vxlan.multisite.overlay.networks is defined
+    - data_model_extended.vxlan.multisite.overlay.networks
+    - vars_common_msd.net_config | length > 0
+    - change_flags_msd.changes_detected_networks
