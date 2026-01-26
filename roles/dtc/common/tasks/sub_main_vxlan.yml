@@ -280,7 +280,7 @@
 
     - name: Set Multisite Check for Current Fabric
       ansible.builtin.set_fact:
-        is_active_child_fabric: "{{ true if selected_fabric[0]['fabricParent'] != 'None' else false }}"
+        is_active_child_fabric: "{{ true if (selected_fabric | length > 0 and selected_fabric[0]['fabricParent'] != 'None') else false }}"
 
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage VRFs
   ansible.builtin.fail:
