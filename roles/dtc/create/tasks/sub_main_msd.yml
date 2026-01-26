@@ -65,7 +65,8 @@
       ansible.builtin.debug:
         msg: "{{ config_save.msg.DATA }}"
       when:
-        - config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
+        - config_save.msg.RETURN_CODE is defined
+        - config_save.msg.RETURN_CODE == 500
 
 - name: Prepare Multisite Data
   cisco.nac_dc_vxlan.dtc.prepare_msite_data:
