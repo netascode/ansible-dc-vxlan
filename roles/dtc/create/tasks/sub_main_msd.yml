@@ -47,6 +47,26 @@
   when:
     - data_model_extended.vxlan.multisite.child_fabrics is defined
     - data_model_extended.vxlan.multisite.child_fabrics | length > 0
+  tags: "{{ nac_tags.create_fabric }}"
+
+- name: Config-Save Block to Propagate Child Fabrics MSD Fabric in Nexus Dashboard
+  tags: "{{ nac_tags.create_fabric }}"
+  block:
+    - name: Config-Save for MSD Fabric in Nexus Dashboard
+      cisco.dcnm.dcnm_rest:
+        method: POST
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/config-save"
+      when:
+        - data_model_extended.vxlan.multisite.child_fabrics | length > 0
+      register: config_save
+
+  rescue:
+    - name: Config-Save for MSD Fabric in Nexus Dashboard - Failed
+      ansible.builtin.debug:
+        msg: "{{ config_save.msg.DATA }}"
+      when:
+        - config_save.msg.RETURN_CODE is defined
+        - config_save.msg.RETURN_CODE == 500
 
 - name: Prepare Multisite Data
   cisco.nac_dc_vxlan.dtc.prepare_msite_data:
