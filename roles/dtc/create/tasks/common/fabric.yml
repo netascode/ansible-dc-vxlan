@@ -31,11 +31,6 @@
     vars_common_local: "{{ vars_common_msd }}"
   when: data_model_extended.vxlan.fabric.type == "MSD"
 
-- name: Set vars_common Based On Fabric Type - ISN
-  ansible.builtin.set_fact:
-    vars_common_local: "{{ vars_common_isn }}"
-  when: data_model_extended.vxlan.fabric.type == "ISN"
-
 - name: Set vars_common Based On Fabric Type - External
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
@@ -51,7 +46,6 @@
 - name: Manage Fabric in Nexus Dashboard
   cisco.dcnm.dcnm_fabric:
     state: merged
-    skip_validation: "{{ True if data_model_extended.vxlan.fabric.type == 'ISN' else omit }}"
     config: "{{ vars_common_local.fabric_config }}"
 
 - name: Create ANYCAST_RP in Nexus Dashboard

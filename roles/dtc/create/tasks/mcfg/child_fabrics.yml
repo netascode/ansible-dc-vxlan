@@ -37,6 +37,19 @@
     parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     child_fabrics: "{{ data_model_mcfg_child_fabrics.to_be_added }}"
     state: present
-  when:
-    - data_model_mcfg_child_fabrics.to_be_added is defined
-    - data_model_mcfg_child_fabrics.to_be_added | length > 0
+
+- name: Config-Save Block to Propagate Child Fabrics in MCFG Fabric in Nexus Dashboard
+  block:
+    - name: Config-Save for MCFG Fabric in Nexus Dashboard
+      cisco.dcnm.dcnm_rest:
+        method: POST
+        path: "/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{{ data_model_extended.vxlan.fabric.name }}/config-save"
+      register: config_save
+
+  rescue:
+    - name: Config-Save for MCFG Fabric in Nexus Dashboard - Failed
+      ansible.builtin.debug:
+        msg: "{{ config_save.msg.DATA }}"
+      when:
+        - config_save.msg.RETURN_CODE is defined
+        - config_save.msg.RETURN_CODE == 500

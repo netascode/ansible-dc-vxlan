@@ -35,7 +35,7 @@
   tags: "{{ nac_tags.create }}"
 
 - name: Create ISN Fabric in Nexus Dashboard
-  ansible.builtin.import_tasks: common/fabric.yml
+  ansible.builtin.import_tasks: isn/fabric.yml
   when:
     - data_model_extended.vxlan.fabric.name is defined
     - data_model_extended.vxlan.fabric.type == "ISN"
