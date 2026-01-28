@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2026 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -35,7 +35,7 @@
   tags: "{{ nac_tags.create }}"
 
 - name: Create ISN Fabric in Nexus Dashboard
-  ansible.builtin.import_tasks: common/fabric.yml
+  ansible.builtin.import_tasks: isn/fabric.yml
   when:
     - data_model_extended.vxlan.fabric.name is defined
     - data_model_extended.vxlan.fabric.type == "ISN"
