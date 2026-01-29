@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2026 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -61,8 +61,6 @@
     - multisite_vrf_delete_mode is true | bool
     - change_flags_msd.changes_detected_vrfs
     - msd_vrf_diff_result.removed | length > 0
-    - data_model_extended.vxlan.multisite.child_fabrics is defined
-    - data_model_extended.vxlan.multisite.child_fabrics | length > 0
     - run_map_read_result.diff_run is true | bool
     - force_run_all is false | bool
 
@@ -80,8 +78,6 @@
   when:
     - multisite_vrf_delete_mode is defined
     - multisite_vrf_delete_mode is true | bool
-    - data_model_extended.vxlan.multisite.child_fabrics is defined
-    - data_model_extended.vxlan.multisite.child_fabrics | length > 0
     - run_map_read_result.diff_run is false | bool or force_run_all is true | bool
 
 - name: Skip Remove Unmanaged Fabric VRFs Task If multisite_vrf_delete_mode is False

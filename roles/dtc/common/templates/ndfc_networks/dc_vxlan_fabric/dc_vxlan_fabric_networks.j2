@@ -59,7 +59,7 @@
   multicast_group_address: {{ net['multicast_group_address'] | default(defaults.vxlan.overlay.networks.multicast_group_address) }}
 {% endif %}
   netflow_enable: {{ net['netflow_enable'] | default(defaults.vxlan.overlay.networks.netflow_enable) }}
-{% if net['netflow_enable'] is defined and net['netflow_enable'] | bool %}
+{% if net['netflow_enable'] is defined and net['netflow_enable'] | ansible.builtin.bool %}
   vlan_nf_monitor: {{ net['vlan_netflow_monitor'] | default(omit) }}
 {% endif %}
   route_target_both: {{ net['route_target_both'] | default(defaults.vxlan.overlay.networks.route_target_both) }}

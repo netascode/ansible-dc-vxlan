@@ -1,6 +1,6 @@
 {# Auto-generated NDFC External Flow Monitor config data structure for fabric {{ vxlan.fabric.name }} #}
   ENABLE_NETFLOW: {{ vxlan.global.external.netflow.enable | default(defaults.vxlan.global.external.netflow.enable) }}
-{% if vxlan.global.external.netflow.enable is defined and vxlan.global.external.netflow.enable | bool or defaults.vxlan.global.external.netflow.enable | bool %}
+{% if vxlan.global.external.netflow.enable is defined and vxlan.global.external.netflow.enable | ansible.builtin.bool or defaults.vxlan.global.external.netflow.enable | ansible.builtin.bool %}
 {% if vxlan.global.external.netflow.exporter is defined %}
 {% set exporter_dict = dict() %}
 {% set _ = exporter_dict.update({ "NETFLOW_EXPORTER_LIST":[] }) %}
