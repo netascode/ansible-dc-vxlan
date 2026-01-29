@@ -49,4 +49,4 @@
 {% endif %}
 {% endif %}
   EXTRA_CONF_INTRA_LINKS: |2
-    {{ vxlan.global.ibgp.intra_fabric_link_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ibgp.intra_fabric_link_freeform | default(defaults.vxlan.global.ibgp.intra_fabric_link_freeform) | indent(4) }}
