@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2026 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -34,6 +34,19 @@
     parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     child_fabrics: "{{ data_model_msd_child_fabrics.to_be_added }}"
     state: present
-  when:
-    - data_model_msd_child_fabrics.to_be_added is defined
-    - data_model_msd_child_fabrics.to_be_added | length > 0
+
+- name: Config-Save Block to Propagate Child Fabrics in MSD Fabric in Nexus Dashboard
+  block:
+    - name: Config-Save for MSD Fabric in Nexus Dashboard
+      cisco.dcnm.dcnm_rest:
+        method: POST
+        path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/config-save"
+      register: config_save
+
+  rescue:
+    - name: Config-Save for MSD Fabric in Nexus Dashboard - Failed
+      ansible.builtin.debug:
+        msg: "{{ config_save.msg.DATA }}"
+      when:
+        - config_save.msg.RETURN_CODE is defined
+        - config_save.msg.RETURN_CODE == 500
