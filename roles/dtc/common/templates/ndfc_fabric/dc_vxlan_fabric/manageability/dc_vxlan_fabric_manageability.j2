@@ -55,3 +55,11 @@
   SYSLOG_SEV: {{ syslog_server_sevs | join(',') | default(omit) }}
 {% endif %}
 {% endif %}
+{% if vxlan.underlay.general.aaa_freeform is defined %}
+  AAA_SERVER_CONF: |
+    {{ vxlan.underlay.general.aaa_freeform | indent(4) }}
+{% endif%}
+{% if vxlan.underlay.general.banner_freeform is defined %}
+  BANNER: |
+    {{ vxlan.underlay.general.banner_freeform | indent(4) }}
+{% endif%}

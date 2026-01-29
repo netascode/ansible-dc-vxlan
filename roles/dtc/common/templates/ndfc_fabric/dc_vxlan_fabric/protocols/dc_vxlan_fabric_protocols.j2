@@ -65,3 +65,11 @@
 {% endif %}
 {% endif %}
 {% endif %}
+{% if vxlan.underlay.bgp.ibgp_rr_peer_template is defined %}
+  IBGP_PEER_TEMPLATE: |2
+    {{ vxlan.underlay.bgp.ibgp_rr_peer_template | indent(4, false) }}
+{% endif %}
+{% if vxlan.underlay.bgp.ibgp_peer_template is defined %}
+  IBGP_PEER_TEMPLATE_LEAF: |2
+    {{ vxlan.underlay.bgp.ibgp_peer_template | indent(4, false) }}
+{% endif %}
