@@ -157,7 +157,7 @@ vxlan:
         poap:
           bootstrap: false
           discovery_creds: true  # Enable discovery credentials
-          discovery_usename: svc_account
+          discovery_username: svc_account
           discvoery_password: cisco1234
           preprovision:
             serial_number: FDO12345678
@@ -182,7 +182,7 @@ vxlan:
         poap:
           bootstrap: false
           discovery_creds: true  # Enable discovery credentials
-          discovery_usename: svc_account
+          discovery_username: svc_account
           discovery_password: !vault |
               $ANSIBLE_VAULT;1.1;AES256
               63386330333766383135353230346633373936613261373334306666336436303435336338363335
@@ -213,7 +213,7 @@ vxlan:
         poap:
           bootstrap: false
           discovery_creds: true  # Enable discovery credentials
-          discovery_usename: svc_account
+          discovery_username: svc_account
           discovery_password: env_var_netascode-leaf-01_password
           preprovision:
             serial_number: FDO12345678
