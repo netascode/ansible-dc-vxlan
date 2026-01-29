@@ -58,12 +58,15 @@ class ActionModule(ActionBase):
 
         return credential
 
-    def _get_switch_credentials_from_datamodel(self, data_model, management_ipv4_address):
+    def _get_switch_credentials_from_datamodel(self, data_model, management_ip_address):
 
         data_model_switches = data_model['vxlan']['topology']['switches']
 
         for switch in data_model_switches:
-            if switch['management']['management_ipv4_address'] == management_ipv4_address:
+            # Find switch by management IPv4 or IPv6 address
+            management_ipv4 = switch['management'].get('management_ipv4_address')
+            management_ipv6 = switch['management'].get('management_ipv6_address')
+            if (management_ipv4 and management_ipv4 == management_ip_address) or (management_ipv6 and management_ipv6 == management_ip_address):
                 username = switch['management'].get('username', '')
                 password = switch['management'].get('password', '')
                 if username and password:
@@ -71,12 +74,15 @@ class ActionModule(ActionBase):
                 else:
                     return None
 
-    def _get_discovery_switch_credentials_from_datamodel(self, data_model, management_ipv4_address):
+    def _get_discovery_switch_credentials_from_datamodel(self, data_model, management_ip_address):
 
         data_model_switches = data_model['vxlan']['topology']['switches']
 
         for switch in data_model_switches:
-            if switch['management']['management_ipv4_address'] == management_ipv4_address:
+            # Find switch by management IPv4 or IPv6 address
+            management_ipv4 = switch['management'].get('management_ipv4_address')
+            management_ipv6 = switch['management'].get('management_ipv6_address')
+            if (management_ipv4 and management_ipv4 == management_ip_address) or (management_ipv6 and management_ipv6 == management_ip_address):
                 if switch.get('poap') and switch['poap'].get('discovery_creds', False):
                     username = switch['poap'].get('discovery_username', '')
                     password = switch['poap'].get('discovery_password', '')

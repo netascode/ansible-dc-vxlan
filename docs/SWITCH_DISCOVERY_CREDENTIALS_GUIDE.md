@@ -139,6 +139,66 @@ When using the same service account for ND controller access (`ND_USERNAME`) and
 
 ## Examples
 
+### Discovery Credentials Priority Order
+
+When `discovery_creds: true` is enabled in the POAP configuration, the system follows a priority order to resolve which credentials to use.
+
+#### Important Clarification
+**Environment Variables and Group Variables are interconnected**: The `group_vars/ndfc/connection.yaml` file uses `lookup('env', ...)` to populate group variables from environment variables. They are not separate priority levels, but rather the same source accessed in different ways.
+
+```yaml
+# In group_vars/ndfc/connection.yaml
+ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
+ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
+```
+
+#### Priority Resolution (Highest to Lowest)
+1. **Switch-Specific Credentials** - Individual `discovery_username` and `discovery_password` defined in the switch's POAP configuration
+   - Can be plain text values
+   - Can be Ansible Vault encrypted values
+   - Can reference environment variables using `env_var_` prefix (e.g., `env_var_MY_PASSWORD`)
+   - If `env_var_` prefix is used but environment variable not found, falls back to group_vars credentials
+
+2. **Global Group Variables / Environment Variables** - `ndfc_switch_discovery_username` and `ndfc_switch_discovery_password` from `group_vars/ndfc/connection.yaml`
+   - These are populated from `NDFC_SW_DISCOVERY_USERNAME` and `NDFC_SW_DISCOVERY_PASSWORD` environment variables
+   - Used when no switch-specific credentials are defined
+
+#### Resolution Example Flow
+```
+If switch has discovery_username/password defined:
+  ├─ Check if value starts with 'env_var_' prefix:
+  │  ├─ If yes: Try to resolve from environment variable
+  │  │           ├─ If found: Use it (Priority 1a)
+  │  │           └─ If not found: Fall back to group_vars (Priority 2)
+  │  └─ If no: Use the value directly (Priority 1b)
+  └─ Done
+
+Else if switch does NOT have switch-specific credentials:
+  ├─ Use group_vars credentials (Priority 2)
+  │  (which were populated from NDFC_SW_DISCOVERY_USERNAME/PASSWORD env vars)
+  └─ Done
+
+Else (no switch-specific AND no group_vars credentials):
+  ├─ FAIL with error message
+  └─ Playbook execution stops (retrieve_failed = True)
+```
+
+#### ⚠️ Important: Failure Behavior
+
+**If `discovery_creds: true` is set but NO credentials are found**, the playbook will **FAIL**:
+
+```
+retrieve_failed: True
+failed: True
+msg: "Discovery credentials incomplete for device {device_ip}. Ensure global discovery credentials are set."
+```
+
+**To avoid this failure, you MUST either:**
+- Define individual `discovery_username` and `discovery_password` in the switch POAP configuration, OR
+- Configure the global environment variables `NDFC_SW_DISCOVERY_USERNAME` and `NDFC_SW_DISCOVERY_PASSWORD` (which populate group_vars)
+
+### Example Configurations
+
 Additionally, we can configure directly discovery credential per switch using key discover_username and discover_password.
 
 **Not recommended in production with plain text**
