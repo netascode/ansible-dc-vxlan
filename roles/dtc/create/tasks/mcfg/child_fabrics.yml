@@ -37,8 +37,14 @@
     parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     child_fabrics: "{{ data_model_mcfg_child_fabrics.to_be_added }}"
     state: present
+  when:
+    - data_model_mcfg_child_fabrics.to_be_added is defined
+    - data_model_mcfg_child_fabrics.to_be_added | length > 0
 
 - name: Config-Save Block to Propagate Child Fabrics in MCFG Fabric in Nexus Dashboard
+  when:
+    - data_model_mcfg_child_fabrics.to_be_added is defined
+    - data_model_mcfg_child_fabrics.to_be_added | length > 0
   block:
     - name: Config-Save for MCFG Fabric in Nexus Dashboard
       cisco.dcnm.dcnm_rest:
