@@ -32,7 +32,7 @@
   secondary_ip_gw4: {{ net['secondary_ip_addresses'][3]['ip_address'] }}
 {% endif %}
 {% endif %}
-  arp_suppress: {{ net['arp_suppress'] | default(defaults.vxlan.overlay.networks.arp_supress) }}
+  arp_suppress: {{ net['arp_suppress'] | default(defaults.vxlan.overlay.networks.arp_suppress) }}
   gw_ipv6_subnet: {{ net['gw_ipv6_address'] | default(omit) }}
   int_desc: {{ net['int_desc'] | default(defaults.vxlan.overlay.networks.net_description) }}
   mtu_l3intf: {{ net['mtu_l3intf'] | default(defaults.vxlan.overlay.networks.mtu_l3intf) }}

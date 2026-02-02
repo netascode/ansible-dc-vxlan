@@ -31,7 +31,7 @@
   secondary_ip_gw4: {{ net['secondary_ip_addresses'][3]['ip_address'] }}
 {% endif %}
 {% endif %}
-  arp_suppress: {{ net['arp_suppress'] | default(defaults.vxlan.overlay.networks.arp_supress) }}
+  arp_suppress: {{ net['arp_suppress'] | default(defaults.vxlan.overlay.networks.arp_suppress) }}
   dhcp_loopback_id: {{ net['dhcp_loopback_id'] | default(omit) }}
 {% if net.dhcp_servers is defined %}
 {% if net.dhcp_servers | length == 1 %}

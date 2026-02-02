@@ -339,7 +339,7 @@ factory_defaults:
       networks:
         net_description: "Configured by Ansible NetAsCode"
         is_l2_only: false
-        arp_supress: false
+        arp_suppress: false
         l3gw_on_border: false
         mtu_l3intf: 9216
         multicast_group_address: 239.1.1.1
@@ -487,7 +487,7 @@ factory_defaults:
         networks:
           net_description: "Configured by Ansible NetAsCode"
           is_l2_only: false
-          arp_supress: false
+          arp_suppress: false
           l3gw_on_border: false
           mtu_l3intf: 9216
           multicast_group_address: 239.1.1.1
