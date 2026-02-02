@@ -218,7 +218,7 @@ vxlan:
           bootstrap: false
           discovery_creds: true  # Enable discovery credentials
           discovery_username: svc_account
-          discvoery_password: cisco1234
+          discovery_password: cisco1234
           preprovision:
             serial_number: FDO12345678
             model: N9K-C93180YC-EX
