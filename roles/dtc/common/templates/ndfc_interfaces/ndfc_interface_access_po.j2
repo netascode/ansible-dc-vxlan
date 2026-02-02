@@ -10,7 +10,7 @@
 {% if interface_name.startswith('po') %}
 {% if interface['mode'] == 'access' %}
 {% if interface['vpc_id'] is not defined %}
-- name : {{ interface['name'] }}
+- name: {{ interface['name'] }}
   type: pc
   switch:
 {% if switch.management.management_ipv4_address is defined %}
@@ -20,7 +20,7 @@
 {% endif %}
   deploy: false
   profile:
-    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enabled) }}
+    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enabled) | lower }}
     mode: 'access'
     description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.description) }}"
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.mtu) }}
@@ -29,14 +29,15 @@
     pc_mode: "{{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.pc_mode) }}"
     members: {{ interface['members'] | default(omit) }}
     access_vlan: {{ interface['access_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
-    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_bpdu_guard) }}
+    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_bpdu_guard) | lower }}
     duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.duplex) }}
-    disable_lacp_suspend_individual: {{ interface['disable_lacp_suspend_individual'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.disable_lacp_suspend_individual) }}
+    disable_lacp_suspend_individual: {{ interface['disable_lacp_suspend_individual'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.disable_lacp_suspend_individual) | lower }}
     lacp_port_priority: {{ interface['lacp_port_priority'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.lacp_port_priority) }}
     lacp_rate: {{ interface['lacp_rate'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.lacp_rate) }}
 {% if interface['orphan_port'] | default(false) %}
-    orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.orphan_port) }}
+    orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.orphan_port) | lower }}
 {% endif %}
+    enable_monitor: {{ interface['monitor'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.monitor) | lower }}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
