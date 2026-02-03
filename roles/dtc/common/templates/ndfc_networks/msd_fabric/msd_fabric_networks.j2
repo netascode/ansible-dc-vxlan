@@ -47,23 +47,12 @@
       multicast_group_address: {{ child_fabric['multicast_group_address'] | default(omit) }}
 {% endif %}
       dhcp_loopback_id: {{ child_fabric['dhcp_loopback_id'] | default(omit) }}
-{% if child_fabric.dhcp_servers is defined %}
-{% if child_fabric.dhcp_servers | length == 1 %}
-      dhcp_srvr1_ip: {{ child_fabric['dhcp_servers'][0]['ip_address'] }}
-      dhcp_srvr1_vrf: {{ child_fabric['dhcp_servers'][0]['vrf'] }}
-{% elif child_fabric.dhcp_servers | length == 2 %}
-      dhcp_srvr1_ip: {{ child_fabric['dhcp_servers'][0]['ip_address'] }}
-      dhcp_srvr1_vrf: {{ child_fabric['dhcp_servers'][0]['vrf'] }}
-      dhcp_srvr2_ip: {{ child_fabric['dhcp_servers'][1]['ip_address'] }}
-      dhcp_srvr2_vrf: {{ child_fabric['dhcp_servers'][1]['vrf'] }}
-{% elif child_fabric.dhcp_servers | length == 3 %}
-      dhcp_srvr1_ip: {{ child_fabric['dhcp_servers'][0]['ip_address'] }}
-      dhcp_srvr1_vrf: {{ child_fabric['dhcp_servers'][0]['vrf'] }}
-      dhcp_srvr2_ip: {{ child_fabric['dhcp_servers'][1]['ip_address'] }}
-      dhcp_srvr2_vrf: {{ child_fabric['dhcp_servers'][1]['vrf'] }}
-      dhcp_srvr3_ip: {{ child_fabric['dhcp_servers'][2]['ip_address'] }}
-      dhcp_srvr3_vrf: {{ child_fabric['dhcp_servers'][2]['vrf'] }}
-{% endif %}
+{% if child_fabric.dhcp_servers is defined and child_fabric.dhcp_servers %}
+      dhcp_servers:
+{% for dhcp_srvr in child_fabric.dhcp_servers %}
+        - srvr_ip: {{ dhcp_srvr['ip_address'] }}
+          srvr_vrf: {{ dhcp_srvr['vrf'] | default(omit) }}
+{% endfor %}
 {% endif %}
       trm_enable: {{ child_fabric['trm_enable'] | default(omit) }}
 {#      trmv6_enable: {{ child_fabric['trmv6_enable'] | default(omit) }} #}
