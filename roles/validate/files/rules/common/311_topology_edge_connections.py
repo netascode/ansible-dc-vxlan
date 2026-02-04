@@ -39,7 +39,7 @@ class Rule:
             # Verify source_interface does not contain a '.'
             if source_interface and '.' in source_interface:
                 results.append(
-                    f"vxlan.topology.edge_connections.{source_device}.{source_interface} source_interface must not contain a '.' (sub-interfaces are not allowed)."
+                    f"vxlan.topology.edge_connections.{source_device} source_interface must not contain a '.' (sub-interfaces are not allowed)."
                 )
 
         return results
