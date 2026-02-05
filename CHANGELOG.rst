@@ -19,7 +19,7 @@ Added
 * NEW Feature: Support for Multi-Cluster Fabric Groups (MCFG)
     * Support for VXLAN Child Fabric
     * Support for ISN Child Fabric
-    * Support for MSD Parent Fabric
+    * Support for MCFG Parent Fabric Group
 * NEW Feature: Support for up to 16 DHCP servers.  Increased from 3 to 16.
 * NEW Featurer: Support for service account credentials during POAP discovery
 * Added support monitor mode for interfaces in data model
