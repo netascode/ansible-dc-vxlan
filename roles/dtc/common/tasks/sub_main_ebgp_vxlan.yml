@@ -278,11 +278,11 @@
     msg: VRFs cannot be managed from the current fabric {{  data_model_extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
   when:
     - is_active_child_fabric
-    - vars_common_vxlan.vrf_config | length > 0
+    - vars_common_ebgp_vxlan.vrf_config | length > 0
 
 - name: Fail If Current Fabric is Part of Multisite And Attempting to Manage Networks
   ansible.builtin.fail:
     msg: Networks cannot be managed from the current fabric {{  data_model_extended.vxlan.fabric.name }} as it is a child fabric part of a Multisite fabric.
   when:
     - is_active_child_fabric
-    - vars_common_vxlan.net_config | length > 0
+    - vars_common_ebgp_vxlan.net_config | length > 0
