@@ -2,26 +2,64 @@
 
 ## Overview
 
-This guide explains how to configure and use different credential types with the NaC VXLAN solution. Understanding the distinction between switch admin credentials, discovery credentials, and ND controller credentials is essential for proper fabric management.
+This guide explains how to set and use different credential types with the NaC VXLAN solution for switch discovery with POAP. 
+Understanding the distinction between switch admin credentials and discovery credentials is essential for proper fabric management.
 
-## Credential Types Overview
+| Action | Admin Credentials | Discovery Credentials |
+|----------|----------|----------|
+| Access | Read-Write | Read-Only |
+| Use | Configuration Changes | Inventory |
+| Protocols | SSH | SSH & SNMPv3 |
+
+> [!NOTE]
+> In the absense of discovery credentials, admin credentials are used for both actions.
+
+## Credential Types
 
 The NaC VXLAN solution uses distinct sets of credentials:
 
-**Global account** defined under group_vars:
+**Admin Credentials** 
 
-1. **Switch Admin Credentials (`NDFC_SW_USERNAME` / `NDFC_SW_PASSWORD`)**
-   - Default admin account on switches (typically `admin` when used with POAP or preprovision).
+Admin credentials are the admin account on switches (typically `admin` when used with POAP or preprovision).
+These are set one of two ways:
+- In group_vars for all switches
+- As a per switch override
+
+**group_vars**
+   - The variables in group_vars are: `ndfc_switch_username` and `ndfc_switch_username`
+   - The environment variables `NDFC_SW_USERNAME` and `NDFC_SW_PASSWORD` can we set and used as in the example below:
 
 ```yaml
-# In group_vars/ndfc/connection.yaml
+# In group_vars/nd/connection.yaml
 
 # Switch admin credentials (for POAP/preprovision initial setup)
 ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
 ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
 ```
+**Per Switch**
 
-2. **Switch Discovery Account Credentials (optional) (`NDFC_SW_DISCOVERY_USERNAME` / `NDFC_SW_DISCOVERY_PASSWORD`)**
+Admin credentials have a per switch override for each in the data model:
+
+```yaml
+vxlan:
+  topology:
+    switches:
+      - name: nac-s1-leaf1
+        serial_number: 9C2MQTWVJXA
+        role: leaf
+        management:
+          default_gateway_v4: 10.15.33.1
+          management_ipv4_address: 10.15.33.13
+          username: env_var_leaf2_username
+          password: env_var_leaf2_password
+```
+
+More information can be found in the [topology switches](https://netascode.cisco.com/docs/data_models/vxlan/topology/topology_switch/) section of the model as well as the [switch credentials documentation guide](https://github.com/netascode/ansible-dc-vxlan/blob/main/docs/SWITCH_CREDENTIALS_GUIDE.md).
+
+
+**Discovery Credentials**
+
+**`ndfc_switch_discovery_username` / `ndfc_switch_discovery_password`**
 
 ```yaml
 # In group_vars/ndfc/connection.yaml
@@ -30,6 +68,7 @@ ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
 ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
 ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
 ```
+`NDFC_SW_DISCOVERY_USERNAME` / `NDFC_SW_DISCOVERY_PASSWORD`
 
 **Local account** defined under switch:
 
