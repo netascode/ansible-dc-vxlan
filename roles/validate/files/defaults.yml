@@ -71,6 +71,7 @@ factory_defaults:
           enable_bootstrap: false
           enable_local_dhcp_server: false
           enable_cdp_mgmt: false
+        intra_fabric_link_freeform: ""
       ibgp:
         route_reflectors: 2
         anycast_gateway_mac: 20:20:00:00:00:aa
@@ -126,6 +127,7 @@ factory_defaults:
           enable_local_dhcp_server: false
           enable_cdp_mgmt: false
         tcam_allocation: true
+        intra_fabric_link_freeform: ""
       external:
         auth_proto: MD5
         enable_nxapi_http: false
