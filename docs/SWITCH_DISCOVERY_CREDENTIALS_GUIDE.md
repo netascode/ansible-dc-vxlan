@@ -256,8 +256,8 @@ Group vars:
 # In group_vars/nd/connection.yaml
 
 # Switch discovery credentials (for ongoing polling and discovery)
-ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
-ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
+ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
+ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
 # Switch discovery credentials (for ongoing polling and discovery)
 ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
 ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
@@ -305,8 +305,8 @@ Group vars:
 # In group_vars/nd/connection.yaml
 
 # Switch discovery credentials (for ongoing polling and discovery)
-ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
-ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
+ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
+ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
 # Switch discovery credentials (for ongoing polling and discovery)
 ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
 ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
@@ -357,8 +357,8 @@ Group vars:
 # In group_vars/nd/connection.yaml
 
 # Switch discovery credentials (for ongoing polling and discovery)
-ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
-ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
+ndfc_switch_username: "{{ lookup('env', 'NDFC_Se_USERNAME') }}"
+ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
 # Switch discovery credentials (for ongoing polling and discovery)
 ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
 ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
