@@ -25,9 +25,6 @@ Added
 * Added support monitor mode for interfaces in data model
 * Added native vlan support for vPC interfaces
 
-Modified
---------
-
 Fixed
 -----
 * https://github.com/netascode/ansible-dc-vxlan/issues/201
