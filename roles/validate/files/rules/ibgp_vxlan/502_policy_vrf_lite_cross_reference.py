@@ -20,6 +20,8 @@ Validation Rules scenarios:
     vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospf.network_type
 """
 
+OSPF_VERSIONS = ["ospf", "ospfv3"]
+
 
 class Rule:
     """
@@ -88,13 +90,22 @@ class Rule:
     @classmethod
     def check_global_ospf_and_bgp(cls, policy):
         """
-        Check if OSPF and BGP is enabled in the global policy
+        Check if OSPF, OSPFv3 or BGP are enabled in the global policy
         """
-        if {"ospf", "bgp"}.issubset(policy):
+        for ospf_version in OSPF_VERSIONS:
+            if {ospf_version, "bgp"}.issubset(policy):
+                cls.results.append(
+                    f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.{ospf_version}, "
+                    f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.bgp. "
+                    f"BGP and {ospf_version.upper()} are defined in the same vrf-lite entry; "
+                    "please use two different vrf-lite entries."
+                )
+
+        if {"ospf", "ospfv3"}.issubset(policy):
             cls.results.append(
                 f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf, "
-                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.bgp. "
-                "BGP and OSPF are defined in the same vrf-lite entry; "
+                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospfv3. "
+                "OSPF and OSPFv3 are defined in the same vrf-lite entry; "
                 "please use two different vrf-lite entries."
             )
 
@@ -103,29 +114,31 @@ class Rule:
         """
         Check OSPF Process
         """
-        if policy.get("ospf") and not policy["ospf"].get("process"):
-            cls.results.append(
-                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf.process. "
-                f"OSPF process is not defined."
-            )
+        for ospf_version in OSPF_VERSIONS:
+            if policy.get(ospf_version) and not policy[ospf_version].get("process"):
+                cls.results.append(
+                    f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.{ospf_version}.process. "
+                    f"{ospf_version.upper()} process is not defined."
+                )
 
     @classmethod
     def check_global_ospf_area(cls, policy):
         """
         Check OSPF if backbone area is standard
         """
-        if policy.get("ospf") and policy["ospf"].get("areas"):
-            for area in policy["ospf"]["areas"]:
-                if "id" in area and area.get("area_type"):
-                    # Check if AREA 0 is not standard
-                    if area["id"] in (0, "0.0.0.0") and area["area_type"] != "standard":
-                        cls.results.append(
-                            f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.ospf.areas.id.0. "
-                            f"area_type is defined to {area['area_type']}. "
-                            "Backbone area is always standard"
-                        )
-                    elif area["area_type"] == "nssa":
-                        cls.check_global_ospf_nssa(area, policy["name"])
+        for ospf_version in OSPF_VERSIONS:
+            if policy.get(ospf_version) and policy[ospf_version].get("areas"):
+                for area in policy[ospf_version]["areas"]:
+                    if "id" in area and area.get("area_type"):
+                        # Check if AREA 0 is not standard
+                        if area["id"] in (0, "0.0.0.0") and area["area_type"] != "standard":
+                            cls.results.append(
+                                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.{ospf_version}.areas.id.0. "
+                                f"area_type is defined to {area['area_type']}. "
+                                "Backbone area is always standard"
+                            )
+                        elif area["area_type"] == "nssa":
+                            cls.check_global_ospf_nssa(area, policy["name"])
 
     @classmethod
     def check_global_ospf_nssa(cls, area, policy):
@@ -165,6 +178,7 @@ class Rule:
         Check switch level
         """
         ospf = False
+        ospfv3 = False
         bgp = False
 
         # Check (bgp or bgp_peer) at the switch level
@@ -190,12 +204,35 @@ class Rule:
                         policy["name"],
                     )
 
-        # Check if OSPF and BGP is enabled
-        if ospf is True and bgp is True:
+        # Check OSPFv3 at the switch level
+        if switch_policy.get("interfaces", None):
+            for interface in switch_policy["interfaces"]:
+                if interface.get("ospfv3"):
+                    ospfv3 = True
+                    cls.check_switch_ospf(
+                        interface["ospfv3"],
+                        switch_policy["name"],
+                        interface["name"],
+                        policy["name"],
+                    )
+
+        # Check if OSPF, OSPFv3 or BGP is enabled
+        if (ospf or ospfv3) and bgp:
+            ospf_ver_str = ""
+            ospf_ver_str = "OSPF" if ospf else ""
+            ospf_ver_str += ", " if ospf and ospfv3 else ""
+            ospf_ver_str += "OSPFv3" if ospfv3 else ""
+
             cls.results.append(
                 f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.switches.{switch_policy['name']}. "
-                "BGP and OSPF are configured in the same policy at the switch level. "
-                "Please use two different policies"
+                f"BGP, {ospf_ver_str} are configured in the same policy at the switch level. "
+                "Please use two different policies.-xx"
+            )
+        if ospf and ospfv3:
+            cls.results.append(
+                f"vxlan.overlay_extensions.vrf_lites.{policy['name']}.switches.{switch_policy['name']}. "
+                "OSPF and OSPFv3 are configured in the same policy at the switch level. "
+                "Please use two different policies."
             )
 
         # Check if switch exists in topology
