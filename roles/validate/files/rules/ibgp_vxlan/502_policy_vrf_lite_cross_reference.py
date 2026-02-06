@@ -23,11 +23,11 @@ Validation Rules scenarios:
 
 class Rule:
     """
-    Class 502 - Verify VRF-Lites Cross Reference Between Policies, Groups, and Switches
+    Class 502 - Verify VRF-Lites cross reference between policies, groups, and switches
     """
 
     id = "502"
-    description = "Verify VRF-Lites Cross Reference Between Policies, Groups, and Switches"
+    description = "Verify VRF-Lites cross reference between policies, groups, and switches"
     severity = "HIGH"
     results = []
 
@@ -114,7 +114,7 @@ class Rule:
         """
         Check OSPF if backbone area is standard
         """
-        if policy.get("ospf") and not policy["ospf"].get("areas"):
+        if policy.get("ospf") and policy["ospf"].get("areas"):
             for area in policy["ospf"]["areas"]:
                 if "id" in area and area.get("area_type"):
                     # Check if AREA 0 is not standard

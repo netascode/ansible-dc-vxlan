@@ -1,7 +1,7 @@
 ---
 namespace: cisco
 name: nac_dc_vxlan
-version: 0.5.1
+version: 0.6.0
 readme: README.md
 authors:
   - Devendra Gupta <devegupt>
@@ -16,6 +16,8 @@ authors:
   - Vladimir Joshevski <vjoshevs>
   - Slawomir Kaszlikowski <skaszlik>
   - Michal Kilar <mkilar>
+  - Matt Thurston <mthurstocisco>
+  - Peter Lewis <peter8498>
 description: Ansible Solution Collection for VXLAN
 
 repository: https://github.com/netascode/ansible-dc-vxlan
@@ -29,5 +31,5 @@ tags: [cisco, dc, nd, ndfc, nxos, networking, vxlan, evpn, nac, sac]
 
 dependencies:
   "ansible.netcommon": ">=4.1.0"
-  "cisco.dcnm": ">=3.9.1"
+  "cisco.dcnm": ">=3.10.0"
   "community.general": ">=8.5.0"

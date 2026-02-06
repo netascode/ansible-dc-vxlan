@@ -27,11 +27,11 @@ Validation Rules scenarios:
 
 class Rule:
     """
-    Class 505 - Verify Route-Control Cross Reference Integrity Between Policies, Groups, and Switches
+    Class 505 - Verify route control cross reference between policies, groups, and switches
     """
 
     id = "505"
-    description = "Verify Route-Control Cross Reference Integrity Between Policies, Groups, and Switches"
+    description = "Verify route control cross reference between policies, groups, and switches"
     severity = "HIGH"
     results = []
 
@@ -96,9 +96,7 @@ class Rule:
         check = cls.data_model_key_check(data_model["vxlan"], rm_keys)
         if 'route_maps' in check['keys_data']:
             route_maps = data_model["vxlan"]["overlay_extensions"]["route_control"]["route_maps"]
-            cls.check_route_maps(
-                route_maps
-            )
+            cls.check_route_maps(route_maps)
 
         return cls.results
 

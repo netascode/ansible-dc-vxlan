@@ -2,7 +2,7 @@
 ! DO NOT EDIT MANUALLY
 !
 !
-{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
+{% set simplified_fabric_type = data_model_extended.vxlan.fabric.simplified_type %}
 {% macro vrf_lite_ebgp_vrf_config(item, switch_item, defaults) %}
 
 {% if switch_item.router_id %}
@@ -49,7 +49,7 @@
     {% if switch_redist.source == 'static' and switch_redist.route_map_ipv4 %}
     redistribute static route-map {{ switch_redist.route_map_ipv4 }}
     {% endif %}
-    {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
+    {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 and switch_redist.protocol_tag %}
     redistribute ospf {{ switch_redist.protocol_tag }} route-map {{ switch_redist.route_map_ipv4 }}
     {% endif %}
   {% endfor %}
@@ -193,13 +193,12 @@ feature bfd
 {% endif %}
 !
 {% if item.vrf.lower() == "default" %}
-router bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }}
+router bgp {{ data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn }}
   {# GRT #}
   {{- vrf_lite_ebgp_vrf_config(item, switch_item, defaults) -}}
 {% else %}
-router bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }}
+router bgp {{ data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn }}
   {# Other VRFs #}
   vrf {{ item.vrf }}
-
   {{- vrf_lite_ebgp_vrf_config(item, switch_item, defaults) | indent(2) -}}
 {% endif %}

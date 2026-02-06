@@ -68,29 +68,29 @@ class PreparePlugin:
         self.keys = []
 
     def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
+        data_model = self.kwargs['results']['model_extended']
 
         # Store simplified data model fabric type key for ibgp, ebgp, and external fabrics
         # This is for ease of use in Jinja2 templates and Ansible tasks
         new_global_key = None
-        if model_data['vxlan']['fabric']['type'] == 'VXLAN_EVPN':
+        if data_model['vxlan']['fabric']['type'] == 'VXLAN_EVPN':
             new_global_key = 'ibgp'
-            model_data['vxlan']['fabric'].update({'simplified_type': new_global_key})
+            data_model['vxlan']['fabric'].update({'simplified_type': new_global_key})
             PARENT_KEYS.append(new_global_key)
-        elif model_data['vxlan']['fabric']['type'] == 'eBGP_VXLAN':
+        elif data_model['vxlan']['fabric']['type'] == 'eBGP_VXLAN':
             # Do not set new_global_key here as eBGP fabrics only support attributes under the 'ebgp' key under 'global'
-            model_data['vxlan']['fabric'].update({'simplified_type': 'ebgp'})
-        elif model_data['vxlan']['fabric']['type'] == 'External':
+            data_model['vxlan']['fabric'].update({'simplified_type': 'ebgp'})
+        elif data_model['vxlan']['fabric']['type'] == 'External':
             new_global_key = 'external'
-            model_data['vxlan']['fabric'].update({'simplified_type': new_global_key})
+            data_model['vxlan']['fabric'].update({'simplified_type': new_global_key})
             PARENT_KEYS.append(new_global_key)
-        elif model_data['vxlan']['fabric']['type'] == 'ISN':
+        elif data_model['vxlan']['fabric']['type'] == 'ISN':
             # new_global_key is set to 'isn' here only for the conditional check that follows and is not a new key
             new_global_key = 'isn'
             ISN_PARENT_KEYS.append(new_global_key)
 
         if new_global_key in ['ibgp', 'external']:
-            dm_check = data_model_key_check(model_data, PARENT_KEYS)
+            dm_check = data_model_key_check(data_model, PARENT_KEYS)
 
             # This if handles the case where the new global key does not exist at all
             # or exists but has no data. This is to ensure that the new global key is
@@ -103,12 +103,12 @@ class PreparePlugin:
 
                 display.deprecated(msg=deprecated_msg, version="1.0.0", collection_name='cisco.nac_dc_vxlan')
 
-                model_data['vxlan']['global'].update({new_global_key: {}})
+                data_model['vxlan']['global'].update({new_global_key: {}})
 
                 for key in BACKWARD_COMPATIBLE_KEYS:
-                    if key in model_data['vxlan']['global']:
-                        model_data['vxlan']['global'][new_global_key].update({key: model_data['vxlan']['global'][key]})
-                        model_data['vxlan']['global'].pop(key, None)
+                    if key in data_model['vxlan']['global']:
+                        data_model['vxlan']['global'][new_global_key].update({key: data_model['vxlan']['global'][key]})
+                        data_model['vxlan']['global'].pop(key, None)
 
                 return self.kwargs['results']
 
@@ -118,35 +118,35 @@ class PreparePlugin:
             elif new_global_key in dm_check['keys_found'] and (new_global_key in dm_check['keys_data'] or new_global_key in dm_check['keys_no_data']):
                 for key in BACKWARD_COMPATIBLE_KEYS:
                     # Check if the key exists in the new global key
-                    dm_check = data_model_key_check(model_data, PARENT_KEYS + [key])
+                    dm_check = data_model_key_check(data_model, PARENT_KEYS + [key])
                     # If the key does not exist or has no data in the new global key, we can safely try to copy the data
                     # from the old global key to the new global key if the old global key has data
                     if key in dm_check['keys_not_found'] or key in dm_check['keys_no_data']:
                         # Check if the key exists in the old global key
-                        dm_check = data_model_key_check(model_data, PARENT_KEYS[:-1] + [key])
+                        dm_check = data_model_key_check(data_model, PARENT_KEYS[:-1] + [key])
                         # If the key exists and has data in the old global key, we can copy the data
                         if key in dm_check['keys_found'] and key in dm_check['keys_data']:
-                            model_data['vxlan']['global'][new_global_key].update({key: model_data['vxlan']['global'][key]})
-                            model_data['vxlan']['global'].pop(key, None)
+                            data_model['vxlan']['global'][new_global_key].update({key: data_model['vxlan']['global'][key]})
+                            data_model['vxlan']['global'].pop(key, None)
                     elif key in dm_check['keys_found'] and key in dm_check['keys_data']:
-                        model_data['vxlan']['global'].pop(key, None)
+                        data_model['vxlan']['global'].pop(key, None)
 
                 return self.kwargs['results']
 
         elif new_global_key == 'isn':
             for key in ISN_BACKWARD_COMPATIBLE_KEYS:
                 # Check if the key exists under vxlan.multisite.isn
-                dm_check = data_model_key_check(model_data, ISN_PARENT_KEYS + [key])
+                dm_check = data_model_key_check(data_model, ISN_PARENT_KEYS + [key])
                 # If the key does not exist or has no data in the key, we can safely try to copy the data
                 # from the old global key to the key under vxlan.multisite.isn if the old global key has data
                 # e.g. vxlan.global.auth_proto to vxlan.multisite.isn.auth_proto
                 if key in dm_check['keys_not_found'] or key in dm_check['keys_no_data']:
                     # Check if the key exists in the old global key
-                    dm_check = data_model_key_check(model_data, PARENT_KEYS[:-1] + [key])
+                    dm_check = data_model_key_check(data_model, PARENT_KEYS[:-1] + [key])
                     # If the key exists and has data in the old global key, we can copy the data
                     if key in dm_check['keys_found'] and key in dm_check['keys_data']:
-                        model_data['vxlan']['multisite']['isn'].update({key: model_data['vxlan']['global'][key]})
-                        model_data['vxlan']['global'].pop(key, None)
+                        data_model['vxlan']['multisite']['isn'].update({key: data_model['vxlan']['global'][key]})
+                        data_model['vxlan']['global'].pop(key, None)
 
             return self.kwargs['results']
 
