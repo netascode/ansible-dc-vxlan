@@ -11,7 +11,8 @@
   MGMT_GW: {{ vxlan.global.ebgp.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
   MGMT_PREFIX: {{ vxlan.global.ebgp.bootstrap.dhcp_v4.mgmt_prefix }}
 {% if vxlan.global.ebgp.bootstrap.dhcp_v4.multi_subnet_scope is defined %}
-  BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.ebgp.bootstrap.dhcp_v4.multi_subnet_scope }}"
+  BOOTSTRAP_MULTISUBNET: |2
+    {{ vxlan.global.ebgp.bootstrap.dhcp_v4.multi_subnet_scope | indent(4, false) }}
 {% endif %}
 {% endif %}
 {% endif %}
