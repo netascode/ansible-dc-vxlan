@@ -2,71 +2,109 @@
 
 ## Overview
 
-This guide explains how to configure and use different credential types with the NaC VXLAN solution. Understanding the distinction between switch admin credentials, discovery credentials, and ND controller credentials is essential for proper fabric management.
+This guide explains how to set and use different credential types with the NaC VXLAN solution for switch discovery with POAP. 
+Understanding the distinction between switch admin credentials and discovery credentials is essential for proper fabric management.
 
-## Credential Types Overview
+| Action | Device Credentials | Discovery Credentials |
+|----------|----------|----------|
+| Access | Read-Write | Read-Only |
+| Use | Configuration Changes | Inventory |
+| Protocols | SSH | SSH & SNMPv3 |
+
+> [!NOTE]
+> `discovery_creds` controls if you want to use discovery credentials at all either using the environment variables or per-switch discovery credentials as outlined below.
+> If the `discovery_creds` is enabled (true) but the discovery credentials are absent then execution fails. This is outlined in the Failure Behavior section below.
+
+> [!WARNING]
+> The minimal length for the password is 8 characters.
+
+## Credential Types
 
 The NaC VXLAN solution uses distinct sets of credentials:
 
-**Global account** defined under group_vars:
+### Device Credentials
 
-1. **Switch Admin Credentials (`NDFC_SW_USERNAME` / `NDFC_SW_PASSWORD`)**
-   - Default admin account on switches (typically `admin` when used with POAP or preprovision).
+Admin credentials are the admin account (network-admin) on switches (typically `admin` when used with POAP or preprovision).
+These are set one of two ways:
+- Ansible group variables under the well-known group_vars (applies for all switches)
+- As a per switch override in the data model
+
+**Ansible Group Variables**
+   - The variables in group_vars are: `ndfc_switch_username` and `ndfc_switch_username`
+   - The environment variables `NDFC_SW_USERNAME` and `NDFC_SW_PASSWORD` can be set and used as in the example below:
 
 ```yaml
-# In group_vars/ndfc/connection.yaml
+# In group_vars/nd/connection.yaml
 
 # Switch admin credentials (for POAP/preprovision initial setup)
 ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
 ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
 ```
 
-2. **Switch Discovery Account Credentials (optional) (`NDFC_SW_DISCOVERY_USERNAME` / `NDFC_SW_DISCOVERY_PASSWORD`)**
+**Per Switch Credentials in Data Model**
+
+Admin credentials have a per switch override for each in the data model:
 
 ```yaml
-# In group_vars/ndfc/connection.yaml
+vxlan:
+  topology:
+    switches:
+      - name: nac-leaf1
+        serial_number: 9C2MQTWVJXA
+        role: leaf
+        management:
+          default_gateway_v4: 10.15.33.1
+          management_ipv4_address: 10.15.33.13
+          username: env_var_leaf1_username
+          password: env_var_leaf1_password
+```
+
+More information can be found in the [topology switches](https://netascode.cisco.com/docs/data_models/vxlan/topology/topology_switch/) section of the model as well as the [switch credentials documentation guide](https://github.com/netascode/ansible-dc-vxlan/blob/main/docs/SWITCH_CREDENTIALS_GUIDE.md).
+
+### Discovery Credentials
+
+Discovery credentials are used for device discovery of switches.
+These are set one of two ways:
+- Ansible group variables under the well-known group_vars (applies for all switches)
+- As a per switch override in the data model
+
+> [!NOTE]
+> `discovery_creds` controls if you want to use discovery credentials at all either using the environment variables or per-switch discovery credentials.
+
+**Ansible Group Variables**
+   - The variables in group_vars are: `ndfc_switch_discovery_username` and `ndfc_switch_discovery_password`
+   - The environment variables `NDFC_SW_DISCOVERY_USERNAME` and `NDFC_SW_DISCOVERY_PASSWORD` can be set and used as in the example below:
+
+```yaml
+# In group_vars/nd/connection.yaml
 
 # Switch discovery credentials (for ongoing polling and discovery)
 ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
 ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
 ```
 
-**Local account** defined under switch:
+**Per Switch POAP Discovery Credentials in Data Model**
 
-1.  **Switch Admin Credentials (`username`/`password`)**
-
-```yaml
----
-vxlan:
-  topology:
-    switches:
-      - name: leaf-1
-        management:
-          management_ipv4_address: 198.18.133.3
-          username: admin
-          password: "C1sco!23456"
-```
-
-2. **Switch Discovery Account Credentials (optional) (`discovery_username`/`discovery_password`)**
-
-> [!WARNING]
-> `discovery_creds` controls if you want to use or not discovery credentials. For example if `NDFC_SW_DISCOVERY_USERNAME` / `NDFC_SW_DISCOVERY_PASSWORD` is defined under `group_vars` but you don't want use discovery for one switch set `discovery_creds` to `false` which is the default value.
+Discovery credentials per switch override for each in the data model:
 
 ```yaml
 ---
 vxlan:
   topology:
     switches:
-      - name: leaf-1
+      - name: nac-leaf1
+        serial_number: 9C2MQTWVJXA
+        role: leaf
         management:
-          management_ipv4_address: 198.18.133.3
-          username: admin
-          password: "C1sco!23456"
+          default_gateway_v4: 10.15.33.1
+          management_ipv4_address: 10.15.33.13
+          username: env_var_leaf1_username
+          password: env_var_leaf1_password
         poap:
-          bootstrap: false
+          bootstrap: true
           discovery_creds: true  # Enable discovery credentials
-          discovery_username: svc_account
-          discovery_password: cisco1234
+          discovery_username: service_acct
+          discovery_password: cisco.1234
           preprovision:
             serial_number: FDO12345678
             model: N9K-C93180YC-EX
@@ -74,55 +112,9 @@ vxlan:
             modulesModel: [N9K-X9364v]
 ```
 
-> [!WARNING]
-> Local account is always preferred when both Global and Local accounts are configured.
+## Enable AAA Remote Credential Passthrough (Recommended)
 
-> [!WARNING]
-> The minimal length for the password is 8 characters.
-
-## Configuration Steps
-
-### 1. Set Environment Global Variables
-
-All credential types must be configured as environment variables. These are referenced in the `connection.yaml` file and automatically picked up by the NaC VXLAN framework.
-
-**Environment Variables and Group Variables are interconnected**: The `group_vars/ndfc/connection.yaml` file uses `lookup('env', ...)` to populate group variables from environment variables. They are not separate priority levels, but rather the same source accessed in different ways.
-
-```yaml
-# In group_vars/ndfc/connection.yaml
-
-# Switch admin credentials (for POAP/preprovision initial setup)
-ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
-ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
-
-# Switch discovery credentials (for ongoing polling and discovery)
-ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
-ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
-```
-
-```shell
-# Switch admin credentials (default admin account for POAP/preprovision)
-export NDFC_SW_USERNAME="admin"
-export NDFC_SW_PASSWORD="Admin123!"
-
-# Switch discovery credentials (service account for ongoing polling)
-export NDFC_SW_DISCOVERY_USERNAME="nd-svc-account"
-export NDFC_SW_DISCOVERY_PASSWORD="ServiceAccount123!"
-```
-
-#### Environment Variables Reference
-
-| Variable | Purpose | Typical Value |
-|----------|---------|---------------|
-| `NDFC_SW_USERNAME` | Switch admin account (always admin) | `admin` |
-| `NDFC_SW_PASSWORD` | Switch admin password | `Admin123!` |
-| `NDFC_SW_DISCOVERY_USERNAME` | Service account for discovery/polling | `nd-svc-account` |
-| `NDFC_SW_DISCOVERY_PASSWORD` | Service account password | `ServicePass123!` |
-
-
-### 2. Configure AAA Remote Credential Passthrough (Recommended)
-
-When using the same service account for ND controller access (`ND_USERNAME`) and switch discovery (`NDFC_SW_DISCOVERY_USERNAME`), you should enable **AAA Remote Credential Passthrough** in ND. This feature automatically propagates credentials to switches without manual configuration.
+When using the same service account for Nexus Dashboard (`ND_USERNAME`) and switch discovery (`NDFC_SW_DISCOVERY_USERNAME`), you should enable **AAA Remote Credential Passthrough**. This feature automatically propagates credentials to switches without manual configuration.
 
 **Benefits:**
 - Automatically sets LAN credentials on switches
@@ -151,28 +143,46 @@ When using the same service account for ND controller access (`ND_USERNAME`) and
 
 ## Examples
 
-### Example1 - POAP with Global admin/password, no discovery account
+### POAP with Global Device Credentials Env Var (No Discovery Credentials)
 
-* **Global variables `NDFC_SW_USERNAME`/`NDFC_SW_PASSWORD` set without discovery**
-* **Local variables `username`/`password` are NOT set, `discovery_creds` is `false`.**
+In this scenario, you will discover the switch using device credentials under group_vars.
 
-In that case, we will discover the switch using admin credentials under group_vars
+The following credentials are set:
+* `ndfc_switch_username` and `ndfc_switch_password`
+
+>[!NOTE]
+>You can set the `NDFC_SW_USERNAME` and `NDFC_SW_PASSWORD` environment variables to the group vars values
+
+Group vars:
+
+```yaml
+# In group_vars/nd/connection.yaml
+
+# Switch admin credentials (for POAP/preprovision initial setup)
+ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
+ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
+```
+
+Switch definition:
+
+>[!NOTE]
+>If any discovery credentials are set, they are ignored as the `discovery_creds` parameter is `false`
 
 ```yaml
 ---
 vxlan:
   topology:
     switches:
-      - name: netascode-leaf-01
+      - name: nac-leaf1
         role: leaf
         serial_number: FDO12345678
         management:
-          default_gateway_v4: 10.10.10.1
-          management_ipv4_address: 10.10.10.101
+          default_gateway_v4: 10.15.33.1
+          management_ipv4_address: 10.15.33.13
           subnet_mask_ipv4: 24
         poap:
           bootstrap: false
-          discovery_creds: false  # Enable discovery credentials
+          discovery_creds: false  # Enable discovery credentials is false or can be missing from the data model
           preprovision:
             serial_number: FDO12345678
             model: N9K-C93180YC-EX
@@ -180,30 +190,52 @@ vxlan:
             modulesModel: [N9K-X9364v]
 ```
 
-### Example2 - POAP with Global admin/password + Local admin/password
+### POAP with Per-Switch Device Credentials (No Discovery Credentials)
 
-* **Global variables `NDFC_SW_USERNAME`/`NDFC_SW_PASSWORD` set without discovery**
-* **Local variables `username`/`password` are set, `discovery_creds` is `false`.**
+In this scenario, you will discover the switch using local, per-switch device credentials.
 
-In that case, we will discover the switch using admin credentials under local. Local is always preferred.
+The following credentials are set:
+* `ndfc_switch_username` and `ndfc_switch_password`
+* Per-switch `username` and `password`
+
+>[!NOTE]
+>You can set the `NDFC_SW_USERNAME` and `NDFC_SW_PASSWORD` environment variables to the group vars values
+
+Group vars:
+
+```yaml
+# In group_vars/nd/connection.yaml
+
+# Switch admin credentials (for POAP/preprovision initial setup)
+ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
+ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
+```
+
+Switch definition with per-switch credential:
+
+>[!NOTE]
+>The per-switch `username` and `password` override the group_vars variables.
+
+>[!NOTE]
+>If any discovery credentials are set, they are ignored as the `discovery_creds` parameter is `false`
 
 ```yaml
 ---
 vxlan:
   topology:
     switches:
-      - name: netascode-leaf-01
+      - name: nac-leaf1
         role: leaf
         serial_number: FDO12345678
         management:
-          default_gateway_v4: 10.10.10.1
-          management_ipv4_address: 10.10.10.101
+          default_gateway_v4: 10.15.33.1
+          management_ipv4_address: 10.15.33.13
           subnet_mask_ipv4: 24
           username: admin
-          password: cisco1234
+          password: cisco.123
         poap:
           bootstrap: false
-          discovery_creds: false  # Enable discovery credentials
+          discovery_creds: false  # Enable discovery credentials is false or can be missing from the data model
           preprovision:
             serial_number: FDO12345678
             model: N9K-C93180YC-EX
@@ -211,58 +243,44 @@ vxlan:
             modulesModel: [N9K-X9364v]
 ```
 
-### Example3 - POAP with Global admin/password + Local admin/password + Global Discovery account
+### POAP with Global Device and Global Discovery Credentials
 
-* **Global variables `NDFC_SW_USERNAME`/`NDFC_SW_PASSWORD` set with `NDFC_SW_DISCOVERY_USERNAME`/`NDFC_SW_DISCOVERY_PASSWORD` discovery**
-* **Local variables `username`/`password` are set, `discovery_creds` is `false`.**
+In this scenario, you will discover the switch using the device discovery credentials under group vars values device credentials will also use group vars values.
 
-In that case, we will discover the switch using admin credentials (`username`/`password`) under local. Even if a discovery account is defined in group_vars, we will NOT use it because `discovery_creds` is false.
+The following credentials are set:
+* `ndfc_switch_username` and `ndfc_switch_password`
+* `ndfc_switch_discovery_username` and `ndfc_switch_discovery_password`
+
+Group vars:
 
 ```yaml
----
-vxlan:
-  topology:
-    switches:
-      - name: netascode-leaf-01
-        role: leaf
-        serial_number: FDO12345678
-        management:
-          default_gateway_v4: 10.10.10.1
-          management_ipv4_address: 10.10.10.101
-          subnet_mask_ipv4: 24
-          username: admin
-          password: cisco1234
-        poap:
-          bootstrap: false
-          discovery_creds: false  # Enable discovery credentials
-          preprovision:
-            serial_number: FDO12345678
-            model: N9K-C93180YC-EX
-            version: 10.4(2)
-            modulesModel: [N9K-X9364v]
+# In group_vars/nd/connection.yaml
+
+# Switch discovery credentials (for ongoing polling and discovery)
+ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
+ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
+# Switch discovery credentials (for ongoing polling and discovery)
+ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
+ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
 ```
 
-### Example4 - POAP with Global admin/password + Local admin/password + Global Discovery account
+Switch definitiion:
 
-* **Global variables `NDFC_SW_USERNAME`/`NDFC_SW_PASSWORD` set with `NDFC_SW_DISCOVERY_USERNAME`/`NDFC_SW_DISCOVERY_PASSWORD` discovery**
-* **Local variables `username`/`password` are set, `discovery_creds` is `true`.**
-
-In that case, we will discover the switch using Global discovery credentials and use `password` for the admin password.
+>[!NOTE]
+>`discovery_creds` parameter is now `true`
 
 ```yaml
 ---
 vxlan:
   topology:
     switches:
-      - name: netascode-leaf-01
+      - name: nac-leaf1
         role: leaf
         serial_number: FDO12345678
         management:
-          default_gateway_v4: 10.10.10.1
-          management_ipv4_address: 10.10.10.101
+          default_gateway_v4: 10.15.33.1
+          management_ipv4_address: 10.15.33.13
           subnet_mask_ipv4: 24
-          username: admin
-          password: cisco1234
         poap:
           bootstrap: false
           discovery_creds: true  # Enable discovery credentials
@@ -273,32 +291,50 @@ vxlan:
             modulesModel: [N9K-X9364v]
 ```
 
-### Example5 - POAP with Global admin/password + Local admin/password + Global Discovery account + Local Discovery Account
+### POAP with Per-Switch Device Credentials and Global Discovery Credentials
 
-* **Global variables `NDFC_SW_USERNAME`/`NDFC_SW_PASSWORD` set with `NDFC_SW_DISCOVERY_USERNAME`/`NDFC_SW_DISCOVERY_PASSWORD` discovery**
-* **Local variables `username`/`password` and `discovery_username`/`discovery_password` are set, `discovery_creds` is `true`.**
+In this scenario, you will discover the switch using the device discovery credentials under group vars values but device credentials will use per-switch credentials.
 
-In that case, we will discover the switch using Local discovery credentials and use `password` for the admin password.
+The following credentials are set:
+* `ndfc_switch_username` and `ndfc_switch_password`
+* Per-switch `username` and `password`
+* `ndfc_switch_discovery_username` and `ndfc_switch_discovery_password`
+
+Group vars:
+
+```yaml
+# In group_vars/nd/connection.yaml
+
+# Switch discovery credentials (for ongoing polling and discovery)
+ndfc_switch_username: "{{ lookup('env', 'NDFC_SW_USERNAME') }}"
+ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
+# Switch discovery credentials (for ongoing polling and discovery)
+ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
+ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
+```
+
+Switch definitiion:
+
+>[!NOTE]
+>`discovery_creds` parameter is now `true`
 
 ```yaml
 ---
 vxlan:
   topology:
     switches:
-      - name: netascode-leaf-01
+      - name: nac-leaf1
         role: leaf
         serial_number: FDO12345678
         management:
-          default_gateway_v4: 10.10.10.1
-          management_ipv4_address: 10.10.10.101
+          default_gateway_v4: 10.15.33.1
+          management_ipv4_address: 10.15.33.13
           subnet_mask_ipv4: 24
           username: admin
-          password: cisco1234
+          password: cisco.123
         poap:
           bootstrap: false
           discovery_creds: true  # Enable discovery credentials
-          discovery_username: svc_account
-          discovery_password: cisco1234
           preprovision:
             serial_number: FDO12345678
             model: N9K-C93180YC-EX
@@ -306,32 +342,53 @@ vxlan:
             modulesModel: [N9K-X9364v]
 ```
 
-### Example6 - POAP with Global admin/password + Local admin/password + Global Discovery account + Local Discovery Account
+### POAP with Per-Switch Device Credentials and Per-Switch Discovery Credentials
 
-* **Global variables `NDFC_SW_USERNAME`/`NDFC_SW_PASSWORD` set with `NDFC_SW_DISCOVERY_USERNAME`/`NDFC_SW_DISCOVERY_PASSWORD` discovery**
-* **Local variables `username`/`password` and `discovery_username`/`discovery_password` are set, `discovery_creds` is `false`.**
+In this scenario, you will discover the switch using the device discovery credentials per-switch and device credentials will use per-switch credentials.
 
-In that case, we will discover the switch using Local `username`/`password` credentials, because `discovery_creds` is `false`.
+The following credentials are set:
+* `ndfc_switch_username` and `ndfc_switch_password`
+* Per-switch `username` and `password`
+* `ndfc_switch_discovery_username` and `ndfc_switch_discovery_password`
+* Per-switch `discovery_username` and `discovery_password`
+
+Group vars:
+
+```yaml
+# In group_vars/nd/connection.yaml
+
+# Switch discovery credentials (for ongoing polling and discovery)
+ndfc_switch_username: "{{ lookup('env', 'NDFC_Se_USERNAME') }}"
+ndfc_switch_password: "{{ lookup('env', 'NDFC_SW_PASSWORD') }}"
+# Switch discovery credentials (for ongoing polling and discovery)
+ndfc_switch_discovery_username: "{{ lookup('env', 'NDFC_SW_DISCOVERY_USERNAME') }}"
+ndfc_switch_discovery_password: "{{ lookup('env', 'NDFC_SW_DISCOVERY_PASSWORD') }}"
+```
+
+Switch definitiion:
+
+>[!NOTE]
+>`discovery_creds` parameter is now `true`
 
 ```yaml
 ---
 vxlan:
   topology:
     switches:
-      - name: netascode-leaf-01
+      - name: nac-leaf1
         role: leaf
         serial_number: FDO12345678
         management:
-          default_gateway_v4: 10.10.10.1
-          management_ipv4_address: 10.10.10.101
+          default_gateway_v4: 10.15.33.1
+          management_ipv4_address: 10.15.33.13
           subnet_mask_ipv4: 24
           username: admin
-          password: cisco1234
+          password: cisco.123
         poap:
           bootstrap: false
-          discovery_creds: false  # Enable discovery credentials
-          discovery_username: svc_account
-          discovery_password: cisco1234
+          discovery_creds: true  # Enable discovery credentials
+          discovery_username: service_acct
+          discovery_password: cisco.1234
           preprovision:
             serial_number: FDO12345678
             model: N9K-C93180YC-EX
