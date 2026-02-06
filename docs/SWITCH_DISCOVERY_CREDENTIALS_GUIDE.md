@@ -12,7 +12,8 @@ Understanding the distinction between switch admin credentials and discovery cre
 | Protocols | SSH | SSH & SNMPv3 |
 
 > [!NOTE]
-> In the absense of discovery credentials, admin credentials are used for both actions.
+> `discovery_creds` controls if you want to use discovery credentials at all either using the environment variables or per-switch discovery credentials as outlined below.
+> If the `discovery_creds` is enabled (true) but the discovery credentials are absent then execution fails. This is outlined in the Failure Behavior section below.
 
 > [!WARNING]
 > The minimal length for the password is 8 characters.
