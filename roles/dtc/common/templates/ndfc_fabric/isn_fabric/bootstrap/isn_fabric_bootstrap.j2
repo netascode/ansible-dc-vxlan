@@ -15,7 +15,8 @@
   MGMT_PREFIX: {{ vxlan.multisite.isn.bootstrap.dhcp_v4.mgmt_prefix }}
   DOMAIN_NAME: "{{ vxlan.multisite.isn.bootstrap.dhcp_v4.domain_name }}"
 {% if vxlan.multisite.isn.bootstrap.dhcp_v4.multi_subnet_scope is defined %}
-  BOOTSTRAP_MULTISUBNET: "{{ vxlan.multisite.isn.bootstrap.dhcp_v4.multi_subnet_scope }}"
+  BOOTSTRAP_MULTISUBNET: |2
+    {{ vxlan.multisite.isn.bootstrap.dhcp_v4.multi_subnet_scope | indent(4, false) }}
 {% endif %}
 {% endif %}
 {% endif %}
