@@ -67,6 +67,7 @@ class ChangeDetectionManager:
                 'changes_detected_interface_breakout_preprov': False,
                 'changes_detected_inventory': False,
                 'changes_detected_link_vpc_peering': False,
+                'changes_detected_tor_pairing': False,
                 'changes_detected_networks': False,
                 'changes_detected_policy': False,
                 'changes_detected_sub_interface_routed': False,
@@ -95,6 +96,7 @@ class ChangeDetectionManager:
                 'changes_detected_interface_breakout_preprov': False,
                 'changes_detected_inventory': False,
                 'changes_detected_link_vpc_peering': False,
+                'changes_detected_tor_pairing': False,
                 'changes_detected_networks': False,
                 'changes_detected_policy': False,
                 'changes_detected_sub_interface_routed': False,
@@ -157,9 +159,12 @@ class ChangeDetectionManager:
                 'changes_detected_interface_vpc': False,
                 'changes_detected_interface_breakout': False,
                 'changes_detected_interface_breakout_preprov': False,
+                'changes_detected_link_vpc_peering': False,
+                'changes_detected_tor_pairing': False,
+                'changes_detected_networks': False,
+                'changes_detected_policy': False,
                 'changes_detected_sub_interface_routed': False,
                 'changes_detected_vpc_peering': False,
-                'changes_detected_policy': False,
                 'changes_detected_any': False
             }
 
