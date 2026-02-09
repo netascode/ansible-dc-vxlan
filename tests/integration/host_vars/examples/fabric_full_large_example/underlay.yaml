@@ -72,6 +72,9 @@ vxlan:
       underlay_backup_rp_loopback_id: 1
       underlay_second_backup_rp_loopback_id: 2
       underlay_third_backup_rp_loopback_id: 3
+      mvpn_vri_id_range:
+        from: 2000
+        to: 2999
     bfd:
       enable: false
       ibgp: false
