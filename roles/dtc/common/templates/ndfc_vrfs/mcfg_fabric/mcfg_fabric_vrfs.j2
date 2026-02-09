@@ -43,12 +43,12 @@
       import_mvpn_rt: {{ child_fabric['import_mvpn_rt'] | default(omit) }}
       export_mvpn_rt: {{ child_fabric['export_mvpn_rt'] | default(omit) }}
       netflow_enable: {{ child_fabric['netflow_enable'] | default(omit) }}
-{% if child_fabric['netflow_enable'] is defined and child_fabric['netflow_enable'] | bool %}
+{% if child_fabric['netflow_enable'] is defined and child_fabric['netflow_enable'] | ansible.builtin.bool %}
       nf_monitor: {{ child_fabric['netflow_monitor'] | default(omit) }}
 {% endif %}
       no_rp: {{ child_fabric['no_rp'] | default(omit) }}
       trm_enable: {{ child_fabric['trm_enable'] | default(omit) }}
-{% if child_fabric['trm_enable'] is defined and child_fabric['trm_enable'] | bool %}
+{% if child_fabric['trm_enable'] is defined and child_fabric['trm_enable'] | ansible.builtin.bool %}
       overlay_mcast_group: {{ child_fabric['overlay_multicast_group'] | default(omit) }}
       rp_address: {{ child_fabric['rp_address'] | default(omit) }}
       rp_external: {{ child_fabric['rp_external'] | default(omit) }}
