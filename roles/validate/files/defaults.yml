@@ -164,6 +164,7 @@ factory_defaults:
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
+            monitor: false
           topology_switch_dot1q_interface:
             description: "NetAsCode Dot1q Interface"
             mtu: jumbo
@@ -185,6 +186,7 @@ factory_defaults:
             duplex: auto
             orphan_port: false
             native_vlan: ""
+            monitor: false
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
             mtu: jumbo
@@ -200,6 +202,7 @@ factory_defaults:
             enable_lacp_vpc_convergence: false
             lacp_port_priority: 32768
             lacp_rate: normal
+            monitor: false
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -216,6 +219,7 @@ factory_defaults:
             enable_lacp_vpc_convergence: false
             lacp_port_priority: 32768
             lacp_rate: normal
+            monitor: false
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
@@ -339,7 +343,7 @@ factory_defaults:
       networks:
         net_description: "Configured by Ansible NetAsCode"
         is_l2_only: false
-        arp_supress: false
+        arp_suppress: false
         l3gw_on_border: false
         mtu_l3intf: 9216
         multicast_group_address: 239.1.1.1
@@ -487,7 +491,7 @@ factory_defaults:
         networks:
           net_description: "Configured by Ansible NetAsCode"
           is_l2_only: false
-          arp_supress: false
+          arp_suppress: false
           l3gw_on_border: false
           mtu_l3intf: 9216
           multicast_group_address: 239.1.1.1

@@ -40,6 +40,9 @@
         timeout: 30
       register: response
       no_log: true
+      until: response.status == 200
+      retries: 5
+      delay: 2
       delegate_to: localhost
 
   rescue:

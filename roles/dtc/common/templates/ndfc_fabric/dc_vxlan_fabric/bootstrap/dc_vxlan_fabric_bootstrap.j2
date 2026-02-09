@@ -1,9 +1,9 @@
 {# Auto-generated NDFC DC VXLAN EVPN Bootstrap config data structure for fabric {{ vxlan.fabric.name }} #}
 {% if vxlan.global.ibgp.bootstrap is defined %}
-  BOOTSTRAP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_bootstrap | default(defaults.vxlan.global.ibgp.bootstrap.enable_bootstrap) | bool }}
-{% if vxlan.global.ibgp.bootstrap.enable_bootstrap | default(defaults.vxlan.global.ibgp.bootstrap.enable_bootstrap) | bool %}
-  DHCP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.ibgp.bootstrap.enable_local_dhcp_server) | bool }}
-{% if vxlan.global.ibgp.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.ibgp.bootstrap.enable_local_dhcp_server) | bool %}
+  BOOTSTRAP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_bootstrap | default(defaults.vxlan.global.ibgp.bootstrap.enable_bootstrap) | ansible.builtin.bool }}
+{% if vxlan.global.ibgp.bootstrap.enable_bootstrap | default(defaults.vxlan.global.ibgp.bootstrap.enable_bootstrap) | ansible.builtin.bool %}
+  DHCP_ENABLE: {{ vxlan.global.ibgp.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.ibgp.bootstrap.enable_local_dhcp_server) | ansible.builtin.bool }}
+{% if vxlan.global.ibgp.bootstrap.enable_local_dhcp_server | default(defaults.vxlan.global.ibgp.bootstrap.enable_local_dhcp_server) | ansible.builtin.bool %}
   DHCP_IPV6_ENABLE: {{ vxlan.global.ibgp.bootstrap.dhcp_version }}
 {% if vxlan.global.ibgp.bootstrap.dhcp_version is defined and vxlan.global.ibgp.bootstrap.dhcp_version == "DHCPv4" %}
   DHCP_START: {{ vxlan.global.ibgp.bootstrap.dhcp_v4.scope_start_address }}
@@ -11,7 +11,8 @@
   MGMT_GW: {{ vxlan.global.ibgp.bootstrap.dhcp_v4.switch_mgmt_default_gw }}
   MGMT_PREFIX: {{ vxlan.global.ibgp.bootstrap.dhcp_v4.mgmt_prefix }}
 {% if vxlan.global.ibgp.bootstrap.dhcp_v4.multi_subnet_scope is defined %}
-  BOOTSTRAP_MULTISUBNET: "{{ vxlan.global.ibgp.bootstrap.dhcp_v4.multi_subnet_scope }}"
+  BOOTSTRAP_MULTISUBNET: |2 
+    {{ vxlan.global.ibgp.bootstrap.dhcp_v4.multi_subnet_scope | indent(4, false) }}
 {% endif %}
 {% endif %}
 {% endif %}
