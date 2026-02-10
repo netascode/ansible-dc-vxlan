@@ -120,17 +120,13 @@
 # Manage Loopback VRF attachments on NDFC
 # --------------------------------------------------------------------
 
-# Check with Matt and Pete on how we want to handle this for MSD
-# - name: Attach VRF Loopbacks per VRF
-#   cisco.dcnm.dcnm_rest:
-#     path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
-#     method: "POST"
-#     json_data: "{{ vars_common_msd.vrf_attach_config | to_json}}"
-#   when:
-#     - MD_Extended.vxlan.overlay.vrfs is defined
-#     - MD_Extended.vxlan.overlay.vrfs
-#     - vars_common_msd.changes_detected_vrfs
-
+- name: Manage MSD Fabric VRF Loopback Attachments in Nexus Dashboard
+  cisco.dcnm.dcnm_rest:
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ MD_Extended.vxlan.fabric.name }}/vrfs/attachments"
+    method: POST
+    json_data: "{{ msd_vrf_attach_config | to_json }}"
+  when:
+    - msd_vrf_attach_config | length > 0
 # --------------------------------------------------------------------
 # Manage Network Configuration on NDFC
 # --------------------------------------------------------------------
