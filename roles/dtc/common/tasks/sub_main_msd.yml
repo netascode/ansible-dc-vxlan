@@ -54,6 +54,13 @@
 - name: Build MSD Child Fabric Inventory List From Template
   ansible.builtin.import_tasks: msd/ndfc_child_fabrics.yml
 
+# --------------------------------------------------------------------
+# Build NDFC Fabric Get Switch Inventory when Federated Fabric
+# --------------------------------------------------------------------
+
+- name: Build NDFC Fabric Switch inventory
+  ansible.builtin.import_tasks: msd/ndfc_get_inventory.yml
+
 # ------------------------------------------------------------------------
 # Build NDFC Child Fabric BGW Anycast VIP List From Template
 # ------------------------------------------------------------------------
