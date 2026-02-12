@@ -18,9 +18,9 @@
 {% if not (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | ansible.builtin.bool) %}
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   LOOPBACK1_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_vtep_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_vtep_loopback_ip_range) }}
-{% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}  
+{% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
   ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_rp_loopback_ip_range) }}
-{% endif %}  
+{% endif %}
 {% if (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   LOOPBACK1_IPV6_RANGE: {{ vxlan.underlay.ipv6.underlay_vtep_loopback_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_vtep_loopback_ip_range) }}
 {% endif %}
