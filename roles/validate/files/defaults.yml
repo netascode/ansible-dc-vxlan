@@ -126,6 +126,12 @@ factory_defaults:
           enable_local_dhcp_server: false
           enable_cdp_mgmt: false
         tcam_allocation: true
+        performance_monitoring: false
+        power_redundancy: ps-redundant
+        copp_policy: strict
+        vtep_holddown_time: 180
+        enable_ngoam: true
+        sub_int_range: 2-511
       external:
         auth_proto: MD5
         enable_nxapi_http: false

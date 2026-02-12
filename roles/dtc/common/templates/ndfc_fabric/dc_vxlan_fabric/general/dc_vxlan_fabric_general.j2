@@ -14,4 +14,7 @@
   LINK_STATE_ROUTING: {{ vxlan.underlay.general.routing_protocol | default(defaults.vxlan.underlay.general.routing_protocol) }}
   RR_COUNT: {{ vxlan.global.ibgp.route_reflectors | default(defaults.vxlan.global.ibgp.route_reflectors) }}
   ANYCAST_GW_MAC: {{ vxlan.global.ibgp.anycast_gateway_mac | default(defaults.vxlan.global.ibgp.anycast_gateway_mac) }}
+{% if (ndfc_features | selectattr('name', 'equalto', 'Performance Monitoring') | selectattr('admin_state', 'equalto', 'enabled') | list | length > 0) %}
+  PM_ENABLE: {{ vxlan.global.ibgp.performance_monitoring | default(defaults.vxlan.global.ibgp.performance_monitoring) | ansible.builtin.bool }}
+{% endif %}
 {# #}
