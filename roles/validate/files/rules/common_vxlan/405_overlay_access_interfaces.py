@@ -222,9 +222,17 @@ class Rule:
         """
         # First, validate direct switch port references (2-tuple keys)
         for key, interface_info in access_interfaces_map.items():
-            hostname = interface_info['hostname']
-            interface_name = interface_info['interface']
-            has_access_vlan = interface_info['has_access_vlan']
+            hostname = interface_info.get('hostname')
+            interface_name = interface_info.get('interface')
+            has_access_vlan = interface_info.get('has_access_vlan', False)
+            
+            # Skip if essential fields are missing
+            if not hostname or not interface_name:
+                cls.results.append(
+                    f"Malformed interface data in access_interfaces_map: missing hostname or interface_name. "
+                    f"Key: {key}, Data: {interface_info}. Skipping validation for this interface."
+                )
+                continue
 
             # Check if this interface is referenced in network attach groups as a direct port
             referenced_networks = interface_references.get(key, [])
@@ -268,7 +276,7 @@ class Rule:
                 continue
 
             interface_info = access_interfaces_map[tor_key]
-            has_access_vlan = interface_info['has_access_vlan']
+            has_access_vlan = interface_info.get('has_access_vlan', False)
 
             reference_count = len(group_names)
 
