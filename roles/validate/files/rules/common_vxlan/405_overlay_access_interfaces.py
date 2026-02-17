@@ -225,7 +225,7 @@ class Rule:
             hostname = interface_info.get('hostname')
             interface_name = interface_info.get('interface')
             has_access_vlan = interface_info.get('has_access_vlan', False)
-            
+
             # Skip if essential fields are missing
             if not hostname or not interface_name:
                 cls.results.append(
