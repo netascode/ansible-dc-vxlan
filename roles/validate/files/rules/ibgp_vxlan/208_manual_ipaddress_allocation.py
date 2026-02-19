@@ -1,3 +1,6 @@
+import re
+
+
 class Rule:
     id: str = "208"
     description: str = "Verify IP address when manual_underlay_allocation is true"
@@ -144,12 +147,47 @@ class Rule:
                         f"Fabric link between '{source_device}' and '{dest_device}' is missing a valid IPv4 configuration."
                     )
 
+        # Get switch names in topology which is not spine role or border_gateway_spine role
+        # Each leaf, border leaf and border gateway should have a fabric link defined in the data model when manual_underlay_allocation is true
+        # and P2P configured
+
+        switches = cls.safeget(data_model, ["vxlan", "topology", "switches"])
+        switch_names = [switch.get("name") for switch in switches if switch.get("role", "").lower() not in ["spine", "border_gateway_spine"]]
+
+        # If switch in switch_names not in regex fabric_links_list:
+        # Switch doesn't have fabric link configured
+        # If found should have ipv4 configured
+        for switch_name in switch_names:
+            switch_pattern = re.compile(rf"(?:^|-){re.escape(switch_name)}(?:-|$)")
+            matched_links = [
+                link for link in fabric_links
+                if switch_pattern.search(f"{link.get('source_device')}-{link.get('dest_device')}")
+            ]
+            if not matched_links:
+                cls.results.append(
+                    f"Fabric link not found for '{switch_name}'."
+                )
+                continue
+
+            if not any(
+                link.get("ipv4")
+                and link.get("ipv4", {}).get("subnet")
+                and link.get("ipv4", {}).get("source_ipv4")
+                and link.get("ipv4", {}).get("dest_ipv4")
+                for link in matched_links
+            ):
+                cls.results.append(
+                    f"Fabric link for '{switch_name}' is missing IPv4 configuration."
+                )
+
         # Check if vpc_peers is on fabric_link
         vpc_peers = cls.safeget(data_model, ["vxlan", "topology", "vpc_peers"])
         for peer in vpc_peers:
             peer1 = f"{peer.get('peer1')}-{peer.get('peer2')}"
             peer2 = f"{peer.get('peer2')}-{peer.get('peer1')}"
             fabric_peering = peer.get("fabric_peering", False)
+            # Skip fabric link validation when fabric_peering is true
+            # because vPC uses virtual peer-link instead of physical fabric links
             if fabric_peering is False:
                 if not (peer1 in fabric_links_list or peer2 in fabric_links_list):
                     cls.results.append(
