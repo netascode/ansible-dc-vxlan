@@ -109,6 +109,23 @@ class Rule:
                             f"Either add the TOR to tor_peers or remove it from network_attach_groups."
                         )
 
+                #  TOR switches as direct entries in the flat switches list ---
+                if switch_hostname in tor_switches_in_topology:
+                    # This switch entry is itself a TOR (identified by role=tor in topology)
+                    # Check: TOR must be in tor_peers
+                    if switch_hostname not in tors_in_pairings:
+                        network_list = (
+                            ", ".join(networks_using_group)
+                            if networks_using_group
+                            else "none"
+                        )
+                        results.append(
+                            f"vxlan.overlay.network_attach_groups[{group_name}]: "
+                            f"TOR switch '{switch_hostname}' has network attachments "
+                            f"(networks: {network_list}) but is not defined in vxlan.topology.tor_peers. "
+                            f"Either add the TOR to tor_peers or remove it from network_attach_groups."
+                        )
+
         return results
 
     @classmethod
