@@ -18,7 +18,5 @@
 {% endif %}
 {% endif %}
 {% endif %}
-{% if vxlan.underlay.general.bootstrap_freeform is defined %}
   BOOTSTRAP_CONF: |
-    {{ vxlan.underlay.general.bootstrap_freeform | indent(4) }}
-{% endif %}
+    {{ vxlan.underlay.general.bootstrap_freeform | default("") | indent(4) }}
