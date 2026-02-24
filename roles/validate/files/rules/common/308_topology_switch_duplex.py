@@ -1,6 +1,6 @@
 class Rule:
     id = "308"
-    description = "Verify duplex mode"
+    description = "Verify interface duplex mode"
     severity = "HIGH"
 
     @classmethod
@@ -28,21 +28,21 @@ class Rule:
                     if duplex and duplex != 'auto' and not speed:
                         results.append(
                             f"vxlan.topology.switches.interfaces.{interface_name}.duplex "
-                            "is not supported without speed"
+                            f"is not supported without speed on switch {switch.get('name')}"
                         )
 
                     # Condition 2: duplex: 'half' or 'full' is not supported if speed == 'auto'
                     if duplex in ['half', 'full'] and speed == 'auto':
                         results.append(
                             f"vxlan.topology.switches.interfaces.{interface_name}.duplex "
-                            "'{duplex}' is not supported with speed 'auto'"
+                            f"'{duplex}' is not supported with speed 'auto' on switch {switch.get('name')}"
                         )
 
                     # Condition 3: duplex: 'half' is only supported with speed: '100mb'
                     if duplex == 'half' and speed != '100mb':
                         results.append(
                             f"vxlan.topology.switches.interfaces.{interface_name}.duplex 'half' "
-                            "is only supported with speed '100mb'"
+                            f"is only supported with speed '100mb' on switch {switch.get('name')}"
                         )
 
                     # Condition 4: duplex: 'auto' supports all speed values (or no speed at all)

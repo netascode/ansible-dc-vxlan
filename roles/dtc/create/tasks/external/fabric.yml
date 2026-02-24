@@ -25,20 +25,20 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
 - name: Check Fabric Exists in Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}"
   register: get_result
   failed_when: false
 
 - name: Manage Fabric in Nexus Dashboard (PUT)
   cisco.dcnm.dcnm_rest:
     method: PUT
-    path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'
+    path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/External_Fabric'
     json_data: '{{ fabric_config | to_json }}'
   when:
     - get_result.response.DATA is defined
@@ -48,7 +48,7 @@
 - name: Manage Fabric in Nexus Dashboard (POST)
   cisco.dcnm.dcnm_rest:
     method: POST
-    path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/External_Fabric'
+    path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/External_Fabric'
     json_data: '{{ fabric_config | to_json }}'
   when: >
     (get_result.response.DATA is not defined) or

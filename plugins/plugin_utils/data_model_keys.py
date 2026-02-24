@@ -26,7 +26,7 @@
 #  from ..helper_functions import do_something
 
 root_key = 'vxlan'
-model_keys = {'VXLAN_EVPN': {}, 'MSD': {}, 'MCF': {}, 'ISN': {}, 'External': {}, 'eBGP_VXLAN': {}}
+model_keys = {'VXLAN_EVPN': {}, 'eBGP_VXLAN': {}, 'MSD': {}, 'MCFG': {}, 'ISN': {}, 'External': {}}
 
 # VXLAN_EVPN KEYS
 # iBGP VXLAN KEYS
@@ -142,7 +142,7 @@ model_keys['External']['policy.switches'] = [root_key, 'policy', 'switches', 'LI
 
 # ---
 model_keys['MSD']['multisite'] = [root_key, 'multisite', 'KEY']
-model_keys['MSD']['multisite.child_fabrics'] = [root_key, 'multisite', 'child_fabrics', 'KEY']
+model_keys['MSD']['multisite.child_fabrics'] = [root_key, 'multisite', 'child_fabrics', 'LIST']
 model_keys['MSD']['multisite.overlay'] = [root_key, 'multisite', 'overlay', 'KEY']
 model_keys['MSD']['multisite.overlay.vrfs'] = [root_key, 'multisite', 'overlay', 'vrfs', 'LIST']
 model_keys['MSD']['multisite.overlay.vrf_attach_groups'] = [root_key, 'multisite', 'overlay', 'vrf_attach_groups', 'LIST']
@@ -150,3 +150,16 @@ model_keys['MSD']['multisite.overlay.vrf_attach_groups.switches'] = [root_key, '
 model_keys['MSD']['multisite.overlay.networks'] = [root_key, 'multisite', 'overlay', 'networks', 'LIST']
 model_keys['MSD']['multisite.overlay.network_attach_groups'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'LIST']
 model_keys['MSD']['multisite.overlay.network_attach_groups.switches'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'switches', 'LIST_INDEX']
+
+# MCFG KEYS
+
+# ---
+model_keys['MCFG']['multisite'] = [root_key, 'multisite', 'KEY']
+model_keys['MCFG']['multisite.child_fabrics'] = [root_key, 'multisite', 'child_fabrics', 'LIST']
+model_keys['MCFG']['multisite.overlay'] = [root_key, 'multisite', 'overlay', 'KEY']
+model_keys['MCFG']['multisite.overlay.vrfs'] = [root_key, 'multisite', 'overlay', 'vrfs', 'LIST']
+model_keys['MCFG']['multisite.overlay.vrf_attach_groups'] = [root_key, 'multisite', 'overlay', 'vrf_attach_groups', 'LIST']
+model_keys['MCFG']['multisite.overlay.vrf_attach_groups.switches'] = [root_key, 'multisite', 'overlay', 'vrf_attach_groups', 'switches', 'LIST_INDEX']
+model_keys['MCFG']['multisite.overlay.networks'] = [root_key, 'multisite', 'overlay', 'networks', 'LIST']
+model_keys['MCFG']['multisite.overlay.network_attach_groups'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'LIST']
+model_keys['MCFG']['multisite.overlay.network_attach_groups.switches'] = [root_key, 'multisite', 'overlay', 'network_attach_groups', 'switches', 'LIST_INDEX']

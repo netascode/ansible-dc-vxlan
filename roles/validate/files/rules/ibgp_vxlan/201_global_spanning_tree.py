@@ -1,6 +1,6 @@
 class Rule:
     id = "201"
-    description = "Verify a spanning tree protocol mutually exclusive parameters."
+    description = "Verify spanning tree protocol mutually exclusive parameters"
     severity = "HIGH"
 
     @classmethod

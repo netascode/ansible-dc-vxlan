@@ -39,6 +39,33 @@ class Rule:
                     # Check if vPC id is defined
                     if interface.get("vpc_id"):
                         vpc_id = interface.get("vpc_id")
+
+                        # Check if switch is part of a vPC peer group
+                        is_peer = False
+                        for pairs in vpc_peers_list:
+                            if switch_name in pairs:
+                                is_peer = True
+                                break
+                        if not is_peer:
+                            results.append(
+                                f"Switch {switch_name} is not part of a vPC peer group but "
+                                f"has vPC id {vpc_id} defined on interface {interface_name}."
+                            )
+                            return results
+
+                        # Enforce Port-channel ID matches vPC ID to avoid mismatched configurations
+                        port_channel_match = re.fullmatch(
+                            r"Port-channel(\d+)", interface_name
+                        )
+                        if port_channel_match:
+                            port_channel_id = port_channel_match.group(1)
+
+                            if int(port_channel_id) != int(vpc_id):
+                                results.append(
+                                    f"Switch {switch_name} interface {interface_name} uses vPC id {vpc_id}"
+                                    "but Port-channel ID {port_channel_id}; these values must match."
+                                )
+
                         # Check if vPC id is referenced by more than 1 Port-channel on the switch
                         if vpc_id in vpc_ids:
                             results.append(

@@ -36,13 +36,13 @@ ndfc_switch_username: admin
 ndfc_switch_password: super_secret_password
 
 # Workflow Control Variables
-interface_delete_mode: True
-network_delete_mode: True
-vrf_delete_mode: True
-vpc_delete_mode: True
-vpc_peering_delete_mode: True
-link_vpc_delete_mode: True
-inventory_delete_mode: True
+interface_delete_mode: true
+network_delete_mode: true
+vrf_delete_mode: true
+vpc_delete_mode: true
+vpc_peering_delete_mode: true
+link_vpc_delete_mode: true
+inventory_delete_mode: true
 
 # Note about using ansible-vault to encrypt sensitive data
 # --------------------------------------------------------

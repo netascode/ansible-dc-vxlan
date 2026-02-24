@@ -36,7 +36,7 @@
 - name: Get List of ISN Fabric Switches from Nexus Dashboard
   cisco.dcnm.dcnm_rest:
     method: GET
-    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ MD_Extended.vxlan.fabric.name }}/inventory/switchesByFabric"
+    path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/inventory/switchesByFabric"
   register: switch_list
   tags: "{{ nac_tags.remove }}"
 
@@ -44,22 +44,22 @@
   ansible.builtin.import_tasks: common/edge_connections.yml
   tags: "{{ nac_tags.remove_edge_connections }}"
   when:
-    - vars_common_isn.changes_detected_edge_connections
+    - change_flags.changes_detected_edge_connections
 
 - name: Remove ISN Fabric Policy from Nexus Dashboard
   ansible.builtin.import_tasks: common/policy.yml
   tags: "{{ nac_tags.remove_policy }}"
   when:
-    - vars_common_isn.changes_detected_policy
+    - change_flags.changes_detected_policy
 
 - name: Remove ISN Fabric Interfaces from Nexus Dashboard
   ansible.builtin.import_tasks: common/interfaces.yml
   tags: "{{ nac_tags.remove_interfaces }}"
   when:
-    - vars_common_isn.changes_detected_interfaces
+    - change_flags.changes_detected_interfaces
 
 - name: Remove ISN Fabric Switches from Nexus Dashboard
   ansible.builtin.import_tasks: common/switches.yml
   tags: "{{ nac_tags.remove_switches }}"
   when:
-    - vars_common_isn.changes_detected_inventory
+    - change_flags.changes_detected_inventory

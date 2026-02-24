@@ -21,11 +21,6 @@
 
 ---
 
-- name: Initialize changes_detected Var
-  ansible.builtin.set_fact:
-    changes_detected_fabric: false
-  delegate_to: localhost
-
 - name: Set file_name Var
   ansible.builtin.set_fact:
     file_name: "ndfc_fabric.yml"
@@ -36,7 +31,6 @@
     path: "{{ path_name }}{{ file_name }}"
   register: data_file_previous
   delegate_to: localhost
-  # TODO: Add capability to overridde path variable above for CI/CD pipeline
 
 - name: Backup Previous Data File If It Exists
   ansible.builtin.copy:
@@ -77,8 +71,13 @@
   delegate_to: localhost
 
 - name: Set File Change Flag Based on File Diff Result
-  ansible.builtin.set_fact:
-    changes_detected_fabric: true
+  cisco.nac_dc_vxlan.common.change_flag_manager:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    role_path: "{{ common_role_path }}"
+    operation: update
+    change_flag: changes_detected_fabric
+    flag_value: true
   delegate_to: localhost
   when:
     - file_diff_result.file_data_changed

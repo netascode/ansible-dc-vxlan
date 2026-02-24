@@ -1,6 +1,6 @@
 class Rule:
     id = "309"
-    description = "Verify orphan ports for non-vPC switches"
+    description = "Verify vPC orphan ports are on vPC peer switches"
     severity = "HIGH"
 
     @classmethod

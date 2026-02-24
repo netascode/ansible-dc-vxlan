@@ -1,8 +1,8 @@
 {# Auto-generated NDFC DC VXLAN EVPN VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
-{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
+{% set simplified_fabric_type = data_model_extended.vxlan.fabric.simplified_type %}
 {% set vrfs = [] %}
-{% if MD_Extended.vxlan.overlay.vrfs is defined and MD_Extended.vxlan.overlay.vrfs %}
-{% set vrfs = MD_Extended.vxlan.overlay.vrfs %}
+{% if data_model_extended.vxlan.overlay.vrfs is defined and data_model_extended.vxlan.overlay.vrfs %}
+{% set vrfs = data_model_extended.vxlan.overlay.vrfs %}
 {% endif %}
 {% for vrf in vrfs %}
 - vrf_name: {{ vrf['name'] }}
@@ -11,6 +11,7 @@
 {# ------------------------------------------------------ #}
   vrf_id: {{ vrf['vrf_id'] | default(omit) }}
   vlan_id: {{ vrf['vlan_id'] | default(omit) }}
+  l3vni_wo_vlan: {{ vrf['enable_l3_vni_no_vlan'] | default(defaults.vxlan.global[simplified_fabric_type].enable_l3_vni_no_vlan) }}
   vrf_vlan_name: {{ vrf['vrf_vlan_name'] | default(omit) }}
   vrf_intf_desc: {{ vrf['vrf_intf_desc'] | default(defaults.vxlan.overlay.vrfs.vrf_intf_desc) }}
   vrf_description: {{ vrf['vrf_description'] | default(defaults.vxlan.overlay.vrfs.vrf_description) }}
@@ -32,8 +33,7 @@
   import_mvpn_rt: {{ vrf['import_mvpn_rt'] | default(omit) }}
   import_vpn_rt: {{ vrf['import_vpn_rt'] | default(omit) }}
   netflow_enable: {{ vrf['netflow_enable'] | default(defaults.vxlan.overlay.vrfs.netflow_enable) }}
-  l3vni_wo_vlan: {{ vrf['enable_l3_vni_no_vlan'] | default(defaults.vxlan.global[simplified_fabric_type].enable_l3_vni_no_vlan) }}
-{% if vrf['netflow_enable'] is defined and vrf['netflow_enable'] | bool %}
+{% if vrf['netflow_enable'] is defined and vrf['netflow_enable'] | ansible.builtin.bool %}
   nf_monitor: {{ vrf['netflow_monitor'] }}
 {% endif %}
 {# Prior to NDFC 12.2.2, NDFC supported Tenant Routed Multicast (TRM) IPv4. #}
@@ -41,7 +41,7 @@
 {# Existing IPv4 TRM fields are moved from the Advanced tab to the TRM tab. #}
   no_rp: {{ vrf['no_rp'] | default(defaults.vxlan.overlay.vrfs.no_rp) }}
   trm_enable: {{ vrf['trm_enable'] | default(defaults.vxlan.overlay.vrfs.trm_enable) }}
-{% if vrf['trm_enable'] is defined and vrf['trm_enable'] | bool %}
+{% if vrf['trm_enable'] is defined and vrf['trm_enable'] | ansible.builtin.bool %}
   overlay_mcast_group: {{ vrf['overlay_multicast_group'] | default(omit) }}
   rp_address: {{ vrf['rp_address'] | default(omit) }}
   rp_external: {{ vrf['rp_external'] | default(omit) }}
@@ -64,8 +64,8 @@
 {# ------------------------------------------------------ #}
 {% if vrf['vrf_attach_group'] is defined %}
   attach:
-{% if MD_Extended.vxlan.overlay.vrf_attach_groups_dict is defined and MD_Extended.vxlan.overlay.vrf_attach_groups_dict %}
-{% set vrf_attach_groups_dict = MD_Extended.vxlan.overlay.vrf_attach_groups_dict %}
+{% if data_model_extended.vxlan.overlay.vrf_attach_groups_dict is defined and data_model_extended.vxlan.overlay.vrf_attach_groups_dict %}
+{% set vrf_attach_groups_dict = data_model_extended.vxlan.overlay.vrf_attach_groups_dict %}
 {% endif %}
 {% for attach in vrf_attach_groups_dict[vrf['vrf_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}

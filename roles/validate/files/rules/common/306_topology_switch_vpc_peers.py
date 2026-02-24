@@ -1,6 +1,6 @@
 class Rule:
     id = "306"
-    description = "Verify a vPC peer exists in the topology.switches inventory"
+    description = "Verify a vPC peer exists in the topology switches inventory"
     severity = "HIGH"
 
     @classmethod

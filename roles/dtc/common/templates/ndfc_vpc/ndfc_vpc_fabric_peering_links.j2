@@ -2,13 +2,13 @@
 # This NDFC config data that updates links for vPC Fabric Peering is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% for peers in MD_Extended.vxlan.topology.vpc_peers %}
+{% for peers in data_model_extended.vxlan.topology.vpc_peers %}
 {% if peers['peer1_peerlink_interfaces'] is defined %}
 {% for interface_index in range(peers['peer1_peerlink_interfaces']|length) %}
 {% set peer1_interface = peers['peer1_peerlink_interfaces'][interface_index] %}
 {% set peer2_interface = peers['peer2_peerlink_interfaces'][interface_index] %}
 {% if peer1_interface is defined and peer2_interface is defined %}
-- dst_fabric : {{ MD_Extended.vxlan.fabric.name }}
+- dst_fabric : {{ data_model_extended.vxlan.fabric.name }}
   template: int_pre_provision_intra_fabric_link
   src_interface: {{peer1_interface.name}}
   dst_interface: {{peer2_interface.name}}

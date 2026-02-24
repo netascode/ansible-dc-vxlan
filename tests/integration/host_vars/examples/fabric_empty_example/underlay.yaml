@@ -24,60 +24,60 @@ vxlan:
   underlay:
     general:
       routing_protocol: ospf
-      enable_ipv6_underlay: False
+      enable_ipv6_underlay: false
       replication_mode: multicast
       fabric_interface_numbering: p2p
       subnet_mask: 30
-      manual_underlay_allocation: False
+      manual_underlay_allocation: false
       underlay_routing_loopback_id: 0
       underlay_vtep_loopback_id: 1
       underlay_routing_protocol_tag: UNDERLAY
       underlay_rp_loopback_id: 3
       intra_fabric_interface_mtu: 9216
       layer2_host_interface_mtu: 9216
-      unshut_host_interfaces: True
+      unshut_host_interfaces: true
     ipv4:
       underlay_routing_loopback_ip_range: 10.2.0.0/22
       underlay_vtep_loopback_ip_range: 10.3.0.0/22
       underlay_rp_loopback_ip_range: 10.254.254.0/24
       underlay_subnet_ip_range: 10.4.0.0/16
     ipv6:
-      enable_ipv6_link_local_address: True
+      enable_ipv6_link_local_address: true
       underlay_subnet_mask: 64
     ospf:
       area_id: 0.0.0.0
-      authentication_enable: False
+      authentication_enable: false
       authentication_key_id: 0
       authentication_key: ""
     bgp:
-      authentication_enable: False
+      authentication_enable: false
       authentication_key_type: 3
       authentication_key: ""
     isis:
       level: level-2
-      network_point_to_point: True
-      authentication_enable: False
+      network_point_to_point: true
+      authentication_enable: false
       authentication_key_id: 0
       authentication_key: ""
-      overload_bit: False
+      overload_bit: false
       overload_bit_elapsed_time: 5
     multicast:
       group_subnet: 239.1.1.0/25
       rendezvous_points: 2
       rp_mode: asm
       underlay_rp_loopback_id: 254
-      trm_enable: False
+      trm_enable: false
       trm_default_group: 239.1.1.0
       underlay_primary_rp_loopback_id: 0
       underlay_backup_rp_loopback_id: 1
       underlay_second_backup_rp_loopback_id: 2
       underlay_third_backup_rp_loopback_id: 3
     bfd:
-      enable: False
-      ibgp: False
-      ospf: False
-      isis: False
-      pim: False
-      authentication_enable: False
+      enable: false
+      ibgp: false
+      ospf: false
+      isis: false
+      pim: false
+      authentication_enable: false
       authentication_key_id: 0
       authentication_key: ""

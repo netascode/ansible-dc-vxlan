@@ -25,7 +25,7 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Fabric {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Fabric {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
 
 # There's an issue with the controller valdiation schema for this fabric type

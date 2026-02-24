@@ -8,6 +8,78 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.6.0`_
+=====================
+
+**Release Date:** ``2026-02-05``
+
+Added
+-----
+
+* NEW Feature: Support for Multi-Cluster Fabric Groups (MCFG)
+    * Support for MCFG Parent Fabric Group
+    * Support for VXLAN Child Fabric
+    * Support for ISN Child Fabric
+* NEW Feature: Support for up to 16 DHCP servers.  Increased from 3 to 16.
+* NEW Feature: Support for service account / discovery credentials for POAP
+* Added support monitor mode for interfaces in data model
+* Added native vlan support for vPC interfaces
+
+Fixed
+-----
+* https://github.com/netascode/ansible-dc-vxlan/issues/201
+* https://github.com/netascode/ansible-dc-vxlan/issues/333
+* https://github.com/netascode/ansible-dc-vxlan/issues/398
+* https://github.com/netascode/ansible-dc-vxlan/issues/492
+* https://github.com/netascode/ansible-dc-vxlan/issues/568
+* https://github.com/netascode/ansible-dc-vxlan/issues/631
+* https://github.com/netascode/ansible-dc-vxlan/issues/644
+* https://github.com/netascode/ansible-dc-vxlan/issues/645
+* https://github.com/netascode/ansible-dc-vxlan/issues/647
+* https://github.com/netascode/ansible-dc-vxlan/issues/649
+* https://github.com/netascode/ansible-dc-vxlan/issues/652
+* https://github.com/netascode/ansible-dc-vxlan/issues/655
+* https://github.com/netascode/ansible-dc-vxlan/issues/656
+* https://github.com/netascode/ansible-dc-vxlan/issues/660
+* https://github.com/netascode/ansible-dc-vxlan/issues/662
+* https://github.com/netascode/ansible-dc-vxlan/issues/667
+* https://github.com/netascode/ansible-dc-vxlan/issues/676
+* https://github.com/netascode/ansible-dc-vxlan/issues/677
+* https://github.com/netascode/ansible-dc-vxlan/issues/689
+* https://github.com/netascode/ansible-dc-vxlan/issues/691
+* https://github.com/netascode/ansible-dc-vxlan/issues/697
+* https://github.com/netascode/ansible-dc-vxlan/issues/699
+* https://github.com/netascode/ansible-dc-vxlan/issues/702
+* https://github.com/netascode/ansible-dc-vxlan/issues/708
+
+
+`0.5.1`_
+=====================
+
+**Release Date:** ``2025-10-27``
+
+Modified
+--------
+
+* Deprecated keys under `vxlan.global` that are now available only under the following fabric types:
+    * iBGP EVPN fabric type: `vxlan.global.ibgp`
+    * External fabric type: `vxlan.global.external`
+
+* Improved performance when managing interfaces, fabric links, networks, VRFs, vPC peers, vPC Domain IDs, and underlay IP addresses when the `force_run_all` flag is set to `false`. These performance improvements are not currently supported for pipeline workflows.
+
+Fixed
+-----
+* https://github.com/netascode/ansible-dc-vxlan/issues/649
+* https://github.com/netascode/ansible-dc-vxlan/issues/652
+* https://github.com/netascode/ansible-dc-vxlan/pull/622
+* https://github.com/netascode/ansible-dc-vxlan/pull/623
+* https://github.com/netascode/ansible-dc-vxlan/pull/624
+* https://github.com/netascode/ansible-dc-vxlan/pull/629
+* https://github.com/netascode/ansible-dc-vxlan/pull/632
+* https://github.com/netascode/ansible-dc-vxlan/pull/633
+* https://github.com/netascode/ansible-dc-vxlan/pull/637
+* https://github.com/netascode/ansible-dc-vxlan/pull/642
+
 `0.5.0`_
 =====================
 
@@ -364,6 +436,8 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.6.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.5.1...0.6.0
+.. _0.5.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.5.0...0.5.1
 .. _0.5.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.3...0.5.0
 .. _0.4.3: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.2...0.4.3
 .. _0.4.2: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.1...0.4.2

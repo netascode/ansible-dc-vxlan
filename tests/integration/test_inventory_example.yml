@@ -23,8 +23,8 @@ all:
   vars:
     ansible_user: "admin"
     ansible_python_interpreter: "~/.pyenv/shims/python"
-    ansible_httpapi_validate_certs: False
-    ansible_httpapi_use_ssl: True
+    ansible_httpapi_validate_certs: false
+    ansible_httpapi_use_ssl: true
 
   children:
     ndfc:
@@ -32,7 +32,7 @@ all:
         fabric_empty:
           ansible_host: << ndfc_ip >>
         fabric_full_small_sha:
-          ansible_host: << ndfc_ip >> 
+          ansible_host: << ndfc_ip >>
         fabric_full_small_ospf_multicast_asm:
           ansible_host: << ndfc_ip >>
         fabric_full_small_ospf_multicast_bidir:

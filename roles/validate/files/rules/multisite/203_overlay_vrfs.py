@@ -50,8 +50,6 @@ class Rule:
                     current_vrf_trm_underlay_mcast_ip = child_fabric.get("underlay_mcast_ip")
                     current_vrf_trm_overlay_multicast_group = child_fabric.get("overlay_multicast_group")
 
-                    # import epdb; epdb.st()
-
                     if child_fabric.get('trm_enable'):
                         if (
                             not current_vrf_trm_no_rp and

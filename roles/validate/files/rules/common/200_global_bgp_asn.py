@@ -1,6 +1,6 @@
 class Rule:
     id = "200"
-    description = "Verify BGP ASN is defined for iBGP VXLAN and External fabric types."
+    description = "Verify BGP ASN is defined for iBGP VXLAN and External fabric types"
     severity = "HIGH"
 
     @classmethod

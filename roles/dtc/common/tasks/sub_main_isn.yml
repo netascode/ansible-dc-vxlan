@@ -24,7 +24,7 @@
 - name: Fail if Data Model is not defined
   ansible.builtin.fail:
     msg: "Service Model Not Defined. Role cisco.nac_dc_vxlan.validate Must Be Called First"
-  when: MD is undefined
+  when: data_model is undefined
   delegate_to: localhost
 
 # ------------------------------------------------------------------------
@@ -32,7 +32,7 @@
 # ------------------------------------------------------------------------
 - name: Set path_name Var
   ansible.builtin.set_fact:
-    path_name: "{{ role_path }}/files/isn/{{ MD_Extended.vxlan.fabric.name }}/"
+    path_name: "{{ role_path }}/files/isn/{{ data_model_extended.vxlan.fabric.name }}/"
   delegate_to: localhost
 
 - name: Cleanup Files from Previous Run if run_map requires it
@@ -170,29 +170,13 @@
 - name: Save Local Variables With Namespace Context
   ansible.builtin.set_fact:
     vars_common_isn:
-      changes_detected_fabric: "{{ changes_detected_fabric }}"
-      changes_detected_edge_connections: "{{ changes_detected_edge_connections }}"
-      changes_detected_interface_access_po: "{{ changes_detected_interface_access_po }}"
-      changes_detected_interface_access: "{{ changes_detected_interface_access }}"
-      changes_detected_interfaces: "{{ changes_detected_interfaces }}"
-      changes_detected_interface_loopback: "{{ changes_detected_interface_loopback }}"
-      changes_detected_interface_breakout: "{{ changes_detected_interface_breakout }}"
-      changes_detected_interface_breakout_preprov: "{{ changes_detected_interface_breakout_preprov }}"
-      changes_detected_interface_po_routed: "{{ changes_detected_interface_po_routed }}"
-      changes_detected_interface_routed: "{{ changes_detected_interface_routed }}"
-      changes_detected_interface_trunk_po: "{{ changes_detected_interface_trunk_po }}"
-      changes_detected_interface_trunk: "{{ changes_detected_interface_trunk }}"
-      changes_detected_interface_vpc: "{{ changes_detected_interface_vpc }}"
-      changes_detected_interface_dot1q: "{{ changes_detected_interface_dot1q }}"
-      changes_detected_inventory: "{{ changes_detected_inventory }}"
-      changes_detected_policy: "{{ changes_detected_policy }}"
-      changes_detected_sub_interface_routed: "{{ changes_detected_sub_interface_routed }}"
       fabric_config: "{{ fabric_config }}"
       interface_breakout: "{{ interface_breakout }}"
       interface_breakout_preprov: "{{ interface_breakout_preprov }}"
       interface_access_po: "{{ interface_access_po }}"
       interface_access: "{{ interface_access }}"
-      interface_all: "{{ interface_all }}"
+      interface_all_create: "{{ interface_all_create }}"
+      interface_all_remove_overridden: "{{ interface_all_remove_overridden }}"
       int_loopback_config: "{{ int_loopback_config }}"
       interface_po_routed: "{{ interface_po_routed }}"
       interface_routed: "{{ interface_routed }}"
@@ -206,31 +190,5 @@
       sub_interface_routed: "{{ sub_interface_routed }}"
       updated_inv_config: "{{ updated_inv_config }}"
       updated_inv_config_no_bootstrap: "{{ updated_inv_config_no_bootstrap }}"
-
-- name: Run Diff Flags
-  ansible.builtin.debug:
-    msg:
-      - "----------------------------------------------------------------"
-      - "+     Fabric Changes Detected -               [ {{ vars_common_isn.changes_detected_fabric }} ]"
-      - "+     Inventory Changes Detected -            [ {{ vars_common_isn.changes_detected_inventory }} ]"
-      - "+     ----- Interfaces -----"
-      - "+     Interface breakout Changes Detected -   [ {{ vars_common_isn.changes_detected_interface_breakout }} ]"
-      - "+     Interface PreProv breakout Changes Detected -   [ {{ vars_common_isn.changes_detected_interface_breakout_preprov }} ]"
-      - "+     Interface vPC Changes Detected -        [ {{ vars_common_isn.changes_detected_interface_vpc }} ]"
-      - "+     Interface Access Changes Detected -     [ {{ vars_common_isn.changes_detected_interface_access }} ]"
-      - "+     Interface Access PO Changes Detected -  [ {{ vars_common_isn.changes_detected_interface_access_po }} ]"
-      - "+     Interface Loopback Changes Detected -   [ {{ vars_common_isn.changes_detected_interface_loopback }} ]"
-      - "+     Interface PO Routed Changes Detected -  [ {{ vars_common_isn.changes_detected_interface_po_routed }} ]"
-      - "+     Interface Routed Changes Detected -     [ {{ vars_common_isn.changes_detected_interface_routed }} ]"
-      - "+     Interface Trunk Changes Detected -      [ {{ vars_common_isn.changes_detected_interface_trunk }} ]"
-      - "+     Interface Trunk PO Changes Detected -   [ {{ vars_common_isn.changes_detected_interface_trunk_po }} ]"
-      - "+     Sub Interface Routed Changes Detected - [ {{ vars_common_isn.changes_detected_sub_interface_routed }} ]"
-      - "+     ----- All Interfaces -----"
-      - "+     All Interfaces Changes Detected -       [ {{ vars_common_isn.changes_detected_interfaces }} ]"
-      - "+     ----- All Interfaces -----"
-      - "+     Policy Changes Detected -               [ {{ vars_common_isn.changes_detected_policy }} ]"
-      - "+     Edge Connection Changes Detected -      [ {{ vars_common_isn.changes_detected_edge_connections }} ]"
-      - "+     ----- Run Map -----"
-      - "+     Run Map Diff Run -                      [ {{ run_map_read_result.diff_run }} ]"
-      - "+     Force Run Flag  -                       [ {{ force_run_all }} ]"
-      - "----------------------------------------------------------------"
+      # Diff Result Data
+      interface_diff_result: "{{ interface_diff_result }}"

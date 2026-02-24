@@ -1,6 +1,6 @@
 class Rule:
     id = "202"
-    description = "Verify Fabric Underlay Supports Multicast for TRM"
+    description = "Verify fabric underlay supports multicast for TRM"
     severity = "HIGH"
 
     @classmethod

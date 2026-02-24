@@ -1,6 +1,6 @@
 class Rule:
     id = "001"
-    description = "Verify the data model for what should be supported via child fabric(s)."
+    description = "Verify the data model for what should be supported via child fabric(s)"
     severity = "HIGH"
 
     @classmethod
@@ -13,7 +13,8 @@ class Rule:
             check = cls.data_model_key_check(data_model, ['vxlan', child_fabric_supported_key])
             if child_fabric_supported_key in check['keys_found']:
                 results.append(
-                    f"Key '{child_fabric_supported_key}' is supported via child fabric(s) respective host_vars data model file(s)."
+                    f"Key '{child_fabric_supported_key}' is supported via child fabric(s) respective host_vars data model file(s) "
+                    f"and should not be present in the multisite parent fabric data model host_vars file(s)."
                 )
 
                 return results
