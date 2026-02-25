@@ -59,25 +59,11 @@
 
     - name: Store discovered pairings
       ansible.builtin.set_fact:
-        ndfc_discovered_pairings: "{{ tor_discovery_result.discovered_pairings }}"
         tor_pairing_previous_list: "{{ tor_discovery_result.discovered_pairings }}"
       delegate_to: localhost
       when:
         - tor_discovery_result.discovered_pairings is defined
         - tor_discovery_result.discovered_pairings | length > 0
-
-- name: Cache NDFC discovered pairings for future reference
-  ansible.builtin.copy:
-    content: "{{ ndfc_discovered_pairings | to_nice_yaml }}"
-    dest: "{{ path_name }}ndfc_tor_pairing_discovered.yml"
-    mode: '0644'
-  delegate_to: localhost
-  when:
-    - not tor_pairing_previous.stat.exists
-    - tor_discovery_result is defined
-    - not (tor_discovery_result.failed | default(false))
-    - ndfc_discovered_pairings is defined
-    - ndfc_discovered_pairings | length > 0
 
 - name: Load ToR pairing payloads
   ansible.builtin.set_fact:
