@@ -78,16 +78,16 @@ class Rule:
                 results.append(f"{entry_label}: 'parent_leaf1' and 'tor1' are required")
                 continue
 
-            # Preprovision check
-            for switch_name in [leaf1_name, leaf2_name, tor1_name, tor2_name]:
-                if switch_name and switch_name in switch_map:
-                    sw = switch_map[switch_name]
-                    poap = sw.get('poap', {})
-                    if poap.get('preprovision', False):
-                        results.append(
-                            f"{entry_label}: Switch '{switch_name}' is set to preprovision in "
-                            f"ToR pairing cannot be preprovisioned."
-                        )
+            # # Preprovision check
+            # for switch_name in [leaf1_name, leaf2_name, tor1_name, tor2_name]:
+            #     if switch_name and switch_name in switch_map:
+            #         sw = switch_map[switch_name]
+            #         poap = sw.get('poap', {})
+            #         if poap.get('preprovision', False):
+            #             results.append(
+            #                 f"{entry_label}: Switch '{switch_name}' is set to preprovision in "
+            #                 f"ToR pairing cannot be preprovisioned."
+            #             )
 
             # Determine scenario
             scenario = cls._detect_scenario(leaf1_name, leaf2_name, tor1_name, tor2_name)
