@@ -612,8 +612,6 @@ class ActionModule(ActionBase):
         if json_data is not None:
             module_args["data"] = json_data
 
-        display.vvv(f"TOR API: Executing {method} {path} with args: {module_args}")
-
         result = self._execute_module(
             module_name="cisco.dcnm.dcnm_rest",
             module_args=module_args,
@@ -621,7 +619,6 @@ class ActionModule(ActionBase):
             tmp=tmp
         )
 
-        display.vvv(f"TOR API: Result keys: {result.keys() if result else 'None'}")
         if result and result.get('failed'):
             display.vvv(f"TOR API: Full failure result: {result}")
 
@@ -710,7 +707,7 @@ class ActionModule(ActionBase):
         if previous_pairings is None:
             previous_pairings = []
 
-        display.vvv(f"TOR Diff: Comparing {len(current_pairings)} current vs {len(previous_pairings)} previous pairings")
+        # display.vvv(f"TOR Diff: Comparing {len(current_pairings)} current vs {len(previous_pairings)} previous pairings")
 
         # Process the diff
         processor = TorDiffProcessor({
