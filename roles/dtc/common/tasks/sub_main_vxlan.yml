@@ -265,7 +265,6 @@
       vpc_domain_id_resource_diff_result: "{{ vpc_domain_id_resource_diff_result }}"
       vrf_diff_result: "{{ vrf_diff_result }}"
       underlay_ip_address_diff_result: "{{ underlay_ip_address_diff_result }}"
-      changes_detected_tor_pairing: "{{ changes_detected_tor_pairing | default(false) }}"
 
 # --------------------------------------------------------------------
 # We need to check if the current fabric is part of a Multisite fabric

@@ -51,7 +51,7 @@
   tags: "{{ nac_tags.remove_tor_pairing }}"
   when:
     - vars_common_ebgp_vxlan is defined
-    - vars_common_ebgp_vxlan.changes_detected_tor_pairing
+    - change_flags.changes_detected_tor_pairing
 
 - name: Remove eBGP VXLAN Fabric Policy from Nexus Dashboard
   ansible.builtin.import_tasks: common/policy.yml

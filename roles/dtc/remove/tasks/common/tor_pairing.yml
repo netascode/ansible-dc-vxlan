@@ -18,5 +18,5 @@
   register: tor_remove_result
   when:
     - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
-    - vars_common_local.changes_detected_tor_pairing | default(false)
+    - change_flags.changes_detected_tor_pairing | default(false)
     - vars_common_local.tor_pairing_removed | default([]) | length > 0

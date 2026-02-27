@@ -17,5 +17,5 @@
     execute_api: true
   register: tor_create_result
   when:
-    - vars_common_local.changes_detected_tor_pairing | default(false)
+    - change_flags.changes_detected_tor_pairing | default(false)
     - vars_common_local.tor_pairing | default([]) | length > 0
