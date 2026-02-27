@@ -14,8 +14,6 @@ class Rule:
         3. VPC requirements (leafs/ToRs must be VPC paired per scenario)
         4. Switch existence and role validation
         5. Serial number presence
-        6. Check if the switch (leaf or tor) is selected to preprovision - vxlan.topology.switches.name.poap.preprovision.
-           If yes, raise a validation error as ToR pairing cannot be preprovisioned.
 
         """
         results = []
