@@ -63,18 +63,6 @@ class PreparePlugin:
                 return True
         return False
 
-    def _resolve_vpc_domain(self, peer, key, name_a, name_b, topology):
-        if peer.get(key) is not None:
-            return peer.get(key)
-        if not (name_a and name_b):
-            return None
-        vpc_peers = topology.get('vpc_peers') or []
-        for candidate in vpc_peers:
-            peers = {candidate.get('peer1'), candidate.get('peer2')}
-            if {name_a, name_b} == peers:
-                return candidate.get('domain_id')
-        return None
-
     def prepare(self):
         """
         Main prepare method - transforms user config to API payloads and performs diff detection.
@@ -149,10 +137,6 @@ class PreparePlugin:
             leaf_is_vpc_paired = self._is_vpc_paired(leaf1_name, leaf2_name, topology)
             tor_is_vpc_paired = self._is_vpc_paired(tor1_name, tor2_name, topology)
 
-            # Auto-resolve VPC domain IDs from vpc_peers configuration (optional, for payload)
-            leaf_vpc_domain = self._resolve_vpc_domain(peer, 'leaf_vpc_id', leaf1_name, leaf2_name, topology)
-            tor_vpc_domain = self._resolve_vpc_domain(peer, 'tor_vpc_id', tor1_name, tor2_name, topology)
-
             # Determine if this is a VPC scenario based on switch definitions and VPC pairing
             # VPC scenario requires: both switches present AND they are VPC paired
             leaf_is_vpc = bool(leaf2_switch and leaf_is_vpc_paired)
@@ -216,7 +200,6 @@ class PreparePlugin:
                     'torSN1': tor1_serial or '',
                     'torSN2': tor2_serial or ''
                 }
-                # 'po_map': po_map
             })
 
         if errors:
