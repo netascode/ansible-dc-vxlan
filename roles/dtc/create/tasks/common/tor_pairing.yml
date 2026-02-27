@@ -9,13 +9,53 @@
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
   when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
 
+- name: Initialize leaf switches for TOR pairing discovery
+  ansible.builtin.set_fact:
+    leaf_switches_for_query: >-
+      {{ data_model_extended.vxlan.topology.switches
+         | selectattr('role', 'equalto', 'leaf')
+         | list }}
+  delegate_to: localhost
+
+# -----------------------------------------------------------------------
+# Diff Run Active - Use state file diff results (no NDFC query)
+# -----------------------------------------------------------------------
+- name: Use state file diff for TOR pairing creates (Diff Run Active)
+  ansible.builtin.set_fact:
+    tor_create_diff_result:
+      added: "{{ vars_common_local.tor_pairing_diff_result.added | default([]) }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+
+# -----------------------------------------------------------------------
+# Diff Run Disabled - Query NDFC for actual state (force_run_all mode)
+# -----------------------------------------------------------------------
+- name: Discover and diff TOR pairings from NDFC (Diff Run Disabled)
+  cisco.nac_dc_vxlan.dtc.process_tor_pairing:
+    operation: discover_and_diff
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    leaf_serial_number: "{{ leaf_switches_for_query[0].serial_number }}"
+    current_pairings: "{{ vars_common_local.tor_pairing }}"
+  register: tor_create_ndfc_result
+  when:
+    - run_map_read_result.diff_run is false|bool
+    - leaf_switches_for_query is defined
+    - leaf_switches_for_query | length > 0
+
+- name: Set TOR create diff result from NDFC discovery (Diff Run Disabled)
+  ansible.builtin.set_fact:
+    tor_create_diff_result:
+      added: "{{ tor_create_ndfc_result.added | default([]) }}"
+  when:
+    - tor_create_ndfc_result is defined
+    - tor_create_ndfc_result is not skipped
+
 - name: Create TOR pairings in NDFC
   cisco.nac_dc_vxlan.dtc.process_tor_pairing:
     operation: create
-    tor_pairing: "{{ vars_common_local.tor_pairing }}"
+    tor_pairing: "{{ tor_create_diff_result.added }}"
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     execute_api: true
   register: tor_create_result
   when:
-    - change_flags.changes_detected_tor_pairing | default(false)
-    - vars_common_local.tor_pairing | default([]) | length > 0
+    - tor_create_diff_result.added | default([]) | length > 0

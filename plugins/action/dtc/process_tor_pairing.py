@@ -491,36 +491,22 @@ class ActionModule(ActionBase):
        Prepares AND executes the NDFC API calls directly.
 
     Operations:
-        - discovery: Query NDFC for existing TOR pairings
-        - diff: Compare current and previous pairings to identify changes
+        - discover_and_diff: Query NDFC and compute diff against desired state
+        - diff: Compare current and previous pairings (file-based, no NDFC query)
         - create: Create TOR pairings via POST
         - remove: Delete TOR pairings via DELETE
 
     Usage Examples:
 
-        # Discovery - Query NDFC and process response
-        - name: Discover existing TOR pairings from NDFC
+        # Discover and Diff - Query NDFC then compute diff against desired state
+        - name: Discover and diff TOR pairings
           cisco.nac_dc_vxlan.dtc.process_tor_pairing:
-            operation: discovery
-            fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+            operation: discover_and_diff
+            fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
             leaf_serial_number: "{{ leaf_switches_for_query[0].serial_number }}"
-          register: tor_discovery_result
-
-        # Discovery - Process existing response (backwards compatible)
-        - name: Process NDFC TOR discovery response
-          cisco.nac_dc_vxlan.dtc.process_tor_pairing:
-            operation: discovery
-            discovery_response: "{{ ndfc_tor_discovery.response }}"
-          register: tor_discovery_result
-
-        # Diff - Compare current and previous pairings
-        - name: Compute ToR pairing diff
-          cisco.nac_dc_vxlan.dtc.process_tor_pairing:
-            operation: diff
-            current_pairings: "{{ tor_pairing_current_list }}"
-            previous_pairings: "{{ tor_pairing_previous_list }}"
+            current_pairings: "{{ vars_common_local.tor_pairing }}"
           register: tor_diff_result
-          # Returns: removed, added, unchanged, stats
+          # Returns: discovered_pairings, discovery_count, added, removed, unchanged, stats
 
         # Create - Execute API calls directly
         - name: Create TOR pairings in NDFC
@@ -549,11 +535,16 @@ class ActionModule(ActionBase):
             task_vars: Ansible task variables
 
         Returns:
-            str: Operation type ('discovery', 'diff', 'create', 'remove') or None
+            str: Operation type ('discover_and_diff', 'diff', 'create', 'remove') or None
         """
         # Check for explicit operation parameter first
-        explicit_op = self._task.args.get('operation')
-        if explicit_op and explicit_op in ('discovery', 'diff', 'create', 'remove'):
+        explicit_op = self._task.args.get("operation")
+        if explicit_op and explicit_op in (
+            "discover_and_diff",
+            "diff",
+            "create",
+            "remove",
+        ):
             return explicit_op
 
         # Try to detect from role path
@@ -564,31 +555,23 @@ class ActionModule(ActionBase):
         elif 'dtc/create' in role_path:
             if self._task.args.get('tor_pairing'):
                 return 'create'
-            elif self._task.args.get('discovery_response'):
-                return 'discovery'
         elif 'dtc/common' in role_path:
-            if self._task.args.get('discovery_response'):
-                return 'discovery'
-            elif self._task.args.get('leaf_serial_number'):
-                return 'discovery'
-            elif self._task.args.get('current_pairings') is not None:
+            if self._task.args.get('current_pairings') is not None:
                 return 'diff'
 
         # Fallback: detect based on which parameters are provided
         if self._task.args.get('current_pairings') is not None:
             return 'diff'
-        elif self._task.args.get('discovery_response'):
-            return 'discovery'
-        elif self._task.args.get('leaf_serial_number'):
-            return 'discovery'
-        elif self._task.args.get('tor_pairing'):
-            return 'create'
-        elif self._task.args.get('tor_pairing_removed'):
-            return 'remove'
+        elif self._task.args.get("tor_pairing"):
+            return "create"
+        elif self._task.args.get("tor_pairing_removed"):
+            return "remove"
 
         return None
 
-    def _execute_ndfc_rest(self, method, path, json_data=None, task_vars=None, tmp=None):
+    def _execute_ndfc_rest(
+        self, method, path, json_data=None, task_vars=None, tmp=None
+    ):
         """
         Execute an NDFC REST API call using cisco.dcnm.dcnm_rest module.
 
@@ -618,9 +601,6 @@ class ActionModule(ActionBase):
             task_vars=task_vars,
             tmp=tmp
         )
-
-        if result and result.get('failed'):
-            display.vvv(f"TOR API: Full failure result: {result}")
 
         return result
 
@@ -684,7 +664,7 @@ class ActionModule(ActionBase):
 
     def _run_diff(self, task_vars, tmp):
         """
-        Compute diff between current and previous TOR pairings.
+        Compare current and previous TOR pairings (file-based, no NDFC query).
 
         Returns:
             dict: Results with removed, added, unchanged pairings and stats
@@ -707,9 +687,6 @@ class ActionModule(ActionBase):
         if previous_pairings is None:
             previous_pairings = []
 
-        # display.vvv(f"TOR Diff: Comparing {len(current_pairings)} current vs {len(previous_pairings)} previous pairings")
-
-        # Process the diff
         processor = TorDiffProcessor({
             'current_pairings': current_pairings,
             'previous_pairings': previous_pairings
@@ -727,6 +704,71 @@ class ActionModule(ActionBase):
         )
 
         display.v(f"TOR Diff: {results['msg']}")
+
+        return results
+
+    def _run_discover_and_diff(self, task_vars, tmp):
+        """
+        Execute discovery followed by diff in a single operation.
+
+        Queries NDFC for existing TOR pairings, then computes the diff
+        between the desired (current) pairings and the discovered pairings.
+
+        Returns:
+            dict: Results with discovered_pairings plus diff results
+                  (added, removed, unchanged, stats)
+        """
+        results = {
+            "failed": False,
+            "operation": "discover_and_diff",
+            "discovered_pairings": [],
+            "discovery_count": 0,
+            "removed": [],
+            "added": [],
+            "unchanged": [],
+            "stats": {},
+        }
+
+        # Step 1: Run discovery
+        discovery_results = self._run_discovery(task_vars, tmp)
+
+        if discovery_results.get("failed"):
+            results["failed"] = True
+            results["msg"] = discovery_results.get("msg", "Discovery failed")
+            results["ndfc_response"] = discovery_results.get("ndfc_response")
+            return results
+
+        discovered_pairings = discovery_results.get("discovered_pairings", [])
+        results["discovered_pairings"] = discovered_pairings
+        results["discovery_count"] = len(discovered_pairings)
+        if "ndfc_response" in discovery_results:
+            results["ndfc_response"] = discovery_results["ndfc_response"]
+
+        # Step 2: Run diff using discovered pairings as previous state
+        current_pairings = self._task.args.get("current_pairings", [])
+        if current_pairings is None:
+            current_pairings = []
+
+        processor = TorDiffProcessor(
+            {
+                "current_pairings": current_pairings,
+                "previous_pairings": discovered_pairings,
+            }
+        )
+        diff_results = processor.compute_diff()
+
+        results["removed"] = diff_results["removed"]
+        results["added"] = diff_results["added"]
+        results["unchanged"] = diff_results["unchanged"]
+        results["stats"] = diff_results["stats"]
+        results["msg"] = (
+            f"Discover and diff complete: {len(discovered_pairings)} discovered, "
+            f"{len(diff_results['added'])} added, "
+            f"{len(diff_results['removed'])} removed, "
+            f"{len(diff_results['unchanged'])} unchanged"
+        )
+
+        display.v(f"TOR Discover and Diff: {results['msg']}")
 
         return results
 
@@ -868,16 +910,17 @@ class ActionModule(ActionBase):
             return results
 
         # Build operations
-        processor = TorRemovalProcessor({
-            'tor_pairing_removed': tor_pairing_removed,
-            'fabric_name': fabric_name
-        })
+        processor = TorRemovalProcessor(
+            {"tor_pairing_removed": tor_pairing_removed, "fabric_name": fabric_name}
+        )
         removal_operations = processor.build_operations()
         results['removal_operations'] = removal_operations
         results['count'] = len(removal_operations)
 
         if not execute_api:
-            results['msg'] = f'Prepared {len(removal_operations)} TOR pairing removal operation(s)'
+            results["msg"] = (
+                f"Prepared {len(removal_operations)} TOR pairing removal operation(s)"
+            )
             return results
 
         # Execute API calls
@@ -971,18 +1014,18 @@ class ActionModule(ActionBase):
             results['failed'] = True
             results['msg'] = (
                 "Could not detect operation type. Provide 'operation' parameter "
-                "(discovery, diff, create, remove) or ensure appropriate input parameters "
-                "(discovery_response, leaf_serial_number, current_pairings, tor_pairing, tor_pairing_removed) are set."
+                "(discover_and_diff, diff, create, remove) or ensure appropriate input parameters "
+                "(current_pairings, tor_pairing, tor_pairing_removed) are set."
             )
             return results
 
         # Execute the appropriate operation
         try:
-            if operation == 'discovery':
-                return self._run_discovery(task_vars, tmp)
+            if operation == "discover_and_diff":
+                return self._run_discover_and_diff(task_vars, tmp)
             elif operation == 'diff':
                 return self._run_diff(task_vars, tmp)
-            elif operation == 'create':
+            elif operation == "create":
                 return self._run_create(task_vars, tmp)
             elif operation == 'remove':
                 return self._run_remove(task_vars, tmp)
