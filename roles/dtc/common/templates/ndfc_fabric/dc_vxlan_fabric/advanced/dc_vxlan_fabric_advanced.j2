@@ -49,8 +49,8 @@
 {% endif %}
 {% endif %}
   EXTRA_CONF_LEAF: |
-    {{ vxlan.underlay.general.leaf_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ibgp.leaf_freeform | default("") | indent(4) }}
   EXTRA_CONF_SPINE: |
-    {{ vxlan.underlay.general.spine_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ibgp.spine_freeform | default("") | indent(4) }}
   EXTRA_CONF_TOR: |
-    {{ vxlan.underlay.general.tor_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ibgp.tor_freeform | default("") | indent(4) }}
