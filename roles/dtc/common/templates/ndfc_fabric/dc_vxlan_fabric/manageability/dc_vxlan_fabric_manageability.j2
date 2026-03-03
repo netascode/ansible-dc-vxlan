@@ -56,6 +56,6 @@
 {% endif %}
 {% endif %}
   AAA_SERVER_CONF: |
-    {{ vxlan.underlay.general.aaa_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ibgp.aaa_freeform | default("") | indent(4) }}
   BANNER: |
-    {{ vxlan.underlay.general.banner_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ibgp.general.banner_freeform | default("") | indent(4) }}
