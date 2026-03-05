@@ -39,7 +39,7 @@
             ADMIN_STATE: {{ link.source_interface_enabled | default(true) }}
             BGP_PASSWORD: ""
             BGP_PASSWORD_ENABLE: false
-            MTU: {{ link.source_interface_mtu | default(9216) }}
+            MTU: {{ link.source_interface_mtu | default(defaults.vxlan.topology.edge_connections.source_interface_mtu) }}
             OVERRIDE_LOCAL_ASN: false
             POLICY_ID: ""
             ROUTING_TAG: "{{ link.bgp_section.routing_tag | default('') }}"

@@ -244,6 +244,7 @@ factory_defaults:
         mtu: 9216
         admin_state: true
       edge_connections:
+        source_interface_mtu: 9216
     underlay:
       general:
         routing_protocol: ospf
