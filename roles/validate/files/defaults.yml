@@ -151,7 +151,7 @@ factory_defaults:
           module: 1
           from: 1
           to: 1
-          map: "10g-4x"
+          map: 10g-4x
           enable_during_bootstrap: false
         interfaces:
           topology_switch_access_interface:
