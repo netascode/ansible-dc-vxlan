@@ -79,7 +79,6 @@
 - name: Manage eBGP VXLAN Fabric ToR Pairing in Nexus Dashboard
   ansible.builtin.import_tasks: common/tor_pairing.yml
   when:
-    - vars_common_ebgp_vxlan is defined
     - vars_common_ebgp_vxlan.tor_pairing is defined
     - vars_common_ebgp_vxlan.tor_pairing | length > 0
     - change_flags.changes_detected_tor_pairing
