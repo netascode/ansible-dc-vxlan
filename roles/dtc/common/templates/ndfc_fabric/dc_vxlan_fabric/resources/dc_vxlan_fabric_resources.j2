@@ -76,3 +76,4 @@
 {% set l3_vlan_range = defaults.vxlan.global.ibgp.layer3_vlan_range.from ~ '-' ~ defaults.vxlan.global.ibgp.layer3_vlan_range.to %}
 {% endif %}
   VRF_VLAN_RANGE: {{ l3_vlan_range }}
+  SUBINTERFACE_RANGE: {{ vxlan.global.ibgp.sub_int_range | default(defaults.vxlan.global.ibgp.sub_int_range) }}
