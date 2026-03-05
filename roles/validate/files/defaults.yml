@@ -127,7 +127,7 @@ factory_defaults:
           enable_cdp_mgmt: false
         tcam_allocation: true
         mpls_handoff:
-          enable:
+          enable: false
           loopback_id: 101
           loopback_ip_range: 10.101.0.0/25
           isis_net_area_number: "0001"
