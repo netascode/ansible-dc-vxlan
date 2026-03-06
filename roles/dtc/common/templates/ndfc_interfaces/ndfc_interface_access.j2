@@ -31,6 +31,11 @@
 {% if interface['orphan_port'] | default(false) %}
     orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.orphan_port) | lower }}
 {% endif %}
+    enable_qos: {{ interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_qos) | lower }}
+{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_qos) %}
+    qos_policy: {{ interface['qos_policy'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.qos_policy) }}
+    queuing_policy: {{ interface['queuing_policy'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.queuing_policy) }}
+{% endif %}
     enable_monitor: {{ interface['monitor'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.monitor) | lower }}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
