@@ -70,5 +70,3 @@
     (get_result.response.DATA is defined and not get_result.get('response', false) and not get_result.get('response').get('DATA')) or
     (get_result.response.DATA.fabricTechnologyFriendly != "Custom") or
     (get_result.response.DATA.templateFabricType != "Custom Network")
-
-- meta: end_play
