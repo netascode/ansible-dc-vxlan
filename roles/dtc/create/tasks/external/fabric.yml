@@ -35,30 +35,31 @@
   register: get_result
   failed_when: false
 
-- name: Manage Fabric in Nexus Dashboard (PUT)
-  cisco.dcnm.dcnm_rest:
-    method: PUT
-    path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/External_Fabric'
-    json_data: '{{ fabric_config | to_json }}'
+- name: Manage Fabric Fabric in Nexus Dashboard (Custom)
   when:
     - get_result.response.DATA is defined
     - get_result.response.DATA
-  register: put_result
+  block:
+    # The dcnm_rest module is used for legacy support where the Exteranl fabric type was of type Custom.
+    # This will continue to allow for the fabric to be updated in place without having to remove and re-add the fabric which would be disruptive.
+    # The format of the fabric_config normalized with all other fabrics, meaning the generated data is a list of fabrics.
+    # For this legacy scenario using the dcnm_rest module requires two operatons to maintain backwards compatibility:
+    # 1) The fabric config needs to reference the first item in the list of fabrics
+    # 2) The DEPLOY key needs to be removed from the fabric_config as it is used by the dcnm_fabric module but is not expected by the REST API
+    # Using Ansible builtin filters; dict2items, rejectattr, list, items2dict, and to_json, the data can be transformed inline:
+    # * dict2items - transforms the fabric_config dict into a list of key/value pairs
+    # * rejectattr - removes the item with the key of DEPLOY
+    # * list - ensures the data is in a list format
+    # * items2dict - transforms the data back into a dict format for use in the REST API call
+    # * to_json - converts the data to JSON format for the REST API call
+    - name: Manage Fabric in Nexus Dashboard (PUT)
+      cisco.dcnm.dcnm_rest:
+        method: PUT
+        path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/External_Fabric'
+        json_data: "{{ vars_common_external.fabric_config[0] | dict2items | rejectattr('key', 'equalto', 'DEPLOY') | list | items2dict | to_json }}"
 
-- debug:
-    var: fabric_config
-
-- debug:
-    var: fabric_config | to_json
-
-- name: Manage Fabric in Nexus Dashboard (POST)
-  cisco.dcnm.dcnm_rest:
-    method: POST
-    path: '/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{ data_model_extended.vxlan.fabric.name }}/External_Fabric'
-    json_data: '{{ fabric_config | to_json }}'
-  when: >
-    (get_result.response.DATA is not defined) or
-    (get_result.response.DATA is defined and not get_result.get('response', false) and not get_result.get('response').get('DATA'))
-  register: post_result
-
-- meta: end_play
+- name: Manage Fabric in Nexus Dashboard
+  cisco.dcnm.dcnm_fabric:
+    state: merged
+    config: "{{ fabric_config }}"
+    skip_validation: true
