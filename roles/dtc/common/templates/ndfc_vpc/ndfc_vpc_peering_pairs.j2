@@ -2,8 +2,8 @@
 # This NDFC vPC Peering config data structure for vPC pairs is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% if MD_Extended.vxlan.topology.vpc_peers is defined and MD_Extended.vxlan.topology.vpc_peers is not none %}
-{% for vpc_peers_pair in MD_Extended.vxlan.topology.vpc_peers %}
+{% if data_model_extended.vxlan.topology.vpc_peers is defined and data_model_extended.vxlan.topology.vpc_peers is not none %}
+{% for vpc_peers_pair in data_model_extended.vxlan.topology.vpc_peers %}
 - peerOneId: {{ vpc_peers_pair.peer1_mgmt_ip_address }}
   peerTwoId: {{ vpc_peers_pair.peer2_mgmt_ip_address }}
 {% if vpc_peers_pair.fabric_peering is defined %}

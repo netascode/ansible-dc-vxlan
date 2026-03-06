@@ -37,11 +37,13 @@ When we are considering publishing a new release, all of the following steps mus
 1. Scrub README docs
      * Update README docs for new support and where applicable
 
+1. Commit doc changes for galaxy.yml, CHANGELOG.rst, and README.md to develop
+
 1. Create a release branch based on the `develop` branch
       * 0.0.x - a bugfix release
       * 0.x.0 - new feature(s)
       * x.0.0 - backward-incompatible change (if unvoidable!)
-  
+
 1. On the release branch, edit galaxy.yml and remove the "-dev" from the version
       * version: 0.4.1    (instead of version: 0.4.1-dev)
 

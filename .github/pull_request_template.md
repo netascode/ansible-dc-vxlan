@@ -4,6 +4,7 @@
 
 ## Related Issue(s)
 <!--- Please link the relevant issue(s) -->
+<!--- To link the issue to the PR, use one of the keywords: Fixes #xxx or Closes #xxx or Resolves #xxx -->
 
 
 ## Related Collection Role
@@ -35,8 +36,8 @@
 <!--- Please provide notes or description of testing -->
 
 
-## Cisco NDFC Version
-<!-- Please provide Cisco NDFC version developed against -->
+## Cisco Nexus Dashboard Version
+<!-- Please provide Cisco Nexus Dashboard version developed against -->
 
 
 ## Checklist

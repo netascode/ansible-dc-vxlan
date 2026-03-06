@@ -25,14 +25,15 @@
   ansible.builtin.debug:
     msg:
       - "----------------------------------------------------------------"
-      - "+     Manage Inter Fabric Links {{ MD_Extended.vxlan.fabric.name }}"
+      - "+     Manage Inter Fabric Links {{ data_model_extended.vxlan.fabric.name }}"
       - "----------------------------------------------------------------"
+
 # --------------------------------------------------------------------
-# Manage Edge Connection Configuration on NDFC
+# Manage Edge Connection Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
-- name: Manage NDFC Inter Fabric Links
+- name: Manage Inter Fabric Links in Nexus Dashboard
   cisco.dcnm.dcnm_policy:
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     config: "{{ edge_connections }}"
     use_desc_as_key: true
     deploy: false

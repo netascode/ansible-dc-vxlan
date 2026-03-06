@@ -10,7 +10,8 @@
 {% endif %}
 {% endif %}
   MS_UNDERLAY_AUTOCONFIG: {{ vxlan.multisite.overlay_dci.underlay_autoconfig | default(defaults.vxlan.multisite.overlay_dci.underlay_autoconfig) }}
-{% if (vxlan.multisite.overlay_dci.underlay_autoconfig | default(defaults.vxlan.multisite.overlay_dci.underlay_autoconfig) | ansible.builtin.bool) is sameas false %}
+{# Render the following section only if underlay_autoconfig is True #}
+{% if (vxlan.multisite.overlay_dci.underlay_autoconfig | default(defaults.vxlan.multisite.overlay_dci.underlay_autoconfig) | ansible.builtin.bool) %}
   ENABLE_BGP_SEND_COMM: {{ vxlan.multisite.overlay_dci.enable_bgp_send_community | default(defaults.vxlan.multisite.overlay_dci.enable_bgp_send_community) }}
   ENABLE_BGP_LOG_NEIGHBOR_CHANGE: {{ vxlan.multisite.overlay_dci.enable_bgp_log_neighbor_change | default(defaults.vxlan.multisite.overlay_dci.enable_bgp_log_neighbor_change) | lower }}
   ENABLE_BGP_BFD: {{ vxlan.multisite.overlay_dci.enable_bgp_bfd | default(defaults.vxlan.multisite.overlay_dci.enable_bgp_bfd) }}

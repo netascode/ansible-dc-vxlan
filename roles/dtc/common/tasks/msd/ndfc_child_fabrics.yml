@@ -1,30 +1,35 @@
+# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
 ---
 
-- debug: msg="Building NDFC MSD Child Fabric Data"
-
-# Notes on items that still need support for MSD
-#
-# - Fabric Settings for MSD (Need Customer Requirements Here)
-# - Fabric Settings for ISN (Need Customer Requirements Here)
-# - Enable Interface Management under ISN workflow
-# - Enable Policy Management under ISN/MSD worflows
-# - Verify addition of multiple ISN Fabrics/Devies
-#    (Test Two ISN Fabrics with two ISN devices - Full Mesh)
-#    (Configure interfaces between the ISN devices)
-#    (What policy should be applied between the ISN devices)
-# - Verify support of VRF / Network properties at MSD level
-# - Enable support of VRF / Netowrk properties at Child level under MSD fabric
-# - Verify Order of Operations
-#    - Create VXLAN / ISN Fabrics then MSD Fabric + Association
-#    - Create MSD Fabric then VXLAN / ISN Fabrics + Association
-#    - VRF / Network problem when child fabrics moved under MSD but MSD level VRF/Net model data is empty
-#      (Result is all VRF/Networks are removed after they get moved under MSD - can be controlled with flag)
+- name: Build Multisite Child Fabric Data for Nexus Dashboard
+  ansible.builtin.debug:
+    msg: "Building MSD Child Fabric Data"
 
 - name: Prepare Multisite Add and Remove Child Fabric Data
   cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data:
-    model_data: "{{ MD_Extended }}"
-    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-    child_fabrics: "{{ MD_Extended.vxlan.multisite.child_fabrics }}"
-  when: 
-    - MD_Extended.vxlan.multisite.child_fabrics is defined
-  register: MD_Multisite_Child_Fabrics
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    child_fabrics: "{{ data_model_extended.vxlan.multisite.child_fabrics }}"
+  when:
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
+  register: data_model_msd_child_fabrics

@@ -1,27 +1,27 @@
 class Rule:
     id = "201"
-    description = "Cross Reference VRFs and Networks items in the Service Model"
+    description = "Verify VRFs and Networks cross reference items"
     severity = "HIGH"
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
 
         sm_networks = None
         sm_vrfs = None
 
-        check = cls.data_model_key_check(inventory, ['vxlan', 'multisite', 'overlay'])
+        check = cls.data_model_key_check(data_model, ['vxlan', 'multisite', 'overlay'])
         if 'overlay' in check['keys_found'] and 'overlay' in check['keys_data']:
             network_keys = ['vxlan', 'multisite', 'overlay', 'networks']
             vrf_keys = ['vxlan', 'multisite', 'overlay', 'vrfs']
 
-            check = cls.data_model_key_check(inventory, network_keys)
+            check = cls.data_model_key_check(data_model, network_keys)
             if 'networks' in check['keys_data']:
-                sm_networks = cls.safeget(inventory, network_keys)
+                sm_networks = cls.safeget(data_model, network_keys)
 
-            check = cls.data_model_key_check(inventory, vrf_keys)
+            check = cls.data_model_key_check(data_model, vrf_keys)
             if 'vrfs' in check['keys_data']:
-                sm_vrfs = cls.safeget(inventory, vrf_keys)
+                sm_vrfs = cls.safeget(data_model, vrf_keys)
 
             # Ensure Network is not referencing a VRF that is not defined in the service model
             results = cls.cross_reference_vrfs_nets(sm_vrfs, sm_networks, results)

@@ -21,4 +21,6 @@
 
 ---
 
-- debug: msg="Executing Remove Role Tests"
+- name: Debug Remove Role Tests
+  ansible.builtin.debug:
+    msg: "Executing Remove Role Tests"

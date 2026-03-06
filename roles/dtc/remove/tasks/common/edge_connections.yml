@@ -20,48 +20,58 @@
 # SPDX-License-Identifier: MIT
 ---
 
-- name: Choose vars_common Based On Fabric Type
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
-- ansible.builtin.set_fact:
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Set vars_common Based On Fabric Type - MSD
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
-  when: MD_Extended.vxlan.fabric.type == "MSD"
-- ansible.builtin.set_fact:
+  when: data_model_extended.vxlan.fabric.type == "MSD"
+
+- name: Set vars_common Based On Fabric Type - ISN
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
-  when: MD_Extended.vxlan.fabric.type == "ISN"
-- ansible.builtin.set_fact:
+  when: data_model_extended.vxlan.fabric.type == "ISN"
+
+- name: Set vars_common Based On Fabric Type - External
+  ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
-  when: MD_Extended.vxlan.fabric.type == "External"
+  when: data_model_extended.vxlan.fabric.type == "External"
 
-- block:
-  - ansible.builtin.debug: msg="Removing Unmanaged Edge Connections From Switches. This could take several minutes..."
-
-  - name: Build Unmanaged Edge Connection Payload
-    cisco.nac_dc_vxlan.dtc.unmanaged_edge_connections:
-      switch_data: "{{ switch_list.response.DATA }}"
-      edge_connections: "{{ edge_connections }}"
-    register: unmanaged_edge_connections_config
-    # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
-
-  - name: Remove Unmanaged NDFC Edge Connections
-    cisco.dcnm.dcnm_policy:
-      fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-      use_desc_as_key: true
-      config: "{{ unmanaged_edge_connections_config.unmanaged_edge_connections }}"
-      deploy: true
-      state: deleted
-    when: unmanaged_edge_connections_config.unmanaged_edge_connections | length > 0
-    vars:
-        ansible_command_timeout: 3000
-        ansible_connect_timeout: 3000
+- name: Unmanaged Edge Connections in Nexus Dashboard
   when:
     - switch_list.response.DATA | length > 0
     - (edge_connections_delete_mode is defined) and (edge_connections_delete_mode is true|bool)
+  block:
+    - name: Display Removing Unmanaged Edge Connections Message
+      ansible.builtin.debug:
+        msg: "Removing Unmanaged Edge Connections From Switches. This could take several minutes..."
 
-- ansible.builtin.debug:
+    - name: Build Unmanaged Edge Connection Payload
+      cisco.nac_dc_vxlan.dtc.unmanaged_edge_connections:
+        switch_data: "{{ switch_list.response.DATA }}"
+        edge_connections: "{{ edge_connections }}"
+      register: unmanaged_edge_connections_config
+      # do not delegate_to: localhost as this action plugin uses Python to execute cisco.dcnm.dcnm_rest
+
+    - name: Remove Unmanaged NDFC Edge Connections in Nexus Dashboard
+      cisco.dcnm.dcnm_policy:
+        fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+        use_desc_as_key: true
+        config: "{{ unmanaged_edge_connections_config.unmanaged_edge_connections }}"
+        deploy: false
+        state: deleted
+      when: unmanaged_edge_connections_config.unmanaged_edge_connections | length > 0
+      vars:
+        ansible_command_timeout: 3000
+        ansible_connect_timeout: 3000
+
+- name: Skip Remove Unmanaged Edge Connections From Switches Task If edge_connections_delete_mode is False
+  ansible.builtin.debug:
     msg:
-      - "--------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged Edge Connections from Switches task because edge_connections_delete_mode flag is set to False   +"
-      - "--------------------------------------------------------------------------------------------------------"
+      - "---------------------------------------------------------------------------------------------------------------------------"
+      - "+ SKIPPING Remove Unmanaged Edge Connections from Switches task because edge_connections_delete_mode flag is set to False +"
+      - "---------------------------------------------------------------------------------------------------------------------------"
   when: not ((edge_connections_delete_mode is defined) and (edge_connections_delete_mode is true|bool))

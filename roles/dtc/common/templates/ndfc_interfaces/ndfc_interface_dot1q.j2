@@ -3,13 +3,13 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% for switch in MD_Extended.vxlan.topology.switches %}
+{% for switch in data_model_extended.vxlan.topology.switches %}
 {% if switch.interfaces is defined %}
 {% for interface in switch['interfaces'] %}
 {% set interface_name = interface['name']|lower %}
 {% if interface_name.startswith('e') %}
 {% if interface['mode'] == 'dot1q' %}
-- name : {{ interface['name'] }}
+- name: {{ interface['name'] }}
   type: eth
   switch:
 {% if switch.management.management_ipv4_address is defined %}
@@ -19,17 +19,17 @@
 {% endif %}
   deploy: false
   profile:
-    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.enabled) }}
+    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.enabled) | lower }}
     mode: dot1q
     description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.description) }}"
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.speed) }}
-    port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.spanning_tree_portfast) }}
+    port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.spanning_tree_portfast) | lower }}
     access_vlan: {{ interface['access_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.access_vlan) }}
-    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.enable_bpdu_guard) }}
+    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.enable_bpdu_guard) | lower }}
     duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.duplex) }}
 {% if interface['orphan_port'] | default(false) %}
-    orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.orphan_port) }}
+    orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.orphan_port) | lower }}
 {% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}

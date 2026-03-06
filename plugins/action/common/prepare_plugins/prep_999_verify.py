@@ -20,8 +20,8 @@
 # SPDX-License-Identifier: MIT
 
 from ansible.utils.display import Display
-from ....plugin_utils.helper_functions import data_model_key_check
-from ....plugin_utils.data_model_keys import model_keys
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import data_model_key_check
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.data_model_keys import model_keys
 
 display = Display()
 
@@ -32,7 +32,7 @@ class PreparePlugin:
         self.keys = []
 
     def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
+        data_model = self.kwargs['results']['model_extended']
         self.kwargs['results']['failed'] = False
         self.kwargs['results']['msg'] = None
         fail_msg = "Mandatory key ({}) not found in prepared data model!"
@@ -46,11 +46,11 @@ class PreparePlugin:
         # This plugin ensures the following:
         #   * All keys required for this collection to function are present (not accidentally overwritten)
         #   * List items that were present before the prepare plugins ran are still present
-        fabric_type = model_data['vxlan']['fabric']['type']
+        fabric_type = data_model['vxlan']['fabric']['type']
         for key in model_keys[fabric_type].keys():
             # Remove the meta_data item from model_keys entry (KEY, LIST, LIST_INDEX)
             model_keys[fabric_type][key].pop()
-            dm_check = data_model_key_check(model_data, model_keys[fabric_type][key])
+            dm_check = data_model_key_check(data_model, model_keys[fabric_type][key])
             # Example:
             # model_keys['VXLAN_EVPN']['policy.policies'] = [root_key, 'policy', 'policies', 'LIST']
             #   * Get 2nd to last item from the python list above

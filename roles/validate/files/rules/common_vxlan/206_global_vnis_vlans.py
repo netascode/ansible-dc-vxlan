@@ -1,0 +1,90 @@
+class Rule:
+    id = "206"
+    description = "Verify fabric VNI and VLAN ranges"
+    severity = "HIGH"
+
+    results = []
+
+    @classmethod
+    def match(cls, data_model):
+        # Map fabric types to the keys used in the data model based on controller fabric types
+        fabric_type_map = {
+            "VXLAN_EVPN": "ibgp",
+            "eBGP_VXLAN": "ebgp",
+        }
+
+        fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
+
+        start_keys = []
+        end_keys = []
+        for key in ['layer2_vni_range', 'layer3_vni_range', 'layer2_vlan_range', 'layer3_vlan_range']:
+            range_keys = ['vxlan', 'global', fabric_type]
+            check = cls.data_model_key_check(data_model, range_keys)
+            if fabric_type in check['keys_found']:
+                range_keys = ['vxlan', 'global', fabric_type, key]
+                check = cls.data_model_key_check(data_model, range_keys)
+                if key in check['keys_found']:
+                    start_keys = ['vxlan', 'global', fabric_type, key, 'from']
+                    end_keys = ['vxlan', 'global', fabric_type, key, 'to']
+
+            if fabric_type in check['keys_not_found'] or key in check['keys_not_found']:
+                if fabric_type in ['ebgp']:
+                    cls.results.append("VNI and VLAN ranges for eBGP VXLAN fabrics must be defined under vxlan.global.ebgp.")
+                    return cls.results
+                range_keys = ['vxlan', 'global', key]
+                check = cls.data_model_key_check(data_model, range_keys)
+                if key in check['keys_found']:
+                    start_keys = ['vxlan', 'global', key, 'from']
+                    end_keys = ['vxlan', 'global', key, 'to']
+
+            cls.check_ranges(start_keys, end_keys, key, 'VNI' if 'vni' in key else 'VLAN', data_model)
+
+        return cls.results
+
+    @classmethod
+    def check_ranges(cls, start_keys, end_keys, check_key, range_type, data):
+        check_start = cls.data_model_key_check(data, start_keys)
+        check_end = cls.data_model_key_check(data, end_keys)
+
+        if (
+            ('from' in check_start['keys_data']) and
+            ('to' in check_end['keys_data'])
+        ):
+            vni_start = cls.safeget(data, start_keys)
+            vni_end = cls.safeget(data, end_keys)
+
+            if vni_start and vni_end:
+                if int(vni_start) >= int(vni_end):
+                    cls.results.append(f"When defining {range_type} range, {check_key}, 'from' must be less than 'to'.")
+                    return cls.results
+            else:
+                cls.results.append(f"When defining {range_type} range, {check_key}, both 'from' and 'to' must have valid data.")
+                return cls.results
+
+    @classmethod
+    def data_model_key_check(cls, tested_object, keys):
+        dm_key_dict = {'keys_found': [], 'keys_not_found': [], 'keys_data': [], 'keys_no_data': []}
+        for key in keys:
+            if tested_object and key in tested_object:
+                dm_key_dict['keys_found'].append(key)
+                tested_object = tested_object[key]
+                if tested_object:
+                    dm_key_dict['keys_data'].append(key)
+                else:
+                    dm_key_dict['keys_no_data'].append(key)
+            else:
+                dm_key_dict['keys_not_found'].append(key)
+        return dm_key_dict
+
+    @classmethod
+    def safeget(cls, dict, keys):
+        # Utility function to safely get nested dictionary values
+        for key in keys:
+            if dict is None:
+                return None
+            if key in dict:
+                dict = dict[key]
+            else:
+                return None
+
+        return dict

@@ -1,0 +1,16 @@
+{# Auto-generated NDFC External Inventory config data structure for fabric {{ vxlan.fabric.name }} #}
+{% set simplified_fabric_type = data_model_extended.vxlan.fabric.simplified_type %}
+{% set poap_data = poap_data['poap_data'] %}
+{% for switch in data_model_extended.vxlan.topology.switches %}
+{% if switch.management.management_ipv4_address is defined %}
+- seed_ip: {{ switch['management']['management_ipv4_address'] }}
+{% elif switch.management.management_ipv6_address is defined %}
+- seed_ip: {{ switch['management']['management_ipv6_address'] }}
+{% endif %}
+  auth_proto: {{ data_model_extended['vxlan']['global'][simplified_fabric_type]['auth_proto'] | default(defaults.vxlan.global[simplified_fabric_type].auth_proto) }}
+  user_name: PLACE_HOLDER_USERNAME
+  password: PLACE_HOLDER_PASSWORD
+  max_hops: 0 # this is the default value as it is not defined into the data model
+  role: {{ switch['role'] }}
+  preserve_config: true
+{% endfor %}

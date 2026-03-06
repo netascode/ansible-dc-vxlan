@@ -3,10 +3,10 @@ class Rule:
     description = "Verify Network attributes are set for multisite overlay vs standalone fabric overlay"
     severity = "HIGH"
 
-    msg = "Network {0} attribute '{1}' must be defined under vxlan.multisite.overlay.vrfs under the 'child_fabrics:' key."
+    msg = "Network {0} attribute '{1}' must be defined under vxlan.multisite.overlay.networks under the 'child_fabrics:' key."
 
     @classmethod
-    def match(cls, inventory):
+    def match(cls, data_model):
         results = []
         child_fabric_attributes = [
             'dhcp_loopback_id',
@@ -19,9 +19,9 @@ class Rule:
         ]
 
         network_keys = ['vxlan', 'multisite', 'overlay', 'networks']
-        check = cls.data_model_key_check(inventory, network_keys)
+        check = cls.data_model_key_check(data_model, network_keys)
         if 'networks' in check['keys_found'] and 'networks' in check['keys_data']:
-            networks = inventory['vxlan']['multisite']['overlay']['networks']
+            networks = data_model['vxlan']['multisite']['overlay']['networks']
             for network in networks:
                 for attr in network:
                     if attr in child_fabric_attributes:
