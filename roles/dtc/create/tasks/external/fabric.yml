@@ -39,6 +39,8 @@
   when:
     - get_result.response.DATA is defined
     - get_result.response.DATA
+    - get_result.response.DATA.fabricTechnologyFriendly == "Custom"
+    - get_result.response.DATA.templateFabricType == "Custom Network"
   block:
     # The dcnm_rest module is used for legacy support where the Exteranl fabric type was of type Custom.
     # This will continue to allow for the fabric to be updated in place without having to remove and re-add the fabric which would be disruptive.
@@ -63,3 +65,10 @@
     state: merged
     config: "{{ fabric_config }}"
     skip_validation: true
+  when: >
+    (get_result.response.DATA is not defined) or
+    (get_result.response.DATA is defined and not get_result.get('response', false) and not get_result.get('response').get('DATA')) or
+    (get_result.response.DATA.fabricTechnologyFriendly != "Custom") or
+    (get_result.response.DATA.templateFabricType != "Custom Network")
+
+- meta: end_play
