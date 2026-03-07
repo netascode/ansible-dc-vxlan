@@ -1,0 +1,210 @@
+# Remove Pipelines Registry
+# -------------------------
+# Ordered pipeline of resource removal operations per fabric type.
+# Used by the remove_resources action plugin.
+#
+# Each pipeline step defines:
+#   resource_name     - Logical name of the resource being removed
+#   module            - Ansible module to call (cisco.dcnm.* prefix added at runtime)
+#                       Names starting with '_' are internal methods on the plugin class
+#   state             - Module state parameter (deleted, overridden, etc.)
+#   change_flag_guard - Only execute if this change flag is true (null = always execute)
+#   tag               - Ansible tag that controls this step (for per-resource filtering)
+#                       When --tags is used, only steps whose tag matches are executed.
+#                       Steps with no tag field always execute (infrastructure steps).
+#
+# Top-level keys:
+#   role_tag          - Role-level bypass tag. When this tag is in --tags, the entire
+#                       pipeline runs without per-step tag filtering. This handles the
+#                       case where --tags role_remove means "run all remove operations."
+#
+# Removal order is the REVERSE of creation to respect dependencies.
+# (e.g., remove networks before VRFs, remove interfaces before switches)
+---
+remove_pipelines:
+
+  role_tag: role_remove
+
+  VXLAN_EVPN:
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_edge_connections
+      tag: rr_manage_edge_connections
+
+    - resource_name: policies
+      module: dcnm_policy
+      state: deleted
+      change_flag_guard: changes_detected_policy
+      tag: rr_manage_policy
+
+    - resource_name: interfaces
+      module: dcnm_interface
+      state: deleted
+      change_flag_guard: changes_detected_interfaces
+      tag: rr_manage_interfaces
+
+    - resource_name: networks
+      module: dcnm_network
+      state: deleted
+      change_flag_guard: changes_detected_networks
+      tag: rr_manage_networks
+
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: deleted
+      change_flag_guard: changes_detected_vrfs
+      tag: rr_manage_vrfs
+
+    - resource_name: links
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_fabric_links
+      tag: rr_manage_links
+
+    - resource_name: vpc_peers
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_vpc_peering
+      tag: rr_manage_vpc_peers
+
+    - resource_name: switches
+      module: dcnm_inventory
+      state: deleted
+      change_flag_guard: changes_detected_inventory
+      tag: rr_manage_switches
+
+  eBGP_VXLAN:
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_edge_connections
+      tag: rr_manage_edge_connections
+
+    - resource_name: policies
+      module: dcnm_policy
+      state: deleted
+      change_flag_guard: changes_detected_policy
+      tag: rr_manage_policy
+
+    - resource_name: interfaces
+      module: dcnm_interface
+      state: deleted
+      change_flag_guard: changes_detected_interfaces
+      tag: rr_manage_interfaces
+
+    - resource_name: networks
+      module: dcnm_network
+      state: deleted
+      change_flag_guard: changes_detected_networks
+      tag: rr_manage_networks
+
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: deleted
+      change_flag_guard: changes_detected_vrfs
+      tag: rr_manage_vrfs
+
+    - resource_name: links
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_fabric_links
+      tag: rr_manage_links
+
+    - resource_name: vpc_peers
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_vpc_peering
+      tag: rr_manage_vpc_peers
+
+    - resource_name: switches
+      module: dcnm_inventory
+      state: deleted
+      change_flag_guard: changes_detected_inventory
+      tag: rr_manage_switches
+
+  ISN:
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_edge_connections
+      tag: rr_manage_edge_connections
+
+    - resource_name: policies
+      module: dcnm_policy
+      state: deleted
+      change_flag_guard: changes_detected_policy
+      tag: rr_manage_policy
+
+    - resource_name: interfaces
+      module: dcnm_interface
+      state: deleted
+      change_flag_guard: changes_detected_interfaces
+      tag: rr_manage_interfaces
+
+    - resource_name: switches
+      module: dcnm_inventory
+      state: deleted
+      change_flag_guard: changes_detected_inventory
+      tag: rr_manage_switches
+
+  External:
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_edge_connections
+      tag: rr_manage_edge_connections
+
+    - resource_name: policies
+      module: dcnm_policy
+      state: deleted
+      change_flag_guard: changes_detected_policy
+      tag: rr_manage_policy
+
+    - resource_name: interfaces
+      module: dcnm_interface
+      state: deleted
+      change_flag_guard: changes_detected_interfaces
+      tag: rr_manage_interfaces
+
+    - resource_name: switches
+      module: dcnm_inventory
+      state: deleted
+      change_flag_guard: changes_detected_inventory
+      tag: rr_manage_switches
+
+  MSD:
+    - resource_name: networks
+      module: dcnm_network
+      state: deleted
+      change_flag_guard: changes_detected_networks
+      tag: rr_manage_networks
+
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: deleted
+      change_flag_guard: changes_detected_vrfs
+      tag: rr_manage_vrfs
+
+    - resource_name: child_fabrics
+      module: _remove_child_fabrics
+      state: null
+      change_flag_guard: null
+
+  MCFG:
+    - resource_name: networks
+      module: dcnm_network
+      state: deleted
+      change_flag_guard: changes_detected_networks
+      tag: rr_manage_networks
+
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: deleted
+      change_flag_guard: changes_detected_vrfs
+      tag: rr_manage_vrfs
+
+    - resource_name: child_fabrics
+      module: _remove_child_fabrics
+      state: null
+      change_flag_guard: null

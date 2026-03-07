@@ -1,0 +1,249 @@
+# Create Pipelines Registry
+# -------------------------
+# Ordered pipeline of resource creation operations per fabric type.
+# Used by the manage_resources action plugin.
+#
+# Each pipeline step defines:
+#   resource_name     - Logical name of the resource being managed
+#   module            - Ansible module to call (cisco.dcnm.* prefix added at runtime)
+#                       Names starting with '_' are internal methods on the plugin class
+#   state             - Module state parameter (merged, replaced, etc.)
+#   change_flag_guard - Only execute if this change flag is true (null = always execute)
+#   tag               - Ansible tag that controls this step (for per-resource filtering)
+#                       When --tags is used, only steps whose tag matches are executed.
+#                       Steps with no tag field always execute (infrastructure steps).
+#
+# Top-level keys:
+#   role_tag          - Role-level bypass tag. When this tag is in --tags, the entire
+#                       pipeline runs without per-step tag filtering. This handles the
+#                       case where --tags role_create means "run all create operations."
+#
+# Pipeline order matters — resources are created in the sequence listed.
+# Dependencies flow top-to-bottom (e.g., fabric must exist before devices).
+---
+create_pipelines:
+
+  role_tag: role_create
+
+  VXLAN_EVPN:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
+
+    - resource_name: devices
+      module: dcnm_inventory
+      state: merged
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
+
+    - resource_name: vpc_peering
+      module: dcnm_links
+      state: merged
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
+
+    - resource_name: config_save
+      module: _config_save
+      state: null
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
+
+    - resource_name: interfaces
+      module: dcnm_interface
+      state: replaced
+      change_flag_guard: changes_detected_interfaces
+      tag: cr_manage_interfaces
+
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: merged
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
+
+    - resource_name: vrfs_networks
+      module: _vrfs_networks_pipeline
+      state: null
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs_networks
+
+    - resource_name: links
+      module: dcnm_links
+      state: merged
+      change_flag_guard: changes_detected_fabric_links
+      tag: cr_manage_links
+
+    - resource_name: policies
+      module: dcnm_policy
+      state: merged
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
+
+  eBGP_VXLAN:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
+
+    - resource_name: devices
+      module: dcnm_inventory
+      state: merged
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
+
+    - resource_name: vpc_peering
+      module: dcnm_links
+      state: merged
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
+
+    - resource_name: config_save
+      module: _config_save
+      state: null
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
+
+    - resource_name: interfaces
+      module: dcnm_interface
+      state: replaced
+      change_flag_guard: changes_detected_interfaces
+      tag: cr_manage_interfaces
+
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: merged
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
+
+    - resource_name: vrfs_networks
+      module: _vrfs_networks_pipeline
+      state: null
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs_networks
+
+    - resource_name: links
+      module: dcnm_links
+      state: merged
+      change_flag_guard: changes_detected_fabric_links
+      tag: cr_manage_links
+
+    - resource_name: policies
+      module: dcnm_policy
+      state: merged
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
+
+  ISN:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
+
+    - resource_name: devices
+      module: dcnm_inventory
+      state: merged
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
+
+    - resource_name: interfaces
+      module: dcnm_interface
+      state: replaced
+      change_flag_guard: changes_detected_interfaces
+      tag: cr_manage_interfaces
+
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: merged
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
+
+    - resource_name: policies
+      module: dcnm_policy
+      state: merged
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
+
+  External:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
+
+    - resource_name: devices
+      module: dcnm_inventory
+      state: merged
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
+
+    - resource_name: interfaces
+      module: dcnm_interface
+      state: replaced
+      change_flag_guard: changes_detected_interfaces
+      tag: cr_manage_interfaces
+
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: merged
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
+
+    - resource_name: policies
+      module: dcnm_policy
+      state: merged
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
+
+  MSD:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
+
+    - resource_name: child_fabrics
+      module: _manage_child_fabrics
+      state: null
+      change_flag_guard: null
+
+    - resource_name: msite_data
+      module: _prepare_msite_data
+      state: null
+      change_flag_guard: null
+
+    - resource_name: bgw_anycast
+      module: dcnm_resource_manager
+      state: merged
+      change_flag_guard: changes_detected_bgw_anycast_vip
+
+    - resource_name: vrfs_networks
+      module: _msd_vrfs_networks
+      state: null
+      change_flag_guard: null
+      tag: cr_manage_vrfs_networks
+
+  MCFG:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
+
+    - resource_name: child_fabrics
+      module: _manage_child_fabrics
+      state: null
+      change_flag_guard: null
+
+    - resource_name: msite_data
+      module: _prepare_msite_data
+      state: null
+      change_flag_guard: null
+
+    - resource_name: vrfs_networks
+      module: _mcfg_vrfs_networks
+      state: null
+      change_flag_guard: null
+      tag: cr_manage_vrfs_networks

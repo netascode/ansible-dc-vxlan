@@ -1,0 +1,72 @@
+# Fabric Type Registry
+# --------------------
+# Maps each supported fabric type to its namespace variables, directory
+# mappings, template locations, and feature capability flags.
+#
+# Used by FabricTypeRegistry (plugins/plugin_utils/fabric_type_registry.py)
+# to eliminate repeated when: fabric_type == 'X' dispatch blocks in YAML.
+#
+# Fields:
+#   namespace            - Ansible variable namespace for this fabric type
+#   file_subdir          - Subdirectory under files/ for rendered output
+#   global_key           - Key into global config (null if not applicable)
+#   fabric_template_dir  - Template directory name for fabric-specific templates
+#   supports_overlay     - Whether this fabric type supports VRF/Network overlay
+#   supports_vpc         - Whether this fabric type supports vPC
+#   supports_multisite   - Whether this fabric type supports multi-site (MSD/MCFG)
+---
+fabric_types:
+
+  VXLAN_EVPN:
+    namespace: vars_common_vxlan
+    file_subdir: vxlan
+    global_key: ibgp
+    fabric_template_dir: dc_vxlan_fabric
+    supports_overlay: true
+    supports_vpc: true
+    supports_multisite: false
+
+  eBGP_VXLAN:
+    namespace: vars_common_ebgp_vxlan
+    file_subdir: vxlan
+    global_key: ebgp
+    fabric_template_dir: ebgp_vxlan_fabric
+    supports_overlay: true
+    supports_vpc: true
+    supports_multisite: false
+
+  ISN:
+    namespace: vars_common_isn
+    file_subdir: isn
+    global_key: null
+    fabric_template_dir: isn_fabric
+    supports_overlay: false
+    supports_vpc: false
+    supports_multisite: false
+
+  MSD:
+    namespace: vars_common_msd
+    file_subdir: msd
+    global_key: null
+    fabric_template_dir: msd_fabric
+    supports_overlay: false
+    supports_vpc: false
+    supports_multisite: true
+
+  MCFG:
+    namespace: vars_common_mcfg
+    file_subdir: mcfg
+    global_key: null
+    fabric_template_dir: mcfg_fabric
+    supports_overlay: false
+    supports_vpc: false
+    supports_multisite: true
+
+  External:
+    namespace: vars_common_external
+    file_subdir: vxlan
+    global_key: null
+    fabric_template_dir: dc_external_fabric
+    supports_overlay: false
+    supports_vpc: true
+    supports_multisite: false

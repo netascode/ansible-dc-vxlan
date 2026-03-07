@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,49 +19,42 @@
 #
 # SPDX-License-Identifier: MIT
 
+# =============================================================================
+# v2 — Pythonic Consolidation
+#
+# This file replaces the original main.yml which dispatched to 6 fabric-type-
+# specific sub_main_*.yml files, each importing task files from common/,
+# common_vxlan/, and fabric-specific subdirectories.
+#
+# Resource removal is now handled by the remove_resources action plugin
+# which loads reverse-ordered pipeline definitions from
+# objects/remove_pipelines.yml. The plugin respects dependency ordering
+# (e.g., remove networks before VRFs, interfaces before switches).
+#
+# The deploy step (previously an inline import_role) is now a direct call
+# to the existing fabric_deploy_manager plugin, preserving the conditional
+# logic for stage_remove and applicable fabric types.
+#
+# Original: ~6 sub_main files + ~10 task files + inline deploy logic
+# New:      1 file, 3 tasks (~40 lines of YAML)
+# =============================================================================
+
 ---
 
-- name: Import iBGP VXLAN Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_vxlan.yml
-  # Check with Matt on changes_detected_policy here
-  # Was not there previously
-  when:
-    - data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN'
-    - change_flags.changes_detected_any
-
-- name: Import eBGP Role Tasks
-  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
-  # Check with Matt on changes_detected_policy here
-  # Was not there previously
-  when:
-    - data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
-    - change_flags.changes_detected_any
-
-- name: Import MSD Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_msd.yml
-  when:
-    data_model_extended.vxlan.fabric.type == 'MSD'
-  # Current implementation has to leverage the changes_detected flags
-  # in the sub_main files to determine if the tasks should be run
-
-- name: Import MCFG Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_mcfg.yml
-  when:
-    data_model_extended.vxlan.fabric.type == 'MCFG'
-  # Current implementation has to leverage the changes_detected flags
-  # in the sub_main files to determine if the tasks should be run
-
-- name: Import ISN Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_isn.yml
-  when:
-    - data_model_extended.vxlan.fabric.type == 'ISN'
-    - change_flags.changes_detected_any
-
-- name: Import External Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_external.yml
-  when:
-    - data_model_extended.vxlan.fabric.type == 'External'
-    - change_flags.changes_detected_any
+- name: Remove Unmanaged Resources from Nexus Dashboard
+  cisco.nac_dc_vxlan.dtc.remove_resources:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    data_model: "{{ data_model_extended }}"
+    resource_data: "{{ vars_common }}"
+    change_flags: "{{ change_flags }}"
+    run_map_diff_run: "{{ run_map_read_result.diff_run }}"
+    force_run_all: "{{ force_run_all | default(false) }}"
+    interface_delete_mode: "{{ interface_delete_mode | default(false) }}"
+    stage_remove: "{{ stage_remove | default(false) }}"
+  when: change_flags.changes_detected_any
+  register: remove_result
+  tags: "{{ nac_tags.remove }}"
 
 # ------------------------------------------------------------------------------
 # If we are not staging removal then we need to deploy any changes
@@ -70,28 +63,16 @@
 # We do NOT need to do this for MSD or MCFG fabrics as those fabric types
 # do not have any changes currently that can be staged for removal.
 # ------------------------------------------------------------------------------
-- name: Log Deploy During Remove Info Message
-  ansible.builtin.debug:
-    msg: >
-      Deploying changes during role remove since fabric type is
-      "{{ data_model_extended.vxlan.fabric.type }}".
-  when: >
-    (stage_remove is false|bool) and (change_flags.changes_detected_any) and
-    (data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN' or
-    data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN' or
-    data_model_extended.vxlan.fabric.type == 'ISN' or
-    data_model_extended.vxlan.fabric.type == 'External')
-
 - name: Deploy Remove Changes
-  ansible.builtin.import_role:
-    name: cisco.nac_dc_vxlan.dtc.deploy
-  when: >
-    (stage_remove is false|bool) and (change_flags.changes_detected_any) and
-    (data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN' or
-    data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN' or
-    data_model_extended.vxlan.fabric.type == 'ISN' or
-    data_model_extended.vxlan.fabric.type == 'External')
-# ------------------------------------------------------------------------------
+  cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    operation: all
+  when:
+    - stage_remove is false | bool
+    - change_flags.changes_detected_any
+    - data_model_extended.vxlan.fabric.type in ['VXLAN_EVPN', 'eBGP_VXLAN', 'ISN', 'External']
+  tags: "{{ nac_tags.remove }}"
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:

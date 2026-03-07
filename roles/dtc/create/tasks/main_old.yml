@@ -19,35 +19,39 @@
 #
 # SPDX-License-Identifier: MIT
 
-# =============================================================================
-# v2 — Pythonic Consolidation
-#
-# This file replaces the original main.yml which dispatched to 6 fabric-type-
-# specific sub_main_*.yml files, each importing task files from common/,
-# common_vxlan/, and fabric-specific subdirectories.
-#
-# Resource creation is now handled by the manage_resources action plugin
-# which loads ordered pipeline definitions from objects/create_pipelines.yml.
-# The plugin iterates over the pipeline steps, calling the appropriate
-# cisco.dcnm modules via _execute_module for each resource type.
-#
-# Original: ~6 sub_main files + ~12 task files
-# New:      1 file, 2 tasks (~20 lines of YAML)
-# =============================================================================
-
 ---
 
-- name: Create Resources in Nexus Dashboard
-  cisco.nac_dc_vxlan.dtc.manage_resources:
-    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
-    data_model: "{{ data_model_extended }}"
-    resource_data: "{{ vars_common }}"
-    change_flags: "{{ change_flags }}"
-    nd_version: "{{ nd_version }}"
-  when: change_flags.changes_detected_any
-  register: create_result
-  tags: "{{ nac_tags.create }}"
+- name: Import iBGP VXLAN Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_vxlan.yml
+  when:
+    - data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN'
+    - change_flags.changes_detected_any
+
+- name: Import eBGP VXLAN Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
+  when:
+    - data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
+    - change_flags.changes_detected_any
+
+- name: Import ISN Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_isn.yml
+  when:
+    - data_model_extended.vxlan.fabric.type == 'ISN'
+    - change_flags.changes_detected_any
+
+- name: Import MSD Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_msd.yml
+  when: data_model_extended.vxlan.fabric.type == 'MSD'
+
+- name: Import MCFG Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_mcfg.yml
+  when: data_model_extended.vxlan.fabric.type == 'MCFG'
+
+- name: Import External Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_external.yml
+  when:
+    - data_model_extended.vxlan.fabric.type == 'External'
+    - change_flags.changes_detected_any
 
 - name: Mark Stage Role Create Completed
   cisco.nac_dc_vxlan.common.run_map:

@@ -19,73 +19,54 @@
 #
 # SPDX-License-Identifier: MIT
 
+# =============================================================================
+# v2 — Pythonic Consolidation
+#
+# This file replaces the original main.yml which dispatched to 6 fabric-type-
+# specific sub_main_*.yml files, each importing ~20 task files from common/
+# and vxlan/ subdirectories.
+#
+# The entire Template→Render→Diff→Flag cycle is now handled by a single
+# call to the build_resource_data action plugin which loads its resource
+# type definitions from objects/resource_types.yml.
+#
+# Original: ~6 sub_main files + ~25 task files (~1000 lines of YAML)
+# New:      1 file, 4 tasks (~30 lines of YAML)
+# =============================================================================
+
 ---
 
 - name: Create Fact To Store Common Role Path
   ansible.builtin.set_fact:
     common_role_path: "{{ role_path }}"
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
+  tags: "{{ nac_tags.common_role }}"
 
-- name: Initialize Change Flags
-  cisco.nac_dc_vxlan.common.change_flag_manager:
+- name: Build All Resource Data For Fabric
+  cisco.nac_dc_vxlan.dtc.build_resource_data:
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    data_model: "{{ data_model_extended }}"
     role_path: "{{ common_role_path }}"
-    operation: initialize
-  tags: "{{ nac_tags.common_role }}"
+    check_roles: "{{ check_roles }}"
+    force_run_all: "{{ force_run_all | default(false) }}"
+    run_map_diff_run: "{{ run_map_read_result.diff_run }}"
+  register: resource_build_result
   delegate_to: localhost
-
-- name: Import Role Tasks for iBGP VXLAN Fabric
-  ansible.builtin.import_tasks: sub_main_vxlan.yml
   tags: "{{ nac_tags.common_role }}"
-  when: data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN'
 
-- name: Import Role Tasks for eBGP VXLAN Fabric
-  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
-
-- name: Import Role Tasks for ISN Fabric
-  ansible.builtin.import_tasks: sub_main_isn.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: data_model_extended.vxlan.fabric.type == 'ISN'
-
-- name: Import Role Tasks for MSD Fabric
-  ansible.builtin.import_tasks: sub_main_msd.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: data_model_extended.vxlan.fabric.type == 'MSD'
-
-- name: Import Role Tasks for MCFG Fabric
-  ansible.builtin.import_tasks: sub_main_mcfg.yml
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: data_model_extended.vxlan.fabric.type == 'MCFG'
-
-- name: Import Role Tasks for External Fabric
-  ansible.builtin.import_tasks: sub_main_external.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: data_model_extended.vxlan.fabric.type == 'External'
-
-- name: Retrieve Flag Values
-  cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
-    role_path: "{{ common_role_path }}"
-    operation: get
-  tags: "{{ nac_tags.common_role }}"
-  register: change_flag_result
-  delegate_to: localhost
-
-- name: Store Change Flags For Use In Subsequent Roles
+- name: Store Resource Data and Change Flags
   ansible.builtin.set_fact:
-    change_flags: "{{ change_flag_result['flags'] }}"
-  tags: "{{ nac_tags.common_role }}"
+    vars_common: "{{ resource_build_result.resource_data }}"
+    change_flags: "{{ resource_build_result.change_flags }}"
   delegate_to: localhost
+  tags: "{{ nac_tags.common_role }}"
 
-- name: Display Flag Values
-  cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
-    role_path: "{{ common_role_path }}"
-    operation: display
-  tags: "{{ nac_tags.common_role }}"
+- name: Display Change Flags
+  ansible.builtin.debug:
+    var: change_flags
+    verbosity: 1
   delegate_to: localhost
+  tags: "{{ nac_tags.common_role }}"
+
+- name: End Play
+  ansible.builtin.meta: end_play
