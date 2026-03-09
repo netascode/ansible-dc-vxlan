@@ -2,7 +2,7 @@
 ! DO NOT EDIT MANUALLY
 !
 !
-{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
+{% set simplified_fabric_type = data_model_extended.vxlan.fabric.simplified_type %}
 {# macro render_ospf_interface to render ospf area part #}
 {% macro render_ospf_area(area, defaults) %}
   {% if area.id and (area.id != 0 or area.id != '0.0.0.0') %}
@@ -31,24 +31,24 @@ area {{ area.id | ipaddr('address') }} nssa
           {%- set nssa_options_flags_enabled = true -%}
         {% endif %}
         {% if nssa_options.no_redistribution is true %}
-          {% set _= nssa_options_flags.append("no-redistribution") -%}
+          {%- set _= nssa_options_flags.append("no-redistribution") -%}
           {%- set nssa_options_flags_enabled = true -%}
         {% endif %}
         {% if nssa_options.default_information_originate is true %}
-          {% set _= nssa_options_flags.append("default-information-originate") %}
+          {%- set _= nssa_options_flags.append("default-information-originate") -%}
           {% if area.nssa.route_map %}
-            {% set _= nssa_options_flags.append("route-map") %}
-            {% set _= nssa_options_flags.append(area.nssa.route_map) %}
-            {% set nssa_options_flags_enabled = true %}
+            {%- set _= nssa_options_flags.append("route-map") -%}
+            {%- set _= nssa_options_flags.append(area.nssa.route_map) -%}
+            {%- set nssa_options_flags_enabled = true -%}
           {% endif %}
         {% endif %}
         {% if nssa_options.translate_always is true %}
-          {% set _= nssa_options_translate.append("always") %}
-          {% set nssa_options_translate_enabled = true %}
+          {%- set _= nssa_options_translate.append("always") -%}
+          {%- set nssa_options_translate_enabled = true -%}
         {% endif %}
         {% if nssa_options.translate_supress_fa is true %}
-          {% set _= nssa_options_translate.append("supress-fa") %}
-          {% set nssa_options_translate_enabled = true %}
+          {%- set _= nssa_options_translate.append("supress-fa") -%}
+          {%- set nssa_options_translate_enabled = true -%}
         {% endif %}
         {% if nssa_options.translate_never is true %}
           {% set _= nssa_options_translate.append("never") %}
@@ -85,7 +85,6 @@ default-information originate
     {% endif %}
   {% endif %}
 {% endmacro %}
-
 feature ospf
 {% set redistribute = {} %}
 {% set feature = {} %}
@@ -112,7 +111,7 @@ router ospf {{ item.ospf['process'] }}
 {% endif %}
 {% if item.ospf.areas is defined and item.ospf.areas %}
 {% for area in item.ospf.areas %}
-  {{- render_ospf_area(area, defaults) -}}
+  {{ render_ospf_area(area, defaults) | trim | indent(2) }}
 {% endfor %}
 {% endif %}
   {% if (item.ospf.distance and item.ospf.distance != 110) or (item.ospf.distance is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.distance != 110) %}
@@ -128,7 +127,7 @@ router ospf {{ item.ospf['process'] }}
   redistribute static route-map {{ switch_redist.route_map_ipv4 }}
       {% endif %}
       {% if switch_redist.source == 'bgp' and switch_redist.route_map_ipv4 %}
-  redistribute bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
+  redistribute bgp {{ data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
       {% endif %}
       {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
         {% set _ = redistribute.update({'ospf': switch_redist.route_map_ipv4}) %}
@@ -142,9 +141,9 @@ router ospf {{ item.ospf['process'] }}
     router-id {{ switch_item['router_id'] }}
     {% endif %}
     {% if item.ospf.areas %}
-      {% for area in item.ospf.areas %}
-    {{- render_ospf_area(area, defaults) -}}
-      {% endfor %}
+    {% for area in item.ospf.areas %}
+    {{ render_ospf_area(area, defaults) | trim | indent(4) }}
+    {% endfor %}
     {% endif %}
     {% if (item.ospf.distance and item.ospf.distance != 110) or (item.ospf.distance is not defined and defaults.vxlan.overlay_extensions.vrf_lites.ospf.distance != 110) %}
     distance {{ item.ospf.distance }}
@@ -159,7 +158,7 @@ router ospf {{ item.ospf['process'] }}
     redistribute static route-map {{ switch_redist.route_map_ipv4 }}
         {% endif %}
         {% if switch_redist.source == 'bgp' and switch_redist.route_map_ipv4 %}
-    redistribute bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
+    redistribute bgp {{ data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn }} route-map {{ switch_redist.route_map_ipv4 }}
         {% endif %}
         {% if switch_redist.source == 'ospf' and switch_redist.route_map_ipv4 %}
           {% set _ = redistribute.update({'ospf': switch_redist.route_map_ipv4}) %}
@@ -169,7 +168,7 @@ router ospf {{ item.ospf['process'] }}
 {% endif %}
 !
 {% if redistribute['ospf'] %}
-router bgp {{ MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn }}
+router bgp {{ data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn }}
   {% if item.vrf.lower() == "default" %}
   address-family ipv4 unicast
     redistribute ospf {{ item.ospf['process'] }} route-map {{ redistribute['ospf'] }}

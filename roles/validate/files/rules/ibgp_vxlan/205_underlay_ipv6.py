@@ -1,6 +1,6 @@
 class Rule:
     id = "205"
-    description = "Verify fabric underlay IPv6 mutually exclusive parameters."
+    description = "Verify fabric underlay IPv6 mutually exclusive parameters"
     severity = "HIGH"
 
     @classmethod

@@ -23,22 +23,22 @@
 - name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
 
 - name: Set vars_common Based On Fabric Type - MSD
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
-  when: MD_Extended.vxlan.fabric.type == "MSD"
+  when: data_model_extended.vxlan.fabric.type == "MSD"
 
 - name: Set vars_common Based On Fabric Type - ISN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
-  when: MD_Extended.vxlan.fabric.type == "ISN"
+  when: data_model_extended.vxlan.fabric.type == "ISN"
 
 - name: Set vars_common Based On Fabric Type - External
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
-  when: MD_Extended.vxlan.fabric.type == "External"
+  when: data_model_extended.vxlan.fabric.type == "External"
 
 - name: Unmanaged Edge Connections in Nexus Dashboard
   when:
@@ -58,7 +58,7 @@
 
     - name: Remove Unmanaged NDFC Edge Connections in Nexus Dashboard
       cisco.dcnm.dcnm_policy:
-        fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+        fabric: "{{ data_model_extended.vxlan.fabric.name }}"
         use_desc_as_key: true
         config: "{{ unmanaged_edge_connections_config.unmanaged_edge_connections }}"
         deploy: false

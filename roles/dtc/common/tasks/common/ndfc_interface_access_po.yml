@@ -61,7 +61,7 @@
 - name: Set interface_access_po Var
   ansible.builtin.set_fact:
     interface_access_po: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: MD_Extended.vxlan.topology.interfaces.modes.access_po.count > 0
+  when: data_model_extended.vxlan.topology.interfaces.modes.access_po.count > 0
   delegate_to: localhost
 
 - name: Diff Previous and Current Data Files
@@ -73,8 +73,8 @@
 
 - name: Set File Change Flag Based on File Diff Result
   cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
     operation: update
     change_flag: changes_detected_interface_access_po

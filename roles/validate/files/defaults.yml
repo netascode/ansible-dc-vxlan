@@ -151,7 +151,7 @@ factory_defaults:
           module: 1
           from: 1
           to: 1
-          map: '10g-4x'
+          map: 10g-4x
           enable_during_bootstrap: false
         interfaces:
           topology_switch_access_interface:
@@ -164,6 +164,7 @@ factory_defaults:
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
+            monitor: false
           topology_switch_dot1q_interface:
             description: "NetAsCode Dot1q Interface"
             mtu: jumbo
@@ -185,6 +186,7 @@ factory_defaults:
             duplex: auto
             orphan_port: false
             native_vlan: ""
+            monitor: false
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
             mtu: jumbo
@@ -200,6 +202,7 @@ factory_defaults:
             enable_lacp_vpc_convergence: false
             lacp_port_priority: 32768
             lacp_rate: normal
+            monitor: false
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -216,6 +219,7 @@ factory_defaults:
             enable_lacp_vpc_convergence: false
             lacp_port_priority: 32768
             lacp_rate: normal
+            monitor: false
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
@@ -292,7 +296,7 @@ factory_defaults:
       bgp:
         authentication_enable: false
         authentication_key_type: 3
-        max_paths: 4  # Review
+        max_paths: 4 # Review
       multicast:
         rendezvous_points: 2
         rp_mode: asm
@@ -305,7 +309,7 @@ factory_defaults:
         ipv6:
           group_subnet: ff1e::/121
           trmv6_enable: false
-          trmv6_default_group: "ff1e::"   # Quote due to ending in colon to avoid YAML error
+          trmv6_default_group: "ff1e::" # Quote due to ending in colon to avoid YAML error
         underlay_primary_rp_loopback_id: 2
         underlay_backup_rp_loopback_id: 3
         underlay_second_backup_rp_loopback_id: 4
@@ -345,7 +349,7 @@ factory_defaults:
       networks:
         net_description: "Configured by Ansible NetAsCode"
         is_l2_only: false
-        arp_supress: false
+        arp_suppress: false
         l3gw_on_border: false
         mtu_l3intf: 9216
         multicast_group_address: 239.1.1.1
@@ -470,6 +474,37 @@ factory_defaults:
         delay_restore: 300
         enable_ebgp_password: false
         enable_trm: false
+      overlay:
+        vrfs:
+          vrf_description: "Configured by Ansible NetAsCode"
+          vrf_intf_desc: "Configured by Ansible NetAsCode"
+          vrf_int_mtu: 9216
+          loopback_route_tag: 12345
+          max_bgp_paths: 1
+          max_ibgp_paths: 2
+          ipv6_linklocal_enable: true
+          adv_host_routes: false
+          adv_default_routes: true
+          static_default_route: true
+          disable_rt_auto: false
+          netflow_enable: false
+          no_rp: false
+          rp_external: false
+          redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
+          ipv6_redist_direct_routemap: FABRIC-RMAP-REDIST-SUBNET
+          trm_enable: false
+          trm_bgw_msite: false
+        networks:
+          net_description: "Configured by Ansible NetAsCode"
+          is_l2_only: false
+          arp_suppress: false
+          l3gw_on_border: false
+          mtu_l3intf: 9216
+          multicast_group_address: 239.1.1.1
+          netflow_enable: false
+          route_target_both: false
+          route_tag: 12345
+          trm_enable: false
       isn:
         auth_proto: MD5
         sub_int_range: 2-511

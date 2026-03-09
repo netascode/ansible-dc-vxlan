@@ -23,27 +23,27 @@
 - name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "VXLAN_EVPN"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
 
 - name: Set vars_common Based On Fabric Type - eBGP_VXLAN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_ebgp_vxlan }}"
-  when: MD_Extended.vxlan.fabric.type == "eBGP_VXLAN"
+  when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
 
 - name: Set vars_common Based On Fabric Type - MSD
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_msd }}"
-  when: MD_Extended.vxlan.fabric.type == "MSD"
+  when: data_model_extended.vxlan.fabric.type == "MSD"
 
 - name: Set vars_common Based On Fabric Type - ISN
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_isn }}"
-  when: MD_Extended.vxlan.fabric.type == "ISN"
+  when: data_model_extended.vxlan.fabric.type == "ISN"
 
 - name: Set vars_common Based On Fabric Type - External
   ansible.builtin.set_fact:
     vars_common_local: "{{ vars_common_external }}"
-  when: MD_Extended.vxlan.fabric.type == "External"
+  when: data_model_extended.vxlan.fabric.type == "External"
 
 - name: Display Removing Unmanaged vPC Peering Message
   ansible.builtin.debug:
@@ -54,7 +54,7 @@
 
 - name: Remove Unmanaged Fabric vPC Peering in Nexus Dashboard - Diff Run True
   cisco.dcnm.dcnm_vpc_pair:
-    src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    src_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     deploy: false
     state: deleted
     config: "{{ vars_common_local.vpc_peering_diff_result.removed }}"
@@ -70,7 +70,7 @@
 
 - name: Remove Unmanaged vPC Peering from Nexus Dashboard - Diff Run False
   cisco.dcnm.dcnm_vpc_pair:
-    src_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    src_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     deploy: false
     state: overridden
     config: "{{ vars_common_local.vpc_peering }}"

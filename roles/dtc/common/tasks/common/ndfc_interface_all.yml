@@ -72,9 +72,9 @@
       interface_dot1q +
       interface_vpc }}"
   when: >
-    MD_Extended.vxlan.topology.interfaces.modes.breakout.count > 0 or
-    MD_Extended.vxlan.topology.interfaces.modes.breakout_preprov.count > 0 or
-    MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
+    data_model_extended.vxlan.topology.interfaces.modes.breakout.count > 0 or
+    data_model_extended.vxlan.topology.interfaces.modes.breakout_preprov.count > 0 or
+    data_model_extended.vxlan.topology.interfaces.modes.all.count > 0
   delegate_to: localhost
 
 - name: Set interface_all Var
@@ -92,8 +92,8 @@
       interface_dot1q +
       interface_vpc }}"
   when: >
-    MD_Extended.vxlan.topology.interfaces.modes.breakout.count > 0 or
-    MD_Extended.vxlan.topology.interfaces.modes.all.count > 0
+    data_model_extended.vxlan.topology.interfaces.modes.breakout.count > 0 or
+    data_model_extended.vxlan.topology.interfaces.modes.all.count > 0
   delegate_to: localhost
 
 - name: Save interface_all_create
@@ -121,8 +121,8 @@
 
 - name: Set File Change Flag Based on File Diff Result
   cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
     operation: update
     change_flag: changes_detected_interfaces

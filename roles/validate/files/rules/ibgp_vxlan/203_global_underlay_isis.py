@@ -1,6 +1,6 @@
 class Rule:
     id = "203"
-    description = "Verify Fabric Underlay ISIS Authentication"
+    description = "Verify fabric underlay ISIS authentication"
     severity = "HIGH"
 
     @classmethod

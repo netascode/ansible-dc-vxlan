@@ -1,6 +1,6 @@
 {# Auto-generated NDFC ISN Flow Monitor config data structure for fabric {{ vxlan.fabric.name }} #}
   ENABLE_NETFLOW: {{ vxlan.multisite.isn.netflow.enable | default(defaults.vxlan.multisite.isn.netflow.enable) }}
-{% if vxlan.multisite.isn.netflow.enable is defined and vxlan.multisite.isn.netflow.enable | bool or defaults.vxlan.multisite.isn.netflow.enable | bool %}
+{% if vxlan.multisite.isn.netflow.enable is defined and vxlan.multisite.isn.netflow.enable | ansible.builtin.bool or defaults.vxlan.multisite.isn.netflow.enable | ansible.builtin.bool %}
 {% if vxlan.multisite.isn.netflow.exporter is defined %}
 {% set exporter_dict = dict() %}
 {% set _ = exporter_dict.update({ "NETFLOW_EXPORTER_LIST":[] }) %}

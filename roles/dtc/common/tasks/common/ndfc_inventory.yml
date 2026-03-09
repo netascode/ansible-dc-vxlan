@@ -23,7 +23,7 @@
 
 - name: Get POAP Data From POAP Enabled Devices
   cisco.nac_dc_vxlan.dtc.get_poap_data:
-    model_data: "{{ MD_Extended }}"
+    data_model: "{{ data_model_extended }}"
   register: poap_data
 
 - name: Set file_name Var
@@ -71,13 +71,13 @@
 - name: Set inv_config Var
   ansible.builtin.set_fact:
     inv_config: "{{ lookup('file', path_name + file_name) | from_yaml }}"
-  when: (MD_Extended.vxlan.topology.switches | default([])) | length > 0
+  when: (data_model_extended.vxlan.topology.switches | default([])) | length > 0
   delegate_to: localhost
 
 - name: Retrieve NDFC Device Username and Password from Group Vars and update inv_config
   cisco.nac_dc_vxlan.common.get_credentials:
     inv_list: "{{ inv_config }}"
-    model_data: "{{ MD_Extended }}"
+    data_model: "{{ data_model_extended }}"
   register: updated_inv_config
   no_log: true
 
@@ -96,8 +96,8 @@
 
 - name: Set File Change Flag Based on File Diff Result
   cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ MD_Extended.vxlan.fabric.type }}"
-    fabric_name: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     role_path: "{{ common_role_path }}"
     operation: update
     change_flag: changes_detected_inventory

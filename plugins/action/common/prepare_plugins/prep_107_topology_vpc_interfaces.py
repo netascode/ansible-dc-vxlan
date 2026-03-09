@@ -29,23 +29,23 @@ class PreparePlugin:
         self.keys = []
 
     def prepare(self):
-        model_data = self.kwargs['results']['model_extended']
+        data_model = self.kwargs['results']['model_extended']
 
         # Check if vxlan.topology is defined
-        if model_data.get('vxlan').get('topology') is not None:
-            model_data['vxlan']['topology'] = model_data.get('vxlan').get('topology', {})
+        if data_model.get('vxlan').get('topology') is not None:
+            data_model['vxlan']['topology'] = data_model.get('vxlan').get('topology', {})
             # Check if vxlan.topology.switches is defined
-            if model_data.get('vxlan').get('topology').get('switches') is not None:
+            if data_model.get('vxlan').get('topology').get('switches') is not None:
                 # Initialize vxlan.topology.interfaces.vpc_interfaces
-                model_data['vxlan']['topology']['interfaces'] = model_data.get('vxlan').get('topology').get('interfaces', {})
-                model_data['vxlan']['topology']['interfaces']['vpc_interfaces'] = \
-                    model_data.get('vxlan').get('topology').get('interfaces').get('vpc_interfaces', {})
+                data_model['vxlan']['topology']['interfaces'] = data_model.get('vxlan').get('topology').get('interfaces', {})
+                data_model['vxlan']['topology']['interfaces']['vpc_interfaces'] = \
+                    data_model.get('vxlan').get('topology').get('interfaces').get('vpc_interfaces', {})
                 # if vxlan.topology.vpc_peers is defined
-                if model_data.get('vxlan').get('topology').get('vpc_peers') is not None:
+                if data_model.get('vxlan').get('topology').get('vpc_peers') is not None:
                     # Loop through each vpc_peers
-                    for vpc_peer in model_data.get('vxlan').get('topology').get('vpc_peers'):
+                    for vpc_peer in data_model.get('vxlan').get('topology').get('vpc_peers'):
                         # Loop through each switch
-                        for switch in model_data.get('vxlan').get('topology').get('switches'):
+                        for switch in data_model.get('vxlan').get('topology').get('switches'):
                             # Check if switch name is part of vpc_peer
                             if switch.get('name') == vpc_peer.get('peer1') or switch.get('name') == vpc_peer.get('peer2'):
                                 # Check if switch has interfaces
@@ -55,19 +55,19 @@ class PreparePlugin:
                                         # Check if interface has vpc_id
                                         if interface.get('vpc_id') is not None:
                                             # Initialize vxlan.topology.interfaces.vpc_interfaces.<peer1>___<peer2>.<vpc_id>.<switch_name>
-                                            model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')] = model_data['vxlan']['topology']['interfaces']['vpc_interfaces'].get(vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2'), {})  # noqa: E501
-                                            model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')] = model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')].get(interface.get('vpc_id'), {})  # noqa: E501
-                                            model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')] = model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')].get(switch.get('name'), {})  # noqa: E501
+                                            data_model['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')] = data_model['vxlan']['topology']['interfaces']['vpc_interfaces'].get(vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2'), {})  # noqa: E501
+                                            data_model['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')] = data_model['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')].get(interface.get('vpc_id'), {})  # noqa: E501
+                                            data_model['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')] = data_model['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')].get(switch.get('name'), {})  # noqa: E501
                                             # Assign interface to vxlan.topology.interfaces.vpc_interfaces.<peer1>___<peer2>.<vpc_id>.<switch_name>
-                                            model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')] = interface  # noqa: E501
+                                            data_model['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')] = interface  # noqa: E501
 
                                             if switch.get('management').get('management_ipv4_address'):
-                                                model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')].update({'mgmt_ip_address': switch.get('management').get('management_ipv4_address')})  # noqa: E501
+                                                data_model['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')].update({'mgmt_ip_address': switch.get('management').get('management_ipv4_address')})  # noqa: E501
                                             elif switch.get('management').get('management_ipv6_address'):
-                                                model_data['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')].update({'mgmt_ip_address': switch.get('management').get('management_ipv6_address')})  # noqa: E501
+                                                data_model['vxlan']['topology']['interfaces']['vpc_interfaces'][vpc_peer.get('peer1') + "___" + vpc_peer.get('peer2')][interface.get('vpc_id')][switch.get('name')].update({'mgmt_ip_address': switch.get('management').get('management_ipv6_address')})  # noqa: E501
 
-        # Update model_extended with updated model_data
-        self.kwargs['results']['model_extended'] = model_data
+        # Update model_extended with updated data_model
+        self.kwargs['results']['model_extended'] = data_model
         return self.kwargs['results']
 
 # ========================================================
@@ -112,7 +112,7 @@ class PreparePlugin:
 #               - eth1/16
 #               - eth1/17
 # ========================================================
-# Sample Outout (MD_Extended)
+# Sample Outout (data_model_extended)
 # ========================================================
 # {
 #     "vxlan": {

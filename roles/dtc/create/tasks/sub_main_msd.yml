@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2026 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -37,43 +37,49 @@
 - name: Create MSD Fabric in Nexus Dashboard
   ansible.builtin.import_tasks: common/fabric.yml
   when:
-    - MD_Extended.vxlan.fabric.name is defined
-    - MD_Extended.vxlan.fabric.type == "MSD"
+    - data_model_extended.vxlan.fabric.name is defined
+    - data_model_extended.vxlan.fabric.type == "MSD"
     - change_flags.changes_detected_fabric
   tags: "{{ nac_tags.create_fabric }}"
 
 - name: Manage MSD Fabric Child Fabrics in Nexus Dashboard
   ansible.builtin.import_tasks: msd/child_fabrics.yml
   when:
-    - MD_Extended.vxlan.multisite.child_fabrics is defined and MD_Extended.vxlan.multisite.child_fabrics | length > 0
+    - data_model_extended.vxlan.multisite.child_fabrics is defined
+    - data_model_extended.vxlan.multisite.child_fabrics | length > 0
+    - data_model_msd_child_fabrics.to_be_added is defined
+    - data_model_msd_child_fabrics.to_be_added | length > 0
+  tags: "{{ nac_tags.create_fabric }}"
 
 - name: Prepare Multisite Data
   cisco.nac_dc_vxlan.dtc.prepare_msite_data:
-    model_data: "{{ MD_Extended }}"
-    parent_fabric: "{{ MD_Extended.vxlan.fabric.name }}"
-  register: MD_Multisite
+    data_model: "{{ data_model_extended }}"
+    parent_fabric: "{{ data_model_extended.vxlan.fabric.name }}"
+    parent_fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    nd_version: "{{ nd_version }}"
+  register: runtime_msd_data_model
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
 - name: Create Border Gateway Site Anycast VIP Loopback in Nexus Dashboard
   cisco.dcnm.dcnm_resource_manager:
     state: merged
-    fabric: "{{ MD_Extended.vxlan.fabric.name }}"
+    fabric: "{{ data_model_extended.vxlan.fabric.name }}"
     config: "{{ vars_common_msd.bgw_anycast_vip }}"
   when:
-    - (MD_Multisite.child_fabrics_data
-       | dict2items
-       | selectattr('value.attributes', 'defined')
-       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
-       | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["true", true])
-       | map(attribute='key')
-       | list
-       | length > 0)
+    - (runtime_msd_data_model.child_fabrics_data
+      | dict2items
+      | selectattr('value.attributes', 'defined')
+      | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'defined')
+      | selectattr('value.attributes.STATIC_UNDERLAY_IP_ALLOC', 'in', ["true", true])
+      | map(attribute='key')
+      | list
+      | length > 0)
     - vars_common_msd.bgw_anycast_vip | length > 0
     - change_flags.changes_detected_bgw_anycast_vip
 
 - name: Manage MSD Fabric VRFs and Networks in Nexus Dashboard
   ansible.builtin.import_tasks: msd/vrfs_networks.yml
   when:
-    - MD_Extended.vxlan.multisite.overlay is defined
-    - MD_Extended.vxlan.multisite.overlay
+    - data_model_extended.vxlan.multisite.overlay is defined
+    - data_model_extended.vxlan.multisite.overlay
   tags: "{{ nac_tags.create_vrfs_networks }}"

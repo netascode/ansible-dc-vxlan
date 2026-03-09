@@ -2,15 +2,15 @@
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% set simplified_fabric_type = MD_Extended.vxlan.fabric.simplified_type %}
-{% if MD_Extended.vxlan.fabric.type == "ISN" %}
-{% set bgp_asn = MD_Extended.vxlan.multisite.isn.bgp_asn %}
+{% set simplified_fabric_type = data_model_extended.vxlan.fabric.simplified_type %}
+{% if data_model_extended.vxlan.fabric.type == "ISN" %}
+{% set bgp_asn = data_model_extended.vxlan.multisite.isn.bgp_asn %}
 {% else %}
-{% set bgp_asn = MD_Extended.vxlan.global[simplified_fabric_type].bgp_asn %}
+{% set bgp_asn = data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn %}
 {% endif %}
-{% if MD_Extended.vxlan.topology.edge_connections | default([]) | length > 0 %}
+{% if data_model_extended.vxlan.topology.edge_connections | default([]) | length > 0 %}
 - switch:
-{% for link in MD_Extended.vxlan.topology.edge_connections%}
+{% for link in data_model_extended.vxlan.topology.edge_connections%}
     - ip: {{ link.source_device_ip }}
       policies:
         - create_additional_policy: False
@@ -45,10 +45,10 @@
             ROUTING_TAG: "{{ link.bgp_section.routing_tag | default(defaults.vxlan.topology.edge_connections.bgp_section.routing_tag) }}"
             SERIAL_NUMBER: ""
             asn: "{{ bgp_asn }}"
-            BGP_TEMPLATE_NAME: {{ MD_Extended.vxlan.fabric.name + '-' + link.dest_fabric + '-IPV4-EBGP' }}
+            BGP_TEMPLATE_NAME: {{ data_model_extended.vxlan.fabric.name + '-' + link.dest_fabric + '-IPV4-EBGP' }}
             INTF_CONF: |2-
               {{ link.bgp_section.interface_freeform | default('') | indent(14, false)}}
-            FABRIC_NAME: {{ MD_Extended.vxlan.fabric.name }}
+            FABRIC_NAME: {{ data_model_extended.vxlan.fabric.name }}
           priority: 500
 {% endfor %}
 {% endif %}

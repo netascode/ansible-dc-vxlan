@@ -107,7 +107,7 @@ class ActionModule(ActionBase):
                         rules_list.append(f'{rules}common')
                         rules_list.append(f'{rules}ebgp_vxlan/')
                         rules_list.append(f'{rules}common_vxlan')
-                    elif results['data']['vxlan']['fabric']['type'] in ('MSD', 'MCF'):
+                    elif results['data']['vxlan']['fabric']['type'] in ('MSD', 'MCFG'):
                         rules_list.append(f'{rules}multisite/')
                     elif results['data']['vxlan']['fabric']['type'] in ('ISN'):
                         rules_list.append(f'{rules}isn/')
@@ -136,7 +136,7 @@ class ActionModule(ActionBase):
                             rules_list.append(f'{rules}common')
                             rules_list.append(f'{rules}ibgp_vxlan/')
                             rules_list.append(f'{rules}common_vxlan')
-                        elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCF'):
+                        elif results['data']['vxlan']['global']['fabric_type'] in ('MSD', 'MCFG'):
                             rules_list.append(f'{rules}multisite/')
                         elif results['data']['vxlan']['global']['fabric_type'] in ('ISN'):
                             rules_list.append(f'{rules}isn/')

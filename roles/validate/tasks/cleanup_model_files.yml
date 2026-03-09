@@ -24,7 +24,7 @@
 - name: Remove Service Model JSON Files
   ansible.builtin.find:
     paths: "{{ role_path }}/files/"
-    patterns: "{{ MD_Extended.vxlan.fabric.name }}_service_model*.json"
+    patterns: "{{ data_model_extended.vxlan.fabric.name }}_service_model*.json"
     file_type: file
     recurse: false
   register: files_to_delete
