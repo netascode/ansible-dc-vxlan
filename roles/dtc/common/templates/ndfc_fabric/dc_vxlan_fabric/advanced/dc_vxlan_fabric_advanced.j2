@@ -48,6 +48,11 @@
   STP_BRIDGE_PRIORITY: {{ vxlan.global.ibgp.spanning_tree.bridge_priority | default(defaults.vxlan.global.ibgp.spanning_tree.bridge_priority) }}
 {% endif %}
 {% endif %}
+  MPLS_HANDOFF: {{ vxlan.global.ibgp.mpls_handoff.enable | default(defaults.vxlan.global.ibgp.mpls_handoff.enable) }}
+{% if vxlan.global.ibgp.mpls_handoff.enable | default(defaults.vxlan.global.ibgp.mpls_handoff.enable) %}
+  MPLS_LB_ID: {{ vxlan.global.ibgp.mpls_handoff.loopback_id | default(defaults.vxlan.global.ibgp.mpls_handoff.loopback_id) }}
+  MPLS_ISIS_AREA_NUM: "{{ '{:0>4s}'.format(vxlan.global.ibgp.mpls_handoff.isis_net_area_number | default(defaults.vxlan.global.ibgp.mpls_handoff.isis_net_area_number) | string) }}"
+{% endif %}
   EXTRA_CONF_LEAF: |
     {{ vxlan.global.ibgp.leaf_freeform | default("") | indent(4) }}
   EXTRA_CONF_SPINE: |
