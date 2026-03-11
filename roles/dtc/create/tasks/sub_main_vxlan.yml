@@ -77,6 +77,14 @@
         - config_save.msg.RETURN_CODE is defined and config_save.msg.RETURN_CODE == 500
         - change_flags.changes_detected_vpc_peering or change_flags.changes_detected_vpc_domain_id_resource
 
+- name: Manage iBGP VXLAN Fabric ToR Pairing in Nexus Dashboard
+  ansible.builtin.import_tasks: common/tor_pairing.yml
+  when:
+    - vars_common_vxlan.tor_pairing is defined
+    - vars_common_vxlan.tor_pairing | length > 0
+    - change_flags.changes_detected_tor_pairing
+  tags: "{{ nac_tags.create_tor_pairing }}"
+
 - name: Manage iBGP VXLAN Fabric Interfaces in Nexus Dashboard
   ansible.builtin.import_tasks: common/interfaces.yml
   when:

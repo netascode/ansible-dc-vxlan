@@ -20,6 +20,9 @@
 {% endif %}
 {% endif %}
 {% endif %}
+{% if vxlan.global.ibgp.mpls_handoff.enable | default(defaults.vxlan.global.ibgp.mpls_handoff.enable) %}
+  MPLS_LOOPBACK_IP_RANGE: {{ vxlan.global.ibgp.mpls_handoff.loopback_ip_range | default(defaults.vxlan.global.ibgp.mpls_handoff.loopback_ip_range) }}
+{% endif %}
 {% if vxlan.global.ibgp.layer2_vni_range.from is defined %}
 {% set l2_vni_start = vxlan.global.ibgp.layer2_vni_range.from %}
 {% if vxlan.global.ibgp.layer2_vni_range.to is defined %}

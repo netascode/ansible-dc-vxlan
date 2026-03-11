@@ -128,6 +128,11 @@ factory_defaults:
           enable_local_dhcp_server: false
           enable_cdp_mgmt: false
         tcam_allocation: true
+        mpls_handoff:
+          enable: false
+          loopback_id: 101
+          loopback_ip_range: 10.101.0.0/25
+          isis_net_area_number: "0001"
       external:
         auth_proto: MD5
         enable_nxapi_http: false
@@ -153,7 +158,7 @@ factory_defaults:
           module: 1
           from: 1
           to: 1
-          map: '10g-4x'
+          map: 10g-4x
           enable_during_bootstrap: false
         interfaces:
           topology_switch_access_interface:
@@ -243,6 +248,7 @@ factory_defaults:
             enabled: true
         poap:
           bootstrap: false
+          discovery_creds: false
       vpc_peers:
         domain_id: 1
         keepalive_hold_time: 3
@@ -292,7 +298,7 @@ factory_defaults:
       bgp:
         authentication_enable: false
         authentication_key_type: 3
-        max_paths: 4  # Review
+        max_paths: 4 # Review
       multicast:
         rendezvous_points: 2
         rp_mode: asm
@@ -305,7 +311,7 @@ factory_defaults:
         ipv6:
           group_subnet: ff1e::/121
           trmv6_enable: false
-          trmv6_default_group: "ff1e::"   # Quote due to ending in colon to avoid YAML error
+          trmv6_default_group: "ff1e::" # Quote due to ending in colon to avoid YAML error
         underlay_primary_rp_loopback_id: 2
         underlay_backup_rp_loopback_id: 3
         underlay_second_backup_rp_loopback_id: 4

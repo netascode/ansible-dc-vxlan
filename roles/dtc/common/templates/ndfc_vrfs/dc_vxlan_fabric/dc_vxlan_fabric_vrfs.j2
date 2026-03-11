@@ -26,12 +26,12 @@
   bgp_password: {{ vrf['bgp_password'] | default(omit) }}
   bgp_password_encryption_type: {{ vrf['bgp_password_encryption_type'] | default(omit) }}
   disable_rt_auto: {{ vrf['disable_rt_auto'] | default(defaults.vxlan.overlay.vrfs.disable_rt_auto) }}
-  export_evpn_rt: {{ vrf['export_evpn_rt'] | default(omit) }}
-  export_mvpn_rt: {{ vrf['export_mvpn_rt'] | default(omit) }}
-  export_vpn_rt: {{ vrf['export_vpn_rt'] | default(omit) }}
-  import_evpn_rt: {{ vrf['import_evpn_rt'] | default(omit) }}
-  import_mvpn_rt: {{ vrf['import_mvpn_rt'] | default(omit) }}
-  import_vpn_rt: {{ vrf['import_vpn_rt'] | default(omit) }}
+  export_evpn_rt: "{{ vrf['export_evpn_rt'] | default(omit) }}"
+  export_mvpn_rt: "{{ vrf['export_mvpn_rt'] | default(omit) }}"
+  export_vpn_rt: "{{ vrf['export_vpn_rt'] | default(omit) }}"
+  import_evpn_rt: "{{ vrf['import_evpn_rt'] | default(omit) }}"
+  import_mvpn_rt: "{{ vrf['import_mvpn_rt'] | default(omit) }}"
+  import_vpn_rt: "{{ vrf['import_vpn_rt'] | default(omit) }}"
   netflow_enable: {{ vrf['netflow_enable'] | default(defaults.vxlan.overlay.vrfs.netflow_enable) }}
 {% if vrf['netflow_enable'] is defined and vrf['netflow_enable'] | ansible.builtin.bool %}
   nf_monitor: {{ vrf['netflow_monitor'] }}
