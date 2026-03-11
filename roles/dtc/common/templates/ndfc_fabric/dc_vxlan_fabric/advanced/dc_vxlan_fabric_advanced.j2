@@ -50,3 +50,8 @@
 {% endif %}
   EXTRA_CONF_INTRA_LINKS: |2
     {{ vxlan.global.ibgp.intra_fabric_link_freeform | default("") | indent(4) }}
+  MPLS_HANDOFF: {{ vxlan.global.ibgp.mpls_handoff.enable | default(defaults.vxlan.global.ibgp.mpls_handoff.enable) }}
+{% if vxlan.global.ibgp.mpls_handoff.enable | default(defaults.vxlan.global.ibgp.mpls_handoff.enable) %}
+  MPLS_LB_ID: {{ vxlan.global.ibgp.mpls_handoff.loopback_id | default(defaults.vxlan.global.ibgp.mpls_handoff.loopback_id) }}
+  MPLS_ISIS_AREA_NUM: "{{ '{:0>4s}'.format(vxlan.global.ibgp.mpls_handoff.isis_net_area_number | default(defaults.vxlan.global.ibgp.mpls_handoff.isis_net_area_number) | string) }}"
+{% endif %}

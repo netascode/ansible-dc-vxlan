@@ -162,7 +162,7 @@ def ndfc_get_switch_policy_using_desc(self, task_vars, tmp, switch_serial_number
 
     policy_match = [
         item for item in policy_data["response"]["DATA"]
-        if item.get("description", None) and prefix in item.get("description", None) and item["source"] == ""
+        if item.get("description", None) and item.get("description", None).startswith(prefix) and item["source"] == ""
     ]
 
     return policy_match
