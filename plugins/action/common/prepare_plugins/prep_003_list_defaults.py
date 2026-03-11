@@ -206,10 +206,10 @@ class PreparePlugin:
         if fabric_type in ['VXLAN_EVPN', 'External', 'eBGP_VXLAN']:
             fn = self.data_model['vxlan']['fabric']['name']
             if not bool(self.data_model['vxlan'].get('underlay')):
-                msg = "((vxlan.underlay)) data is empty! Check your host_vars model data for fabric {fn}."
+                msg = f"((vxlan.underlay)) data is empty! Check your host_vars model data for fabric {fn}."
                 display.warning(msg=msg, formatted=True)
             if not bool(self.data_model['vxlan'].get('global')):
-                msg = "((vxlan.global)) data is empty! Check your host_vars model data for fabric {fn}."
+                msg = f"((vxlan.global)) data is empty! Check your host_vars model data for fabric {fn}."
                 display.warning(msg=msg, formatted=True)
 
         self.kwargs['results']['model_extended'] = self.data_model
