@@ -55,3 +55,7 @@
   SYSLOG_SEV: {{ syslog_server_sevs | join(',') | default(omit) }}
 {% endif %}
 {% endif %}
+  AAA_SERVER_CONF: |
+    {{ vxlan.global.ebgp.aaa_freeform | default("") | indent(4) }}
+  BANNER: |
+    {{ vxlan.global.ebgp.banner_freeform | default("") | indent(4) }}

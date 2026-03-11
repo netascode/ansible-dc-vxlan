@@ -17,4 +17,6 @@
 {% if vxlan.global.external.bootstrap is defined and vxlan.global.external.bootstrap.enable_cdp_mgmt is defined %}
   CDP_ENABLE: {{ vxlan.global.external.bootstrap.enable_cdp_mgmt }}
 {% endif %}
+  AAA_SERVER_CONF: |
+    {{ vxlan.global.external.aaa_freeform | default("") | indent(4) }}
 {# #}
