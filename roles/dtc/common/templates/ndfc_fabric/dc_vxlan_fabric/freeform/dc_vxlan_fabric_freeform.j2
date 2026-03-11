@@ -1,0 +1,13 @@
+{# Auto-generated NDFC DC VXLAN EVPN Freeform config data structure for fabric {{ vxlan.fabric.name }} #}
+  preInterfaceConfigSpine: |
+    {{ vxlan.global.ibgp.spine_pre_interface_freeform | default("") | indent(4) }}
+  EXTRA_CONF_SPINE: |
+    {{ vxlan.global.ibgp.spine_post_interface_freeform | default("") | indent(4) }}
+  preInterfaceConfigLeaf: |
+    {{ vxlan.global.ibgp.leaf_pre_interface_freeform | default("") | indent(4) }}
+  EXTRA_CONF_LEAF: |
+    {{ vxlan.global.ibgp.leaf_post_interface_freeform | default("") | indent(4) }}
+  preInterfaceConfigTor: |
+    {{ vxlan.global.ibgp.tor_pre_interface_freeform | default("") | indent(4) }}
+  EXTRA_CONF_TOR: |
+    {{ vxlan.global.ibgp.tor_post_interface_freeform | default("") | indent(4) }}
