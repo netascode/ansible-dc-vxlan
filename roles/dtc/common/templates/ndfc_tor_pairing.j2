@@ -1,0 +1,15 @@
+---
+# This NDFC ToR pairing config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% if data_model_extended.vxlan.topology.tor_pairing is defined and data_model_extended.vxlan.topology.tor_pairing %}
+{% for pair in data_model_extended.vxlan.topology.tor_pairing %}
+- pairing_id: "{{ pair.pairing_id }}"
+  scenario: "{{ pair.scenario }}"
+  payload:
+    leafSN1: "{{ pair.payload.leafSN1 }}"
+    leafSN2: "{{ pair.payload.leafSN2 | default('') }}"
+    torSN1: "{{ pair.payload.torSN1 }}"
+    torSN2: "{{ pair.payload.torSN2 | default('') }}"
+{% endfor %}
+{% endif %}

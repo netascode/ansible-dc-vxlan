@@ -65,3 +65,7 @@
 {% endif %}
 {% endif %}
 {% endif %}
+  IBGP_PEER_TEMPLATE: |2
+    {{ vxlan.global.ibgp.spine_ibgp_peer_template_freeform | default("") | indent(4, false) }}
+  IBGP_PEER_TEMPLATE_LEAF: |2
+    {{ vxlan.global.ibgp.leaf_ibgp_peer_template_freeform | default("") | indent(4, false) }}
