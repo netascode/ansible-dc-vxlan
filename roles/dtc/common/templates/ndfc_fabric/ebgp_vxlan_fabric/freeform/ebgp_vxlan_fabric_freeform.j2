@@ -1,15 +1,15 @@
 {# Auto-generated NDFC DC VXLAN EVPN Freeform config data structure for fabric {{ vxlan.fabric.name }} #}
   preInterfaceConfigSpine: |
-    {{ vxlan.global.ibgp.spine_pre_interface_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ebgp.spine_pre_interface_freeform | default("") | indent(4) }}
   EXTRA_CONF_SPINE: |
-    {{ vxlan.global.ibgp.spine_post_interface_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ebgp.spine_post_interface_freeform | default("") | indent(4) }}
   preInterfaceConfigLeaf: |
-    {{ vxlan.global.ibgp.leaf_pre_interface_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ebgp.leaf_pre_interface_freeform | default("") | indent(4) }}
   EXTRA_CONF_LEAF: |
-    {{ vxlan.global.ibgp.leaf_post_interface_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ebgp.leaf_post_interface_freeform | default("") | indent(4) }}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
   preInterfaceConfigTor: |
-    {{ vxlan.global.ibgp.tor_pre_interface_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ebgp.tor_pre_interface_freeform | default("") | indent(4) }}
   EXTRA_CONF_TOR: |
-    {{ vxlan.global.ibgp.tor_post_interface_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ebgp.tor_post_interface_freeform | default("") | indent(4) }}
 {% endif %}
