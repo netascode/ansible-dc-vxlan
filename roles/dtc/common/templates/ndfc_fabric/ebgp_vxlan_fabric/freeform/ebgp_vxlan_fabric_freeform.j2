@@ -13,3 +13,5 @@
   EXTRA_CONF_TOR: |
     {{ vxlan.global.ebgp.tor_post_interface_freeform | default("") | indent(4) }}
 {% endif %}
+  EXTRA_CONF_INTRA_LINKS: |2
+    {{ vxlan.global.ebgp.intra_fabric_link_freeform | default("") | indent(4) }}
