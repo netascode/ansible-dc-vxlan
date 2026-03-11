@@ -1,0 +1,325 @@
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Create Pipelines — Ordered creation operations per fabric type
+#
+# Consumed by: manage_resources.py
+#
+# Each step defines:
+#   - resource_name:      Which resource data to pass (key in resource_data dict)
+#   - module:             cisco.dcnm module name (prefix added at runtime)
+#                         Internal methods start with '_' (e.g., _config_save)
+#   - state:              Module state parameter (merged, replaced, etc.)
+#   - deploy:             Whether to deploy after module execution (true/false)
+#   - change_flag_guard:  Guard — skip step if this flag is False
+#   - tag:                Per-step tag for --tags filtering
+#
+# Pipeline ordering respects creation dependencies:
+#   fabric → switches → vPC → interfaces → overlay → links → policies
+# ══════════════════════════════════════════════════════════════════════════════
+---
+
+create_pipelines:
+
+  role_tag: role_create
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # VXLAN_EVPN — Full pipeline with overlay, links, and edge connections
+  # ──────────────────────────────────────────────────────────────────────────
+  VXLAN_EVPN:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      # deploy: false
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
+
+    - resource_name: inventory
+      module: dcnm_inventory
+      state: merged
+      deploy: false
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
+
+  #   # vPC peering uses an internal 3-step sub-pipeline:
+  #   #   1. dcnm_resource_manager (vPC domain ID allocation)
+  #   #   2. dcnm_links (intra-fabric peering links) with src_fabric
+  #   #   3. dcnm_vpc_pair (vPC pair configuration) with src_fabric
+  #   - resource_name: vpc_peering
+  #     module: _vpc_peering_pipeline
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: changes_detected_vpc_peering
+  #     tag: cr_manage_vpc_peers
+
+  #   # Config-save POST to propagate vPC changes before interface config
+  #   - resource_name: null
+  #     module: _config_save
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: changes_detected_vpc_peering
+  #     tag: null
+
+  #   - resource_name: interface_all
+  #     module: dcnm_interface
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_interfaces
+  #     tag: cr_manage_interfaces
+
+  #   - resource_name: edge_connections
+  #     module: dcnm_links
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_edge_connections
+  #     tag: cr_manage_edge_connections
+
+  #   # VRFs and Networks use an internal sub-pipeline for dependency ordering
+  #   - resource_name: null
+  #     module: _vrfs_networks_pipeline
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: changes_detected_vrfs
+  #     tag: cr_manage_vrfs_networks
+
+  #   - resource_name: fabric_links
+  #     module: dcnm_links
+  #     state: replaced
+  #     deploy: false
+  #     change_flag_guard: changes_detected_fabric_links
+  #     tag: cr_manage_links
+
+  #   - resource_name: policy
+  #     module: dcnm_policy
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_policy
+  #     tag: cr_manage_policy
+
+  # # ──────────────────────────────────────────────────────────────────────────
+  # # eBGP_VXLAN — Similar to VXLAN_EVPN but no edge connections or links
+  # # ──────────────────────────────────────────────────────────────────────────
+  # eBGP_VXLAN:
+  #   - resource_name: fabric
+  #     module: dcnm_fabric
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_fabric
+  #     tag: cr_manage_fabric
+
+  #   - resource_name: inventory
+  #     module: dcnm_inventory
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_inventory
+  #     tag: cr_manage_switches
+
+  #   - resource_name: vpc_peering
+  #     module: _vpc_peering_pipeline
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: changes_detected_vpc_peering
+  #     tag: cr_manage_vpc_peers
+
+  #   - resource_name: null
+  #     module: _config_save
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: changes_detected_vpc_peering
+  #     tag: null
+
+  #   - resource_name: interface_all
+  #     module: dcnm_interface
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_interfaces
+  #     tag: cr_manage_interfaces
+
+  #   - resource_name: null
+  #     module: _vrfs_networks_pipeline
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: changes_detected_vrfs
+  #     tag: cr_manage_vrfs_networks
+
+  #   - resource_name: policy
+  #     module: dcnm_policy
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_policy
+  #     tag: cr_manage_policy
+
+  # # ──────────────────────────────────────────────────────────────────────────
+  # # ISN — No overlay, no vPC, no links. Edge connections + interfaces
+  # # ──────────────────────────────────────────────────────────────────────────
+  # ISN:
+  #   - resource_name: fabric
+  #     module: dcnm_fabric
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_fabric
+  #     tag: cr_manage_fabric
+
+  #   - resource_name: inventory
+  #     module: dcnm_inventory
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_inventory
+  #     tag: cr_manage_switches
+
+  #   - resource_name: edge_connections
+  #     module: dcnm_links
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_edge_connections
+  #     tag: cr_manage_edge_connections
+
+  #   - resource_name: interface_all
+  #     module: dcnm_interface
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_interfaces
+  #     tag: cr_manage_interfaces
+
+  #   - resource_name: policy
+  #     module: dcnm_policy
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_policy
+  #     tag: cr_manage_policy
+
+  # # ──────────────────────────────────────────────────────────────────────────
+  # # External — vPC + edge connections + interfaces, no overlay or links
+  # # ──────────────────────────────────────────────────────────────────────────
+  # External:
+  #   - resource_name: fabric
+  #     module: dcnm_fabric
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_fabric
+  #     tag: cr_manage_fabric
+
+  #   - resource_name: inventory
+  #     module: dcnm_inventory
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_inventory
+  #     tag: cr_manage_switches
+
+  #   - resource_name: vpc_peering
+  #     module: _vpc_peering_pipeline
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: changes_detected_vpc_peering
+  #     tag: cr_manage_vpc_peers
+
+  #   - resource_name: edge_connections
+  #     module: dcnm_links
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_edge_connections
+  #     tag: cr_manage_edge_connections
+
+  #   - resource_name: interface_all
+  #     module: dcnm_interface
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_interfaces
+  #     tag: cr_manage_interfaces
+
+  #   - resource_name: policy
+  #     module: dcnm_policy
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_policy
+  #     tag: cr_manage_policy
+
+  # # ──────────────────────────────────────────────────────────────────────────
+  # # MSD — Multisite parent: fabric + child fabrics + prepare + overlay
+  # # ──────────────────────────────────────────────────────────────────────────
+  # MSD:
+  #   - resource_name: fabric
+  #     module: dcnm_fabric
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_fabric
+  #     tag: cr_manage_fabric
+
+  #   - resource_name: null
+  #     module: _manage_child_fabrics
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: null
+  #     tag: cr_manage_fabric
+
+  #   - resource_name: null
+  #     module: _prepare_msite_data
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: null
+  #     tag: cr_manage_vrfs_networks
+
+  #   - resource_name: bgw_anycast_vip
+  #     module: dcnm_resource_manager
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_bgw_anycast_vip
+  #     tag: cr_manage_vrfs_networks
+
+  #   - resource_name: null
+  #     module: _vrfs_networks_pipeline
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: null
+  #     tag: cr_manage_vrfs_networks
+
+  # # ──────────────────────────────────────────────────────────────────────────
+  # # MCFG — Similar to MSD but no BGW anycast VIP
+  # # ──────────────────────────────────────────────────────────────────────────
+  # MCFG:
+  #   - resource_name: fabric
+  #     module: dcnm_fabric
+  #     state: merged
+  #     deploy: false
+  #     change_flag_guard: changes_detected_fabric
+  #     tag: cr_manage_fabric
+
+  #   - resource_name: null
+  #     module: _manage_child_fabrics
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: null
+  #     tag: cr_manage_fabric
+
+  #   - resource_name: null
+  #     module: _prepare_msite_data
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: null
+  #     tag: cr_manage_vrfs_networks
+
+  #   - resource_name: null
+  #     module: _vrfs_networks_pipeline
+  #     state: null
+  #     deploy: false
+  #     change_flag_guard: null
+  #     tag: cr_manage_vrfs_networks

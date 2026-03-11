@@ -1,0 +1,333 @@
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Remove Pipelines — Ordered removal operations per fabric type
+#
+# Consumed by: remove_resources.py
+#
+# Each step defines:
+#   - resource_name:        Which resource data to pass
+#   - module:               cisco.dcnm module name (prefix added at runtime)
+#   - state:                Module state for diff_run=true (typically 'deleted')
+#   - state_full_run:       Module state for diff_run=false (typically 'overridden')
+#                           Omit if state should be the same regardless of diff_run
+#   - data_key_full_run:    Key override for full-run data source (default: 'data')
+#   - change_flag_guard:    Guard — skip if this change flag is False
+#   - delete_mode_guard:    User opt-in safety flag that must be true to execute
+#   - skip_if_child_fabric: Skip if fabric is an active MSD child
+#   - requires_switches:    Skip if no switches exist in the fabric
+#   - module_config:        Module-specific parameter overrides
+#     - fabric_param:       Override fabric parameter name (default: 'fabric')
+#   - tag:                  Per-step tag for --tags filtering
+#   - timeout:              Optional per-step timeout in seconds
+#
+# Pipeline ordering is the REVERSE of creation to respect dependencies:
+#   edge_connections → policies → interfaces → networks → VRFs →
+#   links → vPC peers → switches
+# ══════════════════════════════════════════════════════════════════════════════
+---
+
+remove_pipelines:
+
+  role_tag: role_remove
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # VXLAN_EVPN — Full reverse pipeline
+  # ──────────────────────────────────────────────────────────────────────────
+  VXLAN_EVPN:
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_edge_connections
+      delete_mode_guard: edge_connections_delete_mode
+      tag: rr_manage_edge_connections
+
+    - resource_name: policy
+      module: dcnm_policy
+      state: deleted
+      change_flag_guard: changes_detected_policy
+      delete_mode_guard: policy_delete_mode
+      tag: rr_manage_policy
+
+    - resource_name: interface_all
+      module: dcnm_interface
+      state: deleted
+      state_full_run: overridden
+      data_key_full_run: data_remove_overridden
+      change_flag_guard: changes_detected_interfaces
+      delete_mode_guard: interface_delete_mode
+      requires_switches: true
+      tag: rr_manage_interfaces
+
+    - resource_name: networks
+      module: dcnm_network
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_networks
+      delete_mode_guard: network_delete_mode
+      skip_if_child_fabric: true
+      timeout: 3000
+      tag: rr_manage_networks
+
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_vrfs
+      delete_mode_guard: vrf_delete_mode
+      skip_if_child_fabric: true
+      timeout: 3000
+      tag: rr_manage_vrfs
+
+    - resource_name: fabric_links
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_fabric_links
+      tag: rr_manage_links
+
+    # vPC peers — uses dcnm_vpc_pair with src_fabric (not dcnm_links with fabric)
+    - resource_name: vpc_peering
+      module: dcnm_vpc_pair
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_vpc_peering
+      delete_mode_guard: vpc_delete_mode
+      module_config:
+        fabric_param: src_fabric
+      timeout: 1000
+      tag: rr_manage_vpc_peers
+
+    # Switches always use overridden (no diff_run branching)
+    - resource_name: inventory
+      module: dcnm_inventory
+      state: overridden
+      change_flag_guard: changes_detected_inventory
+      delete_mode_guard: inventory_delete_mode
+      tag: rr_manage_switches
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # eBGP_VXLAN — No edge connections or links
+  # ──────────────────────────────────────────────────────────────────────────
+  eBGP_VXLAN:
+    - resource_name: vpc_peering
+      module: dcnm_vpc_pair
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_vpc_peering
+      delete_mode_guard: vpc_delete_mode
+      module_config:
+        fabric_param: src_fabric
+      timeout: 1000
+      tag: rr_manage_vpc_peers
+
+    - resource_name: policy
+      module: dcnm_policy
+      state: deleted
+      change_flag_guard: changes_detected_policy
+      delete_mode_guard: policy_delete_mode
+      tag: rr_manage_policy
+
+    - resource_name: interface_all
+      module: dcnm_interface
+      state: deleted
+      state_full_run: overridden
+      data_key_full_run: data_remove_overridden
+      change_flag_guard: changes_detected_interfaces
+      delete_mode_guard: interface_delete_mode
+      requires_switches: true
+      tag: rr_manage_interfaces
+
+    - resource_name: networks
+      module: dcnm_network
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_networks
+      delete_mode_guard: network_delete_mode
+      skip_if_child_fabric: true
+      timeout: 3000
+      tag: rr_manage_networks
+
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_vrfs
+      delete_mode_guard: vrf_delete_mode
+      skip_if_child_fabric: true
+      timeout: 3000
+      tag: rr_manage_vrfs
+
+    - resource_name: inventory
+      module: dcnm_inventory
+      state: overridden
+      change_flag_guard: changes_detected_inventory
+      delete_mode_guard: inventory_delete_mode
+      tag: rr_manage_switches
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # ISN — Edge connections + interfaces, no overlay or vPC
+  # ──────────────────────────────────────────────────────────────────────────
+  ISN:
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_edge_connections
+      delete_mode_guard: edge_connections_delete_mode
+      tag: rr_manage_edge_connections
+
+    - resource_name: policy
+      module: dcnm_policy
+      state: deleted
+      change_flag_guard: changes_detected_policy
+      delete_mode_guard: policy_delete_mode
+      tag: rr_manage_policy
+
+    - resource_name: interface_all
+      module: dcnm_interface
+      state: deleted
+      state_full_run: overridden
+      data_key_full_run: data_remove_overridden
+      change_flag_guard: changes_detected_interfaces
+      delete_mode_guard: interface_delete_mode
+      requires_switches: true
+      tag: rr_manage_interfaces
+
+    - resource_name: inventory
+      module: dcnm_inventory
+      state: overridden
+      change_flag_guard: changes_detected_inventory
+      delete_mode_guard: inventory_delete_mode
+      tag: rr_manage_switches
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # External — Edge connections + interfaces + vPC, no overlay
+  # ──────────────────────────────────────────────────────────────────────────
+  External:
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_edge_connections
+      delete_mode_guard: edge_connections_delete_mode
+      tag: rr_manage_edge_connections
+
+    - resource_name: policy
+      module: dcnm_policy
+      state: deleted
+      change_flag_guard: changes_detected_policy
+      delete_mode_guard: policy_delete_mode
+      tag: rr_manage_policy
+
+    - resource_name: interface_all
+      module: dcnm_interface
+      state: deleted
+      state_full_run: overridden
+      data_key_full_run: data_remove_overridden
+      change_flag_guard: changes_detected_interfaces
+      delete_mode_guard: interface_delete_mode
+      requires_switches: true
+      tag: rr_manage_interfaces
+
+    - resource_name: vpc_peering
+      module: dcnm_vpc_pair
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_vpc_peering
+      delete_mode_guard: vpc_delete_mode
+      module_config:
+        fabric_param: src_fabric
+      timeout: 1000
+      tag: rr_manage_vpc_peers
+
+    - resource_name: inventory
+      module: dcnm_inventory
+      state: overridden
+      change_flag_guard: changes_detected_inventory
+      delete_mode_guard: inventory_delete_mode
+      tag: rr_manage_switches
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # MSD — Multisite parent: prepare → networks → VRFs → child fabrics
+  # ──────────────────────────────────────────────────────────────────────────
+  MSD:
+    - resource_name: null
+      module: _prepare_msite_data
+      state: null
+      change_flag_guard: null
+      tag: rr_manage_vrfs_networks
+
+    - resource_name: networks
+      module: dcnm_network
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_networks
+      delete_mode_guard: network_delete_mode
+      timeout: 3000
+      tag: rr_manage_networks
+
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_vrfs
+      delete_mode_guard: vrf_delete_mode
+      timeout: 3000
+      tag: rr_manage_vrfs
+
+    - resource_name: null
+      module: _manage_child_fabrics
+      state: null
+      change_flag_guard: null
+      tag: rr_manage_fabric
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # MCFG — Same structure as MSD
+  # ──────────────────────────────────────────────────────────────────────────
+  MCFG:
+    - resource_name: null
+      module: _prepare_msite_data
+      state: null
+      change_flag_guard: null
+      tag: rr_manage_vrfs_networks
+
+    - resource_name: networks
+      module: dcnm_network
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_networks
+      delete_mode_guard: network_delete_mode
+      timeout: 3000
+      tag: rr_manage_networks
+
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_vrfs
+      delete_mode_guard: vrf_delete_mode
+      timeout: 3000
+      tag: rr_manage_vrfs
+
+    - resource_name: null
+      module: _manage_child_fabrics
+      state: null
+      change_flag_guard: null
+      tag: rr_manage_fabric

@@ -1,0 +1,92 @@
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Fabric Types — Namespace, subdirectory, and capability mapping
+#
+# Consumed by: FabricTypeRegistry, build_resource_data.py
+#
+# Maps each fabric type to its:
+#   - namespace:              Ansible variable namespace for resource data
+#   - file_subdir:            Output subdirectory under files/
+#   - global_key:             Key into the global config section
+#   - fabric_template_dir:    Template subdirectory for fabric-specific templates
+#   - supports_overlay:       Whether this fabric type manages VRFs/Networks
+#   - supports_vpc:           Whether this fabric type manages vPC peering
+#   - supports_multisite:     Whether this is a multisite parent fabric
+# ══════════════════════════════════════════════════════════════════════════════
+---
+
+fabric_types:
+
+  VXLAN_EVPN:
+    namespace: vars_common_vxlan
+    file_subdir: vxlan
+    global_key: ibgp
+    fabric_template_dir: dc_vxlan_fabric
+    supports_overlay: true
+    supports_vpc: true
+    supports_multisite: false
+
+  eBGP_VXLAN:
+    namespace: vars_common_ebgp_vxlan
+    file_subdir: vxlan
+    global_key: ebgp
+    fabric_template_dir: dc_ebgp_vxlan_fabric
+    supports_overlay: true
+    supports_vpc: true
+    supports_multisite: false
+
+  ISN:
+    namespace: vars_common_isn
+    file_subdir: isn
+    global_key: multisite
+    fabric_template_dir: dc_isn_fabric
+    supports_overlay: false
+    supports_vpc: false
+    supports_multisite: false
+
+  MSD:
+    namespace: vars_common_msd
+    file_subdir: msd
+    global_key: msd
+    fabric_template_dir: dc_msd_fabric
+    supports_overlay: true
+    supports_vpc: false
+    supports_multisite: true
+
+  MCFG:
+    namespace: vars_common_mcfg
+    file_subdir: mcfg
+    global_key: mcfg
+    fabric_template_dir: dc_mcfg_fabric
+    supports_overlay: true
+    supports_vpc: false
+    supports_multisite: true
+
+  External:
+    namespace: vars_common_external
+    file_subdir: vxlan
+    global_key: external
+    fabric_template_dir: dc_external_fabric
+    supports_overlay: false
+    supports_vpc: true
+    supports_multisite: false

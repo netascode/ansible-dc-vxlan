@@ -19,73 +19,73 @@
 #
 # SPDX-License-Identifier: MIT
 
+# ─────────────────────────────────────────────────────────────────────────────
+# v2 Consolidated Common Role — Replaces per-fabric sub_main_*.yml files
+#
+# Uses the build_resource_data action plugin to execute the
+# Template→Render→Diff→Flag cycle for all resource types applicable to the
+# current fabric type.
+#
+# The plugin reads:
+#   - objects/resource_types.yml    — Template/output/diff config per resource,
+#                                     filtered by fabric_type
+#   - objects/fabric_types.yml      — Namespace and subdirectory mapping
+#
+# Outputs:
+#   - resource_data:  Dict of rendered data keyed by resource_name
+#                     (consumed by manage_resources / remove_resources)
+#   - change_flags:   Dict of change flag states
+#                     (consumed by downstream roles for skip logic)
+# ─────────────────────────────────────────────────────────────────────────────
+
 ---
 
 - name: Create Fact To Store Common Role Path
   ansible.builtin.set_fact:
     common_role_path: "{{ role_path }}"
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
+  tags: "{{ nac_tags.common_role }}"
 
-- name: Initialize Change Flags
-  cisco.nac_dc_vxlan.common.change_flag_manager:
+- name: Build Resource Data via Consolidated Pipeline
+  cisco.nac_dc_vxlan.dtc.build_resource_data:
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    data_model: "{{ data_model_extended }}"
     role_path: "{{ common_role_path }}"
-    operation: initialize
+    run_map_diff_run: "{{ run_map_read_result.diff_run }}"
+    force_run_all: "{{ force_run_all | default(false) }}"
+    check_roles: "{{ check_roles }}"
+  register: build_result
   tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost
 
-- name: Import Role Tasks for iBGP VXLAN Fabric
-  ansible.builtin.import_tasks: sub_main_vxlan.yml
+- name: Display Build Pipeline Summary
+  ansible.builtin.debug:
+    msg: "{{ build_result.msg | default('No build result') }}"
+    verbosity: 1
   tags: "{{ nac_tags.common_role }}"
-  when: data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN'
 
-- name: Import Role Tasks for eBGP VXLAN Fabric
-  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
+- name: Store Resource Data For Use In Subsequent Roles
+  ansible.builtin.set_fact:
+    resource_data: "{{ build_result.resource_data }}"
   tags: "{{ nac_tags.common_role }}"
-  when: data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
-
-- name: Import Role Tasks for ISN Fabric
-  ansible.builtin.import_tasks: sub_main_isn.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: data_model_extended.vxlan.fabric.type == 'ISN'
-
-- name: Import Role Tasks for MSD Fabric
-  ansible.builtin.import_tasks: sub_main_msd.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: data_model_extended.vxlan.fabric.type == 'MSD'
-
-- name: Import Role Tasks for MCFG Fabric
-  ansible.builtin.import_tasks: sub_main_mcfg.yml
-  tags: "{{ nac_tags.common_role }}" # Tags defined in roles/common_global/vars/main.yml
-  when: data_model_extended.vxlan.fabric.type == 'MCFG'
-
-- name: Import Role Tasks for External Fabric
-  ansible.builtin.import_tasks: sub_main_external.yml
-  tags: "{{ nac_tags.common_role }}"
-  when: data_model_extended.vxlan.fabric.type == 'External'
-
-- name: Retrieve Flag Values
-  cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
-    role_path: "{{ common_role_path }}"
-    operation: get
-  tags: "{{ nac_tags.common_role }}"
-  register: change_flag_result
   delegate_to: localhost
 
 - name: Store Change Flags For Use In Subsequent Roles
   ansible.builtin.set_fact:
-    change_flags: "{{ change_flag_result['flags'] }}"
+    change_flags: "{{ build_result.change_flags }}"
   tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost
 
-- name: Display Flag Values
-  cisco.nac_dc_vxlan.common.change_flag_manager:
-    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
-    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
-    role_path: "{{ common_role_path }}"
-    operation: display
+- name: Store Diff Results For Use In Subsequent Roles
+  ansible.builtin.set_fact:
+    diff_results: "{{ build_result.diff_results }}"
   tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost
+
+- name: Display Change Flag Values
+  ansible.builtin.debug:
+    msg: "Change flags: {{ change_flags }}"
+    verbosity: 1
+  tags: "{{ nac_tags.common_role }}"
+
+# - meta: end_play

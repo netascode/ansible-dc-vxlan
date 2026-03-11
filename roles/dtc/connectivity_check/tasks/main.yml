@@ -62,3 +62,11 @@
   ansible.builtin.set_fact:
     ndfc_version: "{{ ndfc_version.response.DATA.version }}"
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
+
+# ── Phase 2: Centralized Controller State Discovery (Recommendation #3) ──────
+# Queries fabric switches, multisite associations, and fabric existence once.
+# Sets facts consumed by common, create, and remove roles downstream.
+- name: Centralized Controller State Discovery
+  ansible.builtin.import_tasks: controller_discovery.yml
+  tags: "{{ nac_tags.connectivity_check }}"
+  when: data_model_extended is defined and data_model_extended.vxlan.fabric.name is defined

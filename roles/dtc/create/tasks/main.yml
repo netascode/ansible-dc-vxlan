@@ -19,39 +19,40 @@
 #
 # SPDX-License-Identifier: MIT
 
+# ─────────────────────────────────────────────────────────────────────────────
+# v2 Consolidated Create Role — Replaces per-fabric sub_main_*.yml files
+#
+# Uses the manage_resources action plugin with:
+#   - Recommendation #7: Explicit run_map_diff_run parameter passed from
+#     run_map_read_result.diff_run instead of relying on cleanup cascade
+#   - Recommendation #4: vPC peering handled via _vpc_peering_pipeline
+#     internal method (3-step sub-pipeline)
+#
+# The manage_resources plugin reads create_pipelines.yml to determine the
+# ordered pipeline for the given fabric type.
+# ─────────────────────────────────────────────────────────────────────────────
+
 ---
 
-- name: Import iBGP VXLAN Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_vxlan.yml
-  when:
-    - data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN'
-    - change_flags.changes_detected_any
+- name: Execute Consolidated Create Pipeline
+  cisco.nac_dc_vxlan.dtc.manage_resources:
+    fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    data_model: "{{ data_model_extended }}"
+    resource_data: "{{ resource_data }}"
+    change_flags: "{{ change_flags }}"
+    nd_version: "{{ nd_version | default('') }}"
+    run_map_diff_run: "{{ run_map_read_result.diff_run }}"
+    force_run_all: "{{ force_run_all | default(false) }}"
+  register: create_result
+  when: change_flags.changes_detected_any
+  tags: "{{ nac_tags.create }}"
 
-- name: Import eBGP VXLAN Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
-  when:
-    - data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
-    - change_flags.changes_detected_any
-
-- name: Import ISN Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_isn.yml
-  when:
-    - data_model_extended.vxlan.fabric.type == 'ISN'
-    - change_flags.changes_detected_any
-
-- name: Import MSD Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_msd.yml
-  when: data_model_extended.vxlan.fabric.type == 'MSD'
-
-- name: Import MCFG Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_mcfg.yml
-  when: data_model_extended.vxlan.fabric.type == 'MCFG'
-
-- name: Import External Fabric Role Tasks
-  ansible.builtin.import_tasks: sub_main_external.yml
-  when:
-    - data_model_extended.vxlan.fabric.type == 'External'
-    - change_flags.changes_detected_any
+- name: Display Create Pipeline Summary
+  ansible.builtin.debug:
+    msg: "{{ create_result.msg | default('No changes required') }}"
+    verbosity: 1
+  tags: "{{ nac_tags.create }}"
 
 - name: Mark Stage Role Create Completed
   cisco.nac_dc_vxlan.common.run_map:
@@ -59,3 +60,6 @@
     stage: role_create_completed
   register: run_map
   delegate_to: localhost
+  tags: "{{ nac_tags.create }}"
+
+- meta: end_play

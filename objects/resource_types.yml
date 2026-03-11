@@ -1,0 +1,381 @@
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Resource Types — Template→Render→Diff→Flag pipeline config
+#
+# Consumed by: build_resource_data.py
+#
+# Each entry defines the full pipeline for one NDFC resource type:
+#   - template:       Jinja2 template file to render (relative to role templates dir)
+#   - output_file:    Rendered output filename
+#   - var_name:       Variable name for the rendered data (defaults to resource key)
+#   - change_flag:    Flag to set on change (null = no flag)
+#   - diff_compare:   Whether structural diff is needed for targeted create/remove
+#   - fabric_types:   Which fabric types this resource applies to
+#   - pre_hooks:      (optional) Hooks before rendering
+#   - post_hooks:     (optional) Hooks after rendering. If a hook returns
+#                       'module_data' in its result, that becomes the
+#                       authoritative data for downstream NDFC modules
+# ══════════════════════════════════════════════════════════════════════════════
+---
+
+resource_types:
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Fabric & Inventory
+  # ────────────────────────────────────────────────────────────────────────────
+
+  fabric:
+    template: ndfc_fabric.j2
+    output_file: ndfc_fabric.yml
+    var_name: fabric_config
+    change_flag: changes_detected_fabric
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - MSD
+      - MCFG
+      - External
+
+  child_fabrics:
+    template: null
+    output_file: null
+    change_flag: null
+    diff_compare: false
+    fabric_types:
+      - MSD
+
+  inventory:
+    template: ndfc_inventory.j2
+    output_file: ndfc_inventory.yml
+    var_name: inv_config
+    change_flag: changes_detected_inventory
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+    pre_hooks:
+      - get_poap_data
+    post_hooks:
+      - get_credentials
+
+  inventory_no_bootstrap:
+    template: ndfc_inventory_no_bootstrap.j2
+    output_file: ndfc_inventory_no_bootstrap.yml
+    var_name: updated_inv_config_no_bootstrap
+    change_flag: changes_detected_inventory
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+    post_hooks:
+      - get_credentials
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # VPC
+  # ────────────────────────────────────────────────────────────────────────────
+
+  vpc_domain_id_resource:
+    template: ndfc_vpc/ndfc_vpc_domain_id_resource.j2
+    output_file: ndfc_vpc_domain_id_resource.yml
+    change_flag: changes_detected_vpc_domain_id_resource
+    diff_compare: true
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+
+  vpc_fabric_peering_links:
+    template: ndfc_vpc/ndfc_vpc_fabric_peering_links.j2
+    output_file: ndfc_link_vpc_peering.yml
+    var_name: link_vpc_peering
+    change_flag: changes_detected_vpc_peering
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+
+  vpc_peering:
+    template: ndfc_vpc/ndfc_vpc_peering_pairs.j2
+    output_file: ndfc_vpc_peering.yml
+    change_flag: changes_detected_vpc_peering
+    diff_compare: true
+    template_overrides:
+      External: ndfc_vpc/ndfc_vpc_peering_pairs_external.j2
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - External
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Overlay
+  # ────────────────────────────────────────────────────────────────────────────
+
+  vrfs:
+    template: ndfc_attach_vrfs.j2
+    output_file: ndfc_attach_vrfs.yml
+    var_name: vrf_config
+    change_flag: changes_detected_vrfs
+    diff_compare: true
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+
+  vrf_loopback_attach:
+    template: ndfc_vrfs/dc_vxlan_fabric/dc_vxlan_fabric_attach_vrfs_loopbacks.j2
+    output_file: attach_vrfs_loopbacks.yml
+    var_name: vrf_attach_config
+    change_flag: null
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+
+  networks:
+    template: ndfc_attach_networks.j2
+    output_file: ndfc_attach_networks.yml
+    var_name: net_config
+    change_flag: changes_detected_networks
+    diff_compare: true
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Interfaces (12 types)
+  # ────────────────────────────────────────────────────────────────────────────
+
+  interface_breakout:
+    template: ndfc_interfaces/ndfc_interface_breakout.j2
+    output_file: ndfc_interface_breakout.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_breakout_preprov:
+    template: ndfc_interfaces/ndfc_interface_breakout_preprov.j2
+    output_file: ndfc_interface_breakout_preprov.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_trunk:
+    template: ndfc_interfaces/ndfc_interface_trunk.j2
+    output_file: ndfc_interface_trunk.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_routed:
+    template: ndfc_interfaces/ndfc_interface_routed.j2
+    output_file: ndfc_interface_routed.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  sub_interface_routed:
+    template: ndfc_interfaces/ndfc_sub_interface_routed.j2
+    output_file: ndfc_sub_interface_routed.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_access:
+    template: ndfc_interfaces/ndfc_interface_access.j2
+    output_file: ndfc_interface_access.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_trunk_po:
+    template: ndfc_interfaces/ndfc_interface_trunk_po.j2
+    output_file: ndfc_interface_trunk_po.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_access_po:
+    template: ndfc_interfaces/ndfc_interface_access_po.j2
+    output_file: ndfc_interface_access_po.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_po_routed:
+    template: ndfc_interfaces/ndfc_interface_po_routed.j2
+    output_file: ndfc_interface_po_routed.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_loopback:
+    template: ndfc_interfaces/ndfc_loopback_interfaces.j2
+    output_file: ndfc_loopback_interfaces.yml
+    var_name: int_loopback_config
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_dot1q:
+    template: ndfc_interfaces/ndfc_interface_dot1q.j2
+    output_file: ndfc_interface_dot1q.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_vpc:
+    template: ndfc_interfaces/ndfc_interface_vpc.j2
+    output_file: ndfc_interface_vpc.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_all:
+    template: null
+    output_file: ndfc_interface_all.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: true
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Policies, Links, Edge Connections
+  # ────────────────────────────────────────────────────────────────────────────
+
+  policy:
+    template: ndfc_policy.j2
+    output_file: ndfc_policy.yml
+    var_name: policy_config
+    change_flag: changes_detected_policy
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  fabric_links:
+    template: ndfc_fabric_links.j2
+    output_file: ndfc_fabric_links.yml
+    change_flag: changes_detected_fabric_links
+    diff_compare: true
+    fabric_types:
+      - VXLAN_EVPN
+
+  edge_connections:
+    template: ndfc_edge_connections.j2
+    output_file: ndfc_edge_connections.yml
+    change_flag: changes_detected_edge_connections
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - ISN
+      - External
+
+  underlay_ip_address:
+    template: ndfc_underlay_ip_address.j2
+    output_file: ndfc_underlay_ip_address.yml
+    change_flag: changes_detected_underlay_ip_address
+    diff_compare: true
+    fabric_types:
+      - VXLAN_EVPN
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # MSD-specific
+  # ────────────────────────────────────────────────────────────────────────────
+
+  bgw_anycast_vip:
+    template: ndfc_bgw_anycast_vip.j2
+    output_file: ndfc_bgw_anycast_vip.yml
+    change_flag: changes_detected_bgw_anycast_vip
+    diff_compare: false
+    fabric_types:
+      - MSD
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Validation (must be last — runs after all resources are built)
+  # ────────────────────────────────────────────────────────────────────────────
+
+  check_msd_child:
+    template: null
+    output_file: null
+    change_flag: null
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN

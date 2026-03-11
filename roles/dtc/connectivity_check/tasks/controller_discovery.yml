@@ -1,0 +1,129 @@
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Recommendation #3: Centralized Controller State Discovery
+#
+# These tasks query NDFC controller state once and set facts consumed by the
+# create, remove, and common roles. This eliminates redundant API calls that
+# were previously scattered across:
+#   - remove/tasks/sub_main_{vxlan,ebgp_vxlan,isn,external}.yml (switchesByFabric)
+#   - common/tasks/sub_main_{vxlan,ebgp_vxlan}.yml (fabric-associations)
+#   - remove/tasks/common_vxlan/networks.yml (fabric-associations)
+#
+# Facts set:
+#   - fabric_switches:          List of switch dicts from NDFC inventory
+#   - fabric_has_switches:      Boolean — whether the fabric has registered switches
+#   - is_active_child_fabric:   Boolean — whether this fabric is a child of an MSD
+#   - fabric_exists:            Boolean — whether the fabric exists in NDFC
+# ─────────────────────────────────────────────────────────────────────────────
+
+---
+
+# ── Phase 2a: Query Fabric Switches ──────────────────────────────────────────
+
+- name: Query Fabric Switches from NDFC Inventory
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: >-
+      /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{
+        data_model_extended.vxlan.fabric.name
+      }}/inventory/switchesByFabric
+  register: ndfc_fabric_switches_response
+  failed_when: false
+  tags: "{{ nac_tags.connectivity_check }}"
+
+- name: Set Fabric Switches Facts
+  ansible.builtin.set_fact:
+    fabric_switches: >-
+      {{
+        ndfc_fabric_switches_response.response.DATA
+        if (ndfc_fabric_switches_response.response.DATA is defined and
+            ndfc_fabric_switches_response.response.DATA is iterable and
+            ndfc_fabric_switches_response.response.DATA is not string)
+        else []
+      }}
+  tags: "{{ nac_tags.connectivity_check }}"
+
+- name: Set Fabric Has Switches Flag
+  ansible.builtin.set_fact:
+    fabric_has_switches: "{{ fabric_switches | length > 0 }}"
+  tags: "{{ nac_tags.connectivity_check }}"
+
+# ── Phase 2b: Query Multisite Fabric Associations ────────────────────────────
+
+- name: Query Multisite Fabric Associations from NDFC
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations
+  register: ndfc_msd_fabric_associations
+  failed_when: false
+  when: is_active_child_fabric is not defined
+  tags: "{{ nac_tags.connectivity_check }}"
+
+- name: Find Current Fabric in Multisite Associations
+  ansible.builtin.set_fact:
+    _selected_msd_fabric: >-
+      {{ ndfc_msd_fabric_associations['response']['DATA'] | json_query(json_query) }}
+  vars:
+    json_query: "[?fabricName=='{{ data_model_extended.vxlan.fabric.name }}']"
+  when:
+    - is_active_child_fabric is not defined
+    - ndfc_msd_fabric_associations is defined
+    - ndfc_msd_fabric_associations.response.DATA is defined
+  tags: "{{ nac_tags.connectivity_check }}"
+
+- name: Set Active Child Fabric Flag
+  ansible.builtin.set_fact:
+    is_active_child_fabric: >-
+      {{
+        true
+        if (_selected_msd_fabric is defined and
+            _selected_msd_fabric | length > 0 and
+            _selected_msd_fabric[0]['fabricParent'] != 'None')
+        else false
+      }}
+  when: is_active_child_fabric is not defined
+  tags: "{{ nac_tags.connectivity_check }}"
+
+# ── Phase 2c: Query Fabric Existence ─────────────────────────────────────────
+
+- name: Check Fabric Exists in NDFC
+  cisco.dcnm.dcnm_rest:
+    method: GET
+    path: >-
+      /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{{
+        data_model_extended.vxlan.fabric.name
+      }}
+  register: ndfc_fabric_info_response
+  failed_when: false
+  tags: "{{ nac_tags.connectivity_check }}"
+
+- name: Set Fabric Existence Fact
+  ansible.builtin.set_fact:
+    fabric_exists: >-
+      {{
+        true
+        if (ndfc_fabric_info_response.response.DATA is defined and
+            ndfc_fabric_info_response.response.DATA)
+        else false
+      }}
+  tags: "{{ nac_tags.connectivity_check }}"

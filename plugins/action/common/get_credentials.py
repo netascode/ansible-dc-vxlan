@@ -207,4 +207,7 @@ class ActionModule(ActionBase):
                     display.vvv(f"Using group_vars discovery credentials from model data for device {device_ip}")
 
         results['updated_inv_list'] = updated_inv_list
+        # Convention: post-hooks that produce module-ready data set 'module_data'
+        # so build_resource_data can pass it directly to downstream NDFC modules.
+        results['module_data'] = updated_inv_list
         return results
