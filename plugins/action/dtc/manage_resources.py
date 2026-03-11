@@ -180,6 +180,7 @@ class ResourceManager:
             # dcnm_fabric embeds fabric name in config, not as a top-level param
             if module == 'dcnm_fabric':
                 fabric_param = None
+            # <mt> Need to review and remove as I think this stale from Claude
             else:
                 module_config = step.get('module_config', {})
                 fabric_param = module_config.get('fabric_param', 'fabric')
@@ -310,44 +311,45 @@ class ResourceManager:
     # Internal Methods (called from pipeline via '_' prefix)
     # ══════════════════════════════════════════════════════════════════════════
 
-    def _config_save(self, resource_name, step):
-        """
-        Execute a config-save POST to NDFC.
+# Moved into _vpc_peering_pipeline wrapper
+    # def _config_save(self, resource_name, step):
+    #     """
+    #     Execute a config-save POST to NDFC.
 
-        Matches the original block/rescue pattern: treats HTTP 500 as non-fatal
-        since config-save can return 500 when there are no pending changes.
+    #     Matches the original block/rescue pattern: treats HTTP 500 as non-fatal
+    #     since config-save can return 500 when there are no pending changes.
 
-        Returns:
-            dict with result, never fails on HTTP 500.
-        """
-        path = (
-            f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
-            f"/fabrics/{self.fabric_name}/config-save"
-        )
+    #     Returns:
+    #         dict with result, never fails on HTTP 500.
+    #     """
+    #     path = (
+    #         f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
+    #         f"/fabrics/{self.fabric_name}/config-save"
+    #     )
 
-        result = self.action_module._execute_module(
-            module_name="cisco.dcnm.dcnm_rest",
-            module_args={"method": "POST", "path": path},
-            task_vars=self.task_vars,
-            tmp=self.tmp,
-        )
+    #     result = self.action_module._execute_module(
+    #         module_name="cisco.dcnm.dcnm_rest",
+    #         module_args={"method": "POST", "path": path},
+    #         task_vars=self.task_vars,
+    #         tmp=self.tmp,
+    #     )
 
-        # Treat HTTP 500 as non-fatal (matches original rescue block behavior)
-        if result.get('failed'):
-            return_code = None
-            try:
-                return_code = result.get('msg', {}).get('RETURN_CODE')
-            except (AttributeError, TypeError):
-                pass
+    #     # Treat HTTP 500 as non-fatal (matches original rescue block behavior)
+    #     if result.get('failed'):
+    #         return_code = None
+    #         try:
+    #             return_code = result.get('msg', {}).get('RETURN_CODE')
+    #         except (AttributeError, TypeError):
+    #             pass
 
-            if return_code == 500:
-                display.v(
-                    f"CREATE [{self.fabric_name}] Config-save returned HTTP 500 "
-                    f"(non-fatal — no pending changes)"
-                )
-                return {'failed': False, 'msg': 'Config-save HTTP 500 (non-fatal)'}
+    #         if return_code == 500:
+    #             display.v(
+    #                 f"CREATE [{self.fabric_name}] Config-save returned HTTP 500 "
+    #                 f"(non-fatal — no pending changes)"
+    #             )
+    #             return {'failed': False, 'msg': 'Config-save HTTP 500 (non-fatal)'}
 
-        return result
+    #     return result
 
     def _vpc_peering_pipeline(self, resource_name, step):
         """
@@ -358,6 +360,7 @@ class ResourceManager:
           1. dcnm_resource_manager — Allocate vPC domain IDs
           2. dcnm_links — Create intra-fabric peering links (src_fabric)
           3. dcnm_vpc_pair — Establish vPC pairs (src_fabric, state: replaced)
+          4. config-save - Config-save POST to NDFC
 
         Each step uses diff-aware data resolution when applicable.
 
@@ -433,6 +436,33 @@ class ResourceManager:
                     'msg': "vPC pair creation failed",
                     'sub_results': results,
                 }
+        # Step 4: Config-save
+        path = (
+            f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
+            f"/fabrics/{self.fabric_name}/config-save"
+        )
+
+        result = self.action_module._execute_module(
+            module_name="cisco.dcnm.dcnm_rest",
+            module_args={"method": "POST", "path": path},
+            task_vars=self.task_vars,
+            tmp=self.tmp,
+        )
+
+        # Treat HTTP 500 as non-fatal (matches original rescue block behavior)
+        if result.get('failed'):
+            return_code = None
+            try:
+                return_code = result.get('msg', {}).get('RETURN_CODE')
+            except (AttributeError, TypeError):
+                pass
+
+            if return_code == 500:
+                display.v(
+                    f"CREATE [{self.fabric_name}] Config-save returned HTTP 500 "
+                    f"(non-fatal — no pending changes)"
+                )
+        results['config_save'] = result
 
         return {'failed': False, 'sub_results': results}
 

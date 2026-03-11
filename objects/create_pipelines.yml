@@ -60,17 +60,18 @@ create_pipelines:
       change_flag_guard: changes_detected_inventory
       tag: cr_manage_switches
 
-  #   # vPC peering uses an internal 3-step sub-pipeline:
-  #   #   1. dcnm_resource_manager (vPC domain ID allocation)
-  #   #   2. dcnm_links (intra-fabric peering links) with src_fabric
-  #   #   3. dcnm_vpc_pair (vPC pair configuration) with src_fabric
-  #   - resource_name: vpc_peering
-  #     module: _vpc_peering_pipeline
-  #     state: null
-  #     deploy: false
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: cr_manage_vpc_peers
+    # vPC peering uses an internal 3-step sub-pipeline:
+    #   1. dcnm_resource_manager (vPC domain ID allocation)
+    #   2. dcnm_links (intra-fabric peering links) with src_fabric
+    #   3. dcnm_vpc_pair (vPC pair configuration) with src_fabric
+    - resource_name: vpc_peering
+      module: _vpc_peering_pipeline
+      state: null
+      deploy: false
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
 
+# Moved this item into the above wrapper
   #   # Config-save POST to propagate vPC changes before interface config
   #   - resource_name: null
   #     module: _config_save
