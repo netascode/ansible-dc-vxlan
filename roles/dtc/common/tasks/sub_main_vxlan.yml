@@ -81,6 +81,13 @@
   ansible.builtin.import_tasks: common/ndfc_vpc_peering_pairs.yml
 
 # ------------------------------------------------------------------------
+# Build iBGP VXLAN Fabric ToR Pairing Payloads From Template
+# ------------------------------------------------------------------------
+
+- name: Build iBGP VXLAN Fabric ToR Pairing Payloads From Template
+  ansible.builtin.import_tasks: common/ndfc_tor_pairing.yml
+
+# ------------------------------------------------------------------------
 # Build iBGP VXLAN Fabric VRFs and Attach List From Template
 # ------------------------------------------------------------------------
 
@@ -239,6 +246,7 @@
       inv_config: "{{ inv_config }}"
       link_vpc_peering: "{{ link_vpc_peering }}"
       net_config: "{{ net_config }}"
+      tor_pairing: "{{ tor_pairing }}"
       poap_data: "{{ poap_data }}"
       policy_config: "{{ policy_config }}"
       updated_inv_config: "{{ updated_inv_config }}"
@@ -252,6 +260,7 @@
       fabric_links_diff_result: "{{ fabric_links_diff_result }}"
       interface_diff_result: "{{ interface_diff_result }}"
       network_diff_result: "{{ network_diff_result }}"
+      tor_pairing_diff_result: "{{ tor_pairing_diff_result }}"
       vpc_peering_diff_result: "{{ vpc_peering_diff_result }}"
       vpc_domain_id_resource_diff_result: "{{ vpc_domain_id_resource_diff_result }}"
       vrf_diff_result: "{{ vrf_diff_result }}"

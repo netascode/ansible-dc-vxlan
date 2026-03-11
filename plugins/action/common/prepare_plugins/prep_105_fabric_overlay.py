@@ -24,6 +24,91 @@ class PreparePlugin:
         self.kwargs = kwargs
         self.keys = []
 
+    def _restructure_flat_to_nested(self, switches_list, topology_switches, tor_peers):
+        """Transform a flat switches list into the nested structure with TOR
+        entries under their parent leaf switches.
+
+        Each TOR is placed under ALL of its parent leaves that are present in the
+        attach group. If a parent leaf is not explicitly listed in the attach group,
+        a synthetic leaf entry is created automatically from topology data.
+
+        Args:
+            switches_list: List of switch dicts from network_attach_group
+            topology_switches: List of switch dicts from vxlan.topology.switches
+            tor_peers: List of tor_peers dicts from vxlan.topology.tor_peers
+
+        Returns:
+            Restructured switches list with TOR entries nested under parent leaves
+        """
+        # Build set of TOR hostnames from topology
+        tor_hostnames = {
+            sw['name'] for sw in topology_switches if sw.get("role") == "tor"
+        }
+
+        # Build TOR -> parent leaves mapping from tor_peers
+        # Each TOR maps to a list of its parent leaf hostnames
+        tor_to_parents = {}
+        for peer in tor_peers:
+            parent_leaves = []
+            if peer.get("parent_leaf1"):
+                parent_leaves.append(peer['parent_leaf1'])
+            if peer.get("parent_leaf2"):
+                parent_leaves.append(peer['parent_leaf2'])
+
+            for key in ("tor1", "tor2"):
+                tor_name = peer.get(key)
+                if tor_name:
+                    tor_to_parents[tor_name] = parent_leaves
+
+        # Build topology hostname -> switch data mapping for creating synthetic entries
+        topology_by_name = {sw['name']: sw for sw in topology_switches}
+
+        # Separate leaf entries and TOR entries
+        leaf_entries = []
+        tor_entries = []
+
+        for sw in switches_list:
+            hostname = sw.get("hostname", "")
+            if hostname in tor_hostnames:
+                tor_entries.append(sw)
+            else:
+                leaf_entries.append(sw)
+
+        # Initialize empty 'tors' list for each leaf entry
+        for leaf in leaf_entries:
+            if "tors" not in leaf:
+                leaf['tors'] = []
+
+        # Build hostname -> leaf entry mapping for quick lookup
+        leaf_by_hostname = {leaf['hostname']: leaf for leaf in leaf_entries}
+
+        # Collect all required parent leaf hostnames from TOR entries
+        # and create synthetic leaf entries for any that are not in the attach group
+        for tor_entry in tor_entries:
+            tor_hostname = tor_entry['hostname']
+            parent_leaves = tor_to_parents.get(tor_hostname, [])
+            for parent_hostname in parent_leaves:
+                if parent_hostname not in leaf_by_hostname:
+                    # Create a synthetic leaf entry from topology data
+                    synthetic_leaf = {'hostname': parent_hostname, 'tors': []}
+                    leaf_entries.append(synthetic_leaf)
+                    leaf_by_hostname[parent_hostname] = synthetic_leaf
+
+        # Assign each TOR to ALL of its parent leaves present in this attach group
+        for tor_entry in tor_entries:
+            tor_hostname = tor_entry['hostname']
+            parent_leaves = tor_to_parents.get(tor_hostname, [])
+            valid_parents = [p for p in parent_leaves if p in leaf_by_hostname]
+
+            if valid_parents:
+                for parent_hostname in valid_parents:
+                    leaf_by_hostname[parent_hostname]['tors'].append(tor_entry)
+            else:
+                # No parent leaf defined in tor_peers - keep TOR as top-level entry
+                leaf_entries.append(tor_entry)
+
+        return leaf_entries
+
     def prepare(self):
         data_model = self.kwargs['results']['model_extended']
 
@@ -32,6 +117,8 @@ class PreparePlugin:
             switches = []
         else:
             switches = data_model['vxlan']['topology']['switches']
+
+        tor_peers = data_model['vxlan'].get("topology", {}).get("tor_peers", [])
 
         if data_model['vxlan']['fabric']['type'] in ('VXLAN_EVPN', 'eBGP_VXLAN'):
             # Rebuild sm_data['vxlan']['overlay']['vrf_attach_groups'] into
@@ -65,6 +152,12 @@ class PreparePlugin:
             for grp in data_model['vxlan']['overlay']['network_attach_groups']:
                 data_model['vxlan']['overlay']['network_attach_groups_dict'][grp['name']] = []
                 net_grp_name_list.append(grp['name'])
+
+                # Restructure flat TOR entries under parent leaves
+                grp['switches'] = self._restructure_flat_to_nested(
+                    grp['switches'], switches, tor_peers
+                )
+
                 for switch in grp['switches']:
                     data_model['vxlan']['overlay']['network_attach_groups_dict'][grp['name']].append(switch)
                 # If the switch is in the switch list and a hostname is used, replace the hostname with the management IP
@@ -75,6 +168,17 @@ class PreparePlugin:
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
                         elif found_switch.get('management').get('management_ipv6_address'):
                             switch['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
+
+                    # Process nested TOR entries and resolve their management IPs
+                    if 'tors' in switch and switch['tors']:
+                        for tor in switch['tors']:
+                            tor_hostname = tor.get('hostname')
+                            if tor_hostname and any(sw['name'] == tor_hostname for sw in switches):
+                                found_tor = next((item for item in switches if item["name"] == tor_hostname))
+                                if found_tor.get('management').get('management_ipv4_address'):
+                                    tor['mgmt_ip_address'] = found_tor['management']['management_ipv4_address']
+                                elif found_tor.get('management').get('management_ipv6_address'):
+                                    tor['mgmt_ip_address'] = found_tor['management']['management_ipv6_address']
 
             # Remove network_attach_group from net if the group_name is not defined
             for net in data_model['vxlan']['overlay']['networks']:
