@@ -17,5 +17,7 @@
 {% endif %}
 {% endif %}
 {% endif %}
+  BOOTSTRAP_CONF: |
+    {{ vxlan.global.external.bootstrap.bootstrap_freeform | default("") | indent(4) }}
 {% endif %}
 {% endif %}
