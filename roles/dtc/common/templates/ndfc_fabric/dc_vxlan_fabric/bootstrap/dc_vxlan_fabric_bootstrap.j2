@@ -16,7 +16,7 @@
 {% endif %}
 {% endif %}
 {% endif %}
-{% endif %}
-{% endif %}
   BOOTSTRAP_CONF: |
-    {{ vxlan.global.ibgp.bootstrap_freeform | default("") | indent(4) }}
+    {{ vxlan.global.ibgp.bootstrap.bootstrap_freeform | default("") | indent(4) }}
+{% endif %}
+{% endif %}
