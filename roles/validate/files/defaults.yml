@@ -246,6 +246,7 @@ factory_defaults:
             enabled: true
         poap:
           bootstrap: false
+          discovery_creds: false
       vpc_peers:
         domain_id: 1
         keepalive_hold_time: 3
