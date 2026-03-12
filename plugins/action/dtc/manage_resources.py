@@ -272,14 +272,25 @@ class ResourceManager:
 
         return data
 
+    # Modules with companion action plugins that must be invoked to replicate
+    # native Ansible task execution (e.g. fabric discovery, metadata injection).
+    MODULES_WITH_ACTION_PLUGINS = frozenset({
+        'cisco.dcnm.dcnm_vrf',
+        'cisco.dcnm.dcnm_network',
+    })
+
     def _execute_ndfc_module(self, module_name, state, config, deploy=None, fabric_param='fabric'):
         """
-        Execute an NDFC Ansible module via _execute_module.
+        Execute an NDFC Ansible module.
 
         Supports configurable fabric parameter name to handle both
         standard modules (fabric:) and dcnm_vpc_pair/dcnm_links (src_fabric:).
         When fabric_param is None, no fabric parameter is added (e.g. dcnm_fabric
         embeds the fabric name inside config).
+
+        For modules with companion action plugins (dcnm_vrf, dcnm_network),
+        delegates to the action plugin via action_loader so execution matches
+        native Ansible task behavior.
 
         Args:
             module_name: Fully qualified module name.
@@ -300,12 +311,53 @@ class ResourceManager:
         if deploy is not None:
             module_args['deploy'] = deploy
 
+        if module_name in self.MODULES_WITH_ACTION_PLUGINS:
+            return self._execute_via_action_plugin(module_name, module_args)
+
         return self.action_module._execute_module(
             module_name=module_name,
             module_args=module_args,
             task_vars=self.task_vars,
             tmp=self.tmp,
         )
+
+    def _execute_via_action_plugin(self, module_name, module_args):
+        """
+        Execute an NDFC module through its companion action plugin.
+
+        Some NDFC modules (dcnm_vrf, dcnm_network) have action plugins that
+        perform fabric discovery and inject metadata before running the module.
+        Ansible's task executor invokes these automatically for native tasks.
+        This method replicates that routing for programmatic calls.
+
+        Args:
+            module_name: Fully qualified module name (e.g. 'cisco.dcnm.dcnm_vrf').
+            module_args: Dict of module arguments (fabric, state, config, etc.).
+
+        Returns:
+            Module result dict.
+        """
+        original_args = self.action_module._task.args
+        original_action = self.action_module._task.action
+
+        try:
+            self.action_module._task.args = module_args
+            self.action_module._task.action = module_name
+
+            action_plugin = self.action_module._shared_loader_obj.action_loader.get(
+                module_name,
+                task=self.action_module._task,
+                connection=self.action_module._connection,
+                play_context=self.action_module._play_context,
+                loader=self.action_module._loader,
+                templar=self.action_module._templar,
+                shared_loader_obj=self.action_module._shared_loader_obj,
+            )
+
+            return action_plugin.run(task_vars=self.task_vars, tmp=self.tmp)
+        finally:
+            self.action_module._task.args = original_args
+            self.action_module._task.action = original_action
 
     # ══════════════════════════════════════════════════════════════════════════
     # Internal Methods (called from pipeline via '_' prefix)
