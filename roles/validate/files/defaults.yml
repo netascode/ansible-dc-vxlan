@@ -251,9 +251,7 @@ factory_defaults:
         source_interface_mtu: 9216
         source_interface_enabled: true
         bgp_section:
-          bgp_password: ""
           bgp_password_enable: true
-          routing_tag: ""
     underlay:
       general:
         routing_protocol: ospf
