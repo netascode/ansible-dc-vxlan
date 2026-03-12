@@ -36,6 +36,11 @@
     enable_lacp_vpc_convergence: {{ switches[peer1].enable_lacp_vpc_convergence | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_lacp_vpc_convergence) | lower }}
     lacp_port_priority: {{ switches[peer1].lacp_port_priority | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_port_priority) }}
     lacp_rate: {{ switches[peer1].lacp_rate | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_rate) }}
+    enable_qos: {{ switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) | lower }}
+{% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) %}
+    qos_policy: {{ switches[peer1].qos_policy | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.qos_policy) }}
+    queuing_policy: {{ switches[peer1].queuing_policy | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.queuing_policy) }}
+{% endif %}
 {% if switches[peer1].mode == 'trunk' %}
     peer1_allowed_vlans: "{{ convert_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
     peer2_allowed_vlans: "{{ convert_ranges(switches[peer2].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"

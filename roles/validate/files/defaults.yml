@@ -169,17 +169,10 @@ factory_defaults:
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
+            enable_qos: false
+            qos_policy: ""
+            queuing_policy: ""
             monitor: false
-          topology_switch_dot1q_interface:
-            description: "NetAsCode Dot1q Interface"
-            mtu: jumbo
-            speed: auto
-            enabled: true
-            access_vlan: 1
-            spanning_tree_portfast: true
-            enable_bpdu_guard: true
-            duplex: auto
-            orphan_port: false
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
@@ -191,6 +184,9 @@ factory_defaults:
             duplex: auto
             orphan_port: false
             native_vlan: ""
+            enable_qos: false
+            qos_policy: ""
+            queuing_policy: ""
             monitor: false
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
@@ -208,6 +204,9 @@ factory_defaults:
             lacp_port_priority: 32768
             lacp_rate: normal
             monitor: false
+            enable_qos: false
+            qos_policy: ""
+            queuing_policy: ""
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -225,6 +224,19 @@ factory_defaults:
             lacp_port_priority: 32768
             lacp_rate: normal
             monitor: false
+            enable_qos: false
+            qos_policy: ""
+            queuing_policy: ""
+          topology_switch_dot1q_interface:
+            description: "NetAsCode Dot1q Interface"
+            mtu: jumbo
+            speed: auto
+            enabled: true
+            access_vlan: 1
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
