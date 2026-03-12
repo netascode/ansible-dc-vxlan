@@ -19,6 +19,23 @@
 #
 # SPDX-License-Identifier: MIT
 
+"""
+Fabric Deploy Manager — Consolidated deployment for all fabric types.
+
+Replaces the dtc/deploy role's per-fabric-type sub_main_*.yml files with a
+single action plugin that resolves all fabric-type-specific parameters
+internally from task_vars and data_model.
+
+Refactored for SOLID:
+  - ApiPathResolver: Strategy pattern for API path selection (OCP)
+    Resolves MCFG onemanage vs standard paths once at construction,
+    eliminating repeated if/elif branching in every method.
+  - ChildFabricChangeDetector: Extracts VRF/Network change merging (SRP)
+    Pure data logic separated from deployment orchestration.
+  - FabricDeployManager: Simplified to use ApiPathResolver — each method
+    is a single API call with no fabric-type branching.
+"""
+
 from __future__ import absolute_import, division, print_function
 
 
@@ -34,19 +51,126 @@ import re
 display = Display()
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# Multisite Fabric Types — Used for child fabric type classification
+# ═══════════════════════════════════════════════════════════════════════════
+MULTISITE_FABRIC_TYPES = ('MSD', 'MCFG')
+
+# VRF/Network response variable names per multisite fabric type
+# These are registered facts set by the create role's fabric-specific task files
+MULTISITE_RESPONSE_VARS = {
+    'MSD': {
+        'vrf_result': 'manage_msd_vrf_result',
+        'network_result': 'manage_msd_network_result',
+    },
+    'MCFG': {
+        'vrf_result': 'manage_mcfg_vrf_result',
+        'network_result': 'manage_mcfg_network_result',
+    },
+}
+
+
+class ApiPathResolver:
+    """Resolves API paths based on fabric type, eliminating per-method branching.
+
+    For MCFG child fabrics, routes through onepath (ND <=3.2.2) or fedproxy
+    (ND >=4.1.1) prefixes. For all other fabric types, uses the standard
+    NDFC LAN fabric REST base path.
+
+    This is constructed once per FabricDeployManager instance, so each
+    method can simply reference self.paths.<property> without branching.
+    """
+
+    def __init__(self, fabric_name, fabric_type, cluster_name=None, nd_version=None):
+        self._base = self._resolve_base(fabric_type, cluster_name, nd_version)
+        self.fabric_name = fabric_name
+
+    def _resolve_base(self, fabric_type, cluster_name, nd_version):
+        base = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest"
+        if fabric_type == 'MCFG_Child_Fabric' and cluster_name:
+            if version_compare(nd_version, '3.2.2', '<='):
+                return f"/onepath/{cluster_name}{base}"
+            elif version_compare(nd_version, '4.1.1', '>='):
+                return f"/fedproxy/{cluster_name}{base}"
+        return base
+
+    @property
+    def switches_by_fabric(self):
+        return f"{self._base}/control/fabrics/{self.fabric_name}/inventory/switchesByFabric"
+
+    @property
+    def config_save(self):
+        return f"{self._base}/control/fabrics/{self.fabric_name}/config-save"
+
+    @property
+    def config_deploy(self):
+        return f"{self._base}/control/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false"
+
+    @property
+    def fabric_history(self):
+        return (
+            f"{self._base}/config/delivery/deployerHistoryByFabric/"
+            f"{self.fabric_name}?sort=completedTime%3ADES&limit=5"
+        )
+
+
+class ChildFabricChangeDetector:
+    """Determines which child fabrics need deployment based on VRF/Network changes.
+
+    Handles the merge-and-deduplicate logic for VRF and Network response data
+    from the create role, producing a list of child fabrics that need deployment.
+
+    If force_run_all is True or run_map_diff_run is False, all child fabrics
+    are returned (full reconciliation). Otherwise, only child fabrics with
+    detected VRF or Network changes are returned.
+    """
+
+    @staticmethod
+    def detect(force_run_all, run_map_diff_run, child_fabrics, vrf_response_data, network_response_data):
+        """Return list of child fabrics requiring deployment."""
+        if force_run_all or not run_map_diff_run:
+            return child_fabrics
+        return ChildFabricChangeDetector._merge_changes(vrf_response_data, network_response_data)
+
+    @staticmethod
+    def _merge_changes(vrf_response_data, network_response_data):
+        """Merge VRF and Network change data, deduplicating by fabric name."""
+        vrf_changed = []
+        if vrf_response_data and isinstance(vrf_response_data, dict):
+            if vrf_response_data.get('child_fabrics'):
+                vrf_changed = [
+                    {'name': item['fabric'], 'cluster': item.get('cluster')}
+                    for item in vrf_response_data['child_fabrics']
+                    if item.get('changed')
+                ]
+
+        vrf_names = {f['name'] for f in vrf_changed}
+
+        network_changed = []
+        if network_response_data and isinstance(network_response_data, dict):
+            if network_response_data.get('child_fabrics'):
+                network_changed = [
+                    {'name': item['fabric_name'], 'cluster': item.get('cluster_name')}
+                    for item in network_response_data['child_fabrics']
+                    if item.get('changed') and item['fabric_name'] not in vrf_names
+                ]
+
+        return vrf_changed + network_changed
+
+
 class FabricDeployManager:
-    """Manages fabric deployment tasks."""
+    """Manages fabric deployment operations via NDFC REST API.
+
+    Uses ApiPathResolver to select the correct API paths at construction,
+    so each public method is a single API call with no fabric-type branching.
+    """
 
     def __init__(self, params):
         self.class_name = self.__class__.__name__
-        method_name = inspect.stack()[0][3]
 
         # Fabric Parameters
         self.fabric_name = params['fabric_name']
         self.fabric_type = params['fabric_type']
-        self.fabric_cluster_name = params.get('cluster_name', None)
-
-        self.nd_version = params.get('nd_major_minor_patch', None)
 
         # Module Execution Parameters
         self.task_vars = params['task_vars']
@@ -54,31 +178,13 @@ class FabricDeployManager:
         self.action_module = params['action_module']
         self.module_name = "cisco.dcnm.dcnm_rest"
 
-        # Module API Paths
-        base_path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest"
-
-        if (
-            self.fabric_type == 'MCFG_Child_Fabric' and
-            self.fabric_cluster_name and
-            version_compare(self.nd_version, '3.2.2', '<=')
-        ):
-            base_path = f"/onepath/{self.fabric_cluster_name}{base_path}"
-        elif (
-            self.fabric_type == 'MCFG_Child_Fabric' and
-            self.fabric_cluster_name and
-            version_compare(self.nd_version, '4.1.1', '>=')
-        ):
-            base_path = f"/fedproxy/{self.fabric_cluster_name}{base_path}"
-
-        self.api_paths = {
-            "get_switches_by_fabric": f"{base_path}/control/fabrics/{self.fabric_name}/inventory/switchesByFabric",
-            "config_save": f"{base_path}/control/fabrics/{self.fabric_name}/config-save",
-            "config_deploy": f"{base_path}/control/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false",
-            "fabric_history": f"{base_path}/config/delivery/deployerHistoryByFabric/{self.fabric_name}?sort=completedTime%3ADES&limit=5",
-            "onemanage_get_switches_by_fabric": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/inventory/switchesByFabric",
-            "onemanage_config_save": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/config-save",
-            "onemanage_config_deploy": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false",
-        }
+        # API Path Resolution (Strategy Pattern)
+        self.paths = ApiPathResolver(
+            fabric_name=self.fabric_name,
+            fabric_type=self.fabric_type,
+            cluster_name=params.get('cluster_name'),
+            nd_version=params.get('nd_major_minor_patch'),
+        )
 
         # Fabric State Booleans
         self.fabric_in_sync = True
@@ -94,15 +200,11 @@ class FabricDeployManager:
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
         self.fabric_in_sync = True
-
-        if self.fabric_type not in ['MCFG']:
-            response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
-        elif self.fabric_type in ['MCFG']:
-            response = self._send_request("GET", self.api_paths["onemanage_get_switches_by_fabric"])
+        response = self._send_request("GET", self.paths.switches_by_fabric)
 
         # For non-Multisite fabrics, retry up to 5 times if out-of-sync
         # Exclude Multisite parent fabrics (MSD or MCFG) as they are dependent on child fabrics being in sync
-        if self.fabric_type not in ['MSD', 'MCFG']:
+        if self.fabric_type not in MULTISITE_FABRIC_TYPES:
             for attempt in range(5):
                 self._fabric_check_sync_helper(response)
                 if self.fabric_in_sync:
@@ -113,7 +215,7 @@ class FabricDeployManager:
                     display.warning(f"Fabric {self.fabric_name} is out of sync. Attempt {attempt + 1}/5. Sleeping 2 seconds before retry.")
                     sleep(2)
                     self.fabric_in_sync = True
-                    response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
+                    response = self._send_request("GET", self.paths.switches_by_fabric)
 
         display.banner(f">>>> Fabric: ({self.fabric_name}) Type: ({self.fabric_type}) in sync: {self.fabric_in_sync}")
         display.banner(">>>>")
@@ -132,14 +234,8 @@ class FabricDeployManager:
         method_name = inspect.stack()[0][3]
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
-        if self.fabric_type not in ['MCFG']:
-            response = self._send_request("POST", self.api_paths["config_save"])
-        elif self.fabric_type in ['MCFG']:
-            response = self._send_request("POST", self.api_paths["onemanage_config_save"])
-
-        if response.get('RETURN_CODE') == 200:
-            pass
-        else:
+        response = self._send_request("POST", self.paths.config_save)
+        if response.get('RETURN_CODE') != 200:
             self.fabric_save_succeeded = False
             display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
 
@@ -148,14 +244,8 @@ class FabricDeployManager:
         method_name = inspect.stack()[0][3]
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
-        if self.fabric_type not in ['MCFG']:
-            response = self._send_request("POST", self.api_paths["config_deploy"])
-        elif self.fabric_type in ['MCFG']:
-            response = self._send_request("POST", self.api_paths["onemanage_config_deploy"])
-
-        if response.get('RETURN_CODE') == 200:
-            pass
-        else:
+        response = self._send_request("POST", self.paths.config_deploy)
+        if response.get('RETURN_CODE') != 200:
             self.fabric_deploy_succeeded = False
             display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
 
@@ -164,10 +254,8 @@ class FabricDeployManager:
         method_name = inspect.stack()[0][3]
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
-        response = self._send_request("GET", self.api_paths["fabric_history"])
-        if response.get('RETURN_CODE') == 200:
-            pass
-        else:
+        response = self._send_request("GET", self.paths.fabric_history)
+        if response.get('RETURN_CODE') != 200:
             display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
 
         # Get last 2 history entries
@@ -219,38 +307,83 @@ class ActionModule(ActionBase):
         if results.get('failed'):
             return results
 
-        if params['fabric_type'] in ['MSD', 'MCFG']:
+        if params['fabric_type'] in MULTISITE_FABRIC_TYPES:
             # Manage Deployment For Child Fabrics if Multisite (MSD or MCFG)
-            # Child Fabrics are only deployed if there are VRF or Network changes detected by passing in the response data from those tasks
-            # If force_run_all is set to True or run_map_diff_run is set to False, all child fabrics will be deployed regardless of change detection
+            # Child fabrics are only deployed if there are VRF or Network changes
+            # detected. If force_run_all is True or run_map_diff_run is False,
+            # all child fabrics will be deployed regardless of change detection.
 
-            if params['fabric_type'] == 'MCFG':
-
-                nd_version = self._task.args["nd_version"]
-
-                # Extract major, minor, patch and patch letter from nd_version
-                # that is set in nac_dc_vxlan.dtc.connectivity_check role
-                # Example nd_version: "3.1.1l" or "3.2.2m"
-                # where 3.1.1/3.2.2 are major.minor.patch respectively
-                # and l/m are the patch letter respectively
-                nd_major_minor_patch = None
-                nd_patch_letter = None
-                match = re.match(r'^(\d+\.\d+\.\d+)([a-z])?$', nd_version)
-                if match:
-                    nd_major_minor_patch = match.group(1)
-                    nd_patch_letter = match.group(2)
-
-                params['nd_major_minor_patch'] = nd_major_minor_patch
-
-            params['force_run_all'] = self._task.args.get("force_run_all", False)
-            params['run_map_diff_run'] = self._task.args.get("run_map_diff_run", True)
-            params['dm_child_fabrics'] = self._task.args.get("data_model_child_fabrics")
-            params['vrf_response_data'] = self._task.args.get("vrf_response_data", False)
-            params['network_response_data'] = self._task.args.get("network_response_data", False)
-
-            results = self.process_child_fabric_changes(results, params)
+            # Resolve multisite parameters from data_model and task_vars
+            results = self._resolve_and_process_child_fabrics(results, params)
             if results.get('failed'):
                 return results
+
+        return results
+
+    def _resolve_and_process_child_fabrics(self, results, params):
+        """Resolve multisite parameters from data_model/task_vars and process child fabrics."""
+        fabric_type = params['fabric_type']
+
+        # Resolve data_model from task args (consolidated entry point)
+        # or fall back to individual args (legacy sub_main compatibility)
+        data_model = self._task.args.get("data_model")
+
+        if data_model:
+            # Consolidated path: resolve from data_model
+            child_fabrics = data_model.get('vxlan', {}).get('multisite', {}).get('child_fabrics', [])
+        else:
+            # Legacy path: passed directly as task arg
+            child_fabrics = self._task.args.get("data_model_child_fabrics", [])
+
+        if not child_fabrics:
+            return results
+
+        # Resolve VRF/Network response data from task_vars (registered facts from create role)
+        response_vars = MULTISITE_RESPONSE_VARS.get(fabric_type, {})
+        vrf_response_data = params['task_vars'].get(response_vars.get('vrf_result', ''), [])
+        network_response_data = params['task_vars'].get(response_vars.get('network_result', ''), [])
+
+        # Resolve force_run_all and run_map_diff_run
+        force_run_all = self._task.args.get("force_run_all", False)
+        run_map_diff_run = self._task.args.get("run_map_diff_run", True)
+
+        # MCFG requires ND version for API path routing
+        nd_major_minor_patch = None
+        if fabric_type == 'MCFG':
+            nd_version = self._task.args.get("nd_version", "")
+            match = re.match(r'^(\d+\.\d+\.\d+)([a-z])?$', nd_version)
+            if match:
+                nd_major_minor_patch = match.group(1)
+
+            if nd_major_minor_patch is None:
+                results['failed'] = True
+                results['msg'] = "Missing or invalid 'nd_version' parameter required for MCFG fabric deployment"
+                return results
+
+        params['nd_major_minor_patch'] = nd_major_minor_patch
+
+        # Detect which child fabrics need deployment
+        changed_fabrics = ChildFabricChangeDetector.detect(
+            force_run_all=force_run_all,
+            run_map_diff_run=run_map_diff_run,
+            child_fabrics=child_fabrics,
+            vrf_response_data=vrf_response_data,
+            network_response_data=network_response_data,
+        )
+
+        # Deploy changed child fabrics
+        if changed_fabrics:
+            child_fabric_type = f"{fabric_type}_Child_Fabric"
+
+            for changed_fabric in changed_fabrics:
+                params['fabric_name'] = changed_fabric['name']
+                params['fabric_type'] = child_fabric_type
+                params['cluster_name'] = changed_fabric.get('cluster', None)
+                display.banner(f"Processing Child Fabric: {params['fabric_name']} Cluster: {params['cluster_name']}")
+
+                results = self.manage_fabrics(results, params)
+                if results.get('failed'):
+                    return results
 
         return results
 
@@ -278,7 +411,7 @@ class ActionModule(ActionBase):
 
             # For non-Multisite fabrics, check fabric history and retry deployment if out-of-sync
             # Multisite parent fabrics (MSD or MCFG) are excluded as they are dependent on child fabrics being in sync
-            if not fabric_manager.fabric_in_sync and params['fabric_type'] not in ['MSD', 'MCFG']:
+            if not fabric_manager.fabric_in_sync and params['fabric_type'] not in MULTISITE_FABRIC_TYPES:
                 # If the fabric is out of sync after deployment try one more time before giving up
                 fabric_manager.fabric_history_get()
                 display.warning(fabric_manager.fabric_history)
@@ -287,7 +420,7 @@ class ActionModule(ActionBase):
                 fabric_manager.fabric_deploy()
                 fabric_manager.fabric_check_sync()
 
-            if not fabric_manager.fabric_in_sync and params['fabric_type'] not in ['MSD', 'MCFG']:
+            if not fabric_manager.fabric_in_sync and params['fabric_type'] not in MULTISITE_FABRIC_TYPES:
                 fabric_manager.fabric_history_get()
                 results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync after deployment."
                 results['fabric_history'] = fabric_manager.fabric_history
@@ -312,93 +445,3 @@ class ActionModule(ActionBase):
                 results['failed'] = True
 
         return results
-
-    def process_child_fabric_changes(self, results, params):
-        """Process child fabric changes for Multisite (MSD or MCFG) deployments."""
-
-        for key in ['fabric_type', 'run_map_diff_run', 'force_run_all', 'dm_child_fabrics', 'vrf_response_data', 'network_response_data']:
-            if params[key] is None:
-                results['failed'] = True
-                results['msg'] = f"Missing required parameter '{key}'"
-                return results
-
-        parent_fabric_type = params['fabric_type']
-
-        if parent_fabric_type == 'MCFG' and params['nd_major_minor_patch'] is None:
-            results['failed'] = True
-            results['msg'] = f"Missing required parameter '{key}'"
-            return results
-
-        changed_fabrics = []
-        if params['force_run_all'] or not params['run_map_diff_run']:
-            # Process all child fabrics
-            changed_fabrics = params['dm_child_fabrics']
-        else:
-            # Process child fabric changes for VRFs and Networks
-            changed_fabrics = self._process_child_fabric_changes(params)
-
-        # Manage child fabric deployments based on force_run_all/run_map_diff_run or detected changes in VRFs or Networks
-        if changed_fabrics:
-            if parent_fabric_type == 'MSD':
-                params['fabric_type'] = "MSD_Child_Fabric"
-            elif parent_fabric_type == 'MCFG':
-                params['fabric_type'] = "MCFG_Child_Fabric"
-
-            for changed_fabric in changed_fabrics:
-                params['fabric_name'] = changed_fabric['name']
-                params['cluster_name'] = changed_fabric.get('cluster', None)
-                display.banner(f"Processing Child Fabric: {params['fabric_name']} Cluster: {params['cluster_name']}")
-
-                results = self.manage_fabrics(results, params)
-                if results.get('failed'):
-                    return results
-
-        return results
-
-    def _process_child_fabric_changes(self, params):
-        """Helper for processing child fabric changes for Multisite (MSD or MCFG) deployments."""
-        vrf_response_data = params['vrf_response_data']
-        network_response_data = params['network_response_data']
-
-        vrf_changed_fabrics = []
-        network_changed_fabrics = []
-
-        # Process VRF Changes
-        if vrf_response_data:
-            if vrf_response_data.get('child_fabrics'):
-                child_fabric_vrf_data = vrf_response_data['child_fabrics']
-
-                # As part of VRF changes detected, get list of changed fabrics
-                vrf_changed_fabrics = [
-                    {
-                        'name': item['fabric'],
-                        'cluster': item.get('cluster')
-                    }
-                    for item in child_fabric_vrf_data
-                    if item.get('changed')
-                ]
-
-        # Process Network Changes
-        if network_response_data:
-            if network_response_data.get('child_fabrics'):
-                child_fabric_network_data = network_response_data['child_fabrics']
-
-                # As part of Network changes detected, exclude fabrics that have already been marked as changed due to VRF changes
-                network_changed_fabrics = [
-                    {
-                        'name': item['fabric_name'],
-                        'cluster': item.get('cluster_name')
-                    }
-                    for item in child_fabric_network_data
-                    if item.get('changed') and item['fabric_name'] not in vrf_changed_fabrics
-                ]
-
-        merged_fabric_changes = vrf_changed_fabrics + [
-            network_changed_fabric
-            for network_changed_fabric in network_changed_fabrics
-            if network_changed_fabric['name'] not in {
-                network_changed_fabric['name'] for network_changed_fabric in vrf_changed_fabrics
-            }
-        ]
-
-        return merged_fabric_changes
