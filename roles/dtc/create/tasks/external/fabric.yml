@@ -35,7 +35,7 @@
   register: get_result
   failed_when: false
 
-- name: Manage Fabric Fabric in Nexus Dashboard (Custom)
+- name: Manage Fabric in Nexus Dashboard (Custom)
   when:
     - get_result.response.DATA is defined
     - get_result.response.DATA
