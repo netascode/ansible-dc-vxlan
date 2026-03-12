@@ -466,59 +466,60 @@ class ResourceManager:
 
         return {'failed': False, 'sub_results': results}
 
-    def _vrfs_networks_pipeline(self, resource_name, step):
-        """
-        Create VRFs first, then Networks (dependency ordering).
-
-        VRFs must exist before networks can reference them.
-        Both use diff-aware data resolution when applicable.
-
-        Returns:
-            dict with sub-step results, 'failed' flag.
-        """
-        results = {}
-
-        # VRFs first
-        vrf_data = self._resolve_create_data('vrfs')
-        if vrf_data:
-            display.v(
-                f"CREATE [{self.fabric_name}] VRFs+Networks sub-pipeline: "
-                f"dcnm_vrf (VRFs), items={len(vrf_data)}"
-            )
-            result = self._execute_ndfc_module(
-                module_name="cisco.dcnm.dcnm_vrf",
-                state="replaced",
-                config=vrf_data,
-            )
-            results['vrfs'] = result
-            if result.get('failed'):
-                return {
-                    'failed': True,
-                    'msg': "VRF creation failed",
-                    'sub_results': results,
-                }
-
-        # Networks second
-        net_data = self._resolve_create_data('networks')
-        if net_data:
-            display.v(
-                f"CREATE [{self.fabric_name}] VRFs+Networks sub-pipeline: "
-                f"dcnm_network (Networks), items={len(net_data)}"
-            )
-            result = self._execute_ndfc_module(
-                module_name="cisco.dcnm.dcnm_network",
-                state="replaced",
-                config=net_data,
-            )
-            results['networks'] = result
-            if result.get('failed'):
-                return {
-                    'failed': True,
-                    'msg': "Network creation failed",
-                    'sub_results': results,
-                }
-
-        return {'failed': False, 'sub_results': results}
+# Split vrfs and networks in create_pipeline.yml
+    # def _vrfs_networks_pipeline(self, resource_name, step):
+    #     """
+    #     Create VRFs first, then Networks (dependency ordering).
+    #
+    #     VRFs must exist before networks can reference them.
+    #     Both use diff-aware data resolution when applicable.
+    #
+    #     Returns:
+    #         dict with sub-step results, 'failed' flag.
+    #     """
+    #     results = {}
+    #
+    #     # VRFs first
+    #     vrf_data = self._resolve_create_data('vrfs')
+    #     if vrf_data:
+    #         display.v(
+    #             f"CREATE [{self.fabric_name}] VRFs+Networks sub-pipeline: "
+    #             f"dcnm_vrf (VRFs), items={len(vrf_data)}"
+    #         )
+    #         result = self._execute_ndfc_module(
+    #             module_name="cisco.dcnm.dcnm_vrf",
+    #             state="replaced",
+    #             config=vrf_data,
+    #         )
+    #         results['vrfs'] = result
+    #         if result.get('failed'):
+    #             return {
+    #                 'failed': True,
+    #                 'msg': "VRF creation failed",
+    #                 'sub_results': results,
+    #             }
+    #
+    #     # Networks second
+    #     net_data = self._resolve_create_data('networks')
+    #     if net_data:
+    #         display.v(
+    #             f"CREATE [{self.fabric_name}] VRFs+Networks sub-pipeline: "
+    #             f"dcnm_network (Networks), items={len(net_data)}"
+    #         )
+    #         result = self._execute_ndfc_module(
+    #             module_name="cisco.dcnm.dcnm_network",
+    #             state="replaced",
+    #             config=net_data,
+    #         )
+    #         results['networks'] = result
+    #         if result.get('failed'):
+    #             return {
+    #                 'failed': True,
+    #                 'msg': "Network creation failed",
+    #                 'sub_results': results,
+    #             }
+    #
+    #     return {'failed': False, 'sub_results': results}
 
     def _prepare_msite_data(self, resource_name, step):
         """

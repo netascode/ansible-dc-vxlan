@@ -94,13 +94,17 @@ create_pipelines:
   #     change_flag_guard: changes_detected_edge_connections
   #     tag: cr_manage_edge_connections
 
-  #   # VRFs and Networks use an internal sub-pipeline for dependency ordering
-  #   - resource_name: null
-  #     module: _vrfs_networks_pipeline
-  #     state: null
-  #     deploy: false
-  #     change_flag_guard: changes_detected_vrfs
-  #     tag: cr_manage_vrfs_networks
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: replaced
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
+
+    - resource_name: networks
+      module: dcnm_network
+      state: replaced
+      change_flag_guard: changes_detected_networks
+      tag: cr_manage_networks
 
   #   - resource_name: fabric_links
   #     module: dcnm_links
@@ -155,12 +159,17 @@ create_pipelines:
   #     change_flag_guard: changes_detected_interfaces
   #     tag: cr_manage_interfaces
 
-  #   - resource_name: null
-  #     module: _vrfs_networks_pipeline
-  #     state: null
-  #     deploy: false
+  #   - resource_name: vrfs
+  #     module: dcnm_vrf
+  #     state: replaced
   #     change_flag_guard: changes_detected_vrfs
-  #     tag: cr_manage_vrfs_networks
+  #     tag: cr_manage_vrfs
+
+  #   - resource_name: networks
+  #     module: dcnm_network
+  #     state: replaced
+  #     change_flag_guard: changes_detected_networks
+  #     tag: cr_manage_networks
 
   #   - resource_name: policy
   #     module: dcnm_policy
@@ -286,12 +295,17 @@ create_pipelines:
   #     change_flag_guard: changes_detected_bgw_anycast_vip
   #     tag: cr_manage_vrfs_networks
 
-  #   - resource_name: null
-  #     module: _vrfs_networks_pipeline
-  #     state: null
-  #     deploy: false
-  #     change_flag_guard: null
-  #     tag: cr_manage_vrfs_networks
+  #   - resource_name: vrfs
+  #     module: dcnm_vrf
+  #     state: replaced
+  #     change_flag_guard: changes_detected_vrfs
+  #     tag: cr_manage_vrfs
+
+  #   - resource_name: networks
+  #     module: dcnm_network
+  #     state: replaced
+  #     change_flag_guard: changes_detected_networks
+  #     tag: cr_manage_networks
 
   # # ──────────────────────────────────────────────────────────────────────────
   # # MCFG — Similar to MSD but no BGW anycast VIP
@@ -318,9 +332,14 @@ create_pipelines:
   #     change_flag_guard: null
   #     tag: cr_manage_vrfs_networks
 
-  #   - resource_name: null
-  #     module: _vrfs_networks_pipeline
-  #     state: null
-  #     deploy: false
-  #     change_flag_guard: null
-  #     tag: cr_manage_vrfs_networks
+  #   - resource_name: vrfs
+  #     module: dcnm_vrf
+  #     state: replaced
+  #     change_flag_guard: changes_detected_vrfs
+  #     tag: cr_manage_vrfs
+
+  #   - resource_name: networks
+  #     module: dcnm_network
+  #     state: replaced
+  #     change_flag_guard: changes_detected_networks
+  #     tag: cr_manage_networks
