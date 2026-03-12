@@ -97,12 +97,14 @@ create_pipelines:
     - resource_name: vrfs
       module: dcnm_vrf
       state: replaced
+      deploy: false
       change_flag_guard: changes_detected_vrfs
       tag: cr_manage_vrfs
 
     - resource_name: networks
       module: dcnm_network
       state: replaced
+      deploy: false
       change_flag_guard: changes_detected_networks
       tag: cr_manage_networks
 
