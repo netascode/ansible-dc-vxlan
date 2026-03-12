@@ -80,12 +80,12 @@ create_pipelines:
   #     change_flag_guard: changes_detected_vpc_peering
   #     tag: null
 
-  #   - resource_name: interface_all
-  #     module: dcnm_interface
-  #     state: merged
-  #     deploy: false
-  #     change_flag_guard: changes_detected_interfaces
-  #     tag: cr_manage_interfaces
+    - resource_name: interface_all
+      module: dcnm_interface
+      state: merged
+      deploy: false
+      change_flag_guard: changes_detected_interfaces
+      tag: cr_manage_interfaces
 
   #   - resource_name: edge_connections
   #     module: dcnm_links
@@ -115,12 +115,12 @@ create_pipelines:
   #     change_flag_guard: changes_detected_fabric_links
   #     tag: cr_manage_links
 
-  #   - resource_name: policy
-  #     module: dcnm_policy
-  #     state: merged
-  #     deploy: false
-  #     change_flag_guard: changes_detected_policy
-  #     tag: cr_manage_policy
+    - resource_name: policy
+      module: dcnm_policy
+      state: merged
+      deploy: false
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
 
   # # ──────────────────────────────────────────────────────────────────────────
   # # eBGP_VXLAN — Similar to VXLAN_EVPN but no edge connections or links
