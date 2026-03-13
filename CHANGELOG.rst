@@ -8,6 +8,63 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.7.0`_
+=====================
+
+**Release Date:** ``2026-03-13``
+
+Added
+-----
+
+* NEW Feature: ToR Pairing support
+   * ToR switch with port channel directly connected to the leaf switch (standalone)
+   * ToR switch connected to leaf switches in a vPC pair
+   * ToR switches with back-to-back vPC connections with leaf and ToR switches in vPC pair
+* Added discovery credentials support
+* Added MPLS Hand-off fabric settings for VXLAN iBGP EVPN fabric
+* Added interface QoS settings support for the following interface types:
+   * access
+   * trunk
+   * port-channel access
+   * port-channel trunk
+   * vPC access
+   * vPC trunk
+* Added MVPN VRI ID range support in VXLAN iBGP and eBGP EVPN fabric types
+* Added various fabric setting freeform support for VXLAN iBGP and eBGP fabric types under vxlan.global.ibgp or vxlan.global.ebgp:
+   * pre-interface leaf freeform
+   * pre-interface spine freeform
+   * pre-interface tor freeform
+   * post-interface leaf freeform
+   * post-interface spine freeform
+   * post-interface tor freeform
+   * infra fabric link freeform
+   * aaa freeform
+   * banner freeform
+   * bootstrap freeform (iBGP VXLAN, eBGP VXLAN, and also External fabric type)
+   * spine ibgp peer template freeform (iBGP VXLAN only)
+   * leaf ibgp peer template freeform (iBGP VXLAN only)
+* Added MTU support under edge_connections
+
+Modified
+--------
+
+* Updated External fabric type to leverage base collection fabric module 
+   * Backwards compatability maintained for previously created External fabrics
+* Moved enable_mvpn_vri_id_range from residing under vxlan.global.ibgp or vxlan.global.ebgp to reside under vxlan.underlay.multicast
+   * Aligns support for added MVPN VRI ID range under vxlan.underlay.multicast
+   * New data model path: vxlan.underlay.multicast.enable_mvpn_vri_id_range
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/718
+* https://github.com/netascode/ansible-dc-vxlan/issues/721
+* https://github.com/netascode/ansible-dc-vxlan/pull/722
+* https://github.com/netascode/ansible-dc-vxlan/issues/723
+* https://github.com/netascode/ansible-dc-vxlan/issues/734
+* https://github.com/netascode/ansible-dc-vxlan/issues/737
+
+
 `0.6.0`_
 =====================
 
@@ -436,6 +493,7 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.7.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.6.0...0.7.0
 .. _0.6.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.5.1...0.6.0
 .. _0.5.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.5.0...0.5.1
 .. _0.5.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.4.3...0.5.0
