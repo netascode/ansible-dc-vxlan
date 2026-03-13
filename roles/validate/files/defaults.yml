@@ -33,6 +33,7 @@ factory_defaults:
         enable_nxapi_https: true
         nxapi_https_port: 443
         overlay_mode: cli
+        greenfield_cleanup: Disable
         layer2_vni_range:
           from: 30000
           to: 49000
@@ -80,6 +81,7 @@ factory_defaults:
         enable_nxapi_https: true
         nxapi_https_port: 443
         overlay_mode: cli
+        greenfield_cleanup: Disable
         layer2_vni_range:
           from: 30000
           to: 49000
