@@ -168,8 +168,6 @@ factory_defaults:
             duplex: auto
             orphan_port: false
             enable_qos: false
-            qos_policy: ""
-            queuing_policy: ""
             monitor: false
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
@@ -183,8 +181,6 @@ factory_defaults:
             orphan_port: false
             native_vlan: ""
             enable_qos: false
-            qos_policy: ""
-            queuing_policy: ""
             monitor: false
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
@@ -203,8 +199,6 @@ factory_defaults:
             lacp_rate: normal
             monitor: false
             enable_qos: false
-            qos_policy: ""
-            queuing_policy: ""
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -223,8 +217,6 @@ factory_defaults:
             lacp_rate: normal
             monitor: false
             enable_qos: false
-            qos_policy: ""
-            queuing_policy: ""
           topology_switch_dot1q_interface:
             description: "NetAsCode Dot1q Interface"
             mtu: jumbo
