@@ -35,8 +35,8 @@
     native_vlan: "{{ interface['native_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.native_vlan) }}"
     enable_qos: {{ interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_qos) | lower }}
 {% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_qos) %}
-    qos_policy: {{ interface['qos_policy'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.qos_policy) }}
-    queuing_policy: {{ interface['queuing_policy'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.queuing_policy) }}
+    qos_policy: {{ interface['qos_policy'] | default("") }}
+    queuing_policy: {{ interface['queuing_policy'] | default("") }}
 {% endif %}
     enable_monitor: {{ interface['monitor'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.monitor) | lower }}
     cmds: |2-
