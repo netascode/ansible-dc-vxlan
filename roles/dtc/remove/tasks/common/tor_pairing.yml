@@ -1,0 +1,62 @@
+---
+- name: Set vars_common Based On Fabric Type - VXLAN_EVPN/iBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_vxlan }}"
+  when: data_model_extended.vxlan.fabric.type == "VXLAN_EVPN"
+
+- name: Set vars_common Based On Fabric Type - eBGP_VXLAN
+  ansible.builtin.set_fact:
+    vars_common_local: "{{ vars_common_ebgp_vxlan }}"
+  when: data_model_extended.vxlan.fabric.type == "eBGP_VXLAN"
+
+- name: Initialize leaf switches for TOR pairing discovery
+  ansible.builtin.set_fact:
+    leaf_switches_for_query: >-
+      {{ data_model_extended.vxlan.topology.switches
+         | selectattr('role', 'equalto', 'leaf')
+         | list }}
+  delegate_to: localhost
+
+# -----------------------------------------------------------------------
+# Diff Run Active - Use state file diff results (no NDFC query)
+# -----------------------------------------------------------------------
+- name: Use state file diff for TOR pairing removals (Diff Run Active)
+  ansible.builtin.set_fact:
+    tor_remove_diff_result:
+      removed: "{{ vars_common_local.tor_pairing_diff_result.removed | default([]) }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+
+# -----------------------------------------------------------------------
+# Diff Run Disabled - Query NDFC for actual state (force_run_all mode)
+# -----------------------------------------------------------------------
+- name: Discover and diff TOR pairings from NDFC (Diff Run Disabled)
+  cisco.nac_dc_vxlan.dtc.process_tor_pairing:
+    operation: discover_and_diff
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    leaf_serial_number: "{{ leaf_switches_for_query[0].serial_number }}"
+    current_pairings: "{{ vars_common_local.tor_pairing | default([], true) }}"
+  register: tor_remove_ndfc_result
+  when:
+    - run_map_read_result.diff_run is false|bool
+    - leaf_switches_for_query is defined
+    - leaf_switches_for_query | length > 0
+
+- name: Set TOR remove diff result from NDFC discovery (Diff Run Disabled)
+  ansible.builtin.set_fact:
+    tor_remove_diff_result:
+      removed: "{{ tor_remove_ndfc_result.removed | default([]) }}"
+  when:
+    - tor_remove_ndfc_result is defined
+    - tor_remove_ndfc_result is not skipped
+
+- name: Remove stale TOR pairings from NDFC
+  cisco.nac_dc_vxlan.dtc.process_tor_pairing:
+    operation: remove
+    tor_pairing_removed: "{{ tor_remove_diff_result.removed }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
+    execute_api: true
+  register: tor_remove_result
+  when:
+    - (tor_pairing_delete_mode is defined) and (tor_pairing_delete_mode | bool)
+    - tor_remove_diff_result.removed | default([]) | length > 0

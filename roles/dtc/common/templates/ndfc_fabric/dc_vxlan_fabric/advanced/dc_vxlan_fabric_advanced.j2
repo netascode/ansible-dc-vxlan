@@ -4,7 +4,7 @@
   ENABLE_PVLAN: false
   AAA_REMOTE_IP_ENABLED: False
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') and ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '<') %}
-  ALLOW_L3VNI_NO_VLAN:  {{ vxlan.global.ibgp.enable_mvpn_vri_id_range | default(defaults.vxlan.global.ibgp.enable_mvpn_vri_id_range) }}
+  ALLOW_L3VNI_NO_VLAN:  {{ vxlan.underlay.multicast.enable_mvpn_vri_id_range | default(defaults.vxlan.underlay.multicast.enable_mvpn_vri_id_range) }}
 {% endif %}
   ENABLE_L3VNI_NO_VLAN:  {{ vxlan.global.ibgp.enable_l3_vni_no_vlan | default(defaults.vxlan.global.ibgp.enable_l3_vni_no_vlan) }}
 {% if vxlan.global.ibgp.multisite_site_id is defined %}
@@ -47,4 +47,9 @@
 {% endif %}
   STP_BRIDGE_PRIORITY: {{ vxlan.global.ibgp.spanning_tree.bridge_priority | default(defaults.vxlan.global.ibgp.spanning_tree.bridge_priority) }}
 {% endif %}
+{% endif %}
+  MPLS_HANDOFF: {{ vxlan.global.ibgp.mpls_handoff.enable | default(defaults.vxlan.global.ibgp.mpls_handoff.enable) }}
+{% if vxlan.global.ibgp.mpls_handoff.enable | default(defaults.vxlan.global.ibgp.mpls_handoff.enable) %}
+  MPLS_LB_ID: {{ vxlan.global.ibgp.mpls_handoff.loopback_id | default(defaults.vxlan.global.ibgp.mpls_handoff.loopback_id) }}
+  MPLS_ISIS_AREA_NUM: "{{ '{:0>4s}'.format(vxlan.global.ibgp.mpls_handoff.isis_net_area_number | default(defaults.vxlan.global.ibgp.mpls_handoff.isis_net_area_number) | string) }}"
 {% endif %}

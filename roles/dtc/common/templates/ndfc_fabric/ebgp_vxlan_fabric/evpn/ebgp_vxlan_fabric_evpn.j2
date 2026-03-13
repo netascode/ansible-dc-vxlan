@@ -2,7 +2,12 @@
   ENABLE_EVPN: true
   OVERLAY_MODE: {{ vxlan.global.ebgp.overlay_mode | default(defaults.vxlan.global.ebgp.overlay_mode) }}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') and ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '<') %}
-  ALLOW_L3VNI_NO_VLAN:  {{ vxlan.global.ebgp.enable_mvpn_vri_id_range | default(defaults.vxlan.global.ebgp.enable_mvpn_vri_id_range) }}
+  ALLOW_L3VNI_NO_VLAN:  {{ vxlan.underlay.multicast.enable_mvpn_vri_id_range | default(defaults.vxlan.underlay.multicast.enable_mvpn_vri_id_range) }}
+{% endif %}
+{% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=')) and
+      ((vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) or
+      (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool)) %}
+  enableMvpnVriId: {{ vxlan.underlay.multicast.enable_mvpn_vri_id_range | default(defaults.vxlan.underlay.multicast.enable_mvpn_vri_id_range) }}
 {% endif %}
   ENABLE_L3VNI_NO_VLAN:  {{ vxlan.global.ebgp.enable_l3_vni_no_vlan | default(defaults.vxlan.global.ebgp.enable_l3_vni_no_vlan) }}
   ANYCAST_GW_MAC: {{ vxlan.global.ebgp.anycast_gateway_mac | default(defaults.vxlan.global.ebgp.anycast_gateway_mac) }}
@@ -59,6 +64,13 @@
   IPv6_ANYCAST_RP_IP_RANGE: {{ vxlan.underlay.ipv6.underlay_rp_loopback_ip_range | default(defaults.vxlan.underlay.ipv6.underlay_rp_loopback_ip_range) }}
 {% endif %}
   IPv6_MULTICAST_GROUP_SUBNET: {{ vxlan.underlay.multicast.ipv6.group_subnet | default(defaults.vxlan.underlay.multicast.ipv6.group_subnet) }}
+{% endif %}
+{% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) and
+      ((vxlan.underlay.multicast.ipv4.trm_enable | default(defaults.vxlan.underlay.multicast.ipv4.trm_enable) | ansible.builtin.bool) or
+      (vxlan.underlay.multicast.ipv6.trmv6_enable | default(defaults.vxlan.underlay.multicast.ipv6.trmv6_enable) | ansible.builtin.bool)) and
+      (vxlan.underlay.multicast.enable_mvpn_vri_id_range | default(defaults.vxlan.underlay.multicast.enable_mvpn_vri_id_range) | ansible.builtin.bool) and
+      (vxlan.underlay.multicast.mvpn_vri_id_range is defined) %}
+  MVPN_VRI_ID_RANGE: {{ convert_ranges([vxlan.underlay.multicast.mvpn_vri_id_range], "") | trim }}
 {% endif %}
 {% endif %}
 {% endif %}
