@@ -45,7 +45,6 @@ factory_defaults:
         layer3_vlan_range:
           from: 2000
           to: 2299
-        enable_mvpn_vri_id_range: true
         enable_l3_vni_no_vlan: false
         vpc:
           peer_link_vlan: 3600
@@ -92,7 +91,6 @@ factory_defaults:
         layer3_vlan_range:
           from: 2000
           to: 2299
-        enable_mvpn_vri_id_range: true
         enable_l3_vni_no_vlan: false
         vpc:
           peer_link_vlan: 3600
@@ -295,6 +293,7 @@ factory_defaults:
         rendezvous_points: 2
         rp_mode: asm
         underlay_rp_loopback_id: 254
+        enable_mvpn_vri_id_range: true
         ipv4:
           group_subnet: 239.1.1.0/25
           authentication_enable: false
