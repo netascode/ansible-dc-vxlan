@@ -49,7 +49,7 @@ Modified
 --------
 
 * Updated External fabric type to leverage base collection fabric module 
-   * Backwards compatability maintained for previously created External fabrics
+   * Backwards compatibility maintained for previously created External fabrics
 * Moved enable_mvpn_vri_id_range from residing under vxlan.global.ibgp or vxlan.global.ebgp to reside under vxlan.underlay.multicast
    * Aligns support for added MVPN VRI ID range under vxlan.underlay.multicast
    * New data model path: vxlan.underlay.multicast.enable_mvpn_vri_id_range
