@@ -19,7 +19,7 @@
           policy_vars:
             BGP_PASSWORD: "{{ link.bgp_section.bgp_password | default('') }}"
             BGP_PASSWORD_ENABLE: {{ link.bgp_section.bgp_password_enable | default(defaults.vxlan.topology.edge_connections.bgp_section.bgp_password_enable) }}
-            TEMPLATE_NAME: {{ MD_Extended.vxlan.fabric.name + '-' + link.dest_fabric + '-IPV4-EBGP' }}
+            TEMPLATE_NAME: {{ data_model_extended.vxlan.fabric.name + '-' + link.dest_fabric + '-IPV4-EBGP' }}
             NEIGHBOR_ASN: "{{ link.bgp_section.neighbor_asn }}"
             OVERRIDE_LOCAL_ASN: false
             CONF: |2-
