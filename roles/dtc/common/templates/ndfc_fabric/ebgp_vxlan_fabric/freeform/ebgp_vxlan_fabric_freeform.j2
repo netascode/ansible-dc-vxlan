@@ -5,7 +5,8 @@
     {{ vxlan.global.ebgp.leaf_post_interface_freeform | default("") | indent(4) }}
   EXTRA_CONF_INTRA_LINKS: |2
     {{ vxlan.global.ebgp.intra_fabric_link_freeform | default("") | indent(4) }}
-{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.3', '>=') %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') and
+      nd_version | cisco.nac_dc_vxlan.version_compare('3.2.1', '>') %}
   preInterfaceConfigSpine: |
     {{ vxlan.global.ebgp.spine_pre_interface_freeform | default("") | indent(4) }}
   preInterfaceConfigLeaf: |
