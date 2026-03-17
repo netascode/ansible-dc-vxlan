@@ -1,14 +1,17 @@
 {# Auto-generated NDFC DC VXLAN EVPN Freeform config data structure for fabric {{ vxlan.fabric.name }} #}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') and
+      nd_version | regex_replace('^(\\d+\\.\\d+\\.\\d+).*', '\\1') | cisco.nac_dc_vxlan.version_compare('3.2.1', '>') %}
   preInterfaceConfigSpine: |
     {{ vxlan.global.ibgp.spine_pre_interface_freeform | default("") | indent(4) }}
-  EXTRA_CONF_SPINE: |
-    {{ vxlan.global.ibgp.spine_post_interface_freeform | default("") | indent(4) }}
   preInterfaceConfigLeaf: |
     {{ vxlan.global.ibgp.leaf_pre_interface_freeform | default("") | indent(4) }}
-  EXTRA_CONF_LEAF: |
-    {{ vxlan.global.ibgp.leaf_post_interface_freeform | default("") | indent(4) }}
   preInterfaceConfigTor: |
     {{ vxlan.global.ibgp.tor_pre_interface_freeform | default("") | indent(4) }}
+{% endif %}
+  EXTRA_CONF_SPINE: |
+    {{ vxlan.global.ibgp.spine_post_interface_freeform | default("") | indent(4) }}
+  EXTRA_CONF_LEAF: |
+    {{ vxlan.global.ibgp.leaf_post_interface_freeform | default("") | indent(4) }}
   EXTRA_CONF_TOR: |
     {{ vxlan.global.ibgp.tor_post_interface_freeform | default("") | indent(4) }}
   EXTRA_CONF_INTRA_LINKS: |2
