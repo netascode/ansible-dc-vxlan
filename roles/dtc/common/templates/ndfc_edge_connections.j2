@@ -18,7 +18,7 @@
           name: bgp_peer_template_dci_underlay_jython
           policy_vars:
             BGP_PASSWORD: "{{ link.bgp_section.bgp_password | default('') }}"
-            BGP_PASSWORD_ENABLE: {{ link.bgp_section.bgp_password_enable | default('true') }}
+            BGP_PASSWORD_ENABLE: {{ link.bgp_section.bgp_password_enable | default(defaults.vxlan.topology.edge_connections.bgp_section.bgp_password_enable) }}
             TEMPLATE_NAME: {{ data_model_extended.vxlan.fabric.name + '-' + link.dest_fabric + '-IPV4-EBGP' }}
             NEIGHBOR_ASN: "{{ link.bgp_section.neighbor_asn }}"
             OVERRIDE_LOCAL_ASN: false
@@ -36,9 +36,10 @@
             FF_CONF: |2-
               {{ link.bgp_section.bgp_freeform | default('')  | indent(14, false)}}
             SPEED: Auto
-            ADMIN_STATE: {{ link.source_interface_enabled | default(true) }}
+            ADMIN_STATE: {{ link.source_interface_enabled | default(defaults.vxlan.topology.edge_connections.source_interface_enabled) }}
             BGP_PASSWORD: ""
             BGP_PASSWORD_ENABLE: false
+            MTU: {{ link.source_interface_mtu | default(defaults.vxlan.topology.edge_connections.source_interface_mtu) }}
             OVERRIDE_LOCAL_ASN: false
             POLICY_ID: ""
             ROUTING_TAG: "{{ link.bgp_section.routing_tag | default('') }}"

@@ -27,10 +27,11 @@ class Rule:
                     start_keys = ['vxlan', 'global', fabric_type, key, 'from']
                     end_keys = ['vxlan', 'global', fabric_type, key, 'to']
 
+            if fabric_type == 'ebgp' and fabric_type in check['keys_not_found']:
+                cls.results.append("VNI and VLAN ranges for eBGP VXLAN fabrics must be defined under vxlan.global.ebgp.")
+                return cls.results
+
             if fabric_type in check['keys_not_found'] or key in check['keys_not_found']:
-                if fabric_type in ['ebgp']:
-                    cls.results.append("VNI and VLAN ranges for eBGP VXLAN fabrics must be defined under vxlan.global.ebgp.")
-                    return cls.results
                 range_keys = ['vxlan', 'global', key]
                 check = cls.data_model_key_check(data_model, range_keys)
                 if key in check['keys_found']:

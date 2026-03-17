@@ -45,7 +45,6 @@ factory_defaults:
         layer3_vlan_range:
           from: 2000
           to: 2299
-        enable_mvpn_vri_id_range: true
         enable_l3_vni_no_vlan: false
         vpc:
           peer_link_vlan: 3600
@@ -92,7 +91,6 @@ factory_defaults:
         layer3_vlan_range:
           from: 2000
           to: 2299
-        enable_mvpn_vri_id_range: true
         enable_l3_vni_no_vlan: false
         vpc:
           peer_link_vlan: 3600
@@ -169,17 +167,8 @@ factory_defaults:
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
+            enable_qos: false
             monitor: false
-          topology_switch_dot1q_interface:
-            description: "NetAsCode Dot1q Interface"
-            mtu: jumbo
-            speed: auto
-            enabled: true
-            access_vlan: 1
-            spanning_tree_portfast: true
-            enable_bpdu_guard: true
-            duplex: auto
-            orphan_port: false
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
@@ -191,6 +180,7 @@ factory_defaults:
             duplex: auto
             orphan_port: false
             native_vlan: ""
+            enable_qos: false
             monitor: false
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
@@ -208,6 +198,7 @@ factory_defaults:
             lacp_port_priority: 32768
             lacp_rate: normal
             monitor: false
+            enable_qos: false
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -225,6 +216,17 @@ factory_defaults:
             lacp_port_priority: 32768
             lacp_rate: normal
             monitor: false
+            enable_qos: false
+          topology_switch_dot1q_interface:
+            description: "NetAsCode Dot1q Interface"
+            mtu: jumbo
+            speed: auto
+            enabled: true
+            access_vlan: 1
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
@@ -254,6 +256,10 @@ factory_defaults:
         mtu: 9216
         admin_state: true
       edge_connections:
+        source_interface_mtu: 9216
+        source_interface_enabled: true
+        bgp_section:
+          bgp_password_enable: true
     underlay:
       general:
         routing_protocol: ospf
@@ -301,6 +307,7 @@ factory_defaults:
         rendezvous_points: 2
         rp_mode: asm
         underlay_rp_loopback_id: 254
+        enable_mvpn_vri_id_range: true
         ipv4:
           group_subnet: 239.1.1.0/25
           authentication_enable: false
