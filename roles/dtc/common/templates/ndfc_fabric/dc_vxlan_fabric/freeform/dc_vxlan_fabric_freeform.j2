@@ -1,5 +1,6 @@
 {# Auto-generated NDFC DC VXLAN EVPN Freeform config data structure for fabric {{ vxlan.fabric.name }} #}
-{% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') and
+      nd_version | regex_replace('^(\\d+\\.\\d+\\.\\d+).*', '\\1') | cisco.nac_dc_vxlan.version_compare('3.2.1', '>') %}
   preInterfaceConfigSpine: |
     {{ vxlan.global.ibgp.spine_pre_interface_freeform | default("") | indent(4) }}
   preInterfaceConfigLeaf: |

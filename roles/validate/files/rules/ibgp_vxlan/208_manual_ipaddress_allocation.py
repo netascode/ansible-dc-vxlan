@@ -16,9 +16,9 @@ class Rule:
         if 'manual_underlay_allocation' not in check['keys_data']:
             # If manual_underlay_allocation key is missing, no need to proceed
             return cls.results
-        # Check if manual_underlay_allocation is set to true
+        # Check if manual_underlay_allocation is set to true and replication_mode is multicast
         general = cls.safeget(data_model, ['vxlan', 'underlay', 'general'])
-        if "manual_underlay_allocation" in general:
+        if "manual_underlay_allocation" in general and general.get("replication_mode") == "multicast":
             # Check if anycast_rp is configured
             check = cls.data_model_key_check(data_model, ['vxlan', 'underlay', 'multicast', 'ipv4'])
             if 'ipv4' not in check['keys_data']:
