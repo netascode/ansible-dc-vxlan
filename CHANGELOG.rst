@@ -16,8 +16,8 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Fixed
 -----
 
-* https://github.com/netascode/ansible-dc-vxlan/pull/743
-* https://github.com/netascode/ansible-dc-vxlan/pull/745
+* https://github.com/netascode/ansible-dc-vxlan/issues/742
+* https://github.com/netascode/ansible-dc-vxlan/issues/744
 
 
 `0.7.0`_
