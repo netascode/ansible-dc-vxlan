@@ -1,6 +1,6 @@
 {# Auto-generated NDFC DC VXLAN EVPN Advanced config data structure for fabric {{ vxlan.fabric.name }} #}
   OVERLAY_MODE: {{ vxlan.global.ibgp.overlay_mode | default(defaults.vxlan.global.ibgp.overlay_mode) }}
-  GRFIELD_DEBUG_FLAG: Enable
+  GRFIELD_DEBUG_FLAG: {{ vxlan.global.ibgp.greenfield_cleanup | default(defaults.vxlan.global.ibgp.greenfield_cleanup) }}
   ENABLE_PVLAN: false
   AAA_REMOTE_IP_ENABLED: False
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') and ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '<') %}
