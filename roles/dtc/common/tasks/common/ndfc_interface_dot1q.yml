@@ -46,7 +46,7 @@
   delegate_to: localhost
   when: data_file_previous.stat.exists
 
-- name: Build Interface
+- name: Build Dot1q Interfaces List From Template
   ansible.builtin.template:
     src: ndfc_interfaces/ndfc_interface_dot1q.j2
     dest: "{{ path_name }}{{ file_name }}"
