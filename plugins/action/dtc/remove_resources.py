@@ -224,6 +224,8 @@ class ResourceRemover:
             fabric_param = module_config.get('fabric_param', 'fabric')
 
             # ── Execute NDFC module ───────────────────────────────────────
+            deploy = step.get('deploy')
+
             display.v(
                 f"REMOVE [{self.fabric_name}] Executing {module} for "
                 f"{resource_name} with state={resolved_state}, "
@@ -234,7 +236,7 @@ class ResourceRemover:
                 module_name=f"cisco.dcnm.{module}",
                 state=resolved_state,
                 config=data,
-                deploy=False,
+                deploy=deploy,
                 fabric_param=fabric_param,
             )
 

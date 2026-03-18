@@ -34,6 +34,9 @@
 
 ---
 
+- debug: msg="{{ change_flags }}"
+  tags: "{{ nac_tags.create }}"
+
 - name: Execute Consolidated Create Pipeline
   cisco.nac_dc_vxlan.dtc.manage_resources:
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"

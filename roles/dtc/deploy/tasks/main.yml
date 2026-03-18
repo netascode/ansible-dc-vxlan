@@ -57,4 +57,4 @@
   delegate_to: localhost
   tags: "{{ nac_tags.deploy }}"
 
-- meta: end_play
+# - meta: end_play
