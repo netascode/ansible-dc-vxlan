@@ -492,7 +492,7 @@ class ResourceRemover:
         finally:
             self.action_module._task.args = original_args
             self.action_module._task.action = original_action
-  
+
     # ══════════════════════════════════════════════════════════════════════════
     # Internal Methods (called from pipeline via '_' prefix)
     # ══════════════════════════════════════════════════════════════════════════
