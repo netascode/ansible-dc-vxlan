@@ -202,7 +202,7 @@
 # Build iBGP VXLAN Fabric Underlay Resources List From Template
 # ------------------------------------------------------------------------
 
-- name: Build iBGP VXLAN Fabric Underlay Resources List From Template
+- name: Build eBGP VXLAN Fabric Underlay Resources List From Template
   ansible.builtin.import_tasks: common/ndfc_underlay_ip_address.yml
 
 # # --------------------------------------------------------------------
