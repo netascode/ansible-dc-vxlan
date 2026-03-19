@@ -34,6 +34,11 @@
     int_vrf: {{ interface['vrf'] | default(omit) }}
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.speed) }}
+    enable_qos: {{ interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_qos) | lower }}
+{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_qos) %}
+    qos_policy: {{ interface['qos_policy'] | default("") }}
+    queuing_policy: {{ interface['queuing_policy'] | default("") }}
+{% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
