@@ -31,6 +31,11 @@
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.speed) }}
     pc_mode: "{{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.pc_mode) }}"
     members: {{ interface['members'] | default(omit) }}
+    enable_qos: {{ interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_qos) | lower }}
+{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_qos) %}
+    qos_policy: {{ interface['qos_policy'] | default("") }}
+    queuing_policy: {{ interface['queuing_policy'] | default("") }}
+{% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}

@@ -197,8 +197,8 @@ factory_defaults:
             enable_lacp_vpc_convergence: false
             lacp_port_priority: 32768
             lacp_rate: normal
-            monitor: false
             enable_qos: false
+            monitor: false
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             mtu: jumbo
@@ -215,8 +215,8 @@ factory_defaults:
             enable_lacp_vpc_convergence: false
             lacp_port_priority: 32768
             lacp_rate: normal
-            monitor: false
             enable_qos: false
+            monitor: false
           topology_switch_dot1q_interface:
             description: "NetAsCode Dot1q Interface"
             mtu: jumbo
@@ -232,6 +232,7 @@ factory_defaults:
             mtu: 9216
             speed: auto
             enabled: true
+            enable_qos: false
           topology_switch_routed_sub_interface:
             description: "NetAsCode Routed Sub Interface"
             mtu: 9216
@@ -243,6 +244,7 @@ factory_defaults:
             speed: auto
             enabled: true
             pc_mode: active
+            enable_qos: false
           topology_switch_loopback_interface:
             description: "NetAsCode Loopback Interface"
             enabled: true
