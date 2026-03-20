@@ -240,6 +240,7 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
 
     return fabric_switches
 
+
 def normalize_interface_name(interface_name):
     """
     Normalize interface names to a consistent format.

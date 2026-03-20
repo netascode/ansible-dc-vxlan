@@ -46,7 +46,7 @@ class PreparePlugin:
                 elif found_switch.get('management').get('management_ipv6_address'):
                     link['source_device_ip'] = found_switch['management']['management_ipv6_address']
 
-                # For eBGP_VXLAN, we need to get the leaf overlay interface IP list and ASNs from the policy template variables to get the ASN number 
+                # For eBGP_VXLAN, we need to get the leaf overlay interface IP list and ASNs from the policy template variables to get the ASN number
                 if data_model['vxlan']['fabric']['type'] == 'eBGP_VXLAN':
                     policies = data_model['vxlan']['policy']['policies']
                     # ebgp_overlay_spine_all_neighbor_custom template has the list of leaf IPs and ASNs configured as neighbors on the spines
