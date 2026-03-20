@@ -19,6 +19,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import normalize_interface_name
+
 class PreparePlugin:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
@@ -43,6 +45,21 @@ class PreparePlugin:
                     link['source_device_ip'] = found_switch['management']['management_ipv4_address']
                 elif found_switch.get('management').get('management_ipv6_address'):
                     link['source_device_ip'] = found_switch['management']['management_ipv6_address']
+
+                # For eBGP_VXLAN, we need to get the leaf overlay interface IP list and ASNs from the policy template variables to get the ASN number 
+                if data_model['vxlan']['fabric']['type'] == 'eBGP_VXLAN':
+                    policies = data_model['vxlan']['policy']['policies']
+                    # ebgp_overlay_spine_all_neighbor_custom template has the list of leaf IPs and ASNs configured as neighbors on the spines
+                    leaf_ip_list = next((item for item in policies if item['template_name'] == 'ebgp_overlay_spine_all_neighbor_custom'), None)['template_vars']['LEAF_IP_LIST'].split(',')
+                    leaf_asns =  next((item for item in policies if item['template_name'] == 'ebgp_overlay_spine_all_neighbor_custom'), None)['template_vars']['LEAF_ASNS'].split(',')
+
+                    # ebgp_overlay_leaf_all_neighbor_custom template has the leaf overlay source interface name for the neighborship with the spines
+                    leaf_overlay_int = normalize_interface_name(next((item for item in policies if item['template_name'] == 'ebgp_overlay_leaf_all_neighbor_custom'), None)['template_vars']['INTF_NAME'])
+                    
+                    leaf_overlay_int_ip = next(item for item in found_switch['interfaces'] if normalize_interface_name(item['name']) == leaf_overlay_int)['ipv4_address']
+                    sw_index = [index for index in range(len(leaf_ip_list)) if leaf_ip_list[index] == leaf_overlay_int_ip][0]
+                    bgp_asn = leaf_asns[sw_index]
+                    link['source_device_bgp_asn'] = bgp_asn
 
         self.kwargs['results']['model_extended'] = data_model
         return self.kwargs['results']

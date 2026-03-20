@@ -205,9 +205,9 @@
 # - name: Build eBGP VXLAN Fabric Links List From Template
 #   ansible.builtin.import_tasks: common/ndfc_fabric_links.yml
 
-# # --------------------------------------------------------------------
-# # Build Edge Connections List From Template
-# # --------------------------------------------------------------------
+# --------------------------------------------------------------------
+# Build Edge Connections List From Template
+# --------------------------------------------------------------------
 
 - name: Edge Connections List From Template
   ansible.builtin.import_tasks: common/ndfc_edge_connections.yml
