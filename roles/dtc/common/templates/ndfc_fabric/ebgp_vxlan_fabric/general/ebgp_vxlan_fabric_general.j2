@@ -4,6 +4,9 @@
   BGP_AS_MODE: "{{ vxlan.global.ebgp.bgp_asn_mode | default(defaults.vxlan.global.ebgp.bgp_asn_mode) }}"
 {% if vxlan.global.ebgp.bgp_asn_mode | default(defaults.vxlan.global.ebgp.bgp_asn_mode) == 'Multi-AS' %}
   ALLOW_LEAF_SAME_AS: "{{ vxlan.global.ebgp.leaf_same_bgp_asn | default(defaults.vxlan.global.ebgp.leaf_same_bgp_asn) | lower }}"
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.5.0', '>=') %}
+  bgpAsnAutoAllocation: "{{ vxlan.global.ebgp.bgp_asn_auto_allocation | default(defaults.vxlan.global.ebgp.bgp_asn_auto_allocation) | lower }}"
+{% endif %}
 {% endif %}
 {% if vxlan.global.ebgp.bgp_asn_mode | default(defaults.vxlan.global.ebgp.bgp_asn_mode) == 'Same-Tier-AS' %}
   LEAF_BGP_AS: "{{ vxlan.global.ebgp.leaf_bgp_asn | default(omit) }}"
