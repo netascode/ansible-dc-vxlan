@@ -26,6 +26,8 @@
 #  from ..helper_functions import do_something
 
 import re
+
+
 def data_model_key_check(tested_object, keys):
     """
     Check if key(s) are found and exist in the data model.
@@ -254,7 +256,7 @@ def normalize_interface_name(interface_name):
     :Raises:
         N/A
     """
-        # Replace 'eth' or 'e' followed by digits with 'Ethernet' followed by the same digits
+    # Replace 'eth' or 'e' followed by digits with 'Ethernet' followed by the same digits
     interface_name = re.sub(
         r"(?i)^(?:e|eth(?:ernet)?)(\d(?:\/\d+){1,2})$",
         r"Ethernet\1",
