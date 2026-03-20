@@ -103,6 +103,7 @@ class ChangeDetectionManager:
                 'changes_detected_vpc_peering': False,
                 'changes_detected_vpc_domain_id_resource': False,
                 'changes_detected_vrfs': False,
+                'changes_detected_underlay_ip_address': False,
                 'changes_detected_any': False
             }
         if self.fabric_type == "ISN":

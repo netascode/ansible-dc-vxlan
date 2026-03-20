@@ -198,6 +198,13 @@
 - name: Build eBGP VXLAN Fabric Policy List From Template
   ansible.builtin.import_tasks: common/ndfc_policy.yml
 
+# ------------------------------------------------------------------------
+# Build eBGP VXLAN Fabric Underlay Resources List From Template
+# ------------------------------------------------------------------------
+
+- name: Build eBGP VXLAN Fabric Underlay Resources List From Template
+  ansible.builtin.import_tasks: common/ndfc_underlay_ip_address.yml
+
 # # --------------------------------------------------------------------
 # # Build eBGP VXLAN Fabric Links List From Template
 # # --------------------------------------------------------------------
@@ -249,6 +256,7 @@
       vpc_domain_id_resource: "{{ vpc_domain_id_resource }}"
       vrf_config: "{{ vrf_config }}"
       vrf_attach_config: "{{ vrf_attach_config }}"
+      underlay_ip_address: "{{ underlay_ip_address }}"
       # Diff Result Data
       interface_diff_result: "{{ interface_diff_result }}"
       network_diff_result: "{{ network_diff_result }}"
@@ -256,6 +264,7 @@
       vpc_peering_diff_result: "{{ vpc_peering_diff_result }}"
       vpc_domain_id_resource_diff_result: "{{ vpc_domain_id_resource_diff_result }}"
       vrf_diff_result: "{{ vrf_diff_result }}"
+      underlay_ip_address_diff_result: "{{ underlay_ip_address_diff_result }}"
 
 # --------------------------------------------------------------------
 # We need to check if the current fabric is part of a Multisite fabric
