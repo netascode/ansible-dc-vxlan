@@ -66,7 +66,7 @@ class PreparePlugin:
 
         for switch in data_model.get('vxlan').get('topology').get('switches'):
             # loop through interfaces
-            for interface in switch.get('interfaces'):
+            for interface in (switch.get('interfaces') or []):
                 # loop through interface modes direct and count
                 for interface_mode in self.mode_direct:
                     # if interface mode is a direct match, then increment the count for that mode
