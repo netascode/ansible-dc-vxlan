@@ -91,6 +91,13 @@
     - change_flags.changes_detected_interfaces
   tags: "{{ nac_tags.create_interfaces }}"
 
+- name: Manage eBGP VXLAN Fabric Inter Links in Nexus Dashboard
+  ansible.builtin.import_tasks: common/edge_connections.yml
+  when:
+    - data_model_extended.vxlan.topology.edge_connections | length > 0
+    - change_flags.changes_detected_edge_connections
+  tags: "{{ nac_tags.create_links }}"
+
 - name: Manage eBGP VXLAN Fabric VRFs and Networks in Nexus Dashboard
   ansible.builtin.import_tasks: common_vxlan/vrfs_networks.yml
   when:
