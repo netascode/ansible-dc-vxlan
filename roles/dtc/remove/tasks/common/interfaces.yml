@@ -97,6 +97,7 @@
   register: int_data
   when:
     - switch_list.response.DATA | length > 0
+    - vars_common_local.interface_all_remove_overridden | length > 0
     - (interface_delete_mode is defined) and (interface_delete_mode is true|bool)
     - run_map_read_result.diff_run is false|bool or force_run_all is true|bool
 
