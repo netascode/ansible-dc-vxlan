@@ -126,21 +126,20 @@ class NdfcModuleExecutor:
 
     def execute_plugin(self, module_name, module_args):
         """
-        Execute an arbitrary action plugin module.
+        Execute an arbitrary action plugin by FQCN.
+
+        Delegates to _execute_via_action_plugin which handles action_loader
+        dispatch, task state save/restore, and plugin invocation.
 
         Args:
-            module_name: Fully qualified module name.
-            module_args: Dict of module arguments.
+            module_name: Fully qualified action plugin name
+                         (e.g. 'cisco.nac_dc_vxlan.dtc.prepare_msite_data').
+            module_args: Dict of plugin arguments.
 
         Returns:
-            Module result dict.
+            Plugin result dict.
         """
-        return self.action_module._execute_module(
-            module_name=module_name,
-            module_args=module_args,
-            task_vars=self.task_vars,
-            tmp=self.tmp,
-        )
+        return self._execute_via_action_plugin(module_name, module_args)
 
     def _execute_via_action_plugin(self, module_name, module_args):
         """
@@ -174,6 +173,12 @@ class NdfcModuleExecutor:
                 templar=self.action_module._templar,
                 shared_loader_obj=self.action_module._shared_loader_obj,
             )
+
+            if action_plugin is None:
+                return {
+                    'failed': True,
+                    'msg': f"Action plugin '{module_name}' not found via action_loader",
+                }
 
             return action_plugin.run(task_vars=self.task_vars, tmp=self.tmp)
         finally:

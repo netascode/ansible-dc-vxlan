@@ -132,6 +132,19 @@ resource_types:
       - External
 
   # ────────────────────────────────────────────────────────────────────────────
+  # ToR Pairing
+  # ────────────────────────────────────────────────────────────────────────────
+
+  tor_pairing:
+    template: ndfc_tor_pairing.j2
+    output_file: ndfc_tor_pairing.yml
+    change_flag: changes_detected_tor_pairing
+    diff_compare: true
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+
+  # ────────────────────────────────────────────────────────────────────────────
   # Overlay
   # ────────────────────────────────────────────────────────────────────────────
 
