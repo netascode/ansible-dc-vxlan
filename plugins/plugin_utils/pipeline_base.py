@@ -315,6 +315,20 @@ class PipelineRunnerBase(ABC):
     # Shared Internal Methods (called from pipeline via '_' prefix)
     # ══════════════════════════════════════════════════════════════════════════
 
+    def _update_switch_hostname_policy(self, resource_name, step):
+        """
+        Manage hostname policy on switches
+
+        Delegates to the existing update_switch_hostname_policy action plugin.
+        """
+        return self.executor._execute_via_action_plugin(
+            module_name="cisco.nac_dc_vxlan.dtc.update_switch_hostname_policy",
+            module_args={
+                "data_model": self.data_model,
+                "template_name": "host_11_1",
+            },
+        )
+
     def _prepare_msite_data(self, resource_name, step):
         """
         Prepare multisite data for MSD/MCFG operations.

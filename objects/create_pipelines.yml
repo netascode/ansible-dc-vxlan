@@ -61,6 +61,12 @@ create_pipelines:
       change_flag_guard: changes_detected_inventory
       tag: cr_manage_switches
 
+    - resource_name: update_switch_hostname_policy
+      module: _update_switch_hostname_policy
+      state: null
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
+
     - resource_name: vpc_domain_id_resource
       module: dcnm_resource_manager
       state: merged
@@ -153,6 +159,12 @@ create_pipelines:
   #     change_flag_guard: changes_detected_inventory
   #     tag: cr_manage_switches
 
+  #   - resource_name: update_switch_hostname_policy
+  #     module: _update_switch_hostname_policy
+  #     state: null
+  #     change_flag_guard: changes_detected_inventory
+  #     tag: cr_manage_switches
+
   #   - resource_name: vpc_domain_id_resource
   #     module: dcnm_resource_manager
   #     state: merged
@@ -230,6 +242,12 @@ create_pipelines:
   #     change_flag_guard: changes_detected_inventory
   #     tag: cr_manage_switches
 
+  #   - resource_name: update_switch_hostname_policy
+  #     module: _update_switch_hostname_policy
+  #     state: null
+  #     change_flag_guard: changes_detected_inventory
+  #     tag: cr_manage_switches
+
   #   - resource_name: edge_connections
   #     module: dcnm_policy
   #     state: merged
@@ -267,6 +285,12 @@ create_pipelines:
   #     module: dcnm_inventory
   #     state: merged
   #     deploy: false
+  #     change_flag_guard: changes_detected_inventory
+  #     tag: cr_manage_switches
+
+  #   - resource_name: update_switch_hostname_policy
+  #     module: _update_switch_hostname_policy
+  #     state: null
   #     change_flag_guard: changes_detected_inventory
   #     tag: cr_manage_switches
 
