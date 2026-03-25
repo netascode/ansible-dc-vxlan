@@ -1,0 +1,181 @@
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+"""
+NDFC Module Executor — Shared module execution service for DTC pipeline plugins.
+
+Encapsulates all NDFC module execution logic including direct module calls,
+action plugin routing for modules with companion action plugins (dcnm_vrf,
+dcnm_network), REST API calls, and arbitrary plugin execution.
+
+Used by both manage_resources (create pipeline) and remove_resources (remove
+pipeline) via constructor injection.
+"""
+
+from __future__ import absolute_import, division, print_function
+
+__metaclass__ = type
+
+
+class NdfcModuleExecutor:
+    """
+    Encapsulates all NDFC module execution logic.
+
+    Handles direct module execution and action plugin routing
+    for modules with companion action plugins (dcnm_vrf, dcnm_network).
+    """
+
+    # Modules with companion action plugins that must be invoked to replicate
+    # native Ansible task execution (e.g. fabric discovery, metadata injection).
+    MODULES_WITH_ACTION_PLUGINS = frozenset({
+        'cisco.dcnm.dcnm_vrf',
+        'cisco.dcnm.dcnm_network',
+    })
+
+    def __init__(self, action_module, task_vars, tmp=None):
+        """
+        Initialize the executor.
+
+        Args:
+            action_module: Reference to the ActionModule instance for _execute_module.
+            task_vars: Ansible task variables.
+            tmp: Temporary directory (Ansible internal).
+        """
+        self.action_module = action_module
+        self.task_vars = task_vars
+        self.tmp = tmp
+
+    def execute(self, module_name, state, config, fabric_name, deploy=None, fabric_param='fabric'):
+        """
+        Execute an NDFC Ansible module.
+
+        Supports configurable fabric parameter name to handle both
+        standard modules (fabric:) and dcnm_vpc_pair/dcnm_links (src_fabric:).
+        When fabric_param is None, no fabric parameter is added (e.g. dcnm_fabric
+        embeds the fabric name inside config).
+
+        For modules with companion action plugins (dcnm_vrf, dcnm_network),
+        delegates to the action plugin via action_loader so execution matches
+        native Ansible task behavior.
+
+        Args:
+            module_name: Fully qualified module name (e.g. 'cisco.dcnm.dcnm_vrf').
+            state: Module state parameter.
+            config: Configuration data to send.
+            fabric_name: Fabric name for fabric parameter.
+            deploy: Whether to deploy (None = omit parameter).
+            fabric_param: Fabric parameter name ('fabric', 'src_fabric', or None).
+
+        Returns:
+            Module result dict.
+        """
+        module_args = {
+            'state': state,
+            'config': config,
+        }
+        if fabric_param is not None:
+            module_args[fabric_param] = fabric_name
+        if deploy is not None:
+            module_args['deploy'] = deploy
+
+        if module_name in self.MODULES_WITH_ACTION_PLUGINS:
+            return self._execute_via_action_plugin(module_name, module_args)
+
+        return self.action_module._execute_module(
+            module_name=module_name,
+            module_args=module_args,
+            task_vars=self.task_vars,
+            tmp=self.tmp,
+        )
+
+    def execute_rest(self, method, path):
+        """
+        Execute a dcnm_rest API call.
+
+        Args:
+            method: HTTP method (GET, POST, etc.).
+            path: NDFC API path.
+
+        Returns:
+            Module result dict.
+        """
+        return self.action_module._execute_module(
+            module_name="cisco.dcnm.dcnm_rest",
+            module_args={"method": method, "path": path},
+            task_vars=self.task_vars,
+            tmp=self.tmp,
+        )
+
+    def execute_plugin(self, module_name, module_args):
+        """
+        Execute an arbitrary action plugin module.
+
+        Args:
+            module_name: Fully qualified module name.
+            module_args: Dict of module arguments.
+
+        Returns:
+            Module result dict.
+        """
+        return self.action_module._execute_module(
+            module_name=module_name,
+            module_args=module_args,
+            task_vars=self.task_vars,
+            tmp=self.tmp,
+        )
+
+    def _execute_via_action_plugin(self, module_name, module_args):
+        """
+        Execute an NDFC module through its companion action plugin.
+
+        Some NDFC modules (dcnm_vrf, dcnm_network) have action plugins that
+        perform fabric discovery and inject metadata before running the module.
+        Ansible's task executor invokes these automatically for native tasks.
+        This method replicates that routing for programmatic calls.
+
+        Args:
+            module_name: Fully qualified module name (e.g. 'cisco.dcnm.dcnm_vrf').
+            module_args: Dict of module arguments (fabric, state, config, etc.).
+
+        Returns:
+            Module result dict.
+        """
+        original_args = self.action_module._task.args
+        original_action = self.action_module._task.action
+
+        try:
+            self.action_module._task.args = module_args
+            self.action_module._task.action = module_name
+
+            action_plugin = self.action_module._shared_loader_obj.action_loader.get(
+                module_name,
+                task=self.action_module._task,
+                connection=self.action_module._connection,
+                play_context=self.action_module._play_context,
+                loader=self.action_module._loader,
+                templar=self.action_module._templar,
+                shared_loader_obj=self.action_module._shared_loader_obj,
+            )
+
+            return action_plugin.run(task_vars=self.task_vars, tmp=self.tmp)
+        finally:
+            self.action_module._task.args = original_args
+            self.action_module._task.action = original_action

@@ -96,7 +96,9 @@ KNOWN_PIPELINE_FIELDS = {
     'delete_mode_guard',
     'skip_if_child_fabric',
     'requires_switches',
-    'module_config',
+    'fabric_param',
+    'skip_diff',
+    'deploy',
     'tag',
     'timeout',
 }

@@ -49,7 +49,8 @@ create_pipelines:
     - resource_name: fabric
       module: dcnm_fabric
       state: merged
-      # deploy: false
+      fabric_param: null
+      deploy: null
       change_flag_guard: changes_detected_fabric
       tag: cr_manage_fabric
 
@@ -60,35 +61,45 @@ create_pipelines:
       change_flag_guard: changes_detected_inventory
       tag: cr_manage_switches
 
-    # vPC peering uses an internal 3-step sub-pipeline:
-    #   1. dcnm_resource_manager (vPC domain ID allocation)
-    #   2. dcnm_links (intra-fabric peering links) with src_fabric
-    #   3. dcnm_vpc_pair (vPC pair configuration) with src_fabric
+    - resource_name: vpc_domain_id_resource
+      module: dcnm_resource_manager
+      state: merged
+      deploy: null
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
+
+    - resource_name: vpc_fabric_peering_links
+      module: dcnm_links
+      state: replaced
+      fabric_param: src_fabric
+      deploy: null
+      skip_diff: true
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
+
     - resource_name: vpc_peering
-      module: _vpc_peering_pipeline
-      state: null
+      module: dcnm_vpc_pair
+      state: replaced
+      fabric_param: src_fabric
       deploy: false
       change_flag_guard: changes_detected_vpc_peering
       tag: cr_manage_vpc_peers
 
-# Moved this item into the above wrapper
-  #   # Config-save POST to propagate vPC changes before interface config
-  #   - resource_name: null
-  #     module: _config_save
-  #     state: null
-  #     deploy: false
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: null
+    - resource_name: vpc_config_save
+      module: _config_save
+      state: null
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
 
     - resource_name: interface_all
       module: dcnm_interface
-      state: merged
-      deploy: false
+      state: replaced
+      deploy: null
       change_flag_guard: changes_detected_interfaces
       tag: cr_manage_interfaces
 
   #   - resource_name: edge_connections
-  #     module: dcnm_links
+  #     module: dcnm_policy
   #     state: merged
   #     deploy: false
   #     change_flag_guard: changes_detected_edge_connections
@@ -97,20 +108,21 @@ create_pipelines:
     - resource_name: vrfs
       module: dcnm_vrf
       state: replaced
-      # deploy: false
+      deploy: null
       change_flag_guard: changes_detected_vrfs
       tag: cr_manage_vrfs
 
     - resource_name: networks
       module: dcnm_network
       state: replaced
-      # deploy: false
+      deploy: null
       change_flag_guard: changes_detected_networks
       tag: cr_manage_networks
 
   #   - resource_name: fabric_links
   #     module: dcnm_links
   #     state: replaced
+  #     fabric_param: src_fabric
   #     deploy: false
   #     change_flag_guard: changes_detected_fabric_links
   #     tag: cr_manage_links
@@ -129,7 +141,8 @@ create_pipelines:
   #   - resource_name: fabric
   #     module: dcnm_fabric
   #     state: merged
-  #     deploy: false
+  #     fabric_param: null
+  #     deploy: null
   #     change_flag_guard: changes_detected_fabric
   #     tag: cr_manage_fabric
 
@@ -140,36 +153,54 @@ create_pipelines:
   #     change_flag_guard: changes_detected_inventory
   #     tag: cr_manage_switches
 
+  #   - resource_name: vpc_domain_id_resource
+  #     module: dcnm_resource_manager
+  #     state: merged
+  #     deploy: null
+  #     change_flag_guard: changes_detected_vpc_peering
+  #     tag: cr_manage_vpc_peers
+
+  #   - resource_name: vpc_fabric_peering_links
+  #     module: dcnm_links
+  #     state: replaced
+  #     fabric_param: src_fabric
+  #     deploy: null
+  #     skip_diff: true
+  #     change_flag_guard: changes_detected_vpc_peering
+  #     tag: cr_manage_vpc_peers
+
   #   - resource_name: vpc_peering
-  #     module: _vpc_peering_pipeline
-  #     state: null
+  #     module: dcnm_vpc_pair
+  #     state: replaced
+  #     fabric_param: src_fabric
   #     deploy: false
   #     change_flag_guard: changes_detected_vpc_peering
   #     tag: cr_manage_vpc_peers
 
-  #   - resource_name: null
+  #   - resource_name: vpc_config_save
   #     module: _config_save
   #     state: null
-  #     deploy: false
   #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: null
+  #     tag: cr_manage_vpc_peers
 
   #   - resource_name: interface_all
   #     module: dcnm_interface
-  #     state: merged
-  #     deploy: false
+  #     state: replaced
+  #     deploy: null
   #     change_flag_guard: changes_detected_interfaces
   #     tag: cr_manage_interfaces
 
   #   - resource_name: vrfs
   #     module: dcnm_vrf
   #     state: replaced
+  #     deploy: null
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
   #   - resource_name: networks
   #     module: dcnm_network
   #     state: replaced
+  #     deploy: null
   #     change_flag_guard: changes_detected_networks
   #     tag: cr_manage_networks
 
@@ -187,7 +218,8 @@ create_pipelines:
   #   - resource_name: fabric
   #     module: dcnm_fabric
   #     state: merged
-  #     deploy: false
+  #     fabric_param: null
+  #     deploy: null
   #     change_flag_guard: changes_detected_fabric
   #     tag: cr_manage_fabric
 
@@ -199,7 +231,7 @@ create_pipelines:
   #     tag: cr_manage_switches
 
   #   - resource_name: edge_connections
-  #     module: dcnm_links
+  #     module: dcnm_policy
   #     state: merged
   #     deploy: false
   #     change_flag_guard: changes_detected_edge_connections
@@ -207,8 +239,8 @@ create_pipelines:
 
   #   - resource_name: interface_all
   #     module: dcnm_interface
-  #     state: merged
-  #     deploy: false
+  #     state: replaced
+  #     deploy: null
   #     change_flag_guard: changes_detected_interfaces
   #     tag: cr_manage_interfaces
 
@@ -226,7 +258,8 @@ create_pipelines:
   #   - resource_name: fabric
   #     module: dcnm_fabric
   #     state: merged
-  #     deploy: false
+  #     fabric_param: null
+  #     deploy: null
   #     change_flag_guard: changes_detected_fabric
   #     tag: cr_manage_fabric
 
@@ -237,15 +270,38 @@ create_pipelines:
   #     change_flag_guard: changes_detected_inventory
   #     tag: cr_manage_switches
 
+  #   - resource_name: vpc_domain_id_resource
+  #     module: dcnm_resource_manager
+  #     state: merged
+  #     deploy: null
+  #     change_flag_guard: changes_detected_vpc_peering
+  #     tag: cr_manage_vpc_peers
+
+  #   - resource_name: vpc_fabric_peering_links
+  #     module: dcnm_links
+  #     state: replaced
+  #     fabric_param: src_fabric
+  #     deploy: null
+  #     skip_diff: true
+  #     change_flag_guard: changes_detected_vpc_peering
+  #     tag: cr_manage_vpc_peers
+
   #   - resource_name: vpc_peering
-  #     module: _vpc_peering_pipeline
-  #     state: null
+  #     module: dcnm_vpc_pair
+  #     state: replaced
+  #     fabric_param: src_fabric
   #     deploy: false
   #     change_flag_guard: changes_detected_vpc_peering
   #     tag: cr_manage_vpc_peers
 
+  #   - resource_name: vpc_config_save
+  #     module: _config_save
+  #     state: null
+  #     change_flag_guard: changes_detected_vpc_peering
+  #     tag: cr_manage_vpc_peers
+
   #   - resource_name: edge_connections
-  #     module: dcnm_links
+  #     module: dcnm_policy
   #     state: merged
   #     deploy: false
   #     change_flag_guard: changes_detected_edge_connections
@@ -253,8 +309,8 @@ create_pipelines:
 
   #   - resource_name: interface_all
   #     module: dcnm_interface
-  #     state: merged
-  #     deploy: false
+  #     state: replaced
+  #     deploy: null
   #     change_flag_guard: changes_detected_interfaces
   #     tag: cr_manage_interfaces
 
@@ -272,40 +328,41 @@ create_pipelines:
   #   - resource_name: fabric
   #     module: dcnm_fabric
   #     state: merged
-  #     deploy: false
+  #     fabric_param: null
+  #     deploy: null
   #     change_flag_guard: changes_detected_fabric
   #     tag: cr_manage_fabric
 
   #   - resource_name: null
   #     module: _manage_child_fabrics
   #     state: null
-  #     deploy: false
   #     change_flag_guard: null
   #     tag: cr_manage_fabric
 
   #   - resource_name: null
   #     module: _prepare_msite_data
   #     state: null
-  #     deploy: false
   #     change_flag_guard: null
   #     tag: cr_manage_vrfs_networks
 
   #   - resource_name: bgw_anycast_vip
   #     module: dcnm_resource_manager
   #     state: merged
-  #     deploy: false
+  #     deploy: null
   #     change_flag_guard: changes_detected_bgw_anycast_vip
   #     tag: cr_manage_vrfs_networks
 
   #   - resource_name: vrfs
   #     module: dcnm_vrf
   #     state: replaced
+  #     deploy: null
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
   #   - resource_name: networks
   #     module: dcnm_network
   #     state: replaced
+  #     deploy: null
   #     change_flag_guard: changes_detected_networks
   #     tag: cr_manage_networks
 
@@ -314,34 +371,35 @@ create_pipelines:
   # # ──────────────────────────────────────────────────────────────────────────
   # MCFG:
   #   - resource_name: fabric
-  #     module: dcnm_fabric
+  #     module: dcnm_fabric_group
   #     state: merged
-  #     deploy: false
+  #     fabric_param: null
+  #     deploy: null
   #     change_flag_guard: changes_detected_fabric
   #     tag: cr_manage_fabric
 
   #   - resource_name: null
   #     module: _manage_child_fabrics
   #     state: null
-  #     deploy: false
   #     change_flag_guard: null
   #     tag: cr_manage_fabric
 
   #   - resource_name: null
   #     module: _prepare_msite_data
   #     state: null
-  #     deploy: false
   #     change_flag_guard: null
   #     tag: cr_manage_vrfs_networks
 
   #   - resource_name: vrfs
   #     module: dcnm_vrf
   #     state: replaced
+  #     deploy: null
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
   #   - resource_name: networks
   #     module: dcnm_network
   #     state: replaced
+  #     deploy: null
   #     change_flag_guard: changes_detected_networks
   #     tag: cr_manage_networks

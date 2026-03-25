@@ -35,8 +35,7 @@
 #   - delete_mode_guard:    User opt-in safety flag that must be true to execute
 #   - skip_if_child_fabric: Skip if fabric is an active MSD child
 #   - requires_switches:    Skip if no switches exist in the fabric
-#   - module_config:        Module-specific parameter overrides
-#     - fabric_param:       Override fabric parameter name (default: 'fabric')
+#   - fabric_param:         Override fabric parameter name (default: 'fabric')
 #   - tag:                  Per-step tag for --tags filtering
 #   - timeout:              Optional per-step timeout in seconds
 #
@@ -111,8 +110,7 @@ remove_pipelines:
       state_full_run: overridden
       change_flag_guard: changes_detected_vpc_peering
       delete_mode_guard: vpc_delete_mode
-      module_config:
-        fabric_param: src_fabric
+      fabric_param: src_fabric
       timeout: 1000
       tag: rr_manage_vpc_peers
 
@@ -134,8 +132,7 @@ remove_pipelines:
       state_full_run: overridden
       change_flag_guard: changes_detected_vpc_peering
       delete_mode_guard: vpc_delete_mode
-      module_config:
-        fabric_param: src_fabric
+      fabric_param: src_fabric
       timeout: 1000
       tag: rr_manage_vpc_peers
 
@@ -252,8 +249,7 @@ remove_pipelines:
       state_full_run: overridden
       change_flag_guard: changes_detected_vpc_peering
       delete_mode_guard: vpc_delete_mode
-      module_config:
-        fabric_param: src_fabric
+      fabric_param: src_fabric
       timeout: 1000
       tag: rr_manage_vpc_peers
 
