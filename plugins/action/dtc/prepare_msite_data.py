@@ -168,16 +168,12 @@ class ActionModule(ActionBase):
             all_child_fabric_switches = all_child_fabric_switches + child_fabrics_data[child_fabric]['switches']
 
         results['switches'] = all_child_fabric_switches
-        import pprint
-        pprint.pprint(child_fabrics_data)
-        print("test")
-        pprint.pprint(all_child_fabric_switches)
+
         tor_fabrics = {}
         for switch in all_child_fabric_switches:
             if switch['role'] == 'tor' and switch['fabric_name'] not in tor_fabrics:
                 tor_fabrics[switch['fabric_name']] = switch['serial_number'], switch['fabric_cluster']
-        
-        print(tor_fabrics)
+
         tor_ndfc_responses = {}
         if tor_fabrics != {}:
             for fabric in tor_fabrics.keys():
@@ -206,7 +202,6 @@ class ActionModule(ActionBase):
                 else:
                     display.warning(f"Failed to get TOR data for fabric {fabric}: {tor_response}")
                     tor_ndfc_responses[fabric] = []
-        print(tor_ndfc_responses)
 
         # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
         # a structure that is easier to use just like data_model_extended.
@@ -284,5 +279,4 @@ class ActionModule(ActionBase):
                     del net['network_attach_group']
 
         results['overlay_attach_groups'] = data_model['vxlan']['multisite']['overlay']
-        pprint.pprint(results['overlay_attach_groups'])
         return results
