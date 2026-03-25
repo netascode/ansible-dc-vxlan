@@ -321,7 +321,7 @@ class PipelineRunnerBase(ABC):
 
         Delegates to the existing update_switch_hostname_policy action plugin.
         """
-        return self.executor._execute_via_action_plugin(
+        return self.executor.execute_plugin(
             module_name="cisco.nac_dc_vxlan.dtc.update_switch_hostname_policy",
             module_args={
                 "data_model": self.data_model,
