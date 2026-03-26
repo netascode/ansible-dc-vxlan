@@ -402,10 +402,16 @@ class PipelineRunnerBase(ABC):
         Treats HTTP 500 as non-fatal since config-save can return 500
         when there are no pending changes (matches original rescue block behavior).
         """
-        path = (
-            f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
-            f"/fabrics/{self.fabric_name}/config-save"
-        )
+        if self.fabric_type == 'MCFG':
+            path = (
+                f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage"
+                f"/fabrics/{self.fabric_name}/config-save"
+            )
+        else:
+            path = (
+                f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
+                f"/fabrics/{self.fabric_name}/config-save"
+            )
 
         result = self.executor.execute_rest("POST", path)
 
