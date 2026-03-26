@@ -390,7 +390,7 @@ factory_defaults:
             no_summary: false
             translate:
               always: false
-              supress_fa: false
+              suppress_fa: false
               never: false
         ospfv3:
           areas:
@@ -413,7 +413,7 @@ factory_defaults:
             no_summary: false
             translate:
               always: false
-              supress_fa: false
+              suppress_fa: false
               never: false
         bgp:
           best_path_as_path_relax: false
