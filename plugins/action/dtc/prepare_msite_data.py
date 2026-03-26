@@ -192,17 +192,28 @@ class ActionModule(ActionBase):
                     tmp=tmp
                 )
                 if 'response' in tor_response and 'DATA' in tor_response['response']:
-                    tor_ndfc_responses = [
-                        {
-                            'tor1': pair['torName'],
-                            'parent_leaf1': (
-                                re.search(r'\(([^)]+)\)', pair.get('remarks', '')).group(1)
-                                if re.search(r'\(([^)]+)\)', pair.get('remarks', ''))
-                                else None
-                            ),
-                        }
-                        for pair in tor_response['response']['DATA']['torPairs']
-                    ]
+                    tor_ndfc_responses = []
+                    for pair in tor_response['response']['DATA']['torPairs']:
+                        entry = {}
+                        tor_name = pair['torName']
+                        if '~' in tor_name:
+                            entry['tor1'] = tor_name.split('~')[0]
+                            entry['tor2'] = tor_name.split('~')[1]
+                        else:
+                            entry['tor1'] = tor_name
+
+                        remarks_match = re.search(r'\(([^)]+)\)', pair.get('remarks', ''))
+                        if remarks_match:
+                            leaf_value = remarks_match.group(1)
+                            if ',' in leaf_value:
+                                entry['parent_leaf1'] = leaf_value.split(',')[0].strip()
+                                entry['parent_leaf2'] = leaf_value.split(',')[1].strip()
+                            else:
+                                entry['parent_leaf1'] = leaf_value
+                        else:
+                            entry['parent_leaf1'] = None
+
+                        tor_ndfc_responses.append(entry)
                 else:
                     display.warning(f"Failed to get TOR data for fabric {fabric}: {tor_response}")
                     tor_ndfc_responses[fabric] = []
