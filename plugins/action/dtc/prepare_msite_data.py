@@ -195,7 +195,11 @@ class ActionModule(ActionBase):
                     tor_ndfc_responses = [
                         {
                             'tor1': pair['torName'],
-                            'parent_leaf1': re.search(r'\(([^)]+)\)', pair.get('remarks', '')).group(1) if re.search(r'\(([^)]+)\)', pair.get('remarks', '')) else None,
+                            'parent_leaf1': (
+                                re.search(r'\(([^)]+)\)', pair.get('remarks', '')).group(1)
+                                if re.search(r'\(([^)]+)\)', pair.get('remarks', ''))
+                                else None
+                            ),
                         }
                         for pair in tor_response['response']['DATA']['torPairs']
                     ]
