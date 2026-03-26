@@ -48,7 +48,7 @@ fabric_types:
 
   eBGP_VXLAN:
     namespace: vars_common_ebgp_vxlan
-    file_subdir: vxlan
+    file_subdir: ebgp_vxlan
     global_key: ebgp
     fabric_template_dir: dc_ebgp_vxlan_fabric
     supports_overlay: true
@@ -84,7 +84,7 @@ fabric_types:
 
   External:
     namespace: vars_common_external
-    file_subdir: vxlan
+    file_subdir: external
     global_key: external
     fabric_template_dir: dc_external_fabric
     supports_overlay: false

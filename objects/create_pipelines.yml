@@ -118,6 +118,12 @@ create_pipelines:
       change_flag_guard: changes_detected_vrfs
       tag: cr_manage_vrfs
 
+    - resource_name: vrf_loopback_attach
+      module: _vrf_loopback_attach
+      state: null
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
+
     - resource_name: networks
       module: dcnm_network
       state: replaced
@@ -206,6 +212,12 @@ create_pipelines:
   #     module: dcnm_vrf
   #     state: replaced
   #     deploy: null
+  #     change_flag_guard: changes_detected_vrfs
+  #     tag: cr_manage_vrfs
+
+  #   - resource_name: vrf_loopback_attach
+  #     module: _vrf_loopback_attach
+  #     state: null
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
@@ -383,6 +395,12 @@ create_pipelines:
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
+  #   - resource_name: vrf_loopback_attach
+  #     module: _vrf_loopback_attach
+  #     state: null
+  #     change_flag_guard: changes_detected_vrfs
+  #     tag: cr_manage_vrfs
+
   #   - resource_name: networks
   #     module: dcnm_network
   #     state: replaced
@@ -418,6 +436,12 @@ create_pipelines:
   #     module: dcnm_vrf
   #     state: replaced
   #     deploy: null
+  #     change_flag_guard: changes_detected_vrfs
+  #     tag: cr_manage_vrfs
+
+  #   - resource_name: vrf_loopback_attach
+  #     module: _vrf_loopback_attach
+  #     state: null
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 

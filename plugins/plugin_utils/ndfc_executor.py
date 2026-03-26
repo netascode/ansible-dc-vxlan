@@ -106,20 +106,24 @@ class NdfcModuleExecutor:
             tmp=self.tmp,
         )
 
-    def execute_rest(self, method, path):
+    def execute_rest(self, method, path, json_data=None):
         """
         Execute a dcnm_rest API call.
 
         Args:
             method: HTTP method (GET, POST, etc.).
             path: NDFC API path.
+            json_data: Optional JSON string for request body (POST/PUT).
 
         Returns:
             Module result dict.
         """
+        module_args = {"method": method, "path": path}
+        if json_data is not None:
+            module_args["json_data"] = json_data
         return self.action_module._execute_module(
             module_name="cisco.dcnm.dcnm_rest",
-            module_args={"method": method, "path": path},
+            module_args=module_args,
             task_vars=self.task_vars,
             tmp=self.tmp,
         )

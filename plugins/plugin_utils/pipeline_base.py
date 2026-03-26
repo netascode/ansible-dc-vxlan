@@ -361,6 +361,40 @@ class PipelineRunnerBase(ABC):
             },
         )
 
+    def _vrf_loopback_attach(self, resource_name, step):
+        """
+        Attach loopbacks to VRFs via NDFC REST API.
+
+        Resolves the correct REST endpoint per fabric type:
+          - MCFG: /onemanage/appcenter/cisco/ndfc/api/v1/onemanage/top-down/fabrics/{fabric}/vrfs/attachments
+          - All others: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{fabric}/vrfs/attachments
+        """
+        import json
+
+        resource_entry = self.resource_data.get('vrf_loopback_attach', {})
+        data = resource_entry.get('module_data', resource_entry.get('data', []))
+
+        if not data:
+            return {'failed': False, 'msg': 'No VRF loopback attach data — skipped'}
+
+        if self.fabric_type == 'MCFG':
+            path = (
+                f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/top-down"
+                f"/fabrics/{self.fabric_name}/vrfs/attachments"
+            )
+        else:
+            path = (
+                f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2"
+                f"/fabrics/{self.fabric_name}/vrfs/attachments"
+            )
+
+        display.v(
+            f"{self.OPERATION.upper()} [{self.fabric_name}] Attaching loopbacks to VRFs "
+            f"via REST POST ({len(data) if isinstance(data, list) else '?'} items)"
+        )
+
+        return self.executor.execute_rest("POST", path, json_data=json.dumps(data))
+
     def _config_save(self, resource_name, step):
         """
         Execute a config-save POST to NDFC.
