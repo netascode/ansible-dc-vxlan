@@ -214,6 +214,7 @@ class Rule:
                         switch_policy["name"],
                         interface["name"],
                         policy["name"],
+                        ospfv3 = True,
                     )
 
         # Check if OSPF, OSPFv3 or BGP is enabled
@@ -264,17 +265,25 @@ class Rule:
             )
 
     @classmethod
-    def check_switch_ospf(cls, ospf, switch, interface=None, policy=None):
+    def check_switch_ospf(cls, ospf, switch, interface=None, policy=None, ospfv3=False):
         """
         Check OSPF parameters
         """
         # Check if key exists if authentication is enabled
-        if "auth_type" in ospf and ospf["auth_type"] is not None:
-            if "auth_key" not in ospf:
-                cls.results.append(
-                    f"In the policy: {policy}, auth_type is {ospf['auth_type']} "
-                    "but auth_key is missing"
-                )
+        if ospfv3:
+            if "auth_type" in ospf["authentication"] and ospf["authentication"]["auth_type"] is not None:
+                if "auth_key" not in ospf["authentication"]:
+                    cls.results.append(
+                        f"In the policy: {policy}, auth_type is {ospf['authentication']['auth_type']} "
+                        "but auth_key is missing"
+                    )
+        else:
+            if "auth_type" in ospf and ospf["auth_type"] is not None:
+                if "auth_key" not in ospf:
+                    cls.results.append(
+                        f"In the policy: {policy}, auth_type is {ospf['auth_type']} "
+                        "but auth_key is missing"
+                    )
 
         # Check if Network type for Loopback interface is not Broadcast
         if ospf.get("network_type"):
