@@ -241,7 +241,7 @@ router bgp {{ data_model_extended.vxlan.global[simplified_fabric_type].bgp_asn }
     {% set interface_name = interface['name'] | lower %}
 interface {{ interface['name'] }}
     {% if interface.ospfv3.authentication['auth_type'] != 'none' and interface.ospfv3.authentication['auth_key'] %}
-      {% set spi = interface.ospfv3.authentication['security_parameter_index'] | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.authentication.security_parameter_index) %}
+      {% set spi = interface.ospfv3.authentication['security_parameter_index'] | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.interfaces.ospfv3.authentication.security_parameter_index) %}
   ospfv3 authentication ipsec spi {{ spi }} {{ interface.ospfv3.authentication['auth_type'] }} 3 {{ interface.ospfv3.authentication['auth_key'] }}
     {% endif %}
     {% if interface_name.startswith('lo') %}
