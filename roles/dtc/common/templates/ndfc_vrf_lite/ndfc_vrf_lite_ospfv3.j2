@@ -246,7 +246,7 @@ interface {{ interface['name'] }}
     {% endif %}
     {% if interface_name.startswith('lo') %}
       {% if interface.ospfv3['network_type'] and interface.ospfv3['network_type'] != 'broadcast' %}
-  ospfv3 network {{ interface.ospf['network_type'] }}
+  ospfv3 network {{ interface.ospfv3['network_type'] }}
       {% endif %}
     {% elif interface.ospfv3['network_type'] %}
   ospfv3 network {{ interface.ospfv3['network_type'] }}
