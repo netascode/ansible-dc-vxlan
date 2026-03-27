@@ -214,7 +214,7 @@ class Rule:
                         switch_policy["name"],
                         interface["name"],
                         policy["name"],
-                        ospfv3 = True,
+                        ospfv3=True,
                     )
 
         # Check if OSPF, OSPFv3 or BGP is enabled
