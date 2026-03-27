@@ -271,12 +271,13 @@ class Rule:
         """
         # Check if key exists if authentication is enabled
         if ospfv3:
-            if "auth_type" in ospf["authentication"] and ospf["authentication"]["auth_type"] is not None:
-                if "auth_key" not in ospf["authentication"]:
-                    cls.results.append(
-                        f"In the policy: {policy}, auth_type is {ospf['authentication']['auth_type']} "
-                        "but auth_key is missing"
-                    )
+            if "authentication" in ospf and ospf["authentication"] is not None:
+                if "auth_type" in ospf["authentication"] and ospf["authentication"]["auth_type"] is not None:
+                    if "auth_key" not in ospf["authentication"]:
+                        cls.results.append(
+                            f"In the policy: {policy}, auth_type is {ospf['authentication']['auth_type']} "
+                            "but auth_key is missing"
+                        )
         else:
             if "auth_type" in ospf and ospf["auth_type"] is not None:
                 if "auth_key" not in ospf:
