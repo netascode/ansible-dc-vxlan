@@ -172,25 +172,39 @@ class ActionModule(ActionBase):
         tor_fabrics = {}
         for switch in all_child_fabric_switches:
             if switch['role'] == 'tor' and switch['fabric_name'] not in tor_fabrics:
-                tor_fabrics[switch['fabric_name']] = switch['serial_number'], switch['fabric_cluster']
+                if parent_fabric_type == 'MCFG':
+                    tor_fabrics[switch['fabric_name']] = switch['serial_number'], switch['fabric_cluster']
+                else:
+                    tor_fabrics[switch['fabric_name']] = (switch['serial_number'])
 
         tor_ndfc_responses = {}
         if tor_fabrics != {}:
             for fabric in tor_fabrics.keys():
-                proxy = ''
-                if version_compare(nd_major_minor_patch, '3.2.2', '<='):
-                    proxy = f'/onepath/{tor_fabrics[fabric][1]}'
-                elif version_compare(nd_major_minor_patch, '4.1.1', '>='):
-                    proxy = f'/fedproxy/{tor_fabrics[fabric][1]}'
-                tor_response = self._execute_module(
-                    module_name="cisco.dcnm.dcnm_rest",
-                    module_args={
-                        "method": "GET",
-                        "path": f"{proxy}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{fabric}/switches/{tor_fabrics[fabric][0]}",
-                    },
-                    task_vars=task_vars,
-                    tmp=tmp
-                )
+                if parent_fabric_type == 'MCFG':
+                    proxy = ''
+                    if version_compare(nd_major_minor_patch, '3.2.2', '<='):
+                        proxy = f'/onepath/{tor_fabrics[fabric][1]}'
+                    elif version_compare(nd_major_minor_patch, '4.1.1', '>='):
+                        proxy = f'/fedproxy/{tor_fabrics[fabric][1]}'
+                    tor_response = self._execute_module(
+                        module_name="cisco.dcnm.dcnm_rest",
+                        module_args={
+                            "method": "GET",
+                            "path": f"{proxy}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{fabric}/switches/{tor_fabrics[fabric][0]}",
+                        },
+                        task_vars=task_vars,
+                        tmp=tmp
+                    )
+                else:
+                    tor_response = self._execute_module(
+                        module_name="cisco.dcnm.dcnm_rest",
+                        module_args={
+                            "method": "GET",
+                            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{fabric}/switches/{tor_fabrics[fabric]}",
+                        },
+                        task_vars=task_vars,
+                        tmp=tmp
+                    )
                 if 'response' in tor_response and 'DATA' in tor_response['response']:
                     tor_ndfc_responses = []
                     for pair in tor_response['response']['DATA']['torPairs']:
