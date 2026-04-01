@@ -226,7 +226,7 @@ class ActionModule(ActionBase):
             restructured_attachment_data = list(vrf_attachment_dict.values())
 
         if deploy_payload != []:
-            deploy_payload = list(set(deploy_payload))
+            deploy_payload = set(deploy_payload)
         results['payload'] = restructured_data
         results['attachments_payload'] = restructured_attachment_data
         results['deploy_payload'] = deploy_payload
