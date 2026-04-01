@@ -190,42 +190,6 @@
     - vars_common_mcfg.changes_detected_networks
   tags: "{{ nac_tags.create_vrfs_networks }}"
 
-- name: Debug container memory before network attachment filter
-  ansible.builtin.shell: |
-    echo "=== System Memory ==="
-    cat /proc/meminfo | grep -E 'MemTotal|MemAvailable|MemFree|SwapTotal|SwapFree'
-    echo "=== Cgroup v2 Memory ==="
-    cat /sys/fs/cgroup/memory.max 2>/dev/null && echo "limit (v2)" || echo "no cgroup v2 limit"
-    cat /sys/fs/cgroup/memory.current 2>/dev/null && echo "usage (v2)" || echo "no cgroup v2 usage"
-    echo "=== Cgroup v1 Memory ==="
-    cat /sys/fs/cgroup/memory/memory.limit_in_bytes 2>/dev/null && echo "limit (v1)" || echo "no cgroup v1 limit"
-    cat /sys/fs/cgroup/memory/memory.usage_in_bytes 2>/dev/null && echo "usage (v1)" || echo "no cgroup v1 usage"
-    echo "=== Top processes by memory ==="
-    ps aux --sort=-%mem | head -5
-  delegate_to: localhost
-  ignore_errors: true
-  when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined
-    - MD_Extended.vxlan.multisite.overlay.networks
-    - vars_common_mcfg.changes_detected_networks
-  tags: "{{ nac_tags.create_vrfs_networks }}"
-
-- name: Debug data sizes for network attachment filter
-  ansible.builtin.debug:
-    msg:
-      - "networks count: {{ MD_Extended.vxlan.multisite.overlay.networks | length }}"
-      - "network_attach_groups count: {{ MD_Extended.vxlan.multisite.overlay.network_attach_groups | length }}"
-      - "total switches in attach_groups: {{ MD_Extended.vxlan.multisite.overlay.network_attach_groups | map(attribute='switches') | map('length') | sum }}"
-      - "switch_list_create count: {{ switch_list_create.response.DATA | length }}"
-      - "networkAttachmentList entries: {{ networkAttachmentList.response.DATA | length }}"
-      - "total lanAttach items: {{ networkAttachmentList.response.DATA | map(attribute='lanAttachList') | map('length') | sum }}"
-  when:
-    - MD_Extended.vxlan.multisite.overlay.networks is defined
-    - MD_Extended.vxlan.multisite.overlay.networks
-    - vars_common_mcfg.changes_detected_networks
-    - networkAttachmentList.response.DATA is defined
-  tags: "{{ nac_tags.create_vrfs_networks }}"
-
 - name: Filter network attachments to be removed
   cisco.nac_dc_vxlan.dtc.fed_overlay_check:
     model_data: "{{ MD_Extended }}"
@@ -233,8 +197,6 @@
     ndfc_attachment_data: "{{ networkAttachmentList.response.DATA }}"
     check_type: "network_attach"
   register: network_attachments_payload
-  environment:
-    PYTHONFAULTHANDLER: "1"
   when:
     - MD_Extended.vxlan.multisite.overlay.networks is defined
     - MD_Extended.vxlan.multisite.overlay.networks
