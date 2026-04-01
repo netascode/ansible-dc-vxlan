@@ -23,6 +23,12 @@ class Rule:
         if 'networks' in check['keys_found'] and 'networks' in check['keys_data']:
             networks = data_model['vxlan']['multisite']['overlay']['networks']
             for network in networks:
+                current_vlan_name = network.get("vlan_name", None)
+                if current_vlan_name is not None and ' ' in str(current_vlan_name):
+                    results.append(
+                        f"vxlan.multisite.overlay.networks.{network['name']}.vlan_name must not contain whitespace."
+                    )
+
                 for attr in network:
                     if attr in child_fabric_attributes:
                         results.append(cls.msg.format(network['name'], attr))

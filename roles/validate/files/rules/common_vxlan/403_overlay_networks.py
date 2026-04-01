@@ -58,6 +58,12 @@ class Rule:
         #             networks = data_model["vxlan"]["overlay_services"]["networks"]
 
         for network in networks:
+            current_vlan_name = network.get("vlan_name", None)
+            if current_vlan_name is not None and ' ' in str(current_vlan_name):
+                results.append(
+                    f"vxlan.overlay.networks.{network['name']}.vlan_name must not contain whitespace."
+                )
+
             current_network_netflow_status = network.get("netflow_enable", None)
             if current_network_netflow_status is not None:
                 if fabric_netflow_status is False and current_network_netflow_status is True:
