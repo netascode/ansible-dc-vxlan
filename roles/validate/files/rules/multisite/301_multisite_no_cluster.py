@@ -1,6 +1,6 @@
 class Rule:
     id = "301"
-    description = "Verify multisite fabric does not reference clusters"
+    description = "Verify MSD fabric does not reference clusters"
     severity = "LOW"
 
     msg = "{0} multisite child fabric should not reference clusters"
@@ -9,12 +9,20 @@ class Rule:
     def match(cls, data_model):
         results = []
 
+        fabric_type = ''
+
+        vxlan_fabric_keys = ['vxlan', 'fabric']
+        check = cls.data_model_key_check(data_model, vxlan_fabric_keys)
+        if 'fabric' in check['keys_found'] and 'fabric' in check['keys_data']:
+            dm_fabric = cls.safeget(data_model, vxlan_fabric_keys)
+            fabric_type = dm_fabric.get('type', '')
+
         multisite_child_fabric_keys = ['vxlan', 'multisite', 'child_fabrics']
         check = cls.data_model_key_check(data_model, multisite_child_fabric_keys)
         if 'child_fabrics' in check['keys_found'] and 'child_fabrics' in check['keys_data']:
             dm_child_fabrics = cls.safeget(data_model, multisite_child_fabric_keys)
             for child_fabric in dm_child_fabrics:
-                if child_fabric.get('cluster', False):
+                if fabric_type == 'MSD' and child_fabric.get('cluster', False):
                     results.append(cls.msg.format(child_fabric['name']))
 
         return results
