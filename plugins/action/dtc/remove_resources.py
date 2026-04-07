@@ -25,7 +25,7 @@ Remove Resources — Consolidated removal pipeline for all fabric types.
 Replaces the dtc/remove role's per-fabric-type sub_main_*.yml files and
 task files (~16 files, ~800 lines YAML) with a single data-driven plugin.
 
-Pipeline definitions are loaded from objects/remove_pipelines.yml.
+Pipeline definitions are loaded from objects/remove_resources.yml.
 
 Extends PipelineRunnerBase with remove-specific behavior:
   - Recommendation #2: delete_mode_guard safety flags per step
@@ -63,7 +63,7 @@ class ResourceRemover(PipelineRunnerBase):
     child_fabric, requires_switches), and controller query helpers.
     """
 
-    REGISTRY_KEY = 'remove_pipelines'
+    REGISTRY_KEY = 'remove_resources'
     OPERATION = 'remove'
 
     def __init__(self, params, executor, task_vars):
@@ -80,6 +80,7 @@ class ResourceRemover(PipelineRunnerBase):
             'inventory_delete_mode': task_vars.get('inventory_delete_mode', False),
             'edge_connections_delete_mode': task_vars.get('edge_connections_delete_mode', False),
             'policy_delete_mode': task_vars.get('policy_delete_mode', False),
+            'tor_pairing_delete_mode': task_vars.get('tor_pairing_delete_mode', False),
         }
 
     # ══════════════════════════════════════════════════════════════════════════
@@ -155,7 +156,7 @@ class ResourceRemover(PipelineRunnerBase):
 
         Args:
             resource_name: Logical name of the resource.
-            step: Pipeline step dict from remove_pipelines.yml.
+            step: Pipeline step dict from remove_resources.yml.
 
         Returns:
             Tuple of (data_list, resolved_state_string).
@@ -275,6 +276,10 @@ class ResourceRemover(PipelineRunnerBase):
             return data if isinstance(data, list) else []
         except (KeyError, TypeError):
             return []
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # Remove-Specific Internal Methods
+    # ══════════════════════════════════════════════════════════════════════════
 
 
 class ActionModule(DtcPipelineActionBase):

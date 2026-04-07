@@ -28,7 +28,7 @@
 #   - Recommendation #4: vPC peering handled via _vpc_peering_pipeline
 #     internal method (3-step sub-pipeline)
 #
-# The manage_resources plugin reads create_pipelines.yml to determine the
+# The manage_resources plugin reads create_resources.yml to determine the
 # ordered pipeline for the given fabric type.
 # ─────────────────────────────────────────────────────────────────────────────
 

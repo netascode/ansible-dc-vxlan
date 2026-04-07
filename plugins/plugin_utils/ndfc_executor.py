@@ -63,7 +63,7 @@ class NdfcModuleExecutor:
         self.task_vars = task_vars
         self.tmp = tmp
 
-    def execute(self, module_name, state, config, fabric_name, deploy=None, fabric_param='fabric'):
+    def execute(self, module_name, state, config, fabric_name, save=None, deploy=None, fabric_param='fabric'):
         """
         Execute an NDFC Ansible module.
 
@@ -93,6 +93,8 @@ class NdfcModuleExecutor:
         }
         if fabric_param is not None:
             module_args[fabric_param] = fabric_name
+        if save is not None:
+            module_args['save'] = save
         if deploy is not None:
             module_args['deploy'] = deploy
 

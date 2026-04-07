@@ -227,8 +227,8 @@ class RegistryLoader:
         try:
             resource_types = RegistryLoader.load(collection_path, 'resource_types')
             fabric_types = RegistryLoader.load(collection_path, 'fabric_types')
-            create_pipelines = RegistryLoader.load(collection_path, 'create_pipelines')
-            remove_pipelines = RegistryLoader.load(collection_path, 'remove_pipelines')
+            create_resources = RegistryLoader.load(collection_path, 'create_resources')
+            remove_resources = RegistryLoader.load(collection_path, 'remove_resources')
         except (FileNotFoundError, yaml.YAMLError) as e:
             return {
                 'errors': [f"Failed to load registries: {str(e)}"],
@@ -238,19 +238,19 @@ class RegistryLoader:
 
         # 1. Schema validation
         schema_errors = RegistryLoader.validate_schema(
-            resource_types, create_pipelines, remove_pipelines, fabric_types,
+            resource_types, create_resources, remove_resources, fabric_types,
         )
         errors.extend(schema_errors)
 
         # 2. Cross-reference validation
         xref_errors = RegistryLoader.validate_cross_references(
-            resource_types, create_pipelines, remove_pipelines, fabric_types,
+            resource_types, create_resources, remove_resources, fabric_types,
         )
         errors.extend(xref_errors)
 
         # 3. Pipeline symmetry validation
         symmetry_warnings = RegistryLoader.validate_pipeline_symmetry(
-            create_pipelines, remove_pipelines
+            create_resources, remove_resources
         )
         warnings.extend(symmetry_warnings)
 
@@ -261,7 +261,7 @@ class RegistryLoader:
         }
 
     @staticmethod
-    def validate_cross_references(resource_types, create_pipelines, remove_pipelines, fabric_types):
+    def validate_cross_references(resource_types, create_resources, remove_resources, fabric_types):
         """
         Verify that all cross-references between registry files are valid.
 
@@ -273,8 +273,8 @@ class RegistryLoader:
 
         Args:
             resource_types:    Parsed resource_types.yml content
-            create_pipelines:  Parsed create_pipelines.yml content
-            remove_pipelines:  Parsed remove_pipelines.yml content
+            create_resources:  Parsed create_resources.yml content
+            remove_resources:  Parsed remove_resources.yml content
             fabric_types:      Parsed fabric_types.yml content
 
         Returns:
@@ -293,10 +293,10 @@ class RegistryLoader:
 
         # Validate create/remove pipeline references
         for pipeline_name, pipelines_data in [
-            ('create', create_pipelines),
-            ('remove', remove_pipelines),
+            ('create', create_resources),
+            ('remove', remove_resources),
         ]:
-            pipeline_key = f'{pipeline_name}_pipelines'
+            pipeline_key = f'{pipeline_name}_resources'
             pipeline_dict = pipelines_data.get(pipeline_key, {})
 
             for fabric_type, steps in pipeline_dict.items():
@@ -341,7 +341,7 @@ class RegistryLoader:
         return errors
 
     @staticmethod
-    def validate_pipeline_symmetry(create_pipelines, remove_pipelines):
+    def validate_pipeline_symmetry(create_resources, remove_resources):
         """
         Verify create/remove pipeline step correspondence.
 
@@ -354,16 +354,16 @@ class RegistryLoader:
         require counterparts.
 
         Args:
-            create_pipelines:  Parsed create_pipelines.yml content
-            remove_pipelines:  Parsed remove_pipelines.yml content
+            create_resources:  Parsed create_resources.yml content
+            remove_resources:  Parsed remove_resources.yml content
 
         Returns:
             List of warning strings. Empty list means all steps are symmetric.
         """
         warnings = []
 
-        create_dict = create_pipelines.get('create_pipelines', {})
-        remove_dict = remove_pipelines.get('remove_pipelines', {})
+        create_dict = create_resources.get('create_resources', {})
+        remove_dict = remove_resources.get('remove_resources', {})
 
         # Get all fabric types from both pipelines
         all_fabric_types = set()
@@ -408,7 +408,7 @@ class RegistryLoader:
         return warnings
 
     @staticmethod
-    def validate_schema(resource_types, create_pipelines, remove_pipelines, fabric_types):
+    def validate_schema(resource_types, create_resources, remove_resources, fabric_types):
         """
         Validate that all registry entries have the required fields.
 
@@ -418,8 +418,8 @@ class RegistryLoader:
 
         Args:
             resource_types:    Parsed resource_types.yml content
-            create_pipelines:  Parsed create_pipelines.yml content
-            remove_pipelines:  Parsed remove_pipelines.yml content
+            create_resources:  Parsed create_resources.yml content
+            remove_resources:  Parsed remove_resources.yml content
             fabric_types:      Parsed fabric_types.yml content
 
         Returns:
@@ -451,10 +451,10 @@ class RegistryLoader:
 
         # Validate pipeline step entries
         for pipeline_name, pipelines_data in [
-            ('create', create_pipelines),
-            ('remove', remove_pipelines),
+            ('create', create_resources),
+            ('remove', remove_resources),
         ]:
-            pipeline_key = f'{pipeline_name}_pipelines'
+            pipeline_key = f'{pipeline_name}_resources'
             pipeline_dict = pipelines_data.get(pipeline_key, {})
 
             for fabric_type, steps in pipeline_dict.items():

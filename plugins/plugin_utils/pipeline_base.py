@@ -31,7 +31,13 @@ Shared infrastructure includes:
   - Change flag guard checking
   - Internal method dispatch (module names starting with '_')
   - NDFC module execution delegation to NdfcModuleExecutor
-  - Shared internal methods (_prepare_msite_data, _manage_child_fabrics, _config_save)
+  - Shared internal methods:
+      _update_switch_hostname_policy — hostname policy management
+      _prepare_msite_data — multisite data preparation
+      _manage_child_fabrics — child fabric association management
+      _vrf_loopback_attach — VRF loopback attachment via REST
+      _tor_pairing — ToR pairing create/remove (direct or discovery mode)
+      _config_save — delegates to fabric_deploy_manager (operation: config_save)
 """
 
 from __future__ import absolute_import, division, print_function
@@ -57,7 +63,7 @@ class PipelineRunnerBase(ABC):
     implement data resolution strategy and any additional guard logic.
 
     Class Attributes:
-        REGISTRY_KEY: Registry file key ('create_pipelines' or 'remove_pipelines').
+        REGISTRY_KEY: Registry file key ('create_resources' or 'remove_resources').
         OPERATION: Operation name ('create' or 'remove') for logging and msite dispatch.
     """
 
@@ -170,11 +176,12 @@ class PipelineRunnerBase(ABC):
             fabric_param = step.get('fabric_param', 'fabric')
 
             # ── Execute NDFC module ───────────────────────────────────────
+            save = step.get('save')
             deploy = step.get('deploy')
 
             display.v(
                 f"{self.OPERATION.upper()} [{self.fabric_name}] Executing {module} for "
-                f"{resource_name} with state={resolved_state}, deploy={deploy}, "
+                f"{resource_name} with state={resolved_state}, save={save}, deploy={deploy}, "
                 f"items={len(data) if isinstance(data, list) else '?'}"
             )
 
@@ -183,6 +190,7 @@ class PipelineRunnerBase(ABC):
                 state=resolved_state,
                 config=data,
                 fabric_name=self.fabric_name,
+                save=save,
                 deploy=deploy,
                 fabric_param=fabric_param,
             )
@@ -395,25 +403,102 @@ class PipelineRunnerBase(ABC):
 
         return self.executor.execute_rest("POST", path, json_data=json.dumps(data))
 
+    def _tor_pairing(self, resource_name, step):
+        """
+        Create or remove ToR pairings in NDFC.
+
+        Direction is determined by self.OPERATION ('create' or 'remove'):
+          - create: Uses diff.updated from build_resource_data
+          - remove: Uses diff.removed from build_resource_data
+
+        Diff run active:  Passes pre-computed diff items via 'pairings' param
+                          (direct mode).
+        Diff run disabled: Passes leaf_serial_number + current_pairings and lets
+                          the plugin discover, diff, and execute (discovery mode).
+        """
+        # diff_compare returns 'updated' (new/changed) and 'removed' keys
+        diff_key = 'updated' if self.OPERATION == 'create' else 'removed'
+        op_label = self.OPERATION.upper()
+
+        resource_entry = self.resource_data.get('tor_pairing', {})
+        tor_pairing_data = resource_entry.get('module_data', resource_entry.get('data', []))
+
+        # For create: skip if no pairing data at all
+        # For remove: still need to proceed when diff_run is disabled (NDFC may have stale pairings)
+        if not tor_pairing_data:
+            if self.OPERATION == 'create' or (self.run_map_diff_run and not self.force_run_all):
+                return {'failed': False, 'msg': 'No ToR pairing data — skipped'}
+
+        if self.run_map_diff_run and not self.force_run_all:
+            # Diff run active — items pre-computed by build_resource_data (direct mode)
+            diff = resource_entry.get('diff')
+            items = diff.get(diff_key, []) if diff and isinstance(diff, dict) else []
+
+            if not items:
+                display.v(
+                    f"{op_label} [{self.fabric_name}] No ToR pairings to "
+                    f"{self.OPERATION} — skipped"
+                )
+                return {'failed': False, 'msg': f'No ToR pairings to {self.OPERATION}'}
+
+            display.v(
+                f"{op_label} [{self.fabric_name}] {self.OPERATION.title()}ing "
+                f"{len(items)} ToR pairing(s)"
+            )
+
+            return self.executor.execute_plugin(
+                module_name="cisco.nac_dc_vxlan.dtc.process_tor_pairing",
+                module_args={
+                    "operation": self.OPERATION,
+                    "pairings": items,
+                    "fabric_name": self.fabric_name,
+                },
+            )
+        else:
+            # Diff run disabled — discover + diff + execute (discovery mode)
+            switches = self.data_model.get('vxlan', {}).get('topology', {}).get('switches', [])
+            leaf_switches = [s for s in switches if s.get('role') == 'leaf']
+
+            if not leaf_switches:
+                display.v(
+                    f"{op_label} [{self.fabric_name}] No leaf switches found — skipped"
+                )
+                return {'failed': False, 'msg': 'No leaf switches found — skipped'}
+
+            display.v(
+                f"{op_label} [{self.fabric_name}] Discovering and "
+                f"{self.OPERATION}ing ToR pairings"
+            )
+
+            return self.executor.execute_plugin(
+                module_name="cisco.nac_dc_vxlan.dtc.process_tor_pairing",
+                module_args={
+                    "operation": self.OPERATION,
+                    "fabric_name": self.fabric_name,
+                    "leaf_serial_number": leaf_switches[0].get('serial_number', ''),
+                    "current_pairings": tor_pairing_data if tor_pairing_data else [],
+                },
+            )
+
     def _config_save(self, resource_name, step):
         """
-        Execute a config-save POST to NDFC.
+        Execute a config-save via the fabric_deploy_manager action plugin.
+
+        Delegates to fabric_deploy_manager with operation='config_save',
+        consolidating config-save into a single code path. The fabric_deploy_manager
+        handles MCFG vs standard path resolution via ApiPathResolver.
 
         Treats HTTP 500 as non-fatal since config-save can return 500
         when there are no pending changes (matches original rescue block behavior).
         """
-        if self.fabric_type == 'MCFG':
-            path = (
-                f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage"
-                f"/fabrics/{self.fabric_name}/config-save"
-            )
-        else:
-            path = (
-                f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
-                f"/fabrics/{self.fabric_name}/config-save"
-            )
-
-        result = self.executor.execute_rest("POST", path)
+        result = self.executor.execute_plugin(
+            module_name="cisco.nac_dc_vxlan.dtc.fabric_deploy_manager",
+            module_args={
+                "fabric_name": self.fabric_name,
+                "fabric_type": self.fabric_type,
+                "operation": "config_save",
+            },
+        )
 
         if result.get('failed'):
             return_code = None

@@ -26,14 +26,24 @@ Replaces the dtc/deploy role's per-fabric-type sub_main_*.yml files with a
 single action plugin that resolves all fabric-type-specific parameters
 internally from task_vars and data_model.
 
+Deployment model:
+  - operation 'all': Switch-level deploy — queries switch inventory, filters
+    by ccStatus (NA/Pending/Out-of-Sync) and upTimeStr (non-empty), deploys
+    only switches that need it. Config-save is NOT part of this workflow.
+  - operation 'config_save': Standalone config-save (also used by pipeline_base
+    _config_save delegation from create/remove pipelines).
+  - operation 'fabric_deploy': Fabric-level deploy fallback (entire fabric).
+  - operation 'switch_deploy': Standalone switch-level deploy.
+  - operation 'check_sync': Check fabric sync status.
+
 Refactored for SOLID:
   - ApiPathResolver: Strategy pattern for API path selection (OCP)
-    Resolves MCFG onemanage vs standard paths once at construction,
-    eliminating repeated if/elif branching in every method.
+    Resolves MCFG_Child_Fabric onepath/fedproxy vs standard paths once at
+    construction, eliminating repeated if/elif branching in every method.
   - ChildFabricChangeDetector: Extracts VRF/Network change merging (SRP)
     Pure data logic separated from deployment orchestration.
-  - FabricDeployManager: Simplified to use ApiPathResolver — each method
-    is a single API call with no fabric-type branching.
+  - FabricDeployManager: Uses ApiPathResolver for path resolution with no
+    fabric-type branching in individual methods.
 """
 
 from __future__ import absolute_import, division, print_function
@@ -106,6 +116,13 @@ class ApiPathResolver:
     def config_deploy(self):
         return f"{self._base}/control/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false"
 
+    def switch_deploy(self, serial_list):
+        """Path for switch-level config-deploy given a comma-separated serial number list."""
+        return (
+            f"{self._base}/control/fabrics/{self.fabric_name}"
+            f"/config-deploy/{serial_list}?forceShowRun=false"
+        )
+
     @property
     def fabric_history(self):
         return (
@@ -162,7 +179,11 @@ class FabricDeployManager:
     """Manages fabric deployment operations via NDFC REST API.
 
     Uses ApiPathResolver to select the correct API paths at construction,
-    so each public method is a single API call with no fabric-type branching.
+    so path resolution has no fabric-type branching in individual methods.
+
+    Supports both fabric-level deployment (fabric_deploy) and switch-level
+    deployment (get_deployable_switches + switch_deploy) which filters by
+    ccStatus and upTimeStr to deploy only switches that need it.
     """
 
     def __init__(self, params):
@@ -240,7 +261,7 @@ class FabricDeployManager:
             display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
 
     def fabric_deploy(self):
-        """Deploy the fabric configuration."""
+        """Deploy the fabric configuration (fabric-level)."""
         method_name = inspect.stack()[0][3]
         display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
 
@@ -248,6 +269,64 @@ class FabricDeployManager:
         if response.get('RETURN_CODE') != 200:
             self.fabric_deploy_succeeded = False
             display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
+
+    def get_deployable_switches(self):
+        """Query switch inventory and return serial numbers needing deployment.
+
+        A switch needs deployment when both conditions are true:
+          - ccStatus is one of: NA, Pending, Out-of-Sync
+          - upTimeStr is not an empty string (switch is up and reachable)
+        """
+        DEPLOYABLE_CC_STATUSES = ('NA', 'Pending', 'Out-of-Sync')
+
+        method_name = inspect.stack()[0][3]
+        display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
+
+        response = self._send_request("GET", self.paths.switches_by_fabric)
+        switches = response.get('DATA', [])
+
+        deployable_serials = []
+        for switch in switches:
+            cc_status = switch.get('ccStatus', '')
+            up_time_str = switch.get('upTimeStr', '')
+            serial = switch.get('serialNumber', '')
+            hostname = switch.get('hostName', switch.get('logicalName', 'unknown'))
+
+            if cc_status in DEPLOYABLE_CC_STATUSES and up_time_str:
+                display.v(
+                    f"  Switch {hostname} ({serial}): ccStatus={cc_status}, "
+                    f"upTimeStr={up_time_str} — needs deployment"
+                )
+                deployable_serials.append(serial)
+            else:
+                display.v(
+                    f"  Switch {hostname} ({serial}): ccStatus={cc_status}, "
+                    f"upTimeStr={up_time_str} — skipping"
+                )
+
+        display.banner(
+            f">>>> Fabric: ({self.fabric_name}) Deployable switches: "
+            f"{len(deployable_serials)}/{len(switches)}"
+        )
+        return deployable_serials
+
+    def switch_deploy(self, serial_numbers):
+        """Deploy configuration to specific switches by serial number list."""
+        method_name = inspect.stack()[0][3]
+        display.banner(
+            f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) "
+            f"Type: ({self.fabric_type}) Switches: {len(serial_numbers)}"
+        )
+
+        if not serial_numbers:
+            display.v(f"No switches require deployment in fabric {self.fabric_name}")
+            return
+
+        serial_list = ','.join(serial_numbers)
+        response = self._send_request("POST", self.paths.switch_deploy(serial_list))
+        if response.get('RETURN_CODE') != 200:
+            self.fabric_deploy_succeeded = False
+            display.warning(f">>>> Switch deploy failed for Fabric {self.fabric_name}: {response}")
 
     def fabric_history_get(self):
         """Retrieve fabric deployment history."""
@@ -299,7 +378,7 @@ class ActionModule(ActionBase):
         params['fabric_name'] = self._task.args["fabric_name"]
         params['fabric_type'] = self._task.args["fabric_type"]
 
-        # Operations supported include 'all', 'config_save', 'config_deploy', 'check_sync'
+        # Operations supported include 'all', 'config_save', 'fabric_deploy', 'switch_deploy', 'check_sync'
         params['operation'] = self._task.args.get("operation")
 
         # Manage Deployment For Multisite (MSD or MCFG) Parent or Standalone Fabric
@@ -396,43 +475,57 @@ class ActionModule(ActionBase):
                 results['msg'] = f"Missing required parameter '{key}'"
                 return results
 
-        if params['operation'] not in ['all', 'config_save', 'config_deploy', 'check_sync']:
+        if params['operation'] not in ['all', 'config_save', 'fabric_deploy', 'switch_deploy', 'check_sync']:
             results['failed'] = True
-            results['msg'] = "Parameter 'operation' must be one of: [all, config_save, config_deploy, check_sync]"
+            results['msg'] = "Parameter 'operation' must be one of: [all, config_save, fabric_deploy, switch_deploy, check_sync]"
             return results
 
         fabric_manager = FabricDeployManager(params)
 
         # Workflows
         if params['operation'] in ['all']:
-            fabric_manager.fabric_config_save()
-            fabric_manager.fabric_deploy()
-            fabric_manager.fabric_check_sync()
-
-            # For non-Multisite fabrics, check fabric history and retry deployment if out-of-sync
-            # Multisite parent fabrics (MSD or MCFG) are excluded as they are dependent on child fabrics being in sync
-            if not fabric_manager.fabric_in_sync and params['fabric_type'] not in MULTISITE_FABRIC_TYPES:
-                # If the fabric is out of sync after deployment try one more time before giving up
-                fabric_manager.fabric_history_get()
-                display.warning(fabric_manager.fabric_history)
-                display.warning("Fabric is out of sync after initial deployment. Attempting one more deployment.")
-                fabric_manager.fabric_config_save()
-                fabric_manager.fabric_deploy()
+            # Switch-level deploy: query switches, deploy only those that need it
+            # Config-save is NOT part of this workflow — it is handled by the
+            # create pipeline's _config_save steps at the appropriate points.
+            deployable = fabric_manager.get_deployable_switches()
+            if deployable:
+                fabric_manager.switch_deploy(deployable)
                 fabric_manager.fabric_check_sync()
 
-            if not fabric_manager.fabric_in_sync and params['fabric_type'] not in MULTISITE_FABRIC_TYPES:
-                fabric_manager.fabric_history_get()
-                results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync after deployment."
-                results['fabric_history'] = fabric_manager.fabric_history
-                results['failed'] = True
+                # For non-Multisite fabrics, retry if still out-of-sync
+                if not fabric_manager.fabric_in_sync and params['fabric_type'] not in MULTISITE_FABRIC_TYPES:
+                    fabric_manager.fabric_history_get()
+                    display.warning(fabric_manager.fabric_history)
+                    display.warning("Fabric is out of sync after initial deployment. Attempting one more deployment.")
+                    deployable = fabric_manager.get_deployable_switches()
+                    if deployable:
+                        fabric_manager.switch_deploy(deployable)
+                        fabric_manager.fabric_check_sync()
+
+                if not fabric_manager.fabric_in_sync and params['fabric_type'] not in MULTISITE_FABRIC_TYPES:
+                    fabric_manager.fabric_history_get()
+                    results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync after deployment."
+                    results['fabric_history'] = fabric_manager.fabric_history
+                    results['failed'] = True
+            else:
+                display.v(f"No switches require deployment in fabric {fabric_manager.fabric_name}")
 
         if params['operation'] in ['config_save']:
             fabric_manager.fabric_config_save()
             if not fabric_manager.fabric_save_succeeded:
                 results['failed'] = True
 
-        if params['operation'] in ['config_deploy']:
+        if params['operation'] in ['fabric_deploy']:
             fabric_manager.fabric_deploy()
+            if not fabric_manager.fabric_deploy_succeeded:
+                results['failed'] = True
+
+        if params['operation'] in ['switch_deploy']:
+            deployable = fabric_manager.get_deployable_switches()
+            if deployable:
+                fabric_manager.switch_deploy(deployable)
+            else:
+                display.v(f"No switches require deployment in fabric {fabric_manager.fabric_name}")
             if not fabric_manager.fabric_deploy_succeeded:
                 results['failed'] = True
 

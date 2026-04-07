@@ -38,7 +38,7 @@
 # ══════════════════════════════════════════════════════════════════════════════
 ---
 
-create_pipelines:
+create_resources:
 
   role_tag: role_create
 
@@ -57,12 +57,19 @@ create_pipelines:
     - resource_name: inventory
       module: dcnm_inventory
       state: merged
+      save: false
       deploy: false
       change_flag_guard: changes_detected_inventory
       tag: cr_manage_switches
 
     - resource_name: update_switch_hostname_policy
       module: _update_switch_hostname_policy
+      state: null
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
+
+    - resource_name: inventory_config_save
+      module: _config_save
       state: null
       change_flag_guard: changes_detected_inventory
       tag: cr_manage_switches
@@ -96,6 +103,12 @@ create_pipelines:
       state: null
       change_flag_guard: changes_detected_vpc_peering
       tag: cr_manage_vpc_peers
+
+    - resource_name: tor_pairing
+      module: _tor_pairing
+      state: null
+      change_flag_guard: changes_detected_tor_pairing
+      tag: cr_manage_tor_pairing
 
     - resource_name: interface_all
       module: dcnm_interface
@@ -200,6 +213,12 @@ create_pipelines:
   #     state: null
   #     change_flag_guard: changes_detected_vpc_peering
   #     tag: cr_manage_vpc_peers
+
+  #   - resource_name: tor_pairing
+  #     module: _tor_pairing
+  #     state: null
+  #     change_flag_guard: changes_detected_tor_pairing
+  #     tag: cr_manage_tor_pairing
 
   #   - resource_name: interface_all
   #     module: dcnm_interface

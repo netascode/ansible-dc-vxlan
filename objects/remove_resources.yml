@@ -45,7 +45,7 @@
 # ══════════════════════════════════════════════════════════════════════════════
 ---
 
-remove_pipelines:
+remove_resources:
 
   role_tag: role_remove
 
@@ -114,6 +114,14 @@ remove_pipelines:
       timeout: 1000
       tag: rr_manage_vpc_peers
 
+    # ToR pairing — uses process_tor_pairing plugin (shared internal method)
+    - resource_name: tor_pairing
+      module: _tor_pairing
+      state: null
+      change_flag_guard: changes_detected_tor_pairing
+      delete_mode_guard: tor_pairing_delete_mode
+      tag: rr_manage_tor_pairing
+
     # Switches always use overridden (no diff_run branching)
     - resource_name: inventory
       module: dcnm_inventory
@@ -135,6 +143,14 @@ remove_pipelines:
       fabric_param: src_fabric
       timeout: 1000
       tag: rr_manage_vpc_peers
+
+    # ToR pairing — uses process_tor_pairing plugin (shared internal method)
+    - resource_name: tor_pairing
+      module: _tor_pairing
+      state: null
+      change_flag_guard: changes_detected_tor_pairing
+      delete_mode_guard: tor_pairing_delete_mode
+      tag: rr_manage_tor_pairing
 
     - resource_name: policy
       module: dcnm_policy
