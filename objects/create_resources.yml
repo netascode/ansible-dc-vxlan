@@ -88,6 +88,7 @@ create_resources:
       module: dcnm_resource_manager
       state: merged
       deploy: null
+      data_model_guard: vxlan.topology.vpc_peers
       change_flag_guard: changes_detected_vpc_peering
       tag: cr_manage_vpc_peers
 
@@ -97,6 +98,7 @@ create_resources:
       fabric_param: src_fabric
       deploy: null
       skip_diff: true
+      data_model_guard: vxlan.topology.vpc_peers
       change_flag_guard: changes_detected_vpc_peering
       tag: cr_manage_vpc_peers
 
@@ -105,18 +107,28 @@ create_resources:
       state: replaced
       fabric_param: src_fabric
       deploy: false
+      data_model_guard: vxlan.topology.vpc_peers
       change_flag_guard: changes_detected_vpc_peering
       tag: cr_manage_vpc_peers
 
     - resource_name: vpc_config_save
       module: _config_save
       state: null
+      data_model_guard: vxlan.topology.vpc_peers
       change_flag_guard: changes_detected_vpc_peering
       tag: cr_manage_vpc_peers
 
     - resource_name: tor_pairing
       module: _tor_pairing
       state: null
+      data_model_guard: vxlan.topology.tor_pairing
+      change_flag_guard: changes_detected_tor_pairing
+      tag: cr_manage_tor_pairing
+
+    - resource_name: tor_config_save
+      module: _config_save
+      state: null
+      data_model_guard: vxlan.topology.tor_pairing
       change_flag_guard: changes_detected_tor_pairing
       tag: cr_manage_tor_pairing
 
