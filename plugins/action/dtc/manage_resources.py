@@ -25,7 +25,7 @@ Manage Resources — Consolidated creation pipeline for all fabric types.
 Replaces the dtc/create role's per-fabric-type sub_main_*.yml files and
 task files (~18 files, ~900 lines YAML) with a single data-driven plugin.
 
-Pipeline definitions are loaded from objects/create_resources.yml.
+Pipeline definitions are loaded from resources/create_resources.yml.
 
 Extends PipelineRunnerBase with create-specific behavior:
   - _resolve_step_data: diff.updated preference (Recommendation #7)

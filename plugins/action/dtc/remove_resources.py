@@ -25,7 +25,7 @@ Remove Resources — Consolidated removal pipeline for all fabric types.
 Replaces the dtc/remove role's per-fabric-type sub_main_*.yml files and
 task files (~16 files, ~800 lines YAML) with a single data-driven plugin.
 
-Pipeline definitions are loaded from objects/remove_resources.yml.
+Pipeline definitions are loaded from resources/remove_resources.yml.
 
 Extends PipelineRunnerBase with remove-specific behavior:
   - Recommendation #2: delete_mode_guard safety flags per step

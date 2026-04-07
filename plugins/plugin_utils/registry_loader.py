@@ -23,7 +23,7 @@
 Registry Loader — Shared YAML registry loader with LRU cache and validation.
 
 Provides a single entry point for all DTC action plugins to load their
-data-driven configuration from external YAML registry files under objects/.
+data-driven configuration from external YAML registry files under resources/.
 
 Includes three validation capabilities:
   1. Cross-reference validation — pipeline resource_names vs resource_types keys
@@ -102,7 +102,7 @@ KNOWN_PIPELINE_FIELDS = {
 
 class RegistryLoader:
     """
-    Generic loader for YAML registry files under objects/.
+    Generic loader for YAML registry files under resources/.
 
     Provides:
       - Cached loading via lru_cache (loaded once per Ansible run)
@@ -115,7 +115,7 @@ class RegistryLoader:
     @lru_cache(maxsize=None)
     def load(collection_path, registry_name):
         """
-        Load a named YAML registry file from objects/.
+        Load a named YAML registry file from resources/.
 
         Args:
             collection_path: Root path of the collection (cisco/nac_dc_vxlan/)
@@ -131,7 +131,7 @@ class RegistryLoader:
         Example:
             resource_types = RegistryLoader.load('/path/to/collection', 'resource_types')
         """
-        registry_path = os.path.join(collection_path, 'objects', f'{registry_name}.yml')
+        registry_path = os.path.join(collection_path, 'resources', f'{registry_name}.yml')
         if not os.path.exists(registry_path):
             raise FileNotFoundError(
                 f"Registry file not found: {registry_path}"

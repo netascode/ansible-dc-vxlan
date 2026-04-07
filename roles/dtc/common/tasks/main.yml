@@ -27,9 +27,9 @@
 # current fabric type.
 #
 # The plugin reads:
-#   - objects/resource_types.yml    — Template/output/diff config per resource,
+#   - resources/resource_types.yml  — Template/output/diff config per resource,
 #                                     filtered by fabric_type
-#   - objects/fabric_types.yml      — Namespace and subdirectory mapping
+#   - resources/fabric_types.yml    — Namespace and subdirectory mapping
 #
 # Outputs:
 #   - resource_data:  Dict of rendered data keyed by resource_name

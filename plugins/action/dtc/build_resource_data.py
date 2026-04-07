@@ -25,7 +25,7 @@ Build Resource Data — Consolidated Template→Render→Diff→Flag pipeline fo
 Replaces the dtc/common role's per-fabric-type sub_main_*.yml files and
 ~50 individual resource task files with a single data-driven action plugin.
 
-Resource type metadata is loaded from objects/resource_types.yml.
+Resource type metadata is loaded from resources/resource_types.yml.
 Each resource declares its applicable fabric_types — the plugin filters
 to only process entries matching the current fabric.
 
