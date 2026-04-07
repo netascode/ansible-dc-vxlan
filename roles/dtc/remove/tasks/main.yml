@@ -47,7 +47,7 @@
 
 ---
 
-- name: Execute Consolidated Remove Pipeline
+- name: Execute Remove Resources
   cisco.nac_dc_vxlan.dtc.remove_resources:
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
@@ -60,7 +60,7 @@
   when: change_flags.changes_detected_any
   tags: "{{ nac_tags.remove }}"
 
-- name: Display Remove Pipeline Summary
+- name: Display Remove Resources Summary
   ansible.builtin.debug:
     msg: "{{ remove_result.msg | default('No changes required') }}"
     verbosity: 1

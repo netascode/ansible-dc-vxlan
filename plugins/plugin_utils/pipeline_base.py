@@ -194,6 +194,37 @@ class PipelineRunnerBase(ABC):
                 )
                 continue
 
+            # ── Guard: runtime_change_refs ────────────────────────────────
+            # Skip this step if none of the referenced prior steps actually
+            # changed anything at runtime (i.e., NDFC module returned
+            # changed=true).  This avoids unnecessary operations like
+            # config-save when prior modules were idempotent.
+            runtime_refs = step.get('runtime_change_refs')
+            if runtime_refs:
+                prior_changed = any(
+                    sr.get('changed', False)
+                    for sr in step_results
+                    if sr.get('resource_name') in runtime_refs
+                )
+                if not prior_changed:
+                    step_results.append({
+                        'resource_name': resource_name,
+                        'module': module,
+                        'status': 'skipped',
+                        'reason': (
+                            f"runtime_change_refs {runtime_refs} — "
+                            f"no prior steps changed"
+                        ),
+                    })
+                    elapsed = time.monotonic() - step_start
+                    display.display(
+                        f"{op_label} [{self.fabric_name}] "
+                        f"{resource_name} → skipped (no runtime changes) "
+                        f"[{elapsed:.1f}s]",
+                        color='yellow',
+                    )
+                    continue
+
             # ── Internal method dispatch ──────────────────────────────────
             if isinstance(module, str) and module.startswith('_'):
                 result = self._dispatch_internal_method(resource_name, module, step)

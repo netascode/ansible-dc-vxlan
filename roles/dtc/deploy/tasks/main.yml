@@ -32,7 +32,7 @@
 
 ---
 
-- name: Execute Consolidated Deploy Pipeline
+- name: Execute Deploy of Resources
   cisco.nac_dc_vxlan.dtc.fabric_deploy_manager:
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"

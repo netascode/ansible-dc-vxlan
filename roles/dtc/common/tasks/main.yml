@@ -45,7 +45,7 @@
     common_role_path: "{{ role_path }}"
   tags: "{{ nac_tags.common_role }}"
 
-- name: Build Resource Data via Consolidated Pipeline
+- name: Build Resources
   cisco.nac_dc_vxlan.dtc.build_resource_data:
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
@@ -58,7 +58,7 @@
   tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost
 
-- name: Display Build Pipeline Summary
+- name: Display Resource Build Summary
   ansible.builtin.debug:
     msg: "{{ build_result.msg | default('No build result') }}"
     verbosity: 1
@@ -87,5 +87,3 @@
     msg: "Change flags: {{ change_flags }}"
     verbosity: 1
   tags: "{{ nac_tags.common_role }}"
-
-# - meta: end_play

@@ -34,7 +34,7 @@
 
 ---
 
-- name: Execute Consolidated Create Pipeline
+- name: Execute Create Resources
   cisco.nac_dc_vxlan.dtc.manage_resources:
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
@@ -48,7 +48,7 @@
   when: change_flags.changes_detected_any
   tags: "{{ nac_tags.create }}"
 
-- name: Display Create Pipeline Summary
+- name: Display Create Resources Summary
   ansible.builtin.debug:
     msg: "{{ create_result.msg | default('No changes required') }}"
     verbosity: 1

@@ -31,6 +31,8 @@
 #   - state:              Module state parameter (merged, replaced, etc.)
 #   - deploy:             Whether to deploy after module execution (true/false)
 #   - change_flag_guard:  Guard — skip step if this flag is False
+#   - runtime_change_refs: Guard — list of prior resource_names; skip step if
+#                         none of them returned changed=true at runtime
 #   - tag:                Per-step tag for --tags filtering
 #
 # Pipeline ordering respects creation dependencies:
@@ -82,6 +84,7 @@ create_resources:
       module: _config_save
       state: null
       change_flag_guard: changes_detected_inventory
+      runtime_change_refs: [inventory, underlay_ip_address, update_switch_hostname_policy]
       tag: cr_manage_switches
 
     - resource_name: vpc_domain_id_resource
@@ -116,6 +119,7 @@ create_resources:
       state: null
       data_model_guard: vxlan.topology.vpc_peers
       change_flag_guard: changes_detected_vpc_peering
+      runtime_change_refs: [vpc_domain_id_resource, vpc_fabric_peering_links, vpc_peering]
       tag: cr_manage_vpc_peers
 
     - resource_name: tor_pairing
@@ -130,6 +134,7 @@ create_resources:
       state: null
       data_model_guard: vxlan.topology.tor_pairing
       change_flag_guard: changes_detected_tor_pairing
+      runtime_change_refs: [tor_pairing]
       tag: cr_manage_tor_pairing
 
     - resource_name: interface_all
