@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2026 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -282,12 +282,6 @@ class RegistryLoader:
         valid_resources = set(resource_types.get('resource_types', {}).keys())
         valid_fabrics = set(fabric_types.get('fabric_types', {}).keys())
 
-        # Composite resource names that are built by the plugin, not defined
-        # in resource_types (these are valid pipeline references)
-        composite_resources = {'interface_all'}
-
-        all_valid_resources = valid_resources | composite_resources
-
         # Validate create/remove pipeline references
         for pipeline_name, pipelines_data in [
             ('create', create_resources),
@@ -318,7 +312,7 @@ class RegistryLoader:
                     if resource_name is None or (isinstance(module, str) and module.startswith('_')):
                         continue
 
-                    if resource_name not in all_valid_resources:
+                    if resource_name not in valid_resources:
                         errors.append(
                             f"{pipeline_name} pipeline [{fabric_type}] step {idx}: "
                             f"unknown resource_name '{resource_name}'"

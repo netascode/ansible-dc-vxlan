@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2026 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -56,7 +56,6 @@ import shutil
 import yaml
 
 from ansible.plugins.action import ActionBase
-from ansible.plugins.loader import action_loader
 from ansible.utils.display import Display
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.registry_loader import (
@@ -455,7 +454,7 @@ class ResourceDataBuilder:
         task.action = action_name
         task.args = args
 
-        action = action_loader.get(
+        action = self.action_module._shared_loader_obj.action_loader.get(
             action_name,
             task=task,
             connection=self.action_module._connection,
@@ -464,7 +463,32 @@ class ResourceDataBuilder:
             templar=self.action_module._templar,
             shared_loader_obj=self.action_module._shared_loader_obj,
         )
-        return action.run(task_vars=self.task_vars)
+
+        if action is None:
+            return {
+                'failed': True,
+                'msg': f"Action plugin '{action_name}' not found via action_loader",
+            }
+
+        return action.run(task_vars=self.task_vars, tmp=self.tmp)
+
+    def _execute_rest(self, method, path):
+        """
+        Execute a dcnm_rest API call.
+
+        Args:
+            method: HTTP method (GET, POST, etc.).
+            path: NDFC API path.
+
+        Returns:
+            Module result dict.
+        """
+        return self.action_module._execute_module(
+            module_name="cisco.dcnm.dcnm_rest",
+            module_args={"method": method, "path": path},
+            task_vars=self.task_vars,
+            tmp=self.tmp,
+        )
 
     # ══════════════════════════════════════════════════════════════════════════
     # Hooks
@@ -623,7 +647,7 @@ class ResourceDataBuilder:
         # Store aggregated data
         self.resource_data['interface_all'] = {
             'data': create_list,
-            'data_overridden': remove_list,
+            'data_remove_overridden': remove_list,
             'diff': diff_result,
             'var_name': 'interface_all_create',
         }
@@ -683,17 +707,10 @@ class ResourceDataBuilder:
 
         if is_child is None:
             # Query controller for MSD fabric associations
-            result = self.action_module._execute_module(
-                module_name="cisco.dcnm.dcnm_rest",
-                module_args={
-                    "method": "GET",
-                    "path": (
-                        "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
-                        "/fabrics/msd/fabric-associations"
-                    ),
-                },
-                task_vars=self.task_vars,
-                tmp=self.tmp,
+            result = self._execute_rest(
+                "GET",
+                "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
+                "/fabrics/msd/fabric-associations",
             )
 
             is_child = False
