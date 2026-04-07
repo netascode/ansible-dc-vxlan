@@ -282,7 +282,7 @@ class PipelineRunnerBase(ABC):
             display.display(
                 f"{op_label} [{self.fabric_name}] "
                 f"{resource_name} → ok (changed={changed}) [{elapsed:.1f}s]",
-                color='green',
+                color='yellow' if changed else 'green',
             )
 
             step_results.append({

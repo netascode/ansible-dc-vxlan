@@ -152,8 +152,13 @@ class ResourceRemover(PipelineRunnerBase):
         When diff_run is active and force_run_all is False:
           - Uses diff.removed list with the default 'state' (typically 'deleted')
         When diff_run is disabled or force_run_all is True:
-          - Uses full resource data with 'state_full_run' if declared (typically 'overridden')
-          - Falls back to 'state' if 'state_full_run' is not declared
+          - If full_run_strategy is 'controller_diff': queries NDFC for live
+            state, diffs against the data model, and returns only items on the
+            controller that are NOT in the data model, with state 'deleted'.
+          - If full_run_strategy is 'overridden': sends full resource data
+            with state 'overridden' for full reconciliation against NDFC.
+          - Otherwise uses full resource data with 'state_full_run' if declared
+            (typically 'overridden'), falling back to 'state'.
 
         Args:
             resource_name: Logical name of the resource.
@@ -179,7 +184,31 @@ class ResourceRemover(PipelineRunnerBase):
                     return (removed, default_state)
             return ([], default_state)
 
-        # Full run: use full data with full_run_state if declared, else default
+        # Full run with controller_diff strategy: query NDFC, diff, return
+        # only items on the controller that are absent from the data model.
+        full_run_strategy = step.get('full_run_strategy')
+
+        if full_run_strategy == 'controller_diff':
+            method_name = f"_controller_diff_{resource_name}"
+            method = getattr(self, method_name, None)
+            if method is None:
+                display.warning(
+                    f"REMOVE [{self.fabric_name}] No controller diff method "
+                    f"'{method_name}' found for {resource_name} — skipping"
+                )
+                return ([], default_state)
+            data = resource_entry.get('data', [])
+            items_to_delete = method(data)
+            return (items_to_delete, default_state)
+
+        # Full run with overridden strategy: send full data with state overridden
+        # for full reconciliation against the controller.
+        if full_run_strategy == 'overridden':
+            data_key = step.get('data_key_overridden', 'data')
+            data = resource_entry.get(data_key, [])
+            return (data, 'overridden')
+
+        # Full run (legacy): use full data with full_run_state if declared
         resolved_state = full_run_state if full_run_state else default_state
         data = resource_entry.get(data_key_full_run, [])
         return (data, resolved_state)
@@ -281,6 +310,330 @@ class ResourceRemover(PipelineRunnerBase):
     # ══════════════════════════════════════════════════════════════════════════
     # Remove-Specific Internal Methods
     # ══════════════════════════════════════════════════════════════════════════
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # Controller Diff — Query NDFC, diff against data model, return deletions
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _get_fabric_id(self):
+        """
+        Get the numeric fabric ID from NDFC for the current fabric.
+
+        Caches the result on the instance after the first API call.
+
+        Returns:
+            Integer fabric ID, or None if the query fails.
+        """
+        if hasattr(self, '_cached_fabric_id'):
+            return self._cached_fabric_id
+
+        result = self.executor.execute_rest(
+            "GET",
+            f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
+            f"/fabrics/{self.fabric_name}",
+        )
+
+        fabric_id = None
+        try:
+            response = result.get('response', {})
+            data = response.get('DATA', response)
+            if isinstance(data, str):
+                import json
+                data = json.loads(data)
+            fabric_id = data.get('id')
+        except (KeyError, TypeError, ValueError):
+            pass
+
+        self._cached_fabric_id = fabric_id
+        return fabric_id
+
+    def _build_switch_serial_map(self):
+        """
+        Build a mapping of switch serial numbers to management IP addresses.
+
+        Uses the switch list already fetched in _pre_pipeline_setup().
+        Caches the result on the instance.
+
+        Returns:
+            Dict mapping serialNumber → ipAddress (management IP).
+        """
+        if hasattr(self, '_cached_serial_to_ip'):
+            return self._cached_serial_to_ip
+
+        serial_to_ip = {}
+        for switch in self.fabric_switch_list:
+            serial = switch.get('serialNumber')
+            ip = switch.get('ipAddress')
+            if serial and ip:
+                serial_to_ip[serial] = ip
+
+        self._cached_serial_to_ip = serial_to_ip
+        return serial_to_ip
+
+    # ── Interface type mapping ────────────────────────────────────────────
+    # Map NDFC underlayPoliciesStr template names to dcnm_interface types.
+    # Interfaces without a recognized template are skipped (discovered-only).
+    NDFC_POLICY_TO_INTERFACE_TYPE = {
+        'int_trunk_host': 'eth',
+        'int_routed_host': 'eth',
+        'int_access_host': 'eth',
+        'int_dot1q': 'sub_int',
+        'int_routed_host_sub': 'sub_int',
+        'int_port_channel_trunk_host': 'pc',
+        'int_port_channel_access_host': 'pc',
+        'int_port_channel_routed_host': 'pc',
+        'int_vpc_trunk_host': 'vpc',
+        'int_vpc_access_host': 'vpc',
+        'int_loopback': 'lo',
+        'int_fabric_loopback_11_1': 'lo',
+        'int_pre_provision_intra_fabric_link': 'eth',
+        'int_intra_fabric_num_link': 'eth',
+        'int_intra_fabric_unnum_link': 'eth',
+    }
+
+    # Map NDFC ifType values to dcnm_interface types as a fallback.
+    NDFC_IFTYPE_TO_INTERFACE_TYPE = {
+        'INTERFACE_ETHERNET': 'eth',
+        'INTERFACE_PORT_CHANNEL': 'pc',
+        'INTERFACE_VPC': 'vpc',
+        'INTERFACE_LOOPBACK': 'lo',
+        'INTERFACE_VLAN': 'eth',
+        'SUBINTERFACE': 'sub_int',
+    }
+
+    def _controller_diff_interface_all(self, data_model_list):
+        """
+        Query NDFC for all managed interfaces and return those not in the data model.
+
+        Strategy:
+          1. Get fabric ID → query globalInterface API
+          2. Filter to policy-managed interfaces only
+          3. Build sets keyed on (interface_name, switch_ip) for O(n) diffing
+          4. Return items on controller but absent from data model
+
+        Args:
+            data_model_list: List of interface dicts from the rendered data model.
+
+        Returns:
+            List of interface dicts formatted for dcnm_interface state: deleted.
+        """
+        fabric_id = self._get_fabric_id()
+        if fabric_id is None:
+            display.warning(
+                f"REMOVE [{self.fabric_name}] Could not retrieve fabric ID "
+                f"— skipping controller diff for interfaces"
+            )
+            return []
+
+        result = self.executor.execute_rest(
+            "GET",
+            f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest"
+            f"/globalInterface?navId={fabric_id}",
+        )
+
+        controller_interfaces = []
+        try:
+            response = result.get('response', {})
+            data = response.get('DATA', response)
+            if isinstance(data, str):
+                import json
+                data = json.loads(data)
+            if isinstance(data, list):
+                controller_interfaces = data
+        except (KeyError, TypeError, ValueError):
+            display.warning(
+                f"REMOVE [{self.fabric_name}] Failed to parse globalInterface "
+                f"response — skipping controller diff for interfaces"
+            )
+            return []
+
+        serial_to_ip = self._build_switch_serial_map()
+
+        # Build data model set: (interface_name, switch_ip)
+        dm_keys = set()
+        for iface in data_model_list:
+            name = iface.get('name', '')
+            switches = iface.get('switch', [])
+            if isinstance(switches, list):
+                for sw_ip in switches:
+                    dm_keys.add((name, sw_ip))
+            elif isinstance(switches, str):
+                dm_keys.add((name, switches))
+
+        # Filter controller interfaces to policy-managed only and diff
+        items_to_delete = []
+        for ctrl_iface in controller_interfaces:
+            # Skip interfaces without NDFC-managed policies
+            underlay_policies = ctrl_iface.get('underlayPolicies')
+            overlay_str = ctrl_iface.get('overlayPoliciesStr', 'NA')
+            if not underlay_policies and overlay_str == 'NA':
+                continue
+
+            # Skip mgmt interfaces — never managed by the data model
+            if_type = ctrl_iface.get('ifType', '')
+            if if_type == 'INTERFACE_MGMT':
+                continue
+
+            # Skip discovered-only interfaces not managed through policies
+            if ctrl_iface.get('discovered') and not ctrl_iface.get('policyName'):
+                underlay_str = ctrl_iface.get('underlayPoliciesStr', '')
+                if not underlay_str or underlay_str == 'int_mgmt':
+                    continue
+
+            if_name = ctrl_iface.get('ifName', '')
+            serial_no = ctrl_iface.get('serialNo', '')
+            switch_ip = serial_to_ip.get(serial_no, '')
+
+            if not switch_ip:
+                continue
+
+            ctrl_key = (if_name, switch_ip)
+            if ctrl_key not in dm_keys:
+                # Resolve interface type from policy template or ifType
+                iface_type = None
+                if underlay_policies and isinstance(underlay_policies, list):
+                    template = underlay_policies[0].get('templateName', '')
+                    iface_type = self.NDFC_POLICY_TO_INTERFACE_TYPE.get(template)
+                if not iface_type:
+                    iface_type = self.NDFC_IFTYPE_TO_INTERFACE_TYPE.get(if_type)
+                if not iface_type:
+                    continue  # Unknown type — skip
+
+                items_to_delete.append({
+                    'name': if_name,
+                    'type': iface_type,
+                    'switch': [switch_ip],
+                    'deploy': False,
+                })
+
+        display.v(
+            f"REMOVE [{self.fabric_name}] Controller diff for interfaces: "
+            f"{len(controller_interfaces)} on controller, "
+            f"{len(dm_keys)} in data model, "
+            f"{len(items_to_delete)} to delete"
+        )
+
+        return items_to_delete
+
+    def _controller_diff_vrfs(self, data_model_list):
+        """
+        Query NDFC for all VRFs and return those not in the data model.
+
+        Strategy:
+          1. Query top-down VRF API for current fabric
+          2. Build set of VRF names from data model
+          3. Return controller VRFs absent from data model
+
+        Args:
+            data_model_list: List of VRF dicts from the rendered data model.
+
+        Returns:
+            List of VRF dicts formatted for dcnm_vrf state: deleted.
+        """
+        result = self.executor.execute_rest(
+            "GET",
+            f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2"
+            f"/fabrics/{self.fabric_name}/vrfs",
+        )
+
+        controller_vrfs = []
+        try:
+            response = result.get('response', {})
+            data = response.get('DATA', response)
+            if isinstance(data, str):
+                import json
+                data = json.loads(data)
+            if isinstance(data, list):
+                controller_vrfs = data
+        except (KeyError, TypeError, ValueError):
+            display.warning(
+                f"REMOVE [{self.fabric_name}] Failed to parse VRF response "
+                f"— skipping controller diff for VRFs"
+            )
+            return []
+
+        # Build data model set of VRF names
+        dm_vrf_names = frozenset(
+            vrf.get('vrf_name', '') for vrf in data_model_list if vrf.get('vrf_name')
+        )
+
+        # Diff: controller VRFs not in data model
+        items_to_delete = []
+        for ctrl_vrf in controller_vrfs:
+            vrf_name = ctrl_vrf.get('vrfName', '')
+            if vrf_name and vrf_name not in dm_vrf_names:
+                items_to_delete.append({
+                    'vrf_name': vrf_name,
+                })
+
+        display.v(
+            f"REMOVE [{self.fabric_name}] Controller diff for VRFs: "
+            f"{len(controller_vrfs)} on controller, "
+            f"{len(dm_vrf_names)} in data model, "
+            f"{len(items_to_delete)} to delete"
+        )
+
+        return items_to_delete
+
+    def _controller_diff_networks(self, data_model_list):
+        """
+        Query NDFC for all networks and return those not in the data model.
+
+        Strategy:
+          1. Query top-down network API for current fabric
+          2. Build set of network names from data model
+          3. Return controller networks absent from data model
+
+        Args:
+            data_model_list: List of network dicts from the rendered data model.
+
+        Returns:
+            List of network dicts formatted for dcnm_network state: deleted.
+        """
+        result = self.executor.execute_rest(
+            "GET",
+            f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2"
+            f"/fabrics/{self.fabric_name}/networks",
+        )
+
+        controller_networks = []
+        try:
+            response = result.get('response', {})
+            data = response.get('DATA', response)
+            if isinstance(data, str):
+                import json
+                data = json.loads(data)
+            if isinstance(data, list):
+                controller_networks = data
+        except (KeyError, TypeError, ValueError):
+            display.warning(
+                f"REMOVE [{self.fabric_name}] Failed to parse network response "
+                f"— skipping controller diff for networks"
+            )
+            return []
+
+        # Build data model set of network names
+        dm_net_names = frozenset(
+            net.get('net_name', '') for net in data_model_list if net.get('net_name')
+        )
+
+        # Diff: controller networks not in data model
+        items_to_delete = []
+        for ctrl_net in controller_networks:
+            net_name = ctrl_net.get('networkName', '')
+            if net_name and net_name not in dm_net_names:
+                items_to_delete.append({
+                    'net_name': net_name,
+                })
+
+        display.v(
+            f"REMOVE [{self.fabric_name}] Controller diff for networks: "
+            f"{len(controller_networks)} on controller, "
+            f"{len(dm_net_names)} in data model, "
+            f"{len(items_to_delete)} to delete"
+        )
+
+        return items_to_delete
 
 
 class ActionModule(DtcPipelineActionBase):
