@@ -56,5 +56,3 @@
   register: run_map
   delegate_to: localhost
   tags: "{{ nac_tags.deploy }}"
-
-- meta: end_play

@@ -45,6 +45,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import time
 from abc import ABC, abstractmethod
 
 from ansible.utils.display import Display
@@ -127,16 +128,35 @@ class PipelineRunnerBase(ABC):
         context = self._pre_pipeline_setup()
 
         step_results = []
+        total_steps = len(pipeline)
+        pipeline_start = time.monotonic()
 
-        for step in pipeline:
+        for step_index, step in enumerate(pipeline, 1):
             resource_name = step['resource_name']
             module = step['module']
             flag_name = step.get('change_flag_guard')
+            step_start = time.monotonic()
+            op_label = self.OPERATION.upper()
+
+            display.display(
+                f"\n{'─' * 60}\n"
+                f"{op_label} [{self.fabric_name}] "
+                f"Step {step_index}/{total_steps}: {resource_name} ({module})\n"
+                f"{'─' * 60}",
+                color='cyan',
+            )
 
             # ── Hook: subclass-specific additional guards ─────────────────
             guard_result = self._check_additional_guards(step, context)
             if guard_result is not None:
                 step_results.append(guard_result)
+                elapsed = time.monotonic() - step_start
+                reason = guard_result.get('reason', 'guard')
+                display.display(
+                    f"{op_label} [{self.fabric_name}] "
+                    f"{resource_name} → skipped ({reason}) [{elapsed:.1f}s]",
+                    color='yellow',
+                )
                 continue
 
             # ── Guard: data_model_guard ───────────────────────────────────
@@ -150,6 +170,12 @@ class PipelineRunnerBase(ABC):
                         'status': 'skipped',
                         'reason': f"data_model_guard '{dm_guard}' resolved to falsy",
                     })
+                    elapsed = time.monotonic() - step_start
+                    display.display(
+                        f"{op_label} [{self.fabric_name}] "
+                        f"{resource_name} → skipped (data_model_guard) [{elapsed:.1f}s]",
+                        color='yellow',
+                    )
                     continue
 
             # ── Guard: change_flag_guard ──────────────────────────────────
@@ -160,13 +186,26 @@ class PipelineRunnerBase(ABC):
                     'status': 'skipped',
                     'reason': f"change flag '{flag_name}' is False",
                 })
+                elapsed = time.monotonic() - step_start
+                display.display(
+                    f"{op_label} [{self.fabric_name}] "
+                    f"{resource_name} → skipped (no changes) [{elapsed:.1f}s]",
+                    color='yellow',
+                )
                 continue
 
             # ── Internal method dispatch ──────────────────────────────────
             if isinstance(module, str) and module.startswith('_'):
                 result = self._dispatch_internal_method(resource_name, module, step)
                 step_results.append(result)
-                if result.get('status') == 'failed':
+                elapsed = time.monotonic() - step_start
+                status = result.get('status', 'ok')
+                display.display(
+                    f"{op_label} [{self.fabric_name}] "
+                    f"{resource_name} → {status} [{elapsed:.1f}s]",
+                    color='green' if status != 'failed' else 'red',
+                )
+                if status == 'failed':
                     return {
                         'results': step_results,
                         'failed': True,
@@ -184,6 +223,12 @@ class PipelineRunnerBase(ABC):
                     'status': 'skipped',
                     'reason': 'no data available',
                 })
+                elapsed = time.monotonic() - step_start
+                display.display(
+                    f"{op_label} [{self.fabric_name}] "
+                    f"{resource_name} → skipped (no data) [{elapsed:.1f}s]",
+                    color='yellow',
+                )
                 continue
 
             # ── Fabric parameter resolution ───────────────────────────────
@@ -194,7 +239,7 @@ class PipelineRunnerBase(ABC):
             deploy = step.get('deploy')
 
             display.v(
-                f"{self.OPERATION.upper()} [{self.fabric_name}] Executing {module} for "
+                f"{op_label} [{self.fabric_name}] Executing {module} for "
                 f"{resource_name} with state={resolved_state}, save={save}, deploy={deploy}, "
                 f"items={len(data) if isinstance(data, list) else '?'}"
             )
@@ -209,7 +254,14 @@ class PipelineRunnerBase(ABC):
                 fabric_param=fabric_param,
             )
 
+            elapsed = time.monotonic() - step_start
+
             if result.get('failed'):
+                display.display(
+                    f"{op_label} [{self.fabric_name}] "
+                    f"{resource_name} → failed [{elapsed:.1f}s]",
+                    color='red',
+                )
                 step_results.append({
                     'resource_name': resource_name,
                     'module': module,
@@ -226,13 +278,29 @@ class PipelineRunnerBase(ABC):
                     ),
                 }
 
+            changed = result.get('changed', False)
+            display.display(
+                f"{op_label} [{self.fabric_name}] "
+                f"{resource_name} → ok (changed={changed}) [{elapsed:.1f}s]",
+                color='green',
+            )
+
             step_results.append({
                 'resource_name': resource_name,
                 'module': module,
                 'status': 'ok',
-                'changed': result.get('changed', False),
+                'changed': changed,
                 'result': result,
             })
+
+        pipeline_elapsed = time.monotonic() - pipeline_start
+        display.display(
+            f"\n{'═' * 60}\n"
+            f"{self.OPERATION.upper()} [{self.fabric_name}] "
+            f"Pipeline complete — {total_steps} steps in {pipeline_elapsed:.1f}s\n"
+            f"{'═' * 60}",
+            color='cyan',
+        )
 
         return {
             'results': step_results,

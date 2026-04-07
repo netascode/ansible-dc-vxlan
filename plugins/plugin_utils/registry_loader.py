@@ -97,7 +97,6 @@ KNOWN_PIPELINE_FIELDS = {
     'deploy',
     'save',
     'tag',
-    'timeout',
 }
 
 class RegistryLoader:
