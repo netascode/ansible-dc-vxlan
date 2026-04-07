@@ -34,10 +34,14 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['changed'] = False
 
-        # List of switch serial numbes obtained directly from NDFC
+        # List of switch serial numbers obtained directly from NDFC
         ndfc_sw_serial_numbers = self._task.args["switch_serial_numbers"]
         # Data from data model
         data_model = self._task.args["data_model"]
+        # Fabric name for the dcnm_policy deletion call
+        fabric_name = self._task.args["fabric_name"]
+        # Deploy flag (default False to match old role behavior)
+        deploy = self._task.args.get("deploy", False)
 
         # Switches list from data model
         dm_topology_switches = data_model["vxlan"]["topology"]["switches"]
@@ -193,5 +197,25 @@ class ActionModule(ActionBase):
 
         # Store the unmanaged policy payload for return and usage in the NDFC policy module to delete from NDFC
         results['unmanaged_policies'] = unmanaged_policies
+
+        # Execute dcnm_policy deletion if unmanaged policies were found
+        if unmanaged_policies[0]["switch"]:
+            policy_result = self._execute_module(
+                module_name="cisco.dcnm.dcnm_policy",
+                module_args={
+                    "fabric": fabric_name,
+                    "use_desc_as_key": True,
+                    "config": unmanaged_policies,
+                    "deploy": deploy,
+                    "state": "deleted",
+                },
+                task_vars=task_vars,
+                tmp=tmp,
+            )
+            if policy_result.get('failed'):
+                results['failed'] = True
+                results['msg'] = policy_result.get('msg', 'dcnm_policy deletion failed')
+            elif policy_result.get('changed'):
+                results['changed'] = True
 
         return results

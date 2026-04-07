@@ -87,4 +87,13 @@
 {% endfor %}
 
 {% endif %}
+{# resource for anycast RP (multicast replication only) #}
+{% set replication_mode = vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) %}
+{% if replication_mode == "multicast" and vxlan.underlay.multicast.ipv4.anycast_rp is defined %}
+- entity_name: "ANYCAST_RP"
+  pool_type: IP
+  pool_name: "ANYCAST_RP_IP_POOL"
+  scope_type: fabric
+  resource: "{{ vxlan.underlay.multicast.ipv4.anycast_rp }}"
+{% endif %}
 {% endif %}

@@ -37,6 +37,7 @@ Shared infrastructure includes:
       _manage_child_fabrics — child fabric association management
       _vrf_loopback_attach — VRF loopback attachment via REST
       _tor_pairing — ToR pairing create/remove (direct or discovery mode)
+      _unmanaged_policy — discover and remove unmanaged policies from NDFC
       _config_save — delegates to fabric_deploy_manager (operation: config_save)
 """
 
@@ -137,6 +138,19 @@ class PipelineRunnerBase(ABC):
             if guard_result is not None:
                 step_results.append(guard_result)
                 continue
+
+            # ── Guard: data_model_guard ───────────────────────────────────
+            dm_guard = step.get('data_model_guard')
+            if dm_guard:
+                value = self._evaluate_data_model_guard(dm_guard)
+                if not value:
+                    step_results.append({
+                        'resource_name': resource_name,
+                        'module': module,
+                        'status': 'skipped',
+                        'reason': f"data_model_guard '{dm_guard}' resolved to falsy",
+                    })
+                    continue
 
             # ── Guard: change_flag_guard ──────────────────────────────────
             if flag_name and not self.change_flags.get(flag_name, False):
@@ -319,6 +333,29 @@ class PipelineRunnerBase(ABC):
                 'reason': f"Internal method '{module}' not found on {self.__class__.__name__}",
             }
 
+    def _evaluate_data_model_guard(self, dotpath):
+        """
+        Traverse the data model by dotpath and return the resolved value.
+
+        Used by the data_model_guard pipeline field. The caller checks
+        truthiness of the returned value to decide whether to skip the step.
+
+        Args:
+            dotpath: Dot-separated path into the data model
+                     (e.g. 'vxlan.overlay.vrfs').
+
+        Returns:
+            The resolved value, or None if any key in the path is missing.
+        """
+        obj = self.data_model
+        for key in dotpath.split('.'):
+            if not isinstance(obj, dict):
+                return None
+            obj = obj.get(key)
+            if obj is None:
+                return None
+        return obj
+
     # ══════════════════════════════════════════════════════════════════════════
     # Shared Internal Methods (called from pipeline via '_' prefix)
     # ══════════════════════════════════════════════════════════════════════════
@@ -479,6 +516,45 @@ class PipelineRunnerBase(ABC):
                     "current_pairings": tor_pairing_data if tor_pairing_data else [],
                 },
             )
+
+    def _unmanaged_policy(self, resource_name, step):
+        """
+        Discover and remove unmanaged policies from NDFC.
+
+        Queries each switch for policies with the 'nac_' description prefix,
+        compares against the data model, and deletes any that are not declared.
+        Delegates to the unmanaged_policy action plugin which handles both
+        discovery and dcnm_policy deletion in a single call.
+
+        Requires switch serial numbers from the pre-fetched switch list
+        (populated by _pre_pipeline_setup on the remove subclass, stored
+        as self.fabric_switch_list).
+        """
+        switches = getattr(self, 'fabric_switch_list', [])
+        if not switches:
+            return {'failed': False, 'msg': 'No switches in fabric — skipped'}
+
+        serial_numbers = [
+            s['serialNumber'] for s in switches
+            if isinstance(s, dict) and 'serialNumber' in s
+        ]
+
+        if not serial_numbers:
+            return {'failed': False, 'msg': 'No switch serial numbers found — skipped'}
+
+        display.v(
+            f"{self.OPERATION.upper()} [{self.fabric_name}] Discovering and removing "
+            f"unmanaged policies across {len(serial_numbers)} switch(es)"
+        )
+
+        return self.executor.execute_plugin(
+            module_name="cisco.nac_dc_vxlan.dtc.unmanaged_policy",
+            module_args={
+                "switch_serial_numbers": serial_numbers,
+                "data_model": self.data_model,
+                "fabric_name": self.fabric_name,
+            },
+        )
 
     def _config_save(self, resource_name, step):
         """

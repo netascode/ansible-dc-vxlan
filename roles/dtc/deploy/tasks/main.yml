@@ -41,9 +41,9 @@
     run_map_diff_run: "{{ run_map_read_result.diff_run }}"
     force_run_all: "{{ force_run_all | default(false) }}"
     operation: all
-  vars:
-    ansible_command_timeout: 3000
-    ansible_connect_timeout: 3000
+  # vars:
+  #   ansible_command_timeout: 3000
+  #   ansible_connect_timeout: 3000
   when: change_flags.changes_detected_any or
         (change_flags_msd.changes_detected_any is defined and change_flags_msd.changes_detected_any) or
         (change_flags_mcfg.changes_detected_any is defined and change_flags_mcfg.changes_detected_any)

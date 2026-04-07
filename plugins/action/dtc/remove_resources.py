@@ -88,8 +88,9 @@ class ResourceRemover(PipelineRunnerBase):
     # ══════════════════════════════════════════════════════════════════════════
 
     def _pre_pipeline_setup(self):
-        """Pre-fetch fabric switch list (used by requires_switches guard)."""
-        return {'switch_list': self._get_fabric_switches()}
+        """Pre-fetch fabric switch list for guards and internal methods."""
+        self.fabric_switch_list = self._get_fabric_switches()
+        return {'switch_list': self.fabric_switch_list}
 
     def _check_additional_guards(self, step, context):
         """

@@ -59,12 +59,22 @@ create_resources:
       state: merged
       save: false
       deploy: false
+      data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
+
+    - resource_name: underlay_ip_address
+      module: dcnm_resource_manager
+      state: merged
+      deploy: null
+      data_model_guard: vxlan.underlay.general.manual_underlay_allocation
+      change_flag_guard: changes_detected_underlay_ip_address
       tag: cr_manage_switches
 
     - resource_name: update_switch_hostname_policy
       module: _update_switch_hostname_policy
       state: null
+      data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_inventory
       tag: cr_manage_switches
 
@@ -128,12 +138,14 @@ create_resources:
       module: dcnm_vrf
       state: replaced
       deploy: null
+      data_model_guard: vxlan.overlay.vrfs
       change_flag_guard: changes_detected_vrfs
       tag: cr_manage_vrfs
 
     - resource_name: vrf_loopback_attach
       module: _vrf_loopback_attach
       state: null
+      data_model_guard: vxlan.overlay.vrfs
       change_flag_guard: changes_detected_vrfs
       tag: cr_manage_vrfs
 
@@ -141,6 +153,7 @@ create_resources:
       module: dcnm_network
       state: replaced
       deploy: null
+      data_model_guard: vxlan.overlay.networks
       change_flag_guard: changes_detected_networks
       tag: cr_manage_networks
 
@@ -175,11 +188,27 @@ create_resources:
   #     module: dcnm_inventory
   #     state: merged
   #     deploy: false
+  #     data_model_guard: vxlan.topology.switches
   #     change_flag_guard: changes_detected_inventory
+  #     tag: cr_manage_switches
+
+  #   - resource_name: underlay_ip_address
+  #     module: dcnm_resource_manager
+  #     state: merged
+  #     deploy: null
+  #     data_model_guard: vxlan.underlay.general.manual_underlay_allocation
+  #     change_flag_guard: changes_detected_underlay_ip_address
   #     tag: cr_manage_switches
 
   #   - resource_name: update_switch_hostname_policy
   #     module: _update_switch_hostname_policy
+  #     state: null
+  #     data_model_guard: vxlan.topology.switches
+  #     change_flag_guard: changes_detected_inventory
+  #     tag: cr_manage_switches
+
+  #   - resource_name: inventory_config_save
+  #     module: _config_save
   #     state: null
   #     change_flag_guard: changes_detected_inventory
   #     tag: cr_manage_switches
@@ -231,12 +260,14 @@ create_resources:
   #     module: dcnm_vrf
   #     state: replaced
   #     deploy: null
+  #     data_model_guard: vxlan.overlay.vrfs
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
   #   - resource_name: vrf_loopback_attach
   #     module: _vrf_loopback_attach
   #     state: null
+  #     data_model_guard: vxlan.overlay.vrfs
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
@@ -244,6 +275,7 @@ create_resources:
   #     module: dcnm_network
   #     state: replaced
   #     deploy: null
+  #     data_model_guard: vxlan.overlay.networks
   #     change_flag_guard: changes_detected_networks
   #     tag: cr_manage_networks
 
@@ -270,11 +302,19 @@ create_resources:
   #     module: dcnm_inventory
   #     state: merged
   #     deploy: false
+  #     data_model_guard: vxlan.topology.switches
   #     change_flag_guard: changes_detected_inventory
   #     tag: cr_manage_switches
 
   #   - resource_name: update_switch_hostname_policy
   #     module: _update_switch_hostname_policy
+  #     state: null
+  #     data_model_guard: vxlan.topology.switches
+  #     change_flag_guard: changes_detected_inventory
+  #     tag: cr_manage_switches
+
+  #   - resource_name: inventory_config_save
+  #     module: _config_save
   #     state: null
   #     change_flag_guard: changes_detected_inventory
   #     tag: cr_manage_switches
@@ -316,11 +356,19 @@ create_resources:
   #     module: dcnm_inventory
   #     state: merged
   #     deploy: false
+  #     data_model_guard: vxlan.topology.switches
   #     change_flag_guard: changes_detected_inventory
   #     tag: cr_manage_switches
 
   #   - resource_name: update_switch_hostname_policy
   #     module: _update_switch_hostname_policy
+  #     state: null
+  #     data_model_guard: vxlan.topology.switches
+  #     change_flag_guard: changes_detected_inventory
+  #     tag: cr_manage_switches
+
+  #   - resource_name: inventory_config_save
+  #     module: _config_save
   #     state: null
   #     change_flag_guard: changes_detected_inventory
   #     tag: cr_manage_switches
@@ -411,12 +459,14 @@ create_resources:
   #     module: dcnm_vrf
   #     state: replaced
   #     deploy: null
+  #     data_model_guard: vxlan.multisite.overlay.vrfs
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
   #   - resource_name: vrf_loopback_attach
   #     module: _vrf_loopback_attach
   #     state: null
+  #     data_model_guard: vxlan.multisite.overlay.vrfs
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
@@ -424,6 +474,7 @@ create_resources:
   #     module: dcnm_network
   #     state: replaced
   #     deploy: null
+  #     data_model_guard: vxlan.multisite.overlay.networks
   #     change_flag_guard: changes_detected_networks
   #     tag: cr_manage_networks
 
@@ -455,12 +506,14 @@ create_resources:
   #     module: dcnm_vrf
   #     state: replaced
   #     deploy: null
+  #     data_model_guard: vxlan.multisite.overlay.vrfs
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
   #   - resource_name: vrf_loopback_attach
   #     module: _vrf_loopback_attach
   #     state: null
+  #     data_model_guard: vxlan.multisite.overlay.vrfs
   #     change_flag_guard: changes_detected_vrfs
   #     tag: cr_manage_vrfs
 
@@ -468,5 +521,6 @@ create_resources:
   #     module: dcnm_network
   #     state: replaced
   #     deploy: null
+  #     data_model_guard: vxlan.multisite.overlay.networks
   #     change_flag_guard: changes_detected_networks
   #     tag: cr_manage_networks

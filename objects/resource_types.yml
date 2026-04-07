@@ -35,6 +35,8 @@
 #   - post_hooks:     (optional) Hooks after rendering. If a hook returns
 #                       'module_data' in its result, that becomes the
 #                       authoritative data for downstream NDFC modules
+#   - template_overrides: (optional) Per-fabric-type template substitution
+#                           (e.g. vpc_peering uses a different template for External)
 # ══════════════════════════════════════════════════════════════════════════════
 ---
 

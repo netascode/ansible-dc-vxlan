@@ -78,11 +78,6 @@ REQUIRED_PIPELINE_FIELDS = {
 REQUIRED_FABRIC_TYPE_FIELDS = {
     'namespace',
     'file_subdir',
-    'global_key',
-    'fabric_template_dir',
-    'supports_overlay',
-    'supports_vpc',
-    'supports_multisite',
 }
 
 # Pipeline fields that are known/valid (for typo detection)
@@ -93,12 +88,14 @@ KNOWN_PIPELINE_FIELDS = {
     'state_full_run',
     'data_key_full_run',
     'change_flag_guard',
+    'data_model_guard',
     'delete_mode_guard',
     'skip_if_child_fabric',
     'requires_switches',
     'fabric_param',
     'skip_diff',
     'deploy',
+    'save',
     'tag',
     'timeout',
 }

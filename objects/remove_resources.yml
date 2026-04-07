@@ -61,10 +61,11 @@ remove_resources:
       tag: rr_manage_edge_connections
 
     - resource_name: policy
-      module: dcnm_policy
-      state: deleted
+      module: _unmanaged_policy
+      state: null
       change_flag_guard: changes_detected_policy
       delete_mode_guard: policy_delete_mode
+      requires_switches: true
       tag: rr_manage_policy
 
     - resource_name: interface_all
@@ -153,10 +154,11 @@ remove_resources:
       tag: rr_manage_tor_pairing
 
     - resource_name: policy
-      module: dcnm_policy
-      state: deleted
+      module: _unmanaged_policy
+      state: null
       change_flag_guard: changes_detected_policy
       delete_mode_guard: policy_delete_mode
+      requires_switches: true
       tag: rr_manage_policy
 
     - resource_name: interface_all
@@ -208,10 +210,11 @@ remove_resources:
       tag: rr_manage_edge_connections
 
     - resource_name: policy
-      module: dcnm_policy
-      state: deleted
+      module: _unmanaged_policy
+      state: null
       change_flag_guard: changes_detected_policy
       delete_mode_guard: policy_delete_mode
+      requires_switches: true
       tag: rr_manage_policy
 
     - resource_name: interface_all
@@ -243,10 +246,11 @@ remove_resources:
       tag: rr_manage_edge_connections
 
     - resource_name: policy
-      module: dcnm_policy
-      state: deleted
+      module: _unmanaged_policy
+      state: null
       change_flag_guard: changes_detected_policy
       delete_mode_guard: policy_delete_mode
+      requires_switches: true
       tag: rr_manage_policy
 
     - resource_name: interface_all
