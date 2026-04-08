@@ -128,6 +128,7 @@ nac_tags:
     - rr_manage_tor_pairing
   # All Create Tags
   create:
+    - role_create
     - cr_manage_fabric
     - cr_manage_switches
     - cr_manage_vpc_peers
@@ -160,6 +161,7 @@ nac_tags:
     - cr_manage_links
   # All Remove Tags
   remove:
+    - role_remove
     - rr_manage_interfaces
     - rr_manage_networks
     - rr_manage_vrfs

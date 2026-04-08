@@ -167,23 +167,30 @@ class RegistryLoader:
         RegistryLoader.load.cache_clear()
 
     @staticmethod
-    def filter_pipeline_by_tags(pipeline_steps, ansible_run_tags):
+    def filter_pipeline_by_tags(pipeline_steps, ansible_run_tags, role_tag=None):
         """
         Filter pipeline steps based on Ansible run tags.
 
-        Steps without a 'tag' field always execute (infrastructure steps).
-        Steps with a 'tag' field execute only if:
-          - ansible_run_tags contains 'all', OR
-          - the step's tag is in ansible_run_tags
+        Filtering rules (applied in order):
+          1. No active tags or empty → run all steps (no --tags specified)
+          2. 'all' in active tags → run all steps (Ansible convention)
+          3. role_tag in active tags → run all steps (role-level bypass)
+          4. Otherwise → include only steps whose tag matches an active tag
+          5. Steps with no tag field (tag is None) → always included
 
         Args:
             pipeline_steps: List of pipeline step dicts from YAML registry.
             ansible_run_tags: Set/list of tags from ansible_run_tags.
+            role_tag: Optional role-level tag from registry. If present in
+                      ansible_run_tags, bypasses per-step filtering.
 
         Returns:
             Filtered list of pipeline steps.
         """
         if not ansible_run_tags or 'all' in ansible_run_tags:
+            return pipeline_steps
+
+        if role_tag and role_tag in ansible_run_tags:
             return pipeline_steps
 
         filtered = []

@@ -95,7 +95,12 @@ class PipelineRunnerBase(ABC):
         # Load pipeline from registry
         collection_path = RegistryLoader.get_collection_path()
         registry = RegistryLoader.load(collection_path, self.REGISTRY_KEY)
-        self.pipelines = registry.get(self.REGISTRY_KEY, {})
+        pipelines = registry.get(self.REGISTRY_KEY, {})
+
+        # Extract role-level bypass tag (e.g., role_create, role_remove)
+        # Use .get() — don't mutate the cached registry dict
+        self.role_tag = pipelines.get('role_tag')
+        self.pipelines = {k: v for k, v in pipelines.items() if k != 'role_tag'}
 
     def run_pipeline(self):
         """
@@ -122,7 +127,9 @@ class PipelineRunnerBase(ABC):
 
         # Filter by tags if needed
         ansible_run_tags = self.task_vars.get('ansible_run_tags', [])
-        pipeline = RegistryLoader.filter_pipeline_by_tags(pipeline, ansible_run_tags)
+        pipeline = RegistryLoader.filter_pipeline_by_tags(
+            pipeline, ansible_run_tags, self.role_tag
+        )
 
         # Hook: subclass pre-pipeline setup (e.g., pre-fetch switch list)
         context = self._pre_pipeline_setup()
