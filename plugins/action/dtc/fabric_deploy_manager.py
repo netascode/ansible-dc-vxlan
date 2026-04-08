@@ -220,7 +220,7 @@ class FabricDeployManager:
             f"\n{'─' * display.columns}\n"
             f"DEPLOY [{self.fabric_name}] check_sync\n"
             f"{'─' * display.columns}",
-            color='white',
+            color='dark gray',
         )
 
         self.fabric_in_sync = True
@@ -276,7 +276,7 @@ class FabricDeployManager:
             f"\n{'─' * display.columns}\n"
             f"DEPLOY [{self.fabric_name}] config_save\n"
             f"{'─' * display.columns}",
-            color='white',
+            color='dark gray',
         )
 
         response = self._send_request("POST", self.paths.config_save)
@@ -303,7 +303,7 @@ class FabricDeployManager:
             f"\n{'─' * display.columns}\n"
             f"DEPLOY [{self.fabric_name}] fabric_deploy\n"
             f"{'─' * display.columns}",
-            color='white',
+            color='dark gray',
         )
 
         response = self._send_request("POST", self.paths.config_deploy)
@@ -337,7 +337,7 @@ class FabricDeployManager:
             f"\n{'─' * display.columns}\n"
             f"DEPLOY [{self.fabric_name}] get_deployable_switches\n"
             f"{'─' * display.columns}",
-            color='white',
+            color='dark gray',
         )
 
         response = self._send_request("GET", self.paths.switches_by_fabric)
@@ -386,7 +386,7 @@ class FabricDeployManager:
             f"\n{'─' * display.columns}\n"
             f"DEPLOY [{self.fabric_name}] switch_deploy ({len(serial_numbers)} switches)\n"
             f"{'─' * display.columns}",
-            color='white',
+            color='dark gray',
         )
 
         if not serial_numbers:
@@ -423,7 +423,7 @@ class FabricDeployManager:
             f"\n{'─' * display.columns}\n"
             f"DEPLOY [{self.fabric_name}] fabric_history_get\n"
             f"{'─' * display.columns}",
-            color='white',
+            color='dark gray',
         )
 
         response = self._send_request("GET", self.paths.fabric_history)
@@ -568,7 +568,7 @@ class ActionModule(ActionBase):
                     f"DEPLOY [{params['fabric_name']}] "
                     f"child_fabric (cluster={params['cluster_name']})\n"
                     f"{'─' * display.columns}",
-                    color='white',
+                    color='dark gray',
                 )
 
                 results = self.manage_fabrics(results, params)
@@ -599,7 +599,7 @@ class ActionModule(ActionBase):
             f"DEPLOY [{fabric_name}] "
             f"Workflow start — operation: {operation}\n"
             f"{'═' * display.columns}",
-            color='white',
+            color='dark gray',
         )
 
         fabric_manager = FabricDeployManager(params)
@@ -671,7 +671,7 @@ class ActionModule(ActionBase):
                 results['failed'] = True
 
         workflow_elapsed = monotonic() - workflow_start
-        status_color = 'red' if results.get('failed') else 'white'
+        status_color = 'red' if results.get('failed') else 'dark gray'
         display.display(
             f"\n{'═' * display.columns}\n"
             f"DEPLOY [{fabric_name}] "

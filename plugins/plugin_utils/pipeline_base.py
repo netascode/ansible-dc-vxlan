@@ -150,7 +150,7 @@ class PipelineRunnerBase(ABC):
                 f"{op_label} [{self.fabric_name}] "
                 f"Step {step_index}/{total_steps}: {resource_name} ({module})\n"
                 f"{'─' * display.columns}",
-                color='white',
+                color='dark gray',
             )
 
             # ── Hook: subclass-specific additional guards ─────────────────
@@ -337,7 +337,7 @@ class PipelineRunnerBase(ABC):
             f"{self.OPERATION.upper()} [{self.fabric_name}] "
             f"Pipeline complete — {total_steps} steps in {pipeline_elapsed:.1f}s\n"
             f"{'═' * display.columns}",
-            color='white',
+            color='dark gray',
         )
 
         return {
