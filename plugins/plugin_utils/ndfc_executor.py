@@ -34,6 +34,10 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.utils.display import Display
+
+display = Display()
+
 
 class NdfcModuleExecutor:
     """
@@ -87,6 +91,11 @@ class NdfcModuleExecutor:
         Returns:
             Module result dict.
         """
+        # Strip omit placeholders from config before passing to modules.
+        # Ansible's TaskExecutor calls remove_omit() on module_args for native
+        # YAML tasks, but our programmatic invocation bypasses that path.
+        config = self._remove_omit_placeholders(config)
+
         module_args = {
             'state': state,
             'config': config,
@@ -146,6 +155,26 @@ class NdfcModuleExecutor:
             Plugin result dict.
         """
         return self._execute_via_action_plugin(module_name, module_args)
+
+    @staticmethod
+    def _remove_omit_placeholders(data):
+        """Recursively remove dict entries whose values contain '__omit_place_holder__'.
+
+        Replicates the behaviour of Ansible's TaskExecutor.remove_omit() which
+        strips omit sentinel values from module_args before module invocation.
+        When modules are called programmatically via _execute_via_action_plugin,
+        that native stripping is bypassed — this method fills the gap.
+        """
+        if isinstance(data, list):
+            return [NdfcModuleExecutor._remove_omit_placeholders(item) for item in data]
+        if isinstance(data, dict):
+            cleaned = {}
+            for key, value in data.items():
+                if isinstance(value, str) and '__omit_place_holder__' in value:
+                    continue
+                cleaned[key] = NdfcModuleExecutor._remove_omit_placeholders(value)
+            return cleaned
+        return data
 
     def _execute_via_action_plugin(self, module_name, module_args):
         """

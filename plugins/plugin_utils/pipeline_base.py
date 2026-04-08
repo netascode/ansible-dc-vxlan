@@ -479,9 +479,12 @@ class PipelineRunnerBase(ABC):
         Prepare multisite data for MSD/MCFG operations.
 
         Delegates to the existing prepare_msite_data action plugin.
-        Operation type is determined by the OPERATION class attribute.
+        Stores the result in task_vars under the fabric-type-specific
+        variable name (runtime_msd_data_model or runtime_mcfg_data_model)
+        so that downstream Jinja2 templates can access it during deferred
+        overlay rendering via _msite_build_overlay.
         """
-        return self.executor.execute_plugin(
+        result = self.executor.execute_plugin(
             module_name="cisco.nac_dc_vxlan.dtc.prepare_msite_data",
             module_args={
                 "data_model": self.data_model,
@@ -490,6 +493,84 @@ class PipelineRunnerBase(ABC):
                 "nd_version": self.task_vars.get('nd_version', ''),
             },
         )
+
+        # Store for Jinja2 template access under the fabric-type-specific name
+        # that MSD/MCFG templates already reference
+        var_name = f"runtime_{self.fabric_type.lower()}_data_model"
+        self.task_vars[var_name] = result
+        self.msite_data = result
+
+        return result
+
+    def _msite_build_overlay(self, resource_name, step):
+        """
+        Deferred overlay build for MSD/MCFG fabric types.
+
+        MSD and MCFG VRF/network templates depend on runtime_msd_data_model
+        or runtime_mcfg_data_model (populated by _prepare_msite_data), which
+        is only available after querying the controller for child fabric state.
+        This method performs the Template→Render→Diff→Flag cycle for overlay
+        resources at pipeline execution time, after _prepare_msite_data has run.
+
+        Invokes build_resource_data with a resource_filter to process only
+        the overlay resources (vrfs, vrf_loopback_attach, networks), bypassing
+        the normal fabric_types filtering that would exclude MSD/MCFG.
+
+        Merges the resulting resource_data and change_flags back into the
+        pipeline runner's state so downstream steps work unchanged.
+        """
+        role_path = self.task_vars.get('common_role_path', '')
+        if not role_path:
+            return {
+                'failed': True,
+                'msg': "common_role_path not found in task_vars — "
+                       "ensure the common role has run before create/remove",
+            }
+
+        check_roles = self.task_vars.get('check_roles', {})
+
+        result = self.executor.execute_plugin(
+            module_name="cisco.nac_dc_vxlan.dtc.build_resource_data",
+            module_args={
+                "fabric_type": self.fabric_type,
+                "fabric_name": self.fabric_name,
+                "data_model": self.data_model,
+                "role_path": role_path,
+                "run_map_diff_run": self.run_map_diff_run,
+                "force_run_all": self.force_run_all,
+                "check_roles": check_roles,
+                "resource_filter": ["vrfs", "vrf_loopback_attach", "networks"],
+            },
+        )
+
+        if result.get('failed'):
+            return result
+
+        # Merge resource_data into pipeline runner state
+        new_resource_data = result.get('resource_data', {})
+        self.resource_data.update(new_resource_data)
+
+        # Merge change_flags into pipeline runner state
+        new_change_flags = result.get('change_flags', {})
+        self.change_flags.update(new_change_flags)
+
+        # Update aggregate flag
+        if any(new_change_flags.values()):
+            self.change_flags['changes_detected_any'] = True
+
+        # Merge diff_results if present
+        new_diff_results = result.get('diff_results', {})
+        if hasattr(self, 'diff_results'):
+            self.diff_results.update(new_diff_results)
+
+        display.v(
+            f"{self.OPERATION.upper()} [{self.fabric_name}] "
+            f"Deferred overlay build complete: "
+            f"resources={list(new_resource_data.keys())}, "
+            f"flags={new_change_flags}"
+        )
+
+        return {'failed': False, 'changed': any(new_change_flags.values())}
 
     def _manage_child_fabrics(self, resource_name, step):
         """

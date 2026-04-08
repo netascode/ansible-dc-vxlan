@@ -281,6 +281,12 @@ remove_resources:
       change_flag_guard: null
       tag: rr_manage_vrfs_networks
 
+    - resource_name: msite_build_overlay
+      module: _msite_build_overlay
+      state: null
+      change_flag_guard: null
+      tag: rr_manage_vrfs_networks
+
     - resource_name: networks
       module: dcnm_network
       state: deleted
@@ -309,6 +315,12 @@ remove_resources:
   # MCFG:
   #   - resource_name: null
   #     module: _prepare_msite_data
+  #     state: null
+  #     change_flag_guard: null
+  #     tag: rr_manage_vrfs_networks
+
+  #   - resource_name: msite_build_overlay
+  #     module: _msite_build_overlay
   #     state: null
   #     change_flag_guard: null
   #     tag: rr_manage_vrfs_networks

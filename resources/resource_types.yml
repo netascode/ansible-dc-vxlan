@@ -166,6 +166,9 @@ resource_types:
     var_name: vrf_attach_config
     change_flag: null
     diff_compare: false
+    template_overrides:
+      MSD: ndfc_vrfs/msd_fabric/msd_fabric_attach_vrfs_loopbacks.j2
+      MCFG: ndfc_vrfs/mcfg_fabric/mcfg_fabric_attach_vrfs_loopbacks.j2
     fabric_types:
       - VXLAN_EVPN
       - eBGP_VXLAN

@@ -82,6 +82,7 @@ class ResourceDataBuilder:
         self.run_map_diff_run = params.get('run_map_diff_run', True)
         self.force_run_all = params.get('force_run_all', False)
         self.check_roles = params.get('check_roles', {})
+        self.resource_filter = params.get('resource_filter', None)
 
         self.action_module = action_module
         self.task_vars = task_vars
@@ -124,8 +125,11 @@ class ResourceDataBuilder:
               - 'msg': Summary message
         """
         # Cleanup output directory if not a diff run
-        if not self.run_map_diff_run or self.force_run_all:
-            self._cleanup_files()
+        # Skip cleanup when using resource_filter (deferred build) since the
+        # output directory was already set up by the common-phase build.
+        if not self.resource_filter:
+            if not self.run_map_diff_run or self.force_run_all:
+                self._cleanup_files()
 
         # Ensure output directory exists
         os.makedirs(self.output_path, exist_ok=True)
@@ -133,10 +137,16 @@ class ResourceDataBuilder:
         step_results = []
 
         for resource_name, rt in self.resource_types.items():
-            # Filter by fabric type
-            applicable_fabrics = rt.get('fabric_types', [])
-            if self.fabric_type not in applicable_fabrics:
-                continue
+            # When resource_filter is set (deferred build for MSD/MCFG),
+            # process only the named resources and skip fabric_types check.
+            # Otherwise, apply the standard fabric_type filter.
+            if self.resource_filter:
+                if resource_name not in self.resource_filter:
+                    continue
+            else:
+                applicable_fabrics = rt.get('fabric_types', [])
+                if self.fabric_type not in applicable_fabrics:
+                    continue
 
             template = rt.get('template')
 

@@ -482,6 +482,12 @@ create_resources:
     #   change_flag_guard: changes_detected_bgw_anycast_vip
     #   tag: cr_manage_vrfs_networks
 
+    - resource_name: msite_build_overlay
+      module: _msite_build_overlay
+      state: null
+      change_flag_guard: null
+      tag: cr_manage_vrfs_networks
+
     - resource_name: vrfs
       module: dcnm_vrf
       state: replaced
@@ -525,6 +531,12 @@ create_resources:
 
   #   - resource_name: null
   #     module: _prepare_msite_data
+  #     state: null
+  #     change_flag_guard: null
+  #     tag: cr_manage_vrfs_networks
+
+  #   - resource_name: msite_build_overlay
+  #     module: _msite_build_overlay
   #     state: null
   #     change_flag_guard: null
   #     tag: cr_manage_vrfs_networks
