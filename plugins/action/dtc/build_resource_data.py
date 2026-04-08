@@ -145,22 +145,6 @@ class ResourceDataBuilder:
                 method_name = f'_{resource_name}'
                 try:
                     method = getattr(self, method_name)
-                    result = method(rt)
-                    step_results.append({
-                        'resource_name': resource_name,
-                        'status': 'ok',
-                        'result': result,
-                    })
-                    if isinstance(result, dict) and result.get('failed'):
-                        return {
-                            'resource_data': self.resource_data,
-                            'change_flags': self.change_flags,
-                            'diff_results': self.diff_results,
-                            'namespace': self.namespace,
-                            'results': step_results,
-                            'failed': True,
-                            'msg': result.get('msg', f"Step '{resource_name}' failed"),
-                        }
                 except AttributeError:
                     step_results.append({
                         'resource_name': resource_name,
@@ -175,6 +159,23 @@ class ResourceDataBuilder:
                         'results': step_results,
                         'failed': True,
                         'msg': f"Internal method '{method_name}' not found on ResourceDataBuilder",
+                    }
+
+                result = method(rt)
+                step_results.append({
+                    'resource_name': resource_name,
+                    'status': 'ok',
+                    'result': result,
+                })
+                if isinstance(result, dict) and result.get('failed'):
+                    return {
+                        'resource_data': self.resource_data,
+                        'change_flags': self.change_flags,
+                        'diff_results': self.diff_results,
+                        'namespace': self.namespace,
+                        'results': step_results,
+                        'failed': True,
+                        'msg': result.get('msg', f"Step '{resource_name}' failed"),
                     }
                 continue
 

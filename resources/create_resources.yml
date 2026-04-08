@@ -456,24 +456,31 @@ create_resources:
       change_flag_guard: changes_detected_fabric
       tag: cr_manage_fabric
 
-    - resource_name: null
+    - resource_name: child_fabrics
       module: _manage_child_fabrics
       state: null
-      change_flag_guard: null
+      change_flag_guard: changes_detected_fabric
       tag: cr_manage_fabric
 
-    - resource_name: null
+    - resource_name: child_fabric_config_save
+      module: _config_save
+      state: null
+      change_flag_guard: changes_detected_fabric
+      runtime_change_refs: [child_fabrics]
+      tag: cr_manage_switches
+
+    - resource_name: prepare_msite_data
       module: _prepare_msite_data
       state: null
       change_flag_guard: null
       tag: cr_manage_vrfs_networks
 
-    - resource_name: bgw_anycast_vip
-      module: dcnm_resource_manager
-      state: merged
-      deploy: null
-      change_flag_guard: changes_detected_bgw_anycast_vip
-      tag: cr_manage_vrfs_networks
+    # - resource_name: bgw_anycast_vip
+    #   module: dcnm_resource_manager
+    #   state: merged
+    #   deploy: null
+    #   change_flag_guard: changes_detected_bgw_anycast_vip
+    #   tag: cr_manage_vrfs_networks
 
     - resource_name: vrfs
       module: dcnm_vrf

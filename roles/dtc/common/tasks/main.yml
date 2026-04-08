@@ -56,7 +56,6 @@
     check_roles: "{{ check_roles }}"
   register: build_result
   tags: "{{ nac_tags.common_role }}"
-  delegate_to: localhost
 
 - name: Display Resource Build Summary
   ansible.builtin.debug:

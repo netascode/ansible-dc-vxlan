@@ -417,6 +417,7 @@ class PipelineRunnerBase(ABC):
                 'resource_name': resource_name,
                 'module': module,
                 'status': 'ok',
+                'changed': result.get('changed', False) if isinstance(result, dict) else False,
                 'result': result,
             }
             # Internal methods can signal failure
@@ -497,11 +498,25 @@ class PipelineRunnerBase(ABC):
         Delegates to the existing manage_child_fabrics action plugin.
         Operation type is determined by the OPERATION class attribute.
         """
+        child_fabrics_data = self.resource_data.get('child_fabrics', {}).get('data', {})
+
+        if self.OPERATION == 'create':
+            child_fabrics_list = child_fabrics_data.get('to_be_added', [])
+            state = 'present'
+        else:
+            child_fabrics_list = child_fabrics_data.get('to_be_removed', [])
+            state = 'absent'
+
+        if not child_fabrics_list:
+            return {'changed': False, 'failed': False}
+
         return self.executor.execute_plugin(
             module_name="cisco.nac_dc_vxlan.dtc.manage_child_fabrics",
             module_args={
-                "data_model": self.data_model,
-                "operation": self.OPERATION,
+                "parent_fabric": self.fabric_name,
+                "parent_fabric_type": self.fabric_type,
+                "child_fabrics": child_fabrics_list,
+                "state": state,
             },
         )
 
