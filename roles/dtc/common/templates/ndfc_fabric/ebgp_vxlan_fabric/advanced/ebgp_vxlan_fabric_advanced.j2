@@ -22,8 +22,5 @@
 {% if vxlan.global.ebgp.ptp.enable is defined and vxlan.global.ebgp.ptp.enable | ansible.builtin.bool %}
   PTP_DOMAIN_ID: {{ vxlan.global.ebgp.ptp.domain_id | default(defaults.vxlan.global.ebgp.ptp.domain_id) }}
   PTP_LB_ID: {{ vxlan.global.ebgp.ptp.lb_id | default(defaults.vxlan.global.ebgp.ptp.lb_id) }}
-{% if vxlan.global.ebgp.ptp.vlan_id is defined %}
-  PTP_VLAN_ID: {{ vxlan.global.ebgp.ptp.vlan_id }}
-{% endif %}
 {% endif %}
 {% endif %}
