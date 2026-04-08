@@ -303,143 +303,146 @@ create_resources:
   #     change_flag_guard: changes_detected_policy
   #     tag: cr_manage_policy
 
-  # # ──────────────────────────────────────────────────────────────────────────
-  # # ISN — No overlay, no vPC, no links. Edge connections + interfaces
-  # # ──────────────────────────────────────────────────────────────────────────
-  # ISN:
-  #   - resource_name: fabric
-  #     module: dcnm_fabric
-  #     state: merged
-  #     fabric_param: null
-  #     deploy: null
-  #     change_flag_guard: changes_detected_fabric
-  #     tag: cr_manage_fabric
+  # ──────────────────────────────────────────────────────────────────────────
+  # ISN — No overlay, no vPC, no links. Edge connections + interfaces
+  # ──────────────────────────────────────────────────────────────────────────
+  ISN:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      fabric_param: null
+      deploy: null
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
 
-  #   - resource_name: inventory
-  #     module: dcnm_inventory
-  #     state: merged
-  #     deploy: false
-  #     data_model_guard: vxlan.topology.switches
-  #     change_flag_guard: changes_detected_inventory
-  #     tag: cr_manage_switches
+    - resource_name: inventory
+      module: dcnm_inventory
+      state: merged
+      deploy: false
+      data_model_guard: vxlan.topology.switches
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
 
-  #   - resource_name: update_switch_hostname_policy
-  #     module: _update_switch_hostname_policy
-  #     state: null
-  #     data_model_guard: vxlan.topology.switches
-  #     change_flag_guard: changes_detected_inventory
-  #     tag: cr_manage_switches
+    - resource_name: update_switch_hostname_policy
+      module: _update_switch_hostname_policy
+      state: null
+      data_model_guard: vxlan.topology.switches
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
 
-  #   - resource_name: inventory_config_save
-  #     module: _config_save
-  #     state: null
-  #     change_flag_guard: changes_detected_inventory
-  #     tag: cr_manage_switches
+    - resource_name: inventory_config_save
+      module: _config_save
+      state: null
+      change_flag_guard: changes_detected_inventory
+      runtime_change_refs: [inventory, update_switch_hostname_policy]
+      tag: cr_manage_switches
 
-  #   - resource_name: edge_connections
-  #     module: dcnm_policy
-  #     state: merged
-  #     deploy: false
-  #     change_flag_guard: changes_detected_edge_connections
-  #     tag: cr_manage_edge_connections
+    - resource_name: edge_connections
+      module: dcnm_policy
+      state: merged
+      deploy: false
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
 
-  #   - resource_name: interface_all
-  #     module: dcnm_interface
-  #     state: replaced
-  #     deploy: null
-  #     change_flag_guard: changes_detected_interfaces
-  #     tag: cr_manage_interfaces
+    - resource_name: interface_all
+      module: dcnm_interface
+      state: replaced
+      deploy: null
+      change_flag_guard: changes_detected_interfaces
+      tag: cr_manage_interfaces
 
-  #   - resource_name: policy
-  #     module: dcnm_policy
-  #     state: merged
-  #     deploy: false
-  #     change_flag_guard: changes_detected_policy
-  #     tag: cr_manage_policy
+    - resource_name: policy
+      module: dcnm_policy
+      state: merged
+      deploy: false
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
 
-  # # ──────────────────────────────────────────────────────────────────────────
-  # # External — vPC + edge connections + interfaces, no overlay or links
-  # # ──────────────────────────────────────────────────────────────────────────
-  # External:
-  #   - resource_name: fabric
-  #     module: dcnm_fabric
-  #     state: merged
-  #     fabric_param: null
-  #     deploy: null
-  #     change_flag_guard: changes_detected_fabric
-  #     tag: cr_manage_fabric
+  # ──────────────────────────────────────────────────────────────────────────
+  # External — vPC + edge connections + interfaces, no overlay or links
+  # ──────────────────────────────────────────────────────────────────────────
+  External:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      fabric_param: null
+      deploy: null
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
 
-  #   - resource_name: inventory
-  #     module: dcnm_inventory
-  #     state: merged
-  #     deploy: false
-  #     data_model_guard: vxlan.topology.switches
-  #     change_flag_guard: changes_detected_inventory
-  #     tag: cr_manage_switches
+    - resource_name: inventory
+      module: dcnm_inventory
+      state: merged
+      deploy: false
+      data_model_guard: vxlan.topology.switches
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
 
-  #   - resource_name: update_switch_hostname_policy
-  #     module: _update_switch_hostname_policy
-  #     state: null
-  #     data_model_guard: vxlan.topology.switches
-  #     change_flag_guard: changes_detected_inventory
-  #     tag: cr_manage_switches
+    - resource_name: update_switch_hostname_policy
+      module: _update_switch_hostname_policy
+      state: null
+      data_model_guard: vxlan.topology.switches
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
 
-  #   - resource_name: inventory_config_save
-  #     module: _config_save
-  #     state: null
-  #     change_flag_guard: changes_detected_inventory
-  #     tag: cr_manage_switches
+    - resource_name: inventory_config_save
+      module: _config_save
+      state: null
+      change_flag_guard: changes_detected_inventory
+      runtime_change_refs: [inventory, update_switch_hostname_policy]
+      tag: cr_manage_switches
 
-  #   - resource_name: vpc_domain_id_resource
-  #     module: dcnm_resource_manager
-  #     state: merged
-  #     deploy: null
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: cr_manage_vpc_peers
+    - resource_name: vpc_domain_id_resource
+      module: dcnm_resource_manager
+      state: merged
+      deploy: null
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
 
-  #   - resource_name: vpc_fabric_peering_links
-  #     module: dcnm_links
-  #     state: replaced
-  #     fabric_param: src_fabric
-  #     deploy: null
-  #     skip_diff: true
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: cr_manage_vpc_peers
+    - resource_name: vpc_fabric_peering_links
+      module: dcnm_links
+      state: replaced
+      fabric_param: src_fabric
+      deploy: null
+      skip_diff: true
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
 
-  #   - resource_name: vpc_peering
-  #     module: dcnm_vpc_pair
-  #     state: replaced
-  #     fabric_param: src_fabric
-  #     deploy: false
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: cr_manage_vpc_peers
+    - resource_name: vpc_peering
+      module: dcnm_vpc_pair
+      state: replaced
+      fabric_param: src_fabric
+      deploy: false
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
 
-  #   - resource_name: vpc_config_save
-  #     module: _config_save
-  #     state: null
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: cr_manage_vpc_peers
+    - resource_name: vpc_config_save
+      module: _config_save
+      state: null
+      change_flag_guard: changes_detected_vpc_peering
+      runtime_change_refs: [vpc_domain_id_resource, vpc_fabric_peering_links, vpc_peering]
+      tag: cr_manage_vpc_peers
 
-  #   - resource_name: edge_connections
-  #     module: dcnm_policy
-  #     state: merged
-  #     deploy: false
-  #     change_flag_guard: changes_detected_edge_connections
-  #     tag: cr_manage_edge_connections
+    - resource_name: edge_connections
+      module: dcnm_policy
+      state: merged
+      deploy: false
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
 
-  #   - resource_name: interface_all
-  #     module: dcnm_interface
-  #     state: replaced
-  #     deploy: null
-  #     change_flag_guard: changes_detected_interfaces
-  #     tag: cr_manage_interfaces
+    - resource_name: interface_all
+      module: dcnm_interface
+      state: replaced
+      deploy: null
+      change_flag_guard: changes_detected_interfaces
+      tag: cr_manage_interfaces
 
-  #   - resource_name: policy
-  #     module: dcnm_policy
-  #     state: merged
-  #     deploy: false
-  #     change_flag_guard: changes_detected_policy
-  #     tag: cr_manage_policy
+    - resource_name: policy
+      module: dcnm_policy
+      state: merged
+      deploy: false
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
 
   # # ──────────────────────────────────────────────────────────────────────────
   # # MSD — Multisite parent: fabric + child fabrics + prepare + overlay

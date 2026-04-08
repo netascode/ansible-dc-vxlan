@@ -86,6 +86,7 @@ KNOWN_PIPELINE_FIELDS = {
     'module',
     'state',
     'state_full_run',
+    'full_run_strategy',
     'data_key_full_run',
     'change_flag_guard',
     'data_model_guard',

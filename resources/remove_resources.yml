@@ -190,86 +190,86 @@ remove_resources:
   #     delete_mode_guard: inventory_delete_mode
   #     tag: rr_manage_switches
 
-  # # ──────────────────────────────────────────────────────────────────────────
-  # # ISN — Edge connections + interfaces, no overlay or vPC
-  # # ──────────────────────────────────────────────────────────────────────────
-  # ISN:
-  #   - resource_name: edge_connections
-  #     module: dcnm_links
-  #     state: deleted
-  #     change_flag_guard: changes_detected_edge_connections
-  #     delete_mode_guard: edge_connections_delete_mode
-  #     tag: rr_manage_edge_connections
+  # ──────────────────────────────────────────────────────────────────────────
+  # ISN — Edge connections + interfaces, no overlay or vPC
+  # ──────────────────────────────────────────────────────────────────────────
+  ISN:
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_edge_connections
+      delete_mode_guard: edge_connections_delete_mode
+      tag: rr_manage_edge_connections
 
-  #   - resource_name: policy
-  #     module: _unmanaged_policy
-  #     state: null
-  #     change_flag_guard: changes_detected_policy
-  #     delete_mode_guard: policy_delete_mode
-  #     requires_switches: true
-  #     tag: rr_manage_policy
+    - resource_name: policy
+      module: _unmanaged_policy
+      state: null
+      change_flag_guard: changes_detected_policy
+      delete_mode_guard: policy_delete_mode
+      requires_switches: true
+      tag: rr_manage_policy
 
-  #   - resource_name: interface_all
-  #     module: dcnm_interface
-  #     state: deleted
-  #     state_full_run: overridden
-  #     data_key_full_run: data_remove_overridden
-  #     change_flag_guard: changes_detected_interfaces
-  #     delete_mode_guard: interface_delete_mode
-  #     requires_switches: true
-  #     tag: rr_manage_interfaces
+    - resource_name: interface_all
+      module: dcnm_interface
+      state: deleted
+      state_full_run: overridden
+      data_key_full_run: data_remove_overridden
+      change_flag_guard: changes_detected_interfaces
+      delete_mode_guard: interface_delete_mode
+      requires_switches: true
+      tag: rr_manage_interfaces
 
-  #   - resource_name: inventory
-  #     module: dcnm_inventory
-  #     state: overridden
-  #     change_flag_guard: changes_detected_inventory
-  #     delete_mode_guard: inventory_delete_mode
-  #     tag: rr_manage_switches
+    - resource_name: inventory
+      module: dcnm_inventory
+      state: overridden
+      change_flag_guard: changes_detected_inventory
+      delete_mode_guard: inventory_delete_mode
+      tag: rr_manage_switches
 
-  # # ──────────────────────────────────────────────────────────────────────────
-  # # External — Edge connections + interfaces + vPC, no overlay
-  # # ──────────────────────────────────────────────────────────────────────────
-  # External:
-  #   - resource_name: edge_connections
-  #     module: dcnm_links
-  #     state: deleted
-  #     change_flag_guard: changes_detected_edge_connections
-  #     delete_mode_guard: edge_connections_delete_mode
-  #     tag: rr_manage_edge_connections
+  # ──────────────────────────────────────────────────────────────────────────
+  # External — Edge connections + interfaces + vPC, no overlay
+  # ──────────────────────────────────────────────────────────────────────────
+  External:
+    - resource_name: edge_connections
+      module: dcnm_links
+      state: deleted
+      change_flag_guard: changes_detected_edge_connections
+      delete_mode_guard: edge_connections_delete_mode
+      tag: rr_manage_edge_connections
 
-  #   - resource_name: policy
-  #     module: _unmanaged_policy
-  #     state: null
-  #     change_flag_guard: changes_detected_policy
-  #     delete_mode_guard: policy_delete_mode
-  #     requires_switches: true
-  #     tag: rr_manage_policy
+    - resource_name: policy
+      module: _unmanaged_policy
+      state: null
+      change_flag_guard: changes_detected_policy
+      delete_mode_guard: policy_delete_mode
+      requires_switches: true
+      tag: rr_manage_policy
 
-  #   - resource_name: interface_all
-  #     module: dcnm_interface
-  #     state: deleted
-  #     state_full_run: overridden
-  #     data_key_full_run: data_remove_overridden
-  #     change_flag_guard: changes_detected_interfaces
-  #     delete_mode_guard: interface_delete_mode
-  #     requires_switches: true
-  #     tag: rr_manage_interfaces
+    - resource_name: interface_all
+      module: dcnm_interface
+      state: deleted
+      state_full_run: overridden
+      data_key_full_run: data_remove_overridden
+      change_flag_guard: changes_detected_interfaces
+      delete_mode_guard: interface_delete_mode
+      requires_switches: true
+      tag: rr_manage_interfaces
 
-  #   - resource_name: vpc_peering
-  #     module: dcnm_vpc_pair
-  #     state: deleted
-  #     state_full_run: overridden
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     delete_mode_guard: vpc_delete_mode
-  #     fabric_param: src_fabric
-  #     tag: rr_manage_vpc_peers
+    - resource_name: vpc_peering
+      module: dcnm_vpc_pair
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_vpc_peering
+      delete_mode_guard: vpc_delete_mode
+      fabric_param: src_fabric
+      tag: rr_manage_vpc_peers
 
-  #   - resource_name: inventory
-  #     module: dcnm_inventory
-  #     state: overridden
-  #     change_flag_guard: changes_detected_inventory
-  #     delete_mode_guard: inventory_delete_mode
-  #     tag: rr_manage_switches
+    - resource_name: inventory
+      module: dcnm_inventory
+      state: overridden
+      change_flag_guard: changes_detected_inventory
+      delete_mode_guard: inventory_delete_mode
+      tag: rr_manage_switches
 
   # # ──────────────────────────────────────────────────────────────────────────
   # # MSD — Multisite parent: prepare → networks → VRFs → child fabrics
