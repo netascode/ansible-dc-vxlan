@@ -444,59 +444,59 @@ create_resources:
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
-  # # ──────────────────────────────────────────────────────────────────────────
-  # # MSD — Multisite parent: fabric + child fabrics + prepare + overlay
-  # # ──────────────────────────────────────────────────────────────────────────
-  # MSD:
-  #   - resource_name: fabric
-  #     module: dcnm_fabric
-  #     state: merged
-  #     fabric_param: null
-  #     deploy: null
-  #     change_flag_guard: changes_detected_fabric
-  #     tag: cr_manage_fabric
+  # ──────────────────────────────────────────────────────────────────────────
+  # MSD — Multisite parent: fabric + child fabrics + prepare + overlay
+  # ──────────────────────────────────────────────────────────────────────────
+  MSD:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      fabric_param: null
+      deploy: null
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
 
-  #   - resource_name: null
-  #     module: _manage_child_fabrics
-  #     state: null
-  #     change_flag_guard: null
-  #     tag: cr_manage_fabric
+    - resource_name: null
+      module: _manage_child_fabrics
+      state: null
+      change_flag_guard: null
+      tag: cr_manage_fabric
 
-  #   - resource_name: null
-  #     module: _prepare_msite_data
-  #     state: null
-  #     change_flag_guard: null
-  #     tag: cr_manage_vrfs_networks
+    - resource_name: null
+      module: _prepare_msite_data
+      state: null
+      change_flag_guard: null
+      tag: cr_manage_vrfs_networks
 
-  #   - resource_name: bgw_anycast_vip
-  #     module: dcnm_resource_manager
-  #     state: merged
-  #     deploy: null
-  #     change_flag_guard: changes_detected_bgw_anycast_vip
-  #     tag: cr_manage_vrfs_networks
+    - resource_name: bgw_anycast_vip
+      module: dcnm_resource_manager
+      state: merged
+      deploy: null
+      change_flag_guard: changes_detected_bgw_anycast_vip
+      tag: cr_manage_vrfs_networks
 
-  #   - resource_name: vrfs
-  #     module: dcnm_vrf
-  #     state: replaced
-  #     deploy: null
-  #     data_model_guard: vxlan.multisite.overlay.vrfs
-  #     change_flag_guard: changes_detected_vrfs
-  #     tag: cr_manage_vrfs
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: replaced
+      deploy: null
+      data_model_guard: vxlan.multisite.overlay.vrfs
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
 
-  #   - resource_name: vrf_loopback_attach
-  #     module: _vrf_loopback_attach
-  #     state: null
-  #     data_model_guard: vxlan.multisite.overlay.vrfs
-  #     change_flag_guard: changes_detected_vrfs
-  #     tag: cr_manage_vrfs
+    - resource_name: vrf_loopback_attach
+      module: _vrf_loopback_attach
+      state: null
+      data_model_guard: vxlan.multisite.overlay.vrfs
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
 
-  #   - resource_name: networks
-  #     module: dcnm_network
-  #     state: replaced
-  #     deploy: null
-  #     data_model_guard: vxlan.multisite.overlay.networks
-  #     change_flag_guard: changes_detected_networks
-  #     tag: cr_manage_networks
+    - resource_name: networks
+      module: dcnm_network
+      state: replaced
+      deploy: null
+      data_model_guard: vxlan.multisite.overlay.networks
+      change_flag_guard: changes_detected_networks
+      tag: cr_manage_networks
 
   # # ──────────────────────────────────────────────────────────────────────────
   # # MCFG — Similar to MSD but no BGW anycast VIP

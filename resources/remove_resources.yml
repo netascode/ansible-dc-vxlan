@@ -271,37 +271,37 @@ remove_resources:
       delete_mode_guard: inventory_delete_mode
       tag: rr_manage_switches
 
-  # # ──────────────────────────────────────────────────────────────────────────
-  # # MSD — Multisite parent: prepare → networks → VRFs → child fabrics
-  # # ──────────────────────────────────────────────────────────────────────────
-  # MSD:
-  #   - resource_name: null
-  #     module: _prepare_msite_data
-  #     state: null
-  #     change_flag_guard: null
-  #     tag: rr_manage_vrfs_networks
+  # ──────────────────────────────────────────────────────────────────────────
+  # MSD — Multisite parent: prepare → networks → VRFs → child fabrics
+  # ──────────────────────────────────────────────────────────────────────────
+  MSD:
+    - resource_name: null
+      module: _prepare_msite_data
+      state: null
+      change_flag_guard: null
+      tag: rr_manage_vrfs_networks
 
-  #   - resource_name: networks
-  #     module: dcnm_network
-  #     state: deleted
-  #     state_full_run: overridden
-  #     change_flag_guard: changes_detected_networks
-  #     delete_mode_guard: network_delete_mode
-  #     tag: rr_manage_networks
+    - resource_name: networks
+      module: dcnm_network
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_networks
+      delete_mode_guard: network_delete_mode
+      tag: rr_manage_networks
 
-  #   - resource_name: vrfs
-  #     module: dcnm_vrf
-  #     state: deleted
-  #     state_full_run: overridden
-  #     change_flag_guard: changes_detected_vrfs
-  #     delete_mode_guard: vrf_delete_mode
-  #     tag: rr_manage_vrfs
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: deleted
+      state_full_run: overridden
+      change_flag_guard: changes_detected_vrfs
+      delete_mode_guard: vrf_delete_mode
+      tag: rr_manage_vrfs
 
-  #   - resource_name: null
-  #     module: _manage_child_fabrics
-  #     state: null
-  #     change_flag_guard: null
-  #     tag: rr_manage_fabric
+    - resource_name: null
+      module: _manage_child_fabrics
+      state: null
+      change_flag_guard: null
+      tag: rr_manage_fabric
 
   # # ──────────────────────────────────────────────────────────────────────────
   # # MCFG — Same structure as MSD

@@ -54,8 +54,7 @@ __metaclass__ = type
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
-import inspect
-from time import sleep
+from time import monotonic, sleep
 import re
 
 display = Display()
@@ -187,7 +186,6 @@ class FabricDeployManager:
     """
 
     def __init__(self, params):
-        self.class_name = self.__class__.__name__
 
         # Fabric Parameters
         self.fabric_name = params['fabric_name']
@@ -217,8 +215,13 @@ class FabricDeployManager:
 
     def fabric_check_sync(self):
         """Check if the fabric is in sync."""
-        method_name = inspect.stack()[0][3]
-        display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] check_sync\n"
+            f"{'─' * display.columns}",
+            color='white',
+        )
 
         self.fabric_in_sync = True
         response = self._send_request("GET", self.paths.switches_by_fabric)
@@ -233,13 +236,29 @@ class FabricDeployManager:
                 if (attempt + 1) == 5 and not self.fabric_in_sync:
                     break
                 else:
-                    display.warning(f"Fabric {self.fabric_name} is out of sync. Attempt {attempt + 1}/5. Sleeping 2 seconds before retry.")
+                    elapsed = monotonic() - step_start
+                    display.display(
+                        f"DEPLOY [{self.fabric_name}] "
+                        f"check_sync → out of sync, retry {attempt + 1}/5 [{elapsed:.1f}s]",
+                        color='yellow',
+                    )
                     sleep(2)
                     self.fabric_in_sync = True
                     response = self._send_request("GET", self.paths.switches_by_fabric)
 
-        display.banner(f">>>> Fabric: ({self.fabric_name}) Type: ({self.fabric_type}) in sync: {self.fabric_in_sync}")
-        display.banner(">>>>")
+        elapsed = monotonic() - step_start
+        if self.fabric_in_sync:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"check_sync → ok (in_sync=True) [{elapsed:.1f}s]",
+                color='green',
+            )
+        else:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"check_sync → warning (in_sync=False) [{elapsed:.1f}s]",
+                color='yellow',
+            )
 
     def _fabric_check_sync_helper(self, response):
         if response.get('DATA'):
@@ -252,23 +271,57 @@ class FabricDeployManager:
 
     def fabric_config_save(self):
         """Trigger a config-save on the fabric."""
-        method_name = inspect.stack()[0][3]
-        display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] config_save\n"
+            f"{'─' * display.columns}",
+            color='white',
+        )
 
         response = self._send_request("POST", self.paths.config_save)
+        elapsed = monotonic() - step_start
         if response.get('RETURN_CODE') != 200:
             self.fabric_save_succeeded = False
-            display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"config_save → failed [{elapsed:.1f}s]",
+                color='red',
+            )
+            display.v(f"DEPLOY [{self.fabric_name}] config_save failure detail: {response}")
+        else:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"config_save → ok [{elapsed:.1f}s]",
+                color='green',
+            )
 
     def fabric_deploy(self):
         """Deploy the fabric configuration (fabric-level)."""
-        method_name = inspect.stack()[0][3]
-        display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] fabric_deploy\n"
+            f"{'─' * display.columns}",
+            color='white',
+        )
 
         response = self._send_request("POST", self.paths.config_deploy)
+        elapsed = monotonic() - step_start
         if response.get('RETURN_CODE') != 200:
             self.fabric_deploy_succeeded = False
-            display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"fabric_deploy → failed [{elapsed:.1f}s]",
+                color='red',
+            )
+            display.v(f"DEPLOY [{self.fabric_name}] fabric_deploy failure detail: {response}")
+        else:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"fabric_deploy → ok [{elapsed:.1f}s]",
+                color='green',
+            )
 
     def get_deployable_switches(self):
         """Query switch inventory and return serial numbers needing deployment.
@@ -279,8 +332,13 @@ class FabricDeployManager:
         """
         DEPLOYABLE_CC_STATUSES = ('NA', 'Pending', 'Out-of-Sync')
 
-        method_name = inspect.stack()[0][3]
-        display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] get_deployable_switches\n"
+            f"{'─' * display.columns}",
+            color='white',
+        )
 
         response = self._send_request("GET", self.paths.switches_by_fabric)
         switches = response.get('DATA', [])
@@ -304,38 +362,85 @@ class FabricDeployManager:
                     f"upTimeStr={up_time_str} — skipping"
                 )
 
-        display.banner(
-            f">>>> Fabric: ({self.fabric_name}) Deployable switches: "
-            f"{len(deployable_serials)}/{len(switches)}"
-        )
+        elapsed = monotonic() - step_start
+        if deployable_serials:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"get_deployable_switches → ok "
+                f"(changed={len(deployable_serials)}/{len(switches)}) [{elapsed:.1f}s]",
+                color='yellow',
+            )
+        else:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"get_deployable_switches → ok "
+                f"(changed=0/{len(switches)}) [{elapsed:.1f}s]",
+                color='green',
+            )
         return deployable_serials
 
     def switch_deploy(self, serial_numbers):
         """Deploy configuration to specific switches by serial number list."""
-        method_name = inspect.stack()[0][3]
-        display.banner(
-            f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) "
-            f"Type: ({self.fabric_type}) Switches: {len(serial_numbers)}"
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] switch_deploy ({len(serial_numbers)} switches)\n"
+            f"{'─' * display.columns}",
+            color='white',
         )
 
         if not serial_numbers:
-            display.v(f"No switches require deployment in fabric {self.fabric_name}")
+            elapsed = monotonic() - step_start
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"switch_deploy → skipped (no switches) [{elapsed:.1f}s]",
+                color='cyan',
+            )
             return
 
         serial_list = ','.join(serial_numbers)
         response = self._send_request("POST", self.paths.switch_deploy(serial_list))
+        elapsed = monotonic() - step_start
         if response.get('RETURN_CODE') != 200:
             self.fabric_deploy_succeeded = False
-            display.warning(f">>>> Switch deploy failed for Fabric {self.fabric_name}: {response}")
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"switch_deploy → failed [{elapsed:.1f}s]",
+                color='red',
+            )
+            display.v(f"DEPLOY [{self.fabric_name}] switch_deploy failure detail: {response}")
+        else:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"switch_deploy → ok (changed={len(serial_numbers)}) [{elapsed:.1f}s]",
+                color='yellow',
+            )
 
     def fabric_history_get(self):
         """Retrieve fabric deployment history."""
-        method_name = inspect.stack()[0][3]
-        display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] fabric_history_get\n"
+            f"{'─' * display.columns}",
+            color='white',
+        )
 
         response = self._send_request("GET", self.paths.fabric_history)
+        elapsed = monotonic() - step_start
         if response.get('RETURN_CODE') != 200:
-            display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"fabric_history_get → failed [{elapsed:.1f}s]",
+                color='red',
+            )
+            display.v(f"DEPLOY [{self.fabric_name}] fabric_history_get failure detail: {response}")
+        else:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"fabric_history_get → ok [{elapsed:.1f}s]",
+                color='green',
+            )
 
         # Get last 2 history entries
         self.fabric_history = response.get('DATA', [])[0:2]
@@ -458,7 +563,13 @@ class ActionModule(ActionBase):
                 params['fabric_name'] = changed_fabric['name']
                 params['fabric_type'] = child_fabric_type
                 params['cluster_name'] = changed_fabric.get('cluster', None)
-                display.banner(f"Processing Child Fabric: {params['fabric_name']} Cluster: {params['cluster_name']}")
+                display.display(
+                    f"\n{'─' * display.columns}\n"
+                    f"DEPLOY [{params['fabric_name']}] "
+                    f"child_fabric (cluster={params['cluster_name']})\n"
+                    f"{'─' * display.columns}",
+                    color='white',
+                )
 
                 results = self.manage_fabrics(results, params)
                 if results.get('failed'):
@@ -468,6 +579,8 @@ class ActionModule(ActionBase):
 
     def manage_fabrics(self, results, params):
         """Manage fabric deployments based on operation parameter."""
+        fabric_name = params['fabric_name']
+        operation = params['operation']
 
         for key in ['fabric_type', 'fabric_name', 'operation']:
             if params[key] is None:
@@ -475,15 +588,24 @@ class ActionModule(ActionBase):
                 results['msg'] = f"Missing required parameter '{key}'"
                 return results
 
-        if params['operation'] not in ['all', 'config_save', 'fabric_deploy', 'switch_deploy', 'check_sync']:
+        if operation not in ['all', 'config_save', 'fabric_deploy', 'switch_deploy', 'check_sync']:
             results['failed'] = True
             results['msg'] = "Parameter 'operation' must be one of: [all, config_save, fabric_deploy, switch_deploy, check_sync]"
             return results
 
+        workflow_start = monotonic()
+        display.display(
+            f"\n{'═' * display.columns}\n"
+            f"DEPLOY [{fabric_name}] "
+            f"Workflow start — operation: {operation}\n"
+            f"{'═' * display.columns}",
+            color='white',
+        )
+
         fabric_manager = FabricDeployManager(params)
 
         # Workflows
-        if params['operation'] in ['all']:
+        if operation == 'all':
             # Switch-level deploy: query switches, deploy only those that need it
             # Config-save is NOT part of this workflow — it is handled by the
             # create pipeline's _config_save steps at the appropriate points.
@@ -495,8 +617,11 @@ class ActionModule(ActionBase):
                 # For non-Multisite fabrics, retry if still out-of-sync
                 if not fabric_manager.fabric_in_sync and params['fabric_type'] not in MULTISITE_FABRIC_TYPES:
                     fabric_manager.fabric_history_get()
-                    display.warning(fabric_manager.fabric_history)
-                    display.warning("Fabric is out of sync after initial deployment. Attempting one more deployment.")
+                    display.display(
+                        f"DEPLOY [{fabric_name}] "
+                        f"out of sync after initial deployment, retrying",
+                        color='yellow',
+                    )
                     deployable = fabric_manager.get_deployable_switches()
                     if deployable:
                         fabric_manager.switch_deploy(deployable)
@@ -508,33 +633,51 @@ class ActionModule(ActionBase):
                     results['fabric_history'] = fabric_manager.fabric_history
                     results['failed'] = True
             else:
-                display.v(f"No switches require deployment in fabric {fabric_manager.fabric_name}")
+                display.display(
+                    f"DEPLOY [{fabric_name}] "
+                    f"all → skipped (no switches need deployment)",
+                    color='cyan',
+                )
 
-        if params['operation'] in ['config_save']:
+        if operation == 'config_save':
             fabric_manager.fabric_config_save()
             if not fabric_manager.fabric_save_succeeded:
                 results['failed'] = True
 
-        if params['operation'] in ['fabric_deploy']:
+        if operation == 'fabric_deploy':
             fabric_manager.fabric_deploy()
             if not fabric_manager.fabric_deploy_succeeded:
                 results['failed'] = True
 
-        if params['operation'] in ['switch_deploy']:
+        if operation == 'switch_deploy':
             deployable = fabric_manager.get_deployable_switches()
             if deployable:
                 fabric_manager.switch_deploy(deployable)
             else:
-                display.v(f"No switches require deployment in fabric {fabric_manager.fabric_name}")
+                display.display(
+                    f"DEPLOY [{fabric_name}] "
+                    f"switch_deploy → skipped (no switches need deployment)",
+                    color='cyan',
+                )
             if not fabric_manager.fabric_deploy_succeeded:
                 results['failed'] = True
 
-        if params['operation'] in ['check_sync']:
+        if operation == 'check_sync':
             fabric_manager.fabric_check_sync()
             if not fabric_manager.fabric_in_sync:
                 fabric_manager.fabric_history_get()
                 results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync."
                 results['fabric_history'] = fabric_manager.fabric_history
                 results['failed'] = True
+
+        workflow_elapsed = monotonic() - workflow_start
+        status_color = 'red' if results.get('failed') else 'white'
+        display.display(
+            f"\n{'═' * display.columns}\n"
+            f"DEPLOY [{fabric_name}] "
+            f"Workflow complete — operation: {operation} [{workflow_elapsed:.1f}s]\n"
+            f"{'═' * display.columns}",
+            color=status_color,
+        )
 
         return results

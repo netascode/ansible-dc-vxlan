@@ -139,11 +139,11 @@ class PipelineRunnerBase(ABC):
             op_label = self.OPERATION.upper()
 
             display.display(
-                f"\n{'─' * 60}\n"
+                f"\n{'─' * display.columns}\n"
                 f"{op_label} [{self.fabric_name}] "
                 f"Step {step_index}/{total_steps}: {resource_name} ({module})\n"
-                f"{'─' * 60}",
-                color='cyan',
+                f"{'─' * display.columns}",
+                color='white',
             )
 
             # ── Hook: subclass-specific additional guards ─────────────────
@@ -155,7 +155,7 @@ class PipelineRunnerBase(ABC):
                 display.display(
                     f"{op_label} [{self.fabric_name}] "
                     f"{resource_name} → skipped ({reason}) [{elapsed:.1f}s]",
-                    color='yellow',
+                    color='cyan',
                 )
                 continue
 
@@ -174,7 +174,7 @@ class PipelineRunnerBase(ABC):
                     display.display(
                         f"{op_label} [{self.fabric_name}] "
                         f"{resource_name} → skipped (data_model_guard) [{elapsed:.1f}s]",
-                        color='yellow',
+                        color='cyan',
                     )
                     continue
 
@@ -190,7 +190,7 @@ class PipelineRunnerBase(ABC):
                 display.display(
                     f"{op_label} [{self.fabric_name}] "
                     f"{resource_name} → skipped (no changes) [{elapsed:.1f}s]",
-                    color='yellow',
+                    color='cyan',
                 )
                 continue
 
@@ -221,7 +221,7 @@ class PipelineRunnerBase(ABC):
                         f"{op_label} [{self.fabric_name}] "
                         f"{resource_name} → skipped (no runtime changes) "
                         f"[{elapsed:.1f}s]",
-                        color='yellow',
+                        color='cyan',
                     )
                     continue
 
@@ -258,7 +258,7 @@ class PipelineRunnerBase(ABC):
                 display.display(
                     f"{op_label} [{self.fabric_name}] "
                     f"{resource_name} → skipped (no data) [{elapsed:.1f}s]",
-                    color='yellow',
+                    color='cyan',
                 )
                 continue
 
@@ -326,11 +326,11 @@ class PipelineRunnerBase(ABC):
 
         pipeline_elapsed = time.monotonic() - pipeline_start
         display.display(
-            f"\n{'═' * 60}\n"
+            f"\n{'═' * display.columns}\n"
             f"{self.OPERATION.upper()} [{self.fabric_name}] "
             f"Pipeline complete — {total_steps} steps in {pipeline_elapsed:.1f}s\n"
-            f"{'═' * 60}",
-            color='cyan',
+            f"{'═' * display.columns}",
+            color='white',
         )
 
         return {
