@@ -189,119 +189,127 @@ create_resources:
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
-  # # ──────────────────────────────────────────────────────────────────────────
-  # # eBGP_VXLAN — Similar to VXLAN_EVPN but no edge connections or links
-  # # ──────────────────────────────────────────────────────────────────────────
-  # eBGP_VXLAN:
-  #   - resource_name: fabric
-  #     module: dcnm_fabric
-  #     state: merged
-  #     fabric_param: null
-  #     deploy: null
-  #     change_flag_guard: changes_detected_fabric
-  #     tag: cr_manage_fabric
+  # ──────────────────────────────────────────────────────────────────────────
+  # eBGP_VXLAN — Similar to VXLAN_EVPN but no edge connections or links
+  # ──────────────────────────────────────────────────────────────────────────
+  eBGP_VXLAN:
+    - resource_name: fabric
+      module: dcnm_fabric
+      state: merged
+      fabric_param: null
+      deploy: null
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
 
-  #   - resource_name: inventory
-  #     module: dcnm_inventory
-  #     state: merged
-  #     deploy: false
-  #     data_model_guard: vxlan.topology.switches
-  #     change_flag_guard: changes_detected_inventory
-  #     tag: cr_manage_switches
+    - resource_name: inventory
+      module: dcnm_inventory
+      state: merged
+      save: false
+      deploy: false
+      data_model_guard: vxlan.topology.switches
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
 
-  #   - resource_name: underlay_ip_address
-  #     module: dcnm_resource_manager
-  #     state: merged
-  #     deploy: null
-  #     data_model_guard: vxlan.underlay.general.manual_underlay_allocation
-  #     change_flag_guard: changes_detected_underlay_ip_address
-  #     tag: cr_manage_switches
+    - resource_name: update_switch_hostname_policy
+      module: _update_switch_hostname_policy
+      state: null
+      data_model_guard: vxlan.topology.switches
+      change_flag_guard: changes_detected_inventory
+      tag: cr_manage_switches
 
-  #   - resource_name: update_switch_hostname_policy
-  #     module: _update_switch_hostname_policy
-  #     state: null
-  #     data_model_guard: vxlan.topology.switches
-  #     change_flag_guard: changes_detected_inventory
-  #     tag: cr_manage_switches
+    - resource_name: inventory_config_save
+      module: _config_save
+      state: null
+      change_flag_guard: changes_detected_inventory
+      runtime_change_refs: [inventory, update_switch_hostname_policy]
+      tag: cr_manage_switches
 
-  #   - resource_name: inventory_config_save
-  #     module: _config_save
-  #     state: null
-  #     change_flag_guard: changes_detected_inventory
-  #     tag: cr_manage_switches
+    - resource_name: vpc_domain_id_resource
+      module: dcnm_resource_manager
+      state: merged
+      deploy: null
+      data_model_guard: vxlan.topology.vpc_peers
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
 
-  #   - resource_name: vpc_domain_id_resource
-  #     module: dcnm_resource_manager
-  #     state: merged
-  #     deploy: null
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: cr_manage_vpc_peers
+    - resource_name: vpc_fabric_peering_links
+      module: dcnm_links
+      state: replaced
+      fabric_param: src_fabric
+      deploy: null
+      skip_diff: true
+      data_model_guard: vxlan.topology.vpc_peers
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
 
-  #   - resource_name: vpc_fabric_peering_links
-  #     module: dcnm_links
-  #     state: replaced
-  #     fabric_param: src_fabric
-  #     deploy: null
-  #     skip_diff: true
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: cr_manage_vpc_peers
+    - resource_name: vpc_peering
+      module: dcnm_vpc_pair
+      state: replaced
+      fabric_param: src_fabric
+      deploy: false
+      data_model_guard: vxlan.topology.vpc_peers
+      change_flag_guard: changes_detected_vpc_peering
+      tag: cr_manage_vpc_peers
 
-  #   - resource_name: vpc_peering
-  #     module: dcnm_vpc_pair
-  #     state: replaced
-  #     fabric_param: src_fabric
-  #     deploy: false
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: cr_manage_vpc_peers
+    - resource_name: vpc_config_save
+      module: _config_save
+      state: null
+      data_model_guard: vxlan.topology.vpc_peers
+      change_flag_guard: changes_detected_vpc_peering
+      runtime_change_refs: [vpc_domain_id_resource, vpc_fabric_peering_links, vpc_peering]
+      tag: cr_manage_vpc_peers
 
-  #   - resource_name: vpc_config_save
-  #     module: _config_save
-  #     state: null
-  #     change_flag_guard: changes_detected_vpc_peering
-  #     tag: cr_manage_vpc_peers
+    - resource_name: tor_pairing
+      module: _tor_pairing
+      state: null
+      data_model_guard: vxlan.topology.tor_pairing
+      change_flag_guard: changes_detected_tor_pairing
+      tag: cr_manage_tor_pairing
 
-  #   - resource_name: tor_pairing
-  #     module: _tor_pairing
-  #     state: null
-  #     change_flag_guard: changes_detected_tor_pairing
-  #     tag: cr_manage_tor_pairing
+    - resource_name: tor_config_save
+      module: _config_save
+      state: null
+      data_model_guard: vxlan.topology.tor_pairing
+      change_flag_guard: changes_detected_tor_pairing
+      runtime_change_refs: [tor_pairing]
+      tag: cr_manage_tor_pairing
 
-  #   - resource_name: interface_all
-  #     module: dcnm_interface
-  #     state: replaced
-  #     deploy: null
-  #     change_flag_guard: changes_detected_interfaces
-  #     tag: cr_manage_interfaces
+    - resource_name: interface_all
+      module: dcnm_interface
+      state: replaced
+      deploy: null
+      change_flag_guard: changes_detected_interfaces
+      tag: cr_manage_interfaces
 
-  #   - resource_name: vrfs
-  #     module: dcnm_vrf
-  #     state: replaced
-  #     deploy: null
-  #     data_model_guard: vxlan.overlay.vrfs
-  #     change_flag_guard: changes_detected_vrfs
-  #     tag: cr_manage_vrfs
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: replaced
+      deploy: null
+      data_model_guard: vxlan.overlay.vrfs
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
 
-  #   - resource_name: vrf_loopback_attach
-  #     module: _vrf_loopback_attach
-  #     state: null
-  #     data_model_guard: vxlan.overlay.vrfs
-  #     change_flag_guard: changes_detected_vrfs
-  #     tag: cr_manage_vrfs
+    - resource_name: vrf_loopback_attach
+      module: _vrf_loopback_attach
+      state: null
+      data_model_guard: vxlan.overlay.vrfs
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
 
-  #   - resource_name: networks
-  #     module: dcnm_network
-  #     state: replaced
-  #     deploy: null
-  #     data_model_guard: vxlan.overlay.networks
-  #     change_flag_guard: changes_detected_networks
-  #     tag: cr_manage_networks
+    - resource_name: networks
+      module: dcnm_network
+      state: replaced
+      deploy: null
+      data_model_guard: vxlan.overlay.networks
+      change_flag_guard: changes_detected_networks
+      tag: cr_manage_networks
 
-  #   - resource_name: policy
-  #     module: dcnm_policy
-  #     state: merged
-  #     deploy: false
-  #     change_flag_guard: changes_detected_policy
-  #     tag: cr_manage_policy
+    - resource_name: policy
+      module: dcnm_policy
+      state: merged
+      deploy: false
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
 
   # ──────────────────────────────────────────────────────────────────────────
   # ISN — No overlay, no vPC, no links. Edge connections + interfaces
