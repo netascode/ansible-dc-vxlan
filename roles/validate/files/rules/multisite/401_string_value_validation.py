@@ -30,18 +30,6 @@ class Rule:
                         "and max length must be 64 characters"
                     )
 
-            # Validate children fabric names
-            if data_model["vxlan"].get("multisite", None) and data_model["vxlan"]["multisite"].get("child_fabrics", None):
-                child_fabrics = data_model["vxlan"]["multisite"]["child_fabrics"]
-                for child_fabric in child_fabrics:
-                    child_fabric_name = child_fabric.get("name", None)
-                    if not FABRIC_NAME_PATTERN.search(child_fabric_name):
-                        results.append(
-                            f"vxlan.multisite.child_fabrics.'{child_fabric_name}' is invalid. "
-                            "Only a-z, A-Z, 0-9, _, - characters are allowed and name should start with an alphabet, "
-                            "and max length must be 64 characters"
-                        )
-
             if data_model["vxlan"].get("multisite", None) and data_model["vxlan"]["multisite"].get("overlay", None):
 
                 # Validate VRF keys
@@ -77,7 +65,6 @@ class Rule:
     def check_networks_names(cls, networks, results):
         for network in networks:
             network_name = network.get("name", None)
-            vrf_name = network.get("vrf_name", None)
             vlan_name = network.get("vlan_name", None)
 
             # Validate Network name
@@ -85,13 +72,6 @@ class Rule:
                 results.append(
                     f"vxlan.multisite.overlay.networks.{network_name} is invalid. "
                     "Only a-z, A-Z, 0-9, ., :, _, - characters are allowed"
-                )
-
-            # Validate VRF name
-            if vrf_name and not VRF_NAME_PATTERN.search(vrf_name):
-                results.append(
-                    f"vxlan.multisite.overlay.networks.{network_name}.vrf_name.'{vrf_name}' is invalid. "
-                    "Only a-z, A-Z, 0-9, ., :, _, - characters are allowed and max length must be 32 characters"
                 )
 
             # Validate VLAN name
