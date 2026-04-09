@@ -1,11 +1,20 @@
 import re
 
 
-# Regex for validating names
+# Regex for validating strings
 FABRIC_NAME_PATTERN = re.compile(r'^[a-zA-Z][a-zA-Z0-9_-]{0,63}$')
 VRF_NAME_PATTERN = re.compile(r'^[a-zA-Z0-9.:_-]{0,32}$')                           # Length based on NX-OS limit, ND does not have a specific limit
 NETWORK_NAME_PATTERN = re.compile(r'^[a-zA-Z0-9.:_-]*$')
 VLAN_NAME_PATTERN = re.compile(r'^[^?,\\\s]{0,128}$')
+ANYCAST_GW_MAC = re.compile(
+    r'^(?:'
+    r'[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}'              # Hyphen format, e.g., 12-34-56-78-9a-bc
+    r'|[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}'             # Colon format, e.g., 12:34:56:78:9a:bc
+    r'|[a-f0-9]{4}\.[a-f0-9]{4}\.[a-f0-9]{4}'                                               # Cisco format, e.g., 1234.5678.9abc
+    r'|[a-f0-9]\.[a-f0-9]\.[a-f0-9]'                                                        # Dot format with single hex digits, e.g., 1.2.3
+    r')$',
+    re.IGNORECASE
+)
 
 
 class Rule:
@@ -17,28 +26,33 @@ class Rule:
     def match(cls, data_model):
         results = []
 
-        if data_model.get("vxlan", None):
+        fabric_name = cls.safeget(data_model, ['vxlan', 'fabric', 'name'])
+        anycast_gw_mac = cls.safeget(data_model, ['vxlan', 'multisite', 'anycast_gateway_mac'])
 
-            # Validate Fabric name
-            if data_model["vxlan"].get("fabric", None):
-                fabric_name = data_model["vxlan"]["fabric"].get("name", None)
+        # Validate Fabric name
+        if fabric_name and not FABRIC_NAME_PATTERN.search(fabric_name):
+            results.append(
+                f"vxlan.fabric.'{fabric_name}' is invalid. "
+                "Only a-z, A-Z, 0-9, _, - characters are allowed and name should start with an alphabet, "
+                "and max length must be 64 characters"
+            )
 
-                if not FABRIC_NAME_PATTERN.search(fabric_name):
-                    results.append(
-                        f"vxlan.fabric.'{fabric_name}' is invalid. "
-                        "Only a-z, A-Z, 0-9, _, - characters are allowed and name should start with an alphabet, "
-                        "and max length must be 64 characters"
-                    )
+        if anycast_gw_mac and not ANYCAST_GW_MAC.search(anycast_gw_mac):
+            results.append(
+                "vxlan.global.multisite.anycast_gateway_mac is invalid."
+                "Only XX-XX-XX-XX-XX-XX, XX:XX:XX:XX:XX:XX, XXXX.XXXX.XXXX, X.X.X format are allowed (no case sensitive)"
+            )
 
-            if data_model["vxlan"].get("multisite", None) and data_model["vxlan"]["multisite"].get("overlay", None):
+        vrfs = cls.safeget(data_model, ['vxlan', 'multisite', 'overlay', 'vrfs'])
+        networks = cls.safeget(data_model, ['vxlan', 'multisite', 'overlay', 'networks'])
 
-                # Validate VRF keys
-                if data_model["vxlan"]["multisite"]["overlay"].get("vrfs", None):
-                    cls.check_vrfs_names(data_model["vxlan"]["multisite"]["overlay"]["vrfs"], results)
+        # Validate VRF keys
+        if vrfs:
+            cls.check_vrfs_names(data_model["vxlan"]["multisite"]["overlay"]["vrfs"], results)
 
-                # Validate Network keys
-                if data_model["vxlan"]["multisite"]["overlay"].get("networks", None):
-                    cls.check_networks_names(data_model["vxlan"]["multisite"]["overlay"]["networks"], results)
+        # Validate Network keys
+        if networks:
+            cls.check_networks_names(data_model["vxlan"]["multisite"]["overlay"]["networks"], results)
 
         return results
 
@@ -80,3 +94,16 @@ class Rule:
                     f"vxlan.multisite.overlay.networks.{network_name}.vlan_name.'{vlan_name}' is invalid. "
                     "Name cannot contain spaces, ?, \\, ',' and max length must be 128 characters"
                 )
+
+    @classmethod
+    def safeget(cls, dict, keys):
+        # Utility function to safely get nested dictionary values
+        for key in keys:
+            if dict is None:
+                return None
+            if key in dict:
+                dict = dict[key]
+            else:
+                return None
+
+        return dict

@@ -30,10 +30,9 @@ class Rule:
 
         fabric_type = fabric_type_map.get(data_model['vxlan']['fabric']['type'])
         anycast_gw_mac = cls.safeget(data_model, ['vxlan', 'global', fabric_type, 'anycast_gateway_mac'])
-        print(anycast_gw_mac)
 
         # Validate Anycast Gateway MAC address
-        if not ANYCAST_GW_MAC.search(anycast_gw_mac):
+        if anycast_gw_mac and not ANYCAST_GW_MAC.search(anycast_gw_mac):
             results.append(
                 f"vxlan.global.{fabric_type}.anycast_gateway_mac is invalid. "
                 "Only XX-XX-XX-XX-XX-XX, XX:XX:XX:XX:XX:XX, XXXX.XXXX.XXXX, X.X.X format are allowed (no case sensitive)"

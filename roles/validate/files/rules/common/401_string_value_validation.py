@@ -1,7 +1,7 @@
 import re
 
 
-# Regex for validating names
+# Regex for validating strings
 FABRIC_NAME_PATTERN = re.compile(r'^[a-zA-Z][a-zA-Z0-9_-]{0,63}$')
 VRF_NAME_PATTERN = re.compile(r'^[a-zA-Z0-9.:_-]{0,32}$')                           # Length based on NX-OS limit, ND does not have a specific limit
 NETWORK_NAME_PATTERN = re.compile(r'^[a-zA-Z0-9.:_-]*$')
@@ -17,28 +17,26 @@ class Rule:
     def match(cls, data_model):
         results = []
 
-        if data_model.get("vxlan", None):
+        fabric_name = cls.safeget(data_model, ['vxlan', 'fabric', 'name'])
 
-            # Validate Fabric name
-            if data_model["vxlan"].get("fabric", None):
-                fabric_name = data_model["vxlan"]["fabric"].get("name", None)
+        # Validate Fabric name
+        if fabric_name and not FABRIC_NAME_PATTERN.search(fabric_name):
+            results.append(
+                f"vxlan.fabric.'{fabric_name}' is invalid. "
+                "Only a-z, A-Z, 0-9, _, - characters are allowed and name should start with an alphabet, "
+                "and max length must be 64 characters"
+            )
 
-                if not FABRIC_NAME_PATTERN.search(fabric_name):
-                    results.append(
-                        f"vxlan.fabric.'{fabric_name}' is invalid. "
-                        "Only a-z, A-Z, 0-9, _, - characters are allowed and name should start with an alphabet, "
-                        "and max length must be 64 characters"
-                    )
+        vrfs = cls.safeget(data_model, ['vxlan', 'overlay', 'vrfs'])
+        networks = cls.safeget(data_model, ['vxlan', 'overlay', 'networks'])
 
-            if data_model["vxlan"].get("overlay", None):
+        # Validate VRF keys
+        if vrfs:
+            cls.check_vrfs_names(vrfs, results)
 
-                # Validate VRF keys
-                if data_model["vxlan"]["overlay"].get("vrfs", None):
-                    cls.check_vrfs_names(data_model["vxlan"]["overlay"]["vrfs"], results)
-
-                # Validate Network keys
-                if data_model["vxlan"]["overlay"].get("networks", None):
-                    cls.check_networks_names(data_model["vxlan"]["overlay"]["networks"], results)
+        # Validate Network keys
+        if networks:
+            cls.check_networks_names(networks, results)
 
         return results
 
@@ -80,3 +78,16 @@ class Rule:
                     f"vxlan.overlay.networks.{network_name}.vlan_name.'{vlan_name}' is invalid. "
                     "Name cannot contain spaces, ?, \\, ',' and max length must be 128 characters"
                 )
+
+    @classmethod
+    def safeget(cls, dict, keys):
+        # Utility function to safely get nested dictionary values
+        for key in keys:
+            if dict is None:
+                return None
+            if key in dict:
+                dict = dict[key]
+            else:
+                return None
+
+        return dict
