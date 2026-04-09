@@ -254,7 +254,11 @@ class PipelineRunnerBase(ABC):
             # ── Hook: subclass data resolution ────────────────────────────
             data, resolved_state = self._resolve_step_data(resource_name, step)
 
-            if not data:
+            if not data and resolved_state == 'overridden':
+                # If the data set is empty we still want to send it to the module
+                # for state overridden
+                pass
+            elif not data:
                 step_results.append({
                     'resource_name': resource_name,
                     'module': module,
