@@ -171,9 +171,20 @@ class ResourceRemover(PipelineRunnerBase):
         default_state = step.get('state')
         full_run_state = step.get('state_full_run')
         data_key_full_run = step.get('data_key_full_run', 'data')
+        full_run_override_key = step.get('data_key_overridden')
 
         if not isinstance(resource_entry, dict):
             return (resource_entry if resource_entry else [], default_state)
+
+        # Some remove steps are intentionally always full-reconciliation and
+        # never diff-narrowed (for example switch inventory removal, which
+        # always uses state=overridden in the original role).
+        if default_state == 'overridden':
+            data_key = full_run_override_key or data_key_full_run
+            if data_key == 'data' and 'module_data' in resource_entry:
+                data_key = 'module_data'
+            data = resource_entry.get(data_key, [])
+            return (data, default_state)
 
         # Diff-based run: use diff.removed with default state (deleted)
         if self.run_map_diff_run and not self.force_run_all:
@@ -204,12 +215,19 @@ class ResourceRemover(PipelineRunnerBase):
         # Full run with overridden strategy: send full data with state overridden
         # for full reconciliation against the controller.
         if full_run_strategy == 'overridden':
-            data_key = step.get('data_key_overridden', 'data')
+            data_key = (
+                full_run_override_key
+                or step.get('data_key_full_run')
+                or ('data_remove_overridden' if 'data_remove_overridden' in resource_entry else None)
+                or ('module_data' if 'module_data' in resource_entry else 'data')
+            )
             data = resource_entry.get(data_key, [])
             return (data, 'overridden')
 
         # Full run (legacy): use full data with full_run_state if declared
         resolved_state = full_run_state if full_run_state else default_state
+        if data_key_full_run == 'data' and 'module_data' in resource_entry:
+            data_key_full_run = 'module_data'
         data = resource_entry.get(data_key_full_run, [])
         return (data, resolved_state)
 
