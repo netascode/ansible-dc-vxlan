@@ -48,28 +48,28 @@ class Rule:
 
         # Validate VRF keys
         if vrfs:
-            cls.check_vrfs_names(data_model["vxlan"]["multisite"]["overlay"]["vrfs"], results)
+            cls.check_vrfs_names(vrfs, results)
 
         # Validate Network keys
         if networks:
-            cls.check_networks_names(data_model["vxlan"]["multisite"]["overlay"]["networks"], results)
+            cls.check_networks_names(networks, results)
 
         return results
 
     @classmethod
     def check_vrfs_names(cls, vrfs, results):
         for vrf in vrfs:
-            vrf_name = vrf.get("name", None)
-            vrf_vlan_name = vrf.get("vrf_vlan_name", None)
+            vrf_name = cls.safeget(vrf, ['name'])
+            vrf_vlan_name = cls.safeget(vrf, ['vrf_vlan_name'])
 
             # Validate VRF name
-            if not VRF_NAME_PATTERN.search(vrf_name):
+            if vrf_name and not VRF_NAME_PATTERN.search(vrf_name):
                 results.append(
                     f"vxlan.multisite.overlay.vrfs.{vrf_name} is invalid. "
                     "Only a-z, A-Z, 0-9, ., :, _, - characters are allowed and max length must be 32 characters"
                 )
             # Validate VRF VLAN name
-            if not VLAN_NAME_PATTERN.search(vrf_vlan_name):
+            if vrf_vlan_name and not VLAN_NAME_PATTERN.search(vrf_vlan_name):
                 results.append(
                     f"vxlan.multisite.overlay.vrfs.{vrf_name}.vrf_vlan_name.'{vrf_vlan_name}' is invalid. "
                     "Name cannot contain spaces, ?, \\, ',' and max length must be 128 characters"
@@ -78,11 +78,11 @@ class Rule:
     @classmethod
     def check_networks_names(cls, networks, results):
         for network in networks:
-            network_name = network.get("name", None)
-            vlan_name = network.get("vlan_name", None)
+            network_name = cls.safeget(network, ['name'])
+            vlan_name = cls.safeget(network, ['vlan_name'])
 
             # Validate Network name
-            if not NETWORK_NAME_PATTERN.search(network_name):
+            if network_name and not NETWORK_NAME_PATTERN.search(network_name):
                 results.append(
                     f"vxlan.multisite.overlay.networks.{network_name} is invalid. "
                     "Only a-z, A-Z, 0-9, ., :, _, - characters are allowed"

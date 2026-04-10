@@ -43,17 +43,17 @@ class Rule:
     @classmethod
     def check_vrfs_names(cls, vrfs, results):
         for vrf in vrfs:
-            vrf_name = vrf.get("name", None)
-            vrf_vlan_name = vrf.get("vrf_vlan_name", None)
+            vrf_name = cls.safeget(vrf, ['name'])
+            vrf_vlan_name = cls.safeget(vrf, ['vrf_vlan_name'])
 
             # Validate VRF name
-            if not VRF_NAME_PATTERN.search(vrf_name):
+            if vrf_name and not VRF_NAME_PATTERN.search(vrf_name):
                 results.append(
                     f"vxlan.overlay.vrfs.{vrf_name} is invalid. "
                     "Only a-z, A-Z, 0-9, ., :, _, - characters are allowed and max length must be 32 characters"
                 )
             # Validate VRF VLAN name
-            if not VLAN_NAME_PATTERN.search(vrf_vlan_name):
+            if vrf_vlan_name and not VLAN_NAME_PATTERN.search(vrf_vlan_name):
                 results.append(
                     f"vxlan.overlay.vrfs.{vrf_name}.vrf_vlan_name.'{vrf_vlan_name}' is invalid. "
                     "Name cannot contain spaces, ?, \\, ',' and max length must be 128 characters"
