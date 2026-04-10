@@ -184,9 +184,10 @@ remove_resources:
   #     skip_if_child_fabric: true
   #     tag: rr_manage_vrfs
 
-  #   - resource_name: inventory
+  #   - resource_name: inventory_no_bootstrap
   #     module: dcnm_inventory
   #     state: overridden
+  #     data_key_full_run: module_data
   #     change_flag_guard: changes_detected_inventory
   #     delete_mode_guard: inventory_delete_mode
   #     tag: rr_manage_switches
