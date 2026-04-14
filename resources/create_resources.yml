@@ -470,12 +470,12 @@ create_resources:
       change_flag_guard: changes_detected_fabric
       tag: cr_manage_fabric
 
-    - resource_name: child_fabric_config_save
-      module: _config_save
-      state: null
-      change_flag_guard: changes_detected_fabric
-      runtime_change_refs: [child_fabrics]
-      tag: cr_manage_switches
+    # - resource_name: child_fabric_config_save
+    #   module: _config_save
+    #   state: null
+    #   change_flag_guard: changes_detected_fabric
+    #   runtime_change_refs: [child_fabrics]
+    #   tag: cr_manage_switches
 
     - resource_name: prepare_msite_data
       module: _prepare_msite_data
@@ -493,6 +493,7 @@ create_resources:
     - resource_name: msite_build_overlay
       module: _msite_build_overlay
       state: null
+      data_model_guard: vxlan.multisite.overlay
       change_flag_guard: null
       tag: cr_manage_vrfs_networks
 
