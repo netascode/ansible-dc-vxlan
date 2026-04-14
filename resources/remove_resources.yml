@@ -157,9 +157,10 @@ remove_resources:
       tag: rr_manage_tor_pairing
 
     # Switches always use overridden (no diff_run branching)
-    - resource_name: inventory
+    - resource_name: inventory_no_bootstrap
       module: dcnm_inventory
       state: overridden
+      data_key_full_run: module_data
       change_flag_guard: changes_detected_inventory
       delete_mode_guard: inventory_delete_mode
       tag: rr_manage_switches
@@ -221,9 +222,10 @@ remove_resources:
   #     skip_if_child_fabric: true
   #     tag: rr_manage_vrfs
 
-  #   - resource_name: inventory
+  #   - resource_name: inventory_no_bootstrap
   #     module: dcnm_inventory
   #     state: overridden
+  #     data_key_full_run: module_data
   #     change_flag_guard: changes_detected_inventory
   #     delete_mode_guard: inventory_delete_mode
   #     tag: rr_manage_switches
@@ -257,9 +259,10 @@ remove_resources:
       requires_switches: true
       tag: rr_manage_interfaces
 
-    - resource_name: inventory
+    - resource_name: inventory_no_bootstrap
       module: dcnm_inventory
       state: overridden
+      data_key_full_run: module_data
       change_flag_guard: changes_detected_inventory
       delete_mode_guard: inventory_delete_mode
       tag: rr_manage_switches
@@ -302,9 +305,10 @@ remove_resources:
       fabric_param: src_fabric
       tag: rr_manage_vpc_peers
 
-    - resource_name: inventory
+    - resource_name: inventory_no_bootstrap
       module: dcnm_inventory
       state: overridden
+      data_key_full_run: module_data
       change_flag_guard: changes_detected_inventory
       delete_mode_guard: inventory_delete_mode
       tag: rr_manage_switches

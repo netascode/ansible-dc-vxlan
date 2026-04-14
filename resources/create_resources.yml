@@ -224,7 +224,9 @@ create_resources:
       module: dcnm_policy
       state: merged
       deploy: false
-      data_model_guard: vxlan.topology.policies
+      data_model_guard: 
+        - vxlan.topology.switches
+        - vxlan.policy
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
@@ -359,7 +361,9 @@ create_resources:
       module: dcnm_policy
       state: merged
       deploy: false
-      data_model_guard: vxlan.topology.policies
+      data_model_guard: 
+        - vxlan.topology.switches
+        - vxlan.policy
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
@@ -417,6 +421,9 @@ create_resources:
       module: dcnm_policy
       state: merged
       deploy: false
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.policy
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
@@ -508,6 +515,9 @@ create_resources:
       module: dcnm_policy
       state: merged
       deploy: false
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.policy
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
