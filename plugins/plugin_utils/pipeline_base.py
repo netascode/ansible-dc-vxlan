@@ -169,13 +169,17 @@ class PipelineRunnerBase(ABC):
             # ── Guard: data_model_guard ───────────────────────────────────
             dm_guard = step.get('data_model_guard')
             if dm_guard:
-                value = self._evaluate_data_model_guard(dm_guard)
-                if not value:
+                guards = dm_guard if isinstance(dm_guard, list) else [dm_guard]
+                failed = next(
+                    (g for g in guards if not self._evaluate_data_model_guard(g)),
+                    None,
+                )
+                if failed is not None:
                     step_results.append({
                         'resource_name': resource_name,
                         'module': module,
                         'status': 'skipped',
-                        'reason': f"data_model_guard '{dm_guard}' resolved to falsy",
+                        'reason': f"data_model_guard '{failed}' resolved to falsy",
                     })
                     elapsed = time.monotonic() - step_start
                     display.display(
