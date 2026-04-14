@@ -25,18 +25,49 @@
 # Consumed by: remove_resources.py
 #
 # Each step defines:
-#   - resource_name:        Which resource data to pass
-#   - module:               cisco.dcnm module name (prefix added at runtime)
-#   - state:                Module state for diff_run=true (typically 'deleted')
-#   - state_full_run:       Module state for diff_run=false (typically 'overridden')
-#                           Omit if state should be the same regardless of diff_run
-#   - data_key_full_run:    Key override for full-run data source (default: 'data')
-#   - change_flag_guard:    Guard — skip if this change flag is False
-#   - delete_mode_guard:    User opt-in safety flag that must be true to execute
-#   - skip_if_child_fabric: Skip if fabric is an active MSD child
-#   - requires_switches:    Skip if no switches exist in the fabric
-#   - fabric_param:         Override fabric parameter name (default: 'fabric')
-#   - tag:                  Per-step tag for --tags filtering
+#   resource_name:        Key in resource_data dict for the data to pass.
+#                         Use null for internal methods that don't need data.
+#   module:               cisco.dcnm module name (prefix added at runtime).
+#                         Internal methods start with '_' (e.g., _tor_pairing).
+#   state:                Module state for diff_run=true (typically 'deleted').
+#                         Use null for internal methods.
+#   state_full_run:       (optional) Module state for diff_run=false (typically
+#                         'overridden'). Omit if state should be the same
+#                         regardless of diff_run mode.
+#   full_run_strategy:    (optional) Strategy for full-run data resolution.
+#                         'controller_diff' — query NDFC and diff against data
+#                         model. 'overridden' — send full data with overridden
+#                         state. Omit for default behavior.
+#   data_key_full_run:    (optional) Key override for full-run data source.
+#                         Default: 'data'. Used when the full-run payload
+#                         differs from the diff-run payload.
+#   fabric_param:         (optional) Override fabric parameter name sent to
+#                         the module. Default: 'fabric'. Use 'src_fabric'
+#                         for dcnm_vpc_pair. Use null to omit fabric param.
+#   data_model_guard:     (optional) Dot-path into the data model. Step is
+#                         skipped if the path resolves to falsy/missing.
+#                         Accepts a string or list. List uses AND semantics
+#                         — all paths must be truthy for the step to run.
+#   change_flag_guard:    (optional) Change flag name from build_resource_data.
+#                         Step is skipped if this flag is False. Use null
+#                         for steps that should always run.
+#   delete_mode_guard:    (optional) User-configurable safety flag name.
+#                         Step is skipped unless this flag is truthy. Prevents
+#                         accidental resource removal.
+#   skip_if_child_fabric: (optional) Skip this step if the fabric is an active
+#                         MSD child. Prevents overlay removal on child fabrics
+#                         managed by a parent MSD.
+#   requires_switches:    (optional) Skip this step if no switches exist in
+#                         the fabric. Used for switch-dependent operations
+#                         like policies and interfaces.
+#   tag:                  (optional) Per-step tag for --tags filtering.
+#                         Accepts a string or list. List uses OR semantics
+#                         — step is included if ANY tag is active. Steps
+#                         with no tag always run when tag filtering is active.
+#
+# Top-level keys:
+#   role_tag:             Tag that bypasses per-step filtering (e.g.,
+#                         --tags role_remove runs the entire pipeline).
 #
 # Pipeline ordering is the REVERSE of creation to respect dependencies:
 #   edge_connections → policies → interfaces → networks → VRFs →
@@ -80,6 +111,9 @@ remove_resources:
       module: dcnm_network
       state: deleted
       full_run_strategy: controller_diff
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.multisite.overlay.networks
       change_flag_guard: changes_detected_networks
       delete_mode_guard: network_delete_mode
       skip_if_child_fabric: true
@@ -89,16 +123,20 @@ remove_resources:
       module: dcnm_vrf
       state: deleted
       full_run_strategy: controller_diff
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.multisite.overlay.vrfs
       change_flag_guard: changes_detected_vrfs
       delete_mode_guard: vrf_delete_mode
       skip_if_child_fabric: true
       tag: rr_manage_vrfs
 
-  #   - resource_name: fabric_links
-  #     module: dcnm_links
-  #     state: deleted
-  #     change_flag_guard: changes_detected_fabric_links
-  #     tag: rr_manage_links
+    - resource_name: fabric_links
+      module: dcnm_links
+      state: deleted
+      data_model_guard: vxlan.topology.fabric_links
+      change_flag_guard: changes_detected_fabric_links
+      tag: rr_manage_links
 
     # vPC peers — uses dcnm_vpc_pair with src_fabric (not dcnm_links with fabric)
     - resource_name: vpc_peering
@@ -282,19 +320,26 @@ remove_resources:
     - resource_name: null
       module: _prepare_msite_data
       state: null
+      data_model_guard: vxlan.multisite.child_fabrics
       change_flag_guard: null
-      tag: rr_manage_vrfs_networks
+      tag:
+        - rr_manage_vrfs
+        - rr_manage_networks
 
     - resource_name: msite_build_overlay
       module: _msite_build_overlay
       state: null
+      data_model_guard: vxlan.multisite.overlay
       change_flag_guard: null
-      tag: rr_manage_vrfs_networks
+      tag:
+        - rr_manage_vrfs
+        - rr_manage_networks
 
     - resource_name: networks
       module: dcnm_network
       state: deleted
       state_full_run: overridden
+      data_model_guard: vxlan.multisite.overlay.networks
       change_flag_guard: changes_detected_networks
       delete_mode_guard: network_delete_mode
       tag: rr_manage_networks
@@ -303,6 +348,7 @@ remove_resources:
       module: dcnm_vrf
       state: deleted
       state_full_run: overridden
+      data_model_guard: vxlan.multisite.overlay.vrfs
       change_flag_guard: changes_detected_vrfs
       delete_mode_guard: vrf_delete_mode
       tag: rr_manage_vrfs
@@ -321,13 +367,17 @@ remove_resources:
   #     module: _prepare_msite_data
   #     state: null
   #     change_flag_guard: null
-  #     tag: rr_manage_vrfs_networks
+  #     tag:
+  #       - rr_manage_vrfs
+  #       - rr_manage_networks
 
   #   - resource_name: msite_build_overlay
   #     module: _msite_build_overlay
   #     state: null
   #     change_flag_guard: null
-  #     tag: rr_manage_vrfs_networks
+  #     tag:
+  #       - rr_manage_vrfs
+  #       - rr_manage_networks
 
   #   - resource_name: networks
   #     module: dcnm_network

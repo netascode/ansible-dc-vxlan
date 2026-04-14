@@ -169,13 +169,17 @@ class PipelineRunnerBase(ABC):
             # ── Guard: data_model_guard ───────────────────────────────────
             dm_guard = step.get('data_model_guard')
             if dm_guard:
-                value = self._evaluate_data_model_guard(dm_guard)
-                if not value:
+                guards = dm_guard if isinstance(dm_guard, list) else [dm_guard]
+                failed = next(
+                    (g for g in guards if not self._evaluate_data_model_guard(g)),
+                    None,
+                )
+                if failed is not None:
                     step_results.append({
                         'resource_name': resource_name,
                         'module': module,
                         'status': 'skipped',
-                        'reason': f"data_model_guard '{dm_guard}' resolved to falsy",
+                        'reason': f"data_model_guard '{failed}' resolved to falsy",
                     })
                     elapsed = time.monotonic() - step_start
                     display.display(
@@ -540,48 +544,57 @@ class PipelineRunnerBase(ABC):
 
         check_roles = self.task_vars.get('check_roles', {})
 
-        result = self.executor.execute_plugin(
-            module_name="cisco.nac_dc_vxlan.dtc.build_resource_data",
-            module_args={
-                "fabric_type": self.fabric_type,
-                "fabric_name": self.fabric_name,
-                "data_model": self.data_model,
-                "role_path": role_path,
-                "run_map_diff_run": self.run_map_diff_run,
-                "force_run_all": self.force_run_all,
-                "check_roles": check_roles,
-                "resource_filter": ["vrfs", "vrf_loopback_attach", "networks"],
-            },
-        )
+        resource_filter = []
+        if self.data_model.get('vxlan', {}).get('multisite', {}).get('overlay').get('vrfs'):
+             resource_filter.extend(["vrfs", "vrf_loopback_attach"])
+        if self.data_model.get('vxlan', {}).get('multisite', {}).get('overlay').get('networks'):
+             resource_filter.extend(["networks"])
 
-        if result.get('failed'):
-            return result
+        if resource_filter:
+            result = self.executor.execute_plugin(
+                module_name="cisco.nac_dc_vxlan.dtc.build_resource_data",
+                module_args={
+                    "fabric_type": self.fabric_type,
+                    "fabric_name": self.fabric_name,
+                    "data_model": self.data_model,
+                    "role_path": role_path,
+                    "run_map_diff_run": self.run_map_diff_run,
+                    "force_run_all": self.force_run_all,
+                    "check_roles": check_roles,
+                    "resource_filter": resource_filter,
+                },
+            )
 
-        # Merge resource_data into pipeline runner state
-        new_resource_data = result.get('resource_data', {})
-        self.resource_data.update(new_resource_data)
+            if result.get('failed'):
+                return result
 
-        # Merge change_flags into pipeline runner state
-        new_change_flags = result.get('change_flags', {})
-        self.change_flags.update(new_change_flags)
+            # Merge resource_data into pipeline runner state
+            new_resource_data = result.get('resource_data', {})
+            self.resource_data.update(new_resource_data)
 
-        # Update aggregate flag
-        if any(new_change_flags.values()):
-            self.change_flags['changes_detected_any'] = True
+            # Merge change_flags into pipeline runner state
+            new_change_flags = result.get('change_flags', {})
+            self.change_flags.update(new_change_flags)
 
-        # Merge diff_results if present
-        new_diff_results = result.get('diff_results', {})
-        if hasattr(self, 'diff_results'):
-            self.diff_results.update(new_diff_results)
+            # Update aggregate flag
+            if any(new_change_flags.values()):
+                self.change_flags['changes_detected_any'] = True
 
-        display.v(
-            f"{self.OPERATION.upper()} [{self.fabric_name}] "
-            f"Deferred overlay build complete: "
-            f"resources={list(new_resource_data.keys())}, "
-            f"flags={new_change_flags}"
-        )
+            # Merge diff_results if present
+            new_diff_results = result.get('diff_results', {})
+            if hasattr(self, 'diff_results'):
+                self.diff_results.update(new_diff_results)
 
-        return {'failed': False, 'changed': any(new_change_flags.values())}
+            display.v(
+                f"{self.OPERATION.upper()} [{self.fabric_name}] "
+                f"Deferred overlay build complete: "
+                f"resources={list(new_resource_data.keys())}, "
+                f"flags={new_change_flags}"
+            )
+
+            return {'failed': False, 'changed': any(new_change_flags.values())}
+
+        return {'failed': False, 'changed': False, 'msg': 'No overlay resources to build — skipped'}
 
     def _manage_child_fabrics(self, resource_name, step):
         """

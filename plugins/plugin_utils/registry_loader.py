@@ -199,6 +199,10 @@ class RegistryLoader:
             if step_tag is None:
                 # Infrastructure steps (no tag) always run
                 filtered.append(step)
+            elif isinstance(step_tag, list):
+                # List tags — include if ANY tag matches (shared prep steps)
+                if set(step_tag) & set(ansible_run_tags):
+                    filtered.append(step)
             elif step_tag in ansible_run_tags:
                 filtered.append(step)
         return filtered
