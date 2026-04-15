@@ -693,6 +693,7 @@ class ActionModule(ActionBase):
             run_map_diff_run=run_map_diff_run,
             child_fabrics=child_fabrics,
             vrf_response_data=vrf_response_data,
+            vrf_loopback_response_data=vrf_loopback_response_data,
             network_response_data=network_response_data,
         )
 
