@@ -57,9 +57,6 @@
 #   skip_if_child_fabric: (optional) Skip this step if the fabric is an active
 #                         MSD child. Prevents overlay removal on child fabrics
 #                         managed by a parent MSD.
-#   requires_switches:    (optional) Skip this step if no switches exist in
-#                         the fabric. Used for switch-dependent operations
-#                         like policies and interfaces.
 #   tag:                  (optional) Per-step tag for --tags filtering.
 #                         Accepts a string or list. List uses OR semantics
 #                         — step is included if ANY tag is active. Steps
@@ -93,18 +90,18 @@ remove_resources:
     - resource_name: policy
       module: _unmanaged_policy
       state: null
+      data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_policy
       delete_mode_guard: policy_delete_mode
-      requires_switches: true
       tag: rr_manage_policy
 
     - resource_name: interface_all
       module: dcnm_interface
       state: deleted
       full_run_strategy: overridden
+      data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_interfaces
       delete_mode_guard: interface_delete_mode
-      requires_switches: true
       tag: rr_manage_interfaces
 
     - resource_name: networks
@@ -131,11 +128,26 @@ remove_resources:
       skip_if_child_fabric: true
       tag: rr_manage_vrfs
 
+    - resource_name: process_fabric_links
+      module: _fabric_links_query_and_remove
+      state: null
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.topology.fabric_links
+      change_flag_guard: changes_detected_fabric_links
+      delete_mode_guard: link_fabric_delete_mode
+      tag: rr_manage_links
+
     - resource_name: fabric_links
       module: dcnm_links
       state: deleted
-      data_model_guard: vxlan.topology.fabric_links
+      fabric_param: src_fabric
+      deploy: false
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.topology.fabric_links
       change_flag_guard: changes_detected_fabric_links
+      delete_mode_guard: link_fabric_delete_mode
       tag: rr_manage_links
 
     # vPC peers — uses dcnm_vpc_pair with src_fabric (not dcnm_links with fabric)
@@ -189,9 +201,9 @@ remove_resources:
   #   - resource_name: policy
   #     module: _unmanaged_policy
   #     state: null
+  #     data_model_guard: vxlan.topology.switches
   #     change_flag_guard: changes_detected_policy
   #     delete_mode_guard: policy_delete_mode
-  #     requires_switches: true
   #     tag: rr_manage_policy
 
   #   - resource_name: interface_all
@@ -199,9 +211,9 @@ remove_resources:
   #     state: deleted
   #     state_full_run: overridden
   #     data_key_full_run: data_remove_overridden
+  #     data_model_guard: vxlan.topology.switches
   #     change_flag_guard: changes_detected_interfaces
   #     delete_mode_guard: interface_delete_mode
-  #     requires_switches: true
   #     tag: rr_manage_interfaces
 
   #   - resource_name: networks
@@ -244,9 +256,9 @@ remove_resources:
     - resource_name: policy
       module: _unmanaged_policy
       state: null
+      data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_policy
       delete_mode_guard: policy_delete_mode
-      requires_switches: true
       tag: rr_manage_policy
 
     - resource_name: interface_all
@@ -254,9 +266,9 @@ remove_resources:
       state: deleted
       state_full_run: overridden
       data_key_full_run: data_remove_overridden
+      data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_interfaces
       delete_mode_guard: interface_delete_mode
-      requires_switches: true
       tag: rr_manage_interfaces
 
     - resource_name: inventory_no_bootstrap
@@ -281,9 +293,9 @@ remove_resources:
     - resource_name: policy
       module: _unmanaged_policy
       state: null
+      data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_policy
       delete_mode_guard: policy_delete_mode
-      requires_switches: true
       tag: rr_manage_policy
 
     - resource_name: interface_all
@@ -291,9 +303,9 @@ remove_resources:
       state: deleted
       state_full_run: overridden
       data_key_full_run: data_remove_overridden
+      data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_interfaces
       delete_mode_guard: interface_delete_mode
-      requires_switches: true
       tag: rr_manage_interfaces
 
     - resource_name: vpc_peering

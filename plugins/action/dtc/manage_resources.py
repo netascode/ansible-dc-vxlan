@@ -129,6 +129,83 @@ class ResourceManager(PipelineRunnerBase):
 
         return data
 
+    # ══════════════════════════════════════════════════════════════════════════
+    # Create-Specific Internal Methods
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _fabric_links_query_and_filter(self, resource_name, step):
+        """
+        Query NDFC for existing fabric links and filter via existing_links_check.
+
+        Replicates the pre-processing from roles/dtc/create/tasks/common/links.yml:
+          1. Resolve fabric_links data (respecting diff_run)
+          2. Query existing links from NDFC (dcnm_links state: query)
+          3. Run existing_links_check action plugin to filter/transform
+          4. Update self.resource_data['fabric_links'] with filtered result
+
+        The subsequent dcnm_links step picks up the filtered data via
+        _resolve_step_data naturally.
+        """
+        # Step 1: Resolve the fabric_links data (respecting diff_run)
+        data, _ = self._resolve_step_data(resource_name, step)
+        if not data:
+            return {'changed': False, 'msg': 'No fabric links data to filter'}
+
+        # Step 2: Query existing links from NDFC
+        query_result = self.executor.execute(
+            module_name="cisco.dcnm.dcnm_links",
+            state="query",
+            config=[{"dst_fabric": self.fabric_name}],
+            fabric_name=self.fabric_name,
+            fabric_param="src_fabric",
+        )
+
+        existing_links = query_result.get('response', [])
+        if not existing_links:
+            # No existing links — all configured links are new/required
+            return {'changed': False, 'msg': 'No existing links on controller'}
+
+        # Step 3: Filter via existing_links_check action plugin
+        switches = (
+            self.data_model.get('vxlan', {})
+            .get('topology', {})
+            .get('switches', [])
+        )
+
+        filter_result = self.executor.execute_plugin(
+            module_name="cisco.nac_dc_vxlan.dtc.existing_links_check",
+            module_args={
+                "existing_links": existing_links,
+                "fabric_links": data,
+                "switch_data_model": switches,
+            },
+        )
+
+        if filter_result.get('failed'):
+            return {
+                'failed': True,
+                'msg': (
+                    f"existing_links_check failed: "
+                    f"{filter_result.get('msg', 'unknown error')}"
+                ),
+            }
+
+        # Step 4: Update resource_data so the next step picks up filtered links
+        required_links = filter_result.get('required_links', [])
+
+        resource_entry = self.resource_data.get('fabric_links', {})
+        if isinstance(resource_entry, dict):
+            resource_entry['module_data'] = required_links
+        else:
+            self.resource_data['fabric_links'] = {'module_data': required_links}
+
+        display.v(
+            f"CREATE [{self.fabric_name}] fabric_links: "
+            f"{len(data)} configured → {len(required_links)} after filter"
+        )
+
+        return {'changed': False}
+
 
 class ActionModule(DtcPipelineActionBase):
     """

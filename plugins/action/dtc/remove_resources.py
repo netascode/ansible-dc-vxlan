@@ -32,7 +32,6 @@ Extends PipelineRunnerBase with remove-specific behavior:
   - Recommendation #4: Correct vPC peers module (dcnm_vpc_pair with src_fabric)
   - state_full_run: Dual-state removal (deleted for diff_run, overridden for full)
   - skip_if_child_fabric: Guard for VRFs/networks on active MSD child fabrics
-  - requires_switches: Guard for steps that need switches in the fabric
 
 Shared infrastructure (module execution, pipeline skeleton, tag filtering,
 change flag guards, multisite methods) lives in plugin_utils/.
@@ -60,7 +59,7 @@ class ResourceRemover(PipelineRunnerBase):
 
     Extends PipelineRunnerBase with remove-specific data resolution
     (diff.removed with dual-state), additional guards (delete_mode,
-    child_fabric, requires_switches), and controller query helpers.
+    child_fabric), and controller query helpers.
     """
 
     REGISTRY_KEY = 'remove_resources'
@@ -81,6 +80,8 @@ class ResourceRemover(PipelineRunnerBase):
             'edge_connections_delete_mode': task_vars.get('edge_connections_delete_mode', False),
             'policy_delete_mode': task_vars.get('policy_delete_mode', False),
             'tor_pairing_delete_mode': task_vars.get('tor_pairing_delete_mode', False),
+            'link_fabric_delete_mode': task_vars.get('link_fabric_delete_mode', False),
+            'link_vpc_delete_mode': task_vars.get('link_vpc_delete_mode', False),
         }
 
     # ══════════════════════════════════════════════════════════════════════════
@@ -94,7 +95,7 @@ class ResourceRemover(PipelineRunnerBase):
 
     def _check_additional_guards(self, step, context):
         """
-        Remove-specific guards: delete_mode, child_fabric, requires_switches.
+        Remove-specific guards: delete_mode, child_fabric.
 
         Checked before the shared change_flag_guard in the base class.
         """
@@ -128,15 +129,6 @@ class ResourceRemover(PipelineRunnerBase):
                 'module': module,
                 'status': 'skipped',
                 'reason': 'active child fabric — skipping to prevent MSD conflict',
-            }
-
-        # ── Guard 3: requires_switches ────────────────────────────────
-        if step.get('requires_switches') and not context.get('switch_list'):
-            return {
-                'resource_name': resource_name,
-                'module': module,
-                'status': 'skipped',
-                'reason': 'no switches in fabric',
             }
 
         return None  # All guards passed
@@ -328,6 +320,85 @@ class ResourceRemover(PipelineRunnerBase):
     # ══════════════════════════════════════════════════════════════════════════
     # Remove-Specific Internal Methods
     # ══════════════════════════════════════════════════════════════════════════
+
+    def _fabric_links_query_and_remove(self, resource_name, step):
+        """
+        Query NDFC for existing fabric links and identify unmanaged links for removal.
+
+        Replicates the pre-processing from roles/dtc/remove/tasks/common/links.yml:
+          1. Query existing links from NDFC (dcnm_links state: query)
+          2. Run links_filter_and_remove action plugin to identify unmanaged links
+          3. Update self.resource_data['fabric_links'] with links to remove
+
+        The subsequent dcnm_links step picks up the filtered data via
+        _resolve_step_data naturally.
+        """
+        # Step 1: Query existing links from NDFC
+        query_result = self.executor.execute(
+            module_name="cisco.dcnm.dcnm_links",
+            state="query",
+            config=[{"dst_fabric": self.fabric_name}],
+            fabric_name=self.fabric_name,
+            fabric_param="src_fabric",
+        )
+
+        existing_links = query_result.get('response', [])
+        if not existing_links:
+            # No existing links — nothing to remove
+            resource_entry = self.resource_data.get('fabric_links', {})
+            if isinstance(resource_entry, dict):
+                resource_entry['module_data'] = []
+            else:
+                self.resource_data['fabric_links'] = {'module_data': []}
+            return {'changed': False, 'msg': 'No existing links on controller'}
+
+        # Step 2: Get the full configured fabric_links data (not diff-narrowed)
+        resource_entry = self.resource_data.get('fabric_links', {})
+        if isinstance(resource_entry, dict):
+            fabric_links_data = resource_entry.get('data', [])
+        else:
+            fabric_links_data = resource_entry if resource_entry else []
+
+        switches = (
+            self.data_model.get('vxlan', {})
+            .get('topology', {})
+            .get('switches', [])
+        )
+
+        # Step 3: Filter via links_filter_and_remove action plugin
+        filter_result = self.executor.execute_plugin(
+            module_name="cisco.nac_dc_vxlan.dtc.links_filter_and_remove",
+            module_args={
+                "existing_links": existing_links,
+                "fabric_links": fabric_links_data,
+                "switch_data_model": switches,
+            },
+        )
+
+        if filter_result.get('failed'):
+            return {
+                'failed': True,
+                'msg': (
+                    f"links_filter_and_remove failed: "
+                    f"{filter_result.get('msg', 'unknown error')}"
+                ),
+            }
+
+        # Step 4: Update resource_data so the next step picks up links to remove
+        links_to_remove = filter_result.get('links_to_be_removed', [])
+
+        resource_entry = self.resource_data.get('fabric_links', {})
+        if isinstance(resource_entry, dict):
+            resource_entry['module_data'] = links_to_remove
+        else:
+            self.resource_data['fabric_links'] = {'module_data': links_to_remove}
+
+        display.v(
+            f"REMOVE [{self.fabric_name}] fabric_links: "
+            f"{len(existing_links)} on controller → {len(links_to_remove)} to remove"
+        )
+
+        return {'changed': False}
 
     # ══════════════════════════════════════════════════════════════════════════
     # Controller Diff — Query NDFC, diff against data model, return deletions

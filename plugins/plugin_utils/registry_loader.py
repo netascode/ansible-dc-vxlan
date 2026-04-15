@@ -92,7 +92,6 @@ KNOWN_PIPELINE_FIELDS = {
     'data_model_guard',
     'delete_mode_guard',
     'skip_if_child_fabric',
-    'requires_switches',
     'fabric_param',
     'skip_diff',
     'deploy',

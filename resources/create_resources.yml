@@ -211,6 +211,13 @@ create_resources:
       change_flag_guard: changes_detected_networks
       tag: cr_manage_networks
 
+    - resource_name: process_fabric_links
+      module: _fabric_links_query_and_filter
+      state: null
+      data_model_guard: vxlan.topology.fabric_links
+      change_flag_guard: changes_detected_fabric_links
+      tag: cr_manage_links
+
     - resource_name: fabric_links
       module: dcnm_links
       state: replaced
@@ -224,7 +231,7 @@ create_resources:
       module: dcnm_policy
       state: merged
       deploy: false
-      data_model_guard: 
+      data_model_guard:
         - vxlan.topology.switches
         - vxlan.policy
       change_flag_guard: changes_detected_policy
@@ -361,7 +368,7 @@ create_resources:
       module: dcnm_policy
       state: merged
       deploy: false
-      data_model_guard: 
+      data_model_guard:
         - vxlan.topology.switches
         - vxlan.policy
       change_flag_guard: changes_detected_policy
