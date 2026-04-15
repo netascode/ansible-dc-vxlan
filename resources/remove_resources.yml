@@ -110,7 +110,7 @@ remove_resources:
       full_run_strategy: controller_diff
       data_model_guard:
         - vxlan.topology.switches
-        - vxlan.multisite.overlay.networks
+        - vxlan.overlay.networks
       change_flag_guard: changes_detected_networks
       delete_mode_guard: network_delete_mode
       skip_if_child_fabric: true
@@ -122,7 +122,7 @@ remove_resources:
       full_run_strategy: controller_diff
       data_model_guard:
         - vxlan.topology.switches
-        - vxlan.multisite.overlay.vrfs
+        - vxlan.overlay.vrfs
       change_flag_guard: changes_detected_vrfs
       delete_mode_guard: vrf_delete_mode
       skip_if_child_fabric: true
