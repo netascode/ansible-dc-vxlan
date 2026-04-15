@@ -949,3 +949,79 @@ class ActionModule(ActionBase):
         )
 
         return results
+
+    def _process_child_fabric_changes(self, params):
+        """Helper for processing child fabric changes for Multisite (MSD or MCFG) deployments."""
+        vrf_response_data = params['vrf_response_data']
+        network_response_data = params['network_response_data']
+        vrf_loopback_response_data = params['vrf_loopback_response_data']
+
+        vrf_changed_fabrics = []
+        network_changed_fabrics = []
+
+        if vrf_loopback_response_data:
+            # Process VRF Loopback Changes
+            # Extract unique fabric names from lanAttachList entries
+            vrf_loopback_fabrics = set()
+            for vrf_item in vrf_loopback_response_data:
+                for attach in vrf_item.get('lanAttachList', []):
+                    fabric = attach.get('fabric')
+                    if fabric:
+                        vrf_loopback_fabrics.add(fabric)
+
+            if vrf_loopback_fabrics:
+                # Build fabric-to-cluster mapping from vrf_response_data members list
+                fabric_cluster_map = {}
+                if vrf_response_data:
+                    parent = vrf_response_data.get('parent_fabric', {})
+                    members = parent.get('invocation', {}).get('module_args', {}).get('fabric_details', {}).get('members', [])
+                    for member in members:
+                        fabric_cluster_map[member['fabricName']] = member.get('clusterName')
+
+                vrf_loopback_changed_fabrics = [
+                    {
+                        'name': fabric,
+                        'cluster': fabric_cluster_map.get(fabric)
+                    }
+                    for fabric in vrf_loopback_fabrics
+                ]
+        display.banner(f"VRF Loopback Changed Fabrics: {vrf_loopback_changed_fabrics}")
+        # Process VRF Changes
+        if vrf_response_data:
+            if vrf_response_data.get('child_fabrics'):
+                child_fabric_vrf_data = vrf_response_data['child_fabrics']
+
+                # As part of VRF changes detected, get list of changed fabrics
+                vrf_changed_fabrics = [
+                    {
+                        'name': item['fabric'],
+                        'cluster': item.get('cluster')
+                    }
+                    for item in child_fabric_vrf_data
+                    if item.get('changed')
+                ]
+        display.banner(f"VRF Changed Fabrics: {vrf_changed_fabrics}")
+        # Process Network Changes
+        if network_response_data:
+            if network_response_data.get('child_fabrics'):
+                child_fabric_network_data = network_response_data['child_fabrics']
+
+                # As part of Network changes detected, exclude fabrics that have already been marked as changed due to VRF changes
+                network_changed_fabrics = [
+                    {
+                        'name': item['fabric_name'],
+                        'cluster': item.get('cluster_name')
+                    }
+                    for item in child_fabric_network_data
+                    if item.get('changed') and item['fabric_name'] not in vrf_changed_fabrics
+                ]
+
+        merged_fabric_changes = vrf_changed_fabrics + vrf_loopback_changed_fabrics + [
+            network_changed_fabric
+            for network_changed_fabric in network_changed_fabrics
+            if network_changed_fabric['name'] not in {
+                network_changed_fabric['name'] for network_changed_fabric in vrf_changed_fabrics
+            }
+        ]
+        display.banner(f"Merged Fabrics: {merged_fabric_changes}")
+        return merged_fabric_changes
