@@ -205,7 +205,61 @@ class ResourceManager(PipelineRunnerBase):
         )
 
         return {'changed': False}
+      
+    def _underlay_ip_query_and_filter(self, resource_name, step):
+        """
+        Audit underlay IP allocations against existing ND pool resources.
 
+        Mirrors the old roles/dtc/create/tasks/common/underlay_ip_address.yml flow:
+          1. Resolve underlay_ip_address data (respecting diff_run)
+          2. For full runs, audit desired config against ND pool resources
+          3. Replace module_data with filtered_config from the audit plugin
+
+        In diff_run mode, preserve the existing diff.updated narrowing and skip
+        the expensive controller audit, matching the old behavior.
+        """
+        data, _ = self._resolve_step_data(resource_name, step)
+        if not data:
+            return {'changed': False, 'msg': 'No underlay_ip_address data to audit'}
+
+        if self.run_map_diff_run:
+            return {'changed': False, 'msg': 'Diff run active; skipping underlay IP audit'}
+
+        scope_filter = self.task_vars.get('underlay_ip_audit_scope_filter', 'all')
+
+        module_args = {
+            'fabric': self.fabric_name,
+            'desired_config': data,
+            'scope_filter': scope_filter,
+        }
+        if 'underlay_ip_audit_pools' in self.task_vars:
+            module_args['query_pools'] = self.task_vars['underlay_ip_audit_pools']
+
+        audit_result = self.executor.execute_plugin(
+            module_name='cisco.nac_dc_vxlan.dtc.underlay_ip_pool_audit',
+            module_args=module_args,
+        )
+
+        if audit_result.get('failed'):
+            return {
+                'failed': True,
+                'msg': audit_result.get('msg', 'underlay_ip_pool_audit failed'),
+            }
+
+        filtered_config = audit_result.get('filtered_config', [])
+        resource_entry = self.resource_data.get(resource_name, {})
+        if isinstance(resource_entry, dict):
+            resource_entry['module_data'] = filtered_config
+        else:
+            self.resource_data[resource_name] = {
+                'module_data': filtered_config,
+            }
+
+        display.v(
+            f"CREATE [{self.fabric_name}] underlay_ip_address: "
+            f"{len(data)} configured → {len(filtered_config)} after audit"
+        )
+        return {'changed': False}
 
 class ActionModule(DtcPipelineActionBase):
     """
