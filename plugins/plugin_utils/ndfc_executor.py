@@ -110,7 +110,6 @@ class NdfcModuleExecutor:
         if module_name == 'cisco.dcnm.dcnm_policy':
             module_args['use_desc_as_key'] = True
 
-
         if module_name in self.MODULES_WITH_ACTION_PLUGINS:
             return self._execute_via_action_plugin(module_name, module_args)
 
