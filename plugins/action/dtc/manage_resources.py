@@ -206,17 +206,38 @@ class ResourceManager(PipelineRunnerBase):
 
         return {'changed': False}
       
-    def _underlay_ip_query_and_filter(self, resource_name, step):
+    def _underlay_ip_remote_diff(self, resource_name, step):
         """
-        Audit underlay IP allocations against existing ND pool resources.
+        Remote diff: reconcile underlay IP data model against controller state.
 
-        Mirrors the old roles/dtc/create/tasks/common/underlay_ip_address.yml flow:
-          1. Resolve underlay_ip_address data (respecting diff_run)
-          2. For full runs, audit desired config against ND pool resources
-          3. Replace module_data with filtered_config from the audit plugin
+        This method implements Phase 2 of the two-phase comparison:
 
-        In diff_run mode, preserve the existing diff.updated narrowing and skip
-        the expensive controller audit, matching the old behavior.
+        Phase 1 - Local YAML Comparison (handled by common/files):
+            Compares the previous and current rendered YAML
+            (ndfc_underlay_ip_address.yml) to detect local data model changes.
+            Output: diff.updated entries for changed resources.
+
+            Example: user changes loopback0 ipv4 from 10.1.0.1/32
+            to 10.1.0.2/32 in the data model -> Phase 1 detects the diff.
+
+        Phase 2 - Controller Reconciliation (this method):
+            Queries the controller (ND) pool resources via
+            underlay_ip_manual_allocation_filter and compares against the desired config.
+            Reduces module_data to only entries needing controller updates.
+
+            Example: 5 switches in data model, but 2 already have the
+            correct pool allocation on the controller -> filtered_config
+            returns only the 3 that need updates.
+
+        In diff_run mode the local YAML diff (Phase 1) already narrows scope,
+        so Phase 2 is skipped to avoid redundant controller queries.
+
+        Args:
+            resource_name: Resource identifier (e.g. underlay_ip_address).
+            step: Pipeline step dict from create_resources.yml.
+
+        Returns:
+            dict with changed and optionally failed/msg keys.
         """
         data, _ = self._resolve_step_data(resource_name, step)
         if not data:
@@ -236,14 +257,14 @@ class ResourceManager(PipelineRunnerBase):
             module_args['query_pools'] = self.task_vars['underlay_ip_audit_pools']
 
         audit_result = self.executor.execute_plugin(
-            module_name='cisco.nac_dc_vxlan.dtc.underlay_ip_pool_audit',
+            module_name='cisco.nac_dc_vxlan.dtc.underlay_ip_manual_allocation_filter',
             module_args=module_args,
         )
 
         if audit_result.get('failed'):
             return {
                 'failed': True,
-                'msg': audit_result.get('msg', 'underlay_ip_pool_audit failed'),
+                'msg': audit_result.get('msg', 'underlay_ip_manual_allocation_filter failed'),
             }
 
         filtered_config = audit_result.get('filtered_config', [])
