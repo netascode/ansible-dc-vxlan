@@ -128,7 +128,7 @@ remove_resources:
       skip_if_child_fabric: true
       tag: rr_manage_vrfs
 
-    - resource_name: process_fabric_links
+    - resource_name: fabric_links
       module: _fabric_links_query_and_remove
       state: null
       data_model_guard:
