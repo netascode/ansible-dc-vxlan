@@ -107,7 +107,7 @@ remove_resources:
     - resource_name: networks
       module: dcnm_network
       state: deleted
-      full_run_strategy: controller_diff
+      full_run_strategy: overridden
       data_model_guard:
         - vxlan.topology.switches
         - vxlan.overlay.networks
@@ -119,7 +119,7 @@ remove_resources:
     - resource_name: vrfs
       module: dcnm_vrf
       state: deleted
-      full_run_strategy: controller_diff
+      full_run_strategy: overridden
       data_model_guard:
         - vxlan.topology.switches
         - vxlan.overlay.vrfs
