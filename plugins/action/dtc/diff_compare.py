@@ -22,6 +22,7 @@
 from __future__ import absolute_import, division, print_function
 
 import yaml
+import json
 import os
 import datetime
 from ansible.utils.display import Display
@@ -204,6 +205,58 @@ class ActionModule(ActionBase):
 
         return '_'.join([item.get(field) for field in required_fields])
 
+    def _create_vrf_loopback_key(self, item):
+        """
+        Create a unique key for flattened VRF loopback attachments.
+
+        Args:
+            item (dict): An individual attachment from lanAttachList
+
+        Returns:
+            tuple: (vrfName, serialNumber) or None if required fields are missing
+        """
+        vrf_name = item.get('vrfName')
+        serial = item.get('serialNumber')
+        if not vrf_name or not serial:
+            return None
+        return (vrf_name, serial)
+
+    def _flatten_vrf_loopbacks(self, items):
+        """
+        Flatten VRF loopback items by extracting individual attachments from lanAttachList.
+
+        Args:
+            items (list): List of VRF-level dicts each containing a lanAttachList
+
+        Returns:
+            list: Flat list of individual attachment dicts
+        """
+        flattened = []
+        for vrf_item in items:
+            for attach in vrf_item.get('lanAttachList', []):
+                flattened.append(attach)
+        return flattened
+
+    def _group_vrf_loopbacks(self, items):
+        """
+        Group individual VRF loopback attachments back into VRF-level items with lanAttachList.
+
+        Args:
+            items (list): Flat list of individual attachment dicts
+
+        Returns:
+            list: List of VRF-level dicts with lanAttachList
+        """
+        groups = {}
+        order = []
+        for item in items:
+            vrf_name = item.get('vrfName')
+            if vrf_name not in groups:
+                groups[vrf_name] = {'vrfName': vrf_name, 'lanAttachList': []}
+                order.append(vrf_name)
+            groups[vrf_name]['lanAttachList'].append(item)
+        return [groups[vrf_name] for vrf_name in order]
+
     def _create_interface_key(self, item):
         """
         Create a unique key for interfaces from multiple attributes.
@@ -248,6 +301,10 @@ class ActionModule(ActionBase):
         if filename.endswith('ndfc_fabric_links.yml'):
             return self._create_fabric_link_key(item)
 
+        # Special handling for VRF loopback attachments (flattened) due to composite key
+        if filename.endswith('ndfc_attach_vrfs_loopbacks.yml'):
+            return self._create_vrf_loopback_key(item)
+
         # Special handling for interfaces due to composite key
         if filename.endswith('ndfc_interface_all.yml'):
             return self._create_interface_key(item)
@@ -259,10 +316,28 @@ class ActionModule(ActionBase):
 
         return None
 
+    def _normalize_for_comparison(self, item):
+        """Recursively sort lists within the data structure for order-insensitive comparison."""
+        if isinstance(item, dict):
+            return {k: self._normalize_for_comparison(v) for k, v in sorted(item.items())}
+        elif isinstance(item, list):
+            normalized = [self._normalize_for_comparison(i) for i in item]
+            try:
+                return sorted(normalized, key=lambda x: json.dumps(x, sort_keys=True) if isinstance(x, (dict, list)) else str(x))
+            except TypeError:
+                return normalized
+        else:
+            return item
+
     def compare_items(self, old_items, new_items):
         """
         Compare old and new items, returning updated, removed, and equal items.
         """
+        # For VRF loopbacks, flatten to individual attachments for per-switch comparison
+        is_vrf_loopbacks = self.new_file_path.endswith('ndfc_attach_vrfs_loopbacks.yml')
+        if is_vrf_loopbacks:
+            old_items = self._flatten_vrf_loopbacks(old_items)
+            new_items = self._flatten_vrf_loopbacks(new_items)
 
         old_dict = {self.dict_key(item): item for item in old_items}
         new_dict = {self.dict_key(item): item for item in new_items}
@@ -275,7 +350,7 @@ class ActionModule(ActionBase):
             old_item = old_dict.get(key)
             if old_item is None:
                 updated_items.append(new_item)
-            elif old_item != new_item:
+            elif self._normalize_for_comparison(old_item) != self._normalize_for_comparison(new_item):
                 updated_items.append(new_item)
             else:
                 equal_items.append(new_item)
@@ -283,6 +358,12 @@ class ActionModule(ActionBase):
         for key, old_item in old_dict.items():
             if key not in new_dict:
                 removed_items.append(old_item)
+
+        # Reassemble VRF loopbacks back into grouped structure
+        if is_vrf_loopbacks:
+            updated_items = self._group_vrf_loopbacks(updated_items)
+            removed_items = self._group_vrf_loopbacks(removed_items)
+            equal_items = self._group_vrf_loopbacks(equal_items)
 
         return updated_items, removed_items, equal_items
 
