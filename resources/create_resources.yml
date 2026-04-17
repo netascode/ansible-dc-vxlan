@@ -109,6 +109,7 @@ create_resources:
       state: null
       change_flag_guard: changes_detected_inventory
       runtime_change_refs:
+        - fabric
         - inventory
         - underlay_ip_address
         - update_switch_hostname_policy
