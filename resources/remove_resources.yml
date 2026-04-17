@@ -107,10 +107,8 @@ remove_resources:
     - resource_name: networks
       module: dcnm_network
       state: deleted
-      full_run_strategy: overridden
-      data_model_guard:
-        - vxlan.topology.switches
-        - vxlan.overlay.networks
+      full_run_strategy: controller_diff
+      data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_networks
       delete_mode_guard: network_delete_mode
       skip_if_child_fabric: true
@@ -119,10 +117,8 @@ remove_resources:
     - resource_name: vrfs
       module: dcnm_vrf
       state: deleted
-      full_run_strategy: overridden
-      data_model_guard:
-        - vxlan.topology.switches
-        - vxlan.overlay.vrfs
+      full_run_strategy: controller_diff
+      data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_vrfs
       delete_mode_guard: vrf_delete_mode
       skip_if_child_fabric: true
@@ -350,8 +346,8 @@ remove_resources:
     - resource_name: networks
       module: dcnm_network
       state: deleted
-      state_full_run: overridden
-      data_model_guard: vxlan.multisite.overlay.networks
+      full_run_strategy: controller_diff
+      data_model_guard: vxlan.multisite.child_fabrics
       change_flag_guard: changes_detected_networks
       delete_mode_guard: network_delete_mode
       tag: rr_manage_networks
@@ -359,8 +355,8 @@ remove_resources:
     - resource_name: vrfs
       module: dcnm_vrf
       state: deleted
-      state_full_run: overridden
-      data_model_guard: vxlan.multisite.overlay.vrfs
+      full_run_strategy: controller_diff
+      data_model_guard: vxlan.multisite.child_fabrics
       change_flag_guard: changes_detected_vrfs
       delete_mode_guard: vrf_delete_mode
       tag: rr_manage_vrfs
