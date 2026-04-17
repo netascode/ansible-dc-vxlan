@@ -190,7 +190,13 @@ class PipelineRunnerBase(ABC):
                     continue
 
             # ── Guard: change_flag_guard ──────────────────────────────────
-            if flag_name and not self.change_flags.get(flag_name, False):
+            # Bypass change_flag_guard for controller_diff steps in full-run
+            # mode — the controller query itself determines if work is needed.
+            has_controller_diff = step.get('full_run_strategy') == 'controller_diff'
+            in_full_run = not self.run_map_diff_run or self.force_run_all
+            bypass_change_flag = has_controller_diff and in_full_run
+
+            if flag_name and not bypass_change_flag and not self.change_flags.get(flag_name, False):
                 step_results.append({
                     'resource_name': resource_name,
                     'module': module,
@@ -242,10 +248,11 @@ class PipelineRunnerBase(ABC):
                 step_results.append(result)
                 elapsed = time.monotonic() - step_start
                 status = result.get('status', 'ok')
+                changed = result.get('changed', False)
                 display.display(
                     f"{op_label} [{self.fabric_name}] "
-                    f"{resource_name} → {status} [{elapsed:.1f}s]",
-                    color='green' if status != 'failed' else 'red',
+                    f"{resource_name} → {status} (changed={changed}) [{elapsed:.1f}s]",
+                    color='yellow' if changed else ('green' if status != 'failed' else 'red'),
                 )
                 if status == 'failed':
                     return {

@@ -683,10 +683,7 @@ class ResourceDataBuilder:
         child_fabrics = self.data_model.get('vxlan', {}).get('multisite', {}).get('child_fabrics')
 
         if not child_fabrics:
-            display.v(
-                f"COMMON [{self.fabric_name}] No child fabrics defined, skipping"
-            )
-            return {'failed': False}
+            child_fabrics = []
 
         result = self._run_action_plugin(
             "cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data",
