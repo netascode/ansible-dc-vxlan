@@ -279,7 +279,7 @@ class PipelineRunnerBase(ABC):
                 elapsed = time.monotonic() - step_start
                 display.display(
                     f"{op_label} [{self.fabric_name}] "
-                    f"{resource_name} → skipped (no data) [{elapsed:.1f}s]",
+                    f"{resource_name} → skipped (no diff) [{elapsed:.1f}s]",
                     color='cyan',
                 )
                 continue
