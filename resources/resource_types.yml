@@ -340,7 +340,7 @@ resource_types:
     output_file: ndfc_policy.yml
     var_name: policy_config
     change_flag: changes_detected_policy
-    diff_compare: false
+    diff_compare: true
     fabric_types:
       - VXLAN_EVPN
       - eBGP_VXLAN
