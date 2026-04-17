@@ -84,10 +84,14 @@ class ActionModule(ActionBase):
         # Normalize omit placeholder strings between old and new items
         old_items, new_items = self.normalize_omit_placeholders(old_items, new_items)
 
-        updated_items, removed_items, equal_items = self.compare_items(old_items, new_items)
-
-        if self.new_file_path.endswith('ndfc_interface_all.yml'):
+        # File-type specific comparison
+        if self.new_file_path.endswith('ndfc_policy.yml'):
+            updated_items, removed_items, equal_items = self.compare_policies(old_items, new_items)
+        elif self.new_file_path.endswith('ndfc_interface_all.yml'):
+            updated_items, removed_items, equal_items = self.compare_items(old_items, new_items)
             removed_items = self.order_interface_remove(removed_items)
+        else:
+            updated_items, removed_items, equal_items = self.compare_items(old_items, new_items)
 
         results['compare'] = {"updated": updated_items, "removed": removed_items, "equal": equal_items}
 
@@ -96,6 +100,15 @@ class ActionModule(ActionBase):
 
         return results['compare']
 
+    @staticmethod
+    def _count_policies(switch_blocks):
+        """Count individual policies across nested switch blocks."""
+        count = 0
+        for sb in switch_blocks:
+            for sw in sb.get('switch', []):
+                count += len(sw.get('policies', []))
+        return count
+    
     def write_comparison_results(self, compare_results):
         """
         Write comparison results to a unique file in the same directory as new_file_path.
@@ -120,9 +133,16 @@ class ActionModule(ActionBase):
             'comparison_summary': {
                 'timestamp': datetime.datetime.now().isoformat(),
                 'source_file': self.new_file_path,
-                'total_updated': len(compare_results.get('updated', [])),
-                'total_removed': len(compare_results.get('removed', [])),
-                'total_equal': len(compare_results.get('equal', []))
+                'total_updated': self._count_policies(compare_results.get('updated', []))
+                    if self.new_file_path.endswith('ndfc_policy.yml')
+                    else len(compare_results.get('updated', [])),
+                'total_removed': self._count_policies(compare_results.get('removed', []))
+                    if self.new_file_path.endswith('ndfc_policy.yml')
+                    else len(compare_results.get('removed', [])),
+                'total_equal': self._count_policies(compare_results.get('equal', []))
+                    if self.new_file_path.endswith('ndfc_policy.yml')
+                    else len(compare_results.get('equal', [])),
+            },
             },
             'updated_items': compare_results.get('updated', []),
             'removed_items': compare_results.get('removed', []),
@@ -259,6 +279,61 @@ class ActionModule(ActionBase):
 
         return None
 
+   def compare_policies(self, old_items, new_items):
+        """
+        Compare old and new policy data with nested switch-block structure.
+
+        Policy structure: [{switch: [{ip: str, policies: [{description, name, ...}]}]}]
+        Comparison key: (switch_ip, policy_description)
+        Compared fields: name, priority, policy_vars
+
+        Returns:
+            tuple: (updated, removed, equal) as lists of switch blocks.
+        """
+        old_lookup = {}
+        for switch_block in old_items:
+            for sw in switch_block.get('switch', []):
+                ip = sw.get('ip', '')
+                for pol in sw.get('policies', []):
+                    key = (ip, pol.get('description', ''))
+                    old_lookup[key] = pol
+
+        updated_switches = {}
+        equal_switches = {}
+
+        for switch_block in new_items:
+            for sw in switch_block.get('switch', []):
+                ip = sw.get('ip', '')
+                for pol in sw.get('policies', []):
+                    key = (ip, pol.get('description', ''))
+                    old_pol = old_lookup.pop(key, None)
+                    if old_pol is None or self._policy_differs(pol, old_pol):
+                        updated_switches.setdefault(ip, []).append(pol)
+                    else:
+                        equal_switches.setdefault(ip, []).append(pol)
+
+        removed_switches = {}
+        for key, pol in old_lookup.items():
+            removed_switches.setdefault(key[0], []).append(pol)
+
+        def to_switch_blocks(ip_dict):
+            if not ip_dict:
+                return []
+            return [{'switch': [{'ip': ip, 'policies': pols} for ip, pols in ip_dict.items()]}]
+
+        return to_switch_blocks(updated_switches), to_switch_blocks(removed_switches), to_switch_blocks(equal_switches)
+
+    @staticmethod
+    def _policy_differs(desired, previous):
+        """Compare two local policy dicts (rendered YAML). Returns True if different."""
+        if desired.get('name') != previous.get('name'):
+            return True
+        if desired.get('priority') != previous.get('priority'):
+            return True
+        if desired.get('policy_vars') != previous.get('policy_vars'):
+            return True
+        return False   
+    
     def compare_items(self, old_items, new_items):
         """
         Compare old and new items, returning updated, removed, and equal items.
