@@ -228,6 +228,15 @@ create_resources:
       tag: cr_manage_links
 
     - resource_name: policy
+      module: _policy_remote_diff
+      state: null
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.policy
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
+
+    - resource_name: policy
       module: dcnm_policy
       state: merged
       deploy: false
@@ -365,6 +374,15 @@ create_resources:
       tag: cr_manage_networks
 
     - resource_name: policy
+      module: _policy_remote_diff
+      state: null
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.policy
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
+
+    - resource_name: policy
       module: dcnm_policy
       state: merged
       deploy: false
@@ -423,6 +441,15 @@ create_resources:
       deploy: null
       change_flag_guard: changes_detected_interfaces
       tag: cr_manage_interfaces
+
+    - resource_name: policy
+      module: _policy_remote_diff
+      state: null
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.policy
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
 
     - resource_name: policy
       module: dcnm_policy
@@ -517,6 +544,15 @@ create_resources:
       deploy: null
       change_flag_guard: changes_detected_interfaces
       tag: cr_manage_interfaces
+
+    - resource_name: policy
+      module: _policy_remote_diff
+      state: null
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.policy
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
 
     - resource_name: policy
       module: dcnm_policy
