@@ -666,7 +666,14 @@ class PipelineRunnerBase(ABC):
             f"via REST POST ({len(data) if isinstance(data, list) else '?'} items)"
         )
 
-        return self.executor.execute_rest("POST", path, json_data=json.dumps(data))
+        result = self.executor.execute_rest("POST", path, json_data=json.dumps(data))
+
+        # dcnm_rest is a raw REST client and does not set changed=True.
+        # A successful POST to the attachments endpoint is state-modifying.
+        if isinstance(result, dict) and not result.get('failed'):
+            result['changed'] = True
+
+        return result
 
     def _tor_pairing(self, resource_name, step):
         """
