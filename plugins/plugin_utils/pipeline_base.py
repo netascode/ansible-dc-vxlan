@@ -645,6 +645,8 @@ class PipelineRunnerBase(ABC):
         resource_entry = self.resource_data.get('vrf_loopback_attach', {})
         data = resource_entry.get('module_data', resource_entry.get('data', []))
 
+        data = [d for d in data if d.get('lanAttachList')]
+
         if not data:
             return {'failed': False, 'msg': 'No VRF loopback attach data — skipped'}
 
