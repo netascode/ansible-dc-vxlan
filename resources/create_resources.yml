@@ -273,6 +273,7 @@ create_resources:
       state: null
       change_flag_guard: changes_detected_inventory
       runtime_change_refs:
+        - fabric
         - inventory
         - update_switch_hostname_policy
       tag: cr_manage_switches
@@ -373,7 +374,9 @@ create_resources:
       deploy: false
       data_model_guard:
         - vxlan.topology.switches
-        - vxlan.policy
+        - vxlan.policy.policies
+        - vxlan.policy.groups
+        - vxlan.policy.switches
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
@@ -609,59 +612,71 @@ create_resources:
       change_flag_guard: changes_detected_networks
       tag: cr_manage_networks
 
-  # # ──────────────────────────────────────────────────────────────────────────
-  # # MCFG — Similar to MSD but no BGW anycast VIP
-  # # ──────────────────────────────────────────────────────────────────────────
-  # MCFG:
-  #   - resource_name: fabric
-  #     module: dcnm_fabric_group
-  #     state: merged
-  #     fabric_param: null
-  #     deploy: null
-  #     change_flag_guard: changes_detected_fabric
-  #     tag: cr_manage_fabric
+  # ──────────────────────────────────────────────────────────────────────────
+  # MCFG — Similar to MSD but no BGW anycast VIP
+  # ──────────────────────────────────────────────────────────────────────────
+  MCFG:
+    - resource_name: fabric
+      module: dcnm_fabric_group
+      state: merged
+      fabric_param: null
+      deploy: null
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
 
-  #   - resource_name: null
-  #     module: _manage_child_fabrics
-  #     state: null
-  #     change_flag_guard: null
-  #     tag: cr_manage_fabric
+    - resource_name: child_fabrics
+      module: _manage_child_fabrics
+      state: null
+      data_model_guard: vxlan.multisite.child_fabrics
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
 
-  #   - resource_name: null
-  #     module: _prepare_msite_data
-  #     state: null
-  #     change_flag_guard: null
-  #     tag:
-  #       - cr_manage_vrfs
-  #       - cr_manage_networks
+    - resource_name: child_fabric_config_save
+      module: _config_save
+      state: null
+      data_model_guard: vxlan.multisite.child_fabrics
+      change_flag_guard: changes_detected_fabric
+      runtime_change_refs:
+        - child_fabrics
+      tag: cr_manage_switches
 
-  #   - resource_name: msite_build_overlay
-  #     module: _msite_build_overlay
-  #     state: null
-  #     change_flag_guard: null
-  #     tag:
-  #       - cr_manage_vrfs
-  #       - cr_manage_networks
+    - resource_name: prepare_msite_data
+      module: _prepare_msite_data
+      state: null
+      data_model_guard: vxlan.multisite.child_fabrics
+      change_flag_guard: null
+      tag:
+        - cr_manage_vrfs
+        - cr_manage_networks
 
-  #   - resource_name: vrfs
-  #     module: dcnm_vrf
-  #     state: replaced
-  #     deploy: null
-  #     data_model_guard: vxlan.multisite.overlay.vrfs
-  #     change_flag_guard: changes_detected_vrfs
-  #     tag: cr_manage_vrfs
+    - resource_name: msite_build_overlay
+      module: _msite_build_overlay
+      state: null
+      data_model_guard: vxlan.multisite.overlay
+      change_flag_guard: null
+      tag:
+        - cr_manage_vrfs
+        - cr_manage_networks
 
-  #   - resource_name: vrf_loopback_attach
-  #     module: _vrf_loopback_attach
-  #     state: null
-  #     data_model_guard: vxlan.multisite.overlay.vrfs
-  #     change_flag_guard: changes_detected_vrfs
-  #     tag: cr_manage_vrfs
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: replaced
+      deploy: null
+      data_model_guard: vxlan.multisite.overlay.vrfs
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
 
-  #   - resource_name: networks
-  #     module: dcnm_network
-  #     state: replaced
-  #     deploy: null
-  #     data_model_guard: vxlan.multisite.overlay.networks
-  #     change_flag_guard: changes_detected_networks
-  #     tag: cr_manage_networks
+    - resource_name: vrf_loopback_attach
+      module: _vrf_loopback_attach
+      state: null
+      data_model_guard: vxlan.multisite.overlay.vrfs
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
+
+    - resource_name: networks
+      module: dcnm_network
+      state: replaced
+      deploy: null
+      data_model_guard: vxlan.multisite.overlay.networks
+      change_flag_guard: changes_detected_networks
+      tag: cr_manage_networks
