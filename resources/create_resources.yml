@@ -112,6 +112,7 @@ create_resources:
       module: _config_save
       state: null
       change_flag_guard: null
+      data_model_guard: vxlan.topology.switches
       runtime_change_refs:
         - fabric
         - inventory

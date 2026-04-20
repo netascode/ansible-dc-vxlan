@@ -134,7 +134,6 @@ remove_resources:
       state: null
       data_model_guard:
         - vxlan.topology.switches
-        - vxlan.topology.fabric_links
       change_flag_guard: changes_detected_fabric_links
       delete_mode_guard: link_fabric_delete_mode
       tag: rr_manage_links
@@ -146,7 +145,6 @@ remove_resources:
       deploy: false
       data_model_guard:
         - vxlan.topology.switches
-        - vxlan.topology.fabric_links
       change_flag_guard: changes_detected_fabric_links
       delete_mode_guard: link_fabric_delete_mode
       tag: rr_manage_links
