@@ -46,7 +46,11 @@
 #                         — all paths must be truthy for the step to run.
 #   change_flag_guard:    (optional) Change flag name from build_resource_data.
 #                         Step is skipped if this flag is False. Use null
-#                         for steps that should always run.
+#                         for steps that should always run. Steps that use
+#                         runtime_change_refs should set this to null — the
+#                         upstream steps' own guards provide build-time
+#                         filtering, and runtime_change_refs provides the
+#                         runtime gate.
 #   runtime_change_refs:  (optional) List of prior resource_names. Step is
 #                         skipped if none of them returned changed=true at
 #                         runtime. Used for config_save after a group of steps.
@@ -107,7 +111,7 @@ create_resources:
     - resource_name: inventory_config_save
       module: _config_save
       state: null
-      change_flag_guard: changes_detected_inventory
+      change_flag_guard: null
       runtime_change_refs:
         - fabric
         - inventory
@@ -146,7 +150,7 @@ create_resources:
       module: _config_save
       state: null
       data_model_guard: vxlan.topology.vpc_peers
-      change_flag_guard: changes_detected_vpc_peering
+      change_flag_guard: null
       runtime_change_refs:
         - vpc_domain_id_resource
         - vpc_fabric_peering_links
@@ -164,7 +168,7 @@ create_resources:
       module: _config_save
       state: null
       data_model_guard: vxlan.topology.tor_pairing
-      change_flag_guard: changes_detected_tor_pairing
+      change_flag_guard: null
       runtime_change_refs:
         - tor_pairing
       tag: cr_manage_tor_pairing
@@ -271,7 +275,7 @@ create_resources:
     - resource_name: inventory_config_save
       module: _config_save
       state: null
-      change_flag_guard: changes_detected_inventory
+      change_flag_guard: null
       runtime_change_refs:
         - fabric
         - inventory
@@ -309,7 +313,7 @@ create_resources:
       module: _config_save
       state: null
       data_model_guard: vxlan.topology.vpc_peers
-      change_flag_guard: changes_detected_vpc_peering
+      change_flag_guard: null
       runtime_change_refs:
         - vpc_domain_id_resource
         - vpc_fabric_peering_links
@@ -327,7 +331,7 @@ create_resources:
       module: _config_save
       state: null
       data_model_guard: vxlan.topology.tor_pairing
-      change_flag_guard: changes_detected_tor_pairing
+      change_flag_guard: null
       runtime_change_refs:
         - tor_pairing
       tag: cr_manage_tor_pairing
@@ -410,8 +414,9 @@ create_resources:
     - resource_name: inventory_config_save
       module: _config_save
       state: null
-      change_flag_guard: changes_detected_inventory
+      change_flag_guard: null
       runtime_change_refs:
+        - fabric
         - inventory
         - update_switch_hostname_policy
       tag: cr_manage_switches
@@ -470,8 +475,9 @@ create_resources:
     - resource_name: inventory_config_save
       module: _config_save
       state: null
-      change_flag_guard: changes_detected_inventory
+      change_flag_guard: null
       runtime_change_refs:
+        - fabric
         - inventory
         - update_switch_hostname_policy
       tag: cr_manage_switches
@@ -503,7 +509,7 @@ create_resources:
     - resource_name: vpc_config_save
       module: _config_save
       state: null
-      change_flag_guard: changes_detected_vpc_peering
+      change_flag_guard: null
       runtime_change_refs:
         - vpc_domain_id_resource
         - vpc_fabric_peering_links
@@ -557,7 +563,7 @@ create_resources:
       module: _config_save
       state: null
       data_model_guard: vxlan.multisite.child_fabrics
-      change_flag_guard: changes_detected_fabric
+      change_flag_guard: null
       runtime_change_refs:
         - child_fabrics
       tag: cr_manage_switches
@@ -635,7 +641,7 @@ create_resources:
       module: _config_save
       state: null
       data_model_guard: vxlan.multisite.child_fabrics
-      change_flag_guard: changes_detected_fabric
+      change_flag_guard: null
       runtime_change_refs:
         - child_fabrics
       tag: cr_manage_switches
