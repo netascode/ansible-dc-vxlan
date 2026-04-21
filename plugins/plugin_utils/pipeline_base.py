@@ -265,6 +265,9 @@ class PipelineRunnerBase(ABC):
             # ── Hook: subclass data resolution ────────────────────────────
             data, resolved_state = self._resolve_step_data(resource_name, step)
 
+            if resource_name == 'vpc_domain_id_resource':
+                import epdb ; epdb.st()  # BREAKPOINT
+
             if not data and resolved_state == 'overridden':
                 # If the data set is empty we still want to send it to the module
                 # for state overridden

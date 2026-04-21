@@ -294,7 +294,16 @@ class FabricDeployManager:
             color='dark gray',
         )
 
-        response = self._send_request("POST", self.paths.config_save)
+        config_save_path = self.paths.config_save
+        display.display(
+            f"DEBUG [{self.fabric_name}] config_save request: POST {config_save_path}",
+            color='blue',
+        )
+        response = self._send_request("POST", config_save_path)
+        display.display(
+            f"DEBUG [{self.fabric_name}] config_save response: {response}",
+            color='blue',
+        )
         elapsed = monotonic() - step_start
         if response.get('RETURN_CODE') != 200:
             self.fabric_save_succeeded = False

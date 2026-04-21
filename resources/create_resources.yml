@@ -181,12 +181,12 @@ create_resources:
       change_flag_guard: changes_detected_interfaces
       tag: cr_manage_interfaces
 
-  #   - resource_name: edge_connections
-  #     module: dcnm_policy
-  #     state: merged
-  #     deploy: false
-  #     change_flag_guard: changes_detected_edge_connections
-  #     tag: cr_manage_edge_connections
+    - resource_name: edge_connections
+      module: dcnm_policy
+      state: merged
+      deploy: false
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
 
     - resource_name: vrfs
       module: dcnm_vrf
