@@ -119,50 +119,66 @@ class ActionModule(ActionBase):
             path = f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{parent_fabric}"
             multisite_fabric_associations = self._get_child_fabrics_membership(path)
 
+            # The onemanage fabrics API returns 400 "fabric not found" when the
+            # MCFG fabric has just been created by dcnm_fabric_group but is not
+            # yet registered in onemanage.  Treat this as "no current members"
+            # so all desired child fabrics land in to_be_added.
             if multisite_fabric_associations.get('failed'):
-                results['failed'] = True
-                results['msg'] = (
-                    f"Failed to get MCFG fabric associations for '{parent_fabric}': "
-                    f"{multisite_fabric_associations.get('msg', 'Unknown error')}"
-                )
-                return results
+                return_code = None
+                msg_data = multisite_fabric_associations.get('msg')
+                if isinstance(msg_data, dict):
+                    return_code = msg_data.get('RETURN_CODE')
 
-            response = multisite_fabric_associations.get('response')
-            if response is None:
-                results['failed'] = True
-                results['msg'] = (
-                    f"No response from MCFG fabric associations API for '{parent_fabric}'. "
-                    f"Result keys: {list(multisite_fabric_associations.keys())}"
-                )
-                return results
+                if return_code == 400:
+                    display.v(
+                        f"MCFG fabric '{parent_fabric}' not yet registered in onemanage "
+                        f"(HTTP 400) — treating as no current members"
+                    )
+                    associated_child_fabrics = []
+                else:
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"Failed to get MCFG fabric associations for '{parent_fabric}': "
+                        f"{multisite_fabric_associations.get('msg', 'Unknown error')}"
+                    )
+                    return results
+            else:
+                response = multisite_fabric_associations.get('response')
+                if response is None:
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"No response from MCFG fabric associations API for '{parent_fabric}'. "
+                        f"Result keys: {list(multisite_fabric_associations.keys())}"
+                    )
+                    return results
 
-            data = response.get('DATA')
-            if data is None:
-                results['failed'] = True
-                results['msg'] = (
-                    f"No DATA in MCFG fabric associations response for '{parent_fabric}'. "
-                    f"Response: {response}"
-                )
-                return results
+                data = response.get('DATA')
+                if data is None:
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"No DATA in MCFG fabric associations response for '{parent_fabric}'. "
+                        f"Response: {response}"
+                    )
+                    return results
 
-            members = data.get('members')
-            if members is None:
-                results['failed'] = True
-                results['msg'] = (
-                    f"No members in MCFG fabric associations DATA for '{parent_fabric}'. "
-                    f"DATA: {data}"
-                )
-                return results
+                members = data.get('members')
+                if members is None:
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"No members in MCFG fabric associations DATA for '{parent_fabric}'. "
+                        f"DATA: {data}"
+                    )
+                    return results
 
-            # Build a list of child fabrics that are associated with the parent fabric (MCFG)
-            associated_child_fabrics = []
-            for fabric in members:
-                associated_child_fabrics.append(
-                    {
-                        'name': fabric['fabricName'],
-                        'cluster': fabric['clusterName'],
-                    }
-                )
+                # Build a list of child fabrics that are associated with the parent fabric (MCFG)
+                associated_child_fabrics = []
+                for fabric in members:
+                    associated_child_fabrics.append(
+                        {
+                            'name': fabric['fabricName'],
+                            'cluster': fabric['clusterName'],
+                        }
+                    )
 
         else:
             results['failed'] = True

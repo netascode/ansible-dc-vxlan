@@ -82,6 +82,7 @@ MULTISITE_RESPONSE_VARS = {
 class ApiPathResolver:
     """Resolves API paths based on fabric type, eliminating per-method branching.
 
+    For MCFG parent fabrics, routes through the onemanage API path.
     For MCFG child fabrics, routes through onepath (ND <=3.2.2) or fedproxy
     (ND >=4.1.1) prefixes. For all other fabric types, uses the standard
     NDFC LAN fabric REST base path.
@@ -90,7 +91,10 @@ class ApiPathResolver:
     method can simply reference self.paths.<property> without branching.
     """
 
+    ONEMANAGE_BASE = "/onemanage/appcenter/cisco/ndfc/api/v1/onemanage"
+
     def __init__(self, fabric_name, fabric_type, cluster_name=None, nd_version=None):
+        self._fabric_type = fabric_type
         self._base = self._resolve_base(fabric_type, cluster_name, nd_version)
         self.fabric_name = fabric_name
 
@@ -105,18 +109,29 @@ class ApiPathResolver:
 
     @property
     def switches_by_fabric(self):
+        if self._fabric_type == 'MCFG':
+            return f"{self.ONEMANAGE_BASE}/fabrics/{self.fabric_name}/inventory/switchesByFabric"
         return f"{self._base}/control/fabrics/{self.fabric_name}/inventory/switchesByFabric"
 
     @property
     def config_save(self):
+        if self._fabric_type == 'MCFG':
+            return f"{self.ONEMANAGE_BASE}/fabrics/{self.fabric_name}/config-save"
         return f"{self._base}/control/fabrics/{self.fabric_name}/config-save"
 
     @property
     def config_deploy(self):
+        if self._fabric_type == 'MCFG':
+            return f"{self.ONEMANAGE_BASE}/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false"
         return f"{self._base}/control/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false"
 
     def switch_deploy(self, serial_list):
         """Path for switch-level config-deploy given a comma-separated serial number list."""
+        if self._fabric_type == 'MCFG':
+            return (
+                f"{self.ONEMANAGE_BASE}/fabrics/{self.fabric_name}"
+                f"/config-deploy/{serial_list}?forceShowRun=false"
+            )
         return (
             f"{self._base}/control/fabrics/{self.fabric_name}"
             f"/config-deploy/{serial_list}?forceShowRun=false"

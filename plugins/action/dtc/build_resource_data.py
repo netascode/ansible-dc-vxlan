@@ -213,6 +213,17 @@ class ResourceDataBuilder:
                     'msg': f"Build failed at step '{resource_name}': {result.get('msg', '')}",
                 }
 
+        # ── MSD/MCFG deferred overlay change detection ───────────────
+        # VRF/network overlay data for MSD/MCFG is not rendered during the
+        # common-phase build (deferred to _msite_build_overlay in the
+        # create/remove pipeline). However, we must detect overlay data model
+        # changes here so that changes_detected_any correctly gates the
+        # pipeline. Without this, adding VRFs/networks to MSD for the first
+        # time (or modifying them) would leave changes_detected_any=False
+        # and skip the entire create pipeline.
+        if not self.resource_filter and self.fabric_type in ('MSD', 'MCFG'):
+            self._detect_msite_overlay_changes()
+
         # Compute aggregate change flag
         self.change_flags['changes_detected_any'] = any(self.change_flags.values())
 
@@ -429,6 +440,57 @@ class ResourceDataBuilder:
             return False
 
         return True
+
+    def _detect_msite_overlay_changes(self):
+        """
+        Detect changes in MSD/MCFG multisite overlay data model.
+
+        VRF/network overlay resources for MSD/MCFG are built at pipeline
+        execution time by _msite_build_overlay, not during common-phase.
+        This method serializes the multisite overlay section of the data
+        model to a sentinel file and compares against the previous version
+        to detect changes. If overlay data changed, sets the
+        changes_detected_msite_overlay flag so that changes_detected_any
+        correctly gates the create/remove pipeline.
+        """
+        overlay = (
+            self.data_model
+            .get('vxlan', {})
+            .get('multisite', {})
+            .get('overlay', {})
+        )
+        overlay_vrfs = overlay.get('vrfs', [])
+        overlay_networks = overlay.get('networks', [])
+
+        if not overlay_vrfs and not overlay_networks:
+            return
+
+        sentinel_file = os.path.join(self.output_path, '_msite_overlay_sentinel.yml')
+        old_sentinel = sentinel_file + '.old'
+
+        # Backup previous sentinel file
+        if os.path.exists(sentinel_file):
+            shutil.copy2(sentinel_file, old_sentinel)
+            os.remove(sentinel_file)
+
+        # Write current overlay data (sorted keys for deterministic comparison)
+        overlay_content = yaml.dump(
+            {'vrfs': overlay_vrfs, 'networks': overlay_networks},
+            default_flow_style=False,
+            sort_keys=True,
+        )
+        with open(sentinel_file, 'w') as f:
+            f.write(overlay_content)
+
+        # Compare using existing MD5 diff logic
+        if self._run_diff_model_changes(old_sentinel, sentinel_file):
+            if self.check_roles.get('save_previous', False):
+                self.change_flags['changes_detected_msite_overlay'] = True
+                display.v(
+                    f"COMMON [{self.fabric_name}] Multisite overlay data "
+                    f"model change detected (vrfs={len(overlay_vrfs)}, "
+                    f"networks={len(overlay_networks)})"
+                )
 
     def _run_diff_compare(self, old_path, new_path):
         """

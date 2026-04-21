@@ -67,6 +67,7 @@ resource_types:
     diff_compare: false
     fabric_types:
       - MSD
+      - MCFG
 
   inventory:
     template: ndfc_inventory.j2
