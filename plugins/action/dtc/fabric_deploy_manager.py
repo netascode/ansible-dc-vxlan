@@ -65,6 +65,10 @@ display = Display()
 # ═══════════════════════════════════════════════════════════════════════════
 MULTISITE_FABRIC_TYPES = ('MSD', 'MCFG')
 
+# Border gateway switch roles — NDFC switchRole values that correspond to
+# data model roles border_gateway, border_gateway_spine, border_gateway_super_spine
+BGW_SWITCH_ROLES = ('border gateway', 'border gateway spine', 'border gateway super spine')
+
 # VRF/Network response variable names per multisite fabric type
 # These are registered facts set by the create role's fabric-specific task files
 MULTISITE_RESPONSE_VARS = {
@@ -135,6 +139,18 @@ class ApiPathResolver:
         return (
             f"{self._base}/control/fabrics/{self.fabric_name}"
             f"/config-deploy/{serial_list}?forceShowRun=false"
+        )
+
+    def config_preview(self, serial_list):
+        """Path for config-preview given a comma-separated serial number list."""
+        if self._fabric_type == 'MCFG':
+            return (
+                f"{self.ONEMANAGE_BASE}/fabrics/{self.fabric_name}"
+                f"/config-preview/{serial_list}?forceShowRun=false&showBrief=true"
+            )
+        return (
+            f"{self._base}/control/fabrics/{self.fabric_name}"
+            f"/config-preview/{serial_list}?forceShowRun=false&showBrief=true"
         )
 
     @property
@@ -347,12 +363,17 @@ class FabricDeployManager:
                 color='green',
             )
 
-    def get_deployable_switches(self):
+    def get_deployable_switches(self, defer_summary=False):
         """Query switch inventory and return serial numbers needing deployment.
 
         A switch needs deployment when both conditions are true:
           - ccStatus is one of: NA, Pending, Out-of-Sync
           - upTimeStr is not an empty string (switch is up and reachable)
+
+        When defer_summary is True, the summary line is suppressed so the
+        caller can print a combined summary after merging additional serials
+        (e.g. BGW config-preview results). total_switch_count is always
+        stored for the caller's use.
         """
         DEPLOYABLE_CC_STATUSES = ('NA', 'Pending', 'Out-of-Sync')
 
@@ -366,6 +387,7 @@ class FabricDeployManager:
 
         response = self._send_request("GET", self.paths.switches_by_fabric)
         switches = response.get('DATA', [])
+        self.total_switch_count = len(switches)
 
         deployable_serials = []
         for switch in switches:
@@ -386,21 +408,22 @@ class FabricDeployManager:
                     f"upTimeStr={up_time_str} — skipping"
                 )
 
-        elapsed = monotonic() - step_start
-        if deployable_serials:
-            display.display(
-                f"DEPLOY [{self.fabric_name}] "
-                f"get_deployable_switches → ok "
-                f"(changed={len(deployable_serials)}/{len(switches)}) [{elapsed:.1f}s]",
-                color='yellow',
-            )
-        else:
-            display.display(
-                f"DEPLOY [{self.fabric_name}] "
-                f"get_deployable_switches → ok "
-                f"(changed=0/{len(switches)}) [{elapsed:.1f}s]",
-                color='green',
-            )
+        if not defer_summary:
+            elapsed = monotonic() - step_start
+            if deployable_serials:
+                display.display(
+                    f"DEPLOY [{self.fabric_name}] "
+                    f"get_deployable_switches → ok "
+                    f"(changed={len(deployable_serials)}/{len(switches)}) [{elapsed:.1f}s]",
+                    color='yellow',
+                )
+            else:
+                display.display(
+                    f"DEPLOY [{self.fabric_name}] "
+                    f"get_deployable_switches → ok "
+                    f"(changed=0/{len(switches)}) [{elapsed:.1f}s]",
+                    color='green',
+                )
         return deployable_serials
 
     def switch_deploy(self, serial_numbers):
@@ -511,22 +534,74 @@ class ActionModule(ActionBase):
         params['operation'] = self._task.args.get("operation")
 
         # Manage Deployment For Multisite (MSD or MCFG) Parent or Standalone Fabric
+        # For multisite on day-0, acquire msite_data before parent deploy so
+        # manage_fabrics can include BGW switches in the parent deployment.
+        if params['fabric_type'] in MULTISITE_FABRIC_TYPES:
+            data_model = self._task.args.get("data_model", {})
+            child_fabrics = data_model.get('vxlan', {}).get('multisite', {}).get('child_fabrics', [])
+            force_run_all = self._task.args.get("force_run_all", False)
+            run_map_diff_run = self._task.args.get("run_map_diff_run", True)
+
+            if child_fabrics and (not run_map_diff_run or force_run_all):
+                params['msite_data'] = self._acquire_msite_data(params)
+
         results = self.manage_fabrics(results, params)
         if results.get('failed'):
             return results
 
         if params['fabric_type'] in MULTISITE_FABRIC_TYPES:
-            # Manage Deployment For Child Fabrics if Multisite (MSD or MCFG)
+            # Manage Deployment For Child Fabrics
             # Child fabrics are only deployed if there are VRF or Network changes
             # detected. If force_run_all is True or run_map_diff_run is False,
             # all child fabrics will be deployed regardless of change detection.
-
-            # Resolve multisite parameters from data_model and task_vars
             results = self._resolve_and_process_child_fabrics(results, params)
             if results.get('failed'):
                 return results
 
         return results
+
+    def _acquire_msite_data(self, params):
+        """Acquire multisite data from create_result cache or controller query fallback.
+
+        Checks task_vars['create_result']['msite_data'] first (populated when
+        the create pipeline ran). Falls back to calling prepare_msite_data
+        plugin directly when create was skipped.
+
+        Returns:
+            msite_data dict or None if not a multisite fabric.
+        """
+        # Try cached data from create pipeline
+        create_result = params['task_vars'].get('create_result')
+        if isinstance(create_result, dict):
+            msite_data = create_result.get('msite_data')
+            if msite_data:
+                display.v(
+                    f"DEPLOY [{params['fabric_name']}] "
+                    f"Using msite_data from create pipeline cache"
+                )
+                return msite_data
+
+        # Fallback: query controller directly
+        display.display(
+            f"DEPLOY [{params['fabric_name']}] "
+            f"msite_data not in create_result — querying controller",
+            color='yellow',
+        )
+        data_model = self._task.args.get("data_model", {})
+        result = self._execute_module(
+            module_name="cisco.nac_dc_vxlan.dtc.prepare_msite_data",
+            module_args={
+                "data_model": data_model,
+                "parent_fabric": params['fabric_name'],
+                "parent_fabric_type": params['fabric_type'],
+                "nd_version": self._task.args.get("nd_version", ""),
+            },
+            task_vars=params['task_vars'],
+            tmp=params['tmp'],
+        )
+        if result.get('failed'):
+            return None
+        return result
 
     def _resolve_and_process_child_fabrics(self, results, params):
         """Resolve multisite parameters from data_model/task_vars and process child fabrics."""
@@ -601,6 +676,61 @@ class ActionModule(ActionBase):
 
         return results
 
+    def _get_bgw_preview_serials(self, params, msite_data, fabric_manager):
+        """Return BGW serial numbers needing deployment via config-preview.
+
+        Extracts BGW serial numbers from msite_data, queries config-preview
+        against the parent fabric, and returns only those with Out-of-Sync
+        or Pending status. The caller merges these into the main deployable
+        list so they flow through the standard deploy → check → retry lifecycle.
+        """
+        fabric_name = params['fabric_name']
+        child_fabrics_data = msite_data.get('child_fabrics_data', {})
+
+        # Collect BGW serial numbers across all child fabrics
+        bgw_serials = []
+        for cf_name, cf_data in child_fabrics_data.items():
+            for switch in cf_data.get('switches', []):
+                if switch.get('role', '') in BGW_SWITCH_ROLES:
+                    bgw_serials.append(switch['serial_number'])
+                    display.v(
+                        f"DEPLOY [{fabric_name}] BGW switch: "
+                        f"{switch.get('hostname', 'unknown')} ({switch['serial_number']}) "
+                        f"role={switch['role']} fabric={cf_name}"
+                    )
+
+        if not bgw_serials:
+            return []
+
+        # Query config-preview for BGW switches against parent fabric
+        serial_list = ','.join(bgw_serials)
+        response = fabric_manager._send_request(
+            "GET", fabric_manager.paths.config_preview(serial_list)
+        )
+
+        # Filter for switches needing deployment
+        DEPLOYABLE_STATUSES = ('Out-of-Sync', 'Pending')
+        deploy_serials = []
+        preview_data = response.get('DATA', response) if isinstance(response, dict) else response
+        if isinstance(preview_data, list):
+            for entry in preview_data:
+                status = entry.get('status', '')
+                switch_id = entry.get('switchId', '')
+                switch_name = entry.get('switchName', 'unknown')
+                if status in DEPLOYABLE_STATUSES:
+                    deploy_serials.append(switch_id)
+                    display.v(
+                        f"  BGW {switch_name} ({switch_id}): "
+                        f"status={status} — needs deployment"
+                    )
+                else:
+                    display.v(
+                        f"  BGW {switch_name} ({switch_id}): "
+                        f"status={status} — skipping"
+                    )
+
+        return deploy_serials
+
     def manage_fabrics(self, results, params):
         """Manage fabric deployments based on operation parameter."""
         fabric_name = params['fabric_name']
@@ -633,7 +763,40 @@ class ActionModule(ActionBase):
             # Switch-level deploy: query switches, deploy only those that need it
             # Config-save is NOT part of this workflow — it is handled by the
             # create pipeline's _config_save steps at the appropriate points.
-            deployable = fabric_manager.get_deployable_switches()
+            msite_data = params.get('msite_data')
+            has_bgw_preview = msite_data and params['fabric_type'] in MULTISITE_FABRIC_TYPES
+
+            # When BGW preview is needed, defer the summary line so we can
+            # print a single combined result after merging BGW serials.
+            deploy_step_start = monotonic()
+            deployable = fabric_manager.get_deployable_switches(defer_summary=has_bgw_preview)
+
+            if has_bgw_preview:
+                bgw_serials = self._get_bgw_preview_serials(params, msite_data, fabric_manager)
+                if bgw_serials:
+                    existing = set(deployable)
+                    for serial in bgw_serials:
+                        if serial not in existing:
+                            deployable.append(serial)
+
+                # Print combined summary covering both queries
+                elapsed = monotonic() - deploy_step_start
+                total = fabric_manager.total_switch_count
+                if deployable:
+                    display.display(
+                        f"DEPLOY [{fabric_name}] "
+                        f"get_deployable_switches → ok "
+                        f"(changed={len(deployable)}/{total}) [{elapsed:.1f}s]",
+                        color='yellow',
+                    )
+                else:
+                    display.display(
+                        f"DEPLOY [{fabric_name}] "
+                        f"get_deployable_switches → ok "
+                        f"(changed=0/{total}) [{elapsed:.1f}s]",
+                        color='green',
+                    )
+
             if deployable:
                 fabric_manager.switch_deploy(deployable)
                 fabric_manager.fabric_check_sync()

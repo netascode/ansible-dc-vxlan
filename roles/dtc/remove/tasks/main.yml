@@ -43,6 +43,7 @@
 #   - vrf_delete_mode
 #   - multisite_network_delete_mode
 #   - multisite_vrf_delete_mode
+#   - multisite_child_fabric_delete_mode
 # ─────────────────────────────────────────────────────────────────────────────
 
 ---

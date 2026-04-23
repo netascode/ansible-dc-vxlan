@@ -447,50 +447,107 @@ class ResourceDataBuilder:
 
         VRF/network overlay resources for MSD/MCFG are built at pipeline
         execution time by _msite_build_overlay, not during common-phase.
-        This method serializes the multisite overlay section of the data
-        model to a sentinel file and compares against the previous version
-        to detect changes. If overlay data changed, sets the
-        changes_detected_msite_overlay flag so that changes_detected_any
-        correctly gates the create/remove pipeline.
+        This method serializes the ENTIRE multisite overlay section of the
+        data model (including vrf_attach_groups and network_attach_groups)
+        to a sentinel file and compares against the previous version.
+
+        When a change is detected, sets BOTH the aggregate flag
+        (changes_detected_msite_overlay) AND per-resource flags
+        (changes_detected_vrfs, changes_detected_networks) so that
+        downstream pipeline steps pass their change_flag_guard checks.
+
+        Also cleans up the deferred build cache file from any prior
+        pipeline run in this playbook execution.
         """
+        # Clean up deferred build cache from prior pipeline runs so that
+        # each playbook run starts with a fresh cache.
+        cache_file = os.path.join(self.output_path, '_msite_overlay_cache.json')
+        if os.path.exists(cache_file):
+            os.remove(cache_file)
+
         overlay = (
             self.data_model
             .get('vxlan', {})
             .get('multisite', {})
             .get('overlay', {})
         )
-        overlay_vrfs = overlay.get('vrfs', [])
-        overlay_networks = overlay.get('networks', [])
-
-        if not overlay_vrfs and not overlay_networks:
-            return
 
         sentinel_file = os.path.join(self.output_path, '_msite_overlay_sentinel.yml')
         old_sentinel = sentinel_file + '.old'
+
+        # Handle empty/missing overlay: still need to detect removal of
+        # previously existing overlay data (user removed all VRFs/networks).
+        if not overlay:
+            if not os.path.exists(sentinel_file):
+                # No previous sentinel and no current overlay — nothing to detect
+                return
+            # Previous sentinel exists but overlay is now empty — detect removal
+            shutil.copy2(sentinel_file, old_sentinel)
+            os.remove(sentinel_file)
+            with open(sentinel_file, 'w') as f:
+                f.write(yaml.dump({}, default_flow_style=False, sort_keys=True))
+            if self._run_diff_model_changes(old_sentinel, sentinel_file):
+                if self.check_roles.get('save_previous', False):
+                    self.change_flags['changes_detected_msite_overlay'] = True
+                    self.change_flags['changes_detected_vrfs'] = True
+                    self.change_flags['changes_detected_networks'] = True
+                    display.v(
+                        f"COMMON [{self.fabric_name}] Multisite overlay "
+                        f"removed — all overlay data cleared"
+                    )
+            return
 
         # Backup previous sentinel file
         if os.path.exists(sentinel_file):
             shutil.copy2(sentinel_file, old_sentinel)
             os.remove(sentinel_file)
 
-        # Write current overlay data (sorted keys for deterministic comparison)
+        # Capture the ENTIRE overlay dict (vrfs, networks, vrf_attach_groups,
+        # network_attach_groups, etc.) for change detection. Previously only
+        # vrfs and networks were captured, missing attach group modifications.
         overlay_content = yaml.dump(
-            {'vrfs': overlay_vrfs, 'networks': overlay_networks},
+            overlay,
             default_flow_style=False,
             sort_keys=True,
         )
         with open(sentinel_file, 'w') as f:
             f.write(overlay_content)
 
+        overlay_vrfs = overlay.get('vrfs', [])
+        overlay_networks = overlay.get('networks', [])
+
         # Compare using existing MD5 diff logic
         if self._run_diff_model_changes(old_sentinel, sentinel_file):
             if self.check_roles.get('save_previous', False):
                 self.change_flags['changes_detected_msite_overlay'] = True
+                # Set per-resource flags so pipeline steps pass their
+                # change_flag_guard checks. Both CREATE and REMOVE pipelines
+                # gate VRF/network steps on these flags.
+                if overlay_vrfs or self._sentinel_had_key(old_sentinel, 'vrfs'):
+                    self.change_flags['changes_detected_vrfs'] = True
+                if overlay_networks or self._sentinel_had_key(old_sentinel, 'networks'):
+                    self.change_flags['changes_detected_networks'] = True
                 display.v(
                     f"COMMON [{self.fabric_name}] Multisite overlay data "
                     f"model change detected (vrfs={len(overlay_vrfs)}, "
                     f"networks={len(overlay_networks)})"
                 )
+
+    def _sentinel_had_key(self, sentinel_path, key):
+        """
+        Check if a previous sentinel file contained a non-empty value for key.
+
+        Used by _detect_msite_overlay_changes to determine which per-resource
+        change flags to set when the overlay data model has changed.
+        """
+        if not os.path.exists(sentinel_path):
+            return False
+        try:
+            with open(sentinel_path) as f:
+                prev_data = yaml.safe_load(f)
+            return bool(prev_data.get(key)) if isinstance(prev_data, dict) else False
+        except (yaml.YAMLError, IOError):
+            return False
 
     def _run_diff_compare(self, old_path, new_path):
         """
@@ -741,6 +798,12 @@ class ResourceDataBuilder:
         Delegates to the existing prepare_msite_child_fabrics_data plugin.
         This is not template-based — it queries the controller for fabric
         association information.
+
+        Sets the changes_detected_child_fabrics flag when there are child
+        fabrics to add or remove, so that changes_detected_any gates the
+        pipeline correctly. Without this, commenting out all child_fabrics
+        in the data model would leave changes_detected_any=False and skip
+        the entire remove pipeline, preventing child fabric removal.
         """
         child_fabrics = self.data_model.get('vxlan', {}).get('multisite', {}).get('child_fabrics')
 
@@ -760,6 +823,17 @@ class ResourceDataBuilder:
             'data': result,
             'var_name': 'child_fabrics',
         }
+
+        # Signal that child fabric changes are pending so that
+        # changes_detected_any is set and the pipeline is not skipped.
+        to_be_added = result.get('to_be_added', [])
+        to_be_removed = result.get('to_be_removed', [])
+        if (to_be_added or to_be_removed) and self.check_roles.get('save_previous', False):
+            self.change_flags['changes_detected_child_fabrics'] = True
+            display.v(
+                f"COMMON [{self.fabric_name}] Child fabric changes detected: "
+                f"to_add={len(to_be_added)}, to_remove={len(to_be_removed)}"
+            )
 
         return result
 

@@ -234,6 +234,7 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
                     'mgmt_ip_address': fabric_switch['ipAddress'],
                     'fabric_name': fabric_switch['fabricName'],
                     'serial_number': fabric_switch['serialNumber'],
+                    'role': fabric_switch['switchRole'],
                 }
             )
 

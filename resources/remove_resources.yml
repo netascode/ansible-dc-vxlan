@@ -355,7 +355,7 @@ remove_resources:
       state: deleted
       full_run_strategy: controller_diff
       change_flag_guard: changes_detected_networks
-      delete_mode_guard: network_delete_mode
+      delete_mode_guard: multisite_network_delete_mode
       tag: rr_manage_networks
 
     - resource_name: vrfs
@@ -363,13 +363,14 @@ remove_resources:
       state: deleted
       full_run_strategy: controller_diff
       change_flag_guard: changes_detected_vrfs
-      delete_mode_guard: vrf_delete_mode
+      delete_mode_guard: multisite_vrf_delete_mode
       tag: rr_manage_vrfs
 
     - resource_name: child_fabrics
       module: _manage_child_fabrics
       state: null
       change_flag_guard: null
+      delete_mode_guard: multisite_child_fabric_delete_mode
       tag: rr_manage_fabric
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -399,7 +400,7 @@ remove_resources:
       state: deleted
       full_run_strategy: overridden
       change_flag_guard: changes_detected_networks
-      delete_mode_guard: network_delete_mode
+      delete_mode_guard: multisite_network_delete_mode
       tag: rr_manage_networks
 
     - resource_name: vrfs
@@ -407,11 +408,12 @@ remove_resources:
       state: deleted
       full_run_strategy: overridden
       change_flag_guard: changes_detected_vrfs
-      delete_mode_guard: vrf_delete_mode
+      delete_mode_guard: multisite_vrf_delete_mode
       tag: rr_manage_vrfs
 
     - resource_name: child_fabrics
       module: _manage_child_fabrics
       state: null
       change_flag_guard: null
+      delete_mode_guard: multisite_child_fabric_delete_mode
       tag: rr_manage_fabric

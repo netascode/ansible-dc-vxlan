@@ -557,7 +557,7 @@ create_resources:
       module: _manage_child_fabrics
       state: null
       data_model_guard: vxlan.multisite.child_fabrics
-      change_flag_guard: changes_detected_fabric
+      change_flag_guard: changes_detected_child_fabrics
       tag: cr_manage_fabric
 
     - resource_name: child_fabric_config_save
@@ -635,7 +635,7 @@ create_resources:
       module: _manage_child_fabrics
       state: null
       data_model_guard: vxlan.multisite.child_fabrics
-      change_flag_guard: changes_detected_fabric
+      change_flag_guard: changes_detected_child_fabrics
       tag: cr_manage_fabric
 
     - resource_name: child_fabric_config_save
