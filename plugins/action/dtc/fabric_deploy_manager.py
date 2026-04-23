@@ -534,15 +534,16 @@ class ActionModule(ActionBase):
         params['operation'] = self._task.args.get("operation")
 
         # Manage Deployment For Multisite (MSD or MCFG) Parent or Standalone Fabric
-        # For multisite on day-0, acquire msite_data before parent deploy so
-        # manage_fabrics can include BGW switches in the parent deployment.
+        # Acquire msite_data before parent deploy so manage_fabrics can
+        # include BGW switches via config-preview. This is needed on all
+        # runs (not just day-0/full reconciliation) because BGW switches
+        # from child fabrics may not appear as Out-of-Sync in the parent
+        # fabric's switchesByFabric inventory query.
         if params['fabric_type'] in MULTISITE_FABRIC_TYPES:
             data_model = self._task.args.get("data_model", {})
             child_fabrics = data_model.get('vxlan', {}).get('multisite', {}).get('child_fabrics', [])
-            force_run_all = self._task.args.get("force_run_all", False)
-            run_map_diff_run = self._task.args.get("run_map_diff_run", True)
 
-            if child_fabrics and (not run_map_diff_run or force_run_all):
+            if child_fabrics:
                 params['msite_data'] = self._acquire_msite_data(params)
 
         results = self.manage_fabrics(results, params)
@@ -581,24 +582,51 @@ class ActionModule(ActionBase):
                 )
                 return msite_data
 
-        # Fallback: query controller directly
+        # Fallback: query controller directly via action plugin dispatch
+        # prepare_msite_data is an action plugin, not a module — must use
+        # action_loader to invoke it properly.
         display.display(
             f"DEPLOY [{params['fabric_name']}] "
             f"msite_data not in create_result — querying controller",
             color='yellow',
         )
         data_model = self._task.args.get("data_model", {})
-        result = self._execute_module(
-            module_name="cisco.nac_dc_vxlan.dtc.prepare_msite_data",
-            module_args={
-                "data_model": data_model,
-                "parent_fabric": params['fabric_name'],
-                "parent_fabric_type": params['fabric_type'],
-                "nd_version": self._task.args.get("nd_version", ""),
-            },
-            task_vars=params['task_vars'],
-            tmp=params['tmp'],
-        )
+        plugin_name = "cisco.nac_dc_vxlan.dtc.prepare_msite_data"
+        plugin_args = {
+            "data_model": data_model,
+            "parent_fabric": params['fabric_name'],
+            "parent_fabric_type": params['fabric_type'],
+            "nd_version": self._task.args.get("nd_version", ""),
+        }
+
+        original_args = self._task.args
+        original_action = self._task.action
+        try:
+            self._task.args = plugin_args
+            self._task.action = plugin_name
+
+            action_plugin = self._shared_loader_obj.action_loader.get(
+                plugin_name,
+                task=self._task,
+                connection=self._connection,
+                play_context=self._play_context,
+                loader=self._loader,
+                templar=self._templar,
+                shared_loader_obj=self._shared_loader_obj,
+            )
+
+            if action_plugin is None:
+                display.warning(
+                    f"DEPLOY [{params['fabric_name']}] "
+                    f"Action plugin '{plugin_name}' not found — skipping msite_data acquisition"
+                )
+                return None
+
+            result = action_plugin.run(task_vars=params['task_vars'], tmp=params['tmp'])
+        finally:
+            self._task.args = original_args
+            self._task.action = original_action
+
         if result.get('failed'):
             return None
         return result

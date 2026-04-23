@@ -648,43 +648,43 @@ create_resources:
         - child_fabrics
       tag: cr_manage_fabric
 
-    # - resource_name: prepare_msite_data
-    #   module: _prepare_msite_data
-    #   state: null
-    #   data_model_guard: vxlan.multisite.child_fabrics
-    #   change_flag_guard: null
-    #   tag:
-    #     - cr_manage_vrfs
-    #     - cr_manage_networks
+    - resource_name: prepare_msite_data
+      module: _prepare_msite_data
+      state: null
+      data_model_guard: vxlan.multisite.child_fabrics
+      change_flag_guard: null
+      tag:
+        - cr_manage_vrfs
+        - cr_manage_networks
 
-    # - resource_name: msite_build_overlay
-    #   module: _msite_build_overlay
-    #   state: null
-    #   data_model_guard: vxlan.multisite.overlay
-    #   change_flag_guard: null
-    #   tag:
-    #     - cr_manage_vrfs
-    #     - cr_manage_networks
+    - resource_name: msite_build_overlay
+      module: _msite_build_overlay
+      state: null
+      data_model_guard: vxlan.multisite.overlay
+      change_flag_guard: null
+      tag:
+        - cr_manage_vrfs
+        - cr_manage_networks
 
-    # - resource_name: vrfs
-    #   module: dcnm_vrf
-    #   state: replaced
-    #   deploy: null
-    #   data_model_guard: vxlan.multisite.overlay.vrfs
-    #   change_flag_guard: changes_detected_vrfs
-    #   tag: cr_manage_vrfs
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: replaced
+      deploy: null
+      data_model_guard: vxlan.multisite.overlay.vrfs
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
 
-    # - resource_name: vrf_loopback_attach
-    #   module: _vrf_loopback_attach
-    #   state: null
-    #   data_model_guard: vxlan.multisite.overlay.vrfs
-    #   change_flag_guard: changes_detected_vrfs
-    #   tag: cr_manage_vrfs
+    - resource_name: vrf_loopback_attach
+      module: _vrf_loopback_attach
+      state: null
+      data_model_guard: vxlan.multisite.overlay.vrfs
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
 
-    # - resource_name: networks
-    #   module: dcnm_network
-    #   state: replaced
-    #   deploy: null
-    #   data_model_guard: vxlan.multisite.overlay.networks
-    #   change_flag_guard: changes_detected_networks
-    #   tag: cr_manage_networks
+    - resource_name: networks
+      module: dcnm_network
+      state: replaced
+      deploy: null
+      data_model_guard: vxlan.multisite.overlay.networks
+      change_flag_guard: changes_detected_networks
+      tag: cr_manage_networks
