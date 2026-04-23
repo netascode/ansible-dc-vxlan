@@ -131,6 +131,7 @@ class ActionModule(ActionBase):
                             display.vvv(f"existing_links_check: → REQUIRED (num_link, enriched with IPs)")
                             required_links.append(link)
                         elif existing_link['templateName'] == 'int_intra_fabric_unnum_link':
+                            link["template"] = "int_intra_fabric_unnum_link"
                             display.vvv(f"existing_links_check: → REQUIRED (unnum_link)")
                             required_links.append(link)
                         else:
