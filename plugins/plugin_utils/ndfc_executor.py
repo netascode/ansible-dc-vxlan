@@ -67,7 +67,7 @@ class NdfcModuleExecutor:
         self.task_vars = task_vars
         self.tmp = tmp
 
-    def execute(self, module_name, state, config, fabric_name, save=None, deploy=None, fabric_param='fabric'):
+    def execute(self, module_name, state, config, fabric_name, save=None, deploy=None, fabric_param='fabric', skip_validation=None):
         """
         Execute an NDFC Ansible module.
 
@@ -110,6 +110,9 @@ class NdfcModuleExecutor:
         if module_name == 'cisco.dcnm.dcnm_policy':
             module_args['use_desc_as_key'] = True
 
++       if skip_validation is not None:
++           module_args['skip_validation'] = skip_validation
+        
         if module_name in self.MODULES_WITH_ACTION_PLUGINS:
             return self._execute_via_action_plugin(module_name, module_args)
 
