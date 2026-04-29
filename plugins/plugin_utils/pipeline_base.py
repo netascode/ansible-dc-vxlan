@@ -291,9 +291,6 @@ class PipelineRunnerBase(ABC):
 
             # ── Execute NDFC module ───────────────────────────────────────
             save = step.get('save')
-            # ISN/External/eBGP VXLAN fabrics have contradictory dcnm_fabric validation rules
-            # Ex for ISN: for IS_READ_ONLY vs BOOTSTRAP_ENABLE — skip module-side validation
-            skip_validation = True if self.fabric_type.lower() in ('isn', 'external', 'ebgp_vxlan') and module == 'dcnm_fabric' else None
             deploy = step.get('deploy')
 
             display.v(
