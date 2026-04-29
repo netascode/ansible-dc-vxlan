@@ -39,6 +39,8 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import json
+
 from ansible.utils.display import Display
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.pipeline_base import (
@@ -206,6 +208,210 @@ class ResourceManager(PipelineRunnerBase):
 
         return {'changed': False}
 
+   def _policy_remote_diff(self, resource_name, step):
+        """
+        Two-phase policy diff: reduce policies sent to dcnm_policy module.
+
+        Phase 1 - Local YAML Comparison (diff_run=true):
+            Compares previous and current rendered ndfc_policy.yml.
+            Only policies that changed locally are forwarded.
+
+            Example: user adds nac_ntp to leaf-201 -> only leaf-201
+            switch block is sent to dcnm_policy.
+
+        Phase 2 - Controller Reconciliation (diff_run=false):
+            Queries NDFC pagination API for all nac_ policies in the
+            fabric and compares against desired rendered config.
+
+            Example: 200 total policies, 180 match controller
+            -> only 20 sent to dcnm_policy.
+
+        Comparison key: (switch_ip, policy_description)
+        Compared fields: template name, priority, policy_vars vs nvPairs
+
+        Args:
+            resource_name: Resource identifier (policy).
+            step: Pipeline step dict from create_resources.yml.
+
+        Returns:
+            dict with changed and optionally failed/msg keys.
+        """
+        data, _ = self._resolve_step_data(resource_name, step)
+        if not data:
+            return {'changed': False, 'msg': 'No policy data to filter'}
+
+        if self.run_map_diff_run:
+            # Phase 1 handled by diff_compare in build phase.
+            # _resolve_step_data already narrowed to diff.updated.
+            # No controller query needed — skip.
+            return {'changed': False, 'status': 'skipped', 'reason': 'local diff handled by diff_compare'}
+
+        return self._policy_controller_diff(resource_name, data)
+
+    def _policy_controller_diff(self, resource_name, desired_config):
+        """
+        Phase 2: Compare desired policies against NDFC controller state.
+
+        Queries the pagination API for all policies in the fabric, filters
+        to nac_ managed policies, and compares against desired config.
+
+        API: GET /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/
+             policies/pagination?fabricName={fabricName}
+
+        Comparison:
+            Key: (switch_ip, description)
+            Fields: template name (name vs templateName),
+                    priority, policy_vars vs nvPairs
+
+        nvPairs internal keys excluded from comparison (auto-managed by NDFC):
+            FABRIC_NAME, POLICY_ID, POLICY_DESC, SECENTITY, SECENTTYPE
+
+        Args:
+            resource_name: Resource identifier (policy).
+            desired_config: Current rendered policy config.
+
+        Returns:
+            dict with changed and optionally failed/msg keys.
+        """
+        api_path = (
+            "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/"
+            f"pagination?fabricName={self.fabric_name}"
+        )
+
+        query_result = self.executor.execute_rest("GET", api_path)
+
+        if query_result.get('failed'):
+            display.warning(
+                f"Policy pagination query failed: "
+                f"{query_result.get('msg', 'unknown')}. Keeping all policies."
+            )
+            return {'changed': False}
+
+        # Parse controller response
+        response_data = query_result.get('response', {})
+        if isinstance(response_data, str):
+            try:
+                response_data = json.loads(response_data)
+            except (json.JSONDecodeError, TypeError):
+                display.warning("Failed to parse policy pagination response")
+                return {'changed': False}
+
+        if isinstance(response_data, dict):
+            controller_policies = response_data.get('DATA', [])
+        elif isinstance(response_data, list):
+            controller_policies = response_data
+        else:
+            controller_policies = []
+
+        # Build lookup: {(ipAddress, description): controller_policy}
+        # Only nac_ managed policies with empty source (user-created)
+        ctrl_lookup = {}
+        for cpol in controller_policies:
+            desc = cpol.get('description', '')
+            if (desc.startswith('nac_') or desc.startswith('nace_')) and cpol.get('source', '') == '':
+                ip = cpol.get('ipAddress', '')
+                ctrl_lookup[(ip, desc)] = cpol
+
+        # Filter desired config to new or changed policies only
+        filtered_config = []
+        total_policies = 0
+        diff_policies = 0
+
+        for switch_block in desired_config:
+            filtered_switches = []
+            for sw in switch_block.get('switch', []):
+                ip = sw.get('ip', '')
+                diff_pols = []
+                for pol in sw.get('policies', []):
+                    total_policies += 1
+                    desc = pol.get('description', '')
+                    ctrl_pol = ctrl_lookup.get((ip, desc))
+
+                    if ctrl_pol is None or self._policy_differs_from_controller(pol, ctrl_pol):
+                        diff_pols.append(pol)
+                        diff_policies += 1
+
+                if diff_pols:
+                    filtered_switches.append({
+                        'ip': ip,
+                        'policies': diff_pols,
+                    })
+
+            if filtered_switches:
+                filtered_config.append({'switch': filtered_switches})
+
+        self._update_policy_resource_data(resource_name, filtered_config)
+
+        display.v(
+            f"CREATE [{self.fabric_name}] policy controller diff: "
+            f"{total_policies} desired, {len(ctrl_lookup)} on controller "
+            f"-> {diff_policies} to push"
+        )
+        return {'changed': False}
+
+    def _policy_differs_from_controller(self, desired, controller):
+        """
+        Compare desired policy against controller policy from API.
+
+        Field mapping:
+            desired.name         <-> controller.templateName
+            desired.priority     <-> controller.priority
+            desired.policy_vars  <-> controller.nvPairs (filtered)
+
+        nvPairs auto-managed keys excluded:
+            FABRIC_NAME, POLICY_ID, POLICY_DESC, SECENTITY, SECENTTYPE
+
+        Returns True if desired state differs from controller.
+        """
+        desc = desired.get('description', '?')
+
+        if desired.get('name') != controller.get('templateName'):
+            display.vvv(
+                f"POLICY DIFF [{desc}]: template name "
+                f"desired={desired.get('name')} vs ctrl={controller.get('templateName')}"
+            )
+            return True
+
+        desired_priority = desired.get('priority')
+        ctrl_priority = controller.get('priority')
+        if desired_priority is not None and ctrl_priority is not None:
+            if int(desired_priority) != int(ctrl_priority):
+                display.vvv(
+                    f"POLICY DIFF [{desc}]: priority "
+                    f"desired={desired_priority} vs ctrl={ctrl_priority}"
+                )
+                return True
+
+        desired_vars = desired.get('policy_vars') or {}
+        ctrl_nv = controller.get('nvPairs', {})
+
+        ndfc_internal_keys = {
+            'FABRIC_NAME', 'POLICY_ID', 'POLICY_DESC',
+            'SECENTITY', 'SECENTTYPE', 'PRIORITY',
+        }
+
+        # Desired vars must match controller
+        for key, val in desired_vars.items():
+            ctrl_val = ctrl_nv.get(key)
+            if ctrl_val is None or str(val).strip() != str(ctrl_val).strip():
+                display.vvv(
+                    f"POLICY DIFF [{desc}]: var {key} "
+                    f"desired={repr(str(val).strip()[:80])} vs "
+                    f"ctrl={repr(str(ctrl_val).strip()[:80] if ctrl_val is not None else None)}"
+                )
+                return True
+
+        return False
+
+    def _update_policy_resource_data(self, resource_name, filtered_config):
+        """Update resource_data with filtered policy config."""
+        resource_entry = self.resource_data.get(resource_name, {})
+        if isinstance(resource_entry, dict):
+            resource_entry['module_data'] = filtered_config
+        else:
+            self.resource_data[resource_name] = {
+                'module_data': filtered_config,
+            }
 
 class ActionModule(DtcPipelineActionBase):
     """
