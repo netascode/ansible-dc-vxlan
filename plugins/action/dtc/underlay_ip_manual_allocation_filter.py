@@ -62,6 +62,26 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
+from ansible.utils.display import Display
+
+display = Display()
+
+
+def _get_field(item, *keys, nested_path=None):
+    """Try multiple field names, with optional nested dict fallback."""
+    for key in keys:
+        val = item.get(key)
+        if val is not None:
+            return val
+    if nested_path:
+        obj = item
+        for part in nested_path:
+            if isinstance(obj, dict):
+                obj = obj.get(part)
+            else:
+                return None
+        return obj
+    return None
 
 
 def _norm_text(value, lower=False):
@@ -117,11 +137,8 @@ def _parse_scope_filter(value):
 
 
 def _norm_resource(value):
-    # Normalize resource values (IPs, names) to lowercase for comparison.
-    text = _norm_text(value)
-    if not text:
-        return ""
-    return text
+    # Strip whitespace from resource values (IPs, subnets) for comparison.
+    return _norm_text(value)
 
 
 def _canonicalize_link_entity(entity):
@@ -241,28 +258,26 @@ class ActionModule(ActionBase):
             response = all_result.get("response", {})
             all_existing_items = _extract_resource_items(response)
 
+        display.vv(
+            f"underlay_ip_filter [{fabric}]: fetched {len(all_existing_items)} "
+            f"items from controller, pools={list(pools)}"
+        )
+
         # === POOL AND SCOPE FILTERING OF BULK RESPONSE ===
-        # Apply pool name, pool type, and scope filters to reduce the working set.
         filtered_existing_items = []
         for item in all_existing_items:
-            pool_name = item.get("poolName")
-            if pool_name is None:
-                pool_name = item.get("pool_name")
-            if pool_name is None:
-                pool_name = item.get("pool")
-            if pool_name is None and isinstance(item.get("resourcePool"), dict):
-                pool_name = item.get("resourcePool", {}).get("poolName")
-
+            pool_name = _get_field(
+                item,
+                "poolName",
+                "pool_name",
+                "pool",
+                nested_path=["resourcePool", "poolName"],
+            )
             normalized_pool = _norm_pool(pool_name)
-
             if pools and normalized_pool not in pools:
                 continue
 
-            scope_type = item.get("scopeType")
-            if scope_type is None:
-                scope_type = item.get("scope_type")
-            if scope_type is None:
-                scope_type = item.get("entityType")
+            scope_type = _get_field(item, "scopeType", "scope_type", "entityType")
             normalized_scope = _norm_scope(scope_type)
             if (
                 allowed_scopes
@@ -273,42 +288,32 @@ class ActionModule(ActionBase):
 
             filtered_existing_items.append(item)
 
+        display.vv(
+            f"underlay_ip_filter [{fabric}]: "
+            f"{len(filtered_existing_items)} items after pool/scope filter"
+        )
+
         # === BUILD LOOKUP INDEXES ===
-        # existing_map: (entity, pool) -> allocation details for exact entity+pool match.
-        # existing_link_map: (canonical_link, pool) -> allocation for bidirectional link match.
-        # existing_pool_resource_set: (pool, resource) -> fast check if resource is allocated.
         existing_map = {}
         existing_link_map = {}
         existing_pool_resource_set = set()
 
         for item in filtered_existing_items:
-            entity_name = item.get("entityName")
-            if entity_name is None:
-                entity_name = item.get("entity_name")
+            entity_name = _get_field(item, "entityName", "entity_name")
             if entity_name is None:
                 continue
 
-            pool_name = item.get("poolName")
-            if pool_name is None:
-                pool_name = item.get("pool_name")
-            if pool_name is None:
-                pool_name = item.get("pool")
-            if pool_name is None and isinstance(item.get("resourcePool"), dict):
-                pool_name = item.get("resourcePool", {}).get("poolName")
-
-            resource_value = item.get("resourceName")
-            if resource_value is None:
-                resource_value = item.get("resource")
-            if resource_value is None:
-                resource_value = item.get("value")
-            if resource_value is None:
-                resource_value = item.get("allocatedIp")
-
-            scope_type = item.get("scopeType")
-            if scope_type is None:
-                scope_type = item.get("scope_type")
-            if scope_type is None:
-                scope_type = item.get("entityType")
+            pool_name = _get_field(
+                item,
+                "poolName",
+                "pool_name",
+                "pool",
+                nested_path=["resourcePool", "poolName"],
+            )
+            resource_value = _get_field(
+                item, "resourceName", "resource", "value", "allocatedIp"
+            )
+            scope_type = _get_field(item, "scopeType", "scope_type", "entityType")
 
             normalized_entity = _norm_entity(entity_name)
             normalized_pool = _norm_pool(pool_name)
@@ -368,14 +373,16 @@ class ActionModule(ActionBase):
 
             if not entity_name or not pool_name:
                 filtered_config.append(item)
-                missing_or_mismatch.append({
-                    "reason": "missing_required_fields",
-                    "entity": _norm_text(entity_name),
-                    "pool": _norm_text(pool_name),
-                    "scope": _norm_text(scope_type),
-                    "expected": expected_resource,
-                    "actual": "__unknown__",
-                })
+                missing_or_mismatch.append(
+                    {
+                        "reason": "missing_required_fields",
+                        "entity": _norm_text(entity_name),
+                        "pool": _norm_text(pool_name),
+                        "scope": _norm_text(scope_type),
+                        "expected": expected_resource,
+                        "actual": "__unknown__",
+                    }
+                )
                 continue
 
             # Tier 1: Exact entity+pool match
@@ -400,50 +407,70 @@ class ActionModule(ActionBase):
 
             if existing is None:
                 filtered_config.append(item)
-                missing_or_mismatch.append({
-                    "reason": "missing_in_nd",
-                    "entity": _norm_text(entity_name),
-                    "pool": _norm_text(pool_name),
-                    "scope": _norm_text(scope_type),
-                    "expected": expected_resource,
-                    "actual": "__missing__",
-                })
+                missing_or_mismatch.append(
+                    {
+                        "reason": "missing_in_nd",
+                        "entity": _norm_text(entity_name),
+                        "pool": _norm_text(pool_name),
+                        "scope": _norm_text(scope_type),
+                        "expected": expected_resource,
+                        "actual": "__missing__",
+                    }
+                )
                 continue
 
             actual_resource = existing.get("resource", "")
             if actual_resource != expected_resource:
                 filtered_config.append(item)
-                missing_or_mismatch.append({
-                    "reason": "resource_mismatch",
-                    "entity": _norm_text(entity_name),
-                    "pool": _norm_text(pool_name),
-                    "scope": _norm_text(scope_type),
-                    "expected": expected_resource,
-                    "actual": actual_resource,
-                    "actual_raw": existing.get("raw_resource", ""),
-                    "matched_by": matched_by,
-                })
+                missing_or_mismatch.append(
+                    {
+                        "reason": "resource_mismatch",
+                        "entity": _norm_text(entity_name),
+                        "pool": _norm_text(pool_name),
+                        "scope": _norm_text(scope_type),
+                        "expected": expected_resource,
+                        "actual": actual_resource,
+                        "actual_raw": existing.get("raw_resource", ""),
+                        "matched_by": matched_by,
+                    }
+                )
                 continue
 
             matched_count += 1
 
+        # === VERBOSE LOGGING ===
+        display.v(
+            f"underlay_ip_filter [{fabric}]: "
+            f"{matched_count} matched, {len(filtered_config)} need update"
+        )
+        if display.verbosity >= 3:
+            for entry in missing_or_mismatch:
+                display.vvv(
+                    f"  [{fabric}] {entry['reason']}: entity={entry['entity']} "
+                    f"expected={entry['expected']} actual={entry['actual']}"
+                )
+
         # === RESULT ASSEMBLY ===
         if query_errors:
-            result.update({
-                "failed": True,
-                "msg": "Underlay all-resource query failed. Check ND_HOST/credentials and connectivity.",
-                "query_errors": query_errors,
-            })
+            result.update(
+                {
+                    "failed": True,
+                    "msg": "Underlay all-resource query failed. Check ND_HOST/credentials and connectivity.",
+                    "query_errors": query_errors,
+                }
+            )
             return result
 
-        result.update({
-            "changed": False,
-            "filtered_config": filtered_config,
-            "missing_or_mismatch": missing_or_mismatch,
-            "query_errors": query_errors,
-            "matched_total": matched_count,
-            "filtered_total": len(filtered_config),
-            "desired_total": len(desired_config),
-        })
+        result.update(
+            {
+                "changed": False,
+                "filtered_config": filtered_config,
+                "missing_or_mismatch": missing_or_mismatch,
+                "query_errors": query_errors,
+                "matched_total": matched_count,
+                "filtered_total": len(filtered_config),
+                "desired_total": len(desired_config),
+            }
+        )
 
         return result
