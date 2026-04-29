@@ -241,46 +241,64 @@ class ResourceManager(PipelineRunnerBase):
         """
         data, _ = self._resolve_step_data(resource_name, step)
         if not data:
-            return {'changed': False, 'msg': 'No underlay_ip_address data to audit'}
+            return {"changed": False, "msg": "No underlay_ip_address data to audit"}
 
         if self.run_map_diff_run:
-            return {'changed': False, 'msg': 'Diff run active; skipping underlay IP audit'}
+            return {
+                "changed": False,
+                "msg": "Diff run active; skipping underlay IP audit",
+            }
 
-        scope_filter = self.task_vars.get('underlay_ip_audit_scope_filter', 'all')
+        scope_filter = self.task_vars.get("underlay_ip_audit_scope_filter", "all")
 
         module_args = {
-            'fabric': self.fabric_name,
-            'desired_config': data,
-            'scope_filter': scope_filter,
+            "fabric": self.fabric_name,
+            "desired_config": data,
+            "scope_filter": scope_filter,
         }
-        if 'underlay_ip_audit_pools' in self.task_vars:
-            module_args['query_pools'] = self.task_vars['underlay_ip_audit_pools']
+        if "underlay_ip_audit_pools" in self.task_vars:
+            module_args["query_pools"] = self.task_vars["underlay_ip_audit_pools"]
 
         audit_result = self.executor.execute_plugin(
-            module_name='cisco.nac_dc_vxlan.dtc.underlay_ip_manual_allocation_filter',
+            module_name="cisco.nac_dc_vxlan.dtc.underlay_ip_manual_allocation_filter",
             module_args=module_args,
         )
 
-        if audit_result.get('failed'):
+        if audit_result.get("failed"):
             return {
-                'failed': True,
-                'msg': audit_result.get('msg', 'underlay_ip_manual_allocation_filter failed'),
+                "failed": True,
+                "msg": audit_result.get(
+                    "msg", "underlay_ip_manual_allocation_filter failed"
+                ),
             }
 
-        filtered_config = audit_result.get('filtered_config', [])
+        filtered_config = audit_result.get("filtered_config", [])
         resource_entry = self.resource_data.get(resource_name, {})
         if isinstance(resource_entry, dict):
-            resource_entry['module_data'] = filtered_config
+            resource_entry["module_data"] = filtered_config
         else:
             self.resource_data[resource_name] = {
-                'module_data': filtered_config,
+                "module_data": filtered_config,
             }
 
         display.v(
             f"CREATE [{self.fabric_name}] underlay_ip_address: "
             f"{len(data)} configured → {len(filtered_config)} after audit"
         )
-        return {'changed': False}
+        if display.verbosity >= 2:
+            matched = audit_result.get("matched_total", 0)
+            display.vv(
+                f"CREATE [{self.fabric_name}] underlay_ip_address: "
+                f"{matched} matched controller, {len(filtered_config)} need update"
+            )
+        if display.verbosity >= 3:
+            for entry in audit_result.get("missing_or_mismatch", []):
+                display.vvv(
+                    f"  [{self.fabric_name}] {entry.get('reason')}: "
+                    f"entity={entry.get('entity')} expected={entry.get('expected')} "
+                    f"actual={entry.get('actual')}"
+                )
+        return {"changed": False}
 
 class ActionModule(DtcPipelineActionBase):
     """
