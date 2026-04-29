@@ -254,6 +254,7 @@ create_resources:
       state: merged
       fabric_param: null
       deploy: null
+      skip_validation: true
       change_flag_guard: changes_detected_fabric
       tag: cr_manage_fabric
 
@@ -394,6 +395,7 @@ create_resources:
       state: merged
       fabric_param: null
       deploy: null
+      skip_validation: true
       change_flag_guard: changes_detected_fabric
       tag: cr_manage_fabric
 
@@ -455,6 +457,7 @@ create_resources:
       state: merged
       fabric_param: null
       deploy: null
+      skip_validation: true
       change_flag_guard: changes_detected_fabric
       tag: cr_manage_fabric
 
