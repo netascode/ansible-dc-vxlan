@@ -94,6 +94,13 @@ create_resources:
       tag: cr_manage_switches
 
     - resource_name: underlay_ip_address
+      module: _underlay_ip_remote_diff
+      state: null
+      data_model_guard: vxlan.underlay.general.manual_underlay_allocation
+      change_flag_guard: changes_detected_underlay_ip_address
+      tag: cr_manage_switches
+
+    - resource_name: underlay_ip_address
       module: dcnm_resource_manager
       state: merged
       deploy: null

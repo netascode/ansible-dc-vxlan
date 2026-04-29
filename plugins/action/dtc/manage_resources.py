@@ -205,7 +205,100 @@ class ResourceManager(PipelineRunnerBase):
         )
 
         return {'changed': False}
+      
+    def _underlay_ip_remote_diff(self, resource_name, step):
+        """
+        Remote diff: reconcile underlay IP data model against controller state.
 
+        This method implements Phase 2 of the two-phase comparison:
+
+        Phase 1 - Local YAML Comparison (handled by common/files):
+            Compares the previous and current rendered YAML
+            (ndfc_underlay_ip_address.yml) to detect local data model changes.
+            Output: diff.updated entries for changed resources.
+
+            Example: user changes loopback0 ipv4 from 10.1.0.1/32
+            to 10.1.0.2/32 in the data model -> Phase 1 detects the diff.
+
+        Phase 2 - Controller Reconciliation (this method):
+            Queries the controller (ND) pool resources via
+            underlay_ip_manual_allocation_filter and compares against the desired config.
+            Reduces module_data to only entries needing controller updates.
+
+            Example: 5 switches in data model, but 2 already have the
+            correct pool allocation on the controller -> filtered_config
+            returns only the 3 that need updates.
+
+        In diff_run mode the local YAML diff (Phase 1) already narrows scope,
+        so Phase 2 is skipped to avoid redundant controller queries.
+
+        Args:
+            resource_name: Resource identifier (e.g. underlay_ip_address).
+            step: Pipeline step dict from create_resources.yml.
+
+        Returns:
+            dict with changed and optionally failed/msg keys.
+        """
+        data, _ = self._resolve_step_data(resource_name, step)
+        if not data:
+            return {"changed": False, "msg": "No underlay_ip_address data to audit"}
+
+        if self.run_map_diff_run:
+            return {
+                "changed": False,
+                "msg": "Diff run active; skipping underlay IP audit",
+            }
+
+        scope_filter = self.task_vars.get("underlay_ip_audit_scope_filter", "all")
+
+        module_args = {
+            "fabric": self.fabric_name,
+            "desired_config": data,
+            "scope_filter": scope_filter,
+        }
+        if "underlay_ip_audit_pools" in self.task_vars:
+            module_args["query_pools"] = self.task_vars["underlay_ip_audit_pools"]
+
+        audit_result = self.executor.execute_plugin(
+            module_name="cisco.nac_dc_vxlan.dtc.underlay_ip_manual_allocation_filter",
+            module_args=module_args,
+        )
+
+        if audit_result.get("failed"):
+            return {
+                "failed": True,
+                "msg": audit_result.get(
+                    "msg", "underlay_ip_manual_allocation_filter failed"
+                ),
+            }
+
+        filtered_config = audit_result.get("filtered_config", [])
+        resource_entry = self.resource_data.get(resource_name, {})
+        if isinstance(resource_entry, dict):
+            resource_entry["module_data"] = filtered_config
+        else:
+            self.resource_data[resource_name] = {
+                "module_data": filtered_config,
+            }
+
+        display.v(
+            f"CREATE [{self.fabric_name}] underlay_ip_address: "
+            f"{len(data)} configured → {len(filtered_config)} after audit"
+        )
+        if display.verbosity >= 2:
+            matched = audit_result.get("matched_total", 0)
+            display.vv(
+                f"CREATE [{self.fabric_name}] underlay_ip_address: "
+                f"{matched} matched controller, {len(filtered_config)} need update"
+            )
+        if display.verbosity >= 3:
+            for entry in audit_result.get("missing_or_mismatch", []):
+                display.vvv(
+                    f"  [{self.fabric_name}] {entry.get('reason')}: "
+                    f"entity={entry.get('entity')} expected={entry.get('expected')} "
+                    f"actual={entry.get('actual')}"
+                )
+        return {"changed": False}
 
 class ActionModule(DtcPipelineActionBase):
     """
