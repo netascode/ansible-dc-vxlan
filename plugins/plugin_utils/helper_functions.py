@@ -231,10 +231,98 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
             fabric_switches.append(
                 {
                     'hostname': fabric_switch['logicalName'],
+                    'name': fabric_switch['logicalName'],
                     'mgmt_ip_address': fabric_switch['ipAddress'],
                     'fabric_name': fabric_switch['fabricName'],
                     'serial_number': fabric_switch['serialNumber'],
+                    'role': fabric_switch['switchRole'],
                 }
             )
 
     return fabric_switches
+
+
+def restructure_leaf_tor_data(switches_list, topology_switches, tor_peers):
+    """Transform a flat switches list into the nested structure with TOR
+    entries under their parent leaf switches.
+
+    Each TOR is placed under ALL of its parent leaves that are present in the
+    attach group. If a parent leaf is not explicitly listed in the attach group,
+    a synthetic leaf entry is created automatically from topology data.
+
+    Args:
+        switches_list: List of switch dicts from network_attach_group
+        topology_switches: List of switch dicts from vxlan.topology.switches
+        tor_peers: List of tor_peers dicts from vxlan.topology.tor_peers
+
+    Returns:
+        Restructured switches list with TOR entries nested under parent leaves
+    """
+    # Build set of TOR hostnames from topology
+    tor_hostnames = {
+        sw['name'] for sw in topology_switches if sw.get("role") == "tor"
+    }
+
+    # Build TOR -> parent leaves mapping from tor_peers
+    # Each TOR maps to a list of its parent leaf hostnames
+    tor_to_parents = {}
+    for peer in tor_peers:
+        parent_leaves = []
+        if peer.get("parent_leaf1"):
+            parent_leaves.append(peer['parent_leaf1'])
+        if peer.get("parent_leaf2"):
+            parent_leaves.append(peer['parent_leaf2'])
+
+        for key in ("tor1", "tor2"):
+            tor_name = peer.get(key)
+            if tor_name:
+                tor_to_parents[tor_name] = parent_leaves
+
+    # # Build topology hostname -> switch data mapping for creating synthetic entries
+    # topology_by_name = {sw['name']: sw for sw in topology_switches}
+
+    # Separate leaf entries and TOR entries
+    leaf_entries = []
+    tor_entries = []
+
+    for sw in switches_list:
+        hostname = sw.get("hostname", "")
+        if hostname in tor_hostnames:
+            tor_entries.append(sw)
+        else:
+            leaf_entries.append(sw)
+
+    # Initialize empty 'tors' list for each leaf entry
+    for leaf in leaf_entries:
+        if "tors" not in leaf:
+            leaf['tors'] = []
+
+    # Build hostname -> leaf entry mapping for quick lookup
+    leaf_by_hostname = {leaf['hostname']: leaf for leaf in leaf_entries}
+
+    # Collect all required parent leaf hostnames from TOR entries
+    # and create synthetic leaf entries for any that are not in the attach group
+    for tor_entry in tor_entries:
+        tor_hostname = tor_entry['hostname']
+        parent_leaves = tor_to_parents.get(tor_hostname, [])
+        for parent_hostname in parent_leaves:
+            if parent_hostname not in leaf_by_hostname:
+                # Create a synthetic leaf entry from topology data
+                synthetic_leaf = {'hostname': parent_hostname, 'tors': []}
+                leaf_entries.append(synthetic_leaf)
+                leaf_by_hostname[parent_hostname] = synthetic_leaf
+
+    # Assign each TOR to ALL of its parent leaves present in this attach group
+    for tor_entry in tor_entries:
+        tor_hostname = tor_entry['hostname']
+        parent_leaves = tor_to_parents.get(tor_hostname, [])
+        valid_parents = [p for p in parent_leaves if p in leaf_by_hostname]
+
+        if valid_parents:
+            for parent_hostname in valid_parents:
+                leaf_by_hostname[parent_hostname]['tors'].append(tor_entry)
+        else:
+            # No parent leaf defined in tor_peers - keep TOR as top-level entry
+            leaf_entries.append(tor_entry)
+
+    return leaf_entries
