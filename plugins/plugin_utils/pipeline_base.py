@@ -292,6 +292,7 @@ class PipelineRunnerBase(ABC):
             # ── Execute NDFC module ───────────────────────────────────────
             save = step.get('save')
             deploy = step.get('deploy')
+            skip_validation = step.get('skip_validation') 
 
             display.v(
                 f"{op_label} [{self.fabric_name}] Executing {module} for "
@@ -307,6 +308,7 @@ class PipelineRunnerBase(ABC):
                 save=save,
                 deploy=deploy,
                 fabric_param=fabric_param,
+                skip_validation=skip_validation,
             )
 
             elapsed = time.monotonic() - step_start
