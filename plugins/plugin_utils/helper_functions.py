@@ -257,6 +257,20 @@ def restructure_leaf_tor_data(switches_list, topology_switches, tor_peers):
 
     Returns:
         Restructured switches list with TOR entries nested under parent leaves
+        
+    Example output:
+         switches:
+           - hostname: leaf-1
+             mgmt_ip_address: 192.168.1.10
+             tors:
+               - hostname: tor-1
+                 mgmt_ip_address: 192.168.1.30
+
+           - hostname: leaf-2
+             mgmt_ip_address: 192.168.1.20
+             tors:
+               - hostname: tor-1     
+                 mgmt_ip_address: 192.168.1.30
     """
     # Build set of TOR hostnames from topology
     tor_hostnames = {
