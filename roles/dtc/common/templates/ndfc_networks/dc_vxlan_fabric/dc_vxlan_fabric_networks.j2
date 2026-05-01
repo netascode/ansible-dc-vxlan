@@ -71,7 +71,7 @@
 {% if 'tors' in attach and attach['tors'] %}
       tor_ports:
 {% for tor in attach['tors'] %}
-        - ip_address: {{ tor['mgmt_ip_address'] | default(tor['hostname']) }}
+        - ip_address: {{ tor['mgmt_ip_address'] }}
 {% if tor['ports'] is defined %}
           ports: {{ tor['ports'] }}
 {% endif %}
