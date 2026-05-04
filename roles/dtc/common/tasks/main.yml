@@ -75,12 +75,6 @@
   tags: "{{ nac_tags.common_role }}"
   delegate_to: localhost
 
-- name: Store Diff Results For Use In Subsequent Roles
-  ansible.builtin.set_fact:
-    diff_results: "{{ build_result.diff_results }}"
-  tags: "{{ nac_tags.common_role }}"
-  delegate_to: localhost
-
 - name: Display Change Flag Values
   ansible.builtin.debug:
     msg: "Change flags: {{ change_flags }}"
