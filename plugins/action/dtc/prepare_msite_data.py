@@ -28,6 +28,7 @@ from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_fabric_attributes
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_fabric_switches
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import restructure_leaf_tor_data
 from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
 import re
 
@@ -142,9 +143,12 @@ class ActionModule(ActionBase):
                         fabric_switches.append(
                             {
                                 'hostname': fabric_switch['logicalName'],
+                                'name': fabric_switch['logicalName'],
                                 'mgmt_ip_address': fabric_switch['ipAddress'],
                                 'fabric_name': fabric_switch['fabricName'],
+                                'fabric_cluster': fabric_cluster,
                                 'serial_number': fabric_switch['serialNumber'],
+                                'role': fabric_switch['switchRole'],
                             }
                         )
 
@@ -164,6 +168,69 @@ class ActionModule(ActionBase):
             all_child_fabric_switches = all_child_fabric_switches + child_fabrics_data[child_fabric]['switches']
 
         results['switches'] = all_child_fabric_switches
+
+        tor_fabrics = {}
+        for switch in all_child_fabric_switches:
+            if switch['role'] == 'tor' and switch['fabric_name'] not in tor_fabrics:
+                if parent_fabric_type == 'MCFG':
+                    tor_fabrics[switch['fabric_name']] = switch['serial_number'], switch['fabric_cluster']
+                else:
+                    tor_fabrics[switch['fabric_name']] = (switch['serial_number'])
+
+        tor_ndfc_responses = {}
+        if tor_fabrics != {}:
+            for fabric in tor_fabrics.keys():
+                if parent_fabric_type == 'MCFG':
+                    proxy = ''
+                    if version_compare(nd_major_minor_patch, '3.2.2', '<='):
+                        proxy = f'/onepath/{tor_fabrics[fabric][1]}'
+                    elif version_compare(nd_major_minor_patch, '4.1.1', '>='):
+                        proxy = f'/fedproxy/{tor_fabrics[fabric][1]}'
+                    tor_response = self._execute_module(
+                        module_name="cisco.dcnm.dcnm_rest",
+                        module_args={
+                            "method": "GET",
+                            "path": f"{proxy}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{fabric}/switches/{tor_fabrics[fabric][0]}",
+                        },
+                        task_vars=task_vars,
+                        tmp=tmp
+                    )
+                else:
+                    tor_response = self._execute_module(
+                        module_name="cisco.dcnm.dcnm_rest",
+                        module_args={
+                            "method": "GET",
+                            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/tor/fabrics/{fabric}/switches/{tor_fabrics[fabric]}",
+                        },
+                        task_vars=task_vars,
+                        tmp=tmp
+                    )
+                if 'response' in tor_response and 'DATA' in tor_response['response']:
+                    tor_ndfc_responses = []
+                    for pair in tor_response['response']['DATA']['torPairs']:
+                        entry = {}
+                        tor_name = pair['torName']
+                        if '~' in tor_name:
+                            entry['tor1'] = tor_name.split('~')[0]
+                            entry['tor2'] = tor_name.split('~')[1]
+                        else:
+                            entry['tor1'] = tor_name
+
+                        remarks_match = re.search(r'\(([^)]+)\)', pair.get('remarks', ''))
+                        if remarks_match:
+                            leaf_value = remarks_match.group(1)
+                            if ',' in leaf_value:
+                                entry['parent_leaf1'] = leaf_value.split(',')[0].strip()
+                                entry['parent_leaf2'] = leaf_value.split(',')[1].strip()
+                            else:
+                                entry['parent_leaf1'] = leaf_value
+                        else:
+                            entry['parent_leaf1'] = None
+
+                        tor_ndfc_responses.append(entry)
+                else:
+                    display.warning(f"Failed to get TOR data for fabric {fabric}: {tor_response}")
+                    tor_ndfc_responses[fabric] = []
 
         # Rebuild sm_data['vxlan']['multisite']['overlay']['vrf_attach_groups'] into
         # a structure that is easier to use just like data_model_extended.
@@ -205,6 +272,13 @@ class ActionModule(ActionBase):
         for grp in data_model['vxlan']['multisite']['overlay']['network_attach_groups']:
             data_model['vxlan']['multisite']['overlay']['network_attach_groups_dict'][grp['name']] = []
             net_grp_name_list.append(grp['name'])
+
+            # Restructure flat TOR entries under parent leaves if TORs exist in the fabric
+            if tor_ndfc_responses != {}:
+                grp['switches'] = restructure_leaf_tor_data(
+                    grp['switches'], all_child_fabric_switches, tor_ndfc_responses
+                )
+
             for switch in grp['switches']:
                 data_model['vxlan']['multisite']['overlay']['network_attach_groups_dict'][grp['name']].append(switch)
             # If the switch is in the switch list and a hostname is used, replace the hostname with the management IP
@@ -215,6 +289,13 @@ class ActionModule(ActionBase):
                             regex_pattern = f"^{switch['hostname']}$|^{switch['hostname']}\\..*$"
                             if re.search(regex_pattern, sw['hostname']):
                                 switch['mgmt_ip_address'] = sw['mgmt_ip_address']
+                # Process nested TOR entries and resolve their management IPs
+                    if 'tors' in switch and switch['tors']:
+                        for tor in switch['tors']:
+                            tor_hostname = tor.get('hostname')
+                            if tor_hostname and any(sw['name'] == tor_hostname for sw in child_fabrics_data[child_fabric]['switches']):
+                                found_tor = next((item for item in child_fabrics_data[child_fabric]['switches'] if item["name"] == tor_hostname))
+                                tor['mgmt_ip_address'] = found_tor['mgmt_ip_address']
                 # Append switch to a flat list of switches for cross comparison later when we query the
                 # MSD fabric information.  We need to stop execution if the list returned by the MSD query
                 # does not include one of these switches.
@@ -227,5 +308,4 @@ class ActionModule(ActionBase):
                     del net['network_attach_group']
 
         results['overlay_attach_groups'] = data_model['vxlan']['multisite']['overlay']
-
         return results
