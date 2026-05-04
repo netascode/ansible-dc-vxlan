@@ -8,6 +8,21 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.7.2`_
+=====================
+
+**Release Date:** ``2026-05-01``
+
+Added
+-----
+* Added support for network attachments on TOR devices that are part of Multisite fabrics
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/786
+
+
 `0.7.1`_
 =====================
 
@@ -505,6 +520,7 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.7.2: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.1...0.7.2
 .. _0.7.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.0...0.7.1
 .. _0.7.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.6.0...0.7.0
 .. _0.6.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.5.1...0.6.0
