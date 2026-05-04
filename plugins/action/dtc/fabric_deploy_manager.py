@@ -447,7 +447,17 @@ class FabricDeployManager:
             return
 
         serial_list = ','.join(serial_numbers)
+        display.display(
+            f"DEPLOY [{self.fabric_name}] "
+            f"switch_deploy request: POST {self.paths.switch_deploy(serial_list)}",
+            color='blue',
+        )
         response = self._send_request("POST", self.paths.switch_deploy(serial_list))
+        display.display(
+            f"DEPLOY [{self.fabric_name}] "
+            f"switch_deploy response: {response}",
+            color='blue',
+        )
         elapsed = monotonic() - step_start
         if response.get('RETURN_CODE') != 200:
             self.fabric_deploy_succeeded = False
