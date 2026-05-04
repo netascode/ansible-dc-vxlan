@@ -257,23 +257,24 @@ class FabricDeployManager:
         self.fabric_in_sync = True
         response = self._send_request("GET", self.paths.switches_by_fabric)
 
-        # For non-Multisite fabrics, retry up to 5 times if out-of-sync
+        # For non-Multisite fabrics, retry up to 60 times if out-of-sync
         # Exclude Multisite parent fabrics (MSD or MCFG) as they are dependent on child fabrics being in sync
+        RETRY_COUNT = 60
         if self.fabric_type not in MULTISITE_FABRIC_TYPES:
-            for attempt in range(5):
+            for attempt in range(RETRY_COUNT):
                 self._fabric_check_sync_helper(response)
                 if self.fabric_in_sync:
                     break
-                if (attempt + 1) == 5 and not self.fabric_in_sync:
+                if (attempt + 1) == RETRY_COUNT and not self.fabric_in_sync:
                     break
                 else:
                     elapsed = monotonic() - step_start
                     display.display(
                         f"DEPLOY [{self.fabric_name}] "
-                        f"check_sync → out of sync, retry {attempt + 1}/5 [{elapsed:.1f}s]",
+                        f"check_sync → out of sync, retry {attempt + 1}/{RETRY_COUNT} [{elapsed:.1f}s]",
                         color='yellow',
                     )
-                    sleep(2)
+                    sleep(10)
                     self.fabric_in_sync = True
                     response = self._send_request("GET", self.paths.switches_by_fabric)
 
@@ -508,10 +509,13 @@ class FabricDeployManager:
             task_vars=self.task_vars,
             tmp=self.tmp
         )
-        if 'response' in response.keys():
+        if isinstance(response, dict) and 'response' in response:
             response = response['response']
-        if 'msg' in response.keys():
+        if isinstance(response, dict) and 'msg' in response and isinstance(response['msg'], dict):
             response = response['msg']
+        # Safety: ensure callers always receive a dict they can call .get() on
+        if not isinstance(response, dict):
+            response = {'DATA': response, 'RETURN_CODE': -1, 'msg': str(response)}
         return response
 
 
