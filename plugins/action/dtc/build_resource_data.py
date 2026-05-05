@@ -79,8 +79,8 @@ class ResourceDataBuilder:
         self.fabric_name = params['fabric_name']
         self.data_model = params['data_model']
         self.role_path = params['role_path']
-        self.run_map_diff_run = params.get('run_map_diff_run', True)
-        self.force_run_all = params.get('force_run_all', False)
+        self.run_map_diff_run = self._to_bool(params.get('run_map_diff_run', True))
+        self.force_run_all = self._to_bool(params.get('force_run_all', False))
         self.check_roles = params.get('check_roles', {})
         self.resource_filter = params.get('resource_filter', None)
 
@@ -106,7 +106,19 @@ class ResourceDataBuilder:
         # Collected results
         self.resource_data = {}
         self.change_flags = {}
-        self.diff_results = {}
+
+    @staticmethod
+    def _to_bool(value):
+        """Convert Ansible bool-like values into real booleans."""
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.lower() in ('1', 'true', 'yes', 'on')
+        return bool(value)
+
+    def _should_run_structural_diff(self, diff_compare):
+        """Structural diff data is only consumed during targeted diff runs."""
+        return bool(diff_compare) and self.run_map_diff_run and not self.force_run_all
 
     def build(self):
         """
@@ -119,7 +131,6 @@ class ResourceDataBuilder:
             dict with:
               - 'resource_data': Dict of rendered data keyed by resource_name
               - 'change_flags': Dict of change flag states
-              - 'diff_results': Dict of structural diff results
               - 'namespace': Fabric type namespace name
               - 'failed': Boolean
               - 'msg': Summary message
@@ -164,7 +175,6 @@ class ResourceDataBuilder:
                     return {
                         'resource_data': self.resource_data,
                         'change_flags': self.change_flags,
-                        'diff_results': self.diff_results,
                         'namespace': self.namespace,
                         'results': step_results,
                         'failed': True,
@@ -181,7 +191,6 @@ class ResourceDataBuilder:
                     return {
                         'resource_data': self.resource_data,
                         'change_flags': self.change_flags,
-                        'diff_results': self.diff_results,
                         'namespace': self.namespace,
                         'results': step_results,
                         'failed': True,
@@ -206,7 +215,6 @@ class ResourceDataBuilder:
                 return {
                     'resource_data': self.resource_data,
                     'change_flags': self.change_flags,
-                    'diff_results': self.diff_results,
                     'namespace': self.namespace,
                     'results': step_results,
                     'failed': True,
@@ -230,7 +238,6 @@ class ResourceDataBuilder:
         return {
             'resource_data': self.resource_data,
             'change_flags': self.change_flags,
-            'diff_results': self.diff_results,
             'namespace': self.namespace,
             'results': step_results,
             'failed': False,
@@ -292,9 +299,8 @@ class ResourceDataBuilder:
 
         # ── Step 6: Structural diff (diff_compare) ───────────────────
         diff_result = None
-        if diff_compare:
+        if self._should_run_structural_diff(diff_compare):
             diff_result = self._run_diff_compare(old_file_path, output_file_path)
-            self.diff_results[resource_name] = diff_result
 
         # ── Step 7: MD5 diff for change detection ─────────────────────
         file_changed = self._run_diff_model_changes(old_file_path, output_file_path)
@@ -307,7 +313,8 @@ class ResourceDataBuilder:
         # module_data is the authoritative data for downstream NDFC module calls.
         # Default is the raw rendered template data. Post-hooks can override this
         # by returning a 'module_data' key in their result dict (convention).
-        resource_entry = {'data': data, 'module_data': data, 'var_name': var_name}
+        module_data = data
+        resource_entry = {'data': data, 'var_name': var_name}
         if diff_result is not None:
             resource_entry['diff'] = diff_result
 
@@ -319,8 +326,11 @@ class ResourceDataBuilder:
             # inventory from get_credentials).
             for hook_result in pre_hook_data.values():
                 if isinstance(hook_result, dict) and 'module_data' in hook_result:
-                    resource_entry['module_data'] = hook_result['module_data']
+                    module_data = hook_result['module_data']
                     break
+
+        if module_data is not data:
+            resource_entry['module_data'] = module_data
 
         self.resource_data[resource_name] = resource_entry
 
@@ -764,8 +774,10 @@ class ResourceDataBuilder:
         with open(output_file, 'w') as f:
             yaml.dump(create_list, f, default_flow_style=False)
 
-        # Run structural diff
-        diff_result = self._run_diff_compare(old_file, output_file)
+        # Run structural diff only when downstream targeted processing needs it.
+        diff_result = None
+        if self._should_run_structural_diff(rt.get('diff_compare', False)):
+            diff_result = self._run_diff_compare(old_file, output_file)
 
         # Run MD5 diff
         file_changed = self._run_diff_model_changes(old_file, output_file)
@@ -778,10 +790,10 @@ class ResourceDataBuilder:
         self.resource_data['interface_all'] = {
             'data': create_list,
             'data_remove_overridden': remove_list,
-            'diff': diff_result,
             'var_name': 'interface_all_create',
         }
-        self.diff_results['interface_all'] = diff_result
+        if diff_result is not None:
+            self.resource_data['interface_all']['diff'] = diff_result
 
         display.v(
             f"COMMON [{self.fabric_name}] Aggregated interface_all: "

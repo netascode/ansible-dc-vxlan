@@ -40,9 +40,11 @@ class ActionModule(ActionBase):
         results['diff_run'] = True
         results['validate_only_run'] = False
 
+        fabric_name = self._task.args.get('fabric_name')
         data_model = self._task.args.get('data_model')
         play_tags = self._task.args.get('play_tags')
-        fabric_name = data_model['vxlan']['fabric']['name']
+        if fabric_name is None:
+            fabric_name = data_model['vxlan']['fabric']['name']
 
         if 'dtc' in task_vars['role_path']:
             common_role_path = os.path.dirname(task_vars['role_path'])

@@ -91,7 +91,7 @@
 
 - name: Mark Stage Role Remove Completed
   cisco.nac_dc_vxlan.common.run_map:
-    data_model: "{{ data_model_extended }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     stage: role_remove_completed
   register: run_map
   delegate_to: localhost
