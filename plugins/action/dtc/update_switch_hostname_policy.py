@@ -27,7 +27,10 @@ __metaclass__ = type
 import json
 
 from ansible.plugins.action import ActionBase
-from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_switch_policy_using_template
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import (
+    ndfc_get_fabric_policies_by_template,
+    ndfc_get_switch_policy_using_template
+)
 
 
 class ActionModule(ActionBase):
@@ -44,21 +47,49 @@ class ActionModule(ActionBase):
         self.results = {}
         self.results['failed'] = False
         self.results['changed'] = False
-        # self.policy_add = {}
         self.policy_update = {}
+        self.bulk_api_available = True  # Track if bulk API is available
 
-    def _get_switch_policy(self, switch_serial_number, template_name):
+    def _get_policies_with_fallback(self, fabric_name, template_name, switch_serial_numbers):
         """
-        Get switch hostname policy from Nexus Dashboard using
-        template name (host_11_1) and switch serial number.
+        Get switch policies using bulk API if available, fallback to per-switch queries.
+        
+        Returns:
+            tuple: (policies_dict, used_bulk_api)
+                - policies_dict: Dictionary mapping serial_number to policy data (or None if not found)
+                - used_bulk_api: Boolean indicating if bulk API was used
         """
-        return ndfc_get_switch_policy_using_template(
-            self=self,
-            task_vars=self.task_vars,
-            tmp=self.tmp,
-            switch_serial_number=switch_serial_number,
-            template_name=template_name
-        )
+        policies_dict = {}
+        
+        # Try bulk API first (only if not already marked as unavailable)
+        if self.bulk_api_available:
+            try:
+                policies_dict = ndfc_get_fabric_policies_by_template(
+                    self=self,
+                    task_vars=self.task_vars,
+                    tmp=self.tmp,
+                    fabric_name=fabric_name,
+                    template_name=template_name
+                )
+                # If successful, return the bulk result
+                return policies_dict, True
+            except Exception as e:
+                # Bulk API not available or failed, mark it and fall back
+                self.bulk_api_available = False
+        
+        # Fallback: Query each switch individually
+        # Note: ndfc_get_switch_policy_using_template handles the host_11_1 special case
+        for switch_serial_number in switch_serial_numbers:
+            policy = ndfc_get_switch_policy_using_template(
+                self=self,
+                task_vars=self.task_vars,
+                tmp=self.tmp,
+                switch_serial_number=switch_serial_number,
+                template_name=template_name
+            )
+            policies_dict[switch_serial_number] = policy
+        
+        return policies_dict, False
 
     def nd_policy_add(self, switch_name, switch_serial_number):
         """
@@ -146,12 +177,31 @@ class ActionModule(ActionBase):
             dm_switches = data_model["vxlan"]["topology"]["switches"]
             switch_serial_numbers = [dm_switch['serial_number'] for dm_switch in dm_switches]
 
+        # Get policies using bulk API with fallback to per-switch queries
+        fabric_name = data_model["vxlan"]["fabric"]["name"]
+        policies_dict, used_bulk_api = self._get_policies_with_fallback(
+            fabric_name=fabric_name,
+            template_name=template_name,
+            switch_serial_numbers=switch_serial_numbers
+        )
+
         for switch_serial_number in switch_serial_numbers:
-            policy_match = self._get_switch_policy(switch_serial_number, template_name)
+            # Look up policy from the dictionary (bulk or per-switch query)
+            policy_match = policies_dict.get(switch_serial_number)
 
             switch_match = next((item for item in dm_switches if item["serial_number"] == switch_serial_number))
 
             if not policy_match:
+                # If bulk API was used and policy not found for non-host_11_1 template, raise error
+                # (per-switch method already handles this via exception in helper function)
+                if used_bulk_api and template_name != "host_11_1":
+                    err_msg = f"Policy for template {template_name} and switch {switch_serial_number} not found!"
+                    err_msg += f" Please ensure switch with serial number {switch_serial_number} is part of the fabric."
+                    results['failed'] = True
+                    results['msg'] = err_msg
+                    return results
+
+                # Policy not found - create it (only for host_11_1 template)
                 self.nd_policy_add(
                     switch_name=switch_match['name'],
                     switch_serial_number=switch_serial_number
