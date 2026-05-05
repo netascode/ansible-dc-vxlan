@@ -378,9 +378,9 @@ class ResourceDataBuilder:
             original_loader,
         ])
         templar.environment.loader = new_loader
+        old_vars = templar.available_variables
 
         try:
-            old_vars = templar.available_variables
             templar.available_variables = self.task_vars
 
             rendered = templar.template(

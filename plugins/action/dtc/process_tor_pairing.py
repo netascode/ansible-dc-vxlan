@@ -862,7 +862,7 @@ class ActionModule(ActionBase):
             # Nothing to do
             results['operation'] = operation
             results['msg'] = (
-                f'No pairings or leaf_serial_number provided — skipped'
+                'No pairings or leaf_serial_number provided — skipped'
             )
             return results
 

@@ -110,10 +110,10 @@ class ActionModule(ActionBase):
                                 link['profile']['peer2_freeform'] = p1_free
 
                         if 'templateName' not in existing_link:
-                            display.vvv(f"existing_links_check: → NOT REQUIRED (templateName missing)")
+                            display.vvv("existing_links_check: → NOT REQUIRED (templateName missing)")
                             not_required_links.append(link)
                         elif existing_link['templateName'] == 'int_pre_provision_intra_fabric_link':
-                            display.vvv(f"existing_links_check: → REQUIRED (pre-provision)")
+                            display.vvv("existing_links_check: → REQUIRED (pre-provision)")
                             required_links.append(link)
                         elif existing_link['templateName'] == 'int_intra_fabric_num_link':
                             # Populate additional fields from existing link
@@ -128,11 +128,11 @@ class ActionModule(ActionBase):
                                 link['profile']['enable_macsec'] = existing_link['nvPairs']['ENABLE_MACSEC']
                             else:
                                 link['profile']['enable_macsec'] = 'false'
-                            display.vvv(f"existing_links_check: → REQUIRED (num_link, enriched with IPs)")
+                            display.vvv("existing_links_check: → REQUIRED (num_link, enriched with IPs)")
                             required_links.append(link)
                         elif existing_link['templateName'] == 'int_intra_fabric_unnum_link':
                             link["template"] = "int_intra_fabric_unnum_link"
-                            display.vvv(f"existing_links_check: → REQUIRED (unnum_link)")
+                            display.vvv("existing_links_check: → REQUIRED (unnum_link)")
                             required_links.append(link)
                         else:
                             display.vvv(
@@ -141,7 +141,7 @@ class ActionModule(ActionBase):
                             )
                             not_required_links.append(link)
             if link not in required_links and link not in not_required_links:
-                display.vvv(f"existing_links_check: → REQUIRED (no existing match, new link)")
+                display.vvv("existing_links_check: → REQUIRED (no existing match, new link)")
                 required_links.append(link)
 
         display.vvv(

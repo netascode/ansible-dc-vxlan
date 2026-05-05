@@ -147,7 +147,7 @@ class ResourceManager(PipelineRunnerBase):
         _resolve_step_data naturally.
         """
         # Step 1: Resolve the fabric_links data (respecting diff_run)
-        data, _ = self._resolve_step_data(resource_name, step)
+        data, _state = self._resolve_step_data(resource_name, step)
         if not data:
             return {'changed': False, 'msg': 'No fabric links data to filter'}
 
