@@ -60,7 +60,7 @@ class ActionModule(ActionBase):
                 - used_bulk_api: Boolean indicating if bulk API was used
         """
         policies_dict = {}
-        
+
         # Try bulk API first (only if not already marked as unavailable)
         if self.bulk_api_available:
             try:
@@ -76,7 +76,7 @@ class ActionModule(ActionBase):
             except Exception as e:
                 # Bulk API not available or failed, mark it and fall back
                 self.bulk_api_available = False
-        
+
         # Fallback: Query each switch individually
         # Note: ndfc_get_switch_policy_using_template handles the host_11_1 special case
         for switch_serial_number in switch_serial_numbers:
@@ -88,7 +88,7 @@ class ActionModule(ActionBase):
                 template_name=template_name
             )
             policies_dict[switch_serial_number] = policy
-        
+
         return policies_dict, False
 
     def nd_policy_add(self, switch_name, switch_serial_number):
