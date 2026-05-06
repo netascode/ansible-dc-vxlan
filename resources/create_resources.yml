@@ -581,14 +581,14 @@ create_resources:
         - cr_manage_vrfs
         - cr_manage_networks
 
-    # - resource_name: bgw_anycast_vip
-    #   module: dcnm_resource_manager
-    #   state: merged
-    #   deploy: null
-    #   change_flag_guard: changes_detected_bgw_anycast_vip
-    #   tag:
-    #     - cr_manage_vrfs
-    #     - cr_manage_networks
+    - resource_name: bgw_anycast_vip
+      module: dcnm_resource_manager
+      state: merged
+      deploy: null
+      change_flag_guard: changes_detected_bgw_anycast_vip
+      tag:
+        - cr_manage_vrfs
+        - cr_manage_networks
 
     - resource_name: msite_build_overlay
       module: _msite_build_overlay
