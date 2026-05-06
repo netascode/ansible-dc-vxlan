@@ -20,7 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 - name: Fail if Data Model is not defined
   ansible.builtin.fail:
     msg: "Service Model Not Defined.  Role cisco.nac_dc_vxlan.validate Must Be Called First"
@@ -254,7 +253,7 @@
       vpc_peering: "{{ vpc_peering }}"
       vpc_domain_id_resource: "{{ vpc_domain_id_resource }}"
       vrf_config: "{{ vrf_config }}"
-      vrf_attach_config: "{{ vrf_attach_config }}"
+      vrf_loopback_config: "{{ vrf_loopback_config }}"
       underlay_ip_address: "{{ underlay_ip_address }}"
       # Diff Result Data
       fabric_links_diff_result: "{{ fabric_links_diff_result }}"
@@ -264,6 +263,7 @@
       vpc_peering_diff_result: "{{ vpc_peering_diff_result }}"
       vpc_domain_id_resource_diff_result: "{{ vpc_domain_id_resource_diff_result }}"
       vrf_diff_result: "{{ vrf_diff_result }}"
+      vrf_loopback_diff_result: "{{ vrf_loopback_diff_result }}"
       underlay_ip_address_diff_result: "{{ underlay_ip_address_diff_result }}"
 
 # --------------------------------------------------------------------

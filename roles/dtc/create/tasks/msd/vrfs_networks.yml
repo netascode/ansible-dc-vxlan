@@ -20,7 +20,6 @@
 # SPDX-License-Identifier: MIT
 
 ---
-
 - name: Manage VRFs and Networks Entry Point
   ansible.builtin.debug:
     msg:
@@ -99,6 +98,14 @@
     - (change_flags_msd.changes_detected_vrfs is defined and change_flags_msd.changes_detected_vrfs)
     - (msd_vrf_diff_result is defined and msd_vrf_diff_result.updated | length > 0)
 
+- name: Override VRF Loopback List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    vrf_loopback_config: "{{ msd_vrf_loopback_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
+    - (change_flags_msd.changes_detected_vrfs is defined and change_flags_msd.changes_detected_vrfs)
+    - (msd_vrf_loopback_diff_result is defined and msd_vrf_loopback_diff_result.updated | length > 0)
+
 - name: Override Networks List Based On Diff Run Settings
   ansible.builtin.set_fact:
     net_config: "{{ msd_network_diff_result.updated }}"
@@ -118,6 +125,7 @@
     update_data:
       vrf_config: "{{ vrf_config }}"
       net_config: "{{ net_config }}"
+      vrf_loopback_config: "{{ vrf_loopback_config }}"
 
 # With the VRFs and Networking pre-processed, we can now send the configuration for the MSD fabric to ND
 # based on the detected changes. This is done in the following tasks.
@@ -130,7 +138,7 @@
   when:
     - data_model_extended.vxlan.multisite.overlay.vrfs is defined
     - data_model_extended.vxlan.multisite.overlay.vrfs
-    - vars_common_msd.vrf_config | length > 0
+    - change_flags_msd.changes_detected_vrfs
   block:
     - name: Manage MSD Fabric VRFs in Nexus Dashboard
       cisco.dcnm.dcnm_vrf:
@@ -139,7 +147,7 @@
         config: "{{ vars_common_msd.vrf_config }}"
       register: manage_msd_vrf_result
       when:
-        - change_flags_msd.changes_detected_vrfs
+        - vars_common_msd.vrf_config | length > 0
 
     # --------------------------------------------------------------------
     # Manage Loopback VRF Attachments in Nexus Dashboard
@@ -149,9 +157,9 @@
       cisco.dcnm.dcnm_rest:
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
         method: POST
-        json_data: "{{ msd_vrf_attach_config | to_json }}"
+        json_data: "{{ vrf_loopback_config | to_json }}"
       when:
-        - msd_vrf_attach_config | length > 0
+        - vrf_loopback_config | length > 0
 
 # --------------------------------------------------------------------
 # Manage Network Configuration in Nexus Dashboard

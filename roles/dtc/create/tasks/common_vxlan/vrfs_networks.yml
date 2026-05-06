@@ -47,6 +47,15 @@
   when:
     - run_map_read_result.diff_run is true|bool
 
+- name: Initialize VRF Config List to All VRFs
+  ansible.builtin.set_fact:
+    vrf_loopback_config_list: "{{ vars_common_local.vrf_loopback_config }}"
+
+- name: Override VRF Loopback Config List Based On Diff Run Settings
+  ansible.builtin.set_fact:
+    vrf_loopback_config_list: "{{ vars_common_local.vrf_loopback_diff_result.updated }}"
+  when:
+    - run_map_read_result.diff_run is true|bool
 # --------------------------------------------------------------------
 # Manage VRF Configuration in Nexus Dashboard
 # --------------------------------------------------------------------
@@ -55,7 +64,7 @@
   when:
     - data_model_extended.vxlan.overlay.vrfs is defined
     - data_model_extended.vxlan.overlay.vrfs
-    - vrf_config_list | length > 0
+    - change_flags.changes_detected_vrfs
     - not is_active_child_fabric
   block:
     - name: Manage Fabric VRFs in Nexus Dashboard
@@ -65,7 +74,7 @@
         config: "{{ vrf_config_list }}"
       register: manage_vrf_result
       when:
-        - change_flags.changes_detected_vrfs
+        - vrf_config_list | length > 0
 
     # --------------------------------------------------------------------
     # Manage Loopback VRF Attachments in Nexus Dashboard
@@ -75,9 +84,9 @@
       cisco.dcnm.dcnm_rest:
         method: POST
         path: "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2/fabrics/{{ data_model_extended.vxlan.fabric.name }}/vrfs/attachments"
-        json_data: "{{ vars_common_local.vrf_attach_config | to_json }}"
+        json_data: "{{ vrf_loopback_config_list | to_json }}"
       when:
-        - vars_common_local.vrf_attach_config | length > 0
+        - vrf_loopback_config_list | length > 0
 
 # --------------------------------------------------------------------
 # Manage Network Configuration in Nexus Dashboard
