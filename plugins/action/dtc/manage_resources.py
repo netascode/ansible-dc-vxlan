@@ -264,7 +264,7 @@ class ResourceManager(PipelineRunnerBase):
                     priority, policy_vars vs nvPairs
 
         nvPairs internal keys excluded from comparison (auto-managed by NDFC):
-            FABRIC_NAME, POLICY_ID, POLICY_DESC, SECENTITY, SECENTTYPE
+            FABRIC_NAME, POLICY_ID, POLICY_DESC
 
         Args:
             resource_name: Resource identifier (policy).
@@ -359,7 +359,7 @@ class ResourceManager(PipelineRunnerBase):
             desired.policy_vars  <-> controller.nvPairs (filtered)
 
         nvPairs auto-managed keys excluded:
-            FABRIC_NAME, POLICY_ID, POLICY_DESC, SECENTITY, SECENTTYPE
+            FABRIC_NAME, POLICY_ID, POLICY_DESC
 
         Returns True if desired state differs from controller.
         """
@@ -387,7 +387,7 @@ class ResourceManager(PipelineRunnerBase):
 
         ndfc_internal_keys = {
             'FABRIC_NAME', 'POLICY_ID', 'POLICY_DESC',
-            'SECENTITY', 'SECENTTYPE', 'PRIORITY',
+            'PRIORITY',
         }
 
         # Desired vars must match controller
