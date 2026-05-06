@@ -53,7 +53,7 @@ class ActionModule(ActionBase):
     def _get_policies_with_fallback(self, fabric_name, template_name, switch_serial_numbers):
         """
         Get switch policies using bulk API if available, fallback to per-switch queries.
-        
+
         Returns:
             tuple: (policies_dict, used_bulk_api)
                 - policies_dict: Dictionary mapping serial_number to policy data (or None if not found)
