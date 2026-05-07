@@ -249,15 +249,10 @@ class ResourceManager(PipelineRunnerBase):
                 "msg": "Diff run active; skipping underlay IP audit",
             }
 
-        scope_filter = self.task_vars.get("underlay_ip_audit_scope_filter", "all")
-
         module_args = {
             "fabric": self.fabric_name,
             "desired_config": data,
-            "scope_filter": scope_filter,
         }
-        if "underlay_ip_audit_pools" in self.task_vars:
-            module_args["query_pools"] = self.task_vars["underlay_ip_audit_pools"]
 
         audit_result = self.executor.execute_plugin(
             module_name="cisco.nac_dc_vxlan.dtc.underlay_ip_manual_allocation_filter",

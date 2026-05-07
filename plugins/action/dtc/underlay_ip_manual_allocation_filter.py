@@ -49,6 +49,10 @@ The desired_config contains four allocation types:
      entity_name: "<serial>~Vlan3600"    pool: "10.4.1.0/31"
      The pool_name IS the allocated subnet from type 3 above.
 
+Matching strategy (two-tier):
+  Tier 1: Exact entity_name + pool_name match
+  Tier 2: Canonical link match for bidirectional links (sorted endpoints)
+
 Pools are auto-detected from desired_config pool_name values, or can be
 explicitly overridden via the query_pools argument.
 
@@ -251,95 +255,80 @@ class ActionModule(ActionBase):
         all_result = self._execute_ndfc_rest("GET", path, task_vars, tmp)
 
         query_errors = []
-        all_existing_items = []
         if all_result.get("failed"):
             query_errors.append({"path": path, "msg": all_result.get("msg")})
-        else:
-            response = all_result.get("response", {})
-            all_existing_items = _extract_resource_items(response)
 
-        display.vv(
-            f"underlay_ip_filter [{fabric}]: fetched {len(all_existing_items)} "
-            f"items from controller, pools={list(pools)}"
-        )
-
-        # === POOL AND SCOPE FILTERING OF BULK RESPONSE ===
-        filtered_existing_items = []
-        for item in all_existing_items:
-            pool_name = _get_field(
-                item,
-                "poolName",
-                "pool_name",
-                "pool",
-                nested_path=["resourcePool", "poolName"],
-            )
-            normalized_pool = _norm_pool(pool_name)
-            if pools and normalized_pool not in pools:
-                continue
-
-            scope_type = _get_field(item, "scopeType", "scope_type", "entityType")
-            normalized_scope = _norm_scope(scope_type)
-            if (
-                allowed_scopes
-                and normalized_scope
-                and normalized_scope not in allowed_scopes
-            ):
-                continue
-
-            filtered_existing_items.append(item)
-
-        display.vv(
-            f"underlay_ip_filter [{fabric}]: "
-            f"{len(filtered_existing_items)} items after pool/scope filter"
-        )
-
-        # === BUILD LOOKUP INDEXES ===
+        # === SINGLE-PASS: EXTRACT, FILTER, AND INDEX IN ONE TRAVERSAL ===
+        # Combines _extract_resource_items flattening, pool/scope filtering,
+        # and index building into one pass to avoid intermediate lists.
         existing_map = {}
         existing_link_map = {}
-        existing_pool_resource_set = set()
+        total_fetched = 0
+        total_filtered = 0
 
-        for item in filtered_existing_items:
-            entity_name = _get_field(item, "entityName", "entity_name")
-            if entity_name is None:
-                continue
+        if not query_errors:
+            response = all_result.get("response", {})
+            for item in _extract_resource_items(response):
+                total_fetched += 1
 
-            pool_name = _get_field(
-                item,
-                "poolName",
-                "pool_name",
-                "pool",
-                nested_path=["resourcePool", "poolName"],
-            )
-            resource_value = _get_field(
-                item, "resourceName", "resource", "value", "allocatedIp"
-            )
-            scope_type = _get_field(item, "scopeType", "scope_type", "entityType")
+                # Pool filter
+                pool_name = _get_field(
+                    item,
+                    "poolName",
+                    "pool_name",
+                    "pool",
+                    nested_path=["resourcePool", "poolName"],
+                )
+                normalized_pool = _norm_pool(pool_name)
+                if pools and normalized_pool not in pools:
+                    continue
 
-            normalized_entity = _norm_entity(entity_name)
-            normalized_pool = _norm_pool(pool_name)
-            normalized_resource = _norm_resource(resource_value)
-            normalized_scope = _norm_scope(scope_type)
+                # Scope filter
+                scope_type = _get_field(item, "scopeType", "scope_type", "entityType")
+                normalized_scope = _norm_scope(scope_type)
+                if (
+                    allowed_scopes
+                    and normalized_scope
+                    and normalized_scope not in allowed_scopes
+                ):
+                    continue
 
-            key = (normalized_entity, normalized_pool)
+                # Entity is required for indexing
+                entity_name = _get_field(item, "entityName", "entity_name")
+                if entity_name is None:
+                    continue
 
-            existing_map[key] = {
-                "entity": _norm_text(entity_name),
-                "pool": _norm_text(pool_name),
-                "resource": normalized_resource,
-                "scope": normalized_scope,
-                "raw_resource": _norm_text(resource_value),
-            }
+                total_filtered += 1
 
-            if normalized_scope == "link":
-                link_key = (_canonicalize_link_entity(entity_name), normalized_pool)
-                existing_link_map[link_key] = existing_map[key]
+                resource_value = _get_field(
+                    item, "resourceName", "resource", "value", "allocatedIp"
+                )
 
-            if normalized_pool and normalized_resource:
-                existing_pool_resource_set.add((normalized_pool, normalized_resource))
+                normalized_entity = _norm_entity(entity_name)
+                normalized_resource = _norm_resource(resource_value)
+
+                key = (normalized_entity, normalized_pool)
+
+                existing_map[key] = {
+                    "entity": _norm_text(entity_name),
+                    "pool": _norm_text(pool_name),
+                    "resource": normalized_resource,
+                    "scope": normalized_scope,
+                    "raw_resource": _norm_text(resource_value),
+                }
+
+                if normalized_scope == "link":
+                    link_key = (_canonicalize_link_entity(entity_name), normalized_pool)
+                    existing_link_map[link_key] = existing_map[key]
+
+        display.vv(
+            f"underlay_ip_filter [{fabric}]: fetched {total_fetched} "
+            f"items from controller, {total_filtered} after pool/scope filter"
+        )
+        display.vvv(f"underlay_ip_filter [{fabric}]: query pools={list(pools)}")
 
         # === DESIRED VS EXISTING COMPARISON ===
-        # Three-tier matching strategy: (1) exact entity+pool match, (2) canonical link match
-        # for bidirectional links, (3) pool+resource fallback for unmatched allocations.
+        # Two-tier matching: (1) exact entity+pool, (2) canonical link for bidirectional links.
         # Only items missing or mismatched are added to filtered_config for update.
         filtered_config = []
         missing_or_mismatch = []
@@ -360,7 +349,6 @@ class ActionModule(ActionBase):
             normalized_entity = _norm_entity(entity_name)
             normalized_scope = _norm_scope(scope_type)
 
-            # Skip items whose pool is not in the selected set
             if pools and normalized_pool not in pools:
                 continue
 
@@ -396,14 +384,6 @@ class ActionModule(ActionBase):
                 )
                 if existing is not None:
                     matched_by = "canonical_link"
-
-            # Tier 3: Pool+resource fallback (resource already allocated, entity may differ)
-            if (
-                existing is None
-                and (normalized_pool, expected_resource) in existing_pool_resource_set
-            ):
-                matched_count += 1
-                continue
 
             if existing is None:
                 filtered_config.append(item)
