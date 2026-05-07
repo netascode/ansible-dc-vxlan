@@ -279,7 +279,7 @@ class ActionModule(ActionBase):
 
         return None
 
-   def compare_policies(self, old_items, new_items):
+    def compare_policies(self, old_items, new_items):
         """
         Compare old and new policy data with nested switch-block structure.
 
