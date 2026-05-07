@@ -208,7 +208,7 @@ class ResourceManager(PipelineRunnerBase):
 
         return {'changed': False}
 
-   def _policy_remote_diff(self, resource_name, step):
+    def _policy_remote_diff(self, resource_name, step):
         """
         Two-phase policy diff: reduce policies sent to dcnm_policy module.
 
