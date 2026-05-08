@@ -108,7 +108,7 @@ class ActionModule(ActionBase):
             for sw in sb.get('switch', []):
                 count += len(sw.get('policies', []))
         return count
-    
+
     def write_comparison_results(self, compare_results):
         """
         Write comparison results to a unique file in the same directory as new_file_path.
@@ -331,8 +331,8 @@ class ActionModule(ActionBase):
             return True
         if desired.get('policy_vars') != previous.get('policy_vars'):
             return True
-        return False   
-    
+        return False
+
     def compare_items(self, old_items, new_items):
         """
         Compare old and new items, returning updated, removed, and equal items.
