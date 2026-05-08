@@ -205,7 +205,7 @@ class ResourceManager(PipelineRunnerBase):
         )
 
         return {'changed': False}
-      
+
     def _underlay_ip_remote_diff(self, resource_name, step):
         """
         Remote diff: reconcile underlay IP data model against controller state.
@@ -239,7 +239,7 @@ class ResourceManager(PipelineRunnerBase):
         Returns:
             dict with changed and optionally failed/msg keys.
         """
-        data, _ = self._resolve_step_data(resource_name, step)
+        data, _meta = self._resolve_step_data(resource_name, step)
         if not data:
             return {"changed": False, "msg": "No underlay_ip_address data to audit"}
 
@@ -294,6 +294,7 @@ class ResourceManager(PipelineRunnerBase):
                     f"actual={entry.get('actual')}"
                 )
         return {"changed": False}
+
 
 class ActionModule(DtcPipelineActionBase):
     """
