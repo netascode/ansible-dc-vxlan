@@ -241,7 +241,9 @@ class ResourceManager(PipelineRunnerBase):
         Returns:
             dict with changed and optionally failed/msg keys.
         """
-        data, _state = self._resolve_step_data(resource_name, step)
+
+        data, _meta = self._resolve_step_data(resource_name, step)
+
         if not data:
             return {"changed": False, "msg": "No underlay_ip_address data to audit"}
 
@@ -612,6 +614,7 @@ class ResourceManager(PipelineRunnerBase):
             self.resource_data[resource_name] = {
                 'module_data': filtered_config,
             }
+
 
 class ActionModule(DtcPipelineActionBase):
     """
