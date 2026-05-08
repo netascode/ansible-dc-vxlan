@@ -143,7 +143,6 @@ class ActionModule(ActionBase):
                     if self.new_file_path.endswith('ndfc_policy.yml')
                     else len(compare_results.get('equal', [])),
             },
-            },
             'updated_items': compare_results.get('updated', []),
             'removed_items': compare_results.get('removed', []),
             'equal_items': compare_results.get('equal', [])

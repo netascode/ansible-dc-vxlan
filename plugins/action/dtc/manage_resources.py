@@ -208,6 +208,95 @@ class ResourceManager(PipelineRunnerBase):
 
         return {'changed': False}
 
+    def _underlay_ip_remote_diff(self, resource_name, step):
+        """
+        Remote diff: reconcile underlay IP data model against controller state.
+
+        This method implements Phase 2 of the two-phase comparison:
+
+        Phase 1 - Local YAML Comparison (handled by common/files):
+            Compares the previous and current rendered YAML
+            (ndfc_underlay_ip_address.yml) to detect local data model changes.
+            Output: diff.updated entries for changed resources.
+
+            Example: user changes loopback0 ipv4 from 10.1.0.1/32
+            to 10.1.0.2/32 in the data model -> Phase 1 detects the diff.
+
+        Phase 2 - Controller Reconciliation (this method):
+            Queries the controller (ND) pool resources via
+            underlay_ip_manual_allocation_filter and compares against the desired config.
+            Reduces module_data to only entries needing controller updates.
+
+            Example: 5 switches in data model, but 2 already have the
+            correct pool allocation on the controller -> filtered_config
+            returns only the 3 that need updates.
+
+        In diff_run mode the local YAML diff (Phase 1) already narrows scope,
+        so Phase 2 is skipped to avoid redundant controller queries.
+
+        Args:
+            resource_name: Resource identifier (e.g. underlay_ip_address).
+            step: Pipeline step dict from create_resources.yml.
+
+        Returns:
+            dict with changed and optionally failed/msg keys.
+        """
+        data, _ = self._resolve_step_data(resource_name, step)
+        if not data:
+            return {"changed": False, "msg": "No underlay_ip_address data to audit"}
+
+        if self.run_map_diff_run:
+            return {
+                "changed": False,
+                "msg": "Diff run active; skipping underlay IP audit",
+            }
+
+        module_args = {
+            "fabric": self.fabric_name,
+            "desired_config": data,
+        }
+
+        audit_result = self.executor.execute_plugin(
+            module_name="cisco.nac_dc_vxlan.dtc.underlay_ip_manual_allocation_filter",
+            module_args=module_args,
+        )
+
+        if audit_result.get("failed"):
+            return {
+                "failed": True,
+                "msg": audit_result.get(
+                    "msg", "underlay_ip_manual_allocation_filter failed"
+                ),
+            }
+
+        filtered_config = audit_result.get("filtered_config", [])
+        resource_entry = self.resource_data.get(resource_name, {})
+        if isinstance(resource_entry, dict):
+            resource_entry["module_data"] = filtered_config
+        else:
+            self.resource_data[resource_name] = {
+                "module_data": filtered_config,
+            }
+
+        display.v(
+            f"CREATE [{self.fabric_name}] underlay_ip_address: "
+            f"{len(data)} configured → {len(filtered_config)} after audit"
+        )
+        if display.verbosity >= 2:
+            matched = audit_result.get("matched_total", 0)
+            display.vv(
+                f"CREATE [{self.fabric_name}] underlay_ip_address: "
+                f"{matched} matched controller, {len(filtered_config)} need update"
+            )
+        if display.verbosity >= 3:
+            for entry in audit_result.get("missing_or_mismatch", []):
+                display.vvv(
+                    f"  [{self.fabric_name}] {entry.get('reason')}: "
+                    f"entity={entry.get('entity')} expected={entry.get('expected')} "
+                    f"actual={entry.get('actual')}"
+                )
+        return {"changed": False}
+
     def _policy_remote_diff(self, resource_name, step):
         """
         Two-phase policy diff: reduce policies sent to dcnm_policy module.
@@ -220,8 +309,8 @@ class ResourceManager(PipelineRunnerBase):
             switch block is sent to dcnm_policy.
 
         Phase 2 - Controller Reconciliation (diff_run=false):
-            Queries NDFC pagination API for all nac_ policies in the
-            fabric and compares against desired rendered config.
+            Queries NDFC per-switch API for all nac_ policies on the
+            managed switches and compares against desired rendered config.
 
             Example: 200 total policies, 180 match controller
             -> only 20 sent to dcnm_policy.
@@ -248,23 +337,145 @@ class ResourceManager(PipelineRunnerBase):
 
         return self._policy_controller_diff(resource_name, data)
 
+    def _get_ip_to_serial_map(self):
+        """
+        Build a mapping of switch IP address to serial number.
+
+        Uses the centralized fabric_switches fact if available, otherwise
+        queries the controller inventory API.
+
+        Returns:
+            Dict mapping ipAddress -> serialNumber.
+        """
+        switches = self.task_vars.get("fabric_switches", [])
+        if switches and isinstance(switches, list):
+            ip_map = {}
+            for sw in switches:
+                ip = sw.get("ipAddress", "")
+                serial = sw.get("serialNumber", "")
+                if ip and serial:
+                    ip_map[ip] = serial
+            if ip_map:
+                display.vvv(
+                    f"CREATE [{self.fabric_name}] ip_to_serial from "
+                    f"fabric_switches fact: {len(ip_map)} switches"
+                )
+                return ip_map
+
+        # Fall back to querying the controller
+        result = self.executor.execute_rest(
+            "GET",
+            "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
+            f"/fabrics/{self.fabric_name}/inventory/switchesByFabric",
+        )
+
+        ip_map = {}
+        try:
+            data = result.get("response", {}).get("DATA", [])
+            if isinstance(data, list):
+                for sw in data:
+                    ip = sw.get("ipAddress", "")
+                    serial = sw.get("serialNumber", "")
+                    if ip and serial:
+                        ip_map[ip] = serial
+        except (KeyError, TypeError, AttributeError):
+            pass
+
+        display.vvv(
+            f"CREATE [{self.fabric_name}] ip_to_serial from "
+            f"controller query: {len(ip_map)} switches"
+        )
+        return ip_map
+
+    def _fetch_policies_by_serials(self, serial_numbers):
+        """
+        Fetch policies for specific switches via per-switch API.
+
+        API: GET /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/
+             policies/switches?serialNumber=<comma-separated>
+
+        Chunks serial numbers into groups of 20 to avoid URL length issues.
+
+        Args:
+            serial_numbers: List of switch serial number strings.
+
+        Returns:
+            List of policy dicts from the controller.
+        """
+        chunk_size = 20
+        all_policies = []
+
+        for i in range(0, len(serial_numbers), chunk_size):
+            chunk = serial_numbers[i : i + chunk_size]
+            serials_param = ",".join(chunk)
+            api_path = (
+                "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
+                f"/policies/switches?serialNumber={serials_param}"
+            )
+
+            display.vvv(
+                f"CREATE [{self.fabric_name}] fetching policies for "
+                f"{len(chunk)} switches (chunk {i // chunk_size + 1})"
+            )
+
+            result = self.executor.execute_rest("GET", api_path)
+            if result.get("failed"):
+                display.warning(
+                    f"Per-switch policy query failed for chunk: "
+                    f"{result.get('msg', 'unknown')}"
+                )
+                continue
+
+            policies = self._parse_policy_response(result)
+            all_policies.extend(policies)
+
+        display.vvv(
+            f"CREATE [{self.fabric_name}] fetched {len(all_policies)} "
+            f"policies for {len(serial_numbers)} switches"
+        )
+        return all_policies
+
+    def _parse_policy_response(self, query_result):
+        """
+        Parse REST response into a list of policy dicts.
+
+        Handles string, dict (with DATA key), and list response formats.
+
+        Args:
+            query_result: Raw result from execute_rest.
+
+        Returns:
+            List of policy dicts.
+        """
+        response_data = query_result.get("response", {})
+        if isinstance(response_data, str):
+            try:
+                response_data = json.loads(response_data)
+            except (json.JSONDecodeError, TypeError):
+                return []
+
+        if isinstance(response_data, dict):
+            return response_data.get("DATA", [])
+        elif isinstance(response_data, list):
+            return response_data
+        return []
+
     def _policy_controller_diff(self, resource_name, desired_config):
         """
         Phase 2: Compare desired policies against NDFC controller state.
 
-        Queries the pagination API for all policies in the fabric, filters
-        to nac_ managed policies, and compares against desired config.
+        Queries per-switch API using serial numbers resolved from
+        desired_config switch IPs. Bounds the diff to only the switches
+        NAC is managing.
 
-        API: GET /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/
-             policies/pagination?fabricName={fabricName}
+        If no serial numbers can be resolved (unexpected), logs a warning
+        and returns early — the full config will be sent to dcnm_policy
+        without pre-filtering.
 
         Comparison:
             Key: (switch_ip, description)
             Fields: template name (name vs templateName),
                     priority, policy_vars vs nvPairs
-
-        nvPairs internal keys excluded from comparison (auto-managed by NDFC):
-            FABRIC_NAME, POLICY_ID, POLICY_DESC
 
         Args:
             resource_name: Resource identifier (policy).
@@ -273,35 +484,31 @@ class ResourceManager(PipelineRunnerBase):
         Returns:
             dict with changed and optionally failed/msg keys.
         """
-        api_path = (
-            "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/"
-            f"pagination?fabricName={self.fabric_name}"
-        )
+        # Extract unique switch IPs from desired config
+        target_ips = set()
+        for switch_block in desired_config:
+            for sw in switch_block.get('switch', []):
+                ip = sw.get('ip', '')
+                if ip:
+                    target_ips.add(ip)
 
-        query_result = self.executor.execute_rest("GET", api_path)
+        # Resolve IPs to serial numbers for per-switch query
+        ip_serial_map = self._get_ip_to_serial_map()
+        target_serials = [ip_serial_map[ip] for ip in target_ips if ip in ip_serial_map]
 
-        if query_result.get('failed'):
+        if not target_serials:
             display.warning(
-                f"Policy pagination query failed: "
-                f"{query_result.get('msg', 'unknown')}. Keeping all policies."
+                f"CREATE [{self.fabric_name}] policy controller diff: "
+                f"no serial numbers resolved for {len(target_ips)} switch IPs. "
+                f"Skipping pre-filter — full config will be sent to dcnm_policy."
             )
             return {'changed': False}
 
-        # Parse controller response
-        response_data = query_result.get('response', {})
-        if isinstance(response_data, str):
-            try:
-                response_data = json.loads(response_data)
-            except (json.JSONDecodeError, TypeError):
-                display.warning("Failed to parse policy pagination response")
-                return {'changed': False}
-
-        if isinstance(response_data, dict):
-            controller_policies = response_data.get('DATA', [])
-        elif isinstance(response_data, list):
-            controller_policies = response_data
-        else:
-            controller_policies = []
+        display.vvv(
+            f"CREATE [{self.fabric_name}] policy diff using per-switch API "
+            f"for {len(target_serials)} switches"
+        )
+        controller_policies = self._fetch_policies_by_serials(target_serials)
 
         # Build lookup: {(ipAddress, description): controller_policy}
         # Only nac_ managed policies with empty source (user-created)
@@ -358,9 +565,6 @@ class ResourceManager(PipelineRunnerBase):
             desired.priority     <-> controller.priority
             desired.policy_vars  <-> controller.nvPairs (filtered)
 
-        nvPairs auto-managed keys excluded:
-            FABRIC_NAME, POLICY_ID, POLICY_DESC
-
         Returns True if desired state differs from controller.
         """
         desc = desired.get('description', '?')
@@ -385,10 +589,6 @@ class ResourceManager(PipelineRunnerBase):
         desired_vars = desired.get('policy_vars') or {}
         ctrl_nv = controller.get('nvPairs', {})
 
-        ndfc_internal_keys = {
-            'FABRIC_NAME', 'POLICY_ID', 'POLICY_DESC',
-            'PRIORITY',
-        }
 
         # Desired vars must match controller
         for key, val in desired_vars.items():
