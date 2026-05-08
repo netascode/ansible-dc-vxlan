@@ -129,19 +129,26 @@ class ActionModule(ActionBase):
         output_path = os.path.join(output_dir, output_filename)
 
         # Prepare the data to write
+        is_policy = self.new_file_path.endswith('ndfc_policy.yml')
         output_data = {
             'comparison_summary': {
                 'timestamp': datetime.datetime.now().isoformat(),
                 'source_file': self.new_file_path,
-                'total_updated': self._count_policies(compare_results.get('updated', []))
-                    if self.new_file_path.endswith('ndfc_policy.yml')
-                    else len(compare_results.get('updated', [])),
-                'total_removed': self._count_policies(compare_results.get('removed', []))
-                    if self.new_file_path.endswith('ndfc_policy.yml')
-                    else len(compare_results.get('removed', [])),
-                'total_equal': self._count_policies(compare_results.get('equal', []))
-                    if self.new_file_path.endswith('ndfc_policy.yml')
-                    else len(compare_results.get('equal', [])),
+                'total_updated': (
+                    self._count_policies(compare_results.get('updated', []))
+                    if is_policy
+                    else len(compare_results.get('updated', []))
+                ),
+                'total_removed': (
+                    self._count_policies(compare_results.get('removed', []))
+                    if is_policy
+                    else len(compare_results.get('removed', []))
+                ),
+                'total_equal': (
+                    self._count_policies(compare_results.get('equal', []))
+                    if is_policy
+                    else len(compare_results.get('equal', []))
+                ),
             },
             'updated_items': compare_results.get('updated', []),
             'removed_items': compare_results.get('removed', []),
