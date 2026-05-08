@@ -190,9 +190,7 @@ class ResourceManager(PipelineRunnerBase):
                 ),
             }
 
-        # Step 4: Update resource data with filtered links
-        # Value-level profile comparison is now done inside existing_links_check
-        # during endpoint matching — no second pass needed.
+        # Step 4: Update resource_data so the next step picks up filtered links
         required_links = filter_result.get('required_links', [])
 
         resource_entry = self.resource_data.get('fabric_links', {})
