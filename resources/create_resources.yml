@@ -46,7 +46,11 @@
 #                         — all paths must be truthy for the step to run.
 #   change_flag_guard:    (optional) Change flag name from build_resource_data.
 #                         Step is skipped if this flag is False. Use null
-#                         for steps that should always run.
+#                         for steps that should always run. Steps that use
+#                         runtime_change_refs should set this to null — the
+#                         upstream steps' own guards provide build-time
+#                         filtering, and runtime_change_refs provides the
+#                         runtime gate.
 #   runtime_change_refs:  (optional) List of prior resource_names. Step is
 #                         skipped if none of them returned changed=true at
 #                         runtime. Used for config_save after a group of steps.
@@ -90,6 +94,13 @@ create_resources:
       tag: cr_manage_switches
 
     - resource_name: underlay_ip_address
+      module: _underlay_ip_remote_diff
+      state: null
+      data_model_guard: vxlan.underlay.general.manual_underlay_allocation
+      change_flag_guard: changes_detected_underlay_ip_address
+      tag: cr_manage_switches
+
+    - resource_name: underlay_ip_address
       module: dcnm_resource_manager
       state: merged
       deploy: null
@@ -107,8 +118,10 @@ create_resources:
     - resource_name: inventory_config_save
       module: _config_save
       state: null
-      change_flag_guard: changes_detected_inventory
+      change_flag_guard: null
+      data_model_guard: vxlan.topology.switches
       runtime_change_refs:
+        - fabric
         - inventory
         - underlay_ip_address
         - update_switch_hostname_policy
@@ -145,7 +158,7 @@ create_resources:
       module: _config_save
       state: null
       data_model_guard: vxlan.topology.vpc_peers
-      change_flag_guard: changes_detected_vpc_peering
+      change_flag_guard: null
       runtime_change_refs:
         - vpc_domain_id_resource
         - vpc_fabric_peering_links
@@ -163,7 +176,7 @@ create_resources:
       module: _config_save
       state: null
       data_model_guard: vxlan.topology.tor_pairing
-      change_flag_guard: changes_detected_tor_pairing
+      change_flag_guard: null
       runtime_change_refs:
         - tor_pairing
       tag: cr_manage_tor_pairing
@@ -175,12 +188,12 @@ create_resources:
       change_flag_guard: changes_detected_interfaces
       tag: cr_manage_interfaces
 
-  #   - resource_name: edge_connections
-  #     module: dcnm_policy
-  #     state: merged
-  #     deploy: false
-  #     change_flag_guard: changes_detected_edge_connections
-  #     tag: cr_manage_edge_connections
+    - resource_name: edge_connections
+      module: dcnm_policy
+      state: merged
+      deploy: false
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
 
     - resource_name: vrfs
       module: dcnm_vrf
@@ -211,7 +224,7 @@ create_resources:
       change_flag_guard: changes_detected_networks
       tag: cr_manage_networks
 
-    - resource_name: process_fabric_links
+    - resource_name: fabric_links
       module: _fabric_links_query_and_filter
       state: null
       data_model_guard: vxlan.topology.fabric_links
@@ -242,7 +255,9 @@ create_resources:
       deploy: false
       data_model_guard:
         - vxlan.topology.switches
-        - vxlan.policy
+        - vxlan.policy.policies
+        - vxlan.policy.groups
+        - vxlan.policy.switches
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
@@ -255,6 +270,7 @@ create_resources:
       state: merged
       fabric_param: null
       deploy: null
+      skip_validation: true
       change_flag_guard: changes_detected_fabric
       tag: cr_manage_fabric
 
@@ -277,8 +293,9 @@ create_resources:
     - resource_name: inventory_config_save
       module: _config_save
       state: null
-      change_flag_guard: changes_detected_inventory
+      change_flag_guard: null
       runtime_change_refs:
+        - fabric
         - inventory
         - update_switch_hostname_policy
       tag: cr_manage_switches
@@ -314,7 +331,7 @@ create_resources:
       module: _config_save
       state: null
       data_model_guard: vxlan.topology.vpc_peers
-      change_flag_guard: changes_detected_vpc_peering
+      change_flag_guard: null
       runtime_change_refs:
         - vpc_domain_id_resource
         - vpc_fabric_peering_links
@@ -332,7 +349,7 @@ create_resources:
       module: _config_save
       state: null
       data_model_guard: vxlan.topology.tor_pairing
-      change_flag_guard: changes_detected_tor_pairing
+      change_flag_guard: null
       runtime_change_refs:
         - tor_pairing
       tag: cr_manage_tor_pairing
@@ -388,7 +405,9 @@ create_resources:
       deploy: false
       data_model_guard:
         - vxlan.topology.switches
-        - vxlan.policy
+        - vxlan.policy.policies
+        - vxlan.policy.groups
+        - vxlan.policy.switches
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
@@ -401,6 +420,7 @@ create_resources:
       state: merged
       fabric_param: null
       deploy: null
+      skip_validation: true
       change_flag_guard: changes_detected_fabric
       tag: cr_manage_fabric
 
@@ -422,8 +442,9 @@ create_resources:
     - resource_name: inventory_config_save
       module: _config_save
       state: null
-      change_flag_guard: changes_detected_inventory
+      change_flag_guard: null
       runtime_change_refs:
+        - fabric
         - inventory
         - update_switch_hostname_policy
       tag: cr_manage_switches
@@ -470,6 +491,7 @@ create_resources:
       state: merged
       fabric_param: null
       deploy: null
+      skip_validation: true
       change_flag_guard: changes_detected_fabric
       tag: cr_manage_fabric
 
@@ -491,8 +513,9 @@ create_resources:
     - resource_name: inventory_config_save
       module: _config_save
       state: null
-      change_flag_guard: changes_detected_inventory
+      change_flag_guard: null
       runtime_change_refs:
+        - fabric
         - inventory
         - update_switch_hostname_policy
       tag: cr_manage_switches
@@ -524,7 +547,7 @@ create_resources:
     - resource_name: vpc_config_save
       module: _config_save
       state: null
-      change_flag_guard: changes_detected_vpc_peering
+      change_flag_guard: null
       runtime_change_refs:
         - vpc_domain_id_resource
         - vpc_fabric_peering_links
@@ -580,14 +603,14 @@ create_resources:
       module: _manage_child_fabrics
       state: null
       data_model_guard: vxlan.multisite.child_fabrics
-      change_flag_guard: changes_detected_fabric
+      change_flag_guard: changes_detected_child_fabrics
       tag: cr_manage_fabric
 
     - resource_name: child_fabric_config_save
       module: _config_save
       state: null
       data_model_guard: vxlan.multisite.child_fabrics
-      change_flag_guard: changes_detected_fabric
+      change_flag_guard: null
       runtime_change_refs:
         - child_fabrics
       tag: cr_manage_switches
@@ -601,14 +624,14 @@ create_resources:
         - cr_manage_vrfs
         - cr_manage_networks
 
-    # - resource_name: bgw_anycast_vip
-    #   module: dcnm_resource_manager
-    #   state: merged
-    #   deploy: null
-    #   change_flag_guard: changes_detected_bgw_anycast_vip
-    #   tag:
-    #     - cr_manage_vrfs
-    #     - cr_manage_networks
+    - resource_name: bgw_anycast_vip
+      module: dcnm_resource_manager
+      state: merged
+      deploy: null
+      change_flag_guard: changes_detected_bgw_anycast_vip
+      tag:
+        - cr_manage_vrfs
+        - cr_manage_networks
 
     - resource_name: msite_build_overlay
       module: _msite_build_overlay
@@ -642,59 +665,72 @@ create_resources:
       change_flag_guard: changes_detected_networks
       tag: cr_manage_networks
 
-  # # ──────────────────────────────────────────────────────────────────────────
-  # # MCFG — Similar to MSD but no BGW anycast VIP
-  # # ──────────────────────────────────────────────────────────────────────────
-  # MCFG:
-  #   - resource_name: fabric
-  #     module: dcnm_fabric_group
-  #     state: merged
-  #     fabric_param: null
-  #     deploy: null
-  #     change_flag_guard: changes_detected_fabric
-  #     tag: cr_manage_fabric
+  # ──────────────────────────────────────────────────────────────────────────
+  # MCFG — Similar to MSD but no BGW anycast VIP
+  # ──────────────────────────────────────────────────────────────────────────
+  MCFG:
+    - resource_name: fabric
+      module: dcnm_fabric_group
+      state: merged
+      fabric_param: null
+      deploy: null
+      change_flag_guard: changes_detected_fabric
+      tag: cr_manage_fabric
 
-  #   - resource_name: null
-  #     module: _manage_child_fabrics
-  #     state: null
-  #     change_flag_guard: null
-  #     tag: cr_manage_fabric
+    - resource_name: child_fabrics
+      module: _manage_child_fabrics
+      state: null
+      data_model_guard: vxlan.multisite.child_fabrics
+      change_flag_guard: changes_detected_child_fabrics
+      tag: cr_manage_fabric
 
-  #   - resource_name: null
-  #     module: _prepare_msite_data
-  #     state: null
-  #     change_flag_guard: null
-  #     tag:
-  #       - cr_manage_vrfs
-  #       - cr_manage_networks
+    - resource_name: child_fabric_config_save
+      module: _config_save
+      state: null
+      data_model_guard: vxlan.multisite.child_fabrics
+      change_flag_guard: null
+      runtime_change_refs:
+        - fabric
+        - child_fabrics
+      tag: cr_manage_fabric
 
-  #   - resource_name: msite_build_overlay
-  #     module: _msite_build_overlay
-  #     state: null
-  #     change_flag_guard: null
-  #     tag:
-  #       - cr_manage_vrfs
-  #       - cr_manage_networks
+    - resource_name: prepare_msite_data
+      module: _prepare_msite_data
+      state: null
+      data_model_guard: vxlan.multisite.child_fabrics
+      change_flag_guard: null
+      tag:
+        - cr_manage_vrfs
+        - cr_manage_networks
 
-  #   - resource_name: vrfs
-  #     module: dcnm_vrf
-  #     state: replaced
-  #     deploy: null
-  #     data_model_guard: vxlan.multisite.overlay.vrfs
-  #     change_flag_guard: changes_detected_vrfs
-  #     tag: cr_manage_vrfs
+    - resource_name: msite_build_overlay
+      module: _msite_build_overlay
+      state: null
+      data_model_guard: vxlan.multisite.overlay
+      change_flag_guard: null
+      tag:
+        - cr_manage_vrfs
+        - cr_manage_networks
 
-  #   - resource_name: vrf_loopback_attach
-  #     module: _vrf_loopback_attach
-  #     state: null
-  #     data_model_guard: vxlan.multisite.overlay.vrfs
-  #     change_flag_guard: changes_detected_vrfs
-  #     tag: cr_manage_vrfs
+    - resource_name: vrfs
+      module: dcnm_vrf
+      state: replaced
+      deploy: null
+      data_model_guard: vxlan.multisite.overlay.vrfs
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
 
-  #   - resource_name: networks
-  #     module: dcnm_network
-  #     state: replaced
-  #     deploy: null
-  #     data_model_guard: vxlan.multisite.overlay.networks
-  #     change_flag_guard: changes_detected_networks
-  #     tag: cr_manage_networks
+    - resource_name: vrf_loopback_attach
+      module: _vrf_loopback_attach
+      state: null
+      data_model_guard: vxlan.multisite.overlay.vrfs
+      change_flag_guard: changes_detected_vrfs
+      tag: cr_manage_vrfs
+
+    - resource_name: networks
+      module: dcnm_network
+      state: replaced
+      deploy: null
+      data_model_guard: vxlan.multisite.overlay.networks
+      change_flag_guard: changes_detected_networks
+      tag: cr_manage_networks

@@ -149,7 +149,7 @@ class ResourceManager(PipelineRunnerBase):
         _resolve_step_data naturally.
         """
         # Step 1: Resolve the fabric_links data (respecting diff_run)
-        data, _ = self._resolve_step_data(resource_name, step)
+        data, _state = self._resolve_step_data(resource_name, step)
         if not data:
             return {'changed': False, 'msg': 'No fabric links data to filter'}
 
@@ -241,7 +241,7 @@ class ResourceManager(PipelineRunnerBase):
         Returns:
             dict with changed and optionally failed/msg keys.
         """
-        data, _ = self._resolve_step_data(resource_name, step)
+        data, _state = self._resolve_step_data(resource_name, step)
         if not data:
             return {"changed": False, "msg": "No underlay_ip_address data to audit"}
 
@@ -325,7 +325,7 @@ class ResourceManager(PipelineRunnerBase):
         Returns:
             dict with changed and optionally failed/msg keys.
         """
-        data, _ = self._resolve_step_data(resource_name, step)
+        data, _state = self._resolve_step_data(resource_name, step)
         if not data:
             return {'changed': False, 'msg': 'No policy data to filter'}
 

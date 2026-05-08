@@ -79,8 +79,8 @@ class ResourceDataBuilder:
         self.fabric_name = params['fabric_name']
         self.data_model = params['data_model']
         self.role_path = params['role_path']
-        self.run_map_diff_run = params.get('run_map_diff_run', True)
-        self.force_run_all = params.get('force_run_all', False)
+        self.run_map_diff_run = self._to_bool(params.get('run_map_diff_run', True))
+        self.force_run_all = self._to_bool(params.get('force_run_all', False))
         self.check_roles = params.get('check_roles', {})
         self.resource_filter = params.get('resource_filter', None)
 
@@ -106,7 +106,19 @@ class ResourceDataBuilder:
         # Collected results
         self.resource_data = {}
         self.change_flags = {}
-        self.diff_results = {}
+
+    @staticmethod
+    def _to_bool(value):
+        """Convert Ansible bool-like values into real booleans."""
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.lower() in ('1', 'true', 'yes', 'on')
+        return bool(value)
+
+    def _should_run_structural_diff(self, diff_compare):
+        """Structural diff data is only consumed during targeted diff runs."""
+        return bool(diff_compare) and self.run_map_diff_run and not self.force_run_all
 
     def build(self):
         """
@@ -119,7 +131,6 @@ class ResourceDataBuilder:
             dict with:
               - 'resource_data': Dict of rendered data keyed by resource_name
               - 'change_flags': Dict of change flag states
-              - 'diff_results': Dict of structural diff results
               - 'namespace': Fabric type namespace name
               - 'failed': Boolean
               - 'msg': Summary message
@@ -164,7 +175,6 @@ class ResourceDataBuilder:
                     return {
                         'resource_data': self.resource_data,
                         'change_flags': self.change_flags,
-                        'diff_results': self.diff_results,
                         'namespace': self.namespace,
                         'results': step_results,
                         'failed': True,
@@ -181,7 +191,6 @@ class ResourceDataBuilder:
                     return {
                         'resource_data': self.resource_data,
                         'change_flags': self.change_flags,
-                        'diff_results': self.diff_results,
                         'namespace': self.namespace,
                         'results': step_results,
                         'failed': True,
@@ -206,12 +215,22 @@ class ResourceDataBuilder:
                 return {
                     'resource_data': self.resource_data,
                     'change_flags': self.change_flags,
-                    'diff_results': self.diff_results,
                     'namespace': self.namespace,
                     'results': step_results,
                     'failed': True,
                     'msg': f"Build failed at step '{resource_name}': {result.get('msg', '')}",
                 }
+
+        # ── MSD/MCFG deferred overlay change detection ───────────────
+        # VRF/network overlay data for MSD/MCFG is not rendered during the
+        # common-phase build (deferred to _msite_build_overlay in the
+        # create/remove pipeline). However, we must detect overlay data model
+        # changes here so that changes_detected_any correctly gates the
+        # pipeline. Without this, adding VRFs/networks to MSD for the first
+        # time (or modifying them) would leave changes_detected_any=False
+        # and skip the entire create pipeline.
+        if not self.resource_filter and self.fabric_type in ('MSD', 'MCFG'):
+            self._detect_msite_overlay_changes()
 
         # Compute aggregate change flag
         self.change_flags['changes_detected_any'] = any(self.change_flags.values())
@@ -219,7 +238,6 @@ class ResourceDataBuilder:
         return {
             'resource_data': self.resource_data,
             'change_flags': self.change_flags,
-            'diff_results': self.diff_results,
             'namespace': self.namespace,
             'results': step_results,
             'failed': False,
@@ -281,9 +299,8 @@ class ResourceDataBuilder:
 
         # ── Step 6: Structural diff (diff_compare) ───────────────────
         diff_result = None
-        if diff_compare:
+        if self._should_run_structural_diff(diff_compare):
             diff_result = self._run_diff_compare(old_file_path, output_file_path)
-            self.diff_results[resource_name] = diff_result
 
         # ── Step 7: MD5 diff for change detection ─────────────────────
         file_changed = self._run_diff_model_changes(old_file_path, output_file_path)
@@ -296,7 +313,8 @@ class ResourceDataBuilder:
         # module_data is the authoritative data for downstream NDFC module calls.
         # Default is the raw rendered template data. Post-hooks can override this
         # by returning a 'module_data' key in their result dict (convention).
-        resource_entry = {'data': data, 'module_data': data, 'var_name': var_name}
+        module_data = data
+        resource_entry = {'data': data, 'var_name': var_name}
         if diff_result is not None:
             resource_entry['diff'] = diff_result
 
@@ -308,8 +326,11 @@ class ResourceDataBuilder:
             # inventory from get_credentials).
             for hook_result in pre_hook_data.values():
                 if isinstance(hook_result, dict) and 'module_data' in hook_result:
-                    resource_entry['module_data'] = hook_result['module_data']
+                    module_data = hook_result['module_data']
                     break
+
+        if module_data is not data:
+            resource_entry['module_data'] = module_data
 
         self.resource_data[resource_name] = resource_entry
 
@@ -357,9 +378,9 @@ class ResourceDataBuilder:
             original_loader,
         ])
         templar.environment.loader = new_loader
+        old_vars = templar.available_variables
 
         try:
-            old_vars = templar.available_variables
             templar.available_variables = self.task_vars
 
             rendered = templar.template(
@@ -429,6 +450,114 @@ class ResourceDataBuilder:
             return False
 
         return True
+
+    def _detect_msite_overlay_changes(self):
+        """
+        Detect changes in MSD/MCFG multisite overlay data model.
+
+        VRF/network overlay resources for MSD/MCFG are built at pipeline
+        execution time by _msite_build_overlay, not during common-phase.
+        This method serializes the ENTIRE multisite overlay section of the
+        data model (including vrf_attach_groups and network_attach_groups)
+        to a sentinel file and compares against the previous version.
+
+        When a change is detected, sets BOTH the aggregate flag
+        (changes_detected_msite_overlay) AND per-resource flags
+        (changes_detected_vrfs, changes_detected_networks) so that
+        downstream pipeline steps pass their change_flag_guard checks.
+
+        Also cleans up the deferred build cache file from any prior
+        pipeline run in this playbook execution.
+        """
+        # Clean up deferred build cache from prior pipeline runs so that
+        # each playbook run starts with a fresh cache.
+        cache_file = os.path.join(self.output_path, '_msite_overlay_cache.json')
+        if os.path.exists(cache_file):
+            os.remove(cache_file)
+
+        overlay = (
+            self.data_model
+            .get('vxlan', {})
+            .get('multisite', {})
+            .get('overlay', {})
+        )
+
+        sentinel_file = os.path.join(self.output_path, '_msite_overlay_sentinel.yml')
+        old_sentinel = sentinel_file + '.old'
+
+        # Handle empty/missing overlay: still need to detect removal of
+        # previously existing overlay data (user removed all VRFs/networks).
+        if not overlay:
+            if not os.path.exists(sentinel_file):
+                # No previous sentinel and no current overlay — nothing to detect
+                return
+            # Previous sentinel exists but overlay is now empty — detect removal
+            shutil.copy2(sentinel_file, old_sentinel)
+            os.remove(sentinel_file)
+            with open(sentinel_file, 'w') as f:
+                f.write(yaml.dump({}, default_flow_style=False, sort_keys=True))
+            if self._run_diff_model_changes(old_sentinel, sentinel_file):
+                if self.check_roles.get('save_previous', False):
+                    self.change_flags['changes_detected_msite_overlay'] = True
+                    self.change_flags['changes_detected_vrfs'] = True
+                    self.change_flags['changes_detected_networks'] = True
+                    display.v(
+                        f"COMMON [{self.fabric_name}] Multisite overlay "
+                        f"removed — all overlay data cleared"
+                    )
+            return
+
+        # Backup previous sentinel file
+        if os.path.exists(sentinel_file):
+            shutil.copy2(sentinel_file, old_sentinel)
+            os.remove(sentinel_file)
+
+        # Capture the ENTIRE overlay dict (vrfs, networks, vrf_attach_groups,
+        # network_attach_groups, etc.) for change detection. Previously only
+        # vrfs and networks were captured, missing attach group modifications.
+        overlay_content = yaml.dump(
+            overlay,
+            default_flow_style=False,
+            sort_keys=True,
+        )
+        with open(sentinel_file, 'w') as f:
+            f.write(overlay_content)
+
+        overlay_vrfs = overlay.get('vrfs', [])
+        overlay_networks = overlay.get('networks', [])
+
+        # Compare using existing MD5 diff logic
+        if self._run_diff_model_changes(old_sentinel, sentinel_file):
+            if self.check_roles.get('save_previous', False):
+                self.change_flags['changes_detected_msite_overlay'] = True
+                # Set per-resource flags so pipeline steps pass their
+                # change_flag_guard checks. Both CREATE and REMOVE pipelines
+                # gate VRF/network steps on these flags.
+                if overlay_vrfs or self._sentinel_had_key(old_sentinel, 'vrfs'):
+                    self.change_flags['changes_detected_vrfs'] = True
+                if overlay_networks or self._sentinel_had_key(old_sentinel, 'networks'):
+                    self.change_flags['changes_detected_networks'] = True
+                display.v(
+                    f"COMMON [{self.fabric_name}] Multisite overlay data "
+                    f"model change detected (vrfs={len(overlay_vrfs)}, "
+                    f"networks={len(overlay_networks)})"
+                )
+
+    def _sentinel_had_key(self, sentinel_path, key):
+        """
+        Check if a previous sentinel file contained a non-empty value for key.
+
+        Used by _detect_msite_overlay_changes to determine which per-resource
+        change flags to set when the overlay data model has changed.
+        """
+        if not os.path.exists(sentinel_path):
+            return False
+        try:
+            with open(sentinel_path) as f:
+                prev_data = yaml.safe_load(f)
+            return bool(prev_data.get(key)) if isinstance(prev_data, dict) else False
+        except (yaml.YAMLError, IOError):
+            return False
 
     def _run_diff_compare(self, old_path, new_path):
         """
@@ -645,8 +774,10 @@ class ResourceDataBuilder:
         with open(output_file, 'w') as f:
             yaml.dump(create_list, f, default_flow_style=False)
 
-        # Run structural diff
-        diff_result = self._run_diff_compare(old_file, output_file)
+        # Run structural diff only when downstream targeted processing needs it.
+        diff_result = None
+        if self._should_run_structural_diff(rt.get('diff_compare', False)):
+            diff_result = self._run_diff_compare(old_file, output_file)
 
         # Run MD5 diff
         file_changed = self._run_diff_model_changes(old_file, output_file)
@@ -659,10 +790,10 @@ class ResourceDataBuilder:
         self.resource_data['interface_all'] = {
             'data': create_list,
             'data_remove_overridden': remove_list,
-            'diff': diff_result,
             'var_name': 'interface_all_create',
         }
-        self.diff_results['interface_all'] = diff_result
+        if diff_result is not None:
+            self.resource_data['interface_all']['diff'] = diff_result
 
         display.v(
             f"COMMON [{self.fabric_name}] Aggregated interface_all: "
@@ -679,14 +810,17 @@ class ResourceDataBuilder:
         Delegates to the existing prepare_msite_child_fabrics_data plugin.
         This is not template-based — it queries the controller for fabric
         association information.
+
+        Sets the changes_detected_child_fabrics flag when there are child
+        fabrics to add or remove, so that changes_detected_any gates the
+        pipeline correctly. Without this, commenting out all child_fabrics
+        in the data model would leave changes_detected_any=False and skip
+        the entire remove pipeline, preventing child fabric removal.
         """
         child_fabrics = self.data_model.get('vxlan', {}).get('multisite', {}).get('child_fabrics')
 
         if not child_fabrics:
-            display.v(
-                f"COMMON [{self.fabric_name}] No child fabrics defined, skipping"
-            )
-            return {'failed': False}
+            child_fabrics = []
 
         result = self._run_action_plugin(
             "cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data",
@@ -701,6 +835,17 @@ class ResourceDataBuilder:
             'data': result,
             'var_name': 'child_fabrics',
         }
+
+        # Signal that child fabric changes are pending so that
+        # changes_detected_any is set and the pipeline is not skipped.
+        to_be_added = result.get('to_be_added', [])
+        to_be_removed = result.get('to_be_removed', [])
+        if (to_be_added or to_be_removed) and self.check_roles.get('save_previous', False):
+            self.change_flags['changes_detected_child_fabrics'] = True
+            display.v(
+                f"COMMON [{self.fabric_name}] Child fabric changes detected: "
+                f"to_add={len(to_be_added)}, to_remove={len(to_be_removed)}"
+            )
 
         return result
 

@@ -99,6 +99,7 @@ KNOWN_PIPELINE_FIELDS = {
     'tag',
 }
 
+
 class RegistryLoader:
     """
     Generic loader for YAML registry files under resources/.

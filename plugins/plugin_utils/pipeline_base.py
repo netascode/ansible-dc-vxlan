@@ -45,6 +45,8 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import json
+import os
 import time
 from abc import ABC, abstractmethod
 
@@ -190,7 +192,13 @@ class PipelineRunnerBase(ABC):
                     continue
 
             # ── Guard: change_flag_guard ──────────────────────────────────
-            if flag_name and not self.change_flags.get(flag_name, False):
+            # Bypass change_flag_guard for controller_diff steps in full-run
+            # mode — the controller query itself determines if work is needed.
+            has_controller_diff = step.get('full_run_strategy') == 'controller_diff'
+            in_full_run = not self.run_map_diff_run or self.force_run_all
+            bypass_change_flag = has_controller_diff and in_full_run
+
+            if flag_name and not bypass_change_flag and not self.change_flags.get(flag_name, False):
                 step_results.append({
                     'resource_name': resource_name,
                     'module': module,
@@ -242,10 +250,11 @@ class PipelineRunnerBase(ABC):
                 step_results.append(result)
                 elapsed = time.monotonic() - step_start
                 status = result.get('status', 'ok')
+                changed = result.get('changed', False)
                 display.display(
                     f"{op_label} [{self.fabric_name}] "
-                    f"{resource_name} → {status} [{elapsed:.1f}s]",
-                    color='green' if status != 'failed' else 'red',
+                    f"{resource_name} → {status} (changed={changed}) [{elapsed:.1f}s]",
+                    color='yellow' if changed else ('green' if status != 'failed' else 'red'),
                 )
                 if status == 'failed':
                     return {
@@ -272,7 +281,7 @@ class PipelineRunnerBase(ABC):
                 elapsed = time.monotonic() - step_start
                 display.display(
                     f"{op_label} [{self.fabric_name}] "
-                    f"{resource_name} → skipped (no data) [{elapsed:.1f}s]",
+                    f"{resource_name} → skipped (no diff) [{elapsed:.1f}s]",
                     color='cyan',
                 )
                 continue
@@ -283,6 +292,7 @@ class PipelineRunnerBase(ABC):
             # ── Execute NDFC module ───────────────────────────────────────
             save = step.get('save')
             deploy = step.get('deploy')
+            skip_validation = step.get('skip_validation')
 
             display.v(
                 f"{op_label} [{self.fabric_name}] Executing {module} for "
@@ -298,6 +308,7 @@ class PipelineRunnerBase(ABC):
                 save=save,
                 deploy=deploy,
                 fabric_param=fabric_param,
+                skip_validation=skip_validation,
             )
 
             elapsed = time.monotonic() - step_start
@@ -351,6 +362,7 @@ class PipelineRunnerBase(ABC):
         return {
             'results': step_results,
             'failed': False,
+            'msite_data': getattr(self, 'msite_data', None),
             'msg': (
                 f"{self.OPERATION.title()} pipeline completed for "
                 f"{self.fabric_type} fabric '{self.fabric_name}'"
@@ -531,6 +543,17 @@ class PipelineRunnerBase(ABC):
         the overlay resources (vrfs, vrf_loopback_attach, networks), bypassing
         the normal fabric_types filtering that would exclude MSD/MCFG.
 
+        Uses a file-based cache to prevent the stale re-render problem: when
+        both CREATE and REMOVE pipelines call this method in the same playbook
+        run, the first call renders and caches the results. The second call
+        loads from cache, preserving the correct diff (updated/removed) from
+        the first render. Without caching, the second render would compare
+        against the first render's output (instead of the previous run's
+        output), producing an empty diff.
+
+        The cache file is cleaned up at the start of each common-phase build
+        by _detect_msite_overlay_changes in build_resource_data.py.
+
         Merges the resulting resource_data and change_flags back into the
         pipeline runner's state so downstream steps work unchanged.
         """
@@ -542,13 +565,49 @@ class PipelineRunnerBase(ABC):
                        "ensure the common role has run before create/remove",
             }
 
+        # Determine output path for the cache file
+        collection_path = RegistryLoader.get_collection_path()
+        fabric_types = RegistryLoader.load(collection_path, 'fabric_types').get('fabric_types', {})
+        file_subdir = fabric_types.get(self.fabric_type, {}).get('file_subdir', '')
+        output_path = os.path.join(role_path, 'files', file_subdir, self.fabric_name)
+        cache_file = os.path.join(output_path, '_msite_overlay_cache.json')
+
+        # Check for cached results from a prior pipeline in this playbook run.
+        # When CREATE runs first, it caches the render results (including
+        # diff.removed). REMOVE then loads from cache instead of re-rendering,
+        # which would produce a stale empty diff.
+        if os.path.exists(cache_file):
+            try:
+                with open(cache_file) as f:
+                    cached = json.load(f)
+                cached_resource_data = cached.get('resource_data', {})
+                cached_flags = cached.get('change_flags', {})
+                self.resource_data.update(cached_resource_data)
+                self.change_flags.update(cached_flags)
+                if any(cached_flags.values()):
+                    self.change_flags['changes_detected_any'] = True
+                display.v(
+                    f"{self.OPERATION.upper()} [{self.fabric_name}] "
+                    f"Deferred overlay loaded from cache: "
+                    f"resources={list(cached_resource_data.keys())}, "
+                    f"flags={cached_flags}"
+                )
+                return {'failed': False, 'changed': any(cached_flags.values())}
+            except (json.JSONDecodeError, IOError) as e:
+                display.warning(
+                    f"{self.OPERATION.upper()} [{self.fabric_name}] "
+                    f"Failed to load overlay cache, re-rendering: {e}"
+                )
+
         check_roles = self.task_vars.get('check_roles', {})
 
+        overlay = self.data_model.get('vxlan', {}).get('multisite', {}).get('overlay', {})
+
         resource_filter = []
-        if self.data_model.get('vxlan', {}).get('multisite', {}).get('overlay').get('vrfs'):
-             resource_filter.extend(["vrfs", "vrf_loopback_attach"])
-        if self.data_model.get('vxlan', {}).get('multisite', {}).get('overlay').get('networks'):
-             resource_filter.extend(["networks"])
+        if overlay and overlay.get('vrfs'):
+            resource_filter.extend(["vrfs", "vrf_loopback_attach"])
+        if overlay and overlay.get('networks'):
+            resource_filter.extend(["networks"])
 
         if resource_filter:
             result = self.executor.execute_plugin(
@@ -585,6 +644,22 @@ class PipelineRunnerBase(ABC):
             if hasattr(self, 'diff_results'):
                 self.diff_results.update(new_diff_results)
 
+            # Cache results for the next pipeline (CREATE → REMOVE) in this
+            # playbook run. Serializes resource_data and change_flags to JSON.
+            try:
+                os.makedirs(output_path, exist_ok=True)
+                cache_data = {
+                    'resource_data': self._make_json_safe(new_resource_data),
+                    'change_flags': dict(new_change_flags),
+                }
+                with open(cache_file, 'w') as f:
+                    json.dump(cache_data, f)
+            except (TypeError, IOError) as e:
+                display.warning(
+                    f"{self.OPERATION.upper()} [{self.fabric_name}] "
+                    f"Failed to cache overlay results: {e}"
+                )
+
             display.v(
                 f"{self.OPERATION.upper()} [{self.fabric_name}] "
                 f"Deferred overlay build complete: "
@@ -595,6 +670,26 @@ class PipelineRunnerBase(ABC):
             return {'failed': False, 'changed': any(new_change_flags.values())}
 
         return {'failed': False, 'changed': False, 'msg': 'No overlay resources to build — skipped'}
+
+    @staticmethod
+    def _make_json_safe(obj):
+        """
+        Recursively convert Ansible-specific types to plain Python types
+        for JSON serialization.
+        """
+        if isinstance(obj, dict):
+            return {str(k): PipelineRunnerBase._make_json_safe(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple)):
+            return [PipelineRunnerBase._make_json_safe(item) for item in obj]
+        if isinstance(obj, bool):
+            return obj
+        if isinstance(obj, int):
+            return obj
+        if isinstance(obj, float):
+            return obj
+        if obj is None:
+            return obj
+        return str(obj)
 
     def _manage_child_fabrics(self, resource_name, step):
         """
@@ -638,6 +733,8 @@ class PipelineRunnerBase(ABC):
         resource_entry = self.resource_data.get('vrf_loopback_attach', {})
         data = resource_entry.get('module_data', resource_entry.get('data', []))
 
+        data = [d for d in data if d.get('lanAttachList')]
+
         if not data:
             return {'failed': False, 'msg': 'No VRF loopback attach data — skipped'}
 
@@ -657,7 +754,14 @@ class PipelineRunnerBase(ABC):
             f"via REST POST ({len(data) if isinstance(data, list) else '?'} items)"
         )
 
-        return self.executor.execute_rest("POST", path, json_data=json.dumps(data))
+        result = self.executor.execute_rest("POST", path, json_data=json.dumps(data))
+
+        # dcnm_rest is a raw REST client and does not set changed=True.
+        # A successful POST to the attachments endpoint is state-modifying.
+        if isinstance(result, dict) and not result.get('failed'):
+            result['changed'] = True
+
+        return result
 
     def _tor_pairing(self, resource_name, step):
         """

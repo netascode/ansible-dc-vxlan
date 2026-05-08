@@ -82,6 +82,9 @@ class ResourceRemover(PipelineRunnerBase):
             'tor_pairing_delete_mode': task_vars.get('tor_pairing_delete_mode', False),
             'link_fabric_delete_mode': task_vars.get('link_fabric_delete_mode', False),
             'link_vpc_delete_mode': task_vars.get('link_vpc_delete_mode', False),
+            'multisite_vrf_delete_mode': task_vars.get('multisite_vrf_delete_mode', False),
+            'multisite_network_delete_mode': task_vars.get('multisite_network_delete_mode', False),
+            'multisite_child_fabric_delete_mode': task_vars.get('multisite_child_fabric_delete_mode', False),
         }
 
     # ══════════════════════════════════════════════════════════════════════════
