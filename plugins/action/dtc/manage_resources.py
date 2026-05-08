@@ -591,7 +591,6 @@ class ResourceManager(PipelineRunnerBase):
         desired_vars = desired.get('policy_vars') or {}
         ctrl_nv = controller.get('nvPairs', {})
 
-
         # Desired vars must match controller
         for key, val in desired_vars.items():
             ctrl_val = ctrl_nv.get(key)
