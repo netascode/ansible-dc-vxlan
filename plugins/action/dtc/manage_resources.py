@@ -190,97 +190,20 @@ class ResourceManager(PipelineRunnerBase):
                 ),
             }
 
-        # Step 4: Post-enrichment diff — compare enriched links against controller
+        # Step 4: Update resource data with filtered links
+        # Value-level profile comparison is now done inside existing_links_check
+        # during endpoint matching — no second pass needed.
         required_links = filter_result.get('required_links', [])
-
-        # Build lookup of existing links: {(sw1_ip_or_name, if1, sw2_ip_or_name, if2): nvPairs}
-        existing_lookup = {}
-        for el in existing_links:
-            sw1 = el.get('sw1-info', {})
-            sw2 = el.get('sw2-info', {})
-            key_fwd = (
-                sw1.get('sw-sys-name', '').lower(),
-                sw1.get('if-name', '').lower(),
-                sw2.get('sw-sys-name', '').lower(),
-                sw2.get('if-name', '').lower(),
-            )
-            key_rev = (key_fwd[2], key_fwd[3], key_fwd[0], key_fwd[1])
-            existing_lookup[key_fwd] = el
-            existing_lookup[key_rev] = el
-
-        # Profile field -> nvPairs key mapping
-        profile_to_nv = {
-            'admin_state': 'ADMIN_STATE',
-            'mtu': 'MTU',
-            'peer1_description': 'PEER1_DESC',
-            'peer2_description': 'PEER2_DESC',
-            'peer1_cmds': 'PEER1_CONF',
-            'peer2_cmds': 'PEER2_CONF',
-            'peer1_freeform': 'PEER1_CONF',
-            'peer2_freeform': 'PEER2_CONF',
-            'peer1_ipv4_addr': 'PEER1_IP',
-            'peer2_ipv4_addr': 'PEER2_IP',
-            'enable_macsec': 'ENABLE_MACSEC',
-        }
-
-        diff_links = []
-        for link in required_links:
-            src = link.get('src_device', '').lower()
-            src_if = link.get('src_interface', '').lower()
-            dst = link.get('dst_device', '').lower()
-            dst_if = link.get('dst_interface', '').lower()
-
-            el = existing_lookup.get((src, src_if, dst, dst_if))
-            if el is None:
-                # New link — not on controller
-                diff_links.append(link)
-                continue
-
-            # Template change — skip if NDFC upgraded pre-provision to num/unnum
-            desired_tpl = link.get('template', '')
-            ctrl_tpl = el.get('templateName', '')
-            if desired_tpl and desired_tpl != ctrl_tpl:
-                # Pre-provision -> numbered/unnumbered is expected NDFC behavior
-                ndfc_upgraded = (
-                    desired_tpl == 'int_pre_provision_intra_fabric_link'
-                    and ctrl_tpl in (
-                        'int_intra_fabric_num_link',
-                        'int_intra_fabric_unnum_link',
-                    )
-                )
-                if not ndfc_upgraded:
-                    diff_links.append(link)
-                    continue
-
-            # Compare profile fields against nvPairs
-            nv = el.get('nvPairs', {})
-            profile = link.get('profile', {})
-            changed = False
-            for pkey, nv_key in profile_to_nv.items():
-                if pkey in profile:
-                    desired_val = str(profile[pkey]).strip()
-                    ctrl_val = str(nv.get(nv_key, '')).strip()
-                    # Case-insensitive for booleans
-                    if desired_val.lower() != ctrl_val.lower():
-                        display.vvv(
-                            f"LINK DIFF [{src}:{src_if}->{dst}:{dst_if}]: "
-                            f"{pkey}={desired_val!r} vs {nv_key}={ctrl_val!r}"
-                        )
-                        changed = True
-                        break
-            if changed:
-                diff_links.append(link)
 
         resource_entry = self.resource_data.get('fabric_links', {})
         if isinstance(resource_entry, dict):
-            resource_entry['module_data'] = diff_links
+            resource_entry['module_data'] = required_links
         else:
-            self.resource_data['fabric_links'] = {'module_data': diff_links}
+            self.resource_data['fabric_links'] = {'module_data': required_links}
 
         display.v(
             f"CREATE [{self.fabric_name}] fabric_links: "
-            f"{len(data)} configured → {len(required_links)} enriched "
-            f"→ {len(diff_links)} after diff"
+            f"{len(data)} configured → {len(required_links)} after filter"
         )
 
         return {'changed': False}
