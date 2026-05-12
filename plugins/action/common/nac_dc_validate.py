@@ -158,18 +158,24 @@ class ActionModule(ActionBase):
             # Else block to pickup custom enhanced rules provided by the user
             rules_list.append(f'{rules}')
 
-        syntax_validated = False
+        if data_model_loaded is None:
+            data_model_loaded = load_yaml_files([mdata])
+            results['data'] = data_model_loaded
+
+        if rules_list and schema:
+            first_validator = nac_validate.validator.Validator(schema, rules_list[0])
+            if first_validator.schema is not None:
+                first_validator.validate_syntax([mdata])
+                for error in first_validator.errors:
+                    results['failed'] = True
+                    results['msg'] = (results.get('msg', '') or '') + error + "\n"
+                if results['failed']:
+                    return results
+
         for rules_item in rules_list:
             validator = nac_validate.validator.Validator(schema, rules_item)
-            if schema and not syntax_validated and validator.schema is not None:
-                validator.validate_syntax([mdata])
-                syntax_validated = True
-            if rules_item:
-                if data_model_loaded is None:
-                    data_model_loaded = load_yaml_files([mdata])
-                    results['data'] = data_model_loaded
-                validator.data = data_model_loaded
-                validator.validate_semantics([mdata])
+            validator.data = data_model_loaded
+            validator.validate_semantics([mdata])
 
             msg = ""
             for error in validator.errors:
