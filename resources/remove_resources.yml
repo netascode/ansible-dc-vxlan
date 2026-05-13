@@ -411,6 +411,13 @@ remove_resources:
       delete_mode_guard: multisite_vrf_delete_mode
       tag: rr_manage_vrfs
 
+    - resource_name: prepare_child_fabrics_data
+      module: _prepare_child_fabrics_data
+      state: null
+      data_model_guard: vxlan.multisite.child_fabrics
+      change_flag_guard: null
+      tag: rr_manage_fabric 
+
     - resource_name: child_fabrics
       module: _manage_child_fabrics
       state: null
