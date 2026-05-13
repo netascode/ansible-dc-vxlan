@@ -682,7 +682,7 @@ create_resources:
       state: null
       data_model_guard: vxlan.multisite.child_fabrics
       change_flag_guard: null
-      tag: cr_manage_fabric 
+      tag: cr_manage_fabric
 
     - resource_name: child_fabrics
       module: _manage_child_fabrics
