@@ -529,6 +529,56 @@ class PipelineRunnerBase(ABC):
 
         return result
 
+    def _prepare_child_fabrics_data(self, resource_name, step):
+        """
+        Prepare child fabric association data at pipeline execution time.
+
+        Used by MCFG pipelines where the fabric group must be created by
+        dcnm_fabric_group before the onemanage API can return member data.
+        Delegates to prepare_msite_child_fabrics_data and populates
+        self.resource_data['child_fabrics'] for downstream _manage_child_fabrics.
+
+        Also sets the changes_detected_child_fabrics flag when there are
+        child fabrics to add or remove.
+        """
+        child_fabrics = (
+            self.data_model.get('vxlan', {})
+            .get('multisite', {})
+            .get('child_fabrics', [])
+        )
+
+        if not child_fabrics:
+            child_fabrics = []
+
+        result = self.executor.execute_plugin(
+            module_name="cisco.nac_dc_vxlan.dtc.prepare_msite_child_fabrics_data",
+            module_args={
+                "parent_fabric": self.fabric_name,
+                "parent_fabric_type": self.fabric_type,
+                "child_fabrics": child_fabrics,
+            },
+        )
+
+        if isinstance(result, dict) and result.get('failed'):
+            return result
+
+        self.resource_data['child_fabrics'] = {
+            'data': result,
+            'var_name': 'child_fabrics',
+        }
+
+        to_be_added = result.get('to_be_added', [])
+        to_be_removed = result.get('to_be_removed', [])
+        if to_be_added or to_be_removed:
+            self.change_flags['changes_detected_child_fabrics'] = True
+            display.v(
+                f"{self.OPERATION.upper()} [{self.fabric_name}] "
+                f"Child fabric changes detected: "
+                f"to_add={len(to_be_added)}, to_remove={len(to_be_removed)}"
+            )
+
+        return result
+
     def _msite_build_overlay(self, resource_name, step):
         """
         Deferred overlay build for MSD/MCFG fabric types.
