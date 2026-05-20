@@ -30,7 +30,6 @@ import hashlib
 import json
 import logging
 import os
-from pathlib import Path
 import shutil
 
 from ansible.utils.display import Display
@@ -51,6 +50,7 @@ try:
     from yamale.yamale_error import YamaleError
 except ImportError as imp_val_exc:
     NAC_VALIDATE_IMPORT_ERROR = imp_val_exc
+    Validator = object
 else:
     NAC_VALIDATE_IMPORT_ERROR = None
 
