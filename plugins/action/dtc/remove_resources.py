@@ -28,8 +28,7 @@ task files (~16 files, ~800 lines YAML) with a single data-driven plugin.
 Pipeline definitions are loaded from resources/remove_resources.yml.
 
 Extends PipelineRunnerBase with remove-specific behavior:
-  - Recommendation #2: delete_mode_guard safety flags per step
-  - Recommendation #4: Correct vPC peers module (dcnm_vpc_pair with src_fabric)
+  - delete_mode_guard safety flags per step
   - state_full_run: Dual-state removal (deleted for diff_run, overridden for full)
   - skip_if_child_fabric: Guard for VRFs/networks on active MSD child fabrics
 
