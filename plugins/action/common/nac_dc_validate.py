@@ -80,7 +80,7 @@ class OptimizedValidator(Validator):
             except YamaleError as e:
                 for result in e.results:
                     for err in result.errors:
-                        msg = "Syntax error '{}': {}".format(result.data, err)
+                        msg = f"Syntax error '{result.data}': {err}"
                         logger.error(msg)
                         self.errors.append(msg)
         else:
@@ -129,8 +129,8 @@ class ActionModule(ActionBase):
             "----------------------------------------------------------------",
             color="cyan",
         )
-        display.display("Role Path: {0}".format(role_path))
-        display.display("Inventory Directory: {0}".format(inventory_dir))
+        display.display(f'Role Path: {role_path}')
+        display.display(f'Inventory Directory: {inventory_dir}')
 
         if ansible_network_os == "cisco.nxos.nxos":
             display.display("Workflow: Direct to Device (DTD)", color="blue")
@@ -152,32 +152,24 @@ class ActionModule(ActionBase):
             schema = DEFAULT_SCHEMA
 
         if schema and schema != DEFAULT_SCHEMA and not os.path.exists(schema):
-            display.warning("The schema ({0}) does not appear to exist!".format(schema))
+            display.warning(f'The schema ({schema}) does not appear to exist!')
         if rules and not os.path.exists(rules):
-            display.warning(
-                "The rules directory ({0}) does not appear to exist!".format(rules)
-            )
+            display.warning(f'The rules directory ({rules}) does not appear to exist!')
         elif os.path.exists(rules) and (
             not os.listdir(rules)
             or (len(os.listdir(rules)) == 1 and ".gitkeep" in os.listdir(rules))
         ):
-            display.warning(
-                "The rules directory ({0}) exists but is empty!".format(rules)
-            )
+            display.warning(f'The rules directory ({rules}) exists but is empty!')
 
         if not os.path.exists(mdata):
             results["failed"] = True
             results["msg"] = (
-                "The data directory ({0}) for this fabric does not appear to exist!".format(
-                    mdata
-                )
+                f'The data directory ({mdata}) for this fabric does not appear to exist!'
             )
             return results
         if len(os.listdir(mdata)) == 0:
             results["failed"] = True
-            results["msg"] = (
-                "The data directory ({0}) for this fabric is empty!".format(mdata)
-            )
+            results["msg"] = f'The data directory ({mdata}) for this fabric is empty!'
             return results
 
         rules_list = []
@@ -194,26 +186,24 @@ class ActionModule(ActionBase):
                 if "type" in results["data"]["vxlan"]["fabric"]:
                     fabric_type = results["data"]["vxlan"]["fabric"]["type"]
                     if fabric_type in ("VXLAN_EVPN",):
-                        rules_list.append("{0}common".format(rules))
-                        rules_list.append("{0}ibgp_vxlan/".format(rules))
-                        rules_list.append("{0}common_vxlan".format(rules))
+                        rules_list.append(f'{rules}common')
+                        rules_list.append(f'{rules}ibgp_vxlan/')
+                        rules_list.append(f'{rules}common_vxlan')
                     elif fabric_type in ("eBGP_VXLAN",):
-                        rules_list.append("{0}common".format(rules))
-                        rules_list.append("{0}ebgp_vxlan/".format(rules))
-                        rules_list.append("{0}common_vxlan".format(rules))
+                        rules_list.append(f'{rules}common')
+                        rules_list.append(f'{rules}ebgp_vxlan/')
+                        rules_list.append(f'{rules}common_vxlan')
                     elif fabric_type in ("MSD", "MCFG"):
-                        rules_list.append("{0}multisite/".format(rules))
+                        rules_list.append(f'{rules}multisite/')
                     elif fabric_type in ("ISN",):
-                        rules_list.append("{0}isn/".format(rules))
+                        rules_list.append(f'{rules}isn/')
                     elif fabric_type in ("External",):
-                        rules_list.append("{0}common".format(rules))
-                        rules_list.append("{0}external/".format(rules))
+                        rules_list.append(f'{rules}common')
+                        rules_list.append(f'{rules}external/')
                     else:
                         results["failed"] = True
                         results["msg"] = (
-                            "vxlan.fabric.type {0} is not a supported fabric type.".format(
-                                fabric_type
-                            )
+                            f'vxlan.fabric.type {fabric_type} is not a supported fabric type.'
                         )
                 else:
                     results["failed"] = True
@@ -238,29 +228,25 @@ class ActionModule(ActionBase):
 
                         fabric_type = results["data"]["vxlan"]["global"]["fabric_type"]
                         if fabric_type in ("VXLAN_EVPN",):
-                            rules_list.append("{0}common".format(rules))
-                            rules_list.append("{0}ibgp_vxlan/".format(rules))
-                            rules_list.append("{0}common_vxlan".format(rules))
+                            rules_list.append(f'{rules}common')
+                            rules_list.append(f'{rules}ibgp_vxlan/')
+                            rules_list.append(f'{rules}common_vxlan')
                         elif fabric_type in ("MSD", "MCFG"):
-                            rules_list.append("{0}multisite/".format(rules))
+                            rules_list.append(f'{rules}multisite/')
                         elif fabric_type in ("ISN",):
-                            rules_list.append("{0}isn/".format(rules))
+                            rules_list.append(f'{rules}isn/')
                         elif fabric_type in ("External",):
-                            rules_list.append("{0}common".format(rules))
-                            rules_list.append("{0}external/".format(rules))
+                            rules_list.append(f'{rules}common')
+                            rules_list.append(f'{rules}external/')
                         elif fabric_type in ("eBGP_VXLAN",):
                             results["failed"] = True
                             results["msg"] = (
-                                "Fabric type {0} requires using vxlan.fabric.type.".format(
-                                    fabric_type
-                                )
+                                f'Fabric type {fabric_type} requires using vxlan.fabric.type.'
                             )
                         else:
                             results["failed"] = True
                             results["msg"] = (
-                                "vxlan.fabric.type {0} is not a supported fabric type.".format(
-                                    fabric_type
-                                )
+                                f'vxlan.fabric.type {fabric_type} is not a supported fabric type.'
                             )
                     else:
                         results["failed"] = True
@@ -269,20 +255,17 @@ class ActionModule(ActionBase):
                         )
         else:
             # Custom enhanced rules provided by user
-            rules_list.append("{0}".format(rules))
+            rules_list.append(f'{rules}')
 
         # Append enhanced rules if provided
         if enhanced_rules and os.path.exists(enhanced_rules):
             rules_list.append(enhanced_rules)
             display.display(
-                "Enhanced rules detected and loaded: {0}".format(enhanced_rules),
-                color="green",
+                f'Enhanced rules detected and loaded: {enhanced_rules}', color="green"
             )
         elif enhanced_rules:
             display.warning(
-                "Enhanced rules path ({0}) does not exist, skipping.".format(
-                    enhanced_rules
-                )
+                f'Enhanced rules path ({enhanced_rules}) does not exist, skipping.'
             )
 
         # Perform validation using OptimizedValidator (subclass override)
@@ -382,7 +365,7 @@ class ActionModule(ActionBase):
         else:
             run_map_files_path = os.path.dirname(role_path) + "/validate/files"
 
-        run_map_file_path = run_map_files_path + f"/{fabric_name}_run_map.yml"
+        run_map_file_path = run_map_files_path + f'/{fabric_name}_run_map.yml'
 
         results["diff_run"] = True
         results["validate_only_run"] = False
@@ -414,7 +397,7 @@ class ActionModule(ActionBase):
 
         if not results["diff_run"]:
             display.warning(
-                f"Diff Run Feature is Disabled on this run for Fabric {fabric_name} "
+                f'Diff Run Feature is Disabled on this run for Fabric {fabric_name} '
                 f"as one or more run map flags are `false` or `ansible_run_tags` is not 'all'."
             )
 
@@ -428,9 +411,9 @@ class ActionModule(ActionBase):
 
         # --- display runtime mode ---
         display.display(
-            f"force_run_all={bool(force_run_all)}, "
+            f'force_run_all={bool(force_run_all)}, '
             f"diff_run={results['diff_run']}, "
-            f"ansible_run_tags={play_tags}, "
+            f'ansible_run_tags={play_tags}, '
             f"checksum_compare={results['validate_checksum_compare_enabled']}, "
             f"display_model_diff={results['validate_model_diff_enabled']}",
             color="cyan",
@@ -458,10 +441,18 @@ class ActionModule(ActionBase):
 
         if results["save_previous"]:
             files_dir = os.path.join(role_path, "files")
-            golden_file = os.path.join(files_dir, "{0}_service_model_golden.json".format(fabric_name))
-            extended_file = os.path.join(files_dir, "{0}_service_model_extended.json".format(fabric_name))
-            golden_prev = os.path.join(files_dir, "{0}_service_model_golden_previous.json".format(fabric_name))
-            extended_prev = os.path.join(files_dir, "{0}_service_model_extended_previous.json".format(fabric_name))
+            golden_file = os.path.join(
+                files_dir, f'{fabric_name}_service_model_golden.json'
+            )
+            extended_file = os.path.join(
+                files_dir, f'{fabric_name}_service_model_extended.json'
+            )
+            golden_prev = os.path.join(
+                files_dir, f'{fabric_name}_service_model_golden_previous.json'
+            )
+            extended_prev = os.path.join(
+                files_dir, f'{fabric_name}_service_model_extended_previous.json'
+            )
 
             golden_exists = os.path.isfile(golden_file)
             extended_exists = os.path.isfile(extended_file)
@@ -493,8 +484,12 @@ class ActionModule(ActionBase):
             if extended_exists:
                 shutil.move(extended_file, extended_prev)
 
-            golden_content = json.dumps(results["model_golden"], indent=4, sort_keys=True)
-            extended_content = json.dumps(results["model_extended"], indent=4, sort_keys=True)
+            golden_content = json.dumps(
+                results["model_golden"], indent=4, sort_keys=True
+            )
+            extended_content = json.dumps(
+                results["model_extended"], indent=4, sort_keys=True
+            )
 
             with open(golden_file, "w") as f:
                 f.write(golden_content)
@@ -510,7 +505,9 @@ class ActionModule(ActionBase):
                     and prev_extended_checksum == curr_extended_checksum
                 )
                 if checksums_match:
-                    display.display("No model changes detected (checksums match)", color="green")
+                    display.display(
+                        "No model changes detected (checksums match)", color="green"
+                    )
 
             if model_diff_enabled and not checksums_match:
                 current_golden_data = json.loads(golden_content)
@@ -523,10 +520,12 @@ class ActionModule(ActionBase):
                     _display_diff(previous_extended_data, current_extended_data)
 
             if bool(force_run_all):
-                pattern = os.path.join(files_dir, "{0}_service_model*_previous.json".format(fabric_name))
+                pattern = os.path.join(
+                    files_dir, f'{fabric_name}_service_model*_previous.json'
+                )
                 for f_path in glob.glob(pattern):
                     os.remove(f_path)
-                    display.display("Removed: {0}".format(f_path))
+                    display.display(f'Removed: {f_path}')
 
             # Mark validate completed always
             _mark_run_map(run_map_file_path, "role_validate_completed")
@@ -567,6 +566,7 @@ def _file_checksum(path):
 
 def _mark_run_map(run_map_file_path, stage):
     import yaml as _yaml
+
     if not os.path.exists(run_map_file_path):
         return
     with open(run_map_file_path, "r") as f:
@@ -615,7 +615,7 @@ def _prepare_service_model(
     )
     dict_of_plugins = {}
     for lib in prepare_libs:
-        plugin_name = "{0}.{1}".format(full_plugin_path, lib)
+        plugin_name = f'{full_plugin_path}.{lib}'
         plugin_module = importlib.import_module(plugin_name, ".")
         dict_of_plugins[lib] = plugin_module
 
@@ -624,12 +624,10 @@ def _prepare_service_model(
         if hasattr(dict_of_plugins[plugin_name].PreparePlugin(), "keys"):
             if not isinstance(dict_of_plugins[plugin_name].PreparePlugin().keys, list):
                 results["failed"] = True
-                results["msg"] = "Plugin {0} must have a list of keys".format(
-                    plugin_name
-                )
+                results["msg"] = f'Plugin {plugin_name} must have a list of keys'
         else:
             results["failed"] = True
-            results["msg"] = "Plugin {0} must have a list of keys".format(plugin_name)
+            results["msg"] = f'Plugin {plugin_name} must have a list of keys'
 
         results = (
             dict_of_plugins[plugin_name]
