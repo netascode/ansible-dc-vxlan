@@ -135,14 +135,41 @@
 
 - name: Read Run Map From Previous Run
   cisco.nac_dc_vxlan.common.read_run_map:
-    data_model: "{{ data_model_extended }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     play_tags: "{{ ansible_run_tags }}"
   register: run_map_read_result
   delegate_to: localhost
 
+- name: Set Validate Runtime Mode
+  ansible.builtin.set_fact:
+    validate_checksum_compare_enabled: >-
+      {{
+        check_roles['save_previous'] | bool and
+        run_map_read_result.diff_run | bool and
+        not (force_run_all | default(false) | bool)
+      }}
+    validate_model_diff_enabled: >-
+      {{
+        check_roles['save_previous'] | bool and
+        run_map_read_result.diff_run | bool and
+        not (force_run_all | default(false) | bool) and
+        display_model_diff | default(false) | bool
+      }}
+  delegate_to: localhost
+
+- name: Display Validate Runtime Mode
+  ansible.builtin.debug:
+    msg:
+      - "force_run_all={{ force_run_all | default(false) | bool }}"
+      - "diff_run={{ run_map_read_result.diff_run | bool }}"
+      - "ansible_run_tags={{ ansible_run_tags }}"
+      - "checksum_compare={{ validate_checksum_compare_enabled | bool }}"
+      - "display_model_diff={{ validate_model_diff_enabled | bool }}"
+  delegate_to: localhost
+
 - name: Initialize Run Map
   cisco.nac_dc_vxlan.common.run_map:
-    data_model: "{{ data_model_extended }}"
+    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     stage: starting_execution
   register: run_map
   delegate_to: localhost
