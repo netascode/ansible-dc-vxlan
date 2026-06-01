@@ -1,0 +1,74 @@
+ # Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+---
+
+- name: Import iBGP VXLAN EVPN Role Tasks
+  ansible.builtin.import_tasks: sub_main_vxlan.yml
+  tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
+  when:
+    - data_model_extended.vxlan.fabric.type == 'VXLAN_EVPN'
+    - change_flags.changes_detected_any
+
+- name: Import eBGP Role Tasks
+  ansible.builtin.import_tasks: sub_main_ebgp_vxlan.yml
+  tags: "{{ nac_tags.deploy }}"
+  when:
+    - data_model_extended.vxlan.fabric.type == 'eBGP_VXLAN'
+    - change_flags.changes_detected_any
+
+- name: Import MSD Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_msd.yml
+  tags: "{{ nac_tags.deploy }}"
+  when:
+    - data_model_extended.vxlan.fabric.type == 'MSD'
+    - (change_flags.changes_detected_any) or
+      (change_flags_msd.changes_detected_any is defined and change_flags_msd.changes_detected_any)
+
+- name: Import MCFG Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_mcfg.yml
+  tags: "{{ nac_tags.deploy }}" # Tags defined in roles/common_global/vars/main.yml
+  when:
+    - data_model_extended.vxlan.fabric.type == 'MCFG'
+    - (change_flags.changes_detected_any) or
+      (change_flags_mcfg.changes_detected_any is defined and change_flags_mcfg.changes_detected_any)
+
+- name: Import ISN Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_isn.yml
+  tags: "{{ nac_tags.deploy }}"
+  when:
+    - data_model_extended.vxlan.fabric.type == 'ISN'
+    - change_flags.changes_detected_any
+
+- name: Import External Fabric Role Tasks
+  ansible.builtin.import_tasks: sub_main_external.yml
+  tags: "{{ nac_tags.deploy }}"
+  when:
+    - data_model_extended.vxlan.fabric.type == 'External'
+    - change_flags.changes_detected_any
+
+- name: Mark Stage Role Deploy Completed
+  cisco.nac_dc_vxlan.common.run_map:
+    data_model: "{{ data_model_extended }}"
+    stage: role_deploy_completed
+  register: run_map
+  tags: "{{ nac_tags.deploy }}"
+  delegate_to: localhost

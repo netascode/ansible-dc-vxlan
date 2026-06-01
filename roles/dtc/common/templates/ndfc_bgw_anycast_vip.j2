@@ -2,10 +2,10 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% set anycast_lo_id = vxlan.multisite.vtep_loopback_id | default(defaults.vxlan.multisite.vtep_loopback_id) %}
+{% set anycast_lo_id = data_model_extended.vxlan.multisite.vtep_loopback_id | default(defaults.vxlan.multisite.vtep_loopback_id) %}
 
-{% if vxlan.multisite.child_fabrics is defined and vxlan.multisite.child_fabrics is iterable %}
-{% for fabric in vxlan.multisite.child_fabrics %}
+{% if data_model_extended.vxlan.multisite.child_fabrics is defined and data_model_extended.vxlan.multisite.child_fabrics is iterable %}
+{% for fabric in data_model_extended.vxlan.multisite.child_fabrics %}
 {% if fabric.bgw_anycast_vip_ipv4 is defined %}
 - entity_name: "{{ fabric.name }}"
   pool_type: IP
