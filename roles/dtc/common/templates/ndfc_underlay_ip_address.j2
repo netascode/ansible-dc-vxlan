@@ -2,12 +2,12 @@
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% if vxlan.underlay.general.manual_underlay_allocation is true %}
-{% set routing_lo_id = vxlan.underlay.general.underlay_routing_loopback_id %}
-{% set vtep_lo_id = vxlan.underlay.general.underlay_vtep_loopback_id %}
+{% if data_model_extended.vxlan.underlay.general.manual_underlay_allocation is true %}
+{% set routing_lo_id = data_model_extended.vxlan.underlay.general.underlay_routing_loopback_id %}
+{% set vtep_lo_id = data_model_extended.vxlan.underlay.general.underlay_vtep_loopback_id %}
 {%- set switch_secondary_ip = {} -%}
 {%- set switch_list = {} %}
-{%- for switch in vxlan.topology.switches %}
+{%- for switch in data_model_extended.vxlan.topology.switches %}
 {%- set _ = switch_list.update({
   switch.name: {
   'management_ipv4_address': switch.management.management_ipv4_address,
@@ -17,7 +17,7 @@
 }) %}
 {%- endfor %}
 {% macro generate_loopback_config(loopback_id) %}
-{%- for switch in vxlan.topology.switches %}
+{%- for switch in data_model_extended.vxlan.topology.switches %}
 {%- set ns = namespace(ipv4="") %}
 {%- for interface in switch.interfaces %}
 {%- if interface.name.lower() == "loopback" ~ loopback_id or interface.name.lower() == "lo" ~ loopback_id %}
@@ -32,7 +32,7 @@
   resource: "{{ ns.ipv4 }}"
   switch:
     - "{{ switch_list[switch.name].management_ipv4_address }}"
-{% endif %} 
+{% endif %}
 {% endfor %}
 {% endmacro %}
 {# resource for routing loopback #}
@@ -40,8 +40,8 @@
 {# resource for vtep loopback #}
 {{ generate_loopback_config(vtep_lo_id) }}
 {# resource for leaf in vPC #}
-{% if vxlan.topology.vpc_peers is defined %}
-{% for peer in vxlan.topology.vpc_peers %}
+{% if data_model_extended.vxlan.topology.vpc_peers is defined %}
+{% for peer in data_model_extended.vxlan.topology.vpc_peers %}
 - entity_name: "{{ switch_list[peer.peer1].serial_number }}~{{ switch_list[peer.peer2].serial_number }}~loopback{{ vtep_lo_id }}"
   pool_type: IP
   pool_name: "LOOPBACK{{ vtep_lo_id }}_IP_POOL"
@@ -54,8 +54,8 @@
 {# build p2p links - Check if ipv4 or ipv6 is present to distinct with fabric_link with template #}
 {# build subnet #}
 
-{% if vxlan.topology.fabric_links is defined %}
-{% for switch in vxlan.topology.fabric_links %}
+{% if data_model_extended.vxlan.topology.fabric_links is defined %}
+{% for switch in data_model_extended.vxlan.topology.fabric_links %}
 {% if switch.ipv4 is defined and switch.ipv4 is iterable %}
 - entity_name: "{{ switch_list[switch.source_device].serial_number }}~{{ switch.source_interface }}~{{ switch_list[switch.dest_device].serial_number }}~{{ switch.dest_interface }}"
   pool_type: SUBNET
@@ -86,5 +86,14 @@
 {% endif %}
 {% endfor %}
 
+{% endif %}
+{# resource for anycast RP (multicast replication only) #}
+{% set replication_mode = data_model_extended.vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) %}
+{% if replication_mode == "multicast" and data_model_extended.vxlan.underlay.multicast.ipv4.anycast_rp is defined %}
+- entity_name: "ANYCAST_RP"
+  pool_type: IP
+  pool_name: "ANYCAST_RP_IP_POOL"
+  scope_type: fabric
+  resource: "{{ data_model_extended.vxlan.underlay.multicast.ipv4.anycast_rp }}"
 {% endif %}
 {% endif %}
