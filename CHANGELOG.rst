@@ -19,7 +19,7 @@ Added
   * This is a major architectural refactor of the Direct-to-Controller (DTC) roles that replaces per-fabric YAML task files with a unified, data-driven pipeline powered by Python action plugins and externalized YAML registries.
 * ``cr_manage_vrfs_networks`` split into independent ``cr_manage_vrfs`` and ``cr_manage_networks`` tags
 * Added ``role_create`` and ``role_remove`` top-level role tags
-* Added ``cr_manage_links`` and ``cr_manage_tor_pairing`` to eBGP and VXLAN tag sets
+* Added ``cr_manage_links`` and ``cr_manage_tor_pairing`` to iBGP and eBGP VXLAN tag sets
 * General performance improvements
 
 Fixed
