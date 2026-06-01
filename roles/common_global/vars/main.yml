@@ -29,7 +29,8 @@ nac_tags:
     - cr_manage_switches
     - cr_manage_vpc_peers
     - cr_manage_interfaces
-    - cr_manage_vrfs_networks
+    - cr_manage_vrfs
+    - cr_manage_networks
     - cr_manage_policy
     - cr_manage_links
     - cr_manage_edge_connections
@@ -59,9 +60,12 @@ nac_tags:
     - cr_manage_switches
     - cr_manage_vpc_peers
     - cr_manage_interfaces
-    - cr_manage_vrfs_networks
+    - cr_manage_vrfs
+    - cr_manage_networks
     - cr_manage_policy
+    - cr_manage_links
     - cr_manage_edge_connections
+    - cr_manage_tor_pairing
     - rr_manage_edge_connections
     - rr_manage_interfaces
     - rr_manage_networks
@@ -81,7 +85,8 @@ nac_tags:
     - cr_manage_switches
     - cr_manage_vpc_peers
     - cr_manage_interfaces
-    - cr_manage_vrfs_networks
+    - cr_manage_vrfs
+    - cr_manage_networks
     - cr_manage_policy
     - cr_manage_links
     - cr_manage_edge_connections
@@ -106,7 +111,8 @@ nac_tags:
     - cr_manage_switches
     - cr_manage_vpc_peers
     - cr_manage_interfaces
-    - cr_manage_vrfs_networks
+    - cr_manage_vrfs
+    - cr_manage_networks
     - cr_manage_policy
     - cr_manage_links
     - cr_manage_edge_connections
@@ -122,11 +128,13 @@ nac_tags:
     - rr_manage_tor_pairing
   # All Create Tags
   create:
+    - role_create
     - cr_manage_fabric
     - cr_manage_switches
     - cr_manage_vpc_peers
     - cr_manage_interfaces
-    - cr_manage_vrfs_networks
+    - cr_manage_vrfs
+    - cr_manage_networks
     - cr_manage_policy
     - cr_manage_links
     - cr_manage_edge_connections
@@ -143,14 +151,17 @@ nac_tags:
     - cr_manage_vpc_peers
   create_interfaces:
     - cr_manage_interfaces
-  create_vrfs_networks:
-    - cr_manage_vrfs_networks
+  create_vrfs:
+    - cr_manage_vrfs
+  create_networks:
+    - cr_manage_networks
   create_policy:
     - cr_manage_policy
   create_links:
     - cr_manage_links
   # All Remove Tags
   remove:
+    - role_remove
     - rr_manage_interfaces
     - rr_manage_networks
     - rr_manage_vrfs
