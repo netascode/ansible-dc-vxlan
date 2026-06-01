@@ -30,6 +30,7 @@ Fixed
 * https://github.com/netascode/ansible-dc-vxlan/issues/786
 
 * Template Fixes
+  
   * `ndfc_bgw_anycast_vip.j2`, `ndfc_underlay_ip_address.j2`, `ndfc_vpc_domain_id_resource.j2` — Switched from bare `vxlan.*` references to fully-qualified `data_model_extended.vxlan.*`
   * `ndfc_fabric_links.j2` — Added `peer1_ipv4_addr` / `peer2_ipv4_addr` support for numbered fabric links
   * `ndfc_policy.j2` — Added guard for empty switches list to prevent empty policy render
