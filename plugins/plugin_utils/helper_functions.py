@@ -340,3 +340,39 @@ def restructure_leaf_tor_data(switches_list, topology_switches, tor_peers):
             leaf_entries.append(tor_entry)
 
     return leaf_entries
+
+
+def ndfc_get_fabric_policies_by_template(self, task_vars, tmp, fabric_name, template_name):
+    """
+    Get all NDFC policies for a given fabric and template name in bulk.
+
+    :Parameters:
+        :self: Ansible action plugin instance object.
+        :task_vars (dict): Ansible task vars.
+        :tmp (None, optional): Ansible tmp object. Defaults to None via Action Plugin.
+        :fabric_name (str): The name of the fabric.
+        :template_name (str): The name of the NDFC template.
+
+    :Returns:
+        :policies_dict: Dictionary mapping serial_number to policy data.
+
+    :Raises:
+        N/A
+    """
+    policy_response = self._execute_module(
+        module_name="cisco.dcnm.dcnm_rest",
+        module_args={
+            "method": "GET",
+            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{fabric_name}/policy?templateName={template_name}"
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+
+    # Build a dictionary mapping serial number to policy
+    policies_dict = {}
+    if policy_response.get('response') and policy_response['response'].get('DATA'):
+        for policy in policy_response['response']['DATA']:
+            policies_dict[policy['serialNumber']] = policy
+
+    return policies_dict
