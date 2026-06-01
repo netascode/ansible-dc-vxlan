@@ -31,27 +31,27 @@ Fixed
 
 * Template Fixes
   
-  * ``ndfc_bgw_anycast_vip.j2``, ``ndfc_underlay_ip_address.j2``, ``ndfc_vpc_domain_id_resource.j2``
+  * ndfc_bgw_anycast_vip.j2, ndfc_underlay_ip_address.j2, ndfc_vpc_domain_id_resource.j2
 
     * Switched from bare ``vxlan.*`` references to fully-qualified ``data_model_extended.vxlan.*``
 
-  * ``ndfc_fabric_links.j2``
+  * ndfc_fabric_links.j2
 
     * Added ``peer1_ipv4_addr`` / ``peer2_ipv4_addr`` support for numbered fabric links
 
-  * ``ndfc_policy.j2``
+  * ndfc_policy.j2
 
     * Added guard for empty switches list to prevent empty policy render
 
-  * ``dc_vxlan_fabric_attach_vrfs_loopbacks.j2``, ``msd_fabric_attach_vrfs_loopbacks.j2``, ``mcfg_fabric_attach_vrfs_loopbacks.j2``
+  * dc_vxlan_fabric_attach_vrfs_loopbacks.j2, msd_fabric_attach_vrfs_loopbacks.j2, mcfg_fabric_attach_vrfs_loopbacks.j2
 
     * Widened loopback attach condition to include ``loopback_ipv4``, ``loopback_ipv6``, and ``freeform_config``
 
-  * ``ndfc_underlay_ip_address.j2``
+  * ndfc_underlay_ip_address.j2
 
     * Added anycast RP resource allocation for multicast replication mode
 
-  * ``mcfg_fabric_attach_vrfs_loopbacks.j2``
+  * mcfg_fabric_attach_vrfs_loopbacks.j2
 
     * Fixed ``vlan_id`` type (quoted string for NDFC API)
 
