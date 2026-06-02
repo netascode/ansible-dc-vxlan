@@ -8,6 +8,69 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.8.0`_
+=====================
+
+**Release Date:** ``2026-05-31``
+
+Added
+-----
+* This release delivers the DTC Pythonic Consolidation
+  * This is a major architectural refactor of the Direct-to-Controller (DTC) roles that replaces per-fabric YAML task files with a unified, data-driven pipeline powered by Python action plugins and externalized YAML registries.
+* ``cr_manage_vrfs_networks`` split into independent ``cr_manage_vrfs`` and ``cr_manage_networks`` tags
+* Added ``role_create`` and ``role_remove`` top-level role tags
+* Added ``cr_manage_links`` and ``cr_manage_tor_pairing`` to iBGP and eBGP VXLAN tag sets
+* General performance improvements
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/767
+* https://github.com/netascode/ansible-dc-vxlan/issues/783
+* https://github.com/netascode/ansible-dc-vxlan/issues/786
+
+* Template Fixes
+  
+  * ndfc_bgw_anycast_vip.j2, ndfc_underlay_ip_address.j2, ndfc_vpc_domain_id_resource.j2
+
+    * Switched from bare ``vxlan.*`` references to fully-qualified ``data_model_extended.vxlan.*``
+
+  * ndfc_fabric_links.j2
+
+    * Added ``peer1_ipv4_addr`` / ``peer2_ipv4_addr`` support for numbered fabric links
+
+  * ndfc_policy.j2
+
+    * Added guard for empty switches list to prevent empty policy render
+
+  * dc_vxlan_fabric_attach_vrfs_loopbacks.j2, msd_fabric_attach_vrfs_loopbacks.j2, mcfg_fabric_attach_vrfs_loopbacks.j2
+
+    * Widened loopback attach condition to include ``loopback_ipv4``, ``loopback_ipv6``, and ``freeform_config``
+
+  * ndfc_underlay_ip_address.j2
+
+    * Added anycast RP resource allocation for multicast replication mode
+
+  * mcfg_fabric_attach_vrfs_loopbacks.j2
+
+    * Fixed ``vlan_id`` type (quoted string for NDFC API)
+
+
+`0.7.2`_
+=====================
+
+**Release Date:** ``2026-05-01``
+
+Added
+-----
+* Added support for network attachments on TOR devices that are part of Multisite fabrics
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/786
+
+
 `0.7.1`_
 =====================
 
@@ -505,6 +568,8 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.8.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.2...0.8.0
+.. _0.7.2: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.1...0.7.2
 .. _0.7.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.0...0.7.1
 .. _0.7.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.6.0...0.7.0
 .. _0.6.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.5.1...0.6.0
