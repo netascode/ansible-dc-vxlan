@@ -68,7 +68,7 @@ class Rule:
             if sm_networks and network_attach_groups:
                 results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
                 results = cls.cross_reference_vpc_peers(network_attach_groups, vpc_peers, 'network', results)
-                results = cls.crooss_reference_attached_networks(network_attach_groups, switches, sm_networks, 'network', results)
+                results = cls.crooss_reference_attached_networks(network_attach_groups, sm_networks, 'network', results)
                 results = cls.cross_reference_vpc_peers_attributes(network_attach_groups, vpc_peers, 'network', results)
 
         return results
@@ -242,7 +242,7 @@ class Rule:
         return results
 
     @classmethod
-    def crooss_reference_attached_networks(cls, network_attach_groups, switches, networks, target, results):
+    def crooss_reference_attached_networks(cls, network_attach_groups, networks, target, results):
         """
         Check if each network defined under the network_attach_group exists.
         """
