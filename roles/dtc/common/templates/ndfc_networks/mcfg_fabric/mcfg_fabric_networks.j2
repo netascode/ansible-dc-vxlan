@@ -74,6 +74,15 @@
 {% endif %}
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
+{% if attach['networks'] is defined %}
+{% for attached_net in attach['networks'] %}
+{% if attached_net['name'] == net['name'] %}
+{% if attached_net['vlan_id'] is defined and attached_net['vlan_id'] != net['vlan_id'] %}
+      vlan_id: {{ attached_net['vlan_id'] }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
 {% if attach['ports'] is defined %}
       ports: {{ attach['ports'] }}
 {% endif %}
