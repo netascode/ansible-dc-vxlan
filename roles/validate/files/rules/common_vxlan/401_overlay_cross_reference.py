@@ -68,6 +68,8 @@ class Rule:
             if sm_networks and network_attach_groups:
                 results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
                 results = cls.cross_reference_vpc_peers(network_attach_groups, vpc_peers, 'network', results)
+                results = cls.crooss_reference_attached_networks(network_attach_groups, switches, sm_networks, 'network', results)
+                results = cls.cross_reference_vpc_peers_attributes(network_attach_groups, vpc_peers, 'network', results)
 
         return results
 
@@ -177,5 +179,95 @@ class Rule:
                             f"which has vPC peer '{vpc_peer}', but the vPC peer is not included "
                             f"in the same attach group. Both vPC peers should be in the same attach group."
                         )
+
+        return results
+
+    @classmethod
+    def cross_reference_vpc_peers_attributes(cls, network_attach_groups, vpc_peers, target, results):
+        """
+        Check if each network_attachment attributes (vlan_id, svi_enabled) is the same on each
+        of the vpc peers.
+        """
+
+        if not network_attach_groups or not vpc_peers:
+            return results
+
+        # Build a mapping of vPC peers: hostname -> peer_hostname
+        vpc_peer_mapping = {}
+        for vpc_pair in vpc_peers:
+            peer1 = vpc_pair.get('peer1')
+            peer2 = vpc_pair.get('peer2')
+            if peer1 and peer2:
+                vpc_peer_mapping[peer1] = peer2
+                vpc_peer_mapping[peer2] = peer1
+
+        # Check each attach group
+        for attach_group in network_attach_groups:
+            group_name = attach_group.get('name')
+            group_switches = attach_group.get('switches', [])
+            group_switches_dict = {sw['hostname']: {k: v for k, v in sw.items() if k != 'hostname'} for sw in group_switches}
+
+            # Get the network subkey that overwrites the global values defined at Network level
+            for switch in group_switches:
+                hostname = switch.get('hostname')
+                if hostname in vpc_peer_mapping:
+                    vpc_peer_name = vpc_peer_mapping[hostname]
+                    vpc_peer = group_switches_dict.get(vpc_peer_name)
+                    peer1_networks_override = switch.get('networks')
+                    peer2_networks_override = None
+
+                    if vpc_peer:
+                        peer2_networks_override = vpc_peer.get('networks')
+
+                        if peer1_networks_override and not peer2_networks_override:
+                            results.append(
+                                f"{target}_attach_group '{group_name}' contains switch '{hostname}' "
+                                f"which has vPC peer '{vpc_peer_name}' and defines Network attributes, but the "
+                                f"vPC peer doesn't contain those attributes. Both vPC peers must have the "
+                                f"same Network attributes under the same attach group."
+                            )
+
+                        if peer1_networks_override and peer2_networks_override:
+                            peer1_nets = {net['name']: {k: v for k, v in net.items() if k != 'name'} for net in peer1_networks_override}
+                            peer2_nets = {net['name']: {k: v for k, v in net.items() if k != 'name'} for net in peer2_networks_override}
+
+                            if peer1_nets != peer2_nets:
+                                results.append(
+                                    f"{target}_attach_group '{group_name}' contains switch '{hostname}' "
+                                    f"which has vPC peer '{vpc_peer}' and defines Network attributes, but those "
+                                    f"attributes are not the same. Both vPC peers must have the "
+                                    f"same Network attributes under the same attach group."
+                                )
+
+        return results
+
+    @classmethod
+    def crooss_reference_attached_networks(cls, network_attach_groups, switches, networks, target, results):
+        """
+        Check if each network defined under the network_attach_group exists.
+        """
+
+        if not network_attach_groups:
+            return results
+
+        for attach_group in network_attach_groups:
+            group_name = attach_group.get('name')
+            group_switches = attach_group.get('switches', [])
+            networks_name = [net['name'] for net in networks]
+
+            for switch in group_switches:
+                hostname = switch.get('hostname')
+                attached_networks = switch.get('networks')
+
+                if attached_networks:
+                    for network in attached_networks:
+                        attached_network_name = network.get('name')
+                        if attached_network_name not in networks_name:
+                            results.append(
+                                f"{target}_attach_group '{group_name}' contains switch '{hostname}' "
+                                f"which defines a network '{attached_network_name}', but the network "
+                                f"is not defined in the service model. Add the Network to the service "
+                                f"model and re-run the playbook."
+                            )
 
         return results
