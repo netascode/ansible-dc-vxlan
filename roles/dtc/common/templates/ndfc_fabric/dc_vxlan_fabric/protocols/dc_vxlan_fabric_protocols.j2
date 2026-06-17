@@ -68,8 +68,13 @@
 {% if vxlan.global.ibgp.spine_ibgp_peer_template_freeform | default("") | trim %}
   IBGP_PEER_TEMPLATE: |2
 {{ vxlan.global.ibgp.spine_ibgp_peer_template_freeform | cisco.nac_dc_vxlan.dedent | indent(6, true) }}
+{% else %}
+  IBGP_PEER_TEMPLATE: ""
 {% endif %}
 {% if vxlan.global.ibgp.leaf_ibgp_peer_template_freeform | default("") | trim %}
   IBGP_PEER_TEMPLATE_LEAF: |2
 {{ vxlan.global.ibgp.leaf_ibgp_peer_template_freeform | cisco.nac_dc_vxlan.dedent | indent(6, true) }}
+{% else %}
+  IBGP_PEER_TEMPLATE_LEAF: ""
 {% endif %}
+  INBAND_MGMT_PREV: False
