@@ -68,6 +68,7 @@ class Rule:
             if sm_networks and network_attach_groups:
                 results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
                 results = cls.cross_reference_vpc_peers(network_attach_groups, vpc_peers, 'network', results)
+                results = cls.cross_reference_attached_networks(network_attach_groups, sm_networks, 'network', results)
 
         return results
 
@@ -177,5 +178,36 @@ class Rule:
                             f"which has vPC peer '{vpc_peer}', but the vPC peer is not included "
                             f"in the same attach group. Both vPC peers should be in the same attach group."
                         )
+
+        return results
+
+    @classmethod
+    def cross_reference_attached_networks(cls, network_attach_groups, networks, target, results):
+        """
+        Check if each network defined under the network_attach_group exists.
+        """
+
+        if not network_attach_groups:
+            return results
+
+        for attach_group in network_attach_groups:
+            group_name = attach_group.get('name')
+            group_switches = attach_group.get('switches', [])
+            networks_name = [net['name'] for net in networks]
+
+            for switch in group_switches:
+                hostname = switch.get('hostname')
+                attached_networks = switch.get('networks')
+
+                if attached_networks:
+                    for network in attached_networks:
+                        attached_network_name = network.get('name')
+                        if attached_network_name not in networks_name:
+                            results.append(
+                                f"{target}_attach_group '{group_name}' contains switch '{hostname}' "
+                                f"which defines a network '{attached_network_name}', but the network "
+                                f"is not defined in the service model. Add the Network to the service "
+                                f"model and re-run the playbook."
+                            )
 
         return results

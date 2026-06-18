@@ -1,4 +1,4 @@
-{# Auto-generated NDFC DC VXLAN EVPN VRFs config data structure for fabric {{ vxlan.fabric.name }} #}
+{# Auto-generated NDFC DC VXLAN EVPN Networks config data structure for fabric {{ vxlan.fabric.name }} #}
 {% set networks = [] %}
 {% if data_model_extended.vxlan.overlay.networks is defined and data_model_extended.vxlan.overlay.networks %}
 {% set networks = data_model_extended.vxlan.overlay.networks %}
@@ -65,7 +65,16 @@
 {% endif %}
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
-{% if attach['ports'] is defined %}
+{% if attach['networks'] is defined %}
+{% for attached_net in attach['networks'] %}
+{% if attached_net['name'] == net['name'] %}
+{% if attached_net['freeform_config'] is defined %}
+      freeform_config: |-
+{{ attached_net['freeform_config'] | cisco.nac_dc_vxlan.dedent | indent(8, true) }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}{% if attach['ports'] is defined %}
       ports: {{ attach['ports'] }}
 {% endif %}
 {% if 'tors' in attach and attach['tors'] %}
