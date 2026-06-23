@@ -966,6 +966,28 @@ class PipelineRunnerBase(ABC):
             },
         )
 
+    def _fabric_has_preprovisioned_switches(self):
+        """
+        Return True if the data model defines any pre-provisioned switch
+        (``poap.preprovision``) for this fabric.
+
+        Used to gate the non-fatal HTTP 500 config-save handling so the bypass
+        only applies to pre-provisioned fabrics, where NDFC legitimately
+        returns 500 while switches are still reloading or not yet reachable.
+        """
+        switches = (
+            self.data_model.get('vxlan', {})
+            .get('topology', {})
+            .get('switches', [])
+        ) or []
+
+        return any(
+            isinstance(sw, dict)
+            and isinstance(sw.get('poap'), dict)
+            and sw['poap'].get('preprovision')
+            for sw in switches
+        )
+
     def _config_save(self, resource_name, step):
         """
         Execute a config-save via the fabric_deploy_manager action plugin.
@@ -974,13 +996,14 @@ class PipelineRunnerBase(ABC):
         consolidating config-save into a single code path. The fabric_deploy_manager
         handles MCFG vs standard path resolution via ApiPathResolver.
 
-        Treats an HTTP 500 from config-save as non-fatal so the pipeline
-        continues, restoring the pre-0.8.0 behavior for pre-provisioned
-        fabrics where NDFC can return 500 to the intermediate
-        recalculate/config-save (e.g. switches still reloading or not yet
-        reachable). Other failures (400, auth, malformed responses) remain
-        fatal. The 500 may still reflect a real NDFC/switch condition, so it
-        is surfaced as a warning rather than silenced.
+        Treats an HTTP 500 from config-save as non-fatal **only when the data
+        model contains pre-provisioned switches** (``poap.preprovision``), so
+        the pipeline continues for pre-provisioned fabrics where NDFC can
+        return 500 to the intermediate recalculate/config-save while switches
+        are still reloading or not yet reachable. A 500 on a fabric without
+        pre-provisioned switches, and any other failure (400, auth, malformed
+        responses), remain fatal. The tolerated 500 is surfaced as a warning
+        rather than silenced.
         """
         result = self.executor.execute_plugin(
             module_name="cisco.nac_dc_vxlan.dtc.fabric_deploy_manager",
@@ -998,16 +1021,16 @@ class PipelineRunnerBase(ABC):
             except (AttributeError, TypeError):
                 pass
 
-            if return_code == 500:
+            if return_code == 500 and self._fabric_has_preprovisioned_switches():
                 display.warning(
                     f"{self.OPERATION.upper()} [{self.fabric_name}] config-save returned "
-                    f"HTTP 500; continuing per non-fatal config-save policy. This may "
-                    f"indicate a transient or pre-provisioned switch condition in NDFC."
+                    f"HTTP 500; continuing because the data model contains pre-provisioned "
+                    f"switches (likely still reloading or not yet reachable in NDFC)."
                 )
                 display.v(
                     f"{self.OPERATION.upper()} [{self.fabric_name}] config-save HTTP 500 "
                     f"detail: {result.get('msg')}"
                 )
-                return {'failed': False, 'msg': 'Config-save HTTP 500 (non-fatal)'}
+                return {'failed': False, 'msg': 'Config-save HTTP 500 (non-fatal, pre-provisioned fabric)'}
 
         return result
