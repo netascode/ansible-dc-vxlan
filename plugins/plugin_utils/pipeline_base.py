@@ -974,8 +974,13 @@ class PipelineRunnerBase(ABC):
         consolidating config-save into a single code path. The fabric_deploy_manager
         handles MCFG vs standard path resolution via ApiPathResolver.
 
-        Treats HTTP 500 as non-fatal since config-save can return 500
-        when there are no pending changes (matches original rescue block behavior).
+        Treats an HTTP 500 from config-save as non-fatal so the pipeline
+        continues, restoring the pre-0.8.0 behavior for pre-provisioned
+        fabrics where NDFC can return 500 to the intermediate
+        recalculate/config-save (e.g. switches still reloading or not yet
+        reachable). Other failures (400, auth, malformed responses) remain
+        fatal. The 500 may still reflect a real NDFC/switch condition, so it
+        is surfaced as a warning rather than silenced.
         """
         result = self.executor.execute_plugin(
             module_name="cisco.nac_dc_vxlan.dtc.fabric_deploy_manager",
@@ -994,9 +999,14 @@ class PipelineRunnerBase(ABC):
                 pass
 
             if return_code == 500:
+                display.warning(
+                    f"{self.OPERATION.upper()} [{self.fabric_name}] config-save returned "
+                    f"HTTP 500; continuing per non-fatal config-save policy. This may "
+                    f"indicate a transient or pre-provisioned switch condition in NDFC."
+                )
                 display.v(
-                    f"{self.OPERATION.upper()} [{self.fabric_name}] Config-save returned "
-                    f"HTTP 500 (non-fatal — no pending changes)"
+                    f"{self.OPERATION.upper()} [{self.fabric_name}] config-save HTTP 500 "
+                    f"detail: {result.get('msg')}"
                 )
                 return {'failed': False, 'msg': 'Config-save HTTP 500 (non-fatal)'}
 
