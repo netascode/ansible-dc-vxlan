@@ -2,7 +2,10 @@
 # This NDFC policy and switch attachments config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
-{% if data_model_extended.vxlan.policy.policies | default([]) | length > 0 %}
+{% if
+  data_model_extended.vxlan.policy.policies | default([]) | length > 0
+  and data_model_extended.vxlan.policy.switches | default([]) | length > 0
+%}
 - switch:
 {% for switch in data_model_extended.vxlan.policy.switches %}
     - ip: {{ switch.mgmt_ip_address }}

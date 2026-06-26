@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+# Copyright (c) 2025-2026 Cisco Systems, Inc. and its affiliates
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -19,6 +19,33 @@
 #
 # SPDX-License-Identifier: MIT
 
+"""
+Fabric Deploy Manager — Consolidated deployment for all fabric types.
+
+Replaces the dtc/deploy role's per-fabric-type sub_main_*.yml files with a
+single action plugin that resolves all fabric-type-specific parameters
+internally from task_vars and data_model.
+
+Deployment model:
+  - operation 'all': Switch-level deploy — queries switch inventory, filters
+    by ccStatus (NA/Pending/Out-of-Sync) and upTimeStr (non-empty), deploys
+    only switches that need it. Config-save is NOT part of this workflow.
+  - operation 'config_save': Standalone config-save (also used by pipeline_base
+    _config_save delegation from create/remove pipelines).
+  - operation 'fabric_deploy': Fabric-level deploy fallback (entire fabric).
+  - operation 'switch_deploy': Standalone switch-level deploy.
+  - operation 'check_sync': Check fabric sync status.
+
+Refactored for SOLID:
+  - ApiPathResolver: Strategy pattern for API path selection (OCP)
+    Resolves MCFG_Child_Fabric onepath/fedproxy vs standard paths once at
+    construction, eliminating repeated if/elif branching in every method.
+  - ChildFabricChangeDetector: Extracts VRF/Network change merging (SRP)
+    Pure data logic separated from deployment orchestration.
+  - FabricDeployManager: Uses ApiPathResolver for path resolution with no
+    fabric-type branching in individual methods.
+"""
+
 from __future__ import absolute_import, division, print_function
 
 
@@ -27,26 +54,173 @@ __metaclass__ = type
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
-import inspect
-from time import sleep
+from time import monotonic, sleep
 import re
 
 display = Display()
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# Multisite Fabric Types — Used for child fabric type classification
+# ═══════════════════════════════════════════════════════════════════════════
+MULTISITE_FABRIC_TYPES = ('MSD', 'MCFG')
+
+# Border gateway switch roles — NDFC switchRole values that correspond to
+# data model roles border_gateway, border_gateway_spine, border_gateway_super_spine
+BGW_SWITCH_ROLES = ('border gateway', 'border gateway spine', 'border gateway super spine')
+
+# VRF/Network response variable names per multisite fabric type
+# These are registered facts set by the create role's fabric-specific task files
+MULTISITE_RESPONSE_VARS = {
+    'MSD': {
+        'vrf_result': 'manage_msd_vrf_result',
+        'network_result': 'manage_msd_network_result',
+    },
+    'MCFG': {
+        'vrf_result': 'manage_mcfg_vrf_result',
+        'network_result': 'manage_mcfg_network_result',
+    },
+}
+
+
+class ApiPathResolver:
+    """Resolves API paths based on fabric type, eliminating per-method branching.
+
+    For MCFG parent fabrics, routes through the onemanage API path.
+    For MCFG child fabrics, routes through onepath (ND <=3.2.2) or fedproxy
+    (ND >=4.1.1) prefixes. For all other fabric types, uses the standard
+    NDFC LAN fabric REST base path.
+
+    This is constructed once per FabricDeployManager instance, so each
+    method can simply reference self.paths.<property> without branching.
+    """
+
+    ONEMANAGE_BASE = "/onemanage/appcenter/cisco/ndfc/api/v1/onemanage"
+
+    def __init__(self, fabric_name, fabric_type, cluster_name=None, nd_version=None):
+        self._fabric_type = fabric_type
+        self._base = self._resolve_base(fabric_type, cluster_name, nd_version)
+        self.fabric_name = fabric_name
+
+    def _resolve_base(self, fabric_type, cluster_name, nd_version):
+        base = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest"
+        if fabric_type == 'MCFG_Child_Fabric' and cluster_name:
+            if version_compare(nd_version, '3.2.2', '<='):
+                return f"/onepath/{cluster_name}{base}"
+            elif version_compare(nd_version, '4.1.1', '>='):
+                return f"/fedproxy/{cluster_name}{base}"
+        return base
+
+    @property
+    def switches_by_fabric(self):
+        if self._fabric_type == 'MCFG':
+            return f"{self.ONEMANAGE_BASE}/fabrics/{self.fabric_name}/inventory/switchesByFabric"
+        return f"{self._base}/control/fabrics/{self.fabric_name}/inventory/switchesByFabric"
+
+    @property
+    def config_save(self):
+        if self._fabric_type == 'MCFG':
+            return f"{self.ONEMANAGE_BASE}/fabrics/{self.fabric_name}/config-save"
+        return f"{self._base}/control/fabrics/{self.fabric_name}/config-save"
+
+    @property
+    def config_deploy(self):
+        if self._fabric_type == 'MCFG':
+            return f"{self.ONEMANAGE_BASE}/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false"
+        return f"{self._base}/control/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false"
+
+    def switch_deploy(self, serial_list):
+        """Path for switch-level config-deploy given a comma-separated serial number list."""
+        if self._fabric_type == 'MCFG':
+            return (
+                f"{self.ONEMANAGE_BASE}/fabrics/{self.fabric_name}"
+                f"/config-deploy/{serial_list}?forceShowRun=false"
+            )
+        return (
+            f"{self._base}/control/fabrics/{self.fabric_name}"
+            f"/config-deploy/{serial_list}?forceShowRun=false"
+        )
+
+    def config_preview(self, serial_list):
+        """Path for config-preview given a comma-separated serial number list."""
+        if self._fabric_type == 'MCFG':
+            return (
+                f"{self.ONEMANAGE_BASE}/fabrics/{self.fabric_name}"
+                f"/config-preview/{serial_list}?forceShowRun=false&showBrief=true"
+            )
+        return (
+            f"{self._base}/control/fabrics/{self.fabric_name}"
+            f"/config-preview/{serial_list}?forceShowRun=false&showBrief=true"
+        )
+
+    @property
+    def fabric_history(self):
+        return (
+            f"{self._base}/config/delivery/deployerHistoryByFabric/"
+            f"{self.fabric_name}?sort=completedTime%3ADES&limit=5"
+        )
+
+
+class ChildFabricChangeDetector:
+    """Determines which child fabrics need deployment based on VRF/Network changes.
+
+    Handles the merge-and-deduplicate logic for VRF and Network response data
+    from the create role, producing a list of child fabrics that need deployment.
+
+    If force_run_all is True or run_map_diff_run is False, all child fabrics
+    are returned (full reconciliation). Otherwise, only child fabrics with
+    detected VRF or Network changes are returned.
+    """
+
+    @staticmethod
+    def detect(force_run_all, run_map_diff_run, child_fabrics, vrf_response_data, network_response_data):
+        """Return list of child fabrics requiring deployment."""
+        if force_run_all or not run_map_diff_run:
+            return child_fabrics
+        return ChildFabricChangeDetector._merge_changes(vrf_response_data, network_response_data)
+
+    @staticmethod
+    def _merge_changes(vrf_response_data, network_response_data):
+        """Merge VRF and Network change data, deduplicating by fabric name."""
+        vrf_changed = []
+        if vrf_response_data and isinstance(vrf_response_data, dict):
+            if vrf_response_data.get('child_fabrics'):
+                vrf_changed = [
+                    {'name': item['fabric'], 'cluster': item.get('cluster')}
+                    for item in vrf_response_data['child_fabrics']
+                    if item.get('changed')
+                ]
+
+        vrf_names = {f['name'] for f in vrf_changed}
+
+        network_changed = []
+        if network_response_data and isinstance(network_response_data, dict):
+            if network_response_data.get('child_fabrics'):
+                network_changed = [
+                    {'name': item['fabric_name'], 'cluster': item.get('cluster_name')}
+                    for item in network_response_data['child_fabrics']
+                    if item.get('changed') and item['fabric_name'] not in vrf_names
+                ]
+
+        return vrf_changed + network_changed
+
+
 class FabricDeployManager:
-    """Manages fabric deployment tasks."""
+    """Manages fabric deployment operations via NDFC REST API.
+
+    Uses ApiPathResolver to select the correct API paths at construction,
+    so path resolution has no fabric-type branching in individual methods.
+
+    Supports both fabric-level deployment (fabric_deploy) and switch-level
+    deployment (get_deployable_switches + switch_deploy) which filters by
+    ccStatus and upTimeStr to deploy only switches that need it.
+    """
 
     def __init__(self, params):
-        self.class_name = self.__class__.__name__
-        method_name = inspect.stack()[0][3]
 
         # Fabric Parameters
         self.fabric_name = params['fabric_name']
         self.fabric_type = params['fabric_type']
-        self.fabric_cluster_name = params.get('cluster_name', None)
-
-        self.nd_version = params.get('nd_major_minor_patch', None)
 
         # Module Execution Parameters
         self.task_vars = params['task_vars']
@@ -54,31 +228,13 @@ class FabricDeployManager:
         self.action_module = params['action_module']
         self.module_name = "cisco.dcnm.dcnm_rest"
 
-        # Module API Paths
-        base_path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest"
-
-        if (
-            self.fabric_type == 'MCFG_Child_Fabric' and
-            self.fabric_cluster_name and
-            version_compare(self.nd_version, '3.2.2', '<=')
-        ):
-            base_path = f"/onepath/{self.fabric_cluster_name}{base_path}"
-        elif (
-            self.fabric_type == 'MCFG_Child_Fabric' and
-            self.fabric_cluster_name and
-            version_compare(self.nd_version, '4.1.1', '>=')
-        ):
-            base_path = f"/fedproxy/{self.fabric_cluster_name}{base_path}"
-
-        self.api_paths = {
-            "get_switches_by_fabric": f"{base_path}/control/fabrics/{self.fabric_name}/inventory/switchesByFabric",
-            "config_save": f"{base_path}/control/fabrics/{self.fabric_name}/config-save",
-            "config_deploy": f"{base_path}/control/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false",
-            "fabric_history": f"{base_path}/config/delivery/deployerHistoryByFabric/{self.fabric_name}?sort=completedTime%3ADES&limit=5",
-            "onemanage_get_switches_by_fabric": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/inventory/switchesByFabric",
-            "onemanage_config_save": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/config-save",
-            "onemanage_config_deploy": f"/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/fabrics/{self.fabric_name}/config-deploy?forceShowRun=false",
-        }
+        # API Path Resolution (Strategy Pattern)
+        self.paths = ApiPathResolver(
+            fabric_name=self.fabric_name,
+            fabric_type=self.fabric_type,
+            cluster_name=params.get('cluster_name'),
+            nd_version=params.get('nd_major_minor_patch'),
+        )
 
         # Fabric State Booleans
         self.fabric_in_sync = True
@@ -90,33 +246,51 @@ class FabricDeployManager:
 
     def fabric_check_sync(self):
         """Check if the fabric is in sync."""
-        method_name = inspect.stack()[0][3]
-        display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] check_sync\n"
+            f"{'─' * display.columns}",
+            color='dark gray',
+        )
 
         self.fabric_in_sync = True
+        response = self._send_request("GET", self.paths.switches_by_fabric)
 
-        if self.fabric_type not in ['MCFG']:
-            response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
-        elif self.fabric_type in ['MCFG']:
-            response = self._send_request("GET", self.api_paths["onemanage_get_switches_by_fabric"])
-
-        # For non-Multisite fabrics, retry up to 5 times if out-of-sync
+        # For non-Multisite fabrics, retry up to 60 times if out-of-sync
         # Exclude Multisite parent fabrics (MSD or MCFG) as they are dependent on child fabrics being in sync
-        if self.fabric_type not in ['MSD', 'MCFG']:
-            for attempt in range(5):
+        RETRY_COUNT = 60
+        if self.fabric_type not in MULTISITE_FABRIC_TYPES:
+            for attempt in range(RETRY_COUNT):
                 self._fabric_check_sync_helper(response)
                 if self.fabric_in_sync:
                     break
-                if (attempt + 1) == 5 and not self.fabric_in_sync:
+                if (attempt + 1) == RETRY_COUNT and not self.fabric_in_sync:
                     break
                 else:
-                    display.warning(f"Fabric {self.fabric_name} is out of sync. Attempt {attempt + 1}/5. Sleeping 2 seconds before retry.")
-                    sleep(2)
+                    elapsed = monotonic() - step_start
+                    display.display(
+                        f"DEPLOY [{self.fabric_name}] "
+                        f"check_sync → out of sync, retry {attempt + 1}/{RETRY_COUNT} [{elapsed:.1f}s]",
+                        color='yellow',
+                    )
+                    sleep(10)
                     self.fabric_in_sync = True
-                    response = self._send_request("GET", self.api_paths["get_switches_by_fabric"])
+                    response = self._send_request("GET", self.paths.switches_by_fabric)
 
-        display.banner(f">>>> Fabric: ({self.fabric_name}) Type: ({self.fabric_type}) in sync: {self.fabric_in_sync}")
-        display.banner(">>>>")
+        elapsed = monotonic() - step_start
+        if self.fabric_in_sync:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"check_sync → ok (in_sync=True) [{elapsed:.1f}s]",
+                color='green',
+            )
+        else:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"check_sync → warning (in_sync=False) [{elapsed:.1f}s]",
+                color='yellow',
+            )
 
     def _fabric_check_sync_helper(self, response):
         if response.get('DATA'):
@@ -129,46 +303,202 @@ class FabricDeployManager:
 
     def fabric_config_save(self):
         """Trigger a config-save on the fabric."""
-        method_name = inspect.stack()[0][3]
-        display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] config_save\n"
+            f"{'─' * display.columns}",
+            color='dark gray',
+        )
 
-        if self.fabric_type not in ['MCFG']:
-            response = self._send_request("POST", self.api_paths["config_save"])
-        elif self.fabric_type in ['MCFG']:
-            response = self._send_request("POST", self.api_paths["onemanage_config_save"])
-
-        if response.get('RETURN_CODE') == 200:
-            pass
-        else:
+        config_save_path = self.paths.config_save
+        # display.display(
+        #     f"DEBUG [{self.fabric_name}] config_save request: POST {config_save_path}",
+        #     color='blue',
+        # )
+        response = self._send_request("POST", config_save_path)
+        # display.display(
+        #     f"DEBUG [{self.fabric_name}] config_save response: {response}",
+        #     color='blue',
+        # )
+        elapsed = monotonic() - step_start
+        if response.get('RETURN_CODE') != 200:
             self.fabric_save_succeeded = False
-            display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"config_save → failed [{elapsed:.1f}s]",
+                color='red',
+            )
+            display.v(f"DEPLOY [{self.fabric_name}] config_save failure detail: {response}")
+        else:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"config_save → ok [{elapsed:.1f}s]",
+                color='green',
+            )
 
     def fabric_deploy(self):
-        """Deploy the fabric configuration."""
-        method_name = inspect.stack()[0][3]
-        display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
+        """Deploy the fabric configuration (fabric-level)."""
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] fabric_deploy\n"
+            f"{'─' * display.columns}",
+            color='dark gray',
+        )
 
-        if self.fabric_type not in ['MCFG']:
-            response = self._send_request("POST", self.api_paths["config_deploy"])
-        elif self.fabric_type in ['MCFG']:
-            response = self._send_request("POST", self.api_paths["onemanage_config_deploy"])
-
-        if response.get('RETURN_CODE') == 200:
-            pass
-        else:
+        response = self._send_request("POST", self.paths.config_deploy)
+        elapsed = monotonic() - step_start
+        if response.get('RETURN_CODE') != 200:
             self.fabric_deploy_succeeded = False
-            display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"fabric_deploy → failed [{elapsed:.1f}s]",
+                color='red',
+            )
+            display.v(f"DEPLOY [{self.fabric_name}] fabric_deploy failure detail: {response}")
+        else:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"fabric_deploy → ok [{elapsed:.1f}s]",
+                color='green',
+            )
+
+    def get_deployable_switches(self, defer_summary=False):
+        """Query switch inventory and return serial numbers needing deployment.
+
+        A switch needs deployment when both conditions are true:
+          - ccStatus is one of: NA, Pending, Out-of-Sync
+          - upTimeStr is not an empty string (switch is up and reachable)
+
+        When defer_summary is True, the summary line is suppressed so the
+        caller can print a combined summary after merging additional serials
+        (e.g. BGW config-preview results). total_switch_count is always
+        stored for the caller's use.
+        """
+        DEPLOYABLE_CC_STATUSES = ('NA', 'Pending', 'Out-of-Sync')
+
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] get_deployable_switches\n"
+            f"{'─' * display.columns}",
+            color='dark gray',
+        )
+
+        response = self._send_request("GET", self.paths.switches_by_fabric)
+        switches = response.get('DATA', [])
+        self.total_switch_count = len(switches)
+
+        deployable_serials = []
+        for switch in switches:
+            cc_status = switch.get('ccStatus', '')
+            up_time_str = switch.get('upTimeStr', '')
+            serial = switch.get('serialNumber', '')
+            hostname = switch.get('hostName', switch.get('logicalName', 'unknown'))
+
+            if cc_status in DEPLOYABLE_CC_STATUSES and up_time_str:
+                display.v(
+                    f"  Switch {hostname} ({serial}): ccStatus={cc_status}, "
+                    f"upTimeStr={up_time_str} — needs deployment"
+                )
+                deployable_serials.append(serial)
+            else:
+                display.v(
+                    f"  Switch {hostname} ({serial}): ccStatus={cc_status}, "
+                    f"upTimeStr={up_time_str} — skipping"
+                )
+
+        if not defer_summary:
+            elapsed = monotonic() - step_start
+            if deployable_serials:
+                display.display(
+                    f"DEPLOY [{self.fabric_name}] "
+                    f"get_deployable_switches → ok "
+                    f"(changed={len(deployable_serials)}/{len(switches)}) [{elapsed:.1f}s]",
+                    color='yellow',
+                )
+            else:
+                display.display(
+                    f"DEPLOY [{self.fabric_name}] "
+                    f"get_deployable_switches → ok "
+                    f"(changed=0/{len(switches)}) [{elapsed:.1f}s]",
+                    color='green',
+                )
+        return deployable_serials
+
+    def switch_deploy(self, serial_numbers):
+        """Deploy configuration to specific switches by serial number list."""
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] switch_deploy ({len(serial_numbers)} switches)\n"
+            f"{'─' * display.columns}",
+            color='dark gray',
+        )
+
+        if not serial_numbers:
+            elapsed = monotonic() - step_start
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"switch_deploy → skipped (no switches) [{elapsed:.1f}s]",
+                color='cyan',
+            )
+            return
+
+        serial_list = ','.join(serial_numbers)
+        display.display(
+            f"DEPLOY [{self.fabric_name}] "
+            f"switch_deploy request: POST {self.paths.switch_deploy(serial_list)}",
+            color='blue',
+        )
+        response = self._send_request("POST", self.paths.switch_deploy(serial_list))
+        display.display(
+            f"DEPLOY [{self.fabric_name}] "
+            f"switch_deploy response: {response}",
+            color='blue',
+        )
+        elapsed = monotonic() - step_start
+        if response.get('RETURN_CODE') != 200:
+            self.fabric_deploy_succeeded = False
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"switch_deploy → failed [{elapsed:.1f}s]",
+                color='red',
+            )
+            display.v(f"DEPLOY [{self.fabric_name}] switch_deploy failure detail: {response}")
+        else:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"switch_deploy → ok (changed={len(serial_numbers)}) [{elapsed:.1f}s]",
+                color='yellow',
+            )
 
     def fabric_history_get(self):
         """Retrieve fabric deployment history."""
-        method_name = inspect.stack()[0][3]
-        display.banner(f"{self.class_name}.{method_name}() Fabric: ({self.fabric_name}) Type: ({self.fabric_type})")
+        step_start = monotonic()
+        display.display(
+            f"\n{'─' * display.columns}\n"
+            f"DEPLOY [{self.fabric_name}] fabric_history_get\n"
+            f"{'─' * display.columns}",
+            color='dark gray',
+        )
 
-        response = self._send_request("GET", self.api_paths["fabric_history"])
-        if response.get('RETURN_CODE') == 200:
-            pass
+        response = self._send_request("GET", self.paths.fabric_history)
+        elapsed = monotonic() - step_start
+        if response.get('RETURN_CODE') != 200:
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"fabric_history_get → failed [{elapsed:.1f}s]",
+                color='red',
+            )
+            display.v(f"DEPLOY [{self.fabric_name}] fabric_history_get failure detail: {response}")
         else:
-            display.warning(f">>>> Failed for Fabric {self.fabric_name}: {response}")
+            display.display(
+                f"DEPLOY [{self.fabric_name}] "
+                f"fabric_history_get → ok [{elapsed:.1f}s]",
+                color='green',
+            )
 
         # Get last 2 history entries
         self.fabric_history = response.get('DATA', [])[0:2]
@@ -189,10 +519,13 @@ class FabricDeployManager:
             task_vars=self.task_vars,
             tmp=self.tmp
         )
-        if 'response' in response.keys():
+        if isinstance(response, dict) and 'response' in response:
             response = response['response']
-        if 'msg' in response.keys():
+        if isinstance(response, dict) and 'msg' in response and isinstance(response['msg'], dict):
             response = response['msg']
+        # Safety: ensure callers always receive a dict they can call .get() on
+        if not isinstance(response, dict):
+            response = {'DATA': response, 'RETURN_CODE': -1, 'msg': str(response)}
         return response
 
 
@@ -211,143 +544,173 @@ class ActionModule(ActionBase):
         params['fabric_name'] = self._task.args["fabric_name"]
         params['fabric_type'] = self._task.args["fabric_type"]
 
-        # Operations supported include 'all', 'config_save', 'config_deploy', 'check_sync'
+        # Operations supported include 'all', 'config_save', 'fabric_deploy', 'switch_deploy', 'check_sync'
         params['operation'] = self._task.args.get("operation")
 
         # Manage Deployment For Multisite (MSD or MCFG) Parent or Standalone Fabric
+        # Acquire msite_data before parent deploy so manage_fabrics can
+        # include BGW switches via config-preview. This is needed on all
+        # runs (not just day-0/full reconciliation) because BGW switches
+        # from child fabrics may not appear as Out-of-Sync in the parent
+        # fabric's switchesByFabric inventory query.
+        if params['fabric_type'] in MULTISITE_FABRIC_TYPES:
+            data_model = self._task.args.get("data_model", {})
+            child_fabrics = data_model.get('vxlan', {}).get('multisite', {}).get('child_fabrics', [])
+
+            if child_fabrics:
+                params['msite_data'] = self._acquire_msite_data(params)
+
         results = self.manage_fabrics(results, params)
         if results.get('failed'):
             return results
 
-        if params['fabric_type'] in ['MSD', 'MCFG']:
-            # Manage Deployment For Child Fabrics if Multisite (MSD or MCFG)
-            # Child Fabrics are only deployed if there are VRF or Network changes detected by passing in the response data from those tasks
-            # If force_run_all is set to True or run_map_diff_run is set to False, all child fabrics will be deployed regardless of change detection
-
-            if params['fabric_type'] == 'MCFG':
-
-                nd_version = self._task.args["nd_version"]
-
-                # Extract major, minor, patch and patch letter from nd_version
-                # that is set in nac_dc_vxlan.dtc.connectivity_check role
-                # Example nd_version: "3.1.1l" or "3.2.2m"
-                # where 3.1.1/3.2.2 are major.minor.patch respectively
-                # and l/m are the patch letter respectively
-                nd_major_minor_patch = None
-                nd_patch_letter = None
-                match = re.match(r'^(\d+\.\d+\.\d+)([a-z])?$', nd_version)
-                if match:
-                    nd_major_minor_patch = match.group(1)
-                    nd_patch_letter = match.group(2)
-
-                params['nd_major_minor_patch'] = nd_major_minor_patch
-
-            params['force_run_all'] = self._task.args.get("force_run_all", False)
-            params['run_map_diff_run'] = self._task.args.get("run_map_diff_run", True)
-            params['dm_child_fabrics'] = self._task.args.get("data_model_child_fabrics")
-            params['vrf_response_data'] = self._task.args.get("vrf_response_data", False)
-            params['network_response_data'] = self._task.args.get("network_response_data", False)
-
-            results = self.process_child_fabric_changes(results, params)
+        if params['fabric_type'] in MULTISITE_FABRIC_TYPES:
+            # Manage Deployment For Child Fabrics
+            # Child fabrics are only deployed if there are VRF or Network changes
+            # detected. If force_run_all is True or run_map_diff_run is False,
+            # all child fabrics will be deployed regardless of change detection.
+            results = self._resolve_and_process_child_fabrics(results, params)
             if results.get('failed'):
                 return results
 
         return results
 
-    def manage_fabrics(self, results, params):
-        """Manage fabric deployments based on operation parameter."""
+    def _acquire_msite_data(self, params):
+        """Acquire multisite data from create_result cache or controller query fallback.
 
-        for key in ['fabric_type', 'fabric_name', 'operation']:
-            if params[key] is None:
-                results['failed'] = True
-                results['msg'] = f"Missing required parameter '{key}'"
-                return results
+        Checks task_vars['create_result']['msite_data'] first (populated when
+        the create pipeline ran). Falls back to calling prepare_msite_data
+        plugin directly when create was skipped.
 
-        if params['operation'] not in ['all', 'config_save', 'config_deploy', 'check_sync']:
-            results['failed'] = True
-            results['msg'] = "Parameter 'operation' must be one of: [all, config_save, config_deploy, check_sync]"
-            return results
+        Returns:
+            msite_data dict or None if not a multisite fabric.
+        """
+        # Try cached data from create pipeline
+        create_result = params['task_vars'].get('create_result')
+        if isinstance(create_result, dict):
+            msite_data = create_result.get('msite_data')
+            if msite_data:
+                display.v(
+                    f"DEPLOY [{params['fabric_name']}] "
+                    f"Using msite_data from create pipeline cache"
+                )
+                return msite_data
 
-        fabric_manager = FabricDeployManager(params)
+        # Fallback: query controller directly via action plugin dispatch
+        # prepare_msite_data is an action plugin, not a module — must use
+        # action_loader to invoke it properly.
+        display.display(
+            f"DEPLOY [{params['fabric_name']}] "
+            f"msite_data not in create_result — querying controller",
+            color='yellow',
+        )
+        data_model = self._task.args.get("data_model", {})
+        plugin_name = "cisco.nac_dc_vxlan.dtc.prepare_msite_data"
+        plugin_args = {
+            "data_model": data_model,
+            "parent_fabric": params['fabric_name'],
+            "parent_fabric_type": params['fabric_type'],
+            "nd_version": self._task.args.get("nd_version", ""),
+        }
 
-        # Workflows
-        if params['operation'] in ['all']:
-            fabric_manager.fabric_config_save()
-            fabric_manager.fabric_deploy()
-            fabric_manager.fabric_check_sync()
+        original_args = self._task.args
+        original_action = self._task.action
+        try:
+            self._task.args = plugin_args
+            self._task.action = plugin_name
 
-            # For non-Multisite fabrics, check fabric history and retry deployment if out-of-sync
-            # Multisite parent fabrics (MSD or MCFG) are excluded as they are dependent on child fabrics being in sync
-            if not fabric_manager.fabric_in_sync and params['fabric_type'] not in ['MSD', 'MCFG']:
-                # If the fabric is out of sync after deployment try one more time before giving up
-                fabric_manager.fabric_history_get()
-                display.warning(fabric_manager.fabric_history)
-                display.warning("Fabric is out of sync after initial deployment. Attempting one more deployment.")
-                fabric_manager.fabric_config_save()
-                fabric_manager.fabric_deploy()
-                fabric_manager.fabric_check_sync()
+            action_plugin = self._shared_loader_obj.action_loader.get(
+                plugin_name,
+                task=self._task,
+                connection=self._connection,
+                play_context=self._play_context,
+                loader=self._loader,
+                templar=self._templar,
+                shared_loader_obj=self._shared_loader_obj,
+            )
 
-            if not fabric_manager.fabric_in_sync and params['fabric_type'] not in ['MSD', 'MCFG']:
-                fabric_manager.fabric_history_get()
-                results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync after deployment."
-                results['fabric_history'] = fabric_manager.fabric_history
-                results['failed'] = True
+            if action_plugin is None:
+                display.warning(
+                    f"DEPLOY [{params['fabric_name']}] "
+                    f"Action plugin '{plugin_name}' not found — skipping msite_data acquisition"
+                )
+                return None
 
-        if params['operation'] in ['config_save']:
-            fabric_manager.fabric_config_save()
-            if not fabric_manager.fabric_save_succeeded:
-                results['failed'] = True
+            result = action_plugin.run(task_vars=params['task_vars'], tmp=params['tmp'])
+        finally:
+            self._task.args = original_args
+            self._task.action = original_action
 
-        if params['operation'] in ['config_deploy']:
-            fabric_manager.fabric_deploy()
-            if not fabric_manager.fabric_deploy_succeeded:
-                results['failed'] = True
+        if result.get('failed'):
+            return None
+        return result
 
-        if params['operation'] in ['check_sync']:
-            fabric_manager.fabric_check_sync()
-            if not fabric_manager.fabric_in_sync:
-                fabric_manager.fabric_history_get()
-                results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync."
-                results['fabric_history'] = fabric_manager.fabric_history
-                results['failed'] = True
+    def _resolve_and_process_child_fabrics(self, results, params):
+        """Resolve multisite parameters from data_model/task_vars and process child fabrics."""
+        fabric_type = params['fabric_type']
 
-        return results
+        # Resolve data_model from task args (consolidated entry point)
+        # or fall back to individual args (legacy sub_main compatibility)
+        data_model = self._task.args.get("data_model")
 
-    def process_child_fabric_changes(self, results, params):
-        """Process child fabric changes for Multisite (MSD or MCFG) deployments."""
-
-        for key in ['fabric_type', 'run_map_diff_run', 'force_run_all', 'dm_child_fabrics', 'vrf_response_data', 'network_response_data']:
-            if params[key] is None:
-                results['failed'] = True
-                results['msg'] = f"Missing required parameter '{key}'"
-                return results
-
-        parent_fabric_type = params['fabric_type']
-
-        if parent_fabric_type == 'MCFG' and params['nd_major_minor_patch'] is None:
-            results['failed'] = True
-            results['msg'] = f"Missing required parameter '{key}'"
-            return results
-
-        changed_fabrics = []
-        if params['force_run_all'] or not params['run_map_diff_run']:
-            # Process all child fabrics
-            changed_fabrics = params['dm_child_fabrics']
+        if data_model:
+            # Consolidated path: resolve from data_model
+            child_fabrics = data_model.get('vxlan', {}).get('multisite', {}).get('child_fabrics', [])
         else:
-            # Process child fabric changes for VRFs and Networks
-            changed_fabrics = self._process_child_fabric_changes(params)
+            # Legacy path: passed directly as task arg
+            child_fabrics = self._task.args.get("data_model_child_fabrics", [])
 
-        # Manage child fabric deployments based on force_run_all/run_map_diff_run or detected changes in VRFs or Networks
+        if not child_fabrics:
+            return results
+
+        # Resolve VRF/Network response data from task_vars (registered facts from create role)
+        response_vars = MULTISITE_RESPONSE_VARS.get(fabric_type, {})
+        vrf_response_data = params['task_vars'].get(response_vars.get('vrf_result', ''), [])
+        network_response_data = params['task_vars'].get(response_vars.get('network_result', ''), [])
+
+        # Resolve force_run_all and run_map_diff_run
+        force_run_all = self._task.args.get("force_run_all", False)
+        run_map_diff_run = self._task.args.get("run_map_diff_run", True)
+
+        # MCFG requires ND version for API path routing
+        nd_major_minor_patch = None
+        if fabric_type == 'MCFG':
+            nd_version = self._task.args.get("nd_version", "")
+            match = re.match(r'^(\d+\.\d+\.\d+)([a-z])?$', nd_version)
+            if match:
+                nd_major_minor_patch = match.group(1)
+
+            if nd_major_minor_patch is None:
+                results['failed'] = True
+                results['msg'] = "Missing or invalid 'nd_version' parameter required for MCFG fabric deployment"
+                return results
+
+        params['nd_major_minor_patch'] = nd_major_minor_patch
+
+        # Detect which child fabrics need deployment
+        changed_fabrics = ChildFabricChangeDetector.detect(
+            force_run_all=force_run_all,
+            run_map_diff_run=run_map_diff_run,
+            child_fabrics=child_fabrics,
+            vrf_response_data=vrf_response_data,
+            network_response_data=network_response_data,
+        )
+
+        # Deploy changed child fabrics
         if changed_fabrics:
-            if parent_fabric_type == 'MSD':
-                params['fabric_type'] = "MSD_Child_Fabric"
-            elif parent_fabric_type == 'MCFG':
-                params['fabric_type'] = "MCFG_Child_Fabric"
+            child_fabric_type = f"{fabric_type}_Child_Fabric"
 
             for changed_fabric in changed_fabrics:
                 params['fabric_name'] = changed_fabric['name']
+                params['fabric_type'] = child_fabric_type
                 params['cluster_name'] = changed_fabric.get('cluster', None)
-                display.banner(f"Processing Child Fabric: {params['fabric_name']} Cluster: {params['cluster_name']}")
+                display.display(
+                    f"\n{'─' * display.columns}\n"
+                    f"DEPLOY [{params['fabric_name']}] "
+                    f"child_fabric (cluster={params['cluster_name']})\n"
+                    f"{'─' * display.columns}",
+                    color='dark gray',
+                )
 
                 results = self.manage_fabrics(results, params)
                 if results.get('failed'):
@@ -355,50 +718,195 @@ class ActionModule(ActionBase):
 
         return results
 
-    def _process_child_fabric_changes(self, params):
-        """Helper for processing child fabric changes for Multisite (MSD or MCFG) deployments."""
-        vrf_response_data = params['vrf_response_data']
-        network_response_data = params['network_response_data']
+    def _get_bgw_preview_serials(self, params, msite_data, fabric_manager):
+        """Return BGW serial numbers needing deployment via config-preview.
 
-        vrf_changed_fabrics = []
-        network_changed_fabrics = []
+        Extracts BGW serial numbers from msite_data, queries config-preview
+        against the parent fabric, and returns only those with Out-of-Sync
+        or Pending status. The caller merges these into the main deployable
+        list so they flow through the standard deploy → check → retry lifecycle.
+        """
+        fabric_name = params['fabric_name']
+        child_fabrics_data = msite_data.get('child_fabrics_data', {})
 
-        # Process VRF Changes
-        if vrf_response_data:
-            if vrf_response_data.get('child_fabrics'):
-                child_fabric_vrf_data = vrf_response_data['child_fabrics']
+        # Collect BGW serial numbers across all child fabrics
+        bgw_serials = []
+        for cf_name, cf_data in child_fabrics_data.items():
+            for switch in cf_data.get('switches', []):
+                if switch.get('role', '') in BGW_SWITCH_ROLES:
+                    bgw_serials.append(switch['serial_number'])
+                    display.v(
+                        f"DEPLOY [{fabric_name}] BGW switch: "
+                        f"{switch.get('hostname', 'unknown')} ({switch['serial_number']}) "
+                        f"role={switch['role']} fabric={cf_name}"
+                    )
 
-                # As part of VRF changes detected, get list of changed fabrics
-                vrf_changed_fabrics = [
-                    {
-                        'name': item['fabric'],
-                        'cluster': item.get('cluster')
-                    }
-                    for item in child_fabric_vrf_data
-                    if item.get('changed')
-                ]
+        if not bgw_serials:
+            return []
 
-        # Process Network Changes
-        if network_response_data:
-            if network_response_data.get('child_fabrics'):
-                child_fabric_network_data = network_response_data['child_fabrics']
+        # Query config-preview for BGW switches against parent fabric
+        serial_list = ','.join(bgw_serials)
+        response = fabric_manager._send_request(
+            "GET", fabric_manager.paths.config_preview(serial_list)
+        )
 
-                # As part of Network changes detected, exclude fabrics that have already been marked as changed due to VRF changes
-                network_changed_fabrics = [
-                    {
-                        'name': item['fabric_name'],
-                        'cluster': item.get('cluster_name')
-                    }
-                    for item in child_fabric_network_data
-                    if item.get('changed') and item['fabric_name'] not in vrf_changed_fabrics
-                ]
+        # Filter for switches needing deployment
+        DEPLOYABLE_STATUSES = ('Out-of-Sync', 'Pending')
+        deploy_serials = []
+        preview_data = response.get('DATA', response) if isinstance(response, dict) else response
+        if isinstance(preview_data, list):
+            for entry in preview_data:
+                status = entry.get('status', '')
+                switch_id = entry.get('switchId', '')
+                switch_name = entry.get('switchName', 'unknown')
+                if status in DEPLOYABLE_STATUSES:
+                    deploy_serials.append(switch_id)
+                    display.v(
+                        f"  BGW {switch_name} ({switch_id}): "
+                        f"status={status} — needs deployment"
+                    )
+                else:
+                    display.v(
+                        f"  BGW {switch_name} ({switch_id}): "
+                        f"status={status} — skipping"
+                    )
 
-        merged_fabric_changes = vrf_changed_fabrics + [
-            network_changed_fabric
-            for network_changed_fabric in network_changed_fabrics
-            if network_changed_fabric['name'] not in {
-                network_changed_fabric['name'] for network_changed_fabric in vrf_changed_fabrics
-            }
-        ]
+        return deploy_serials
 
-        return merged_fabric_changes
+    def manage_fabrics(self, results, params):
+        """Manage fabric deployments based on operation parameter."""
+        fabric_name = params['fabric_name']
+        operation = params['operation']
+
+        for key in ['fabric_type', 'fabric_name', 'operation']:
+            if params[key] is None:
+                results['failed'] = True
+                results['msg'] = f"Missing required parameter '{key}'"
+                return results
+
+        if operation not in ['all', 'config_save', 'fabric_deploy', 'switch_deploy', 'check_sync']:
+            results['failed'] = True
+            results['msg'] = "Parameter 'operation' must be one of: [all, config_save, fabric_deploy, switch_deploy, check_sync]"
+            return results
+
+        workflow_start = monotonic()
+        display.display(
+            f"\n{'═' * display.columns}\n"
+            f"DEPLOY [{fabric_name}] "
+            f"Workflow start — operation: {operation}\n"
+            f"{'═' * display.columns}",
+            color='dark gray',
+        )
+
+        fabric_manager = FabricDeployManager(params)
+
+        # Workflows
+        if operation == 'all':
+            # Switch-level deploy: query switches, deploy only those that need it
+            # Config-save is NOT part of this workflow — it is handled by the
+            # create pipeline's _config_save steps at the appropriate points.
+            msite_data = params.get('msite_data')
+            has_bgw_preview = msite_data and params['fabric_type'] in MULTISITE_FABRIC_TYPES
+
+            # When BGW preview is needed, defer the summary line so we can
+            # print a single combined result after merging BGW serials.
+            deploy_step_start = monotonic()
+            deployable = fabric_manager.get_deployable_switches(defer_summary=has_bgw_preview)
+
+            if has_bgw_preview:
+                bgw_serials = self._get_bgw_preview_serials(params, msite_data, fabric_manager)
+                if bgw_serials:
+                    existing = set(deployable)
+                    for serial in bgw_serials:
+                        if serial not in existing:
+                            deployable.append(serial)
+
+                # Print combined summary covering both queries
+                elapsed = monotonic() - deploy_step_start
+                total = fabric_manager.total_switch_count
+                if deployable:
+                    display.display(
+                        f"DEPLOY [{fabric_name}] "
+                        f"get_deployable_switches → ok "
+                        f"(changed={len(deployable)}/{total}) [{elapsed:.1f}s]",
+                        color='yellow',
+                    )
+                else:
+                    display.display(
+                        f"DEPLOY [{fabric_name}] "
+                        f"get_deployable_switches → ok "
+                        f"(changed=0/{total}) [{elapsed:.1f}s]",
+                        color='green',
+                    )
+
+            if deployable:
+                fabric_manager.switch_deploy(deployable)
+                fabric_manager.fabric_check_sync()
+
+                # For non-Multisite fabrics, retry if still out-of-sync
+                if not fabric_manager.fabric_in_sync and params['fabric_type'] not in MULTISITE_FABRIC_TYPES:
+                    fabric_manager.fabric_history_get()
+                    display.display(
+                        f"DEPLOY [{fabric_name}] "
+                        f"out of sync after initial deployment, retrying",
+                        color='yellow',
+                    )
+                    deployable = fabric_manager.get_deployable_switches()
+                    if deployable:
+                        fabric_manager.switch_deploy(deployable)
+                        fabric_manager.fabric_check_sync()
+
+                if not fabric_manager.fabric_in_sync and params['fabric_type'] not in MULTISITE_FABRIC_TYPES:
+                    fabric_manager.fabric_history_get()
+                    results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync after deployment."
+                    results['fabric_history'] = fabric_manager.fabric_history
+                    results['failed'] = True
+            else:
+                display.display(
+                    f"DEPLOY [{fabric_name}] "
+                    f"all → skipped (no switches need deployment)",
+                    color='cyan',
+                )
+
+        if operation == 'config_save':
+            fabric_manager.fabric_config_save()
+            if not fabric_manager.fabric_save_succeeded:
+                results['failed'] = True
+
+        if operation == 'fabric_deploy':
+            fabric_manager.fabric_deploy()
+            if not fabric_manager.fabric_deploy_succeeded:
+                results['failed'] = True
+
+        if operation == 'switch_deploy':
+            deployable = fabric_manager.get_deployable_switches()
+            if deployable:
+                fabric_manager.switch_deploy(deployable)
+            else:
+                display.display(
+                    f"DEPLOY [{fabric_name}] "
+                    f"switch_deploy → skipped (no switches need deployment)",
+                    color='cyan',
+                )
+            if not fabric_manager.fabric_deploy_succeeded:
+                results['failed'] = True
+
+        if operation == 'check_sync':
+            fabric_manager.fabric_check_sync()
+            if not fabric_manager.fabric_in_sync:
+                fabric_manager.fabric_history_get()
+                results['msg'] = f"Fabric {fabric_manager.fabric_name} is out of sync."
+                results['fabric_history'] = fabric_manager.fabric_history
+                results['failed'] = True
+
+        workflow_elapsed = monotonic() - workflow_start
+        status_color = 'red' if results.get('failed') else 'dark gray'
+        display.display(
+            f"\n{'═' * display.columns}\n"
+            f"DEPLOY [{fabric_name}] "
+            f"Workflow complete — operation: {operation} [{workflow_elapsed:.1f}s]\n"
+            f"{'═' * display.columns}",
+            color=status_color,
+        )
+
+        return results
