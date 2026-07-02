@@ -966,42 +966,6 @@ class PipelineRunnerBase(ABC):
             },
         )
 
-        # if isinstance(build_result, dict) and build_result.get('failed'):
-        #     return {
-        #         'failed': True,
-        #         'msg': (
-        #             f"unmanaged_edge_connections failed: "
-        #             f"{build_result.get('msg', 'unknown error')}"
-        #         ),
-        #     }
-
-        # unmanaged = build_result.get('unmanaged_edge_connections', [])
-
-        # # Nothing to remove when no switch entries carry unmanaged policies.
-        # if not unmanaged or not unmanaged[0].get('switch'):
-        #     display.v(
-        #         f"{self.OPERATION.upper()} [{self.fabric_name}] edge_connections: "
-        #         f"no unmanaged edge connections to remove"
-        #     )
-        #     return {'changed': False, 'msg': 'No unmanaged edge connections to remove'}
-
-        # display.v(
-        #     f"{self.OPERATION.upper()} [{self.fabric_name}] edge_connections: removing "
-        #     f"unmanaged edge connection policies on {len(unmanaged[0]['switch'])} switch(es)"
-        # )
-
-        # # Step 2: Delete the unmanaged policies via dcnm_policy.
-        # # The executor auto-adds use_desc_as_key=True for dcnm_policy.
-        # return self.execute_module(
-        #         module_name="cisco.dcnm.dcnm_policy",
-        #         module_args={
-        #             "fabric": self.fabric_name,
-        #             "use_desc_as_key": True,
-        #             "config": unmanaged,
-        #             "deploy": False,
-        #             "state": "deleted",
-        #         },
-        #     )
     def _config_save(self, resource_name, step):
         """
         Execute a config-save via the fabric_deploy_manager action plugin.
