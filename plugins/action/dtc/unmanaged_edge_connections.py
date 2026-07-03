@@ -50,16 +50,6 @@ class ActionModule(ActionBase):
                 "switch": []
             }
         ]
-        # Iterate over each item in the data list
-        # for item in edge_connections:
-        #     ip = item['ip']
-        #     # If the IP is not already a key in the dictionary, add it with an empty list
-        #     if ip not in restructured_edge_connections:
-        #         restructured_edge_connections[ip] = []
-        #     # Iterate over each policy and collect the descriptions
-        #     for policy in item['policies']:
-        #         description = policy['description']
-        #         restructured_edge_connections[ip].append(description)
 
         for switch in ndfc_sw_data:
             ip = switch['ipAddress']
@@ -70,9 +60,6 @@ class ActionModule(ActionBase):
                     for policy in item['policies']:
                         description = policy['description']
                         restructured_edge_connections[ip].append(description)
-
-        # Print the resulting dictionary
-        # print(restructured_edge_connections)
 
         for ndfc_sw in ndfc_sw_data:
 
@@ -164,8 +151,7 @@ class ActionModule(ActionBase):
                         # ]
 
         # Store the unmanaged policy payload for return and usage in the NDFC policy module to delete from NDFC
-        # print(unmanaged_edge_connections)
-        # print(fabric_name)
+
         results['unmanaged_edge_connections'] = unmanaged_edge_connections
         if unmanaged_edge_connections[0]["switch"]:
             policy_result = self._execute_module(
