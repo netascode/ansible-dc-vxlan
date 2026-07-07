@@ -929,6 +929,43 @@ class PipelineRunnerBase(ABC):
             },
         )
 
+    def _unmanaged_edge_connections(self, resource_name, step):
+        """
+        Discover and remove unmanaged edge connections from NDFC.
+
+        Replicates roles/dtc/remove/tasks/common/edge_connections.yml:
+          1. Build the unmanaged edge connection payload via the
+             unmanaged_edge_connections action plugin (which queries NDFC for
+             each switch's edge_/nace_ policies and diffs them against the
+             data model edge_connections).
+          2. Delete the resulting unmanaged policies via dcnm_policy with
+             state=deleted, use_desc_as_key=true, deploy=false.
+
+        Edge connections are NDFC policies (not links), so removal goes through
+        dcnm_policy — not dcnm_links, which requires src_fabric and a different
+        config schema.
+
+        Requires the pre-fetched switch list (populated by _pre_pipeline_setup,
+        stored as self.fabric_switch_list).
+        """
+        switches = getattr(self, 'fabric_switch_list', [])
+        if not switches:
+            return {'failed': False, 'msg': 'No switches in fabric — skipped'}
+
+        # Full configured edge_connections data model (rendered template output),
+        # not diff-narrowed: [{ "switch": [ {ip, policies}, ... ] }]
+        edge_connections_data = self.resource_data.get('edge_connections', {}).get('data', [])
+
+        # Step 1: Build the unmanaged edge connection payload
+        return self.executor.execute_plugin(
+            module_name="cisco.nac_dc_vxlan.dtc.unmanaged_edge_connections",
+            module_args={
+                "switch_data": switches,
+                "edge_connections": edge_connections_data,
+                "fabric_name": self.fabric_name,
+            },
+        )
+
     def _config_save(self, resource_name, step):
         """
         Execute a config-save via the fabric_deploy_manager action plugin.

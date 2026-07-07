@@ -36,6 +36,7 @@ class ActionModule(ActionBase):
 
         # List of switch serial numbes obtained directly from NDFC
         ndfc_sw_data = self._task.args["switch_data"]
+        fabric_name = self._task.args["fabric_name"]
         # Data from data model
         edge_connections = self._task.args["edge_connections"]
         if edge_connections:
@@ -49,16 +50,6 @@ class ActionModule(ActionBase):
                 "switch": []
             }
         ]
-        # Iterate over each item in the data list
-        # for item in edge_connections:
-        #     ip = item['ip']
-        #     # If the IP is not already a key in the dictionary, add it with an empty list
-        #     if ip not in restructured_edge_connections:
-        #         restructured_edge_connections[ip] = []
-        #     # Iterate over each policy and collect the descriptions
-        #     for policy in item['policies']:
-        #         description = policy['description']
-        #         restructured_edge_connections[ip].append(description)
 
         for switch in ndfc_sw_data:
             ip = switch['ipAddress']
@@ -69,9 +60,6 @@ class ActionModule(ActionBase):
                     for policy in item['policies']:
                         description = policy['description']
                         restructured_edge_connections[ip].append(description)
-
-        # Print the resulting dictionary
-        # print(restructured_edge_connections)
 
         for ndfc_sw in ndfc_sw_data:
 
@@ -163,7 +151,25 @@ class ActionModule(ActionBase):
                         # ]
 
         # Store the unmanaged policy payload for return and usage in the NDFC policy module to delete from NDFC
-        # print(unmanaged_edge_connections)
+
         results['unmanaged_edge_connections'] = unmanaged_edge_connections
+        if unmanaged_edge_connections[0]["switch"]:
+            policy_result = self._execute_module(
+                module_name="cisco.dcnm.dcnm_policy",
+                module_args={
+                    "fabric": fabric_name,
+                    "use_desc_as_key": True,
+                    "config": unmanaged_edge_connections,
+                    "deploy": False,
+                    "state": "deleted",
+                },
+                task_vars=task_vars,
+                tmp=tmp,
+            )
+            if policy_result.get('failed'):
+                results['failed'] = True
+                results['msg'] = policy_result.get('msg', 'dcnm_policy deletion failed')
+            elif policy_result.get('changed'):
+                results['changed'] = True
 
         return results
