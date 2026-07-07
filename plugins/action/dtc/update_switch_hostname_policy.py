@@ -28,6 +28,7 @@ import json
 
 from ansible.plugins.action import ActionBase
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import (
+    NdfcBulkPolicyApiUnavailable,
     ndfc_get_fabric_policies_by_template,
     ndfc_get_switch_policy_using_template
 )
@@ -73,8 +74,8 @@ class ActionModule(ActionBase):
                 )
                 # If successful, return the bulk result
                 return policies_dict, True
-            except Exception as e:
-                # Bulk API not available or failed, mark it and fall back
+            except NdfcBulkPolicyApiUnavailable:
+                # Bulk API not available, mark it and fall back
                 self.bulk_api_available = False
 
         # Fallback: Query each switch individually
