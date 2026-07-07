@@ -86,8 +86,8 @@ remove_resources:
   # ──────────────────────────────────────────────────────────────────────────
   VXLAN_EVPN:
     - resource_name: edge_connections
-      module: dcnm_links
-      state: deleted
+      module: _unmanaged_edge_connections
+      state: null
       data_model_guard: vxlan.topology.switches
       change_flag_guard: changes_detected_edge_connections
       delete_mode_guard: edge_connections_delete_mode
@@ -250,8 +250,8 @@ remove_resources:
   # ──────────────────────────────────────────────────────────────────────────
   ISN:
     - resource_name: edge_connections
-      module: dcnm_links
-      state: deleted
+      module: _unmanaged_edge_connections
+      state: null
       change_flag_guard: changes_detected_edge_connections
       delete_mode_guard: edge_connections_delete_mode
       tag: rr_manage_edge_connections
@@ -287,8 +287,8 @@ remove_resources:
   # ──────────────────────────────────────────────────────────────────────────
   External:
     - resource_name: edge_connections
-      module: dcnm_links
-      state: deleted
+      module: _unmanaged_edge_connections
+      state: null
       change_flag_guard: changes_detected_edge_connections
       delete_mode_guard: edge_connections_delete_mode
       tag: rr_manage_edge_connections
