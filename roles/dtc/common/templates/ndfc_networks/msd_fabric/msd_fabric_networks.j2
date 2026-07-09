@@ -74,6 +74,15 @@
 {% endif %}
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
+{% if attach['networks'] is defined %}
+{% for attached_net in attach['networks'] %}
+{% if attached_net['name'] == net['name'] %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
+      svi_enabled: {{ attached_net['svi_enabled'] | default(defaults.vxlan.overlay.network_attach_groups.svi_enabled) }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
 {% if attach['ports'] is defined %}
       ports: {{ attach['ports'] }}
 {% endif %}
