@@ -6,6 +6,7 @@ class Rule:
     @classmethod
     def match(cls, data_model):
         results = []
+        switches = []
         dhcp = None
 
         bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_bootstrap']
@@ -37,6 +38,33 @@ class Rule:
                 return results
             if 'domain_name' in check['keys_not_found']:
                 results.append(f"vxlan.multisite.isn.bootstrap.{dhcp}.domain_name is required for bootstrap in an ISN type fabric.")
+
+        dm_check = cls.data_model_key_check(data_model, ['vxlan', 'topology', 'switches'])
+        if 'switches' in dm_check['keys_data']:
+            switches = data_model['vxlan']['topology']['switches']
+
+        # Check if any switch has a poap key defined
+        poap_switches = []
+        for switch in switches:
+            dm_check = cls.data_model_key_check(switch, ['poap'])
+            if 'poap' in dm_check['keys_data']:
+                poap_switches.append(switch['name'])
+
+        if not poap_switches:
+            return results
+
+        enable_bootstrap = None
+        bootstrap_enable_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_bootstrap']
+        check = cls.data_model_key_check(data_model, bootstrap_enable_keys)
+        if 'enable_bootstrap' in check['keys_found']:
+            enable_bootstrap = cls.safeget(data_model, bootstrap_enable_keys)
+
+        if enable_bootstrap is not True:
+            for switch_name in poap_switches:
+                results.append(
+                    f"vxlan.topology.switches.{switch_name} has poap defined but "
+                    f"vxlan.multisite.isn.bootstrap.enable_bootstrap is not set to true."
+                )
 
         return results
 
