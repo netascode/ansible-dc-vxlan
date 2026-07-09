@@ -337,6 +337,8 @@ class FabricDeployManager:
                 color='green',
             )
 
+        return response
+
     def fabric_deploy(self):
         """Deploy the fabric configuration (fabric-level)."""
         step_start = monotonic()
@@ -869,9 +871,14 @@ class ActionModule(ActionBase):
                 )
 
         if operation == 'config_save':
-            fabric_manager.fabric_config_save()
+            response = fabric_manager.fabric_config_save()
             if not fabric_manager.fabric_save_succeeded:
                 results['failed'] = True
+                # Propagate the raw NDFC response so callers (pipeline_base
+                # _config_save) can inspect RETURN_CODE and apply the
+                # non-fatal config-save policy. Without this, RETURN_CODE is
+                # lost and every config-save failure aborts the pipeline.
+                results['msg'] = response
 
         if operation == 'fabric_deploy':
             fabric_manager.fabric_deploy()
