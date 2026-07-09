@@ -1,6 +1,3 @@
-from CXTA.pkgs.ixia_api.src.ixia_api import results
-
-
 class Rule:
     id = "204"
     description = "Verify bootstrap configuration"
@@ -9,7 +6,7 @@ class Rule:
     @classmethod
     def match(cls, data_model):
         results = []
-        switches = []        
+        switches = []
         dhcp = None
 
         bootstrap_keys = ['vxlan', 'multisite', 'isn', 'bootstrap', 'enable_bootstrap']
@@ -68,7 +65,6 @@ class Rule:
                     f"vxlan.topology.switches.{switch_name} has poap defined but "
                     f"vxlan.multisite.isn.bootstrap.enable_bootstrap is not set to true."
                 )
-
 
         return results
 

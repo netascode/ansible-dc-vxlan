@@ -67,7 +67,7 @@ class Rule:
                 results.append(f"vxlan.global.bootstrap.{dhcp}.domain_name is not supported for bootstrap in a VXLAN type fabric.")
             elif 'domain_name' in check['keys_not_found'] and fabric_type == "external":
                 results.append(f"vxlan.global.bootstrap.{dhcp}.domain_name is required for bootstrap in an External type fabric.")
-            
+
         dm_check = cls.data_model_key_check(data_model, ['vxlan', 'topology', 'switches'])
         if 'switches' in dm_check['keys_data']:
             switches = data_model['vxlan']['topology']['switches']
