@@ -373,6 +373,7 @@ factory_defaults:
         switches: []
       network_attach_groups:
         switches: []
+        svi_enabled: true
     policy:
       template_name: switch_freeform
       priority: 500
