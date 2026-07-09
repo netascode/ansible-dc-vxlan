@@ -185,9 +185,10 @@ class Rule:
     @classmethod
     def cross_reference_vpc_peers_attributes(cls, network_attach_groups, vpc_peers, target, results):
         """
-        Check if each network_attachment attributes (vlan_id, svi_enabled) is the same on each
+        Check if each network_attachment attributes are the same on each
         of the vpc peers.
         """
+        # Only vlan_id as now
 
         if not network_attach_groups or not vpc_peers:
             return results
