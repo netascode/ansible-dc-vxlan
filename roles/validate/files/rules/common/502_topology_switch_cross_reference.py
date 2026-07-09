@@ -35,14 +35,14 @@ class Rule:
         enable_bootstrap = None
         bootstrap_keys = ['vxlan', 'global', fabric_type, 'bootstrap', 'enable_bootstrap']
         check = cls.data_model_key_check(data_model, bootstrap_keys)
-        if 'enable_bootstrap' in check['keys_data']:
+        if 'enable_bootstrap' in check['keys_found']:
             enable_bootstrap = cls.safeget(data_model, bootstrap_keys)
 
         # Fall back to the common path if not found under fabric-type-specific path
         if enable_bootstrap is None:
             bootstrap_keys = ['vxlan', 'global', 'bootstrap', 'enable_bootstrap']
             check = cls.data_model_key_check(data_model, bootstrap_keys)
-            if 'enable_bootstrap' in check['keys_data']:
+            if 'enable_bootstrap' in check['keys_found']:
                 enable_bootstrap = cls.safeget(data_model, bootstrap_keys)
 
         if enable_bootstrap is not True:
