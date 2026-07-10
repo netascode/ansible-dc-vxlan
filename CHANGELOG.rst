@@ -8,6 +8,16 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+Unreleased
+=====================
+
+Modified
+--------
+
+* ``vxlan.underlay.general.underlay_rp_loopback_id`` is no longer supported. Configure the
+  underlay RP loopback under ``vxlan.underlay.multicast.underlay_rp_loopback_id`` instead.
+  Removed the stale key from the bundled defaults and examples.
+
 `0.8.0`_
 =====================
 
