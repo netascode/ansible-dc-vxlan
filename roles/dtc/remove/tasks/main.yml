@@ -61,7 +61,7 @@
   when: >
     change_flags.changes_detected_any or
     ((force_run_all | default(false) | bool) and
-    (data_model_extended.vxlan.fabric.type in ['MSD', 'MCFG']))
+    (data_model_extended.vxlan.fabric.type == 'MCFG'))
   tags: "{{ nac_tags.remove }}"
 
 - name: Display Remove Resources Summary
