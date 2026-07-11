@@ -164,6 +164,7 @@ class ResourceRemover(PipelineRunnerBase):
         resource_entry = self.resource_data.get(resource_name, {})
         default_state = step.get('state')
         full_run_state = step.get('state_full_run')
+        full_run_strategy = step.get('full_run_strategy')
         data_key_full_run = step.get('data_key_full_run', 'data')
         full_run_override_key = step.get('data_key_overridden')
 
@@ -187,12 +188,28 @@ class ResourceRemover(PipelineRunnerBase):
                 removed = diff.get('removed', [])
                 if removed:
                     return (removed, default_state)
+
+            # An explicit empty multisite list means remove every live item.
+            # Deferred overlay rendering has no resource diff to supply in
+            # this case, so discover the deletion set from the controller.
+            overlay = (
+                self.data_model.get('vxlan', {})
+                .get('multisite', {})
+                .get('overlay', {})
+            )
+            if (
+                full_run_strategy == 'controller_diff'
+                and self.fabric_type in ('MSD', 'MCFG')
+                and resource_name in overlay
+                and overlay.get(resource_name) == []
+            ):
+                method = getattr(self, f"_controller_diff_{resource_name}", None)
+                if method is not None:
+                    return (method([]), default_state)
             return ([], default_state)
 
         # Full run with controller_diff strategy: query NDFC, diff, return
         # only items on the controller that are absent from the data model.
-        full_run_strategy = step.get('full_run_strategy')
-
         if full_run_strategy == 'controller_diff':
             method_name = f"_controller_diff_{resource_name}"
             method = getattr(self, method_name, None)
@@ -405,6 +422,18 @@ class ResourceRemover(PipelineRunnerBase):
     # ══════════════════════════════════════════════════════════════════════════
     # Controller Diff — Query NDFC, diff against data model, return deletions
     # ══════════════════════════════════════════════════════════════════════════
+
+    def _controller_diff_path(self, resource_name):
+        """Return the live top-down resource path for the current parent type."""
+        if self.fabric_type == 'MCFG':
+            return (
+                "/onemanage/appcenter/cisco/ndfc/api/v1/onemanage/top-down"
+                f"/fabrics/{self.fabric_name}/{resource_name}"
+            )
+        return (
+            "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2"
+            f"/fabrics/{self.fabric_name}/{resource_name}"
+        )
 
     def _get_fabric_id(self):
         """
@@ -623,8 +652,7 @@ class ResourceRemover(PipelineRunnerBase):
         """
         result = self.executor.execute_rest(
             "GET",
-            f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2"
-            f"/fabrics/{self.fabric_name}/vrfs",
+            self._controller_diff_path('vrfs'),
         )
 
         controller_vrfs = []
@@ -683,8 +711,7 @@ class ResourceRemover(PipelineRunnerBase):
         """
         result = self.executor.execute_rest(
             "GET",
-            f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/v2"
-            f"/fabrics/{self.fabric_name}/networks",
+            self._controller_diff_path('networks'),
         )
 
         controller_networks = []

@@ -438,7 +438,7 @@ remove_resources:
     - resource_name: networks
       module: dcnm_network
       state: deleted
-      full_run_strategy: overridden
+      full_run_strategy: controller_diff
       change_flag_guard: changes_detected_networks
       delete_mode_guard: multisite_network_delete_mode
       tag: rr_manage_networks
@@ -446,7 +446,7 @@ remove_resources:
     - resource_name: vrfs
       module: dcnm_vrf
       state: deleted
-      full_run_strategy: overridden
+      full_run_strategy: controller_diff
       change_flag_guard: changes_detected_vrfs
       delete_mode_guard: multisite_vrf_delete_mode
       tag: rr_manage_vrfs
@@ -454,7 +454,6 @@ remove_resources:
     - resource_name: prepare_child_fabrics_data
       module: _prepare_child_fabrics_data
       state: null
-      data_model_guard: vxlan.multisite.child_fabrics
       change_flag_guard: null
       tag: rr_manage_fabric
 
