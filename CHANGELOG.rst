@@ -26,9 +26,9 @@ Modified
 
 * With release 0.8.1, the ptp.vlan_id key has been removed from the data model for vxlan.global.ebgp, vxlan.global.external, and vxlan.multisite.isn as the PTP VLAN ID is not supported for these fabric types.
 * With release 0.8.1, NaC VXLAN supports the following eBGP fabric scenarios with Nexus Dashboard 4.2 or later releases (See https://netascode.cisco.com for more info):
-•	Multi-AS Mode with ASN Auto Allocation
-•	Multi-AS Mode with Allow Same ASN On Leafs
-•	Same-Tier-AS Mode
+    •	Multi-AS Mode with ASN Auto Allocation
+    •	Multi-AS Mode with Allow Same ASN On Leafs
+    •	Same-Tier-AS Mode
 
 Fixed
 -----
