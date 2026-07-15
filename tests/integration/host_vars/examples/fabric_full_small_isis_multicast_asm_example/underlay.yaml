@@ -32,7 +32,6 @@ vxlan:
       underlay_routing_loopback_id: 0
       underlay_vtep_loopback_id: 1
       underlay_routing_protocol_tag: UNDERLAY
-      underlay_rp_loopback_id: 3
       intra_fabric_interface_mtu: 9216
       layer2_host_interface_mtu: 9216
       unshut_host_interfaces: true
