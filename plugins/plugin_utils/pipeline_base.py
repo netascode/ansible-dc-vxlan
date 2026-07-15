@@ -856,7 +856,7 @@ class PipelineRunnerBase(ABC):
                 f"{len(items)} ToR pairing(s)"
             )
 
-            return self.executor.execute_plugin(
+            result = self.executor.execute_plugin(
                 module_name="cisco.nac_dc_vxlan.dtc.process_tor_pairing",
                 module_args={
                     "operation": self.OPERATION,
@@ -880,7 +880,7 @@ class PipelineRunnerBase(ABC):
                 f"{self.OPERATION}ing ToR pairings"
             )
 
-            return self.executor.execute_plugin(
+            result = self.executor.execute_plugin(
                 module_name="cisco.nac_dc_vxlan.dtc.process_tor_pairing",
                 module_args={
                     "operation": self.OPERATION,
@@ -889,6 +889,27 @@ class PipelineRunnerBase(ABC):
                     "current_pairings": tor_pairing_data if tor_pairing_data else [],
                 },
             )
+
+        # A partially successful operation must still be config-saved before
+        # the failure stops the pipeline. Fully successful operations use the
+        # normal tor_config_save step through runtime_change_refs.
+        if result.get('failed') and result.get('changed'):
+            display.warning(
+                f"{op_label} [{self.fabric_name}] ToR pairing partially succeeded; "
+                "running config-save before reporting the failure"
+            )
+            config_save_result = self._config_save(
+                'tor_config_save', step
+            )
+            result['config_save_result'] = config_save_result
+            if config_save_result.get('failed'):
+                result['msg'] = (
+                    f"{result.get('msg', 'ToR pairing partially failed')}; "
+                    "config-save also failed: "
+                    f"{config_save_result.get('msg', 'unknown error')}"
+                )
+
+        return result
 
     def _unmanaged_policy(self, resource_name, step):
         """
