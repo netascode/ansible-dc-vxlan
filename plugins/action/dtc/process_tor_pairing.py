@@ -581,6 +581,7 @@ class ActionModule(ActionBase):
         """Build and execute TOR pairing create operations via NDFC POST."""
         result = {
             'failed': False,
+            'changed': False,
             'api_results': [],
             'count': 0,
             'success_count': 0,
@@ -636,20 +637,22 @@ class ActionModule(ActionBase):
 
             if op_result['success']:
                 result['success_count'] += 1
+                result['changed'] = True
             else:
                 result['failure_count'] += 1
                 display.warning(
                     f"TOR Create: Failed to create pairing {pairing_id}: {op_result['msg']}"
                 )
 
-        if result['failure_count'] > 0 and result['success_count'] == 0:
+        if result['failure_count'] > 0:
             result['failed'] = True
-            result['msg'] = f"All {result['failure_count']} TOR pairing create(s) failed"
-        elif result['failure_count'] > 0:
-            result['msg'] = (
-                f"Created {result['success_count']} TOR pairing(s), "
-                f"{result['failure_count']} failed"
-            )
+            if result['success_count'] == 0:
+                result['msg'] = f"All {result['failure_count']} TOR pairing create(s) failed"
+            else:
+                result['msg'] = (
+                    f"Created {result['success_count']} TOR pairing(s), "
+                    f"{result['failure_count']} failed"
+                )
         else:
             result['msg'] = f"Successfully created {result['success_count']} TOR pairing(s)"
 
@@ -659,6 +662,7 @@ class ActionModule(ActionBase):
         """Build and execute TOR pairing remove operations via NDFC DELETE."""
         result = {
             'failed': False,
+            'changed': False,
             'api_results': [],
             'count': 0,
             'success_count': 0,
@@ -726,20 +730,23 @@ class ActionModule(ActionBase):
                     display.v(
                         f"TOR Remove: Pairing {pairing_id} already removed or not found"
                     )
+                else:
+                    result['changed'] = True
             else:
                 result['failure_count'] += 1
                 display.warning(
                     f"TOR Remove: Failed to remove pairing {pairing_id}: {op_result['msg']}"
                 )
 
-        if result['failure_count'] > 0 and result['success_count'] == 0:
+        if result['failure_count'] > 0:
             result['failed'] = True
-            result['msg'] = f"All {result['failure_count']} TOR pairing removal(s) failed"
-        elif result['failure_count'] > 0:
-            result['msg'] = (
-                f"Removed {result['success_count']} TOR pairing(s), "
-                f"{result['failure_count']} failed"
-            )
+            if result['success_count'] == 0:
+                result['msg'] = f"All {result['failure_count']} TOR pairing removal(s) failed"
+            else:
+                result['msg'] = (
+                    f"Removed {result['success_count']} TOR pairing(s), "
+                    f"{result['failure_count']} failed"
+                )
         else:
             result['msg'] = f"Successfully removed {result['success_count']} TOR pairing(s)"
 
