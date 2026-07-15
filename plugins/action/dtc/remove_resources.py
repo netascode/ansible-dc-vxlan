@@ -40,6 +40,8 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import json
+
 from ansible.utils.display import Display
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.pipeline_base import (
@@ -435,6 +437,50 @@ class ResourceRemover(PipelineRunnerBase):
             f"/fabrics/{self.fabric_name}/{resource_name}"
         )
 
+    def _controller_diff_get(self, resource_name):
+        """Return controller resources from a successful top-down GET."""
+        path = self._controller_diff_path(resource_name)
+        result = self.executor.execute_rest("GET", path)
+
+        if not isinstance(result, dict):
+            raise RuntimeError(
+                f"Controller diff GET for {resource_name} returned an invalid result"
+            )
+
+        response = result.get('response')
+        error = result.get('msg')
+        status = (
+            response if isinstance(response, dict)
+            else error if isinstance(error, dict)
+            else {}
+        )
+        return_code = status.get('RETURN_CODE')
+
+        if result.get('failed') or return_code != 200:
+            detail = error or response or result
+            raise RuntimeError(
+                f"Controller diff GET for {resource_name} failed: "
+                f"RETURN_CODE={return_code}, path={path}, response={detail}"
+            )
+
+        data = response.get('DATA')
+        if isinstance(data, str):
+            try:
+                data = json.loads(data)
+            except (TypeError, ValueError) as exc:
+                raise RuntimeError(
+                    f"Controller diff GET for {resource_name} returned invalid JSON: "
+                    f"path={path}, error={exc}"
+                ) from exc
+
+        if not isinstance(data, list):
+            raise RuntimeError(
+                f"Controller diff GET for {resource_name} returned invalid DATA: "
+                f"path={path}, expected=list, actual={type(data).__name__}"
+            )
+
+        return data
+
     def _get_fabric_id(self):
         """
         Get the numeric fabric ID from NDFC for the current fabric.
@@ -650,26 +696,7 @@ class ResourceRemover(PipelineRunnerBase):
         Returns:
             List of VRF dicts formatted for dcnm_vrf state: deleted.
         """
-        result = self.executor.execute_rest(
-            "GET",
-            self._controller_diff_path('vrfs'),
-        )
-
-        controller_vrfs = []
-        try:
-            response = result.get('response', {})
-            data = response.get('DATA', response)
-            if isinstance(data, str):
-                import json
-                data = json.loads(data)
-            if isinstance(data, list):
-                controller_vrfs = data
-        except (KeyError, TypeError, ValueError):
-            display.warning(
-                f"REMOVE [{self.fabric_name}] Failed to parse VRF response "
-                f"— skipping controller diff for VRFs"
-            )
-            return []
+        controller_vrfs = self._controller_diff_get('vrfs')
 
         # Build data model set of VRF names
         dm_vrf_names = frozenset(
@@ -709,26 +736,7 @@ class ResourceRemover(PipelineRunnerBase):
         Returns:
             List of network dicts formatted for dcnm_network state: deleted.
         """
-        result = self.executor.execute_rest(
-            "GET",
-            self._controller_diff_path('networks'),
-        )
-
-        controller_networks = []
-        try:
-            response = result.get('response', {})
-            data = response.get('DATA', response)
-            if isinstance(data, str):
-                import json
-                data = json.loads(data)
-            if isinstance(data, list):
-                controller_networks = data
-        except (KeyError, TypeError, ValueError):
-            display.warning(
-                f"REMOVE [{self.fabric_name}] Failed to parse network response "
-                f"— skipping controller diff for networks"
-            )
-            return []
+        controller_networks = self._controller_diff_get('networks')
 
         # Build data model set of network names
         dm_net_names = frozenset(
