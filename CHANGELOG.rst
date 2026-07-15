@@ -16,12 +16,7 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Added
 -----
 
-* ND 4.2.1 support
-
-  * Added additional fabric security options for ND 4.2.X (``securityGroupTagMacSegmentation`` and related fields)
-  * Gated ``securityGroupTagMacSegmentation`` emission on ``ENABLE_SGT`` to prevent unintended API payloads
-  * Gated ``securityGroupTagMacSegmentation`` on ``ndfc_version >= 12.5.0`` (ND 4.2.1+) to ensure backward compatibility
-
+* Added support for ND 4.2.1
 * Added BGP ASN auto allocation support
 * Added greenfield cleanup option
 * Added bootstrap cross-reference validation rules
@@ -29,19 +24,18 @@ Added
 Fixed
 -----
 
-* https://github.com/netascode/ansible-dc-vxlan/pull/835
-
-  * Fixed ToR pairing create and remove handling — partial failures now correctly set ``failed`` state
-  * Fixed MCFG empty intent removal being incorrectly scoped
-  * Added ``changed`` tracking to ToR pairing create/remove operations
-
-* Fix duplicate hostname issue in DTC pipeline (#828)
-* Fixed edge connections not being removed during ``role_remove`` (#824)
-* Fixed config-save HTTP 500 no longer aborting the create pipeline — execution continues (#819)
-* Fixed indentation in iBGP spine and leaf templates (#759)
-* Removed stale ``underlay.general.underlay_rp_loopback_id`` key from defaults and examples — the correct path is ``vxlan.underlay.multicast.underlay_rp_loopback_id`` (#833)
-* Added missing ``delete_flag`` / ``delete_mode`` entries to docs and defaults (#830)
-* Fixed rule name and ID inconsistencies in validation rule set (#823)
+* https://github.com/netascode/ansible-dc-vxlan/issues/688
+* https://github.com/netascode/ansible-dc-vxlan/issues/727
+* https://github.com/netascode/ansible-dc-vxlan/issues/749
+* https://github.com/netascode/ansible-dc-vxlan/issues/758
+* https://github.com/netascode/ansible-dc-vxlan/issues/799
+* https://github.com/netascode/ansible-dc-vxlan/issues/810
+* https://github.com/netascode/ansible-dc-vxlan/issues/813
+* https://github.com/netascode/ansible-dc-vxlan/issues/814
+* https://github.com/netascode/ansible-dc-vxlan/issues/822
+* https://github.com/netascode/ansible-dc-vxlan/issues/825
+* https://github.com/netascode/ansible-dc-vxlan/issues/829
+* https://github.com/netascode/ansible-dc-vxlan/issues/834
 
 `0.8.0`_
 =====================
@@ -603,6 +597,7 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.8.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.8.0...0.8.1
 .. _0.8.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.2...0.8.0
 .. _0.7.2: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.1...0.7.2
 .. _0.7.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.0...0.7.1
