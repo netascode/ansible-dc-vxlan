@@ -26,6 +26,7 @@ factory_defaults:
       ebgp:
         bgp_asn_mode: Multi-AS
         leaf_same_bgp_asn: false
+        bgp_asn_auto_allocation: true
         anycast_gateway_mac: 20:20:00:00:00:aa
         auth_proto: MD5
         enable_nxapi_http: false
@@ -33,6 +34,7 @@ factory_defaults:
         enable_nxapi_https: true
         nxapi_https_port: 443
         overlay_mode: cli
+        greenfield_cleanup: Disable
         layer2_vni_range:
           from: 30000
           to: 49000
@@ -79,6 +81,7 @@ factory_defaults:
         enable_nxapi_https: true
         nxapi_https_port: 443
         overlay_mode: cli
+        greenfield_cleanup: Disable
         layer2_vni_range:
           from: 30000
           to: 49000
@@ -269,7 +272,6 @@ factory_defaults:
         underlay_routing_loopback_id: 0
         underlay_vtep_loopback_id: 1
         underlay_routing_protocol_tag: UNDERLAY
-        underlay_rp_loopback_id: 254
         intra_fabric_interface_mtu: 9216
         layer2_host_interface_mtu: 9216
         unshut_host_interfaces: true
