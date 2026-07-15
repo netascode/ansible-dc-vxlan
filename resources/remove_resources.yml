@@ -150,6 +150,22 @@ remove_resources:
       delete_mode_guard: link_fabric_delete_mode
       tag: rr_manage_links
 
+    # ToR pairing — uses process_tor_pairing plugin (shared internal method)
+    - resource_name: tor_pairing
+      module: _tor_pairing
+      state: null
+      change_flag_guard: changes_detected_tor_pairing
+      delete_mode_guard: tor_pairing_delete_mode
+      tag: rr_manage_tor_pairing
+
+    - resource_name: tor_config_save
+      module: _config_save
+      state: null
+      change_flag_guard: null
+      runtime_change_refs:
+        - tor_pairing
+      tag: rr_manage_tor_pairing
+
     # vPC peers — uses dcnm_vpc_pair with src_fabric (not dcnm_links with fabric)
     - resource_name: vpc_peering
       module: dcnm_vpc_pair
@@ -160,13 +176,13 @@ remove_resources:
       fabric_param: src_fabric
       tag: rr_manage_vpc_peers
 
-    # ToR pairing — uses process_tor_pairing plugin (shared internal method)
-    - resource_name: tor_pairing
-      module: _tor_pairing
+    - resource_name: vpc_config_save
+      module: _config_save
       state: null
-      change_flag_guard: changes_detected_tor_pairing
-      delete_mode_guard: tor_pairing_delete_mode
-      tag: rr_manage_tor_pairing
+      change_flag_guard: null
+      runtime_change_refs:
+        - vpc_peering
+      tag: rr_manage_vpc_peers
 
     # Switches always use overridden (no diff_run branching)
     - resource_name: inventory_no_bootstrap
@@ -218,6 +234,22 @@ remove_resources:
       skip_if_child_fabric: true
       tag: rr_manage_vrfs
 
+    # ToR pairing — uses process_tor_pairing plugin (shared internal method)
+    - resource_name: tor_pairing
+      module: _tor_pairing
+      state: null
+      change_flag_guard: changes_detected_tor_pairing
+      delete_mode_guard: tor_pairing_delete_mode
+      tag: rr_manage_tor_pairing
+
+    - resource_name: tor_config_save
+      module: _config_save
+      state: null
+      change_flag_guard: null
+      runtime_change_refs:
+        - tor_pairing
+      tag: rr_manage_tor_pairing
+
     # vPC peers — uses dcnm_vpc_pair with src_fabric (not dcnm_links with fabric)
     - resource_name: vpc_peering
       module: dcnm_vpc_pair
@@ -228,13 +260,13 @@ remove_resources:
       fabric_param: src_fabric
       tag: rr_manage_vpc_peers
 
-    # ToR pairing — uses process_tor_pairing plugin (shared internal method)
-    - resource_name: tor_pairing
-      module: _tor_pairing
+    - resource_name: vpc_config_save
+      module: _config_save
       state: null
-      change_flag_guard: changes_detected_tor_pairing
-      delete_mode_guard: tor_pairing_delete_mode
-      tag: rr_manage_tor_pairing
+      change_flag_guard: null
+      runtime_change_refs:
+        - vpc_peering
+      tag: rr_manage_vpc_peers
 
     # Switches always use overridden (no diff_run branching)
     - resource_name: inventory_no_bootstrap
@@ -320,6 +352,14 @@ remove_resources:
       fabric_param: src_fabric
       tag: rr_manage_vpc_peers
 
+    - resource_name: vpc_config_save
+      module: _config_save
+      state: null
+      change_flag_guard: null
+      runtime_change_refs:
+        - vpc_peering
+      tag: rr_manage_vpc_peers
+
     - resource_name: inventory_no_bootstrap
       module: dcnm_inventory
       state: overridden
@@ -398,7 +438,7 @@ remove_resources:
     - resource_name: networks
       module: dcnm_network
       state: deleted
-      full_run_strategy: overridden
+      full_run_strategy: controller_diff
       change_flag_guard: changes_detected_networks
       delete_mode_guard: multisite_network_delete_mode
       tag: rr_manage_networks
@@ -406,7 +446,7 @@ remove_resources:
     - resource_name: vrfs
       module: dcnm_vrf
       state: deleted
-      full_run_strategy: overridden
+      full_run_strategy: controller_diff
       change_flag_guard: changes_detected_vrfs
       delete_mode_guard: multisite_vrf_delete_mode
       tag: rr_manage_vrfs
@@ -414,7 +454,6 @@ remove_resources:
     - resource_name: prepare_child_fabrics_data
       module: _prepare_child_fabrics_data
       state: null
-      data_model_guard: vxlan.multisite.child_fabrics
       change_flag_guard: null
       tag: rr_manage_fabric
 
