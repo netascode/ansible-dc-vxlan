@@ -20,34 +20,15 @@
 # SPDX-License-Identifier: MIT
 
 ---
-- name: Import Role Tasks
-  ansible.builtin.import_tasks: sub_main.yml
-  tags: "{{ nac_tags.validate_role }}" # Tags defined in roles/common_global/vars/main.yml
-  # Problems with lower versions of python and ansible
-  # Python 3.9.16 and Ansible 7.3.0 (Ansible-Core 2.14.4)
-  # Could ignore errors and try again with tags specified as below as a work around ...
-  # tags:
-  #   - cr_manage_fabric
-  #   - cr_manage_switches
-  #   - cr_manage_vpc_peers
-  #   - cr_manage_interfaces
-  #   - cr_manage_vrfs_networks
-  #   # -------------------------
-  #   - rr_manage_interfaces
-  #   - rr_manage_networks
-  #   - rr_manage_vrfs
-  #   - rr_manage_vpc_peers
-  #   - rr_manage_links
-  #   - rr_manage_switches
-  #   # -------------------------
-  #   - role_validate
-  #   - role_create
-  #   - role_deploy
-  #   - role_remove
 
-- name: Mark Stage Role Validate Completed
-  cisco.nac_dc_vxlan.common.run_map:
-    fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
-    stage: role_validate_completed
-  register: run_map
+- name: Validate and Prepare Service Model
+  cisco.nac_dc_vxlan.common.nac_dc_validate:
+    schema: "{{ schema_path | default('') }}"
+    enhanced_rules: "{{ enhanced_rules_path | default('') }}"
+  register: smd
   delegate_to: localhost
+  tags: "{{ nac_tags.validate_role }}"
+
+- name: No Model Changes Detected
+  ansible.builtin.meta: end_host
+  when: smd.end_host | default(false) | bool
