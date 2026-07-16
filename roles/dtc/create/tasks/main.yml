@@ -34,6 +34,46 @@
 
 ---
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Guard: fail loud if *_pre_interface_freeform is set but the target NDFC/ND
+# version has no 'preInterfaceConfig' field.
+#
+# On unsupported versions the fabric freeform templates silently drop the
+# pre-interface config (e.g. a QoS policy-map) while any dependent
+# intra_fabric_link_freeform (e.g. the QoS service-policy that references it) is
+# still pushed, leaving the fabric permanently Out-of-Sync ("cannot apply
+# non-existing policy to interface"). Guard here, at create time — where the
+# fabric config originates — so remove/cleanup is never blocked. On older
+# NDFC/ND create the prerequisite config via 'vxlan.policy' (switch_freeform).
+# ─────────────────────────────────────────────────────────────────────────────
+- name: Fail If Pre-Interface Freeform Is Set But Unsupported By The NDFC/ND Version
+  vars:
+    _fabric_global: "{{ data_model_extended.vxlan.global | default({}) }}"
+    _pre_if_ff_values:
+      - "{{ (_fabric_global.ibgp | default({})).spine_pre_interface_freeform | default('') }}"
+      - "{{ (_fabric_global.ibgp | default({})).leaf_pre_interface_freeform | default('') }}"
+      - "{{ (_fabric_global.ibgp | default({})).tor_pre_interface_freeform | default('') }}"
+      - "{{ (_fabric_global.ebgp | default({})).spine_pre_interface_freeform | default('') }}"
+      - "{{ (_fabric_global.ebgp | default({})).leaf_pre_interface_freeform | default('') }}"
+      - "{{ (_fabric_global.ebgp | default({})).tor_pre_interface_freeform | default('') }}"
+  ansible.builtin.fail:
+    msg: >-
+      Fabric '{{ data_model_extended.vxlan.fabric.name }}': pre-interface freeform
+      (spine_pre_interface_freeform / leaf_pre_interface_freeform / tor_pre_interface_freeform)
+      requires NDFC >= 12.2.2 and Nexus Dashboard > 3.2.1, but detected NDFC
+      '{{ ndfc_version | default("unknown") }}' / ND '{{ nd_version | default("unknown") }}'.
+      On this version NDFC has no 'preInterfaceConfig' field, so this config is silently
+      dropped while any dependent intra_fabric_link_freeform (e.g. a QoS service-policy) is
+      still pushed, leaving the fabric permanently Out-of-Sync. Create the prerequisite
+      config (e.g. the QoS policy-map) via 'vxlan.policy' (switch_freeform) instead, or
+      upgrade NDFC/ND.
+  when:
+    - preinterface_config_supported is defined
+    - not (preinterface_config_supported | bool)
+    - (_pre_if_ff_values | map('trim') | reject('equalto', '') | list | length) > 0
+  delegate_to: localhost
+  tags: "{{ nac_tags.create }}"
+
 - name: Execute Create Resources
   cisco.nac_dc_vxlan.dtc.manage_resources:
     fabric_type: "{{ data_model_extended.vxlan.fabric.type }}"
