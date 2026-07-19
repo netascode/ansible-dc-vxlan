@@ -47,6 +47,7 @@ __metaclass__ = type
 
 import json
 import os
+import re
 import time
 from abc import ABC, abstractmethod
 
@@ -94,6 +95,13 @@ class PipelineRunnerBase(ABC):
         self.executor = executor
         self.task_vars = task_vars
 
+        # Resource names that must bypass the runtime_change_refs guard (and
+        # only that guard -- data_model_guard, change_flag_guard and tag
+        # filtering still apply normally) for this run. Consumed one-shot via
+        # .discard() where checked. See _config_save() for the current sole
+        # producer.
+        self._forced_runtime_steps = set()
+
         # Load pipeline from registry
         collection_path = RegistryLoader.get_collection_path()
         registry = RegistryLoader.load(collection_path, self.REGISTRY_KEY)
@@ -132,6 +140,14 @@ class PipelineRunnerBase(ABC):
         pipeline = RegistryLoader.filter_pipeline_by_tags(
             pipeline, ansible_run_tags, self.role_tag
         )
+
+        # Cache the resource names that survived tag filtering for this run,
+        # so a step executing mid-pipeline (e.g. _config_save) can tell
+        # whether a *later* step was excluded by --tags/--skip-tags rather
+        # than assuming the full, unfiltered pipeline will run.
+        self._filtered_pipeline_resource_names = {
+            step['resource_name'] for step in pipeline
+        }
 
         # Hook: subclass pre-pipeline setup (e.g., pre-fetch switch list)
         context = self._pre_pipeline_setup()
@@ -218,6 +234,10 @@ class PipelineRunnerBase(ABC):
             # changed anything at runtime (i.e., NDFC module returned
             # changed=true).  This avoids unnecessary operations like
             # config-save when prior modules were idempotent.
+            #
+            # A resource listed in self._forced_runtime_steps bypasses this
+            # guard for one invocation, regardless of prior changed status.
+            # See _config_save() for why/when a step schedules this.
             runtime_refs = step.get('runtime_change_refs')
             if runtime_refs:
                 prior_changed = any(
@@ -225,7 +245,9 @@ class PipelineRunnerBase(ABC):
                     for sr in step_results
                     if sr.get('resource_name') in runtime_refs
                 )
-                if not prior_changed:
+                forced_run = resource_name in self._forced_runtime_steps
+                self._forced_runtime_steps.discard(resource_name)
+                if not prior_changed and not forced_run:
                     step_results.append({
                         'resource_name': resource_name,
                         'module': module,
@@ -1009,6 +1031,120 @@ class PipelineRunnerBase(ABC):
             for sw in switches
         )
 
+    # Exact, known NDFC error signature for the transient ToR-vPC
+    # config-save ordering condition (see
+    # _is_transient_tor_vpc_config_save_failure). Already whitespace-normal;
+    # kept as a plain constant rather than round-tripped through
+    # ' '.join(...split()) since it has no extra whitespace to collapse.
+    _TOR_VPC_TRANSIENT_SIGNATURE = 'tor cannot be vpc if the parent leaf is not vpc'
+
+    def _vpc_to_vpc_tor_pairing_intent(self):
+        """Return the ``vpc_to_vpc`` entries in the prepared data model
+        (``data_model_extended.vxlan.topology.tor_pairing``), or ``[]`` if
+        none / malformed. Intent only -- see
+        :meth:`_can_defer_tor_vpc_config_save` for whether this run will
+        actually process it.
+        """
+        try:
+            tor_pairing = (
+                self.data_model.get('vxlan', {})
+                .get('topology', {})
+                .get('tor_pairing', [])
+            ) or []
+        except AttributeError:
+            return []
+
+        if not isinstance(tor_pairing, list):
+            return []
+
+        return [
+            entry for entry in tor_pairing
+            if isinstance(entry, dict) and entry.get('scenario') == 'vpc_to_vpc'
+        ]
+
+    def _can_defer_tor_vpc_config_save(self):
+        """Return True when this run can complete a pending vpc_to_vpc ToR
+        pairing -- i.e. it is safe to defer the vpc_config_save failure
+        because tor_pairing and tor_config_save are both scheduled and have
+        something to do. Fails closed (False) on any missing/malformed
+        data; never raises.
+        """
+        # tor_pairing/tor_config_save must have survived --tags filtering
+        # (filter_pipeline_by_tags() only consumes ansible_run_tags, i.e.
+        # --tags; it has no separate handling for --skip-tags).
+        filtered = getattr(self, '_filtered_pipeline_resource_names', None)
+        if not filtered or 'tor_pairing' not in filtered or 'tor_config_save' not in filtered:
+            return False
+
+        # tor_pairing's own change_flag_guard would otherwise skip it.
+        if not self.change_flags.get('changes_detected_tor_pairing', False):
+            return False
+
+        resource_entry = self.resource_data.get('tor_pairing', {})
+        if not isinstance(resource_entry, dict):
+            return False
+
+        diff_mode = bool(self.run_map_diff_run) and not self.force_run_all
+
+        if diff_mode:
+            # Mirrors the exact data _tor_pairing() will send in diff mode.
+            diff = resource_entry.get('diff')
+            items = diff.get('updated', []) if isinstance(diff, dict) else []
+            if not isinstance(items, list):
+                return False
+            return any(
+                isinstance(entry, dict) and entry.get('scenario') == 'vpc_to_vpc'
+                for entry in items
+            )
+
+        # Full/discovery mode: mirrors _tor_pairing()'s own skip guard (no
+        # intent, or no leaf switch to discover against).
+        if not self._vpc_to_vpc_tor_pairing_intent():
+            return False
+
+        try:
+            switches = (
+                self.data_model.get('vxlan', {})
+                .get('topology', {})
+                .get('switches', [])
+            ) or []
+        except AttributeError:
+            return False
+
+        return any(
+            isinstance(sw, dict) and sw.get('role') == 'leaf'
+            for sw in switches
+        )
+
+    def _is_transient_tor_vpc_config_save_failure(self, resource_name, result):
+        """Return True when a failed ``vpc_config_save`` is the known,
+        recoverable ToR-vPC ordering condition: exactly this resource_name,
+        recovery scheduled (:meth:`_can_defer_tor_vpc_config_save`), and
+        the exact NDFC signature in ``result['msg']['DATA']`` (case/HTML/
+        whitespace-tolerant match only -- generic text like "HTTP 500" or
+        "Unsupported topology" alone is not sufficient). Fails closed.
+        """
+        if resource_name != 'vpc_config_save':
+            return False
+
+        if not self._can_defer_tor_vpc_config_save():
+            return False
+
+        try:
+            detail = result.get('msg', {}).get('DATA')
+        except (AttributeError, TypeError):
+            return False
+
+        if not isinstance(detail, str):
+            return False
+
+        # Strip HTML markup (e.g. the "<br>" NDFC embeds between sentences)
+        # and collapse whitespace before comparing, case-insensitively.
+        cleaned = re.sub(r'<[^>]*>', ' ', detail)
+        normalized = ' '.join(cleaned.lower().split())
+
+        return self._TOR_VPC_TRANSIENT_SIGNATURE in normalized
+
     def _config_save(self, resource_name, step):
         """
         Execute a config-save via the fabric_deploy_manager action plugin.
@@ -1017,14 +1153,18 @@ class PipelineRunnerBase(ABC):
         consolidating config-save into a single code path. The fabric_deploy_manager
         handles MCFG vs standard path resolution via ApiPathResolver.
 
-        Treats an HTTP 500 from config-save as non-fatal **only when the data
-        model contains pre-provisioned switches** (``poap.preprovision``), so
-        the pipeline continues for pre-provisioned fabrics where NDFC can
-        return 500 to the intermediate recalculate/config-save while switches
-        are still reloading or not yet reachable. A 500 on a fabric without
-        pre-provisioned switches, and any other failure (400, auth, malformed
-        responses), remain fatal. The tolerated 500 is surfaced as a warning
-        rather than silenced.
+        Treats an HTTP 500 from config-save as non-fatal in two narrow,
+        independent cases:
+
+        1. **Pre-provisioned fabrics** (``poap.preprovision``): NDFC can
+           return 500 to the intermediate recalculate/config-save while
+           switches are still reloading or not yet reachable.
+        2. **Transient ToR-vPC ordering** (``vpc_config_save`` step only):
+           see :meth:`_is_transient_tor_vpc_config_save_failure`.
+
+        Any other failure -- a 500 that matches neither case, or any other
+        HTTP code (400, auth, malformed responses) -- remains fatal. Every
+        tolerated 500 is surfaced as a warning rather than silenced.
         """
         result = self.executor.execute_plugin(
             module_name="cisco.nac_dc_vxlan.dtc.fabric_deploy_manager",
@@ -1053,5 +1193,35 @@ class PipelineRunnerBase(ABC):
                     f"detail: {result.get('msg')}"
                 )
                 return {'failed': False, 'msg': 'Config-save HTTP 500 (non-fatal, pre-provisioned fabric)'}
+
+            is_transient_tor_vpc_failure = (
+                return_code == 500
+                and self._is_transient_tor_vpc_config_save_failure(resource_name, result)
+            )
+            if is_transient_tor_vpc_failure:
+                display.warning(
+                    f"{self.OPERATION.upper()} [{self.fabric_name}] config-save returned "
+                    f"HTTP 500 for '{resource_name}'; continuing because this is the known "
+                    f"transient ToR-vPC ordering condition -- the parent-leaf/ToR association "
+                    f"is created by the 'tor_pairing' step immediately after this one, and "
+                    f"re-saved by 'tor_config_save'."
+                )
+                display.v(
+                    f"{self.OPERATION.upper()} [{self.fabric_name}] config-save HTTP 500 "
+                    f"detail: {result.get('msg')}"
+                )
+                # tor_config_save has runtime_change_refs: [tor_pairing], so it
+                # is normally skipped when tor_pairing reports changed=false
+                # (e.g. NDFC already considers the pairing consistent). Since
+                # we deferred the real config-save here, force tor_config_save
+                # to run regardless of tor_pairing's changed status -- it is
+                # the only step that will actually repair the state this
+                # bypass deferred. If tor_pairing itself fails, run_pipeline()
+                # aborts immediately (see the internal-method dispatch guard)
+                # and tor_config_save never gets a chance to run, which is the
+                # correct fail-fast behavior.
+                self._forced_runtime_steps.add('tor_config_save')
+
+                return {'failed': False, 'msg': 'Config-save HTTP 500 (non-fatal, transient ToR-vPC ordering)'}
 
         return result
