@@ -833,11 +833,16 @@ class PipelineRunnerBase(ABC):
         resource_entry = self.resource_data.get('tor_pairing', {})
         tor_pairing_data = resource_entry.get('module_data', resource_entry.get('data', []))
 
-        # For create: skip if no pairing data at all
-        # For remove: still need to proceed when diff_run is disabled (NDFC may have stale pairings)
-        if not tor_pairing_data:
-            if self.OPERATION == 'create' or (self.run_map_diff_run and not self.force_run_all):
-                return {'failed': False, 'msg': 'No ToR pairing data — skipped'}
+        # For create: skip if no pairing data at all — diff.updated can't
+        # contain anything to add when the desired data model is empty.
+        # For remove: never skip here. An empty desired list is the normal
+        # representation of "this pairing existed before and must be removed
+        # now"; the real work lives in diff.removed (diff-run branch below)
+        # or is discovered from NDFC (full-run/discovery branch below).
+        # Skipping early would silently drop pending removals and leave
+        # stale ToR pairings in NDFC (see: fabric-deletion stale-ToR incident).
+        if not tor_pairing_data and self.OPERATION == 'create':
+            return {'failed': False, 'msg': 'No ToR pairing data — skipped'}
 
         if self.run_map_diff_run and not self.force_run_all:
             # Diff run active — items pre-computed by build_resource_data (direct mode)
