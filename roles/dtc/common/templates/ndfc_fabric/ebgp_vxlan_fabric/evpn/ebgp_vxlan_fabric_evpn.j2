@@ -28,7 +28,7 @@
 {% endif %}
 {% endif %}
 {% endif %}
-{% if ( ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.1', '<=')) and
+{% if ( ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '<')) and
         (not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool))) or
         (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) ) %}
 {% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}

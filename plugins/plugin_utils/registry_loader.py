@@ -88,6 +88,7 @@ KNOWN_PIPELINE_FIELDS = {
     'state_full_run',
     'full_run_strategy',
     'data_key_full_run',
+    'runtime_change_refs',
     'change_flag_guard',
     'data_model_guard',
     'delete_mode_guard',
@@ -96,6 +97,7 @@ KNOWN_PIPELINE_FIELDS = {
     'skip_diff',
     'deploy',
     'save',
+    'skip_validation',
     'tag',
 }
 

@@ -856,7 +856,7 @@ class PipelineRunnerBase(ABC):
                 f"{len(items)} ToR pairing(s)"
             )
 
-            return self.executor.execute_plugin(
+            result = self.executor.execute_plugin(
                 module_name="cisco.nac_dc_vxlan.dtc.process_tor_pairing",
                 module_args={
                     "operation": self.OPERATION,
@@ -880,7 +880,7 @@ class PipelineRunnerBase(ABC):
                 f"{self.OPERATION}ing ToR pairings"
             )
 
-            return self.executor.execute_plugin(
+            result = self.executor.execute_plugin(
                 module_name="cisco.nac_dc_vxlan.dtc.process_tor_pairing",
                 module_args={
                     "operation": self.OPERATION,
@@ -889,6 +889,27 @@ class PipelineRunnerBase(ABC):
                     "current_pairings": tor_pairing_data if tor_pairing_data else [],
                 },
             )
+
+        # A partially successful operation must still be config-saved before
+        # the failure stops the pipeline. Fully successful operations use the
+        # normal tor_config_save step through runtime_change_refs.
+        if result.get('failed') and result.get('changed'):
+            display.warning(
+                f"{op_label} [{self.fabric_name}] ToR pairing partially succeeded; "
+                "running config-save before reporting the failure"
+            )
+            config_save_result = self._config_save(
+                'tor_config_save', step
+            )
+            result['config_save_result'] = config_save_result
+            if config_save_result.get('failed'):
+                result['msg'] = (
+                    f"{result.get('msg', 'ToR pairing partially failed')}; "
+                    "config-save also failed: "
+                    f"{config_save_result.get('msg', 'unknown error')}"
+                )
+
+        return result
 
     def _unmanaged_policy(self, resource_name, step):
         """
@@ -966,6 +987,28 @@ class PipelineRunnerBase(ABC):
             },
         )
 
+    def _fabric_has_preprovisioned_switches(self):
+        """
+        Return True if the data model defines any pre-provisioned switch
+        (``poap.preprovision``) for this fabric.
+
+        Used to gate the non-fatal HTTP 500 config-save handling so the bypass
+        only applies to pre-provisioned fabrics, where NDFC legitimately
+        returns 500 while switches are still reloading or not yet reachable.
+        """
+        switches = (
+            self.data_model.get('vxlan', {})
+            .get('topology', {})
+            .get('switches', [])
+        ) or []
+
+        return any(
+            isinstance(sw, dict)
+            and isinstance(sw.get('poap'), dict)
+            and sw['poap'].get('preprovision')
+            for sw in switches
+        )
+
     def _config_save(self, resource_name, step):
         """
         Execute a config-save via the fabric_deploy_manager action plugin.
@@ -974,8 +1017,14 @@ class PipelineRunnerBase(ABC):
         consolidating config-save into a single code path. The fabric_deploy_manager
         handles MCFG vs standard path resolution via ApiPathResolver.
 
-        Treats HTTP 500 as non-fatal since config-save can return 500
-        when there are no pending changes (matches original rescue block behavior).
+        Treats an HTTP 500 from config-save as non-fatal **only when the data
+        model contains pre-provisioned switches** (``poap.preprovision``), so
+        the pipeline continues for pre-provisioned fabrics where NDFC can
+        return 500 to the intermediate recalculate/config-save while switches
+        are still reloading or not yet reachable. A 500 on a fabric without
+        pre-provisioned switches, and any other failure (400, auth, malformed
+        responses), remain fatal. The tolerated 500 is surfaced as a warning
+        rather than silenced.
         """
         result = self.executor.execute_plugin(
             module_name="cisco.nac_dc_vxlan.dtc.fabric_deploy_manager",
@@ -993,11 +1042,16 @@ class PipelineRunnerBase(ABC):
             except (AttributeError, TypeError):
                 pass
 
-            if return_code == 500:
-                display.v(
-                    f"{self.OPERATION.upper()} [{self.fabric_name}] Config-save returned "
-                    f"HTTP 500 (non-fatal — no pending changes)"
+            if return_code == 500 and self._fabric_has_preprovisioned_switches():
+                display.warning(
+                    f"{self.OPERATION.upper()} [{self.fabric_name}] config-save returned "
+                    f"HTTP 500; continuing because the data model contains pre-provisioned "
+                    f"switches (likely still reloading or not yet reachable in NDFC)."
                 )
-                return {'failed': False, 'msg': 'Config-save HTTP 500 (non-fatal)'}
+                display.v(
+                    f"{self.OPERATION.upper()} [{self.fabric_name}] config-save HTTP 500 "
+                    f"detail: {result.get('msg')}"
+                )
+                return {'failed': False, 'msg': 'Config-save HTTP 500 (non-fatal, pre-provisioned fabric)'}
 
         return result
