@@ -104,5 +104,16 @@ class PreparePlugin:
                     if net.get('network_attach_group') not in net_grp_name_list:
                         del net['network_attach_group']
 
+            # If the switch is in the switch list and a hostname is used, add the management IP to switch_attach_overrides
+            for net in data_model['vxlan']['overlay']['networks']:
+                for override in net.get('switch_attach_overrides', []):
+                    hostname = override.get('hostname')
+                    if hostname and any(sw['name'] == hostname for sw in switches):
+                        found_switch = next(item for item in switches if item['name'] == hostname)
+                        if found_switch.get('management').get('management_ipv4_address'):
+                            override['mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
+                        elif found_switch.get('management').get('management_ipv6_address'):
+                            override['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
+
         self.kwargs['results']['model_extended'] = data_model
         return self.kwargs['results']
