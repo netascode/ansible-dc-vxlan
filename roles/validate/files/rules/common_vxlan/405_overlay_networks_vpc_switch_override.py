@@ -18,26 +18,27 @@ class Rule:
                 vpc_peer_mapping[peer1] = peer2
                 vpc_peer_mapping[peer2] = peer1
 
-        for network in networks:
-            attach_overrides = cls.safeget(network,['switch_attach_overrides'])
-            if attach_overrides:
-                vlan_overrides = {o['hostname']: o.get('vlan_id') for o in attach_overrides}
-                for override in attach_overrides:
-                    switch = override['hostname']
-                    vlan_override = cls.safeget(override,['vlan_id'])
-                    if vlan_override:
-                        if switch in vpc_peer_mapping:
-                            peer = vpc_peer_mapping[switch]
-                            peer_override = vlan_overrides.get(peer)
-                            peer_vlan_id = peer_override if peer_override is not None else cls.safeget(network, ['vlan_id'])
-
-
-                            if vlan_override != peer_vlan_id:
-                                results.append(
-                                f"Networks.{network['name']}: switches {switch} and {peer} "
-                                f"are vPC peers but have different vlan_id: "
-                                f"{vlan_override} != {peer_vlan_id}"
-                                )
+        if networks:
+            for network in networks:
+                attach_overrides = cls.safeget(network,['switch_attach_overrides'])
+                if attach_overrides:
+                    vlan_overrides = {o['hostname']: o.get('vlan_id') for o in attach_overrides}
+                    for override in attach_overrides:
+                        switch = override['hostname']
+                        vlan_override = cls.safeget(override,['vlan_id'])
+                        if vlan_override:
+                            if switch in vpc_peer_mapping:
+                                peer = vpc_peer_mapping[switch]
+                                peer_override = vlan_overrides.get(peer)
+                                peer_vlan_id = peer_override if peer_override is not None else cls.safeget(network, ['vlan_id'])
+    
+    
+                                if vlan_override != peer_vlan_id:
+                                    results.append(
+                                    f"Networks.{network['name']}: switches {switch} and {peer} "
+                                    f"are vPC peers but have different vlan_id: "
+                                    f"{vlan_override} != {peer_vlan_id}"
+                                    )
 
         return results
 
