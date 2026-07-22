@@ -364,5 +364,20 @@ class ActionModule(ActionBase):
                 if net.get('network_attach_group') not in net_grp_name_list:
                     del net['network_attach_group']
 
+        # If the switch is in a child fabric and a hostname is used, add the management IP to switch_attach_overrides
+        for net in data_model['vxlan']['multisite']['overlay']['networks']:
+            for override in net.get('switch_attach_overrides', []):
+                hostname = override.get('hostname')
+                if not hostname:
+                    continue
+                for child_fabric in child_fabrics_data.keys():
+                    for sw in child_fabrics_data[child_fabric]['switches']:
+                        if sw.get('hostname') is None:
+                            continue
+                        fwd_pattern = f"^{re.escape(hostname)}$|^{re.escape(hostname)}\\..*$"
+                        rev_pattern = f"^{re.escape(sw['hostname'])}$|^{re.escape(sw['hostname'])}\\..*$"
+                        if re.search(fwd_pattern, sw['hostname']) or re.search(rev_pattern, hostname):
+                            override['mgmt_ip_address'] = sw['mgmt_ip_address']
+
         results['overlay_attach_groups'] = data_model['vxlan']['multisite']['overlay']
         return results

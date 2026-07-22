@@ -1,6 +1,6 @@
 {# Auto-generated NDFC MSD network_attach_groups_dict config data structure for fabric {{ vxlan.fabric.name }} #}
-{% if data_model_extended.vxlan.multisite.overlay.networks is defined and data_model_extended.vxlan.multisite.overlay.networks %}
-{% set networks = data_model_extended.vxlan.multisite.overlay.networks %}
+{% if runtime_msd_data_model.overlay_attach_groups.networks is defined and runtime_msd_data_model.overlay_attach_groups.networks %}
+{% set networks = runtime_msd_data_model.overlay_attach_groups.networks %}
 {% else %}
 {% set networks = [] %}
 {% endif %}
@@ -74,6 +74,22 @@
 {% endif %}
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
+{% if net['switch_attach_overrides'] is defined %}
+{% for switch_override in net['switch_attach_overrides'] %}
+{% if switch_override['mgmt_ip_address'] == attach['mgmt_ip_address'] %}
+{% if switch_override['vlan_id'] is defined and switch_override['vlan_id'] != net['vlan_id'] %}
+      vlan_id: {{ switch_override['vlan_id'] }}
+{% endif %}
+{% if switch_override['freeform_config'] is defined %}
+      freeform_config: |-
+{{ switch_override['freeform_config'] | cisco.nac_dc_vxlan.dedent | indent(8, true) }}
+{% endif %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
+      svi_enabled: {{ switch_override['svi_enabled'] | default(defaults.vxlan.overlay.networks.svi_enabled) }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
 {% if attach['ports'] is defined %}
       ports: {{ attach['ports'] }}
 {% endif %}
