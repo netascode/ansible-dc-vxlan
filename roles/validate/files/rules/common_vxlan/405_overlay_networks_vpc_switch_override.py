@@ -11,14 +11,16 @@ class Rule:
 
         #  Build a mapping of vPC peers: hostname -> peer_hostname
         vpc_peer_mapping = {}
-        for vpc_pair in vpc_peers:
-            peer1 = vpc_pair.get('peer1')
-            peer2 = vpc_pair.get('peer2')
-            if peer1 and peer2:
-                vpc_peer_mapping[peer1] = peer2
-                vpc_peer_mapping[peer2] = peer1
+        if vpc_peers:
+            for vpc_pair in vpc_peers:
+                peer1 = vpc_pair.get('peer1')
+                peer2 = vpc_pair.get('peer2')
+                if peer1 and peer2:
+                    vpc_peer_mapping[peer1] = peer2
+                    vpc_peer_mapping[peer2] = peer1
 
-        if networks:
+        # Check if vpc_peer_mapping is not empty and networks are defined
+        if not vpc_peer_mapping and networks:
             for network in networks:
                 attach_overrides = cls.safeget(network,['switch_attach_overrides'])
                 if attach_overrides:
@@ -31,8 +33,7 @@ class Rule:
                                 peer = vpc_peer_mapping[switch]
                                 peer_override = vlan_overrides.get(peer)
                                 peer_vlan_id = peer_override if peer_override is not None else cls.safeget(network, ['vlan_id'])
-    
-    
+
                                 if vlan_override != peer_vlan_id:
                                     results.append(
                                     f"Networks.{network['name']}: switches {switch} and {peer} "
