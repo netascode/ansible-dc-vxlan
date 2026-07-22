@@ -22,12 +22,12 @@ class Rule:
         # Check if vpc_peer_mapping is not empty and networks are defined
         if not vpc_peer_mapping and networks:
             for network in networks:
-                attach_overrides = cls.safeget(network,['switch_attach_overrides'])
+                attach_overrides = cls.safeget(network, ['switch_attach_overrides'])
                 if attach_overrides:
                     vlan_overrides = {o['hostname']: o.get('vlan_id') for o in attach_overrides}
                     for override in attach_overrides:
                         switch = override['hostname']
-                        vlan_override = cls.safeget(override,['vlan_id'])
+                        vlan_override = cls.safeget(override, ['vlan_id'])
                         if vlan_override:
                             if switch in vpc_peer_mapping:
                                 peer = vpc_peer_mapping[switch]
@@ -36,9 +36,9 @@ class Rule:
 
                                 if vlan_override != peer_vlan_id:
                                     results.append(
-                                    f"Networks.{network['name']}: switches {switch} and {peer} "
-                                    f"are vPC peers but have different vlan_id: "
-                                    f"{vlan_override} != {peer_vlan_id}"
+                                        f"Networks.{network['name']}: switches {switch} and {peer} "
+                                        f"are vPC peers but have different vlan_id: "
+                                        f"{vlan_override} != {peer_vlan_id}"
                                     )
 
         return results
