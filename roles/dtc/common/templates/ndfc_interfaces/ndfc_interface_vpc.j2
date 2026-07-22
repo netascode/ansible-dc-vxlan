@@ -18,6 +18,7 @@
   deploy: false
   profile:
     admin_state: {{ switches[peer1].enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled) | lower }}
+    enable_cdp: {{ switches[peer1].enable_cdp | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_cdp) | lower }}
     mode: {{ switches[peer1].mode }}
     peer1_pcid: {{ switches[peer1].name | regex_replace('[^0-9]', '') }}
     peer2_pcid: {{ switches[peer2].name | regex_replace('[^0-9]', '') }}
