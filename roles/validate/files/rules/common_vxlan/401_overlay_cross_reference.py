@@ -68,6 +68,8 @@ class Rule:
             if sm_networks and network_attach_groups:
                 results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
                 results = cls.cross_reference_vpc_peers(network_attach_groups, vpc_peers, 'network', results)
+            if sm_networks:
+                results = cls.cross_reference_switch_overrides(sm_networks, switches, 'network', results)
 
         return results
 
@@ -177,5 +179,26 @@ class Rule:
                             f"which has vPC peer '{vpc_peer}', but the vPC peer is not included "
                             f"in the same attach group. Both vPC peers should be in the same attach group."
                         )
+
+        return results
+
+    @classmethod
+    def cross_reference_switch_overrides(cls, attach_overrides, switches, target, results):
+        if not attach_overrides:
+            return results
+
+        for attach_override in attach_overrides:
+            for override in attach_override.get('switch_attach_overrides', []):
+                hostname = override.get('hostname')
+                if not hostname:
+                    continue
+
+                if not any(s.get('name') == hostname for s in switches):
+                    if not any(s.get('management', {}).get('management_ipv4_address') == hostname for s in switches):
+                        if not any(s.get('management', {}).get('management_ipv6_address') == hostname for s in switches):
+                            results.append(
+                                f"switch: {hostname}, defined under {target} {attach_override.get('name')}.switch_attach_overrides"
+                                f" does not match any switch in the topology."
+                            )
 
         return results
