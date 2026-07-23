@@ -89,10 +89,12 @@ class ActionModule(ActionBase):
             schema = DEFAULT_SCHEMA
 
         rules_list = []
+        data_model_loaded = None
         if rules and task_vars['role_path'] in rules:
             # Load in-memory data model using iac-validate
             # Perform the load in this if block to avoid loading the data model multiple times when custom enhanced rules are provided
             results['data'] = load_yaml_files([mdata])
+            data_model_loaded = results['data']
 
             # Introduce common directory to the rules list by default once vrf and network rules are updated
             parent_keys = ['vxlan', 'fabric']
@@ -156,11 +158,17 @@ class ActionModule(ActionBase):
             # Else block to pickup custom enhanced rules provided by the user
             rules_list.append(f'{rules}')
 
+        syntax_validated = False
         for rules_item in rules_list:
             validator = nac_validate.validator.Validator(schema, rules_item)
-            if schema:
+            if schema and not syntax_validated and validator.schema is not None:
                 validator.validate_syntax([mdata])
+                syntax_validated = True
             if rules_item:
+                if data_model_loaded is None:
+                    data_model_loaded = load_yaml_files([mdata])
+                    results['data'] = data_model_loaded
+                validator.data = data_model_loaded
                 validator.validate_semantics([mdata])
 
             msg = ""

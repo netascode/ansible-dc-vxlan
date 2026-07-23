@@ -25,6 +25,29 @@
 # For example in prepare_serice_model.py we can do the following:
 #  from ..helper_functions import do_something
 
+
+class NdfcBulkPolicyApiUnavailable(Exception):
+    """
+    Raised when the NDFC bulk policy lookup API is not available.
+    """
+
+
+class NdfcDuplicatePolicyError(Exception):
+    """
+    Raised when NDFC has duplicate policies for a switch/template pair.
+    """
+
+
+def _ndfc_policy_id_list(policies):
+    """
+    Return a comma-separated policyId/id list for error messages.
+    """
+    policy_ids = []
+    for policy in policies:
+        policy_ids.append(str(policy.get("policyId") or policy.get("id") or "unknown"))
+    return ", ".join(policy_ids)
+
+
 def data_model_key_check(tested_object, keys):
     """
     Check if key(s) are found and exist in the data model.
@@ -127,17 +150,32 @@ def ndfc_get_switch_policy_using_template(self, task_vars, tmp, switch_serial_nu
     """
     policy_data = ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number)
 
-    try:
-        policy_match = next(
-            (item for item in policy_data["response"]["DATA"] if item["templateName"] == template_name and item['serialNumber'] == switch_serial_number)
+    policy_response = policy_data.get("response") or policy_data.get("msg") or {}
+    return_code = policy_response.get("RETURN_CODE")
+    if return_code != 200:
+        raise Exception(f"Policy lookup failed for switch {switch_serial_number}: {policy_response}")
+
+    policy_matches = [
+        item for item in policy_response.get("DATA", [])
+        if item["templateName"] == template_name and item['serialNumber'] == switch_serial_number
+    ]
+
+    if len(policy_matches) > 1 and template_name == "host_11_1":
+        raise NdfcDuplicatePolicyError(
+            f"Duplicate host_11_1 policies found for switch serial {switch_serial_number}. "
+            f"Policy IDs: {_ndfc_policy_id_list(policy_matches)}. "
+            "Duplicate hostname policies are controller drift and must be reconciled before continuing."
         )
-    except StopIteration:
+
+    if not policy_matches:
         if template_name == "host_11_1":
             policy_match = None
         else:
             err_msg = f"Policy for template {template_name} and switch {switch_serial_number} not found!"
             err_msg += f" Please ensure switch with serial number {switch_serial_number} is part of the fabric."
             raise Exception(err_msg)
+    else:
+        policy_match = policy_matches[0]
 
     return policy_match
 
@@ -231,10 +269,178 @@ def ndfc_get_fabric_switches(self, task_vars, tmp, fabric):
             fabric_switches.append(
                 {
                     'hostname': fabric_switch['logicalName'],
+                    'name': fabric_switch['logicalName'],
                     'mgmt_ip_address': fabric_switch['ipAddress'],
                     'fabric_name': fabric_switch['fabricName'],
                     'serial_number': fabric_switch['serialNumber'],
+                    'role': fabric_switch['switchRole'],
                 }
             )
 
     return fabric_switches
+
+
+def restructure_leaf_tor_data(switches_list, topology_switches, tor_peers):
+    """Transform a flat switches list into the nested structure with TOR
+    entries under their parent leaf switches.
+
+    Each TOR is placed under ALL of its parent leaves that are present in the
+    attach group. If a parent leaf is not explicitly listed in the attach group,
+    a synthetic leaf entry is created automatically from topology data.
+
+    Args:
+        switches_list: List of switch dicts from network_attach_group
+        topology_switches: List of switch dicts from vxlan.topology.switches
+        tor_peers: List of tor_peers dicts from vxlan.topology.tor_peers
+
+    Returns:
+        Restructured switches list with TOR entries nested under parent leaves
+
+    Example output:
+         switches:
+           - hostname: leaf-1
+             mgmt_ip_address: 192.168.1.10
+             tors:
+               - hostname: tor-1
+                 mgmt_ip_address: 192.168.1.30
+
+           - hostname: leaf-2
+             mgmt_ip_address: 192.168.1.20
+             tors:
+               - hostname: tor-1
+                 mgmt_ip_address: 192.168.1.30
+    """
+    # Build set of TOR hostnames from topology
+    tor_hostnames = {
+        sw['name'] for sw in topology_switches if sw.get("role") == "tor"
+    }
+
+    # Build TOR -> parent leaves mapping from tor_peers
+    # Each TOR maps to a list of its parent leaf hostnames
+    tor_to_parents = {}
+    for peer in tor_peers:
+        parent_leaves = []
+        if peer.get("parent_leaf1"):
+            parent_leaves.append(peer['parent_leaf1'])
+        if peer.get("parent_leaf2"):
+            parent_leaves.append(peer['parent_leaf2'])
+
+        for key in ("tor1", "tor2"):
+            tor_name = peer.get(key)
+            if tor_name:
+                tor_to_parents[tor_name] = parent_leaves
+
+    # # Build topology hostname -> switch data mapping for creating synthetic entries
+    # topology_by_name = {sw['name']: sw for sw in topology_switches}
+
+    # Separate leaf entries and TOR entries
+    leaf_entries = []
+    tor_entries = []
+
+    for sw in switches_list:
+        hostname = sw.get("hostname", "")
+        if hostname in tor_hostnames:
+            tor_entries.append(sw)
+        else:
+            leaf_entries.append(sw)
+
+    # Initialize empty 'tors' list for each leaf entry
+    for leaf in leaf_entries:
+        if "tors" not in leaf:
+            leaf['tors'] = []
+
+    # Build hostname -> leaf entry mapping for quick lookup
+    leaf_by_hostname = {leaf['hostname']: leaf for leaf in leaf_entries}
+
+    # Collect all required parent leaf hostnames from TOR entries
+    # and create synthetic leaf entries for any that are not in the attach group
+    for tor_entry in tor_entries:
+        tor_hostname = tor_entry['hostname']
+        parent_leaves = tor_to_parents.get(tor_hostname, [])
+        for parent_hostname in parent_leaves:
+            if parent_hostname not in leaf_by_hostname:
+                # Create a synthetic leaf entry from topology data
+                synthetic_leaf = {'hostname': parent_hostname, 'tors': []}
+                leaf_entries.append(synthetic_leaf)
+                leaf_by_hostname[parent_hostname] = synthetic_leaf
+
+    # Assign each TOR to ALL of its parent leaves present in this attach group
+    for tor_entry in tor_entries:
+        tor_hostname = tor_entry['hostname']
+        parent_leaves = tor_to_parents.get(tor_hostname, [])
+        valid_parents = [p for p in parent_leaves if p in leaf_by_hostname]
+
+        if valid_parents:
+            for parent_hostname in valid_parents:
+                leaf_by_hostname[parent_hostname]['tors'].append(tor_entry)
+        else:
+            # No parent leaf defined in tor_peers - keep TOR as top-level entry
+            leaf_entries.append(tor_entry)
+
+    return leaf_entries
+
+
+def ndfc_get_fabric_policies_by_template(self, task_vars, tmp, fabric_name, template_name):
+    """
+    Get all NDFC policies for a given fabric and template name in bulk.
+
+    :Parameters:
+        :self: Ansible action plugin instance object.
+        :task_vars (dict): Ansible task vars.
+        :tmp (None, optional): Ansible tmp object. Defaults to None via Action Plugin.
+        :fabric_name (str): The name of the fabric.
+        :template_name (str): The name of the NDFC template.
+
+    :Returns:
+        :policies_dict: Dictionary mapping serial_number to policy data.
+
+    :Raises:
+        NdfcBulkPolicyApiUnavailable: If the bulk policy lookup API is not installed.
+        NdfcDuplicatePolicyError: If duplicate host_11_1 policies are found for a switch serial.
+        Exception: If the bulk policy lookup fails for another reason.
+    """
+    policy_response = self._execute_module(
+        module_name="cisco.dcnm.dcnm_rest",
+        module_args={
+            "method": "GET",
+            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{fabric_name}/policy?templateName={template_name}"
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+
+    policy_result = policy_response.get("response") or policy_response.get("msg") or {}
+    return_code = policy_result.get("RETURN_CODE")
+
+    if return_code == 404:
+        raise NdfcBulkPolicyApiUnavailable(
+            f"Bulk policy lookup API is unavailable for fabric {fabric_name} and template {template_name}."
+        )
+
+    if return_code != 200:
+        raise Exception(
+            f"Bulk policy lookup failed for fabric {fabric_name} and template {template_name}: {policy_result}"
+        )
+
+    # Build a dictionary mapping serial number to policy
+    policies_dict = {}
+    duplicate_check = {}
+    for policy in policy_result.get('DATA') or []:
+        serial_number = policy['serialNumber']
+        policies_dict[serial_number] = policy
+        duplicate_check.setdefault(serial_number, []).append(policy)
+
+    if template_name == "host_11_1":
+        duplicate_details = [
+            f"{serial_number}: {_ndfc_policy_id_list(policies)}"
+            for serial_number, policies in duplicate_check.items()
+            if len(policies) > 1
+        ]
+        if duplicate_details:
+            raise NdfcDuplicatePolicyError(
+                "Duplicate host_11_1 policies found. "
+                f"Serial/policy IDs: {'; '.join(duplicate_details)}. "
+                "Duplicate hostname policies are controller drift and must be reconciled before continuing."
+            )
+
+    return policies_dict
