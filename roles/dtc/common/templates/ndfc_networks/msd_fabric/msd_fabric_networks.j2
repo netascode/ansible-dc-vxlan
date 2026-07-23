@@ -1,9 +1,13 @@
 {# Auto-generated NDFC MSD network_attach_groups_dict config data structure for fabric {{ vxlan.fabric.name }} #}
-{% if runtime_msd_data_model.overlay_attach_groups.networks is defined and runtime_msd_data_model.overlay_attach_groups.networks %}
-{% set networks = runtime_msd_data_model.overlay_attach_groups.networks %}
+{% if data_model_extended.vxlan.multisite.overlay.networks is defined and data_model_extended.vxlan.multisite.overlay.networks %}
+{% set networks = data_model_extended.vxlan.multisite.overlay.networks %}
 {% else %}
 {% set networks = [] %}
 {% endif %}
+{% set net_overrides = {} %}
+{% for _n in runtime_msd_data_model.overlay_attach_groups.networks | default([], true) %}
+{% set _ = net_overrides.update({_n['name']: _n.get('switch_attach_overrides') or []}) %}
+{% endfor %}
 {% for net in networks %}
 - net_name: {{ net['name'] }}
 {# ------------------------------------------------------ #}
@@ -74,8 +78,7 @@
 {% endif %}
 {% for attach in network_attach_groups_dict[net['network_attach_group']] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
-{% if net['switch_attach_overrides'] is defined %}
-{% for switch_override in net['switch_attach_overrides'] %}
+{% for switch_override in net_overrides.get(net['name'], []) %}
 {% if switch_override['mgmt_ip_address'] == attach['mgmt_ip_address'] %}
 {% if switch_override['vlan_id'] is defined and switch_override['vlan_id'] != net['vlan_id'] %}
       vlan_id: {{ switch_override['vlan_id'] }}
@@ -89,7 +92,6 @@
 {% endif %}
 {% endif %}
 {% endfor %}
-{% endif %}
 {% if attach['ports'] is defined %}
       ports: {{ attach['ports'] }}
 {% endif %}
