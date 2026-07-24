@@ -19,7 +19,9 @@
 {% set policy_name = policy_match.name | ansible.builtin.regex_replace('\\s+', '_') %}
         - create_additional_policy: False
           description: {{ 'nac_' + policy_name }}
-{% if (policy_match.template_name is defined and policy_match.template_name) or (policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename)) %}
+{% if policy_match.policy_id is defined and policy_match.policy_id %}
+          name: {{ policy_match.policy_id }}
+{% elif (policy_match.template_name is defined and policy_match.template_name) or (policy_match.filename is defined and policy_match.filename and (".yaml" in policy_match.filename or ".yml" in policy_match.filename)) %}
           name: {{ policy_match.template_name | default(defaults.vxlan.policy.template_name) }}
 {% elif policy_match.filename is defined and policy_match.filename and ".cfg" in policy_match.filename %}
           name: {{ defaults.vxlan.policy.template_name }}
