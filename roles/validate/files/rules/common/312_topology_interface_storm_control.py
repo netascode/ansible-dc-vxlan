@@ -8,7 +8,7 @@ class Rule:
         results = []
         switches = []
         pct_keys = {'storm_control_broadcast_level_percent', 'storm_control_multicast_level_percent', 'storm_control_unicast_level_percent'}
-        pps_keys= {'storm_control_broadcast_level_pps', 'storm_control_multicast_level_pps', 'storm_control_unicast_level_pps'}
+        pps_keys = {'storm_control_broadcast_level_pps', 'storm_control_multicast_level_pps', 'storm_control_unicast_level_pps'}
 
         check = cls.data_model_key_check(data_model, ['vxlan', 'topology', 'switches'])
         if 'switches' in check['keys_data']:
