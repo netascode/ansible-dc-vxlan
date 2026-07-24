@@ -19,6 +19,15 @@ class Rule:
             "enabled",
             "spanning_tree_portfast",
             "pc_mode",
+            "copy_description",
+            "enable_storm_control",
+            "storm_control_action",
+            "storm_control_broadcast_level_percent",
+            "storm_control_broadcast_level_pps",
+            "storm_control_multicast_level_percent",
+            "storm_control_multicast_level_pps",
+            "storm_control_unicast_level_percent",
+            "storm_control_unicast_level_pps",
         ]
         vpc_peers_list = cls.get_vpc_peers(data_model)
         # Check if fabric topology switches are defined

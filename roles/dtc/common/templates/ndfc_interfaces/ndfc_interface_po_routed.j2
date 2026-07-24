@@ -25,6 +25,7 @@
     ipv4_mask_len: {{ ipv4_address__mask[1] | default(omit) }}
 {% endif %}
     description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.description) }}"
+    copy_description: {{ interface['copy_description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.copy_description) | lower }}
     route_tag: {{ interface['ipv4_route_tag'] | default(omit) }}
     int_vrf: {{ interface['vrf'] | default(omit) }}
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.mtu) }}

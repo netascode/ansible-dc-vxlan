@@ -23,6 +23,7 @@
     admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enabled) | lower }}
     mode: 'access'
     description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.description) }}"
+    copy_description: {{ interface['copy_description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.copy_description) | lower }}
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.speed) }}
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.spanning_tree_portfast) }}
@@ -43,6 +44,28 @@
     queuing_policy: {{ interface['queuing_policy'] | default("") }}
 {% endif %}
     enable_monitor: {{ interface['monitor'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.monitor) | lower }}
+    enable_storm_control: {{ interface['enable_storm_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_storm_control) | lower }}
+{% if interface['enable_storm_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_storm_control) %}
+    storm_control_action: {{ interface['storm_control_action'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.storm_control_action) | lower }}
+{% if interface['storm_control_broadcast_level_percent'] is defined %}
+    storm_control_broadcast_level_percent: "{{ '%0.2f' % interface['storm_control_broadcast_level_percent'] }}"
+{% endif %}
+{% if interface['storm_control_multicast_level_percent'] is defined %}
+    storm_control_multicast_level_percent: "{{ '%0.2f' % interface['storm_control_multicast_level_percent'] }}"
+{% endif %}
+{% if interface['storm_control_unicast_level_percent'] is defined %}
+    storm_control_unicast_level_percent: "{{ '%0.2f' % interface['storm_control_unicast_level_percent'] }}"
+{% endif %}
+{% if interface['storm_control_broadcast_level_pps'] is defined %}
+    storm_control_broadcast_level_pps: {{ interface['storm_control_broadcast_level_pps'] }}
+{% endif %}
+{% if interface['storm_control_multicast_level_pps'] is defined %}
+    storm_control_multicast_level_pps: {{ interface['storm_control_multicast_level_pps'] }}
+{% endif %}
+{% if interface['storm_control_unicast_level_pps'] is defined %}
+    storm_control_unicast_level_pps: {{ interface['storm_control_unicast_level_pps'] }}
+{% endif %}
+{% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
