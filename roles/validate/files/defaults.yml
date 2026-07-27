@@ -172,6 +172,7 @@ factory_defaults:
             orphan_port: false
             enable_qos: false
             monitor: false
+            fec: auto
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
@@ -185,6 +186,7 @@ factory_defaults:
             native_vlan: ""
             enable_qos: false
             monitor: false
+            fec: auto
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
             mtu: jumbo
@@ -230,12 +232,14 @@ factory_defaults:
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
+            fec: auto
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
             speed: auto
             enabled: true
             enable_qos: false
+            fec: auto
           topology_switch_routed_sub_interface:
             description: "NetAsCode Routed Sub Interface"
             mtu: 9216

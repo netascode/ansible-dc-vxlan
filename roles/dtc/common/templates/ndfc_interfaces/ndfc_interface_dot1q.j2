@@ -31,6 +31,9 @@
 {% if interface['orphan_port'] | default(false) %}
     orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.orphan_port) | lower }}
 {% endif %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
+    fec: {{ interface['fec'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_interface.fec) }}
+{% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
