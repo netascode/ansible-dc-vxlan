@@ -86,6 +86,6 @@
   ansible.builtin.debug:
     msg:
       - "-------------------------------------------------------------------------------------------------------"
-      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_peering_delete_mode flag is set to False     +"
+      - "+ SKIPPING Remove Unmanaged vPC Peering task because vpc_delete_mode flag is set to False     +"
       - "-------------------------------------------------------------------------------------------------------"
   when: not ((vpc_delete_mode is defined) and (vpc_delete_mode is true|bool))

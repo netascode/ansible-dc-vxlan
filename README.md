@@ -50,12 +50,14 @@ Inside the [example repository](https://github.com/netascode/ansible-dc-vxlan-ex
 
 ```yaml
 # Control Parameters for 'Remove' role tasks in VXLAN EVPN fabric
+edge_connections_delete_mode: false
 interface_delete_mode: false
 inventory_delete_mode: false
 link_fabric_delete_mode: false
 link_vpc_delete_mode: false
 network_delete_mode: false
 policy_delete_mode: false
+tor_pairing_delete_mode: false
 vpc_delete_mode: false
 vrf_delete_mode: false
 
@@ -83,16 +85,19 @@ The following control variables are available in this collection.
 | Variable | Description | Default Value |
 | -------- | ------- | ------- |
 | `force_run_all` | Force all roles in the collection to run | `false` |
+| `edge_connections_delete_mode` | Remove edge_connections state as part of the remove role | `false` |
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
+| `link_fabric_delete_mode` | Remove fabric link state as part of the remove role | `false` |
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
 | `multisite_child_fabric_delete_mode` | Remove child fabric from MSD fabric as part of the remove role | `false` |
 | `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD) fabrics | `false` |
 | `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD) fabrics | `false` |
 | `network_delete_mode` | Remove network state as part of the remove role | `false` |
 | `policy_delete_mode` | Remove policy state as part of the remove role | `false` |
-| `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
+| `tor_pairing_delete_mode` | Remove tor pairing state as part of the remove role | `false` |
 | `vpc_delete_mode` | Remove vpc pair state as part of the remove role | `false` |
+| `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
 
 These variables are described in more detail in different sections of this document.
 
