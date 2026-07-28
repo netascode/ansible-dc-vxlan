@@ -28,6 +28,7 @@
       {{ switches[peer2].freeform_config | default('') | indent(6, false)  }}
 {% if switches[peer1].mode == 'trunk' %}
     admin_state: {{ switches[peer1].enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled) | lower }}
+    enable_cdp: {{ switches[peer1].enable_cdp | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_cdp) | lower }}
     port_type_fast: {{ switches[peer1].spanning_tree_portfast | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_portfast) | lower }}
     mtu: {{ switches[peer1].mtu | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.mtu) }}
     speed: {{ switches[peer1].speed | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.speed) }}
@@ -73,6 +74,7 @@
     peer2_native_vlan: "{{ switches[peer2].native_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.native_vlan) }}"
 {% elif switches[peer1].mode == 'access' %}
     admin_state: {{ switches[peer1].enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enabled) | lower }}
+    enable_cdp: {{ switches[peer1].enable_cdp | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_cdp) | lower }}
     port_type_fast: {{ switches[peer1].spanning_tree_portfast | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.spanning_tree_portfast) | lower }}
     mtu: {{ switches[peer1].mtu | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.mtu) }}
     speed: {{ switches[peer1].speed | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.speed) }}

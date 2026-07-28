@@ -165,6 +165,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             access_vlan: 1
             spanning_tree_portfast: true
             enable_bpdu_guard: true
@@ -179,6 +180,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             trunk_allowed_vlans: none
             spanning_tree_portfast: true
             enable_bpdu_guard: true
@@ -195,6 +197,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             access_vlan: 1
             pc_mode: active
             spanning_tree_portfast: true
@@ -215,6 +218,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             trunk_allowed_vlans: none
             pc_mode: active
             spanning_tree_portfast: true
@@ -235,6 +239,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             access_vlan: 1
             spanning_tree_portfast: true
             enable_bpdu_guard: true

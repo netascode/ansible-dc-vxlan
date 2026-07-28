@@ -21,6 +21,7 @@
   deploy: false
   profile:
     admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enabled) | lower }}
+    enable_cdp: {{ interface['enable_cdp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_cdp) | lower }}
     mode: 'trunk'
     description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.description) }}"
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.mtu) }}
