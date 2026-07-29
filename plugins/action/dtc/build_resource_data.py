@@ -48,6 +48,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import copy
 import hashlib
 import os
 import re
@@ -60,6 +61,9 @@ from ansible.utils.display import Display
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.registry_loader import (
     RegistryLoader,
+)
+from ansible_collections.cisco.nac_dc_vxlan.plugins.action.common.prepare_plugins.prep_005_resolve_env_vars import (
+    resolve_env_vars_recursive,
 )
 
 display = Display()
@@ -328,6 +332,15 @@ class ResourceDataBuilder:
                 if isinstance(hook_result, dict) and 'module_data' in hook_result:
                     module_data = hook_result['module_data']
                     break
+
+        resolved_data = copy.deepcopy(module_data)
+        env_count = resolve_env_vars_recursive(resolved_data)
+        if env_count > 0:
+            module_data = resolved_data
+            display.vvv(
+                f"COMMON [{self.fabric_name}] Resolved {env_count} env_var_ "
+                f"token(s) in module_data for {resource_name}"
+            )
 
         if module_data is not data:
             resource_entry['module_data'] = module_data
