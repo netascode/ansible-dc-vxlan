@@ -20,7 +20,7 @@ class Rule:
                     vpc_peer_mapping[peer2] = peer1
 
         # Check if vpc_peer_mapping is not empty and networks are defined
-        if not vpc_peer_mapping and networks:
+        if vpc_peer_mapping and networks:
             for network in networks:
                 attach_overrides = cls.safeget(network, ['switch_attach_overrides'])
                 if attach_overrides:
