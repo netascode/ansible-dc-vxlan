@@ -68,6 +68,13 @@ def resolve_env_vars_in_string(value, path):
 
 
 def resolve_env_vars_recursive(data, path=''):
+    """
+    Resolve all env_var_ tokens in a data structure by replacing them
+    with the corresponding environment variable values (in-place).
+
+    Used at runtime by build_resource_data to resolve tokens in
+    module_data (a deep copy) before sending to NDFC modules.
+    """
     resolved_count = 0
 
     if isinstance(data, dict):
@@ -90,6 +97,50 @@ def resolve_env_vars_recursive(data, path=''):
     return resolved_count
 
 
+def _validate_env_var_token(token, path):
+    if os.getenv(token) is None:
+        display.warning(
+            f"Environment variable '{token}' referenced at "
+            f"'{path}' is not set. The value will not be resolved at runtime."
+        )
+        return False
+
+    display.vvv(f"Validated '{token}' exists as environment variable at '{path}'")
+    return True
+
+
+def validate_env_vars_recursive(data, path=''):
+    """
+    Walk the data structure and validate that all env_var_ tokens have
+    corresponding environment variables set, without resolving them.
+
+    Tokens remain as-is in the data so that rendered files do not
+    contain secrets. Runtime resolution happens in build_resource_data.
+    """
+    validated_count = 0
+
+    if isinstance(data, dict):
+        for key, value in data.items():
+            current_path = f"{path}.{key}" if path else key
+            if isinstance(value, str) and ENV_VAR_PREFIX in value:
+                for match in ENV_VAR_PATTERN.finditer(value):
+                    if _validate_env_var_token(match.group(0), current_path):
+                        validated_count += 1
+            elif isinstance(value, (dict, list)):
+                validated_count += validate_env_vars_recursive(value, current_path)
+    elif isinstance(data, list):
+        for index, item in enumerate(data):
+            current_path = f"{path}[{index}]"
+            if isinstance(item, str) and ENV_VAR_PREFIX in item:
+                for match in ENV_VAR_PATTERN.finditer(item):
+                    if _validate_env_var_token(match.group(0), current_path):
+                        validated_count += 1
+            elif isinstance(item, (dict, list)):
+                validated_count += validate_env_vars_recursive(item, current_path)
+
+    return validated_count
+
+
 class PreparePlugin:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
@@ -98,9 +149,11 @@ class PreparePlugin:
     def prepare(self):
         data_model = self.kwargs['results']['model_extended']
 
-        resolved_count = resolve_env_vars_recursive(data_model)
-        if resolved_count > 0:
-            display.v(f"Resolved {resolved_count} environment variable(s) in the data model")
+        # Validate env vars exist but keep tokens as placeholders.
+        # Runtime resolution happens in build_resource_data.
+        validated_count = validate_env_vars_recursive(data_model)
+        if validated_count > 0:
+            display.v(f"Validated {validated_count} environment variable(s) in the data model")
 
         self.kwargs['results']['model_extended'] = data_model
         return self.kwargs['results']
