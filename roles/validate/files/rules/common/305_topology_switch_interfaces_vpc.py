@@ -169,20 +169,21 @@ class Rule:
                     )
 
         for vpc_id, interfaces in vpc_interfaces_dict_parameters.items():
-            # Check if vPC interfaces have same values for parameters on vpc_params_to_match list
-            if len(interfaces["interfaces"]) == 2:
-                for param in vpc_params_to_match:
-                    if (
-                        interfaces["interfaces"][
-                            list(interfaces["interfaces"].keys())[0]
-                        ][param]
-                        != interfaces["interfaces"][
-                            list(interfaces["interfaces"].keys())[1]
-                        ][param]
-                    ):
-                        results.append(
-                            f"vpc_id : {vpc_id} interfaces {', '.join(interfaces['interfaces'].keys())} have different {param} values"
-                        )
+            for pairs in vpc_peers_list:
+                pair_keys = [
+                    k
+                    for k in interfaces["interfaces"]
+                    if k.split(":", 1)[0] in pairs
+                ]
+                if len(pair_keys) == 2:
+                    a = interfaces["interfaces"][pair_keys[0]]
+                    b = interfaces["interfaces"][pair_keys[1]]
+                    for param in vpc_params_to_match:
+                        if a[param] != b[param]:
+                            results.append(
+                                f"vpc_id : {vpc_id} interfaces {', '.join(pair_keys)} "
+                                f"have different {param} values"
+                            )
         return results
 
     # Normalize interface name
