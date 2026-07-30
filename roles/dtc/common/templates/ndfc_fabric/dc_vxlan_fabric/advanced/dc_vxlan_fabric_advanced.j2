@@ -53,3 +53,11 @@
   MPLS_LB_ID: {{ vxlan.global.ibgp.mpls_handoff.loopback_id | default(defaults.vxlan.global.ibgp.mpls_handoff.loopback_id) }}
   MPLS_ISIS_AREA_NUM: "{{ '{:0>4s}'.format(vxlan.global.ibgp.mpls_handoff.isis_net_area_number | default(defaults.vxlan.global.ibgp.mpls_handoff.isis_net_area_number) | string) }}"
 {% endif %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
+{% if vxlan.global.ibgp.enable_ngoam | default(defaults.vxlan.global.ibgp.enable_ngoam) | ansible.builtin.bool %}
+  ENABLE_NGOAM: true
+  heartbeatInterval: {{ vxlan.global.ibgp.heartbeat_interval | default(defaults.vxlan.global.ibgp.heartbeat_interval) }}
+{% else %}
+  ENABLE_NGOAM: false
+{% endif %}
+{% endif %}

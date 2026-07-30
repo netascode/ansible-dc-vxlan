@@ -55,6 +55,9 @@
   routing_tag: {{ net['route_tag'] | default(defaults.vxlan.overlay.networks.route_tag) }}
   trm_enable: {{ net['trm_enable'] | default(defaults.vxlan.overlay.networks.trm_enable) }}
 {#  trmv6_enable: {{ net['trmv6_enable'] | default(defaults.vxlan.overlay.networks.trmv6_enable) }} #}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
+  xconnect: {{ net['xconnect'] | default(defaults.vxlan.overlay.networks.xconnect) }}
+{% endif %}
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
