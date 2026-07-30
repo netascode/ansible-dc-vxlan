@@ -1,6 +1,6 @@
 class Rule:
     id = "312"
-    description = "Verify either percentage or PPS is configured on the switch for storm-control"
+    description = "Verify either percentage or PPS is configured on each interface for storm-control (not both)"
     severity = "HIGH"
 
     @classmethod
@@ -19,20 +19,15 @@ class Rule:
         for switch in switches:
             check = cls.data_model_key_check(switch, ['interfaces'])
             if 'interfaces' in check['keys_data']:
-                pct_ifaces = []
-                pps_ifaces = []
                 for interface in switch.get('interfaces'):
-                    if any(interface.get(k) is not None for k in pct_keys):
-                        pct_ifaces.append(interface.get('name'))
-                    if any(interface.get(k) is not None for k in pps_keys):
-                        pps_ifaces.append(interface.get('name'))
-
-                if pct_ifaces and pps_ifaces:
-                    results.append(
-                        f"switch {switch.get('name')}: storm_control mode must be consistent "
-                        f"across all interfaces; percent-mode interfaces: {pct_ifaces}; "
-                        f"pps-mode interfaces: {pps_ifaces}"
-                    )
+                    pct_set = [k for k in pct_keys if interface.get(k) is not None]
+                    pps_set = [k for k in pps_keys if interface.get(k) is not None]
+                    if pct_set and pps_set:
+                        results.append(
+                            f"switch {switch.get('name')} interface {interface.get('name')}: "
+                            f"storm_control cannot mix percent and pps on the same interface; "
+                            f"percent keys: {pct_set}; pps keys: {pps_set}"
+                        )
 
         return results
 
