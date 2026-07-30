@@ -20,6 +20,10 @@ class Rule:
             check = cls.data_model_key_check(switch, ['interfaces'])
             if 'interfaces' in check['keys_data']:
                 for interface in switch.get('interfaces'):
+
+                    if not interface.get('enable_storm_control', False):
+                        continue
+
                     pct_set = [k for k in pct_keys if interface.get(k) is not None]
                     pps_set = [k for k in pps_keys if interface.get(k) is not None]
                     if pct_set and pps_set:
