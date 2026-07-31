@@ -38,7 +38,7 @@
 {% endif %}
     enable_monitor: {{ interface['monitor'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.monitor) | lower }}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
-    fec: {{ interface['fec'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.fec) }}
+    fec: "{{ interface['fec'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.fec) }}"
 {% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
