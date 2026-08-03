@@ -24,7 +24,7 @@
 {%- set ns.ipv4 = interface.ipv4_address %}
 {%- endif %}
 {%- endfor %}
-{% if not (switch.role == 'spine' and loopback_id == vtep_lo_id) %}
+{% if not ((switch.role == 'spine' or switch.role == 'super_spine') and loopback_id == vtep_lo_id) %}
 - entity_name: "{{ switch_list[switch.name].serial_number }}~loopback{{ loopback_id }}"
   pool_type: IP
   pool_name: "LOOPBACK{{ loopback_id }}_IP_POOL"
