@@ -132,6 +132,8 @@ factory_defaults:
           loopback_id: 101
           loopback_ip_range: 10.101.0.0/25
           isis_net_area_number: "0001"
+        heartbeat_interval: 190
+        enable_ngoam: true
       external:
         auth_proto: MD5
         enable_nxapi_http: false
@@ -165,6 +167,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             access_vlan: 1
             spanning_tree_portfast: true
             enable_bpdu_guard: true
@@ -177,6 +180,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             trunk_allowed_vlans: none
             spanning_tree_portfast: true
             enable_bpdu_guard: true
@@ -190,6 +194,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             access_vlan: 1
             pc_mode: active
             spanning_tree_portfast: true
@@ -207,6 +212,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             trunk_allowed_vlans: none
             pc_mode: active
             spanning_tree_portfast: true
@@ -225,6 +231,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             access_vlan: 1
             spanning_tree_portfast: true
             enable_bpdu_guard: true
@@ -370,6 +377,7 @@ factory_defaults:
         trm_enable: false
         # Staging trmv6 attribute for later usage after low-level collection adds support.
         # trmv6_enable: false
+        xconnect: false
       vrf_attach_groups:
         switches: []
       network_attach_groups:
