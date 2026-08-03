@@ -387,6 +387,7 @@ class ResourceDataBuilder:
                 template_content,
                 preserve_trailing_newlines=True,
                 convert_data=False,
+                escape_backslashes=False,
             )
         finally:
             templar.environment.loader = original_loader
