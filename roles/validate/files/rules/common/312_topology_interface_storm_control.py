@@ -16,22 +16,46 @@ class Rule:
         else:
             return results
 
+        level_keys = pct_keys | pps_keys
+
         for switch in switches:
-            check = cls.data_model_key_check(switch, ['interfaces'])
-            if 'interfaces' in check['keys_data']:
-                for interface in switch.get('interfaces'):
+            for interface in switch.get('interfaces', []):
+                enabled = interface.get('enable_storm_control', False)
+                action = interface.get('storm_control_action')
+                configured_levels = sorted(
+                    k for k in level_keys if interface.get(k) is not None
+                )
 
-                    if not interface.get('enable_storm_control', False):
-                        continue
+                if not enabled:
+                    invalid_keys = list(configured_levels)
+                    if action not in (None, 'default'):
+                        invalid_keys.append('storm_control_action')
 
-                    pct_set = [k for k in pct_keys if interface.get(k) is not None]
-                    pps_set = [k for k in pps_keys if interface.get(k) is not None]
-                    if pct_set and pps_set:
+                    if invalid_keys:
                         results.append(
-                            f"switch {switch.get('name')} interface {interface.get('name')}: "
-                            f"storm_control cannot mix percent and pps on the same interface; "
-                            f"percent keys: {pct_set}; pps keys: {pps_set}"
+                            f"switch {switch.get('name')} "
+                            f"interface {interface.get('name')}: "
+                            "storm_control action and level fields require "
+                            "enable_storm_control: true; "
+                            f"invalid keys: {sorted(invalid_keys)}"
                         )
+                    continue
+
+                pct_set = sorted(
+                    k for k in pct_keys if interface.get(k) is not None
+                )
+                pps_set = sorted(
+                    k for k in pps_keys if interface.get(k) is not None
+                )
+
+                if pct_set and pps_set:
+                    results.append(
+                        f"switch {switch.get('name')} "
+                        f"interface {interface.get('name')}: "
+                        "storm_control cannot mix percent and pps "
+                        "on the same interface; "
+                        f"percent keys: {pct_set}; pps keys: {pps_set}"
+                    )
 
         return results
 
