@@ -69,7 +69,9 @@ class Rule:
                 results = cls.cross_reference_switches(network_attach_groups, switches, 'network', results)
                 results = cls.cross_reference_vpc_peers(network_attach_groups, vpc_peers, 'network', results)
             if sm_networks:
-                results = cls.cross_reference_switch_overrides(sm_networks, switches, 'network', results)
+                results = cls.cross_reference_switch_attach_overrides(
+                    sm_networks, network_attach_groups, switches, results
+                )
 
         return results
 
@@ -124,16 +126,17 @@ class Rule:
 
     @classmethod
     def cross_reference_switches(cls, attach_groups, switches, target, results):
-        # target is either vrf or network
         for attach_group in attach_groups:
             for switch in attach_group.get("switches"):
-                if switch.get("hostname"):
-                    if not any(s.get("name") == switch.get("hostname") for s in switches):
-                        if not any(s.get('management').get('management_ipv4_address') == switch.get("hostname") for s in switches):
-                            if not any(s.get('management').get('management_ipv6_address') == switch.get("hostname") for s in switches):
-                                ag = attach_group.get("name")
-                                hn = switch.get("hostname")
-                                results.append(f"{target} attach group {ag} hostname {hn} does not match any switch in the topology.")
+                hn = switch.get("hostname")
+                if not hn:
+                    continue
+                if any(s.get("name") == hn for s in switches):
+                    continue
+                ag = attach_group.get("name")
+                results.append(
+                    f"{target} attach group {ag} hostname {hn} does not match any switch name in vxlan.topology.switches."
+                )
 
         return results
 
@@ -183,22 +186,56 @@ class Rule:
         return results
 
     @classmethod
-    def cross_reference_switch_overrides(cls, attach_overrides, switches, target, results):
-        if not attach_overrides:
+    def cross_reference_switch_attach_overrides(cls, sm_networks, network_attach_groups, switches, results):
+        if not sm_networks or not switches:
             return results
 
-        for attach_override in attach_overrides:
-            for override in attach_override.get('switch_attach_overrides', []):
-                hostname = override.get('hostname')
-                if not hostname:
+        attach_group_identifiers = {}
+        if network_attach_groups:
+            for ag in network_attach_groups:
+                ag_name = ag.get('name')
+                identifiers = set()
+                for sw in ag.get('switches', []) or []:
+                    hostname = sw.get('hostname')
+                    if hostname:
+                        identifiers.add(hostname)
+                attach_group_identifiers[ag_name] = identifiers
+
+        for net in sm_networks:
+            overrides = net.get('switch_attach_overrides')
+            if not overrides:
+                continue
+
+            net_name = net.get('name')
+            net_attach_group = net.get('network_attach_group')
+
+            for override in overrides:
+                override_id = override.get('hostname')
+                if not override_id:
                     continue
 
-                if not any(s.get('name') == hostname for s in switches):
-                    if not any(s.get('management', {}).get('management_ipv4_address') == hostname for s in switches):
-                        if not any(s.get('management', {}).get('management_ipv6_address') == hostname for s in switches):
-                            results.append(
-                                f"switch: {hostname}, defined under {target} {attach_override.get('name')}.switch_attach_overrides"
-                                f" does not match any switch in the topology."
-                            )
+                resolved = None
+                for s in switches:
+                    if s.get('name') == override_id:
+                        resolved = s
+                        break
+
+                if resolved is None:
+                    results.append(
+                        f"Network '{net_name}' switch_attach_overrides identifier "
+                        f"'{override_id}' does not match any switch name in vxlan.topology.switches."
+                    )
+                    continue
+
+                if net_attach_group and net_attach_group in attach_group_identifiers:
+                    group_ids = attach_group_identifiers[net_attach_group]
+                    resolved_name = resolved.get('name')
+
+                    if resolved_name not in group_ids:
+                        results.append(
+                            f"Network '{net_name}' switch_attach_overrides identifier "
+                            f"'{override_id}' could not be resolved to a switch attached "
+                            f"through network_attach_group '{net_attach_group}'."
+                        )
 
         return results
