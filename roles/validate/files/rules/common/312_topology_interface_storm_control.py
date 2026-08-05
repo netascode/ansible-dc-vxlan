@@ -1,6 +1,6 @@
 class Rule:
     id = "312"
-    description = "Verify either percentage or PPS is configured on each interface for storm-control (not both)"
+    description = "Verify that storm-control percent-based and pps-based settings are not mixed on the same interface"
     severity = "HIGH"
 
     @classmethod
@@ -16,31 +16,8 @@ class Rule:
         else:
             return results
 
-        level_keys = pct_keys | pps_keys
-
         for switch in switches:
             for interface in switch.get('interfaces', []):
-                enabled = interface.get('enable_storm_control', False)
-                action = interface.get('storm_control_action')
-                configured_levels = sorted(
-                    k for k in level_keys if interface.get(k) is not None
-                )
-
-                if not enabled:
-                    invalid_keys = list(configured_levels)
-                    if action not in (None, 'default'):
-                        invalid_keys.append('storm_control_action')
-
-                    if invalid_keys:
-                        results.append(
-                            f"switch {switch.get('name')} "
-                            f"interface {interface.get('name')}: "
-                            "storm_control action and level fields require "
-                            "enable_storm_control: true; "
-                            f"invalid keys: {sorted(invalid_keys)}"
-                        )
-                    continue
-
                 pct_set = sorted(
                     k for k in pct_keys if interface.get(k) is not None
                 )
