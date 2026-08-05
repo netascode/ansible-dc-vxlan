@@ -102,6 +102,16 @@ def hostname_to_ip_mapping(data_model):
     return data_model
 
 
+def resolve_switch_by_identifier(identifier, topology_switches):
+    """Return the topology switch dict whose name matches identifier, or None."""
+    if not identifier or not topology_switches:
+        return None
+    for sw in topology_switches:
+        if sw.get('name') == identifier:
+            return sw
+    return None
+
+
 def ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number):
     """
     Get NDFC policy for a given managed switch by the switch's serial number.
