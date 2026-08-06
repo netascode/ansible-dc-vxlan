@@ -40,6 +40,7 @@
     queuing_policy: {{ interface['queuing_policy'] | default("") }}
 {% endif %}
     enable_monitor: {{ interface['monitor'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.monitor) | lower }}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
     enable_storm_control: {{ interface['enable_storm_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_storm_control) | lower }}
 {% if interface['enable_storm_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_storm_control) %}
     storm_control_action: {{ interface['storm_control_action'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.storm_control_action) | lower }}
@@ -60,6 +61,7 @@
 {% endif %}
 {% if interface['storm_control_unicast_level_pps'] is defined %}
     storm_control_unicast_level_pps: {{ interface['storm_control_unicast_level_pps'] }}
+{% endif %}
 {% endif %}
 {% endif %}
     cmds: |2-

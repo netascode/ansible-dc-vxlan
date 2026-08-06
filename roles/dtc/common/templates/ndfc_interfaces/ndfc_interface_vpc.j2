@@ -44,6 +44,7 @@
     queuing_policy: {{ switches[peer1].queuing_policy | default("") }}
 {% endif %}
     copy_description: {{ switches[peer1].copy_description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.copy_description) | lower }}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
     enable_storm_control: {{ switches[peer1].enable_storm_control | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_storm_control) | lower }}
 {% if switches[peer1].enable_storm_control | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_storm_control) %}
     storm_control_action: {{ switches[peer1].storm_control_action | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.storm_control_action) | lower }}
@@ -64,6 +65,7 @@
 {% endif %}
 {% if switches[peer1].storm_control_unicast_level_pps is defined %}
     storm_control_unicast_level_pps: {{ switches[peer1].storm_control_unicast_level_pps }}
+{% endif %}
 {% endif %}
 {% endif %}
     peer1_allowed_vlans: "{{ convert_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
@@ -90,6 +92,7 @@
     queuing_policy: {{ switches[peer1].queuing_policy | default("") }}
 {% endif %}
     copy_description: {{ switches[peer1].copy_description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.copy_description) | lower }}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
     enable_storm_control: {{ switches[peer1].enable_storm_control | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_storm_control) | lower }}
 {% if switches[peer1].enable_storm_control | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_storm_control) %}
     storm_control_action: {{ switches[peer1].storm_control_action | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.storm_control_action) | lower }}
@@ -110,6 +113,7 @@
 {% endif %}
 {% if switches[peer1].storm_control_unicast_level_pps is defined %}
     storm_control_unicast_level_pps: {{ switches[peer1].storm_control_unicast_level_pps }}
+{% endif %}
 {% endif %}
 {% endif %}
     peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
