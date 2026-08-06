@@ -29,6 +29,7 @@ from ansible.plugins.action import ActionBase
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_fabric_attributes
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_fabric_switches
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import restructure_leaf_tor_data
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import resolve_child_fabric_switch
 from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
 import re
 
@@ -277,23 +278,18 @@ class ActionModule(ActionBase):
                 data_model['vxlan']['multisite']['overlay']['vrf_attach_groups_dict'][grp['name']].append(switch)
             # If the switch is in the switch list and a hostname is used, replace the hostname with the management IP
             for switch in data_model['vxlan']['multisite']['overlay']['vrf_attach_groups_dict'][grp['name']]:
+                # FQDN-tolerant match; preprovision switches (hostname=None) are skipped
                 for child_fabric in child_fabrics_data.keys():
-                    for sw in child_fabrics_data[child_fabric]['switches']:
-                        # When switch is in preprovision, sw['hostname'] is None.
-                        if sw.get('hostname') is not None:
-                            # Compare switches with regex to catch hostname when ip domain-name is configured
-                            # Check both directions: data model name vs NDFC name and vice versa
-                            fwd_pattern = f"^{re.escape(switch['hostname'])}$|^{re.escape(switch['hostname'])}\\..*$"
-                            rev_pattern = f"^{re.escape(sw['hostname'])}$|^{re.escape(sw['hostname'])}\\..*$"
-                            if re.search(fwd_pattern, sw['hostname']) or re.search(rev_pattern, switch['hostname']):
-                                switch['mgmt_ip_address'] = sw['mgmt_ip_address']
+                    resolved = resolve_child_fabric_switch(switch['hostname'], child_fabrics_data[child_fabric]['switches'])
+                    if resolved is not None:
+                        switch['mgmt_ip_address'] = resolved['mgmt_ip_address']
+                        break
 
                 if 'mgmt_ip_address' not in switch:
                     results['failed'] = True
                     results['msg'] = (
-                        f"Unable to resolve management IP for switch '{switch['hostname']}' "
-                        f"in VRF attach group '{grp['name']}'. "
-                        f"Verify the hostname matches a discovered switch in a child fabric of '{parent_fabric}'."
+                        f"vrf attach group {grp['name']} hostname {switch['hostname']} "
+                        f"does not match any switch name in child fabrics of '{parent_fabric}'."
                     )
                     return results
 
@@ -327,31 +323,40 @@ class ActionModule(ActionBase):
                 data_model['vxlan']['multisite']['overlay']['network_attach_groups_dict'][grp['name']].append(switch)
             # If the switch is in the switch list and a hostname is used, replace the hostname with the management IP
             for switch in data_model['vxlan']['multisite']['overlay']['network_attach_groups_dict'][grp['name']]:
+                # FQDN-tolerant match; preprovision switches (hostname=None) are skipped
                 for child_fabric in child_fabrics_data.keys():
-                    for sw in child_fabrics_data[child_fabric]['switches']:
-                        if sw.get('hostname') is not None:
-                            # Check both directions: data model name vs NDFC name and vice versa
-                            fwd_pattern = f"^{re.escape(switch['hostname'])}$|^{re.escape(switch['hostname'])}\\..*$"
-                            rev_pattern = f"^{re.escape(sw['hostname'])}$|^{re.escape(sw['hostname'])}\\..*$"
-                            if re.search(fwd_pattern, sw['hostname']) or re.search(rev_pattern, switch['hostname']):
-                                switch['mgmt_ip_address'] = sw['mgmt_ip_address']
+                    resolved = resolve_child_fabric_switch(switch['hostname'], child_fabrics_data[child_fabric]['switches'])
+                    if resolved is not None:
+                        switch['mgmt_ip_address'] = resolved['mgmt_ip_address']
 
-                    # Process nested TOR entries and resolve their management IPs
                     if 'tors' in switch and switch['tors']:
                         for tor in switch['tors']:
                             tor_hostname = tor.get('hostname')
-                            if tor_hostname and any(sw['name'] == tor_hostname for sw in child_fabrics_data[child_fabric]['switches']):
-                                found_tor = next((item for item in child_fabrics_data[child_fabric]['switches'] if item["name"] == tor_hostname))
-                                tor['mgmt_ip_address'] = found_tor['mgmt_ip_address']
+                            if not tor_hostname:
+                                continue
+                            # FQDN-tolerant match; preprovision switches (hostname=None) are skipped
+                            resolved_tor = resolve_child_fabric_switch(tor_hostname, child_fabrics_data[child_fabric]['switches'])
+                            if resolved_tor is not None:
+                                tor['mgmt_ip_address'] = resolved_tor['mgmt_ip_address']
 
                 if 'mgmt_ip_address' not in switch:
                     results['failed'] = True
                     results['msg'] = (
-                        f"Unable to resolve management IP for switch '{switch['hostname']}' "
-                        f"in network attach group '{grp['name']}'. "
-                        f"Verify the hostname matches a discovered switch in a child fabric of '{parent_fabric}'."
+                        f"network attach group {grp['name']} hostname {switch['hostname']} "
+                        f"does not match any switch name in child fabrics of '{parent_fabric}'."
                     )
                     return results
+
+                if 'tors' in switch and switch['tors']:
+                    for tor in switch['tors']:
+                        if tor.get('hostname') and 'mgmt_ip_address' not in tor:
+                            results['failed'] = True
+                            results['msg'] = (
+                                f"network attach group {grp['name']} tor {tor['hostname']} "
+                                f"under leaf {switch['hostname']} does not match any switch name "
+                                f"in child fabrics of '{parent_fabric}'."
+                            )
+                            return results
 
                 # Append switch to a flat list of switches for cross comparison later when we query the
                 # MSD fabric information.  We need to stop execution if the list returned by the MSD query
@@ -364,20 +369,50 @@ class ActionModule(ActionBase):
                 if net.get('network_attach_group') not in net_grp_name_list:
                     del net['network_attach_group']
 
-        # If the switch is in a child fabric and a hostname is used, add the management IP to switch_attach_overrides
         for net in data_model['vxlan']['multisite']['overlay']['networks']:
-            for override in net.get('switch_attach_overrides', []):
+            overrides = net.get('switch_attach_overrides')
+            if not overrides:
+                continue
+            net_name = net.get('name')
+            net_attach_group = net.get('network_attach_group')
+            group_hostnames = set()
+            if net_attach_group:
+                group_hostnames = {
+                    s.get('hostname')
+                    for s in data_model['vxlan']['multisite']['overlay']['network_attach_groups_dict'].get(net_attach_group, [])
+                    if s.get('hostname')
+                }
+
+            for override in overrides:
                 hostname = override.get('hostname')
                 if not hostname:
                     continue
+
+                resolved = None
+                # FQDN-tolerant match; preprovision switches (hostname=None) are skipped
                 for child_fabric in child_fabrics_data.keys():
-                    for sw in child_fabrics_data[child_fabric]['switches']:
-                        if sw.get('hostname') is None:
-                            continue
-                        fwd_pattern = f"^{re.escape(hostname)}$|^{re.escape(hostname)}\\..*$"
-                        rev_pattern = f"^{re.escape(sw['hostname'])}$|^{re.escape(sw['hostname'])}\\..*$"
-                        if re.search(fwd_pattern, sw['hostname']) or re.search(rev_pattern, hostname):
-                            override['mgmt_ip_address'] = sw['mgmt_ip_address']
+                    resolved = resolve_child_fabric_switch(hostname, child_fabrics_data[child_fabric]['switches'])
+                    if resolved is not None:
+                        override['mgmt_ip_address'] = resolved['mgmt_ip_address']
+                        break
+
+                if resolved is None:
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"Network '{net_name}' switch_attach_overrides identifier "
+                        f"'{hostname}' does not match any switch name in child "
+                        f"fabrics of '{parent_fabric}'."
+                    )
+                    return results
+
+                if net_attach_group and hostname not in group_hostnames:
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"Network '{net_name}' switch_attach_overrides identifier "
+                        f"'{hostname}' could not be resolved to a switch attached "
+                        f"through network_attach_group '{net_attach_group}'."
+                    )
+                    return results
 
         results['overlay_attach_groups'] = data_model['vxlan']['multisite']['overlay']
         return results
