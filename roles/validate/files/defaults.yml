@@ -377,6 +377,7 @@ factory_defaults:
         trm_enable: false
         # Staging trmv6 attribute for later usage after low-level collection adds support.
         # trmv6_enable: false
+        svi_enabled: true
         xconnect: false
       vrf_attach_groups:
         switches: []
@@ -524,6 +525,7 @@ factory_defaults:
           route_target_both: false
           route_tag: 12345
           trm_enable: false
+          svi_enabled: true
       isn:
         auth_proto: MD5
         sub_int_range: 2-511
