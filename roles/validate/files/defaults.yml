@@ -175,6 +175,8 @@ factory_defaults:
             orphan_port: false
             enable_qos: false
             monitor: false
+            enable_storm_control: false
+            storm_control_action: default
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
@@ -189,8 +191,11 @@ factory_defaults:
             native_vlan: ""
             enable_qos: false
             monitor: false
+            enable_storm_control: false
+            storm_control_action: default
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
+            copy_description: false
             mtu: jumbo
             speed: auto
             enabled: true
@@ -207,8 +212,11 @@ factory_defaults:
             lacp_rate: normal
             enable_qos: false
             monitor: false
+            enable_storm_control: false
+            storm_control_action: default
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
+            copy_description: false
             mtu: jumbo
             speed: auto
             enabled: true
@@ -226,6 +234,8 @@ factory_defaults:
             lacp_rate: normal
             enable_qos: false
             monitor: false
+            enable_storm_control: false
+            storm_control_action: default
           topology_switch_dot1q_interface:
             description: "NetAsCode Dot1q Interface"
             mtu: jumbo
@@ -237,6 +247,8 @@ factory_defaults:
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
+            enable_storm_control: false
+            storm_control_action: default
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
@@ -250,6 +262,7 @@ factory_defaults:
             enabled: true
           topology_switch_routed_po_interface:
             description: "NetAsCode Routed PO Interface"
+            copy_description: false
             mtu: 9216
             speed: auto
             enabled: true
