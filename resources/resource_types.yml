@@ -372,6 +372,7 @@ resource_types:
     diff_compare: true
     fabric_types:
       - VXLAN_EVPN
+      - eBGP_VXLAN
 
   # ────────────────────────────────────────────────────────────────────────────
   # MSD-specific
