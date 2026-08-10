@@ -48,6 +48,10 @@ class Rule:
         switches = cls.safeget(data_model, ["vxlan", "topology", "switches"])
         for switch in switches:
             switch_name = switch.get("name")
+            switch_role = switch.get("role", "").lower()
+
+            if switch_role == "tor":
+                continue
 
             if "interfaces" not in switch:
                 cls.results.append(f"Missing interfaces in vxlan.topology.switches.{switch_name}")
@@ -67,9 +71,7 @@ class Rule:
             vtep_loopback_name = f"loopback{underlay_vtep_loopback_id}"
             vtep_loopback_found = cls.check_interface_with_ipv4(interfaces, vtep_loopback_name)
 
-            switch_role = switch.get("role", "").lower()
-
-            if not vtep_loopback_found and switch_role != "spine":
+            if not vtep_loopback_found and switch_role not in ["spine"]:
                 cls.results.append(
                     f"Switch '{switch_name}' is missing a configured interface '{vtep_loopback_name}' with an IPv4 address."
                 )
@@ -89,14 +91,21 @@ class Rule:
             # If switches key is missing, no need to proceed
             return cls.results
         vpc_peers = cls.safeget(data_model, ["vxlan", "topology", "vpc_peers"])
+        switches = cls.safeget(data_model, ["vxlan", "topology", "switches"]) or []
+        switch_role_map = {sw.get("name", ""): sw.get("role", "").lower() for sw in switches}
         vtep_vip_list = set()
         vpc_peers_list = []
 
         for peer in vpc_peers:
             peer_name = f"{peer.get('peer1')}-{peer.get('peer2')}"
             vpc_peers_list.append(peer_name)
+
+            peer1_role = switch_role_map.get(peer.get("peer1", ""), "")
+            peer2_role = switch_role_map.get(peer.get("peer2", ""), "")
+            if peer1_role == "tor" or peer2_role == "tor":
+                continue
+
             vtep_vip = peer.get("vtep_vip", False)
-            # Check if vtep_vip is defined
             if not vtep_vip:
                 cls.results.append(f"vPC peer '{peer_name}' is missing a defined vtep_vip address.")
                 continue
@@ -114,7 +123,47 @@ class Rule:
                 # Check IP address under vxlan.topology.fabric_link only if
                 # fabric numbering is P2P or fabric peering is false (Use Fabric Peer-Link)
                 if peer.get("fabric_peering") is False or interface_numbering["fabric_interface_numbering"] == "p2p":
-                    cls.validate_fabric_links(data_model, vpc_peers_list)
+                    if interface_numbering["fabric_interface_numbering"] == "p2p":
+                        cls.validate_fabric_links(data_model, vpc_peers_list)
+                    else:
+                        cls.validate_vpc_peer_fabric_link(data_model, peer)
+
+    @classmethod
+    def validate_vpc_peer_fabric_link(cls, data_model, peer):
+        """
+        Validates that a specific vPC peer with fabric_peering=false has a fabric link with IPv4 config.
+        Only checks the link between the two peers, not all switches.
+        """
+        peer1 = peer.get("peer1")
+        peer2 = peer.get("peer2")
+
+        check = cls.data_model_key_check(data_model, ["vxlan", "topology", "fabric_links"])
+        if 'fabric_links' not in check['keys_data']:
+            cls.results.append(
+                f"Fabric link between '{peer1}' and '{peer2}' is missing (required for vPC with fabric_peering=false)."
+            )
+            return
+
+        fabric_links = cls.safeget(data_model, ["vxlan", "topology", "fabric_links"])
+        peer_link = None
+        for link in fabric_links:
+            src = link.get("source_device", "")
+            dst = link.get("dest_device", "")
+            if (src == peer1 and dst == peer2) or (src == peer2 and dst == peer1):
+                peer_link = link
+                break
+
+        if not peer_link:
+            cls.results.append(
+                f"Fabric link between '{peer1}' and '{peer2}' is missing (required for vPC with fabric_peering=false)."
+            )
+            return
+
+        ipv4_config = peer_link.get("ipv4", {})
+        if not ipv4_config or not ipv4_config.get("subnet") or not ipv4_config.get("source_ipv4") or not ipv4_config.get("dest_ipv4"):
+            cls.results.append(
+                f"Fabric link between '{peer1}' and '{peer2}' is missing IPv4 configuration (required for vPC with fabric_peering=false)."
+            )
 
     @classmethod
     def validate_fabric_links(cls, data_model, vpc_peers_list):
