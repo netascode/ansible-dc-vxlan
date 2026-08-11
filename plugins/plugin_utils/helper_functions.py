@@ -102,6 +102,37 @@ def hostname_to_ip_mapping(data_model):
     return data_model
 
 
+def resolve_switch_by_identifier(identifier, topology_switches):
+    """Return the topology switch dict whose name matches identifier, or None."""
+    if not identifier or not topology_switches:
+        return None
+    for sw in topology_switches:
+        if sw.get('name') == identifier:
+            return sw
+    return None
+
+
+def resolve_child_fabric_switch(identifier, child_fabric_switches):
+    """Return the child fabric switch dict whose hostname matches identifier, or None.
+
+    FQDN-tolerant: also matches when either side is the bare form of the
+    other (e.g. data model uses 'leaf1' but NDFC returns 'leaf1.example.com').
+    Preprovisioned switches (hostname == None) are skipped.
+    """
+    if not identifier or not child_fabric_switches:
+        return None
+    import re
+    for sw in child_fabric_switches:
+        sw_hostname = sw.get('hostname')
+        if sw_hostname is None:
+            continue
+        fwd = f"^{re.escape(identifier)}$|^{re.escape(identifier)}\\..*$"
+        rev = f"^{re.escape(sw_hostname)}$|^{re.escape(sw_hostname)}\\..*$"
+        if re.search(fwd, sw_hostname) or re.search(rev, identifier):
+            return sw
+    return None
+
+
 def ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number):
     """
     Get NDFC policy for a given managed switch by the switch's serial number.
