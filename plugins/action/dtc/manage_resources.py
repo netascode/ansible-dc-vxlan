@@ -39,9 +39,14 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import copy
 import json
 
 from ansible.utils.display import Display
+
+from ansible_collections.cisco.nac_dc_vxlan.plugins.action.common.prepare_plugins.prep_005_resolve_env_vars import (
+    resolve_env_vars_recursive,
+)
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.pipeline_base import (
     PipelineRunnerBase,
@@ -127,7 +132,17 @@ class ResourceManager(PipelineRunnerBase):
             if diff and isinstance(diff, dict):
                 diff_data = diff.get('updated')
                 if diff_data is not None:
-                    data = diff_data
+                    # diff.updated comes from the structural diff computed on
+                    # rendered YAML before env var resolution.  Deep-copy and
+                    # resolve so that env_var_ tokens are replaced with their
+                    # environment variable values before sending to NDFC.
+                    data = copy.deepcopy(diff_data)
+                    env_count = resolve_env_vars_recursive(data)
+                    if env_count > 0:
+                        display.vvv(
+                            f"CREATE [{self.fabric_name}] Resolved {env_count} "
+                            f"env_var_ token(s) in diff.updated for {resource_name}"
+                        )
 
         return data
 
