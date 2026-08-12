@@ -2,7 +2,11 @@
 
 ## Overview
 
-This guide explains how to set and use different credential types with the NaC VXLAN solution for switch discovery with POAP. 
+This guide explains how to set and use different credential types with the NaC VXLAN solution for switch discovery with POAP.
+
+> [!NOTE]
+> This guide covers **POAP and preprovision** discovery credentials (`NDFC_SW_DISCOVERY_USERNAME` / `NDFC_SW_DISCOVERY_PASSWORD`).
+> For the SNMPv3 authentication protocol used during **normal initial switch discovery**, see [SWITCH_DISCOVERY_AUTH_PROTO_GUIDE.md](./SWITCH_DISCOVERY_AUTH_PROTO_GUIDE.md). 
 Understanding the distinction between switch admin credentials and discovery credentials is essential for proper fabric management.
 
 | Action | Device Credentials | Discovery Credentials |
