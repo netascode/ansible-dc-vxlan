@@ -71,7 +71,7 @@ The `env_var_` prefix instructs NaC to resolve a value from an environment varia
 
 ### How It Works
 
-Any string value in the data model that contains `env_var_` is resolved by the NaC VXLAN `validate` role. The secret is replaced with the value of the corresponding environment variable.
+Any string value in the data model that contains `env_var_` is resolved by NaC VXLAN. The secret is replaced with the value of the corresponding environment variable.
 
 * Variable names in YAML must exactly match the environment variable names (including the env_var_ prefix).
 * Valid environment variable names may include letters, digits, and underscores.
@@ -134,3 +134,9 @@ tacacs-server timeout 20
 ```
 
 This pattern works in any freeform field (`aaa_freeform`, `banner_freeform`, `bootstrap_freeform`, `intra_fabric_link_freeform`, `freeform_config`, etc.) and supports multiple `env_var_` tokens in the same block.
+
+### Limitations
+
+* The `env_var_` lookup mechanism is not supported for policies referencing a file.
+
+* If an environment variable changes, the change will not be detected in case of a diff run (enabled by default), because the configuration in the data YAML files still looks the same. To enforce a new lookup, you can set the `force_run_all` parameter to true.
