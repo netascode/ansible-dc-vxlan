@@ -51,7 +51,6 @@ class Rule:
             switch_role = switch.get("role", "").lower()
 
             if switch_role == "tor":
-                cls.validate_tor_no_underlay(switch, switch_name, underlay_routing_loopback_id, underlay_vtep_loopback_id)
                 continue
 
             if "interfaces" not in switch:
@@ -72,7 +71,7 @@ class Rule:
             vtep_loopback_name = f"loopback{underlay_vtep_loopback_id}"
             vtep_loopback_found = cls.check_interface_with_ipv4(interfaces, vtep_loopback_name)
 
-            if not vtep_loopback_found and switch_role not in ["spine"]:
+            if not vtep_loopback_found and switch_role not in ["spine", "super_spine"]:
                 cls.results.append(
                     f"Switch '{switch_name}' is missing a configured interface '{vtep_loopback_name}' with an IPv4 address."
                 )
@@ -80,59 +79,9 @@ class Rule:
         # Check if vtep_ip exist in vpc_peers
         cls.validate_vpc_peers_and_vtep_vip(data_model)
 
-        # Check if TOR switches have IPv4 on fabric links
-        cls.validate_tor_no_fabric_link_ipv4(data_model)
-
         return cls.results
 
-    @classmethod
-    def validate_tor_no_underlay(cls, switch, switch_name, routing_lo_id, vtep_lo_id):
-        """
-        Validates that TOR switches do not have underlay IP configuration.
-        TOR switches do not participate in the VXLAN underlay.
-        """
-        interfaces = switch.get("interfaces", [])
-        for interface in interfaces:
-            intf_name = interface.get("name", "").lower()
-            if intf_name in (f"loopback{routing_lo_id}", f"lo{routing_lo_id}",
-                             f"loopback{vtep_lo_id}", f"lo{vtep_lo_id}"):
-                if interface.get("ipv4_address"):
-                    cls.results.append(
-                        f"TOR switch '{switch_name}': underlay loopback '{interface.get('name')}' with IPv4 "
-                        "should not be defined (TOR switches do not participate in VXLAN underlay)."
-                    )
 
-    @classmethod
-    def validate_tor_no_fabric_link_ipv4(cls, data_model):
-        """
-        Validates that fabric links involving TOR switches do not have IPv4 underlay configuration.
-        """
-        check = cls.data_model_key_check(data_model, ["vxlan", "topology", "fabric_links"])
-        if 'fabric_links' not in check['keys_data']:
-            return
-
-        switches = cls.safeget(data_model, ["vxlan", "topology", "switches"]) or []
-        tor_names = {sw.get("name", "") for sw in switches if sw.get("role", "").lower() == "tor"}
-
-        if not tor_names:
-            return
-
-        fabric_links = cls.safeget(data_model, ["vxlan", "topology", "fabric_links"])
-        for link in fabric_links:
-            src = link.get("source_device", "")
-            dst = link.get("dest_device", "")
-            ipv4_config = link.get("ipv4", {})
-
-            if not ipv4_config:
-                continue
-
-            if src in tor_names or dst in tor_names:
-                tor_device = src if src in tor_names else dst
-                if ipv4_config.get("subnet") or ipv4_config.get("source_ipv4") or ipv4_config.get("dest_ipv4"):
-                    cls.results.append(
-                        f"Fabric link '{src}' → '{dst}': IPv4 underlay configuration should not be defined "
-                        f"for TOR switch '{tor_device}' (TOR switches do not participate in VXLAN underlay)."
-                    )
 
     @classmethod
     def validate_vpc_peers_and_vtep_vip(cls, data_model):
@@ -156,11 +105,6 @@ class Rule:
             peer1_role = switch_role_map.get(peer.get("peer1", ""), "")
             peer2_role = switch_role_map.get(peer.get("peer2", ""), "")
             if peer1_role == "tor" or peer2_role == "tor":
-                if peer.get("vtep_vip"):
-                    cls.results.append(
-                        f"vPC peer '{peer_name}': vtep_vip should not be defined for TOR switches "
-                        "(TOR switches do not participate in VXLAN underlay)."
-                    )
                 continue
 
             vtep_vip = peer.get("vtep_vip", False)
@@ -203,22 +147,23 @@ class Rule:
             return
 
         fabric_links = cls.safeget(data_model, ["vxlan", "topology", "fabric_links"])
-        peer_link = None
-        for link in fabric_links:
-            src = link.get("source_device", "")
-            dst = link.get("dest_device", "")
-            if (src == peer1 and dst == peer2) or (src == peer2 and dst == peer1):
-                peer_link = link
-                break
+        matching_links = [
+            link for link in fabric_links
+            if (link.get("source_device", "") == peer1 and link.get("dest_device", "") == peer2)
+            or (link.get("source_device", "") == peer2 and link.get("dest_device", "") == peer1)
+        ]
 
-        if not peer_link:
+        if not matching_links:
             cls.results.append(
                 f"Fabric link between '{peer1}' and '{peer2}' is missing (required for vPC with fabric_peering=false)."
             )
             return
 
-        ipv4_config = peer_link.get("ipv4", {})
-        if not ipv4_config or not ipv4_config.get("subnet") or not ipv4_config.get("source_ipv4") or not ipv4_config.get("dest_ipv4"):
+        has_complete_ipv4 = any(
+            link.get("ipv4", {}).get("subnet") and link.get("ipv4", {}).get("source_ipv4") and link.get("ipv4", {}).get("dest_ipv4")
+            for link in matching_links
+        )
+        if not has_complete_ipv4:
             cls.results.append(
                 f"Fabric link between '{peer1}' and '{peer2}' is missing IPv4 configuration (required for vPC with fabric_peering=false)."
             )

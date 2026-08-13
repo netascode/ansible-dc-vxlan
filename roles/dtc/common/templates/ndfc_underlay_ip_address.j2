@@ -60,7 +60,7 @@
 
 {% if data_model_extended.vxlan.topology.fabric_links is defined %}
 {% for switch in data_model_extended.vxlan.topology.fabric_links %}
-{% if switch.ipv4 is defined and switch.ipv4 is iterable %}
+{% if switch.ipv4 is defined and switch.ipv4 is iterable and switch_list[switch.source_device].role != 'tor' and switch_list[switch.dest_device].role != 'tor' %}
 - entity_name: "{{ switch_list[switch.source_device].serial_number }}~{{ switch.source_interface }}~{{ switch_list[switch.dest_device].serial_number }}~{{ switch.dest_interface }}"
   pool_type: SUBNET
   pool_name: "SUBNET"
