@@ -1,6 +1,5 @@
 import re
 
-
 class Rule:
     id: str = "208"
     description: str = "Verify IP addresses when manual_underlay_allocation is true"
