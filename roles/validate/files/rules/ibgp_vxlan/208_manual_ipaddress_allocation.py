@@ -81,7 +81,6 @@ class Rule:
 
         return cls.results
 
-
     @classmethod
     def validate_vpc_peers_and_vtep_vip(cls, data_model):
         """
