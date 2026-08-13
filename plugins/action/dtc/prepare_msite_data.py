@@ -29,6 +29,7 @@ from ansible.plugins.action import ActionBase
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_fabric_attributes
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_fabric_switches
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import restructure_leaf_tor_data
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import resolve_child_fabric_switch
 from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
 import re
 
@@ -96,6 +97,14 @@ class ActionModule(ActionBase):
             # Need to query the parent MCFG fabric to get the associated child fabrics which also contains each child fabric's fabric setting attributes
             # Additionally, need to query each child fabric's switches separately using the child fabric's cluster name and proxy path based on ND version
 
+            if nd_major_minor_patch is None:
+                results['failed'] = True
+                results['msg'] = (
+                    f"Missing or invalid 'nd_version' parameter '{nd_version}' for MCFG fabric '{parent_fabric}'. "
+                    f"Expected format: 'major.minor.patch' (e.g., '3.2.2' or '4.1.1a')."
+                )
+                return results
+
             mcfg_fabric_associations = self._execute_module(
                 module_name="cisco.dcnm.dcnm_rest",
                 module_args={
@@ -106,10 +115,26 @@ class ActionModule(ActionBase):
                 tmp=tmp
             )
 
+            if mcfg_fabric_associations.get('failed'):
+                results['failed'] = True
+                results['msg'] = (
+                    f"Failed to query MCFG fabric associations for '{parent_fabric}': "
+                    f"{mcfg_fabric_associations.get('msg', 'Unknown error')}"
+                )
+                return results
+
+            members = (mcfg_fabric_associations.get('response', {}).get('DATA', {}) or {}).get('members')
+            if not members:
+                results['failed'] = True
+                results['msg'] = (
+                    f"No child fabric members found for MCFG fabric '{parent_fabric}'. "
+                    f"Verify the fabric exists and has associated member fabrics."
+                )
+                return results
+
             # Build child fabrics data set that are associated with the parent fabric (MCFG)
             child_fabrics_data = {}
-            for fabric in mcfg_fabric_associations.get('response').get('DATA').get('members'):
-                # associated_child_fabrics.append(fabric.get('fabricName'))
+            for fabric in members:
                 fabric_name = fabric.get('fabricName')
                 fabric_cluster = fabric.get('clusterName')
 
@@ -137,8 +162,17 @@ class ActionModule(ActionBase):
                     tmp=tmp
                 )
 
+                if mcfg_child_fabric_switches.get('failed'):
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"Failed to query switches for MCFG child fabric '{fabric_name}' "
+                        f"(cluster: '{fabric_cluster}'): {mcfg_child_fabric_switches.get('msg', 'Unknown error')}"
+                    )
+                    return results
+
                 fabric_switches = []
-                for fabric_switch in mcfg_child_fabric_switches['response']['DATA']:
+                switch_data = (mcfg_child_fabric_switches.get('response', {}).get('DATA') or [])
+                for fabric_switch in switch_data:
                     if 'logicalName' in fabric_switch:
                         fabric_switches.append(
                             {
@@ -244,14 +278,20 @@ class ActionModule(ActionBase):
                 data_model['vxlan']['multisite']['overlay']['vrf_attach_groups_dict'][grp['name']].append(switch)
             # If the switch is in the switch list and a hostname is used, replace the hostname with the management IP
             for switch in data_model['vxlan']['multisite']['overlay']['vrf_attach_groups_dict'][grp['name']]:
+                # FQDN-tolerant match; preprovision switches (hostname=None) are skipped
                 for child_fabric in child_fabrics_data.keys():
-                    for sw in child_fabrics_data[child_fabric]['switches']:
-                        # When switch is in preprovision, sw['hostname'] is None.
-                        if sw.get('hostname') is not None:
-                            # Compare switches with regex to catch hostname when ip domain-name is configured
-                            regex_pattern = f"^{switch['hostname']}$|^{switch['hostname']}\\..*$"
-                            if re.search(regex_pattern, sw['hostname']):
-                                switch['mgmt_ip_address'] = sw['mgmt_ip_address']
+                    resolved = resolve_child_fabric_switch(switch['hostname'], child_fabrics_data[child_fabric]['switches'])
+                    if resolved is not None:
+                        switch['mgmt_ip_address'] = resolved['mgmt_ip_address']
+                        break
+
+                if 'mgmt_ip_address' not in switch:
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"vrf attach group {grp['name']} hostname {switch['hostname']} "
+                        f"does not match any switch name in child fabrics of '{parent_fabric}'."
+                    )
+                    return results
 
                 # Append switch to a flat list of switches for cross comparison later when we query the
                 # MSD fabric information.  We need to stop execution if the list returned by the MSD query
@@ -283,19 +323,41 @@ class ActionModule(ActionBase):
                 data_model['vxlan']['multisite']['overlay']['network_attach_groups_dict'][grp['name']].append(switch)
             # If the switch is in the switch list and a hostname is used, replace the hostname with the management IP
             for switch in data_model['vxlan']['multisite']['overlay']['network_attach_groups_dict'][grp['name']]:
+                # FQDN-tolerant match; preprovision switches (hostname=None) are skipped
                 for child_fabric in child_fabrics_data.keys():
-                    for sw in child_fabrics_data[child_fabric]['switches']:
-                        if sw.get('hostname') is not None:
-                            regex_pattern = f"^{switch['hostname']}$|^{switch['hostname']}\\..*$"
-                            if re.search(regex_pattern, sw['hostname']):
-                                switch['mgmt_ip_address'] = sw['mgmt_ip_address']
-                # Process nested TOR entries and resolve their management IPs
+                    resolved = resolve_child_fabric_switch(switch['hostname'], child_fabrics_data[child_fabric]['switches'])
+                    if resolved is not None:
+                        switch['mgmt_ip_address'] = resolved['mgmt_ip_address']
+
                     if 'tors' in switch and switch['tors']:
                         for tor in switch['tors']:
                             tor_hostname = tor.get('hostname')
-                            if tor_hostname and any(sw['name'] == tor_hostname for sw in child_fabrics_data[child_fabric]['switches']):
-                                found_tor = next((item for item in child_fabrics_data[child_fabric]['switches'] if item["name"] == tor_hostname))
-                                tor['mgmt_ip_address'] = found_tor['mgmt_ip_address']
+                            if not tor_hostname:
+                                continue
+                            # FQDN-tolerant match; preprovision switches (hostname=None) are skipped
+                            resolved_tor = resolve_child_fabric_switch(tor_hostname, child_fabrics_data[child_fabric]['switches'])
+                            if resolved_tor is not None:
+                                tor['mgmt_ip_address'] = resolved_tor['mgmt_ip_address']
+
+                if 'mgmt_ip_address' not in switch:
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"network attach group {grp['name']} hostname {switch['hostname']} "
+                        f"does not match any switch name in child fabrics of '{parent_fabric}'."
+                    )
+                    return results
+
+                if 'tors' in switch and switch['tors']:
+                    for tor in switch['tors']:
+                        if tor.get('hostname') and 'mgmt_ip_address' not in tor:
+                            results['failed'] = True
+                            results['msg'] = (
+                                f"network attach group {grp['name']} tor {tor['hostname']} "
+                                f"under leaf {switch['hostname']} does not match any switch name "
+                                f"in child fabrics of '{parent_fabric}'."
+                            )
+                            return results
+
                 # Append switch to a flat list of switches for cross comparison later when we query the
                 # MSD fabric information.  We need to stop execution if the list returned by the MSD query
                 # does not include one of these switches.
@@ -306,6 +368,51 @@ class ActionModule(ActionBase):
             if 'network_attach_group' in net:
                 if net.get('network_attach_group') not in net_grp_name_list:
                     del net['network_attach_group']
+
+        for net in data_model['vxlan']['multisite']['overlay']['networks']:
+            overrides = net.get('switch_attach_overrides')
+            if not overrides:
+                continue
+            net_name = net.get('name')
+            net_attach_group = net.get('network_attach_group')
+            group_hostnames = set()
+            if net_attach_group:
+                group_hostnames = {
+                    s.get('hostname')
+                    for s in data_model['vxlan']['multisite']['overlay']['network_attach_groups_dict'].get(net_attach_group, [])
+                    if s.get('hostname')
+                }
+
+            for override in overrides:
+                hostname = override.get('hostname')
+                if not hostname:
+                    continue
+
+                resolved = None
+                # FQDN-tolerant match; preprovision switches (hostname=None) are skipped
+                for child_fabric in child_fabrics_data.keys():
+                    resolved = resolve_child_fabric_switch(hostname, child_fabrics_data[child_fabric]['switches'])
+                    if resolved is not None:
+                        override['mgmt_ip_address'] = resolved['mgmt_ip_address']
+                        break
+
+                if resolved is None:
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"Network '{net_name}' switch_attach_overrides identifier "
+                        f"'{hostname}' does not match any switch name in child "
+                        f"fabrics of '{parent_fabric}'."
+                    )
+                    return results
+
+                if net_attach_group and hostname not in group_hostnames:
+                    results['failed'] = True
+                    results['msg'] = (
+                        f"Network '{net_name}' switch_attach_overrides identifier "
+                        f"'{hostname}' could not be resolved to a switch attached "
+                        f"through network_attach_group '{net_attach_group}'."
+                    )
+                    return results
 
         results['overlay_attach_groups'] = data_model['vxlan']['multisite']['overlay']
         return results

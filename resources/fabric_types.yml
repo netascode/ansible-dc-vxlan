@@ -1,0 +1,70 @@
+# Copyright (c) 2025 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Fabric Types — Namespace and subdirectory mapping
+#
+# Consumed by: build_resource_data.py, registry_loader.py (validation)
+#
+# Active fields (consumed at runtime by build_resource_data.py):
+#   - namespace:    Ansible variable namespace for resource data
+#   - file_subdir:  Output subdirectory under files/
+#
+# The fabric type keys themselves serve as the source of truth for valid
+# fabric types — used by registry_loader.py to validate cross-references
+# in create_resources.yml, remove_resources.yml, and resource_types.yml.
+#
+# ── Future generalization candidates ──
+# The following concepts are currently hardcoded in Python and could be
+# moved here if the architecture is generalized further:
+#   - global_key:           prep_002_global.py hardcodes per-type values
+#   - fabric_template_dir:  Not yet consumed by any plugin
+#   - supports_overlay:     Not yet consumed (guards are inline in plugins)
+#   - supports_vpc:         Not yet consumed (guards are inline in plugins)
+#   - supports_multisite:   fabric_deploy_manager.py hardcodes ('MSD', 'MCFG')
+# ══════════════════════════════════════════════════════════════════════════════
+---
+
+fabric_types:
+
+  VXLAN_EVPN:
+    namespace: vars_common_vxlan
+    file_subdir: vxlan
+
+  eBGP_VXLAN:
+    namespace: vars_common_ebgp_vxlan
+    file_subdir: ebgp_vxlan
+
+  ISN:
+    namespace: vars_common_isn
+    file_subdir: isn
+
+  MSD:
+    namespace: vars_common_msd
+    file_subdir: msd
+
+  MCFG:
+    namespace: vars_common_mcfg
+    file_subdir: mcfg
+
+  External:
+    namespace: vars_common_external
+    file_subdir: external

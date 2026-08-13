@@ -25,6 +25,29 @@
 # For example in prepare_serice_model.py we can do the following:
 #  from ..helper_functions import do_something
 
+
+class NdfcBulkPolicyApiUnavailable(Exception):
+    """
+    Raised when the NDFC bulk policy lookup API is not available.
+    """
+
+
+class NdfcDuplicatePolicyError(Exception):
+    """
+    Raised when NDFC has duplicate policies for a switch/template pair.
+    """
+
+
+def _ndfc_policy_id_list(policies):
+    """
+    Return a comma-separated policyId/id list for error messages.
+    """
+    policy_ids = []
+    for policy in policies:
+        policy_ids.append(str(policy.get("policyId") or policy.get("id") or "unknown"))
+    return ", ".join(policy_ids)
+
+
 def data_model_key_check(tested_object, keys):
     """
     Check if key(s) are found and exist in the data model.
@@ -79,6 +102,37 @@ def hostname_to_ip_mapping(data_model):
     return data_model
 
 
+def resolve_switch_by_identifier(identifier, topology_switches):
+    """Return the topology switch dict whose name matches identifier, or None."""
+    if not identifier or not topology_switches:
+        return None
+    for sw in topology_switches:
+        if sw.get('name') == identifier:
+            return sw
+    return None
+
+
+def resolve_child_fabric_switch(identifier, child_fabric_switches):
+    """Return the child fabric switch dict whose hostname matches identifier, or None.
+
+    FQDN-tolerant: also matches when either side is the bare form of the
+    other (e.g. data model uses 'leaf1' but NDFC returns 'leaf1.example.com').
+    Preprovisioned switches (hostname == None) are skipped.
+    """
+    if not identifier or not child_fabric_switches:
+        return None
+    import re
+    for sw in child_fabric_switches:
+        sw_hostname = sw.get('hostname')
+        if sw_hostname is None:
+            continue
+        fwd = f"^{re.escape(identifier)}$|^{re.escape(identifier)}\\..*$"
+        rev = f"^{re.escape(sw_hostname)}$|^{re.escape(sw_hostname)}\\..*$"
+        if re.search(fwd, sw_hostname) or re.search(rev, identifier):
+            return sw
+    return None
+
+
 def ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number):
     """
     Get NDFC policy for a given managed switch by the switch's serial number.
@@ -127,17 +181,32 @@ def ndfc_get_switch_policy_using_template(self, task_vars, tmp, switch_serial_nu
     """
     policy_data = ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number)
 
-    try:
-        policy_match = next(
-            (item for item in policy_data["response"]["DATA"] if item["templateName"] == template_name and item['serialNumber'] == switch_serial_number)
+    policy_response = policy_data.get("response") or policy_data.get("msg") or {}
+    return_code = policy_response.get("RETURN_CODE")
+    if return_code != 200:
+        raise Exception(f"Policy lookup failed for switch {switch_serial_number}: {policy_response}")
+
+    policy_matches = [
+        item for item in policy_response.get("DATA", [])
+        if item["templateName"] == template_name and item['serialNumber'] == switch_serial_number
+    ]
+
+    if len(policy_matches) > 1 and template_name == "host_11_1":
+        raise NdfcDuplicatePolicyError(
+            f"Duplicate host_11_1 policies found for switch serial {switch_serial_number}. "
+            f"Policy IDs: {_ndfc_policy_id_list(policy_matches)}. "
+            "Duplicate hostname policies are controller drift and must be reconciled before continuing."
         )
-    except StopIteration:
+
+    if not policy_matches:
         if template_name == "host_11_1":
             policy_match = None
         else:
             err_msg = f"Policy for template {template_name} and switch {switch_serial_number} not found!"
             err_msg += f" Please ensure switch with serial number {switch_serial_number} is part of the fabric."
             raise Exception(err_msg)
+    else:
+        policy_match = policy_matches[0]
 
     return policy_match
 
@@ -340,3 +409,69 @@ def restructure_leaf_tor_data(switches_list, topology_switches, tor_peers):
             leaf_entries.append(tor_entry)
 
     return leaf_entries
+
+
+def ndfc_get_fabric_policies_by_template(self, task_vars, tmp, fabric_name, template_name):
+    """
+    Get all NDFC policies for a given fabric and template name in bulk.
+
+    :Parameters:
+        :self: Ansible action plugin instance object.
+        :task_vars (dict): Ansible task vars.
+        :tmp (None, optional): Ansible tmp object. Defaults to None via Action Plugin.
+        :fabric_name (str): The name of the fabric.
+        :template_name (str): The name of the NDFC template.
+
+    :Returns:
+        :policies_dict: Dictionary mapping serial_number to policy data.
+
+    :Raises:
+        NdfcBulkPolicyApiUnavailable: If the bulk policy lookup API is not installed.
+        NdfcDuplicatePolicyError: If duplicate host_11_1 policies are found for a switch serial.
+        Exception: If the bulk policy lookup fails for another reason.
+    """
+    policy_response = self._execute_module(
+        module_name="cisco.dcnm.dcnm_rest",
+        module_args={
+            "method": "GET",
+            "path": f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/{fabric_name}/policy?templateName={template_name}"
+        },
+        task_vars=task_vars,
+        tmp=tmp
+    )
+
+    policy_result = policy_response.get("response") or policy_response.get("msg") or {}
+    return_code = policy_result.get("RETURN_CODE")
+
+    if return_code == 404:
+        raise NdfcBulkPolicyApiUnavailable(
+            f"Bulk policy lookup API is unavailable for fabric {fabric_name} and template {template_name}."
+        )
+
+    if return_code != 200:
+        raise Exception(
+            f"Bulk policy lookup failed for fabric {fabric_name} and template {template_name}: {policy_result}"
+        )
+
+    # Build a dictionary mapping serial number to policy
+    policies_dict = {}
+    duplicate_check = {}
+    for policy in policy_result.get('DATA') or []:
+        serial_number = policy['serialNumber']
+        policies_dict[serial_number] = policy
+        duplicate_check.setdefault(serial_number, []).append(policy)
+
+    if template_name == "host_11_1":
+        duplicate_details = [
+            f"{serial_number}: {_ndfc_policy_id_list(policies)}"
+            for serial_number, policies in duplicate_check.items()
+            if len(policies) > 1
+        ]
+        if duplicate_details:
+            raise NdfcDuplicatePolicyError(
+                "Duplicate host_11_1 policies found. "
+                f"Serial/policy IDs: {'; '.join(duplicate_details)}. "
+                "Duplicate hostname policies are controller drift and must be reconciled before continuing."
+            )
+
+    return policies_dict

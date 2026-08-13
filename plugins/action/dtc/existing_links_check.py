@@ -36,6 +36,73 @@ class ActionModule(ActionBase):
     looking to add to the fabric. If the link already exists, it will be added to
     the not_required_links list.
     """
+
+    # Profile field -> nvPairs key mapping for value-level comparison
+    PROFILE_TO_NV = {
+        'admin_state': 'ADMIN_STATE',
+        'mtu': 'MTU',
+        'peer1_description': 'PEER1_DESC',
+        'peer2_description': 'PEER2_DESC',
+        'peer1_cmds': 'PEER1_CONF',
+        'peer2_cmds': 'PEER2_CONF',
+        'peer1_ipv4_addr': 'PEER1_IP',
+        'peer2_ipv4_addr': 'PEER2_IP',
+        'enable_macsec': 'ENABLE_MACSEC',
+    }
+
+    # Optional/conditional fields that may be absent from desired profile
+    # but present on controller (field removal detection)
+    REMOVAL_KEYS = {
+        'peer1_cmds': 'PEER1_CONF',
+        'peer2_cmds': 'PEER2_CONF',
+    }
+
+    def _link_profile_changed(self, link, existing_link):
+        """
+        Compare enriched link profile against controller nvPairs.
+
+        Returns True if any profile value differs from the controller,
+        or if the controller has non-empty values for fields absent
+        from the desired profile (field removal detection).
+        """
+        nv = existing_link.get('nvPairs', {})
+        profile = link.get('profile', {})
+        src = link.get('src_device', '')
+        src_if = link.get('src_interface', '')
+        dst = link.get('dst_device', '')
+        dst_if = link.get('dst_interface', '')
+
+        # Forward check: desired profile keys differ from controller
+        for pkey, nv_key in self.PROFILE_TO_NV.items():
+            if pkey in profile:
+                desired_val = str(profile[pkey]).strip()
+                ctrl_val = str(nv.get(nv_key, '')).strip()
+                if desired_val.lower() != ctrl_val.lower():
+                    display.vvv(
+                        f"existing_links_check: DIFF [{src}:{src_if}->{dst}:{dst_if}]: "
+                        f"{pkey}={desired_val!r} vs {nv_key}={ctrl_val!r}"
+                    )
+                    return True
+
+        # Reverse check: controller has non-empty values for keys
+        # absent from desired profile (field was removed by user)
+        for pkey, nv_key in self.REMOVAL_KEYS.items():
+            if pkey not in profile:
+                ctrl_val = str(nv.get(nv_key, '')).strip()
+                if ctrl_val:
+                    display.vvv(
+                        f"existing_links_check: DIFF [{src}:{src_if}->{dst}:{dst_if}]: "
+                        f"{nv_key}={ctrl_val!r} on controller but "
+                        f"{pkey} absent from desired profile (removed)"
+                    )
+                    return True
+
+        display.vvv(
+            f"existing_links_check: NO DIFF [{src}:{src_if}->{dst}:{dst_if}]: "
+            f"profile matches controller"
+        )
+        return False
+
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
         existing_links = self._task.args['existing_links']
@@ -43,7 +110,14 @@ class ActionModule(ActionBase):
         switch_list = self._task.args['switch_data_model']
         required_links = []
         not_required_links = []
+        display.vvv(f"existing_links_check: {len(fabric_links)} configured links, {len(existing_links)} existing links from NDFC")
         for link in fabric_links:
+            display.vvv(
+                f"existing_links_check: evaluating configured link "
+                f"src={link.get('src_device')}:{link.get('src_interface')} → "
+                f"dst={link.get('dst_device')}:{link.get('dst_interface')} "
+                f"template={link.get('template')}"
+            )
             for existing_link in existing_links:
                 if (
                     'sw1-info' in existing_link and
@@ -66,6 +140,14 @@ class ActionModule(ActionBase):
                          existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower() and
                          existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower() and
                          existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower())):
+
+                        existing_template = existing_link.get('templateName', '<missing>')
+                        display.vvv(
+                            f"existing_links_check: MATCH found — "
+                            f"existing sw1={existing_link['sw1-info']['sw-sys-name']}:{existing_link['sw1-info']['if-name']} "
+                            f"sw2={existing_link['sw2-info']['sw-sys-name']}:{existing_link['sw2-info']['if-name']} "
+                            f"templateName={existing_template}"
+                        )
 
                         # If the link is in reverse order, swap the src and dst to match
                         # swap also in profile peer1 and peer2
@@ -95,8 +177,10 @@ class ActionModule(ActionBase):
                                 link['profile']['peer2_freeform'] = p1_free
 
                         if 'templateName' not in existing_link:
+                            display.vvv("existing_links_check: → NOT REQUIRED (templateName missing)")
                             not_required_links.append(link)
                         elif existing_link['templateName'] == 'int_pre_provision_intra_fabric_link':
+                            display.vvv("existing_links_check: → REQUIRED (pre-provision)")
                             required_links.append(link)
                         elif existing_link['templateName'] == 'int_intra_fabric_num_link':
                             # Populate additional fields from existing link
@@ -111,13 +195,33 @@ class ActionModule(ActionBase):
                                 link['profile']['enable_macsec'] = existing_link['nvPairs']['ENABLE_MACSEC']
                             else:
                                 link['profile']['enable_macsec'] = 'false'
-                            required_links.append(link)
+                            if self._link_profile_changed(link, existing_link):
+                                display.vvv("existing_links_check: → REQUIRED (num_link, enriched, profile changed)")
+                                required_links.append(link)
+                            else:
+                                display.vvv("existing_links_check: → NOT REQUIRED (num_link, enriched, profile matches)")
+                                not_required_links.append(link)
                         elif existing_link['templateName'] == 'int_intra_fabric_unnum_link':
-                            required_links.append(link)
+                            link["template"] = "int_intra_fabric_unnum_link"
+                            if self._link_profile_changed(link, existing_link):
+                                display.vvv("existing_links_check: → REQUIRED (unnum_link, profile changed)")
+                                required_links.append(link)
+                            else:
+                                display.vvv("existing_links_check: → NOT REQUIRED (unnum_link, profile matches)")
+                                not_required_links.append(link)
                         else:
+                            display.vvv(
+                                f"existing_links_check: → NOT REQUIRED "
+                                f"(unrecognized templateName={existing_link['templateName']})"
+                            )
                             not_required_links.append(link)
             if link not in required_links and link not in not_required_links:
+                display.vvv("existing_links_check: → REQUIRED (no existing match, new link)")
                 required_links.append(link)
 
+        display.vvv(
+            f"existing_links_check: RESULT — "
+            f"required={len(required_links)}, not_required={len(not_required_links)}"
+        )
         results['required_links'] = required_links
         return results

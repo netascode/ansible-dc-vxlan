@@ -8,6 +8,92 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.8.1`_
+=====================
+
+**Release Date:** ``2026-07-15``
+
+Added
+-----
+
+* Added support for ND 4.2.1
+* Added BGP ASN auto allocation support
+* Added greenfield cleanup option
+* Added bootstrap cross-reference validation rules
+
+Modified
+--------
+
+* With release 0.8.1, the ptp.vlan_id key has been removed from the data model for vxlan.global.ebgp, vxlan.global.external, and vxlan.multisite.isn as the PTP VLAN ID is not supported for these fabric types.
+* With release 0.8.1, NaC VXLAN supports the following eBGP fabric scenarios with Nexus Dashboard 4.2 or later releases (See https://netascode.cisco.com for more info):
+    •	Multi-AS Mode with ASN Auto Allocation
+    •	Multi-AS Mode with Allow Same ASN On Leafs
+    •	Same-Tier-AS Mode
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/688
+* https://github.com/netascode/ansible-dc-vxlan/issues/727
+* https://github.com/netascode/ansible-dc-vxlan/issues/749
+* https://github.com/netascode/ansible-dc-vxlan/issues/758
+* https://github.com/netascode/ansible-dc-vxlan/issues/799
+* https://github.com/netascode/ansible-dc-vxlan/issues/810
+* https://github.com/netascode/ansible-dc-vxlan/issues/813
+* https://github.com/netascode/ansible-dc-vxlan/issues/814
+* https://github.com/netascode/ansible-dc-vxlan/issues/822
+* https://github.com/netascode/ansible-dc-vxlan/issues/825
+* https://github.com/netascode/ansible-dc-vxlan/issues/829
+* https://github.com/netascode/ansible-dc-vxlan/issues/834
+
+`0.8.0`_
+=====================
+
+**Release Date:** ``2026-05-31``
+
+Added
+-----
+* This release delivers the DTC Pythonic Consolidation
+  * This is a major architectural refactor of the Direct-to-Controller (DTC) roles that replaces per-fabric YAML task files with a unified, data-driven pipeline powered by Python action plugins and externalized YAML registries.
+* ``cr_manage_vrfs_networks`` split into independent ``cr_manage_vrfs`` and ``cr_manage_networks`` tags
+* Added ``role_create`` and ``role_remove`` top-level role tags
+* Added ``cr_manage_links`` and ``cr_manage_tor_pairing`` to iBGP and eBGP VXLAN tag sets
+* General performance improvements
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/767
+* https://github.com/netascode/ansible-dc-vxlan/issues/783
+* https://github.com/netascode/ansible-dc-vxlan/issues/786
+
+* Template Fixes
+  
+  * ndfc_bgw_anycast_vip.j2, ndfc_underlay_ip_address.j2, ndfc_vpc_domain_id_resource.j2
+
+    * Switched from bare ``vxlan.*`` references to fully-qualified ``data_model_extended.vxlan.*``
+
+  * ndfc_fabric_links.j2
+
+    * Added ``peer1_ipv4_addr`` / ``peer2_ipv4_addr`` support for numbered fabric links
+
+  * ndfc_policy.j2
+
+    * Added guard for empty switches list to prevent empty policy render
+
+  * dc_vxlan_fabric_attach_vrfs_loopbacks.j2, msd_fabric_attach_vrfs_loopbacks.j2, mcfg_fabric_attach_vrfs_loopbacks.j2
+
+    * Widened loopback attach condition to include ``loopback_ipv4``, ``loopback_ipv6``, and ``freeform_config``
+
+  * ndfc_underlay_ip_address.j2
+
+    * Added anycast RP resource allocation for multicast replication mode
+
+  * mcfg_fabric_attach_vrfs_loopbacks.j2
+
+    * Fixed ``vlan_id`` type (quoted string for NDFC API)
+
+
 `0.7.2`_
 =====================
 
@@ -520,6 +606,8 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.8.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.8.0...0.8.1
+.. _0.8.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.2...0.8.0
 .. _0.7.2: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.1...0.7.2
 .. _0.7.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.0...0.7.1
 .. _0.7.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.6.0...0.7.0

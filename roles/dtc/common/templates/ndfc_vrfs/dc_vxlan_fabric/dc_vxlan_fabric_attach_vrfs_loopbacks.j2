@@ -9,6 +9,7 @@
     "lanAttachList":
     [
 {% for attach in data_model_extended.vxlan.overlay.vrf_attach_groups_dict[vrf["vrf_attach_group"]] %}
+{% if attach['loopback_id'] is defined or attach['loopback_ipv4'] is defined or attach['loopback_ipv6'] is defined or attach['freeform_config'] is defined %}
       {
         "fabric": "{{ data_model_extended.vxlan.fabric.name }}",
         "vrfName": "{{ vrf["name"] }}",
@@ -32,6 +33,7 @@
       }{% if not loop.last %},{% endif %}
 {# Empty space needed to prettify and correctly represent the comma in a list continuation #}
 
+{% endif %}
 {% endfor %}
     ]
   }{% if not loop.last %},{% endif %}
