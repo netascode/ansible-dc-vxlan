@@ -1,5 +1,6 @@
 import re
 
+
 class Rule:
     id: str = "208"
     description: str = "Verify IP addresses when manual_underlay_allocation is true"
@@ -79,7 +80,6 @@ class Rule:
         cls.validate_vpc_peers_and_vtep_vip(data_model)
 
         return cls.results
-
 
 
     @classmethod
