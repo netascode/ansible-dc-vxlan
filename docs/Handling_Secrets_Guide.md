@@ -145,3 +145,5 @@ This pattern works in any freeform field (`aaa_freeform`, `banner_freeform`, `bo
 * The `env_var_` lookup mechanism is not supported for policies referencing a file.
 
 * If an environment variable changes, the change will not be detected in case of a diff run (enabled by default), because the configuration in the data YAML files still looks the same. To enforce a new lookup, you can set the `force_run_all` parameter to true.
+
+* Secrets are not shown in rendered payload files, but the resolved value is handled in memory and may therefore still be visible in logs. This applies to NaC collection tasks as well as the `cisco.dcnm` collection. When `cisco.dcnm` logging is enabled, its modules can log the request parameters, payload, and controller response, which include the resolved value.
