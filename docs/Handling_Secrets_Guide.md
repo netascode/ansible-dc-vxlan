@@ -86,7 +86,6 @@ Any string value in the data model that contains `env_var_` is resolved by NaC V
 The value stored in each variable must already be encoded for the field that references it. The placeholders below stand for the encrypted (ciphertext) values, not plaintext secrets:
 
 ```bash
-# Each value below is the ciphertext for its field's encryption type, not a plaintext secret.
 export env_var_BGP_AUTH_KEY='<3DES-encrypted BGP authentication key>'
 export env_var_MCAST_AUTH_KEY='<3DES-encrypted PIM hello key>'
 export env_var_TACACS_KEY='<type-7 encoded TACACS key>'
