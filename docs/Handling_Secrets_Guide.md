@@ -76,7 +76,7 @@ Any string value in the data model that contains `env_var_` is resolved by NaC V
 * Variable names in YAML must exactly match the environment variable names (including the env_var_ prefix).
 * Valid environment variable names may include letters, digits, and underscores.
 * Use single quotes to prevent shell interpretation of special characters
-* If the environment variable is not set, a warning is displayed and the secret is left unchanged.
+* If a referenced environment variable is not set, the run fails during the `validate` stage. The error lists every missing variable with its location in the data model. This behavior prevents an unresolved `env_var_` token from being sent to Nexus Dashboard as a literal credential value.
 
 ### Setting Environment Variables
 

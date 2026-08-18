@@ -31,9 +31,23 @@ ENV_VAR_PREFIX = 'env_var_'
 ENV_VAR_PATTERN = re.compile(r'env_var_\w+')
 
 
+class UnresolvedEnvVarError(Exception):
+    """
+    Raised when an env_var_ token cannot be resolved to an environment
+    variable at runtime. This is a fail-closed guard that prevents a literal
+    env_var_ token from being sent to NDFC as configuration data.
+    """
+    pass
+
+
 def resolve_env_var_token(token, path):
     """
     Resolve a single env_var_ token to its environment variable value.
+
+    Fails closed: if the environment variable is not set, raises
+    UnresolvedEnvVarError instead of returning the literal token. This
+    guarantees that a missing secret can never be submitted to NDFC as an
+    executable credential value.
 
     Note: Environment variables containing special characters like $, `, \\, etc.
     should be properly escaped when setting them in the shell.
@@ -42,11 +56,9 @@ def resolve_env_var_token(token, path):
     resolved = os.getenv(token)
 
     if resolved is None:
-        display.warning(
-            f"Environment variable '{token}' referenced at "
-            f"'{path}' is not set. The value will not be resolved."
+        raise UnresolvedEnvVarError(
+            f"Environment variable '{token}' referenced at '{path}' is not set."
         )
-        return token
 
     display.vvv(f"Resolved '{token}' from environment variable at '{path}'")
     return resolved
@@ -97,48 +109,55 @@ def resolve_env_vars_recursive(data, path=''):
     return resolved_count
 
 
-def _validate_env_var_token(token, path):
-    if os.getenv(token) is None:
-        display.warning(
-            f"Environment variable '{token}' referenced at "
-            f"'{path}' is not set. The value will not be resolved at runtime."
-        )
-        return False
-
-    display.vvv(f"Validated '{token}' exists as environment variable at '{path}'")
-    return True
-
-
-def validate_env_vars_recursive(data, path=''):
+def validate_env_vars_recursive(data, path='', missing=None, validated=None):
     """
     Walk the data structure and validate that all env_var_ tokens have
     corresponding environment variables set, without resolving them.
 
     Tokens remain as-is in the data so that rendered files do not
     contain secrets. Runtime resolution happens in build_resource_data.
+
+    Aggregates every missing token together with its data model path into
+    the ``missing`` list so the caller can fail closed with a single,
+    complete error message rather than a stream of warnings that are easy
+    to lose in automation output.
+
+    Returns:
+        (validated_count, missing) where ``missing`` is a list of
+        (token, path) tuples for every referenced env var that is not set.
     """
-    validated_count = 0
+    if missing is None:
+        missing = []
+    if validated is None:
+        validated = [0]
+
+    def _check(value, current_path):
+        for match in ENV_VAR_PATTERN.finditer(value):
+            token = match.group(0)
+            if os.getenv(token) is None:
+                missing.append((token, current_path))
+            else:
+                display.vvv(
+                    f"Validated '{token}' exists as environment variable at '{current_path}'"
+                )
+                validated[0] += 1
 
     if isinstance(data, dict):
         for key, value in data.items():
             current_path = f"{path}.{key}" if path else key
             if isinstance(value, str) and ENV_VAR_PREFIX in value:
-                for match in ENV_VAR_PATTERN.finditer(value):
-                    if _validate_env_var_token(match.group(0), current_path):
-                        validated_count += 1
+                _check(value, current_path)
             elif isinstance(value, (dict, list)):
-                validated_count += validate_env_vars_recursive(value, current_path)
+                validate_env_vars_recursive(value, current_path, missing, validated)
     elif isinstance(data, list):
         for index, item in enumerate(data):
             current_path = f"{path}[{index}]"
             if isinstance(item, str) and ENV_VAR_PREFIX in item:
-                for match in ENV_VAR_PATTERN.finditer(item):
-                    if _validate_env_var_token(match.group(0), current_path):
-                        validated_count += 1
+                _check(item, current_path)
             elif isinstance(item, (dict, list)):
-                validated_count += validate_env_vars_recursive(item, current_path)
+                validate_env_vars_recursive(item, current_path, missing, validated)
 
-    return validated_count
+    return validated[0], missing
 
 
 class PreparePlugin:
@@ -149,9 +168,24 @@ class PreparePlugin:
     def prepare(self):
         data_model = self.kwargs['results']['model_extended']
 
-        # Validate env vars exist but keep tokens as placeholders.
-        # Runtime resolution happens in build_resource_data.
-        validated_count = validate_env_vars_recursive(data_model)
+        # Fail closed: stop here (during validate, before any rendering or NDFC
+        # mutation) if any referenced env var is missing, so a literal env_var_
+        # token can never reach NDFC as a credential value. Tokens are kept as
+        # placeholders; runtime resolution happens in build_resource_data.
+        validated_count, missing = validate_env_vars_recursive(data_model)
+
+        if missing:
+            lines = "\n".join(
+                f"  - '{token}' referenced at '{path}'" for token, path in missing
+            )
+            self.kwargs['results']['failed'] = True
+            self.kwargs['results']['msg'] = (
+                f"{len(missing)} environment variable(s) referenced in the data "
+                f"model with the '{ENV_VAR_PREFIX}' prefix are not set:\n{lines}\n"
+                "The run is stopped to avoid sending unresolved tokens to Nexus Dashboard."
+            )
+            return self.kwargs['results']
+
         if validated_count > 0:
             display.v(f"Validated {validated_count} environment variable(s) in the data model")
 
