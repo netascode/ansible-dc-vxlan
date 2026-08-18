@@ -71,20 +71,26 @@ The `env_var_` prefix instructs NaC to resolve a value from an environment varia
 
 ### How It Works
 
-Any string value in the data model that contains `env_var_` is resolved by NaC VXLAN. The secret is replaced with the value of the corresponding environment variable.
+Any string value in the data model that contains `env_var_` is resolved by NaC VXLAN. The string is replaced with the value of the corresponding environment variable.
 
+* Resolution is global. Any string in the data model that contains `env_var_` followed by word characters (`env_var_\w+`) is treated as a token, not only known secret fields. This allows `env_var_` to work inside freeform blocks, but it also means ordinary text that happens to contain the prefix is rewritten.
 * Variable names in YAML must exactly match the environment variable names (including the env_var_ prefix).
 * Valid environment variable names may include letters, digits, and underscores.
-* Use single quotes to prevent shell interpretation of special characters
-* If a referenced environment variable is not set, the run fails during the `validate` stage. The error lists every missing variable with its location in the data model. This behavior prevents an unresolved `env_var_` token from being sent to Nexus Dashboard as a literal credential value.
+* If a referenced environment variable is not set, the run fails during the `validate` stage. The error lists every missing variable with its location in the data model. This behavior prevents an unresolved `env_var_` string from being sent to Nexus Dashboard as a literal credential value.
+* `env_var_` performs substitution only, it does not encrypt. The resolved value is passed to Nexus Dashboard exactly as stored in the environment variable, with no transformation. It is the operator's responsibility to store a value that already matches what the target field expects.
+* For fields that carry an encryption type (for example `authentication_key` with `authentication_key_type: 3`, `ebgp_password` with `ebgp_password_encryption_type: 3`, or a `tacacs-server key 7 ...` line in a freeform block), the environment variable must contain the value already encoded for that type (the ciphertext), not the plaintext secret.
+* To keep literal `env_var_...` text (for example in a banner) from being resolved, avoid the exact `env_var_` prefix. For example break the word so it does not match, or reword the text. There is no dedicated escape sequence.
 
 ### Setting Environment Variables
 
+The value stored in each variable must already be encoded for the field that references it. The placeholders below stand for the encrypted (ciphertext) values, not plaintext secrets:
+
 ```bash
-export env_var_BGP_AUTH_KEY='MyBgpP@$$w0rd'
-export env_var_MCAST_AUTH_KEY='mcast_secret_123'
-export env_var_TACACS_KEY='TacacsSecret!'
-export env_var_DCI_PASSWORD='DciP@ssword'
+# Each value below is the ciphertext for its field's encryption type, not a plaintext secret.
+export env_var_BGP_AUTH_KEY='<3DES-encrypted BGP authentication key>'
+export env_var_MCAST_AUTH_KEY='<3DES-encrypted PIM hello key>'
+export env_var_TACACS_KEY='<type-7 encoded TACACS key>'
+export env_var_DCI_PASSWORD='<3DES-encrypted DCI password>'
 ```
 
 ### Examples: Standalone Values
@@ -124,11 +130,11 @@ vxlan:
         tacacs-server timeout 20
 ```
 
-At runtime, only `env_var_TACACS_KEY` is replaced with the value of the `env_var_TACACS_KEY` environment variable. The rest of the block is unchanged:
+At runtime, only `env_var_TACACS_KEY` is replaced with the value of the `env_var_TACACS_KEY` environment variable. Because the line uses `key 7`, the variable must contain the type-7 encoded key (not the plaintext). The rest of the block is unchanged:
 
 ```
 feature tacacs+
-tacacs-server key 7 TacacsSecret!
+tacacs-server key 7 076a0f1e1d0a19173e243f36
 ip tacacs source-interface mgmt0
 tacacs-server timeout 20
 ```
