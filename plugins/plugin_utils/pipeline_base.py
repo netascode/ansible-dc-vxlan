@@ -648,6 +648,14 @@ class PipelineRunnerBase(ABC):
                     f"{self.OPERATION.upper()} [{self.fabric_name}] "
                     f"Failed to load overlay cache, re-rendering: {e}"
                 )
+            finally:
+                # Cache may hold resolved env_var_ secrets: remove it as soon as
+                # it has been consumed (or failed to load) so plaintext does not
+                # persist after the run.
+                try:
+                    os.remove(cache_file)
+                except OSError:
+                    pass
 
         check_roles = self.task_vars.get('check_roles', {})
 
@@ -702,7 +710,9 @@ class PipelineRunnerBase(ABC):
                     'resource_data': self._make_json_safe(new_resource_data),
                     'change_flags': dict(new_change_flags),
                 }
-                with open(cache_file, 'w') as f:
+                # Cache can carry resolved env_var_ secrets: restrict to owner rw.
+                fd = os.open(cache_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+                with os.fdopen(fd, 'w') as f:
                     json.dump(cache_data, f)
             except (TypeError, IOError) as e:
                 display.warning(

@@ -610,10 +610,12 @@ class ResourceManager(PipelineRunnerBase):
         for key, val in desired_vars.items():
             ctrl_val = ctrl_nv.get(key)
             if ctrl_val is None or str(val).strip() != str(ctrl_val).strip():
+                # Log only the differing key and presence, never the values:
+                # policy_vars can hold resolved env_var_ secrets.
                 display.vvv(
-                    f"POLICY DIFF [{desc}]: var {key} "
-                    f"desired={repr(str(val).strip()[:80])} vs "
-                    f"ctrl={repr(str(ctrl_val).strip()[:80] if ctrl_val is not None else None)}"
+                    f"POLICY DIFF [{desc}]: var {key} differs "
+                    f"(desired={'set' if str(val).strip() else 'empty'}, "
+                    f"ctrl={'missing' if ctrl_val is None else 'set'})"
                 )
                 return True
 
