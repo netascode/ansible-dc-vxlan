@@ -39,6 +39,9 @@
     qos_policy: {{ interface['qos_policy'] | default("") }}
     queuing_policy: {{ interface['queuing_policy'] | default("") }}
 {% endif %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
+    fec: "{{ interface['fec'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.fec) }}"
+{% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
