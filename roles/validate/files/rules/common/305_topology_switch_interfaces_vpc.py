@@ -28,6 +28,9 @@ class Rule:
             "storm_control_multicast_level_pps",
             "storm_control_unicast_level_percent",
             "storm_control_unicast_level_pps",
+            "enable_qos",
+            "qos_policy",
+            "queuing_policy",
         ]
         vpc_peers_list = cls.get_vpc_peers(data_model)
         # Check if fabric topology switches are defined
