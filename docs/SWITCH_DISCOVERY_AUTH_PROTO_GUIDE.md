@@ -3,7 +3,7 @@
 ## Overview
 
 This guide explains how to configure `auth_proto` — the SNMPv3 authentication and privacy
-protocol that NDFC uses when discovering a switch for the first time.
+protocol that ND uses when discovering a switch for the first time.
 
 > [!NOTE]
 > This guide covers **normal initial switch discovery** (switches already reachable by IP).
@@ -11,7 +11,7 @@ protocol that NDFC uses when discovering a switch for the first time.
 
 ## What auth_proto Controls
 
-When NDFC discovers a switch, it uses SNMPv3 to test reachability and gather inventory.
+When ND discovers a switch, it uses SNMPv3 to test reachability and gather inventory.
 `auth_proto` selects the authentication and privacy algorithms for that SNMPv3 session.
 
 The field is set in the data model under `vxlan.global` or `vxlan.multisite.isn`,
@@ -160,7 +160,7 @@ If discovery fails with `notManageable` or an SNMPv3 timeout:
 3. Confirm `NDFC_SW_USERNAME` and `NDFC_SW_PASSWORD` are exported in the shell running the
    playbook, and that they match the NX-OS user.
 
-NDFC receives the selection as an integer in the `snmpV3AuthProtocol` field of the
+ND receives the selection as an integer in the `snmpV3AuthProtocol` field of the
 `test-reachability` payload. Use this mapping when inspecting API traffic:
 
 | `auth_proto` | `snmpV3AuthProtocol` |
