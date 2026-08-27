@@ -229,7 +229,11 @@ def ndfc_get_switch_policy_using_desc(self, task_vars, tmp, switch_serial_number
     """
     policy_data = ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number)
 
-    policy_response = policy_data.get("response") or policy_data.get("msg") or {}
+    # Fallback to an empty dict if the result is not a dictionary
+    policy_response = policy_data.get("response") or policy_data.get("msg")
+    if not isinstance(policy_response, dict):
+        policy_response = {}
+
     return_code = policy_response.get("RETURN_CODE")
     if return_code != 200:
         raise Exception(f"Policy lookup failed for switch {switch_serial_number}: {policy_response}")
