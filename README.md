@@ -302,17 +302,26 @@ export NDFC_SW_USERNAME=admin
 export NDFC_SW_PASSWORD=Admin_123
 ```
 
+#### Handling Secrets
+
+This collection supports two options to securely handle secrets in the NaC VXLAN data model such as passwords and authentication keys:
+
+* **🔐 Ansible Vault**: Encrypts credentials
+* **✅ Environment Variables**: Resolves secrets from environment variables
+
+**📖 Guide**: [Handling Secrets Guide](docs/Handling_Secrets_Guide.md)
+
 ##### Switch Credential Management
 
-This collection supports flexible credential management for network switches with three security levels:
+For switch credentials specifically, this collection supports flexible credential management with three security levels:
 
 * **🔐 Ansible Vault**: Encrypted credentials for production deployments
 * **✅ Environment Variables**: Secure credential injection for CI/CD pipelines
 * **⚠️ Plain Text**: Simple credentials for lab testing only
 
-The system supports both switch-specific credentials and group-level defaults with automatic fallback. Environment variable lookups can be configured in group_vars for enhanced security and automation compatibility.
+NaC VXLAN supports both switch-specific credentials and group-level defaults with automatic fallback. Environment variable lookups can be configured in group_vars for enhanced security and automation compatibility.
 
-**📖 Complete Guide**: [Switch Credentials Configuration](docs/SWITCH_CREDENTIALS_GUIDE.md)
+**📖 Guide**: [Switch Credentials Configuration](docs/SWITCH_CREDENTIALS_GUIDE.md)
 
 ## Quick Start Guide
 
@@ -326,6 +335,8 @@ This collection is intended for use with the following release versions:
 * `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.2`
 * `Cisco Nexus Dashboard Fabric Controller (NDFC) Release 12.2.3`
 * `Cisco Nexus Dashboard Release 4.1.1g` - Unified Nexus Dashboard (Legacy APIs)
+* `Cisco Nexus Dashboard Release 4.2.1` - Unified Nexus Dashboard (Legacy APIs)
+* `Cisco Nexus Dashboard Release 4.3.1` - Unified Nexus Dashboard (Legacy APIs)
 
 <!--start requires_ansible-->
 ## Ansible Version Compatibility

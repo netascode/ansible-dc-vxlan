@@ -39,9 +39,14 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import copy
 import json
 
 from ansible.utils.display import Display
+
+from ansible_collections.cisco.nac_dc_vxlan.plugins.action.common.prepare_plugins.prep_005_resolve_env_vars import (
+    resolve_env_vars_recursive,
+)
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.pipeline_base import (
     PipelineRunnerBase,
@@ -127,7 +132,17 @@ class ResourceManager(PipelineRunnerBase):
             if diff and isinstance(diff, dict):
                 diff_data = diff.get('updated')
                 if diff_data is not None:
-                    data = diff_data
+                    # diff.updated comes from the structural diff computed on
+                    # rendered YAML before env var resolution.  Deep-copy and
+                    # resolve so that env_var_ tokens are replaced with their
+                    # environment variable values before sending to NDFC.
+                    data = copy.deepcopy(diff_data)
+                    env_count = resolve_env_vars_recursive(data)
+                    if env_count > 0:
+                        display.vvv(
+                            f"CREATE [{self.fabric_name}] Resolved {env_count} "
+                            f"env_var_ token(s) in diff.updated for {resource_name}"
+                        )
 
         return data
 
@@ -595,10 +610,12 @@ class ResourceManager(PipelineRunnerBase):
         for key, val in desired_vars.items():
             ctrl_val = ctrl_nv.get(key)
             if ctrl_val is None or str(val).strip() != str(ctrl_val).strip():
+                # Log only the differing key and presence, never the values:
+                # policy_vars can hold resolved env_var_ secrets.
                 display.vvv(
-                    f"POLICY DIFF [{desc}]: var {key} "
-                    f"desired={repr(str(val).strip()[:80])} vs "
-                    f"ctrl={repr(str(ctrl_val).strip()[:80] if ctrl_val is not None else None)}"
+                    f"POLICY DIFF [{desc}]: var {key} differs "
+                    f"(desired={'set' if str(val).strip() else 'empty'}, "
+                    f"ctrl={'missing' if ctrl_val is None else 'set'})"
                 )
                 return True
 
