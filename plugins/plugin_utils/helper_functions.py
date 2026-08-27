@@ -229,8 +229,13 @@ def ndfc_get_switch_policy_using_desc(self, task_vars, tmp, switch_serial_number
     """
     policy_data = ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number)
 
+    policy_response = policy_data.get("response") or policy_data.get("msg") or {}
+    return_code = policy_response.get("RETURN_CODE")
+    if return_code != 200:
+        raise Exception(f"Policy lookup failed for switch {switch_serial_number}: {policy_response}")
+
     policy_match = [
-        item for item in policy_data["response"]["DATA"]
+        item for item in policy_response.get("DATA", [])
         if item.get("description", None) and item.get("description", None).startswith(prefix) and item["source"] == ""
     ]
 
