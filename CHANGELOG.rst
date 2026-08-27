@@ -18,10 +18,11 @@ Added
 
 * Added support for ND 4.3.1
 * Added ``env_var_`` prefix support to secure data model secrets via environment variables
-* Added FEC support for physical interfaces (NDFC 12.4.1+)
+* Added FEC support for physical interfaces (ND ≥ 4.1)​
 * Added discovery credential support for external and ISN fabrics
 * Added VLAN ID Override and CLI Freeform config support for Network Attachments​
 * Added SVI Admin State for Network Attachments (ND ≥ 4.1)​
+* Added QoS Policies for routed interfaces
 * Added NGOAM heartbeat timer and network xconnect support
 * Added CDP enable/disable support on L2 interfaces
 * Added storm control support on L2 interfaces
