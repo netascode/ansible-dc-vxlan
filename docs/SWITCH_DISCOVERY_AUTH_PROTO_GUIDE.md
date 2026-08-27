@@ -79,7 +79,7 @@ The `Auth` and `Priv` columns must match the row for your selected value in the 
 
 > [!IMPORTANT]
 > The authentication and privacy passphrases must be **identical**. NaC sends a single
-> password (`NDFC_SW_PASSWORD`) to NDFC, which uses it for both. Mismatched passphrases are
+> password (`NDFC_SW_PASSWORD`) to ND, which uses it for both. Mismatched passphrases are
 > the most common cause of `notManageable` and SNMPv3 timeouts during discovery.
 
 > [!NOTE]
@@ -89,7 +89,7 @@ The `Auth` and `Priv` columns must match the row for your selected value in the 
 
 ### 2. Environment variables
 
-NDFC uses `NDFC_SW_USERNAME` and `NDFC_SW_PASSWORD` to reach the switch during discovery.
+ND uses `NDFC_SW_USERNAME` and `NDFC_SW_PASSWORD` to reach the switch during discovery.
 These values must match `<USERNAME>` and `<PASSWORD>` used in the NX-OS configuration above.
 
 ```bash
@@ -182,6 +182,6 @@ NDFC receives the selection as an integer in the `snmpV3AuthProtocol` field of t
 
 > [!NOTE]
 > The `snmp-server user` commands in this guide were verified on NX-OS 10.5(5): each one
-> produces the `Auth`/`Priv` combination listed in the table. On the NDFC side, `SHA_AES`
+> produces the `Auth`/`Priv` combination listed in the table. On the ND side, `SHA_AES`
 > discovery has been confirmed against NDFC 4.2; the other values are carried by the data
-> model and the module mapping but have not been individually validated against NDFC.
+> model and the module mapping but have not been individually validated against ND.
