@@ -183,5 +183,5 @@ ND receives the selection as an integer in the `snmpV3AuthProtocol` field of the
 > [!NOTE]
 > The `snmp-server user` commands in this guide were verified on NX-OS 10.5(5): each one
 > produces the `Auth`/`Priv` combination listed in the table. On the ND side, `SHA_AES`
-> discovery has been confirmed against NDFC 4.2; the other values are carried by the data
+> discovery has been confirmed against ND 4.2; the other values are carried by the data
 > model and the module mapping but have not been individually validated against ND.
