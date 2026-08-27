@@ -8,6 +8,44 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.8.1`_
+=====================
+
+**Release Date:** ``2026-07-15``
+
+Added
+-----
+
+* Added support for ND 4.2.1
+* Added BGP ASN auto allocation support
+* Added greenfield cleanup option
+* Added bootstrap cross-reference validation rules
+
+Modified
+--------
+
+* With release 0.8.1, the ptp.vlan_id key has been removed from the data model for vxlan.global.ebgp, vxlan.global.external, and vxlan.multisite.isn as the PTP VLAN ID is not supported for these fabric types.
+* With release 0.8.1, NaC VXLAN supports the following eBGP fabric scenarios with Nexus Dashboard 4.2 or later releases (See https://netascode.cisco.com for more info):
+    •	Multi-AS Mode with ASN Auto Allocation
+    •	Multi-AS Mode with Allow Same ASN On Leafs
+    •	Same-Tier-AS Mode
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/688
+* https://github.com/netascode/ansible-dc-vxlan/issues/727
+* https://github.com/netascode/ansible-dc-vxlan/issues/749
+* https://github.com/netascode/ansible-dc-vxlan/issues/758
+* https://github.com/netascode/ansible-dc-vxlan/issues/799
+* https://github.com/netascode/ansible-dc-vxlan/issues/810
+* https://github.com/netascode/ansible-dc-vxlan/issues/813
+* https://github.com/netascode/ansible-dc-vxlan/issues/814
+* https://github.com/netascode/ansible-dc-vxlan/issues/822
+* https://github.com/netascode/ansible-dc-vxlan/issues/825
+* https://github.com/netascode/ansible-dc-vxlan/issues/829
+* https://github.com/netascode/ansible-dc-vxlan/issues/834
+
 `0.8.0`_
 =====================
 
@@ -568,6 +606,7 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.8.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.8.0...0.8.1
 .. _0.8.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.2...0.8.0
 .. _0.7.2: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.1...0.7.2
 .. _0.7.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.0...0.7.1

@@ -19,13 +19,24 @@
 #
 # SPDX-License-Identifier: MIT
 
-from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import restructure_leaf_tor_data
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import (
+    restructure_leaf_tor_data,
+    resolve_switch_by_identifier,
+)
 
 
 class PreparePlugin:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.keys = []
+
+    def _resolve_mgmt_ip(self, identifier, topology_switches):
+        found = resolve_switch_by_identifier(identifier, topology_switches)
+        mgmt = found.get('management') or {}
+        return (
+            mgmt.get('management_ipv4_address')
+            or mgmt.get('management_ipv6_address')
+        )
 
     def prepare(self):
         data_model = self.kwargs['results']['model_extended']
@@ -48,14 +59,8 @@ class PreparePlugin:
                 vrf_grp_name_list.append(grp['name'])
                 for switch in grp['switches']:
                     data_model['vxlan']['overlay']['vrf_attach_groups_dict'][grp['name']].append(switch)
-                # If the switch is in the switch list and a hostname is used, replace the hostname with the management IP
                 for switch in data_model['vxlan']['overlay']['vrf_attach_groups_dict'][grp['name']]:
-                    if any(sw['name'] == switch['hostname'] for sw in switches):
-                        found_switch = next((item for item in switches if item["name"] == switch['hostname']))
-                        if found_switch.get('management').get('management_ipv4_address'):
-                            switch['mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
-                        elif found_switch.get('management').get('management_ipv6_address'):
-                            switch['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
+                    switch['mgmt_ip_address'] = self._resolve_mgmt_ip(switch['hostname'], switches)
 
             # Remove vrf_attach_group from vrf if the group_name is not defined
             for vrf in data_model['vxlan']['overlay']['vrfs']:
@@ -78,31 +83,31 @@ class PreparePlugin:
 
                 for switch in grp['switches']:
                     data_model['vxlan']['overlay']['network_attach_groups_dict'][grp['name']].append(switch)
-                # If the switch is in the switch list and a hostname is used, replace the hostname with the management IP
                 for switch in data_model['vxlan']['overlay']['network_attach_groups_dict'][grp['name']]:
-                    if any(sw['name'] == switch['hostname'] for sw in switches):
-                        found_switch = next((item for item in switches if item["name"] == switch['hostname']))
-                        if found_switch.get('management').get('management_ipv4_address'):
-                            switch['mgmt_ip_address'] = found_switch['management']['management_ipv4_address']
-                        elif found_switch.get('management').get('management_ipv6_address'):
-                            switch['mgmt_ip_address'] = found_switch['management']['management_ipv6_address']
+                    switch['mgmt_ip_address'] = self._resolve_mgmt_ip(switch['hostname'], switches)
 
-                    # Process nested TOR entries and resolve their management IPs
                     if 'tors' in switch and switch['tors']:
                         for tor in switch['tors']:
-                            tor_hostname = tor.get('hostname')
-                            if tor_hostname and any(sw['name'] == tor_hostname for sw in switches):
-                                found_tor = next((item for item in switches if item["name"] == tor_hostname))
-                                if found_tor.get('management').get('management_ipv4_address'):
-                                    tor['mgmt_ip_address'] = found_tor['management']['management_ipv4_address']
-                                elif found_tor.get('management').get('management_ipv6_address'):
-                                    tor['mgmt_ip_address'] = found_tor['management']['management_ipv6_address']
+                            tor_id = tor.get('hostname')
+                            if not tor_id:
+                                continue
+                            tor['mgmt_ip_address'] = self._resolve_mgmt_ip(tor_id, switches)
 
             # Remove network_attach_group from net if the group_name is not defined
             for net in data_model['vxlan']['overlay']['networks']:
                 if 'network_attach_group' in net:
                     if net.get('network_attach_group') not in net_grp_name_list:
                         del net['network_attach_group']
+
+            for net in data_model['vxlan']['overlay']['networks']:
+                overrides = net.get('switch_attach_overrides')
+                if not overrides:
+                    continue
+                for override in overrides:
+                    override_id = override.get('hostname')
+                    if not override_id:
+                        continue
+                    override['mgmt_ip_address'] = self._resolve_mgmt_ip(override_id, switches)
 
         self.kwargs['results']['model_extended'] = data_model
         return self.kwargs['results']

@@ -50,12 +50,14 @@ Inside the [example repository](https://github.com/netascode/ansible-dc-vxlan-ex
 
 ```yaml
 # Control Parameters for 'Remove' role tasks in VXLAN EVPN fabric
+edge_connections_delete_mode: false
 interface_delete_mode: false
 inventory_delete_mode: false
 link_fabric_delete_mode: false
 link_vpc_delete_mode: false
 network_delete_mode: false
 policy_delete_mode: false
+tor_pairing_delete_mode: false
 vpc_delete_mode: false
 vrf_delete_mode: false
 
@@ -83,16 +85,19 @@ The following control variables are available in this collection.
 | Variable | Description | Default Value |
 | -------- | ------- | ------- |
 | `force_run_all` | Force all roles in the collection to run | `false` |
+| `edge_connections_delete_mode` | Remove edge_connections state as part of the remove role | `false` |
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
+| `link_fabric_delete_mode` | Remove fabric link state as part of the remove role | `false` |
 | `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
 | `multisite_child_fabric_delete_mode` | Remove child fabric from MSD fabric as part of the remove role | `false` |
 | `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD) fabrics | `false` |
 | `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD) fabrics | `false` |
 | `network_delete_mode` | Remove network state as part of the remove role | `false` |
 | `policy_delete_mode` | Remove policy state as part of the remove role | `false` |
-| `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
+| `tor_pairing_delete_mode` | Remove tor pairing state as part of the remove role | `false` |
 | `vpc_delete_mode` | Remove vpc pair state as part of the remove role | `false` |
+| `vrf_delete_mode` | Remove vrf state as part of the remove role | `false` |
 
 These variables are described in more detail in different sections of this document.
 
@@ -297,17 +302,26 @@ export NDFC_SW_USERNAME=admin
 export NDFC_SW_PASSWORD=Admin_123
 ```
 
+#### Handling Secrets
+
+This collection supports two options to securely handle secrets in the NaC VXLAN data model such as passwords and authentication keys:
+
+* **🔐 Ansible Vault**: Encrypts credentials
+* **✅ Environment Variables**: Resolves secrets from environment variables
+
+**📖 Guide**: [Handling Secrets Guide](docs/Handling_Secrets_Guide.md)
+
 ##### Switch Credential Management
 
-This collection supports flexible credential management for network switches with three security levels:
+For switch credentials specifically, this collection supports flexible credential management with three security levels:
 
 * **🔐 Ansible Vault**: Encrypted credentials for production deployments
 * **✅ Environment Variables**: Secure credential injection for CI/CD pipelines
 * **⚠️ Plain Text**: Simple credentials for lab testing only
 
-The system supports both switch-specific credentials and group-level defaults with automatic fallback. Environment variable lookups can be configured in group_vars for enhanced security and automation compatibility.
+NaC VXLAN supports both switch-specific credentials and group-level defaults with automatic fallback. Environment variable lookups can be configured in group_vars for enhanced security and automation compatibility.
 
-**📖 Complete Guide**: [Switch Credentials Configuration](docs/SWITCH_CREDENTIALS_GUIDE.md)
+**📖 Guide**: [Switch Credentials Configuration](docs/SWITCH_CREDENTIALS_GUIDE.md)
 
 ## Quick Start Guide
 

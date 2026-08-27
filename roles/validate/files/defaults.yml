@@ -26,6 +26,7 @@ factory_defaults:
       ebgp:
         bgp_asn_mode: Multi-AS
         leaf_same_bgp_asn: false
+        bgp_asn_auto_allocation: true
         anycast_gateway_mac: 20:20:00:00:00:aa
         auth_proto: MD5
         enable_nxapi_http: false
@@ -33,6 +34,7 @@ factory_defaults:
         enable_nxapi_https: true
         nxapi_https_port: 443
         overlay_mode: cli
+        greenfield_cleanup: Disable
         layer2_vni_range:
           from: 30000
           to: 49000
@@ -79,6 +81,7 @@ factory_defaults:
         enable_nxapi_https: true
         nxapi_https_port: 443
         overlay_mode: cli
+        greenfield_cleanup: Disable
         layer2_vni_range:
           from: 30000
           to: 49000
@@ -129,6 +132,8 @@ factory_defaults:
           loopback_id: 101
           loopback_ip_range: 10.101.0.0/25
           isis_net_area_number: "0001"
+        heartbeat_interval: 190
+        enable_ngoam: true
       external:
         auth_proto: MD5
         enable_nxapi_http: false
@@ -162,6 +167,7 @@ factory_defaults:
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             access_vlan: 1
             spanning_tree_portfast: true
             enable_bpdu_guard: true
@@ -169,11 +175,15 @@ factory_defaults:
             orphan_port: false
             enable_qos: false
             monitor: false
+            fec: auto
+            enable_storm_control: false
+            storm_control_action: default
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             trunk_allowed_vlans: none
             spanning_tree_portfast: true
             enable_bpdu_guard: true
@@ -182,11 +192,16 @@ factory_defaults:
             native_vlan: ""
             enable_qos: false
             monitor: false
+            fec: auto
+            enable_storm_control: false
+            storm_control_action: default
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
+            copy_description: false
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             access_vlan: 1
             pc_mode: active
             spanning_tree_portfast: true
@@ -197,13 +212,17 @@ factory_defaults:
             enable_lacp_vpc_convergence: false
             lacp_port_priority: 32768
             lacp_rate: normal
-            monitor: false
             enable_qos: false
+            monitor: false
+            enable_storm_control: false
+            storm_control_action: default
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
+            copy_description: false
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             trunk_allowed_vlans: none
             pc_mode: active
             spanning_tree_portfast: true
@@ -215,23 +234,31 @@ factory_defaults:
             enable_lacp_vpc_convergence: false
             lacp_port_priority: 32768
             lacp_rate: normal
-            monitor: false
             enable_qos: false
+            monitor: false
+            enable_storm_control: false
+            storm_control_action: default
           topology_switch_dot1q_interface:
             description: "NetAsCode Dot1q Interface"
             mtu: jumbo
             speed: auto
             enabled: true
+            enable_cdp: true
             access_vlan: 1
             spanning_tree_portfast: true
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
+            fec: auto
+            enable_storm_control: false
+            storm_control_action: default
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
             speed: auto
             enabled: true
+            enable_qos: false
+            fec: auto
           topology_switch_routed_sub_interface:
             description: "NetAsCode Routed Sub Interface"
             mtu: 9216
@@ -239,10 +266,12 @@ factory_defaults:
             enabled: true
           topology_switch_routed_po_interface:
             description: "NetAsCode Routed PO Interface"
+            copy_description: false
             mtu: 9216
             speed: auto
             enabled: true
             pc_mode: active
+            enable_qos: false
           topology_switch_loopback_interface:
             description: "NetAsCode Loopback Interface"
             enabled: true
@@ -269,7 +298,6 @@ factory_defaults:
         underlay_routing_loopback_id: 0
         underlay_vtep_loopback_id: 1
         underlay_routing_protocol_tag: UNDERLAY
-        underlay_rp_loopback_id: 254
         intra_fabric_interface_mtu: 9216
         layer2_host_interface_mtu: 9216
         unshut_host_interfaces: true
@@ -366,6 +394,8 @@ factory_defaults:
         trm_enable: false
         # Staging trmv6 attribute for later usage after low-level collection adds support.
         # trmv6_enable: false
+        svi_enabled: true
+        xconnect: false
       vrf_attach_groups:
         switches: []
       network_attach_groups:
@@ -550,6 +580,7 @@ factory_defaults:
           route_target_both: false
           route_tag: 12345
           trm_enable: false
+          svi_enabled: true
       isn:
         auth_proto: MD5
         sub_int_range: 2-511
