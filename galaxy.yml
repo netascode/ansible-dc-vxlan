@@ -34,5 +34,5 @@ tags: [cisco, dc, nd, ndfc, nxos, networking, vxlan, evpn, nac, sac]
 
 dependencies:
   "ansible.netcommon": ">=4.1.0"
-  "cisco.dcnm": ">=3.13.1"
+  "cisco.dcnm": ">=3.13.0"
   "community.general": ">=8.5.0"
