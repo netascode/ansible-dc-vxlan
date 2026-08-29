@@ -75,10 +75,12 @@ MULTISITE_RESPONSE_VARS = {
     'MSD': {
         'vrf_result': 'manage_msd_vrf_result',
         'network_result': 'manage_msd_network_result',
+        'vrf_loopback_result': 'manage_msd_vrf_loopback_result',
     },
     'MCFG': {
         'vrf_result': 'manage_mcfg_vrf_result',
         'network_result': 'manage_mcfg_network_result',
+        'vrf_loopback_result': 'manage_mcfg_vrf_loopback_result',
     },
 }
 
@@ -173,15 +175,15 @@ class ChildFabricChangeDetector:
     """
 
     @staticmethod
-    def detect(force_run_all, run_map_diff_run, child_fabrics, vrf_response_data, network_response_data):
+    def detect(force_run_all, run_map_diff_run, child_fabrics, vrf_response_data, network_response_data, vrf_loopback_response_data):
         """Return list of child fabrics requiring deployment."""
         if force_run_all or not run_map_diff_run:
             return child_fabrics
-        return ChildFabricChangeDetector._merge_changes(vrf_response_data, network_response_data)
+        return ChildFabricChangeDetector._merge_changes(vrf_response_data, network_response_data, vrf_loopback_response_data)
 
     @staticmethod
-    def _merge_changes(vrf_response_data, network_response_data):
-        """Merge VRF and Network change data, deduplicating by fabric name."""
+    def _merge_changes(vrf_response_data, network_response_data, vrf_loopback_response_data):
+        """Merge VRF, Network, and VRF loopback change data, deduplicating by fabric name."""
         vrf_changed = []
         if vrf_response_data and isinstance(vrf_response_data, dict):
             if vrf_response_data.get('child_fabrics'):
@@ -201,8 +203,36 @@ class ChildFabricChangeDetector:
                     for item in network_response_data['child_fabrics']
                     if item.get('changed') and item['fabric_name'] not in vrf_names
                 ]
+                
+        vrf_loopback_changed = []
+        if vrf_loopback_response_data and isinstance(vrf_loopback_response_data, dict):
+            # Process VRF Loopback Changes
+            # Extract unique fabric names from lanAttachList entries
+            vrf_loopback_fabrics = set()
+            for vrf_item in vrf_loopback_response_data:
+                for attach in vrf_item.get('lanAttachList', []):
+                    fabric = attach.get('fabric')
+                    if fabric:
+                        vrf_loopback_fabrics.add(fabric)
 
-        return vrf_changed + network_changed
+            if vrf_loopback_fabrics:
+                # Build fabric-to-cluster mapping from vrf_response_data members list
+                fabric_cluster_map = {}
+                if vrf_response_data:
+                    parent = vrf_response_data.get('parent_fabric', {})
+                    members = parent.get('invocation', {}).get('module_args', {}).get('fabric_details', {}).get('members', [])
+                    for member in members:
+                        fabric_cluster_map[member['fabricName']] = member.get('clusterName')
+
+                vrf_loopback_changed = [
+                    {
+                        'name': fabric,
+                        'cluster': fabric_cluster_map.get(fabric)
+                    }
+                    for fabric in vrf_loopback_fabrics
+                ]
+
+        return vrf_changed + vrf_loopback_changed + network_changed
 
 
 class FabricDeployManager:
@@ -669,6 +699,7 @@ class ActionModule(ActionBase):
         response_vars = MULTISITE_RESPONSE_VARS.get(fabric_type, {})
         vrf_response_data = params['task_vars'].get(response_vars.get('vrf_result', ''), [])
         network_response_data = params['task_vars'].get(response_vars.get('network_result', ''), [])
+        vrf_loopback_response_data = params['task_vars'].get(response_vars.get('vrf_loopback_result', ''), [])
 
         # Resolve force_run_all and run_map_diff_run
         force_run_all = self._task.args.get("force_run_all", False)
@@ -695,6 +726,7 @@ class ActionModule(ActionBase):
             run_map_diff_run=run_map_diff_run,
             child_fabrics=child_fabrics,
             vrf_response_data=vrf_response_data,
+            vrf_loopback_response_data=vrf_loopback_response_data,
             network_response_data=network_response_data,
         )
 
