@@ -1,5 +1,5 @@
 class Rule:
-    id = "311"
+    id = "321"
     description = "Verify edge connections have valid source devices and interfaces"
     severity = "HIGH"
 

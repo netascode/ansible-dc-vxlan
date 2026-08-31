@@ -10,8 +10,8 @@
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   OSPF_AUTH_ENABLE: {{ (vxlan.underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | title) }}
 {% if vxlan.underlay.ospf.authentication_enable | default(defaults.vxlan.underlay.ospf.authentication_enable) | ansible.builtin.bool %}
-  OSPF_AUTH_KEY_ID: {{ vxlan.underlay.ospf.authentication_key_id | default(defaults.vxlan.underlay.ospf.authentication_key_id) }}
   OSPF_AUTH_KEY: {{ vxlan.underlay.ospf.authentication_key | default(omit) }}
+  OSPF_AUTH_KEY_ID: {{ vxlan.underlay.ospf.authentication_key_id | default(defaults.vxlan.underlay.ospf.authentication_key_id) }}
 {% endif %}
 {% if vxlan.underlay.bfd.enable | default(defaults.vxlan.underlay.bfd.enable) | ansible.builtin.bool %}
   BFD_OSPF_ENABLE: {{ vxlan.underlay.bfd.ospf | default(defaults.vxlan.underlay.bfd.ospf) }}
@@ -65,7 +65,15 @@
 {% endif %}
 {% endif %}
 {% endif %}
+{% if vxlan.global.ibgp.spine_ibgp_peer_template_freeform | default("") | trim %}
   IBGP_PEER_TEMPLATE: |2
-    {{ vxlan.global.ibgp.spine_ibgp_peer_template_freeform | default("") | indent(4, false) }}
+{{ vxlan.global.ibgp.spine_ibgp_peer_template_freeform | cisco.nac_dc_vxlan.dedent | indent(6, true) }}
+{% else %}
+  IBGP_PEER_TEMPLATE: ""
+{% endif %}
+{% if vxlan.global.ibgp.leaf_ibgp_peer_template_freeform | default("") | trim %}
   IBGP_PEER_TEMPLATE_LEAF: |2
-    {{ vxlan.global.ibgp.leaf_ibgp_peer_template_freeform | default("") | indent(4, false) }}
+{{ vxlan.global.ibgp.leaf_ibgp_peer_template_freeform | cisco.nac_dc_vxlan.dedent | indent(6, true) }}
+{% else %}
+  IBGP_PEER_TEMPLATE_LEAF: ""
+{% endif %}

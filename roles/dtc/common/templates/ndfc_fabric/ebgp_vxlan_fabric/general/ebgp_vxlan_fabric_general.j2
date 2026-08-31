@@ -4,6 +4,9 @@
   BGP_AS_MODE: "{{ vxlan.global.ebgp.bgp_asn_mode | default(defaults.vxlan.global.ebgp.bgp_asn_mode) }}"
 {% if vxlan.global.ebgp.bgp_asn_mode | default(defaults.vxlan.global.ebgp.bgp_asn_mode) == 'Multi-AS' %}
   ALLOW_LEAF_SAME_AS: "{{ vxlan.global.ebgp.leaf_same_bgp_asn | default(defaults.vxlan.global.ebgp.leaf_same_bgp_asn) | lower }}"
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.5.0', '>=') %}
+  bgpAsnAutoAllocation: "{{ vxlan.global.ebgp.bgp_asn_auto_allocation | default(defaults.vxlan.global.ebgp.bgp_asn_auto_allocation) | lower }}"
+{% endif %}
 {% endif %}
 {% if vxlan.global.ebgp.bgp_asn_mode | default(defaults.vxlan.global.ebgp.bgp_asn_mode) == 'Same-Tier-AS' %}
   LEAF_BGP_AS: "{{ vxlan.global.ebgp.leaf_bgp_asn | default(omit) }}"
@@ -11,9 +14,11 @@
 {% endif %}
   UNDERLAY_IS_V6: {{ vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | title }}
   STATIC_UNDERLAY_IP_ALLOC: {{ vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | title }}
-{% if not (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | ansible.builtin.bool) %}
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   SUBNET_TARGET_MASK: "{{ vxlan.underlay.ipv4.subnet_mask | default(defaults.vxlan.underlay.ipv4.subnet_mask) }}"
+{% endif %}
+{% if not (vxlan.underlay.general.manual_underlay_allocation | default(defaults.vxlan.underlay.general.manual_underlay_allocation) | ansible.builtin.bool) %}
+{% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
   SUBNET_RANGE: {{ vxlan.underlay.ipv4.underlay_subnet_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_subnet_ip_range) }}
 {% endif %}
   LOOPBACK0_IP_RANGE: {{ vxlan.underlay.ipv4.underlay_routing_loopback_ip_range | default(defaults.vxlan.underlay.ipv4.underlay_routing_loopback_ip_range) }}
