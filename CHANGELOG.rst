@@ -8,6 +8,43 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.9.0`_
+=====================
+
+**Release Date:** ``2026-08-27``
+
+Added
+-----
+
+* Added support for ND 4.3.1
+* Added ``env_var_`` prefix support to secure data model secrets via environment variables
+* Added FEC support for physical interfaces (ND ≥ 4.1)​
+* Added discovery credential support for external and ISN fabrics
+* Added VLAN ID Override and CLI Freeform config support for Network Attachments​
+* Added SVI Admin State for Network Attachments (ND ≥ 4.1)​
+* Added QoS Policies for routed interfaces
+* Added NGOAM heartbeat timer and network xconnect support
+* Added CDP enable/disable support on L2 interfaces
+* Added storm control support on L2 interfaces
+* Added BGP authentication Type 6 support
+* Added manual underlay allocation support for eBGP fabrics
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/719
+* https://github.com/netascode/ansible-dc-vxlan/issues/750
+* https://github.com/netascode/ansible-dc-vxlan/issues/840
+* https://github.com/netascode/ansible-dc-vxlan/issues/841
+* https://github.com/netascode/ansible-dc-vxlan/issues/854
+* https://github.com/netascode/ansible-dc-vxlan/issues/857
+* https://github.com/netascode/ansible-dc-vxlan/issues/859
+* https://github.com/netascode/ansible-dc-vxlan/issues/861
+* https://github.com/netascode/ansible-dc-vxlan/issues/863
+* https://github.com/netascode/ansible-dc-vxlan/issues/864
+* https://github.com/netascode/ansible-dc-vxlan/issues/869
+* https://github.com/netascode/ansible-dc-vxlan/issues/873
+
 `0.8.1`_
 =====================
 
@@ -606,6 +643,7 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.9.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.8.1...0.9.0
 .. _0.8.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.8.0...0.8.1
 .. _0.8.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.2...0.8.0
 .. _0.7.2: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.1...0.7.2
