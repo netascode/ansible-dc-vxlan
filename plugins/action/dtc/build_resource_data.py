@@ -761,17 +761,34 @@ class ResourceDataBuilder:
         ]
 
         # Aggregate create list (no breakout_preprov)
+        # vPC peer-link entries (profile.mode == 'vpc_peer_link') are pipeline
+        # plumbing used to build the peer-link between switches — they must
+        # not be pushed through the interface_all create path as regular
+        # interfaces, so filter them out here.
         create_list = []
         for itype in interface_types_create:
             entry = self.resource_data.get(itype, {})
             data = entry.get('data', []) if isinstance(entry, dict) else []
+            if itype == 'interface_vpc':
+                data = [
+                    d for d in data
+                    if (d.get('profile') or {}).get('mode') != 'vpc_peer_link'
+                ]
             create_list.extend(data)
 
         # Aggregate remove/overridden list (includes breakout_preprov)
+        # vPC peer-link entries are pipeline plumbing and must not be
+        # torn down by the remove/overridden pass — filter them out here
+        # for the same reason we exclude them from create_list.
         remove_list = []
         for itype in interface_types_remove:
             entry = self.resource_data.get(itype, {})
             data = entry.get('data', []) if isinstance(entry, dict) else []
+            if itype == 'interface_vpc':
+                data = [
+                    d for d in data
+                    if (d.get('profile') or {}).get('mode') != 'vpc_peer_link'
+                ]
             remove_list.extend(data)
 
         # Write aggregated file for diff comparison
