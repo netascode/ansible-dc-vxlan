@@ -31,7 +31,9 @@
 # Lets users author NDFC "structureArray" nvPairs (e.g. ip_acl ACES) as native,
 # typed YAML lists instead of hand-escaped JSON strings. The prepare plugin
 # converts each declared param into {"<wrapper_key>": [ {NDFC_FIELD: "value"} ]}
-# and json-encodes it; ndfc_policy.j2 then emits it as a quoted scalar.
+# and json-encodes it; ndfc_policy.j2 then emits it as a quoted scalar. Vars may
+# be authored inline under template_vars or in an external .yml/.yaml file via
+# the NaC `filename` convention — prep_005 loads the file before encoding.
 #
 # Entry schema (per NDFC template_name):
 #   json_params:                  # list of nvPair keys that are JSON-encoded
@@ -39,12 +41,35 @@
 #       wrapper_key: <STR>        # optional; top-level JSON key (defaults to key)
 #       fields:                   # snake_case (user) field -> NDFC nvPair field.
 #                                 # The full field set NDFC expects; omitted
-#                                 # per-entry fields are emitted as "". Each value
-#                                 # is either the NDFC field name (str) or a
-#                                 # mapping: {ndfc: <NDFC_NAME>, enum: [<allowed>]}.
-#                                 # When enum is present, rule 550 rejects any
-#                                 # value not in the list.
+#                                 # per-entry fields are emitted as "".
 #       required: [<snake>, ...]  # optional; fields that must be set per entry
+#
+# Each `fields` value is one of:
+#   1. NDFC field name (str)                        -> plain scalar nvPair
+#   2. {ndfc: <NAME>, enum: [<allowed>]}            -> scalar; rule 550 rejects
+#                                                      any value not in the list
+#   3. {ndfc: <NAME>, type: list}                   -> scalar list -> JSON array
+#   4. {ndfc: <NAME>, type: structure_array,        -> NESTED structureArray;
+#        wrapper_key: <STR>, fields: {...},            fields/required recurse
+#        required: [...]}                              exactly like the top level
+#
+# Complex fields (type list/structure_array) are JSON-stringified by default
+# (NDFC nvPair values are strings). Add `stringify: false` to embed an inline
+# nested JSON value instead. Example of a nested structureArray field:
+#
+#   entries:
+#     type: structure_array
+#     ndfc: entries
+#     wrapper_key: entries
+#     fields:
+#       action: {ndfc: ACTION, enum: [permit, deny]}
+#       sequence_number: SEQUENCE_NUMBER
+#       rule_entries:                 # nested structureArray within each entry
+#         type: structure_array
+#         ndfc: RULE_ENTRIES
+#         fields:
+#           rule_type: RULE_TYPE
+#           prefix_list_names: {ndfc: PREFIX_LIST_NAMES, type: list}
 #
 # Backward compatible: if a user still supplies the value as a raw JSON string
 # it is left untouched (only list values are encoded).
@@ -106,7 +131,929 @@ ip_acl:
         tcp_advanced_option:
           ndfc: TCP_ADVANCED_OPTION
           enum: [ack, fin, established, psh, rst, syn]
+        dscp:
+          ndfc: DSCP
+          enum:
+            - '0'
+            - '1'
+            - '2'
+            - '3'
+            - '4'
+            - '5'
+            - '6'
+            - '7'
+            - '8'
+            - '9'
+            - '10'
+            - '11'
+            - '12'
+            - '13'
+            - '14'
+            - '15'
+            - '16'
+            - '17'
+            - '18'
+            - '19'
+            - '20'
+            - '21'
+            - '22'
+            - '23'
+            - '24'
+            - '25'
+            - '26'
+            - '27'
+            - '28'
+            - '29'
+            - '30'
+            - '31'
+            - '32'
+            - '33'
+            - '34'
+            - '35'
+            - '36'
+            - '37'
+            - '38'
+            - '39'
+            - '40'
+            - '41'
+            - '42'
+            - '43'
+            - '44'
+            - '45'
+            - '46'
+            - '47'
+            - '48'
+            - '49'
+            - '50'
+            - '51'
+            - '52'
+            - '53'
+            - '54'
+            - '55'
+            - '56'
+            - '57'
+            - '58'
+            - '59'
+            - '60'
+            - '61'
+            - '62'
+            - '63'
+            - af11
+            - af12
+            - af13
+            - af21
+            - af22
+            - af23
+            - af31
+            - af32
+            - af33
+            - af41
+            - af42
+            - af43
+            - cs1
+            - cs2
+            - cs3
+            - cs4
+            - cs5
+            - cs6
+            - cs7
+            - default
+            - ef
+        log: LOG
       required:
         - action
         - sequence_number
         - protocol
+
+# ── Auto-modeled templates (generated from NDFC .template DSL) ──────────────
+# NDFC nvPair names preserved exactly (camelCase for most; ip_acl uses UPPER_SNAKE).
+# structureArray keys use the NDFC name; inner fields map snake_case -> nvPair name.
+
+aaa_tacacs_enhanced:
+  json_params:
+    - key: TACACS_SERVERS
+      fields:
+        aaa_server: AAA_SERVER
+        aaa_secret: AAA_SECRET
+      required: [aaa_server, aaa_secret]
+
+errdisable_recovery:
+  json_params:
+    - key: RECOVERY_CAUSES
+      fields:
+        cause:
+          ndfc: CAUSE
+          enum:
+            - all
+            - bpduguard
+            - dcbx-no-ack
+            - failed-port-state
+            - link-flap
+            - loopback
+            - pause-rate-limit
+            - psecure-violation
+            - security-violation
+            - storm-control
+            - udld
+            - vlan-membership
+            - vpc-peerlink
+      required: [cause]
+
+ip_as_path_access_list:
+  json_params:
+    - key: AS_PATH_ENTRIES
+      fields:
+        sequence_number: SEQUENCE_NUMBER
+        action:
+          ndfc: ACTION
+          enum: [permit, deny]
+        as_path_regex: AS_PATH_REGEX
+      required: [sequence_number, action, as_path_regex]
+
+line_vty:
+  json_params:
+    - key: VTY_ACCESS_CLASSES
+      fields:
+        ip_version:
+          ndfc: IP_VERSION
+          enum: [ip, ipv6]
+        acl_name: ACL_NAME
+        direction:
+          ndfc: DIRECTION
+          enum: [in, out]
+      required: [ip_version, acl_name, direction]
+
+logging_enhanced:
+  json_params:
+    - key: LOGGING_LEVELS
+      fields:
+        facility:
+          ndfc: FACILITY
+          enum:
+            - aaa
+            - acllog
+            - aclmgr
+            - adbm
+            - adjmgr
+            - all
+            - arp
+            - ascii-cfg
+            - auth
+            - authpriv
+            - bfd
+            - bgp
+            - bloggerd
+            - bootvar
+            - callhome
+            - capability
+            - cdp
+            - cert_enroll
+            - cfs
+            - clis
+            - clk_mgr
+            - confcheck
+            - copp
+            - core-dmon
+            - cron
+            - daemon
+            - dhclient
+            - dhcp_snoop
+            - diag_port_lb
+            - diagclient
+            - diagmgr
+            - ecp
+            - eltm
+            - ethdstats
+            - ethpm
+            - evmc
+            - evms
+            - feature-mgr
+            - fs-daemon
+            - ftp
+            - gpixm
+            - icam
+            - icmpv6
+            - igmp
+            - im
+            - interface-vlan
+            - ip
+            - ipconf
+            - ipfib
+            - ipqos
+            - ipv6
+            - kernel
+            - l2fm
+            - l2pt
+            - l2rib
+            - l3vm
+            - lacp
+            - ldap
+            - licmgr
+            - lim
+            - linkctrl
+            - lldp
+            - local0
+            - local1
+            - local2
+            - local3
+            - local4
+            - local5
+            - local6
+            - local7
+            - lpr
+            - m2rib
+            - m6rib
+            - mail
+            - mcastfwd
+            - mfdm
+            - mfwd
+            - mmode
+            - module
+            - monitor
+            - mrib
+            - mvdxn
+            - mvsh
+            - netstack
+            - news
+            - nfm
+            - ntp
+            - ospf
+            - ospfv3
+            - pfmclnt
+            - pfstat
+            - pixm
+            - pktmgr
+            - platform
+            - plcmgr
+            - pltfm_config
+            - pltm
+            - plugin
+            - port-channel
+            - port-profile
+            - radius
+            - res_mgr
+            - routing
+            - rpm
+            - sal
+            - security
+            - session-mgr
+            - sksd
+            - smm
+            - snmpd
+            - snmpmib_proc
+            - spanning-tree
+            - spm
+            - stripcl
+            - syslog
+            - sysmgr
+            - tacacs
+            - telemetry
+            - template_manager
+            - track
+            - u6rib
+            - ufdm
+            - urib
+            - user
+            - uucp
+            - vdc_mgr
+            - virtual-service
+            - vlan_mgr
+            - vmm
+            - vshd
+            - xbar
+            - xml
+            - xmlma
+        level:
+          ndfc: LEVEL
+          enum: ['0', '1', '2', '3', '4', '5', '6', '7']
+      required: [facility, level]
+
+ngoam_enhanced:
+  json_params:
+    - key: NGOAM_PROFILES
+      fields:
+        profile_id: PROFILE_ID
+        description: DESCRIPTION
+        hop_count: HOP_COUNT
+        oam_channel:
+          ndfc: OAM_CHANNEL
+          enum: [none, '2']
+        egress_interface: EGRESS_INTERFACE
+        sport_range: SPORT_RANGE
+        payload_pad: PAYLOAD_PAD
+      required: [profile_id]
+    - key: NGOAM_PROFILE_FLOWS
+      fields:
+        profile_id: PROFILE_ID
+        flow_dot1_q: FLOW_DOT1Q
+        flow_ipv4_source: FLOW_IPV4_SOURCE
+        flow_ipv4_destination: FLOW_IPV4_DESTINATION
+        flow_ipv6_source: FLOW_IPV6_SOURCE
+        flow_ipv6_destination: FLOW_IPV6_DESTINATION
+        flow_mac_source: FLOW_MAC_SOURCE
+        flow_mac_destination: FLOW_MAC_DESTINATION
+        flow_port_source: FLOW_PORT_SOURCE
+        flow_port_destination: FLOW_PORT_DESTINATION
+        flow_protocol: FLOW_PROTOCOL
+        flow_source_interface: FLOW_SOURCE_INTERFACE
+      required: [profile_id]
+
+ntp_enhanced:
+  json_params:
+    - key: NTP_AUTHENTICATION_KEYS
+      fields:
+        key_id: KEY_ID
+        algorithm:
+          ndfc: ALGORITHM
+          enum: [aes128cmac, md5]
+        key: KEY
+        key_type:
+          ndfc: KEY_TYPE
+          enum: ['6', '7']
+      required: [key_id, algorithm, key, key_type]
+    - key: NTP_TRUSTED_KEYS
+      fields:
+        key_id: KEY_ID
+      required: [key_id]
+    - key: NTP_SERVERS
+      fields:
+        address: ADDRESS
+        vrf: VRF
+        key_id: KEY_ID
+        maxpoll: MAXPOLL
+        minpoll: MINPOLL
+        prefer:
+          ndfc: PREFER
+          enum: ['false', 'true']
+      required: [address]
+    - key: NTP_PEERS
+      fields:
+        address: ADDRESS
+        vrf: VRF
+        key_id: KEY_ID
+        maxpoll: MAXPOLL
+        minpoll: MINPOLL
+        prefer:
+          ndfc: PREFER
+          enum: ['false', 'true']
+      required: [address]
+
+qos_class_map_enhanced:
+  json_params:
+    - key: QOS_CLASS_MAPS
+      fields:
+        class_map_name: CLASS_MAP_NAME
+        match_mode:
+          ndfc: MATCH_MODE
+          enum: [match-any, match-all, none]
+        description: DESCRIPTION
+      required: [class_map_name]
+    - key: QOS_CLASS_MAP_MATCHES
+      fields:
+        class_map_name: CLASS_MAP_NAME
+        negate_match: NEGATE_MATCH
+        match_type:
+          ndfc: MATCH_TYPE
+          enum:
+            - access-group
+            - cos
+            - dscp
+            - ip-roce
+            - ip-rtp
+            - mpls
+            - precedence
+            - protocol
+        access_group_name: ACCESS_GROUP_NAME
+        dscp_values: DSCP_VALUES
+        cos_values: COS_VALUES
+        precedence_values: PRECEDENCE_VALUES
+        ip_port_values: IP_PORT_VALUES
+        protocol:
+          ndfc: PROTOCOL
+          enum: [arp, bridging, cdp, dhcp, fcoe, isis]
+        mpls_match_suffix: MPLS_MATCH_SUFFIX
+      required: [class_map_name, match_type]
+
+qos_policy_map_enhanced:
+  json_params:
+    - key: QOS_POLICY_MAPS
+      fields:
+        policy_map_name: POLICY_MAP_NAME
+        description: DESCRIPTION
+      required: [policy_map_name]
+    - key: QOS_POLICY_MAP_CLASSES
+      fields:
+        policy_map_name: POLICY_MAP_NAME
+        class_name: CLASS_NAME
+        insert_before_class: INSERT_BEFORE_CLASS
+      required: [policy_map_name, class_name]
+    - key: QOS_POLICY_MAP_CLASS_ACTIONS
+      fields:
+        policy_map_name: POLICY_MAP_NAME
+        class_name: CLASS_NAME
+        action_type:
+          ndfc: ACTION_TYPE
+          enum: [set-qos-group, set-dscp, set-cos, set-dlb-disable, set-precedence]
+        qos_group_value: QOS_GROUP_VALUE
+        dscp_value: DSCP_VALUE
+        cos_value: COS_VALUE
+        precedence_value: PRECEDENCE_VALUE
+      required: [policy_map_name, class_name, action_type]
+
+queuing_policy_map_enhanced:
+  json_params:
+    - key: QUEUING_POLICY_MAPS
+      fields:
+        policy_map_name: POLICY_MAP_NAME
+        description: DESCRIPTION
+      required: [policy_map_name]
+    - key: QUEUING_POLICY_MAP_CLASSES
+      fields:
+        policy_map_name: POLICY_MAP_NAME
+        class_name:
+          ndfc: CLASS_NAME
+          enum:
+            - c-in-q-default
+            - c-in-q1
+            - c-in-q2
+            - c-in-q3
+            - c-in-q4
+            - c-in-q5
+            - c-in-q6
+            - c-in-q7
+            - c-out-8q-q-default
+            - c-out-8q-q1
+            - c-out-8q-q2
+            - c-out-8q-q3
+            - c-out-8q-q4
+            - c-out-8q-q5
+            - c-out-8q-q6
+            - c-out-8q-q7
+            - c-out-q-default
+            - c-out-q1
+            - c-out-q2
+            - c-out-q3
+        insert_before_class: INSERT_BEFORE_CLASS
+      required: [policy_map_name, class_name]
+    - key: QUEUING_POLICY_MAP_CLASS_ACTIONS
+      fields:
+        policy_map_name: POLICY_MAP_NAME
+        class_name:
+          ndfc: CLASS_NAME
+          enum:
+            - c-in-q-default
+            - c-in-q1
+            - c-in-q2
+            - c-in-q3
+            - c-in-q4
+            - c-in-q5
+            - c-in-q6
+            - c-in-q7
+            - c-out-8q-q-default
+            - c-out-8q-q1
+            - c-out-8q-q2
+            - c-out-8q-q3
+            - c-out-8q-q4
+            - c-out-8q-q5
+            - c-out-8q-q6
+            - c-out-8q-q7
+            - c-out-q-default
+            - c-out-q1
+            - c-out-q2
+            - c-out-q3
+        action_type:
+          ndfc: ACTION_TYPE
+          enum:
+            - afd
+            - bandwidth
+            - burst-detect
+            - pause
+            - priority
+            - queue-limit
+            - random-detect
+            - shape
+        bandwidth_type:
+          ndfc: BANDWIDTH_TYPE
+          enum: [remaining-percent, percent]
+        bandwidth_percent: BANDWIDTH_PERCENT
+        priority_mode:
+          ndfc: PRIORITY_MODE
+          enum: [no-level, level]
+        priority_level: PRIORITY_LEVEL
+        queue_limit_mode:
+          ndfc: QUEUE_LIMIT_MODE
+          enum: [fixed, dynamic]
+        queue_limit_value: QUEUE_LIMIT_VALUE
+        queue_limit_unit:
+          ndfc: QUEUE_LIMIT_UNIT
+          enum: [bytes, kbytes, mbytes]
+        random_detect_mode:
+          ndfc: RANDOM_DETECT_MODE
+          enum: [basic, ecn, detailed, threshold]
+        random_detect_threshold_profile:
+          ndfc: RANDOM_DETECT_THRESHOLD_PROFILE
+          enum: [burst-optimized, mesh-optimized]
+        random_detect_threshold_ecn: RANDOM_DETECT_THRESHOLD_ECN
+        wred_min_threshold: WRED_MIN_THRESHOLD
+        wred_min_unit:
+          ndfc: WRED_MIN_UNIT
+          enum: [bytes, kbytes, mbytes]
+        wred_max_threshold: WRED_MAX_THRESHOLD
+        wred_max_unit:
+          ndfc: WRED_MAX_UNIT
+          enum: [bytes, kbytes, mbytes]
+        wred_drop_probability: WRED_DROP_PROBABILITY
+        wred_weight: WRED_WEIGHT
+        wred_ecn: WRED_ECN
+        afd_queue_desired: AFD_QUEUE_DESIRED
+        afd_queue_unit:
+          ndfc: AFD_QUEUE_UNIT
+          enum: [bytes, kbytes, mbytes]
+        afd_ecn: AFD_ECN
+        burst_detect_mode:
+          ndfc: BURST_DETECT_MODE
+          enum: [percent, bytes]
+        burst_detect_rise_threshold: BURST_DETECT_RISE_THRESHOLD
+        pause_buffer_size: PAUSE_BUFFER_SIZE
+        pause_threshold: PAUSE_THRESHOLD
+        resume_threshold: RESUME_THRESHOLD
+        shape_min_rate: SHAPE_MIN_RATE
+      required: [policy_map_name, class_name, action_type]
+
+route_map_enhanced:
+  json_params:
+    - key: entries
+      fields:
+        action:
+          ndfc: action
+          enum: [permit, deny]
+        sequence_number: sequenceNumber
+        route_map_description: routeMapDescription
+        rule_entries:
+          type: structure_array
+          ndfc: ruleEntries
+          fields:
+            rule_type:
+              ndfc: ruleType
+              enum:
+                - RouteMapMatchIpv4Acl
+                - RouteMapMatchIpv6Acl
+                - RouteMapMatchIpv4PrefixList
+                - RouteMapMatchIpv6PrefixList
+                - RouteMapMatchIpv4Nh
+                - RouteMapMatchIpv6Nh
+                - RouteMapMatchCommunity
+                - RouteMapMatchExtendedCommunity
+                - RouteMapMatchAsPath
+                - RouteMapMatchTag
+                - RouteMapSetCommunity
+                - RouteMapSetExtendedCommunity
+                - RouteMapSetLocalPreference
+                - RouteMapSetIpv4NextHop
+                - RouteMapSetIpv6NextHop
+                - RouteMapSetAsPath
+                - RouteMapSetEvpnGatewayIp
+            access_control_list_name: accessControlListName
+            prefix_list_names:
+              ndfc: prefixListNames
+              type: list
+            community_list_names:
+              ndfc: communityListNames
+              type: list
+            extended_community_list_names:
+              ndfc: extendedCommunityListNames
+              type: list
+            exact_match: exactMatch
+            as_path_access_list_name: asPathAccessListName
+            additional_as_path_access_list_name: additionalAsPathAccessListName
+            tags: Tags
+            additive: additive
+            graceful_restart_shutdown_community: gracefulRestartShutdownCommunity
+            no_advertise_community: noAdvertiseCommunity
+            no_export_community: noExportCommunity
+            local_as_community: localAsCommunity
+            internet_community: internetCommunity
+            community_numbers:
+              ndfc: communityNumbers
+              type: list
+            extended_community_list_name: extendedCommunityListName
+            value: value
+            next_hop_ip_collection: nextHopIpCollection
+            drop_on_fail: dropOnFail
+            load_share: loadShare
+            enforce_order: enforceOrder
+            verify_availability: verifyAvailability
+            track_id: trackId
+            use_peer_address: usePeerAddress
+            redistribute_unchanged: redistributeUnchanged
+            unchanged: unchanged
+            prepend_as_ns: prependASNs
+            evpn_gateway_ip_option:
+              ndfc: evpnGatewayIpOption
+              enum: [use-nexthop, ip-address]
+            evpn_gateway_ip_address: evpnGatewayIpAddress
+      required: [action, sequence_number]
+
+router_bgp_enhanced:
+  json_params:
+    - key: BGP_ADDRESS_FAMILIES
+      fields:
+        address_family:
+          ndfc: ADDRESS_FAMILY
+          enum:
+            - ipv4_unicast
+            - ipv6_unicast
+            - l2vpn_evpn
+            - ipv4_mvpn
+            - ipv6_mvpn
+            - vpnv4_unicast
+            - vpnv6_unicast
+        maximum_paths: MAXIMUM_PATHS
+        maximum_paths_ibgp: MAXIMUM_PATHS_IBGP
+        maximum_paths_local: MAXIMUM_PATHS_LOCAL
+        advertise_l2_vpn_evpn: ADVERTISE_L2VPN_EVPN
+        export_gateway_ip: EXPORT_GATEWAY_IP
+        advertise_pip: ADVERTISE_PIP
+        retain_route_target_all: RETAIN_ROUTE_TARGET_ALL
+        additional_paths_send: ADDITIONAL_PATHS_SEND
+        additional_paths_receive: ADDITIONAL_PATHS_RECEIVE
+        additional_paths_selection_route_map: ADDITIONAL_PATHS_SELECTION_ROUTE_MAP
+      required: [address_family]
+    - key: BGP_NETWORKS
+      fields:
+        address_family:
+          ndfc: ADDRESS_FAMILY
+          enum: [ipv4_unicast, ipv6_unicast]
+        prefix: PREFIX
+      required: [address_family, prefix]
+    - key: BGP_REDISTRIBUTIONS
+      fields:
+        address_family:
+          ndfc: ADDRESS_FAMILY
+          enum: [ipv4_unicast, ipv6_unicast]
+        redistribute_source:
+          ndfc: REDISTRIBUTE_SOURCE
+          enum: [direct, static, connected, ospf, isis, bgp, rip, eigrp]
+        route_map: ROUTE_MAP
+      required: [address_family, redistribute_source]
+    - key: BGP_PEER_TEMPLATES
+      fields:
+        template_type:
+          ndfc: TEMPLATE_TYPE
+          enum: [peer, peer-session]
+        template_name: TEMPLATE_NAME
+        bfd_mode:
+          ndfc: BFD_MODE
+          enum: [none, singlehop, multihop]
+        remote_as: REMOTE_AS
+        description: DESCRIPTION
+        update_source: UPDATE_SOURCE
+        password_key_type:
+          ndfc: PASSWORD_KEY_TYPE
+          enum: [none, '3', '6', '7']
+        password: PASSWORD
+        ebgp_multihop_ttl: EBGP_MULTIHOP_TTL
+        keepalive_interval: KEEPALIVE_INTERVAL
+        hold_interval: HOLD_INTERVAL
+        maximum_peers: MAXIMUM_PEERS
+      required: [template_type, template_name]
+    - key: BGP_PEER_TEMPLATE_ADDRESS_FAMILIES
+      fields:
+        template_type:
+          ndfc: TEMPLATE_TYPE
+          enum: [peer, peer-session]
+        template_name: TEMPLATE_NAME
+        address_family:
+          ndfc: ADDRESS_FAMILY
+          enum:
+            - ipv4_unicast
+            - ipv6_unicast
+            - l2vpn_evpn
+            - ipv4_mvpn
+            - ipv6_mvpn
+            - vpnv4_unicast
+            - vpnv6_unicast
+        send_community_mode:
+          ndfc: SEND_COMMUNITY_MODE
+          enum: [none, standard, extended, both, standard_and_extended]
+        route_map_in: ROUTE_MAP_IN
+        route_map_out: ROUTE_MAP_OUT
+        soft_reconfiguration_inbound:
+          ndfc: SOFT_RECONFIGURATION_INBOUND
+          enum: [none, enabled, always]
+        next_hop_self: NEXT_HOP_SELF
+      required: [template_type, template_name, address_family]
+    - key: BGP_NEIGHBORS
+      fields:
+        neighbor: NEIGHBOR
+        inherit_template_type:
+          ndfc: INHERIT_TEMPLATE_TYPE
+          enum: [none, peer, peer-session]
+        inherit_template_name: INHERIT_TEMPLATE_NAME
+        remote_as: REMOTE_AS
+        description: DESCRIPTION
+        enable_bfd: ENABLE_BFD
+        password_key_type:
+          ndfc: PASSWORD_KEY_TYPE
+          enum: [none, '3', '6', '7']
+        password: PASSWORD
+        update_source: UPDATE_SOURCE
+        keepalive_interval: KEEPALIVE_INTERVAL
+        hold_interval: HOLD_INTERVAL
+        local_as: LOCAL_AS
+        local_as_no_prepend: LOCAL_AS_NO_PREPEND
+        local_as_replace_as: LOCAL_AS_REPLACE_AS
+        ebgp_multihop_ttl: EBGP_MULTIHOP_TTL
+        enable_log_neighbor_changes: ENABLE_LOG_NEIGHBOR_CHANGES
+        enable_ipv4_unicast_af: ENABLE_IPV4_UNICAST_AF
+        ipv4_unicast_send_community_mode:
+          ndfc: IPV4_UNICAST_SEND_COMMUNITY_MODE
+          enum: [none, standard, extended, both, standard_and_extended]
+        ipv4_unicast_route_map_in: IPV4_UNICAST_ROUTE_MAP_IN
+        ipv4_unicast_route_map_out: IPV4_UNICAST_ROUTE_MAP_OUT
+        ipv4_unicast_soft_reconfiguration_inbound:
+          ndfc: IPV4_UNICAST_SOFT_RECONFIGURATION_INBOUND
+          enum: [none, enabled, always]
+        ipv4_unicast_allowas_in: IPV4_UNICAST_ALLOWAS_IN
+        ipv4_unicast_as_override: IPV4_UNICAST_AS_OVERRIDE
+        ipv4_unicast_disable_peer_as_check: IPV4_UNICAST_DISABLE_PEER_AS_CHECK
+        ipv4_unicast_default_originate: IPV4_UNICAST_DEFAULT_ORIGINATE
+        ipv4_unicast_next_hop_self: IPV4_UNICAST_NEXT_HOP_SELF
+        ipv4_unicast_route_reflector_client: IPV4_UNICAST_ROUTE_REFLECTOR_CLIENT
+        enable_ipv6_unicast_af: ENABLE_IPV6_UNICAST_AF
+        ipv6_unicast_send_community_mode:
+          ndfc: IPV6_UNICAST_SEND_COMMUNITY_MODE
+          enum: [none, standard, extended, both, standard_and_extended]
+        ipv6_unicast_route_map_in: IPV6_UNICAST_ROUTE_MAP_IN
+        ipv6_unicast_route_map_out: IPV6_UNICAST_ROUTE_MAP_OUT
+        ipv6_unicast_soft_reconfiguration_inbound:
+          ndfc: IPV6_UNICAST_SOFT_RECONFIGURATION_INBOUND
+          enum: [none, enabled, always]
+        ipv6_unicast_allowas_in: IPV6_UNICAST_ALLOWAS_IN
+        ipv6_unicast_as_override: IPV6_UNICAST_AS_OVERRIDE
+        ipv6_unicast_disable_peer_as_check: IPV6_UNICAST_DISABLE_PEER_AS_CHECK
+        ipv6_unicast_default_originate: IPV6_UNICAST_DEFAULT_ORIGINATE
+        ipv6_unicast_next_hop_self: IPV6_UNICAST_NEXT_HOP_SELF
+        ipv6_unicast_route_reflector_client: IPV6_UNICAST_ROUTE_REFLECTOR_CLIENT
+        enable_l2_vpn_evpn_af: ENABLE_L2VPN_EVPN_AF
+        l2_vpn_evpn_send_community_mode:
+          ndfc: L2VPN_EVPN_SEND_COMMUNITY_MODE
+          enum: [none, standard, extended, both, standard_and_extended]
+        l2_vpn_evpn_route_map_in: L2VPN_EVPN_ROUTE_MAP_IN
+        l2_vpn_evpn_route_map_out: L2VPN_EVPN_ROUTE_MAP_OUT
+        l2_vpn_evpn_allowas_in: L2VPN_EVPN_ALLOWAS_IN
+        l2_vpn_evpn_disable_peer_as_check: L2VPN_EVPN_DISABLE_PEER_AS_CHECK
+        l2_vpn_evpn_route_reflector_client: L2VPN_EVPN_ROUTE_REFLECTOR_CLIENT
+        l2_vpn_evpn_import_vpn_unicast_reoriginate: L2VPN_EVPN_IMPORT_VPN_UNICAST_REORIGINATE
+        enable_ipv4_mvpn_af: ENABLE_IPV4_MVPN_AF
+        ipv4_mvpn_send_community_mode:
+          ndfc: IPV4_MVPN_SEND_COMMUNITY_MODE
+          enum: [none, standard, extended, both, standard_and_extended]
+        ipv4_mvpn_route_map_in: IPV4_MVPN_ROUTE_MAP_IN
+        ipv4_mvpn_route_map_out: IPV4_MVPN_ROUTE_MAP_OUT
+        ipv4_mvpn_allowas_in: IPV4_MVPN_ALLOWAS_IN
+        ipv4_mvpn_disable_peer_as_check: IPV4_MVPN_DISABLE_PEER_AS_CHECK
+        ipv4_mvpn_route_reflector_client: IPV4_MVPN_ROUTE_REFLECTOR_CLIENT
+        ipv4_mvpn_rewrite_rt_asn: IPV4_MVPN_REWRITE_RT_ASN
+        enable_ipv6_mvpn_af: ENABLE_IPV6_MVPN_AF
+        ipv6_mvpn_send_community_mode:
+          ndfc: IPV6_MVPN_SEND_COMMUNITY_MODE
+          enum: [none, standard, extended, both, standard_and_extended]
+        ipv6_mvpn_route_map_in: IPV6_MVPN_ROUTE_MAP_IN
+        ipv6_mvpn_route_map_out: IPV6_MVPN_ROUTE_MAP_OUT
+        ipv6_mvpn_allowas_in: IPV6_MVPN_ALLOWAS_IN
+        ipv6_mvpn_disable_peer_as_check: IPV6_MVPN_DISABLE_PEER_AS_CHECK
+        ipv6_mvpn_route_reflector_client: IPV6_MVPN_ROUTE_REFLECTOR_CLIENT
+        ipv6_mvpn_rewrite_rt_asn: IPV6_MVPN_REWRITE_RT_ASN
+        enable_vpnv4_unicast_af: ENABLE_VPNV4_UNICAST_AF
+        vpnv4_unicast_send_community_mode:
+          ndfc: VPNV4_UNICAST_SEND_COMMUNITY_MODE
+          enum: [none, standard, extended, both, standard_and_extended]
+        vpnv4_unicast_route_map_in: VPNV4_UNICAST_ROUTE_MAP_IN
+        vpnv4_unicast_route_map_out: VPNV4_UNICAST_ROUTE_MAP_OUT
+        vpnv4_unicast_route_reflector_client: VPNV4_UNICAST_ROUTE_REFLECTOR_CLIENT
+        enable_vpnv6_unicast_af: ENABLE_VPNV6_UNICAST_AF
+        vpnv6_unicast_send_community_mode:
+          ndfc: VPNV6_UNICAST_SEND_COMMUNITY_MODE
+          enum: [none, standard, extended, both, standard_and_extended]
+        vpnv6_unicast_route_map_in: VPNV6_UNICAST_ROUTE_MAP_IN
+        vpnv6_unicast_route_map_out: VPNV6_UNICAST_ROUTE_MAP_OUT
+        vpnv6_unicast_route_reflector_client: VPNV6_UNICAST_ROUTE_REFLECTOR_CLIENT
+      required: [neighbor]
+
+router_ospf_enhanced:
+  json_params:
+    - key: OSPF_AREAS
+      fields:
+        area_id: AREA_ID
+        authentication_message_digest: AUTHENTICATION_MESSAGE_DIGEST
+        default_cost: DEFAULT_COST
+        nssa: NSSA
+        nssa_suboption:
+          ndfc: NSSA_SUBOPTION
+          enum:
+            - none
+            - default-information-originate
+            - no-redistribution
+            - no-summary
+            - translate
+      required: [area_id]
+
+snmp_server_enhanced:
+  json_params:
+    - key: SNMP_SOURCE_INTERFACES
+      fields:
+        notification_type:
+          ndfc: NOTIFICATION_TYPE
+          enum: [traps, informs]
+        source_interface: SOURCE_INTERFACE
+      required: [notification_type, source_interface]
+    - key: SNMP_HOSTS
+      fields:
+        host_ip: HOST_IP
+        source_interface: SOURCE_INTERFACE
+        vrf: VRF
+        notification_type:
+          ndfc: NOTIFICATION_TYPE
+          enum: [none, traps, informs]
+        snmp_version:
+          ndfc: SNMP_VERSION
+          enum: ['1', '2c', '3']
+        snmpv3_security_level:
+          ndfc: SNMPV3_SECURITY_LEVEL
+          enum: [noauth, auth, priv]
+        community_or_username: COMMUNITY_OR_USERNAME
+        udp_port: UDP_PORT
+      required: [host_ip]
+    - key: SNMP_USERS
+      fields:
+        username: USERNAME
+        user_role:
+          ndfc: USER_ROLE
+          enum: [none, network-admin, network-operator, vdc-admin, vdc-operator]
+        auth_algo:
+          ndfc: AUTH_ALGO
+          enum: [none, md5, sha, sha-224, sha-256, sha-384, sha-512]
+        auth_password: AUTH_PASSWORD
+        priv_protocol:
+          ndfc: PRIV_PROTOCOL
+          enum: [none, des, aes-128, aes-256]
+        priv_password: PRIV_PASSWORD
+        key_type:
+          ndfc: KEY_TYPE
+          enum: [none, localizedkey, localizedV2key]
+        enforce_priv: ENFORCE_PRIV
+        ipv4_acl: IPV4_ACL
+      required: [username]
+    - key: SNMP_ENABLED_TRAPS
+      fields:
+        trap_suffix: TRAP_SUFFIX
+      required: [trap_suffix]
+    - key: SNMP_CONTEXTS
+      fields:
+        context_name: CONTEXT_NAME
+        vrf_name: VRF_NAME
+      required: [context_name, vrf_name]
+
+static_route_v4_v6:
+  json_params:
+    - key: staticRoutes
+      fields:
+        ip_version:
+          ndfc: IP_VERSION
+          enum: [IPv4, IPv6]
+        ipv4_prefix: ipv4Prefix
+        ipv6_prefix: ipv6Prefix
+        next_hop: nextHop
+        next_hop_interface: nextHopInterface
+        route_preference: routePreference
+        next_hop_name: nextHopName
+        tag: tag
+        track_id: trackId
+        next_hop_vrf: nextHopVrf
+      required: [ip_version]
+
+vlan_acl:
+  json_params:
+    - key: matches
+      fields:
+        match_type:
+          ndfc: MATCH_TYPE
+          enum: [ip, ipv6, mac]
+        match_value: MATCH_VALUE
+      required: [match_type, match_value]
+
+vlan_igmp_snooping:
+  json_params:
+    - key: MROUTER_INTERFACES
+      fields:
+        mrouter_interface: MROUTER_INTERFACE
+      required: [mrouter_interface]
+    - key: REPORT_FLOOD_INTERFACES
+      fields:
+        report_flood_interface: REPORT_FLOOD_INTERFACE
+      required: [report_flood_interface]
+    - key: STATIC_GROUPS
+      fields:
+        group_ip: GROUP_IP
+      required: [group_ip]

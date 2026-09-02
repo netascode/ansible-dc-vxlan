@@ -19,6 +19,26 @@ def _load_registry():
     return _REGISTRY_CACHE
 
 
+def _resolve_template_vars(pol):
+    """Return the policy's template_vars, loading them from an external
+    `filename` (.yml/.yaml) per the NaC file convention when present. Read-only:
+    the data model is never mutated during validation."""
+    template_vars = pol.get("template_vars")
+    if isinstance(template_vars, dict):
+        return template_vars
+
+    filename = pol.get("filename")
+    if isinstance(filename, str) and filename.lower().endswith((".yml", ".yaml")):
+        try:
+            with open(os.path.expanduser(filename), "r", encoding="utf-8") as handle:
+                loaded = yaml.safe_load(handle) or {}
+        except OSError:
+            return None
+        if isinstance(loaded, dict):
+            return loaded
+    return None
+
+
 class Rule:
     id = "550"
     description = "Validate structured JSON-encoded policy template_vars against the policy_json_params registry"
@@ -40,7 +60,7 @@ class Rule:
             if not spec:
                 continue
 
-            template_vars = pol.get("template_vars")
+            template_vars = _resolve_template_vars(pol)
             if not isinstance(template_vars, dict):
                 continue
 
@@ -59,36 +79,69 @@ class Rule:
                     )
                     continue
 
-                allowed = set(param["fields"].keys())
-                required = set(param.get("required", []))
-
-                for idx, entry in enumerate(value):
-                    if not isinstance(entry, dict):
-                        results.append(f"Policy '{name}' {key}[{idx}] must be a mapping.")
-                        continue
-
-                    unknown = set(entry.keys()) - allowed
-                    if unknown:
-                        results.append(
-                            f"Policy '{name}' {key}[{idx}] has unknown field(s): "
-                            f"{sorted(unknown)}. Allowed: {sorted(allowed)}"
-                        )
-
-                    missing = required - set(entry.keys())
-                    if missing:
-                        results.append(
-                            f"Policy '{name}' {key}[{idx}] missing required field(s): {sorted(missing)}"
-                        )
-
-                    for field_name, field_value in entry.items():
-                        field_spec = param["fields"].get(field_name)
-                        if not isinstance(field_spec, dict):
-                            continue
-                        allowed_values = field_spec.get("enum")
-                        if allowed_values and field_value not in allowed_values:
-                            results.append(
-                                f"Policy '{name}' {key}[{idx}].{field_name}='{field_value}' "
-                                f"is not one of {allowed_values}"
-                            )
+                cls._validate_entries(
+                    results, name, key, value, param["fields"], param.get("required", [])
+                )
 
         return results
+
+    @classmethod
+    def _validate_entries(cls, results, name, path, entries, fields, required):
+        """Validate a structureArray (list of entries) against its field specs,
+        recursing into nested structureArrays."""
+        allowed = set(fields.keys())
+        required = set(required)
+
+        for idx, entry in enumerate(entries):
+            loc = f"{path}[{idx}]"
+            if not isinstance(entry, dict):
+                results.append(f"Policy '{name}' {loc} must be a mapping.")
+                continue
+
+            unknown = set(entry.keys()) - allowed
+            if unknown:
+                results.append(
+                    f"Policy '{name}' {loc} has unknown field(s): "
+                    f"{sorted(unknown)}. Allowed: {sorted(allowed)}"
+                )
+
+            missing = required - set(entry.keys())
+            if missing:
+                results.append(
+                    f"Policy '{name}' {loc} missing required field(s): {sorted(missing)}"
+                )
+
+            for field_name, field_value in entry.items():
+                field_spec = fields.get(field_name)
+                if not isinstance(field_spec, dict):
+                    continue
+
+                field_type = field_spec.get("type")
+
+                if field_type == "structure_array":
+                    if field_value is None:
+                        continue
+                    if not isinstance(field_value, list):
+                        results.append(
+                            f"Policy '{name}' {loc}.{field_name} must be a list of entries."
+                        )
+                        continue
+                    cls._validate_entries(
+                        results, name, f"{loc}.{field_name}", field_value,
+                        field_spec["fields"], field_spec.get("required", []),
+                    )
+                    continue
+
+                if field_type == "list":
+                    if field_value is not None and not isinstance(field_value, list):
+                        results.append(
+                            f"Policy '{name}' {loc}.{field_name} must be a list."
+                        )
+                    continue
+
+                allowed_values = field_spec.get("enum")
+                if allowed_values and str(field_value) not in {str(a) for a in allowed_values}:
+                    results.append(
+                        f"Policy '{name}' {loc}.{field_name}='{field_value}' "
+                        f"is not one of {allowed_values}"
+                    )
