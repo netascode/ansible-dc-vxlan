@@ -40,6 +40,9 @@
             {{ key }}: "{{ value }}"
 {% elif key in ["asn", "BGP_AS", "BGP_ASN", "NEIGHBOR_ASN"] %}
             {{ key }}: "{{ value | string | indent(12) | trim }}"
+{% elif value is string and value | trim and value | trim | first in ['{', '['] %}
+{#- JSON-encoded string value (e.g. ip_acl ACES): emit as a quoted/escaped scalar so from_yaml round-trips it back to the original JSON string instead of parsing it as a YAML mapping/list. #}
+            {{ key }}: {{ value | to_json }}
 {% elif value is iterable and '\n' in value %}
             {{ key }}: |-
               {{ value | indent(14) }}

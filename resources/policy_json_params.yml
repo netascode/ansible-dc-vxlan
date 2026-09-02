@@ -1,0 +1,112 @@
+# Copyright (c) 2026 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Policy JSON Params — structured -> NDFC JSON-encoded nvPair registry
+#
+# Consumed by:
+#   - plugins/action/common/prepare_plugins/prep_005_policy_json_params.py
+#       Encodes structured template_vars into the JSON string NDFC expects.
+#   - roles/validate/files/rules/common/550_policy_json_params.py
+#       Validates the structured template_vars before encoding.
+#
+# Lets users author NDFC "structureArray" nvPairs (e.g. ip_acl ACES) as native,
+# typed YAML lists instead of hand-escaped JSON strings. The prepare plugin
+# converts each declared param into {"<wrapper_key>": [ {NDFC_FIELD: "value"} ]}
+# and json-encodes it; ndfc_policy.j2 then emits it as a quoted scalar.
+#
+# Entry schema (per NDFC template_name):
+#   json_params:                  # list of nvPair keys that are JSON-encoded
+#     - key: <TEMPLATE_VARS_KEY>  # key under policy.template_vars holding the list
+#       wrapper_key: <STR>        # optional; top-level JSON key (defaults to key)
+#       fields:                   # snake_case (user) field -> NDFC nvPair field.
+#                                 # The full field set NDFC expects; omitted
+#                                 # per-entry fields are emitted as "". Each value
+#                                 # is either the NDFC field name (str) or a
+#                                 # mapping: {ndfc: <NDFC_NAME>, enum: [<allowed>]}.
+#                                 # When enum is present, rule 550 rejects any
+#                                 # value not in the list.
+#       required: [<snake>, ...]  # optional; fields that must be set per entry
+#
+# Backward compatible: if a user still supplies the value as a raw JSON string
+# it is left untouched (only list values are encoded).
+# ══════════════════════════════════════════════════════════════════════════════
+
+ip_acl:
+  json_params:
+    - key: ACES
+      wrapper_key: ACES
+      fields:
+        action:
+          ndfc: ACTION
+          enum: [permit, deny, remark]
+        sequence_number: SEQUENCE_NUMBER
+        protocol:
+          ndfc: PROTOCOL
+          enum: [icmp, ip, tcp, udp, eigrp, ospf, pim, igmp, custom]
+        custom_protocol: CUSTOM_PROTOCOL
+        src_ip: SRC_IP
+        src_port_action:
+          ndfc: SRC_PORT_ACTION
+          enum: [equal-to, greater-than, less-than, not-equal-to, port-range, none]
+        src_port: SRC_PORT
+        src_port_range_start: SRC_PORT_RANGE_START
+        src_port_range_end: SRC_PORT_RANGE_END
+        dest_ip: DEST_IP
+        dest_port_action:
+          ndfc: DEST_PORT_ACTION
+          enum: [equal-to, greater-than, less-than, not-equal-to, port-range, none]
+        dest_port: DEST_PORT
+        dest_port_range_start: DEST_PORT_RANGE_START
+        dest_port_range_end: DEST_PORT_RANGE_END
+        remark_comment: REMARK_COMMENT
+        icmp_advanced_option:
+          ndfc: ICMP_ADVANCED_OPTION
+          enum:
+            - administratively-prohibited
+            - echo
+            - echo-reply
+            - general-parameter-problem
+            - host-isolated
+            - host-precedence-unreachable
+            - host-redirect
+            - host-tos-redirect
+            - host-tos-unreachable
+            - host-unknown
+            - host-unreachable
+            - net-unreachable
+            - network-unknown
+            - option-missing
+            - packet-too-big
+            - parameter-problem
+            - port-unreachable
+            - router-advertisement
+            - router-solicitation
+            - time-exceeded
+            - ttl-exceeded
+            - unreachable
+        tcp_advanced_option:
+          ndfc: TCP_ADVANCED_OPTION
+          enum: [ack, fin, established, psh, rst, syn]
+      required:
+        - action
+        - sequence_number
+        - protocol
