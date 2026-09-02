@@ -25,6 +25,7 @@
 {%- endif %}
 {%- endfor %}
 {% if not ((switch.role == 'spine' or switch.role == 'super_spine') and loopback_id == vtep_lo_id) %}
+{% if switch.role != 'tor' %}
 - entity_name: "{{ switch_list[switch.name].serial_number }}~loopback{{ loopback_id }}"
   pool_type: IP
   pool_name: "LOOPBACK{{ loopback_id }}_IP_POOL"
@@ -32,6 +33,7 @@
   resource: "{{ ns.ipv4 }}"
   switch:
     - "{{ switch_list[switch.name].management_ipv4_address }}"
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endmacro %}
@@ -42,6 +44,7 @@
 {# resource for leaf in vPC #}
 {% if data_model_extended.vxlan.topology.vpc_peers is defined %}
 {% for peer in data_model_extended.vxlan.topology.vpc_peers %}
+{% if switch_list[peer.peer1].role != 'tor' and switch_list[peer.peer2].role != 'tor' %}
 - entity_name: "{{ switch_list[peer.peer1].serial_number }}~{{ switch_list[peer.peer2].serial_number }}~loopback{{ vtep_lo_id }}"
   pool_type: IP
   pool_name: "LOOPBACK{{ vtep_lo_id }}_IP_POOL"
@@ -49,6 +52,7 @@
   resource: "{{ peer.vtep_vip }}"
   switch:
     - "{{ switch_list[peer.peer1].management_ipv4_address }}"
+{% endif %}
 {% endfor %}
 {% endif %}
 {# build p2p links - Check if ipv4 or ipv6 is present to distinct with fabric_link with template #}
@@ -56,7 +60,7 @@
 
 {% if data_model_extended.vxlan.topology.fabric_links is defined %}
 {% for switch in data_model_extended.vxlan.topology.fabric_links %}
-{% if switch.ipv4 is defined and switch.ipv4 is iterable %}
+{% if switch.ipv4 is defined and switch.ipv4 is iterable and switch_list[switch.source_device].role != 'tor' and switch_list[switch.dest_device].role != 'tor' %}
 - entity_name: "{{ switch_list[switch.source_device].serial_number }}~{{ switch.source_interface }}~{{ switch_list[switch.dest_device].serial_number }}~{{ switch.dest_interface }}"
   pool_type: SUBNET
   pool_name: "SUBNET"
