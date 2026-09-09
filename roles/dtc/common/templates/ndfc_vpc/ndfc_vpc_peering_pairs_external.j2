@@ -1,3 +1,4 @@
+
 {% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 
 ---
@@ -20,6 +21,11 @@
     PEER2_DOMAIN_CONF: |2-
       {{ vpc_peers_pair.peer2_domain_conf | default('') | indent(6, false)}}
     PEER2_KEEP_ALIVE_LOCAL_IP: {{ vpc_peers_pair.peer2_keepalive_ipv4 }}
+{# {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('PATCHED_VERSION', '>=') %} #}
+    VPC_SYSTEM_PRIORITY: {{ vpc_peers_pair.system_priority | default(defaults.vxlan.topology.vpc_peers.system_priority) }}
+    PEER1_VPC_ROLE_PRIORITY: {{ vpc_peers_pair.peer1_role_priority | default(defaults.vxlan.topology.vpc_peers.peer1_role_priority) }}
+    PEER2_VPC_ROLE_PRIORITY: {{ vpc_peers_pair.peer2_role_priority | default(defaults.vxlan.topology.vpc_peers.peer2_role_priority) }}
+{# {% endif %} #}
 {% set peer1_switch = data_model_extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer1) | first %}
 {% set peer2_switch = data_model_extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer2) | first %}
 {% if peer1_switch.interfaces is defined %}
