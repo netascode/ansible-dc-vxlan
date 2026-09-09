@@ -19,7 +19,7 @@
         "serialNumber": "{{ switch["serial_number"] }}",
 {% endif %}
 {% endfor %}
-        "freeformConfig": "{{ attach['freeform_config'] | default('') | replace('\n', '\\n') | to_json }}",
+        "freeformConfig": {{ attach['freeform_config'] | default('') | replace('\n', '\\n') | to_json }},
         "extensionValues": "",
 {% if vrf["vlan_id"] is defined  %}
         "vlan": "{{ vrf["vlan_id"] }}",
