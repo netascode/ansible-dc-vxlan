@@ -76,9 +76,7 @@
 #   links → vPC peers → switches
 # ══════════════════════════════════════════════════════════════════════════════
 ---
-
 remove_resources:
-
   role_tag: role_remove
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -170,6 +168,7 @@ remove_resources:
     - resource_name: vpc_peering
       module: dcnm_vpc_pair
       state: deleted
+      deploy: false
       state_full_run: overridden
       change_flag_guard: changes_detected_vpc_peering
       delete_mode_guard: vpc_delete_mode
@@ -254,6 +253,7 @@ remove_resources:
     - resource_name: vpc_peering
       module: dcnm_vpc_pair
       state: deleted
+      deploy: false
       state_full_run: overridden
       change_flag_guard: changes_detected_vpc_peering
       delete_mode_guard: vpc_delete_mode
@@ -347,6 +347,7 @@ remove_resources:
       module: dcnm_vpc_pair
       state: deleted
       state_full_run: overridden
+      deploy: false
       change_flag_guard: changes_detected_vpc_peering
       delete_mode_guard: vpc_delete_mode
       fabric_param: src_fabric
