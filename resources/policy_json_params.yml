@@ -455,7 +455,7 @@ ngoam_enhanced:
     - key: NGOAM_PROFILE_FLOWS
       fields:
         profile_id: PROFILE_ID
-        flow_dot1_q: FLOW_DOT1Q
+        flow_dot1q: FLOW_DOT1Q
         flow_ipv4_source: FLOW_IPV4_SOURCE
         flow_ipv4_destination: FLOW_IPV4_DESTINATION
         flow_ipv6_source: FLOW_IPV6_SOURCE
@@ -781,7 +781,7 @@ router_bgp_enhanced:
         maximum_paths: MAXIMUM_PATHS
         maximum_paths_ibgp: MAXIMUM_PATHS_IBGP
         maximum_paths_local: MAXIMUM_PATHS_LOCAL
-        advertise_l2_vpn_evpn: ADVERTISE_L2VPN_EVPN
+        advertise_l2vpn_evpn: ADVERTISE_L2VPN_EVPN
         export_gateway_ip: EXPORT_GATEWAY_IP
         advertise_pip: ADVERTISE_PIP
         retain_route_target_all: RETAIN_ROUTE_TARGET_ALL
@@ -905,16 +905,16 @@ router_bgp_enhanced:
         ipv6_unicast_default_originate: IPV6_UNICAST_DEFAULT_ORIGINATE
         ipv6_unicast_next_hop_self: IPV6_UNICAST_NEXT_HOP_SELF
         ipv6_unicast_route_reflector_client: IPV6_UNICAST_ROUTE_REFLECTOR_CLIENT
-        enable_l2_vpn_evpn_af: ENABLE_L2VPN_EVPN_AF
-        l2_vpn_evpn_send_community_mode:
+        enable_l2vpn_evpn_af: ENABLE_L2VPN_EVPN_AF
+        l2vpn_evpn_send_community_mode:
           ndfc: L2VPN_EVPN_SEND_COMMUNITY_MODE
           enum: [none, standard, extended, both, standard_and_extended]
-        l2_vpn_evpn_route_map_in: L2VPN_EVPN_ROUTE_MAP_IN
-        l2_vpn_evpn_route_map_out: L2VPN_EVPN_ROUTE_MAP_OUT
-        l2_vpn_evpn_allowas_in: L2VPN_EVPN_ALLOWAS_IN
-        l2_vpn_evpn_disable_peer_as_check: L2VPN_EVPN_DISABLE_PEER_AS_CHECK
-        l2_vpn_evpn_route_reflector_client: L2VPN_EVPN_ROUTE_REFLECTOR_CLIENT
-        l2_vpn_evpn_import_vpn_unicast_reoriginate: L2VPN_EVPN_IMPORT_VPN_UNICAST_REORIGINATE
+        l2vpn_evpn_route_map_in: L2VPN_EVPN_ROUTE_MAP_IN
+        l2vpn_evpn_route_map_out: L2VPN_EVPN_ROUTE_MAP_OUT
+        l2vpn_evpn_allowas_in: L2VPN_EVPN_ALLOWAS_IN
+        l2vpn_evpn_disable_peer_as_check: L2VPN_EVPN_DISABLE_PEER_AS_CHECK
+        l2vpn_evpn_route_reflector_client: L2VPN_EVPN_ROUTE_REFLECTOR_CLIENT
+        l2vpn_evpn_import_vpn_unicast_reoriginate: L2VPN_EVPN_IMPORT_VPN_UNICAST_REORIGINATE
         enable_ipv4_mvpn_af: ENABLE_IPV4_MVPN_AF
         ipv4_mvpn_send_community_mode:
           ndfc: IPV4_MVPN_SEND_COMMUNITY_MODE
