@@ -63,6 +63,21 @@
     ndfc_version: "{{ ndfc_version.response.DATA.version }}"
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
+# Single source of truth for the NDFC 'preInterfaceConfig{Spine,Leaf,Tor}' feature
+# (config emitted before interface config, used to carry *_pre_interface_freeform).
+# Consumed by the fabric freeform templates and the create-role guard so the
+# version gate lives in exactly one place.
+- name: Set preInterfaceConfig Support Flag From NDFC/ND Version
+  ansible.builtin.set_fact:
+    preinterface_config_supported: >-
+      {{ ((ndfc_version | default('') | cisco.nac_dc_vxlan.version_compare('12.2.2', '>='))
+          and (nd_version | default('') | regex_replace('^(\d+\.\d+\.\d+).*', '\1')
+               | cisco.nac_dc_vxlan.version_compare('3.2.1', '>'))) | bool }}
+  when:
+    - nd_version | default('') | length > 0
+    - ndfc_version | default('') | length > 0
+  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
+
 # # ── Phase 2: Centralized Controller State Discovery (Recommendation #3) ──────
 # # Queries fabric switches, multisite associations, and fabric existence once.
 # # Sets facts consumed by common, create, and remove roles downstream.
