@@ -23,7 +23,7 @@
 # Policy JSON Params — structured -> NDFC JSON-encoded nvPair registry
 #
 # Consumed by:
-#   - plugins/action/common/prepare_plugins/prep_005_policy_json_params.py
+#   - plugins/action/common/prepare_plugins/prep_006_policy_json_params.py
 #       Encodes structured template_vars into the JSON string NDFC expects.
 #   - roles/validate/files/rules/common/550_policy_json_params.py
 #       Validates the structured template_vars before encoding.
@@ -49,7 +49,17 @@
 #   2. {ndfc: <NAME>, enum: [<allowed>]}            -> scalar; rule 550 rejects
 #                                                      any value not in the list
 #   3. {ndfc: <NAME>, type: list}                   -> scalar list -> JSON array
-#   4. {ndfc: <NAME>, type: structure_array,        -> NESTED structureArray;
+#   4. {ndfc: <NAME>, type: csv}                    -> YAML list -> comma-
+#                                                      separated string; use
+#                                                      for NDFC "string[]"
+#                                                      fields whose runtime
+#                                                      is actually a CSV
+#                                                      (e.g. route_map_enhanced
+#                                                      prefixListNames,
+#                                                      communityListNames,
+#                                                      extendedCommunityListNames,
+#                                                      communityNumbers).
+#   5. {ndfc: <NAME>, type: structure_array,        -> NESTED structureArray;
 #        wrapper_key: <STR>, fields: {...},            fields/required recurse
 #        required: [...]}                              exactly like the top level
 #
@@ -716,13 +726,13 @@ route_map_enhanced:
             access_control_list_name: accessControlListName
             prefix_list_names:
               ndfc: prefixListNames
-              type: list
+              type: csv
             community_list_names:
               ndfc: communityListNames
-              type: list
+              type: csv
             extended_community_list_names:
               ndfc: extendedCommunityListNames
-              type: list
+              type: csv
             exact_match: exactMatch
             as_path_access_list_name: asPathAccessListName
             additional_as_path_access_list_name: additionalAsPathAccessListName
@@ -735,7 +745,7 @@ route_map_enhanced:
             internet_community: internetCommunity
             community_numbers:
               ndfc: communityNumbers
-              type: list
+              type: csv
             extended_community_list_name: extendedCommunityListName
             value: value
             next_hop_ip_collection: nextHopIpCollection

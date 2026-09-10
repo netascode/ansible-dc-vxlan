@@ -132,7 +132,7 @@ class Rule:
                     )
                     continue
 
-                if field_type == "list":
+                if field_type in ("list", "csv"):
                     if field_value is not None and not isinstance(field_value, list):
                         results.append(
                             f"Policy '{name}' {loc}.{field_name} must be a list."

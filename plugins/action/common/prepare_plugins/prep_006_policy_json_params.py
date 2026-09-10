@@ -129,6 +129,19 @@ class PreparePlugin:
             wrapper = field_spec.get('wrapper_key', ndfc_name)
             return ndfc_name, cls._maybe_stringify(field_spec, {wrapper: sub_items})
 
+        # NDFC "string[]"-declared field whose runtime is actually a
+        # comma-separated string (e.g. route_map_enhanced.ruleEntries
+        # prefixListNames, communityListNames, communityNumbers).
+        # Author-side: YAML list. Wire-side: "a,b,c".
+        if field_type == 'csv':
+            if isinstance(value, list):
+                vals = value
+            elif value in (None, ""):
+                vals = []
+            else:
+                vals = [value]
+            return ndfc_name, ",".join(cls._scalar(v) for v in vals)
+
         # Scalar list (e.g. prefix_list_names): JSON array of string values.
         if field_type == 'list':
             if isinstance(value, list):
