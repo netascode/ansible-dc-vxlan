@@ -45,7 +45,7 @@
               {{ value | indent(14) }}
 {% elif value is match("(^$|^\s*$|^\"\s*\"|^\'\s*\'$)") %}
             {{ key }}: ""
-{% elif key in ["ENTRY_LIST", "ACES"] %}
+{% elif key in ["ENTRY_LIST", "ACES", "standardCommunityListEntries", "expandedCommunityListEntries", "standardEntries", "expandedEntries"] %}
             {{ key }}: {{ value | string | to_json }}
 {% else %}
             {{ key }}: {{ value | string | indent(12) | trim }}

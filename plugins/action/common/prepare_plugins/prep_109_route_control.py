@@ -99,7 +99,7 @@ class PreparePlugin:
                                 line.strip() and not line.lstrip().startswith("!")
                                 for line in output.splitlines())
 
-                            new_policies = self.build_non_legacy_policies(
+                            new_policies = self.build_native_policies(
                                 group_policies,
                                 data_model["vxlan"]["overlay_extensions"]["route_control"])
                             has_new_policies = bool(new_policies)
@@ -167,21 +167,22 @@ class PreparePlugin:
         return self.kwargs['results']
 
     # Registry mapping route_control key -> builder method name.
-    # Add a new entry (and matching method) for each new non-legacy policy type.
-    NON_LEGACY_BUILDERS = {
+    # Add a new entry (and matching method) for each new native NDFC template.
+    NATIVE_BUILDERS = {
         "ipv4_prefix_lists": "build_ipv4_prefix_list_policies",
         "ipv4_access_lists": "build_ipv4_access_list_policies",
+        "standard_community_lists": "build_standard_community_list_policies",
+        "extended_community_lists": "build_extended_community_list_policies",
         # "ipv6_prefix_lists": "build_ipv6_prefix_list_policies",
         # "ipv6_access_lists": "build_ipv6_access_list_policies",
         # "route_maps": "build_route_map_policies",
-        # "standard_community_lists": "build_standard_community_list_policies",
         # ...
     }
 
-    def build_non_legacy_policies(self, group_policies, route_control):
-        """Dispatch to per-type builders and aggregate all non-legacy NDFC policies."""
+    def build_native_policies(self, group_policies, route_control):
+        """Dispatch to per-type builders and aggregate all native NDFC policies."""
         policies = []
-        for _rc_key, builder_name in self.NON_LEGACY_BUILDERS.items():
+        for _rc_key, builder_name in self.NATIVE_BUILDERS.items():
             builder = getattr(self, builder_name, None)
             if builder is None:
                 continue
@@ -196,7 +197,7 @@ class PreparePlugin:
         return ref
 
     def build_ipv4_prefix_list_policies(self, group_policies, route_control):
-        """Build NDFC ipv4_prefix_list policies for non-legacy definitions."""
+        """Build NDFC ipv4_prefix_list policies for native definitions."""
         policies = []
         prefix_lists = {
             prefix_list["name"]: prefix_list
@@ -205,7 +206,7 @@ class PreparePlugin:
         for group in group_policies:
             for prefix_list_ref in group.get("ipv4_prefix_lists", []):
                 prefix_list = prefix_lists.get(prefix_list_ref["name"])
-                if not prefix_list or prefix_list.get("legacy", True):
+                if not prefix_list or not prefix_list.get("native"):
                     continue
                 entries = []
                 for entry in prefix_list.get("entries", []):
@@ -265,8 +266,6 @@ class PreparePlugin:
             return "any"
         if endpoint.get("host"):
             return "{0}/32".format(endpoint["host"])
-        if endpoint.get("addrgroup"):
-            return "addrgroup {0}".format(endpoint["addrgroup"])
         if endpoint.get("ip"):
             wildcard = endpoint.get("wildcard")
             if wildcard:
@@ -297,6 +296,36 @@ class PreparePlugin:
         port = port_number.get("port", "")
         return str(port) if port != "" else "", action, "", ""
 
+    _ACL_PROTOCOL_ENUM = {"icmp", "ip", "tcp", "udp", "eigrp", "ospf", "pim", "igmp"}
+
+    _ACL_PROTOCOL_TO_NUMERIC = {
+        "ahp": "51",
+        "esp": "50",
+        "gre": "47",
+        "nos": "94",
+        "pcp": "108",
+    }
+
+    @classmethod
+    def _acl_protocol(cls, protocol):
+        """Return (PROTOCOL, CUSTOM_PROTOCOL) matching ND ip_acl template enum.
+
+        ND ip_acl PROTOCOL is enum {icmp,ip,tcp,udp,eigrp,ospf,pim,igmp,custom}.
+        Numeric or unsupported-keyword protocols must set PROTOCOL="custom" and
+        CUSTOM_PROTOCOL to the IANA number. ahp/esp/gre/nos/pcp are in the
+        schema but not in the ND enum, so they route through `custom`.
+        """
+        if isinstance(protocol, int):
+            return "custom", str(protocol)
+        protocol_str = str(protocol or "").strip()
+        if not protocol_str:
+            return "", ""
+        if protocol_str in cls._ACL_PROTOCOL_ENUM:
+            return protocol_str, ""
+        if protocol_str in cls._ACL_PROTOCOL_TO_NUMERIC:
+            return "custom", cls._ACL_PROTOCOL_TO_NUMERIC[protocol_str]
+        return protocol_str, ""
+
     @staticmethod
     def _acl_tcp_advanced_option(entry):
         """Extract TCP advanced option flag (e.g. 'established') from filtering_options."""
@@ -307,7 +336,43 @@ class PreparePlugin:
         return ""
 
     def build_ipv4_access_list_policies(self, group_policies, route_control):
-        """Build NDFC ip_acl policies for non-legacy ipv4_access_lists definitions."""
+        """Build NDFC ip_acl policies for native ipv4_access_lists definitions.
+
+        Verified against the ND `ip_acl` template (see
+        route_control_native/ipv4_acl.md).
+
+        Supported schema fields per entry (mapped to native ACES payload):
+          - seq_number, operation (permit/deny), remark
+          - protocol:
+            - ND enum keywords: icmp, ip, tcp, udp, eigrp, ospf, pim, igmp
+            - schema-only keywords ahp/esp/gre/nos/pcp -> emitted as
+              PROTOCOL=custom + CUSTOM_PROTOCOL=<IANA number>
+            - numeric (0-255) -> PROTOCOL=custom + CUSTOM_PROTOCOL=<n>
+          - source/destination: any, host (rendered X/32), ip (bare -> X/32),
+            ip + wildcard (converted to CIDR)
+          - source/destination.port_number: operator (eq/neq/gt/lt/range),
+            port, from, to (only applies when PROTOCOL in tcp/udp/custom per
+            ND `IsShow` guards)
+          - filtering_options.flags: established, ack, fin, psh, rst, syn, urg
+            -> TCP_ADVANCED_OPTION (ND enum: ack, fin, established, psh, rst,
+            syn — accepts only one; first match wins)
+
+        NOT mapped by this builder — keep `native: false` (or omit) and use
+        the Jinja freeform path when any of these are needed:
+          - ACL-level: statistics_per_entry, fragments, ignore_routable
+          - filtering_options: dscp, precedence, ttl, packet_length,
+            time_range, http_method, tcp_option_length, tcp_flags_mask,
+            udf, load_share, fragments, set_erspan_dscp, set_erspan_gre_proto
+          - entry-level: log
+          - ICMP advanced options (ND template has an ICMP_ADVANCED_OPTION
+            enum but no schema field maps to it — ICMP_ADVANCED_OPTION is
+            always emitted as "")
+          - source/destination.addrgroup (requires ipv4_object_groups linkage,
+            not supported by the native ip_acl template)
+
+        The freeform path (ndfc_route_control_access_list_ipv4.j2) already
+        renders all of the above via `switch_freeform`.
+        """
         policies = []
         access_lists = {
             acl["name"]: acl
@@ -316,7 +381,7 @@ class PreparePlugin:
         for group in group_policies:
             for acl_ref in group.get("ipv4_access_lists", []):
                 acl = access_lists.get(acl_ref["name"])
-                if not acl or acl.get("legacy", True):
+                if not acl or not acl.get("native"):
                     continue
                 aces = []
                 for entry in acl.get("entries", []):
@@ -344,12 +409,7 @@ class PreparePlugin:
                         continue
 
                     protocol = entry.get("protocol", "")
-                    if isinstance(protocol, int):
-                        protocol_value = ""
-                        custom_protocol = str(protocol)
-                    else:
-                        protocol_value = protocol or ""
-                        custom_protocol = ""
+                    protocol_value, custom_protocol = self._acl_protocol(protocol)
 
                     src_port, src_action, src_from, src_to = self._acl_endpoint_port(
                         entry.get("source"))
@@ -389,6 +449,162 @@ class PreparePlugin:
                 }
                 if "priority" in acl_ref:
                     policy["priority"] = acl_ref["priority"]
+                policies.append(policy)
+        return policies
+
+    _COMMUNITY_WELL_KNOWN_MAP = {
+        "blackhole": "blackhole",
+        "graceful-shutdown": "gracefulShutdown",
+        "internet": "internet",
+        "local-as": "localAsn",
+        "no-advertise": "noAdvertise",
+        "no-export": "noExport",
+    }
+
+    @classmethod
+    def _split_community_entry(cls, communities):
+        """Split schema `communities` list into (well_known_flags_dict, community_numbers_str).
+
+        Schema allows two kinds of items per entry:
+          - `ASN:NN` regex values -> concatenated into comma-separated communityNumbers
+          - well-known keywords (blackhole, graceful-shutdown, internet, local-as,
+            no-advertise, no-export) -> mapped to individual NDFC boolean fields.
+
+        NDFC template stores every boolean as "true"/"" string, never Python bool.
+        """
+        flags = {ndfc_key: "" for ndfc_key in cls._COMMUNITY_WELL_KNOWN_MAP.values()}
+        numbers = []
+        for community in communities or []:
+            if community in cls._COMMUNITY_WELL_KNOWN_MAP:
+                flags[cls._COMMUNITY_WELL_KNOWN_MAP[community]] = "true"
+            else:
+                numbers.append(str(community))
+        return flags, ",".join(numbers)
+
+    def build_standard_community_list_policies(self, group_policies, route_control):
+        """Build NDFC community_list policies for native standard_community_lists."""
+        policies = []
+        community_lists = {
+            community_list["name"]: community_list
+            for community_list in route_control.get("standard_community_lists", [])
+        }
+        for group in group_policies:
+            for community_list_ref in group.get("standard_community_lists", []):
+                community_list = community_lists.get(community_list_ref["name"])
+                if not community_list or not community_list.get("native"):
+                    continue
+                entries = []
+                for entry in community_list.get("entries", []):
+                    flags, community_numbers = self._split_community_entry(
+                        entry.get("communities", []))
+                    entries.append({
+                        "sequenceNumber": str(entry["seq_number"]),
+                        "action": entry["operation"],
+                        "blackhole": flags["blackhole"],
+                        "gracefulShutdown": flags["gracefulShutdown"],
+                        "internet": flags["internet"],
+                        "localAsn": flags["localAsn"],
+                        "noAdvertise": flags["noAdvertise"],
+                        "noExport": flags["noExport"],
+                        "communityNumbers": community_numbers,
+                    })
+                policy = {
+                    "name": community_list["name"],
+                    "template_name": "community_list",
+                    "template_vars": {
+                        "comListName": community_list["name"],
+                        "type": "standard",
+                        "expandedCommunityListEntries": "",
+                        "standardCommunityListEntries": json.dumps(
+                            {"standardCommunityListEntries": entries},
+                            separators=(",", ":")),
+                    },
+                }
+                if "priority" in community_list_ref:
+                    policy["priority"] = community_list_ref["priority"]
+                policies.append(policy)
+        return policies
+
+    @staticmethod
+    def _build_extended_collections(communities):
+        """Split schema `communities` dict into NDFC extended-community collections.
+
+        Schema fields per entry.communities:
+          - rt: list -> comma-joined into routeTargetCollection
+          - soo: list -> comma-joined into siteOfOriginCollection
+          - rmac: list -> comma-joined into routerMacCollection
+          - 4byteas_generic: list of {transitive: bool, extended_community_number_list}
+            split by `transitive` flag into transitive/nonTransitive Generic collections.
+
+        NDFC template expects comma-separated strings (e.g. "65535:40, 65535:60"),
+        matching the reference payload format.
+        """
+        communities = communities or {}
+
+        rt_str = ", ".join(str(item) for item in communities.get("rt", []) or [])
+        soo_str = ", ".join(str(item) for item in communities.get("soo", []) or [])
+        rmac_str = ", ".join(str(item) for item in communities.get("rmac", []) or [])
+
+        transitive = []
+        non_transitive = []
+        for gen in communities.get("4byteas_generic", []) or []:
+            community_number = str(gen.get("extended_community_number_list", ""))
+            if not community_number:
+                continue
+            if gen.get("transitive"):
+                transitive.append(community_number)
+            else:
+                non_transitive.append(community_number)
+
+        return {
+            "routeTargetCollection": rt_str,
+            "siteOfOriginCollection": soo_str,
+            "routerMacCollection": rmac_str,
+            "transitiveGenericExtendedCollection": ", ".join(transitive),
+            "nonTransitiveGenericExtendedCollection": ", ".join(non_transitive),
+        }
+
+    def build_extended_community_list_policies(self, group_policies, route_control):
+        """Build NDFC extended_community_list policies for native definitions."""
+        policies = []
+        community_lists = {
+            community_list["name"]: community_list
+            for community_list in route_control.get("extended_community_lists", [])
+        }
+        for group in group_policies:
+            for community_list_ref in group.get("extended_community_lists", []):
+                community_list = community_lists.get(community_list_ref["name"])
+                if not community_list or not community_list.get("native"):
+                    continue
+                entries = []
+                for entry in community_list.get("entries", []):
+                    collections = self._build_extended_collections(
+                        entry.get("communities"))
+                    entries.append({
+                        "sequenceNumber": str(entry["seq_number"]),
+                        "action": entry["operation"],
+                        "routerMacCollection": collections["routerMacCollection"],
+                        "routeTargetCollection": collections["routeTargetCollection"],
+                        "siteOfOriginCollection": collections["siteOfOriginCollection"],
+                        "transitiveGenericExtendedCollection":
+                            collections["transitiveGenericExtendedCollection"],
+                        "nonTransitiveGenericExtendedCollection":
+                            collections["nonTransitiveGenericExtendedCollection"],
+                    })
+                policy = {
+                    "name": community_list["name"],
+                    "template_name": "extended_community_list",
+                    "template_vars": {
+                        "extCommunityListName": community_list["name"],
+                        "type": "standard",
+                        "expandedEntries": "",
+                        "standardEntries": json.dumps(
+                            {"standardEntries": entries},
+                            separators=(",", ":")),
+                    },
+                }
+                if "priority" in community_list_ref:
+                    policy["priority"] = community_list_ref["priority"]
                 policies.append(policy)
         return policies
 

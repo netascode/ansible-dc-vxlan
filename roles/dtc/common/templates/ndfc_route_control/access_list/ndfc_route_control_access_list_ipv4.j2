@@ -5,7 +5,7 @@
 
 {% for policy_name in policy_types["ipv4_access_lists"] : %}
     {% for ipv4_access_list in item["ipv4_access_lists"] %}
-        {% if policy_name["name"] == ipv4_access_list["name"] and (ipv4_access_list["legacy"] is not defined or ipv4_access_list["legacy"] is true) %}
+        {% if policy_name["name"] == ipv4_access_list["name"] and (ipv4_access_list["native"] is not defined or ipv4_access_list["native"] is false) %}
 ip access-list {{ ipv4_access_list["name"] | lower }}
             {% if ipv4_access_list["fragments"] is defined %}
   fragments {{ ipv4_access_list["fragments"] }}
