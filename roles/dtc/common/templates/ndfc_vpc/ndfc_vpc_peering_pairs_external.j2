@@ -23,10 +23,10 @@
 {% set peer1_switch = data_model_extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer1) | first %}
 {% set peer2_switch = data_model_extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer2) | first %}
 {% if peer1_switch.interfaces is defined %}
-{% set peer1_vpc_interface = peer1_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_peer_link') | first | default({}) %}
+{% set peer1_vpc_interface = peer1_switch.interfaces | selectattr('name', 'match', '(?i)^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_peer_link') | first | default({}) %}
 {% endif %}
 {% if peer2_switch.interfaces is defined %}
-{% set peer2_vpc_interface = peer2_switch.interfaces | selectattr('name', 'match', '^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_peer_link') | first | default({}) %}
+{% set peer2_vpc_interface = peer2_switch.interfaces | selectattr('name', 'match', '(?i)^(port-channel|po)') | selectattr('mode', 'equalto', 'vpc_peer_link') | first | default({}) %}
 {% endif %}
 {% if peer1_vpc_interface.name is defined %}
     PEER1_PO_CONF: |2-
@@ -36,8 +36,8 @@
     PC_MODE: {{ peer1_vpc_interface.pc_mode | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.pc_mode)}}
     PEER1_PO_DESC: "{{ peer1_vpc_interface.description | default('') }}"
     PEER2_PO_DESC: "{{ peer2_vpc_interface.description | default('') }}"
-    PEER1_PCID: {{ peer1_vpc_interface.name | default('') | regex_replace('^(port-channel|po)', '') | default('') }}
-    PEER2_PCID: {{ peer2_vpc_interface.name | default('') | regex_replace('^(port-channel|po)', '') | default('') }}
+    PEER1_PCID: {{ peer1_vpc_interface.name | default('') | regex_replace('(?i)^(port-channel|po)', '') | default('') }}
+    PEER2_PCID: {{ peer2_vpc_interface.name | default('') | regex_replace('(?i)^(port-channel|po)', '') | default('') }}
     PEER1_MEMBER_INTERFACES: "{{ peer1_vpc_interface.members | default([]) | join(',') }}"
     PEER2_MEMBER_INTERFACES: "{{ peer2_vpc_interface.members | default([]) | join(',') }}"
     ALLOWED_VLANS: "{{ convert_ranges(peer1_vpc_interface.trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans)  | trim }}"
