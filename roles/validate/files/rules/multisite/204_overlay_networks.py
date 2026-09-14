@@ -23,6 +23,12 @@ class Rule:
         if 'networks' in check['keys_found'] and 'networks' in check['keys_data']:
             networks = data_model['vxlan']['multisite']['overlay']['networks']
             for network in networks:
+                if "network_attach_group" in network and "network_attach_groups" in network:
+                    results.append(
+                        f"vxlan.multisite.overlay.networks.{network['name']} cannot define both 'network_attach_group' "
+                        "and 'network_attach_groups'. Only one of these attributes can be used."
+                    )
+
                 for attr in network:
                     if attr in child_fabric_attributes:
                         results.append(cls.msg.format(network['name'], attr))

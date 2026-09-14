@@ -58,6 +58,12 @@ class Rule:
         #             networks = data_model["vxlan"]["overlay_services"]["networks"]
 
         for network in networks:
+            if "network_attach_group" in network and "network_attach_groups" in network:
+                results.append(
+                    f"vxlan.overlay.networks.{network['name']} cannot define both 'network_attach_group' "
+                    "and 'network_attach_groups'. Only one of these attributes can be used."
+                )
+
             current_network_netflow_status = network.get("netflow_enable", None)
             if current_network_netflow_status is not None:
                 if fabric_netflow_status is False and current_network_netflow_status is True:
