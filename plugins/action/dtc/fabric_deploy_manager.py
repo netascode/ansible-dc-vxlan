@@ -203,7 +203,7 @@ class ChildFabricChangeDetector:
                     for item in network_response_data['child_fabrics']
                     if item.get('changed') and item['fabric_name'] not in vrf_names
                 ]
-                
+
         vrf_loopback_changed = []
         if vrf_loopback_response_data and isinstance(vrf_loopback_response_data, dict):
             # Process VRF Loopback Changes
