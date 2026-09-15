@@ -283,58 +283,6 @@ class ActionModule(ActionBase):
             groups[vrf_name]['lanAttachList'].append(item)
         return [groups[vrf_name] for vrf_name in order]
 
-    def _create_vrf_loopback_key(self, item):
-        """
-        Create a unique key for flattened VRF loopback attachments.
-
-        Args:
-            item (dict): An individual attachment from lanAttachList
-
-        Returns:
-            tuple: (vrfName, serialNumber) or None if required fields are missing
-        """
-        vrf_name = item.get('vrfName')
-        serial = item.get('serialNumber')
-        if not vrf_name or not serial:
-            return None
-        return (vrf_name, serial)
-
-    def _flatten_vrf_loopbacks(self, items):
-        """
-        Flatten VRF loopback items by extracting individual attachments from lanAttachList.
-
-        Args:
-            items (list): List of VRF-level dicts each containing a lanAttachList
-
-        Returns:
-            list: Flat list of individual attachment dicts
-        """
-        flattened = []
-        for vrf_item in items:
-            for attach in vrf_item.get('lanAttachList', []):
-                flattened.append(attach)
-        return flattened
-
-    def _group_vrf_loopbacks(self, items):
-        """
-        Group individual VRF loopback attachments back into VRF-level items with lanAttachList.
-
-        Args:
-            items (list): Flat list of individual attachment dicts
-
-        Returns:
-            list: List of VRF-level dicts with lanAttachList
-        """
-        groups = {}
-        order = []
-        for item in items:
-            vrf_name = item.get('vrfName')
-            if vrf_name not in groups:
-                groups[vrf_name] = {'vrfName': vrf_name, 'lanAttachList': []}
-                order.append(vrf_name)
-            groups[vrf_name]['lanAttachList'].append(item)
-        return [groups[vrf_name] for vrf_name in order]
-
     def _create_interface_key(self, item):
         """
         Create a unique key for interfaces from multiple attributes.
@@ -378,10 +326,6 @@ class ActionModule(ActionBase):
         # Special handling for fabric links due to composite key
         if filename.endswith('ndfc_fabric_links.yml'):
             return self._create_fabric_link_key(item)
-
-        # Special handling for VRF loopback attachments (flattened) due to composite key
-        if filename.endswith('ndfc_attach_vrfs_loopbacks.yml'):
-            return self._create_vrf_loopback_key(item)
 
         # Special handling for VRF loopback attachments (flattened) due to composite key
         if filename.endswith('ndfc_attach_vrfs_loopbacks.yml'):
@@ -466,28 +410,10 @@ class ActionModule(ActionBase):
         else:
             return item
 
-    def _normalize_for_comparison(self, item):
-        """Recursively sort lists within the data structure for order-insensitive comparison."""
-        if isinstance(item, dict):
-            return {k: self._normalize_for_comparison(v) for k, v in sorted(item.items())}
-        elif isinstance(item, list):
-            normalized = [self._normalize_for_comparison(i) for i in item]
-            try:
-                return sorted(normalized, key=lambda x: json.dumps(x, sort_keys=True) if isinstance(x, (dict, list)) else str(x))
-            except TypeError:
-                return normalized
-        else:
-            return item
-
     def compare_items(self, old_items, new_items):
         """
         Compare old and new items, returning updated, removed, and equal items.
         """
-        # For VRF loopbacks, flatten to individual attachments for per-switch comparison
-        is_vrf_loopbacks = self.new_file_path.endswith('ndfc_attach_vrfs_loopbacks.yml')
-        if is_vrf_loopbacks:
-            old_items = self._flatten_vrf_loopbacks(old_items)
-            new_items = self._flatten_vrf_loopbacks(new_items)
         # For VRF loopbacks, flatten to individual attachments for per-switch comparison
         is_vrf_loopbacks = self.new_file_path.endswith('ndfc_attach_vrfs_loopbacks.yml')
         if is_vrf_loopbacks:
