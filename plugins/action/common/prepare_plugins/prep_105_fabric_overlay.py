@@ -93,18 +93,19 @@ class PreparePlugin:
                                 continue
                             tor['mgmt_ip_address'] = self._resolve_mgmt_ip(tor_id, switches)
 
-            # Remove network_attach_group or attach_groups from net if the group_name is not defined
+            # Remove network_attach_group or network_attach_groups from net if the group_name(s) are not defined
             for net in data_model['vxlan']['overlay']['networks']:
                 if 'network_attach_group' in net:
                     if net.get('network_attach_group') not in net_grp_name_list:
                         del net['network_attach_group']
                 elif 'network_attach_groups' in net:
-                    for grp in net.get('network_attach_groups'):
-                        if grp not in net_grp_name_list:
-                            net['network_attach_groups'].remove(grp)
-                    if net.get('network_attach_groups') == []:
+                    # Build a new list instead of mutating net['network_attach_groups'] while iterating over it
+                    net['network_attach_groups'] = [
+                        grp for grp in net['network_attach_groups'] if grp in net_grp_name_list
+                    ]
+                    if not net['network_attach_groups']:
                         del net['network_attach_groups']
-                        
+
             for net in data_model['vxlan']['overlay']['networks']:
                 overrides = net.get('switch_attach_overrides')
                 if not overrides:
