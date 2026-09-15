@@ -958,6 +958,7 @@ class ActionModule(ActionBase):
 
         vrf_changed_fabrics = []
         network_changed_fabrics = []
+        vrf_loopback_changed_fabrics = []
 
         if vrf_loopback_response_data:
             # Process VRF Loopback Changes
