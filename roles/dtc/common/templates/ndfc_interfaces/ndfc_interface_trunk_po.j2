@@ -1,3 +1,4 @@
+{% from 'macros/translate_setting.j2' import translate %}
 {% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 ---
 # This NDFC trunk interface port-channel data structure is auto-generated
@@ -69,6 +70,25 @@
 {% if interface['storm_control_unicast_level_pps'] is defined %}
     storm_control_unicast_level_pps: {{ interface['storm_control_unicast_level_pps'] }}
 {% endif %}
+{% endif %}
+{% endif %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0', '>') %}
+{# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
+    spanning_tree_port_type: "{{ translate(interface['spanning_tree_port_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"
+{# Data model defines value as GUARD MODE: none, while base collection defines it as GUARD MODE: no #}
+    guard_mode: "{{ translate(interface['guard_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.guard_mode), {'none': 'no'}) }}"
+{# Data model defines value as ENABLE LLDP, while base collection defines it as DISABLE LLDP #}
+    disable_lldp: {{ translate(interface['enable_lldp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_lldp), {true: 'false', false: 'true'}) }}
+{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) %}
+{# Data model defines value as ENABLE QOS STATS, while base collection defines it as DISABLE QOS STATS #}
+    disable_qos_stats: {{ translate(interface['enable_qos_stats'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if interface['queuing_policy'] is defined %}
+{# Data model defines value as ENABLE QUEUING STATS, while base collection defines it as DISABLE QUEUING STATS #}
+    disable_queuing_stats: {{ translate(interface['enable_queuing_stats'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if interface['acl_filter'] is defined %}
+    acl_filter: {{ interface['acl_filter'] }}
 {% endif %}
 {% endif %}
     cmds: |2-

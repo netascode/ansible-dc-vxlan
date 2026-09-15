@@ -168,33 +168,46 @@ factory_defaults:
             speed: auto
             enabled: true
             enable_cdp: true
+            enable_lldp: true
             access_vlan: 1
             spanning_tree_portfast: true
+            spanning_tree_port_type: none
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
             enable_qos: false
+            enable_qos_stats: true
+            enable_queuing_stats: true
             monitor: false
             fec: auto
             enable_storm_control: false
             storm_control_action: default
+            flow_control_receive: true
+            flow_control_send: true
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
             speed: auto
             enabled: true
             enable_cdp: true
+            enable_lldp: true
             trunk_allowed_vlans: none
             spanning_tree_portfast: true
+            spanning_tree_port_type: none
             enable_bpdu_guard: true
             duplex: auto
             orphan_port: false
             native_vlan: ""
             enable_qos: false
+            enable_qos_stats: true
+            enable_queuing_stats: true
             monitor: false
             fec: auto
             enable_storm_control: false
             storm_control_action: default
+            flow_control_receive: true
+            flow_control_send: true
+            guard_mode: none
           topology_switch_access_po_interface:
             description: "NetAsCode Access PO Interface"
             copy_description: false
@@ -216,6 +229,10 @@ factory_defaults:
             monitor: false
             enable_storm_control: false
             storm_control_action: default
+            enable_lldp: true
+            spanning_tree_port_type: none
+            enable_qos_stats: true
+            enable_queuing_stats: true
           topology_switch_trunk_po_interface:
             description: "NetAsCode Trunk PO Interface"
             copy_description: false
@@ -238,6 +255,11 @@ factory_defaults:
             monitor: false
             enable_storm_control: false
             storm_control_action: default
+            enable_lldp: true
+            spanning_tree_port_type: none
+            enable_qos_stats: true
+            enable_queuing_stats: true
+            guard_mode: none
           topology_switch_dot1q_interface:
             description: "NetAsCode Dot1q Interface"
             mtu: jumbo
@@ -252,6 +274,10 @@ factory_defaults:
             fec: auto
             enable_storm_control: false
             storm_control_action: default
+            spanning_tree_port_type: none
+            enable_qos: false
+            enable_qos_stats: true
+            enable_queuing_stats: true
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
