@@ -6,7 +6,7 @@ class Rule:
         "ENABLE_QOS=true; setting enable_qos_stats without enable_qos: true "
         "will silently produce no configuration."
     )
-    severity = "MEDIUM"
+    severity = "HIGH"
 
     @classmethod
     def match(cls, data_model):

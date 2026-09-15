@@ -2,9 +2,7 @@ class Rule:
     id = "313"
     description = (
         "Verify that spanning_tree_port_type is not set to a non-'none' value "
-        "while spanning_tree_portfast is enabled on the same interface "
-        "(NDFC template constraint: PORTTYPE_FAST_ENABLED=true is incompatible "
-        "with SPANNING_TREE_PORT_TYPE != 'no')"
+        "while spanning_tree_portfast is enabled on the same interface."
     )
     severity = "HIGH"
 

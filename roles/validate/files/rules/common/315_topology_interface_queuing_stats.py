@@ -2,11 +2,9 @@ class Rule:
     id = "315"
     description = (
         "Verify that enable_queuing_stats is only set on interfaces where "
-        "queuing_policy is defined. NDFC's DISABLE_QUEUING_STATS field is "
-        "gated on QUEUING_POLICY being non-empty; setting enable_queuing_stats "
-        "without queuing_policy will silently produce no configuration."
+        "queuing_policy is defined."
     )
-    severity = "MEDIUM"
+    severity = "HIGH"
 
     @classmethod
     def match(cls, data_model):
