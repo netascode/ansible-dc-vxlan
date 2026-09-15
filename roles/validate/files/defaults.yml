@@ -275,7 +275,6 @@ factory_defaults:
             enable_storm_control: false
             storm_control_action: default
             spanning_tree_port_type: none
-            enable_qos: false
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
