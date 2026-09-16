@@ -57,7 +57,28 @@ class Rule:
         #         elif data_model["vxlan"].get("overlay_services").get("networks", None):
         #             networks = data_model["vxlan"]["overlay_services"]["networks"]
 
+        # Map each network_attach_group name to the set of switch hostnames it contains.
+        # Used to detect a switch attached through more than one group on the same network.
+        group_switches = {}
+        network_attach_groups = cls.safeget(data_model, ['vxlan', 'overlay', 'network_attach_groups'])
+        if not network_attach_groups:
+            network_attach_groups = cls.safeget(data_model, ['vxlan', 'overlay_services', 'network_attach_groups'])
+        for grp in network_attach_groups or []:
+            group_switches[grp.get('name')] = {
+                sw.get('hostname') for sw in grp.get('switches', []) if sw.get('hostname')
+            }
+
         for network in networks:
+            if "network_attach_group" in network and "network_attach_groups" in network:
+                results.append(
+                    f"vxlan.overlay.networks.{network['name']} cannot define both 'network_attach_group' "
+                    "and 'network_attach_groups'. Only one of these attributes can be used."
+                )
+
+            results = cls.check_duplicate_attach_switches(
+                network, group_switches, 'vxlan.overlay.networks', results
+            )
+
             current_network_netflow_status = network.get("netflow_enable", None)
             if current_network_netflow_status is not None:
                 if fabric_netflow_status is False and current_network_netflow_status is True:
@@ -85,6 +106,29 @@ class Rule:
                         f"first vxlan.underlay.multicast.ipv4.trm_enable must be enabled (true)."
                     )
                     break
+
+        return results
+
+    @classmethod
+    def check_duplicate_attach_switches(cls, network, group_switches, dm_path, results):
+        # A switch attached through more than one of a network's network_attach_groups
+        # would render duplicate attachment entries, so flag it as invalid.
+        group_names = network.get('network_attach_groups')
+        if not group_names:
+            return results
+
+        hostname_groups = {}
+        for grp_name in group_names:
+            for hostname in group_switches.get(grp_name, set()):
+                hostname_groups.setdefault(hostname, set()).add(grp_name)
+
+        for hostname, grps in hostname_groups.items():
+            if len(grps) > 1:
+                results.append(
+                    f"{dm_path}.{network['name']} attaches switch '{hostname}' through multiple "
+                    f"network_attach_groups ({', '.join(sorted(grps))}). A switch can only be "
+                    "attached through one group per network."
+                )
 
         return results
 

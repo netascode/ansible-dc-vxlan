@@ -61,12 +61,19 @@
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
-{% if net['network_attach_group'] is defined %}
+{% if net['network_attach_group'] is defined or net['network_attach_groups'] is defined %}
   attach:
 {% if data_model_extended.vxlan.overlay.network_attach_groups_dict is defined and data_model_extended.vxlan.overlay.network_attach_groups_dict %}
 {% set network_attach_groups_dict = data_model_extended.vxlan.overlay.network_attach_groups_dict %}
 {% endif %}
-{% for attach in network_attach_groups_dict[net['network_attach_group']] %}
+{# The validate role enforces that 'network_attach_group' and 'network_attach_groups' are mutually exclusive #}
+{% if net['network_attach_group'] is defined %}
+{% set network_attach_group_names = [net['network_attach_group']] %}
+{% else %}
+{% set network_attach_group_names = net['network_attach_groups'] %}
+{% endif %}
+{% for network_attach_group_name in network_attach_group_names %}
+{% for attach in network_attach_groups_dict[network_attach_group_name] %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
 {% if net['switch_attach_overrides'] is defined %}
 {% for switch_override in net['switch_attach_overrides'] %}
@@ -96,6 +103,7 @@
 {% endif %}
 {% endfor %}
 {% endif %}
+{% endfor %}
 {% endfor %}
 {% endif %}
   deploy: false
