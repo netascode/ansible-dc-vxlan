@@ -1,3 +1,4 @@
+{% from 'macros/translate_setting.j2' import translate %}
 ---
 # This NDFC access interface data structure is auto-generated
 # DO NOT EDIT MANUALLY
@@ -35,6 +36,8 @@
     enable_qos: {{ interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_qos) | lower }}
 {% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_qos) %}
     qos_policy: {{ interface['qos_policy'] | default("") }}
+{% endif %}
+{% if interface['queuing_policy'] is defined %}
     queuing_policy: {{ interface['queuing_policy'] | default("") }}
 {% endif %}
     enable_monitor: {{ interface['monitor'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.monitor) | lower }}
@@ -61,6 +64,27 @@
 {% if interface['storm_control_unicast_level_pps'] is defined %}
     storm_control_unicast_level_pps: {{ interface['storm_control_unicast_level_pps'] }}
 {% endif %}
+{% endif %}
+{% endif %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0', '>') %}
+{# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
+    spanning_tree_port_type: "{{ translate(interface['spanning_tree_port_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.spanning_tree_port_type), {'none': 'no'}) }}"
+{# Data model defines value as ENABLE LLDP, while base collection defines it as DISABLE LLDP #}
+    disable_lldp: {{ translate(interface['enable_lldp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_lldp), {true: 'false', false: 'true'}) }}
+{# Data model defines value as FLOW CONTROL RECEIVE: true/false, while base collection defines it as FLOWCONTROL_RECEIVE: on/off #}
+    flowcontrol_receive: "{{ translate(interface['flow_control_receive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.flow_control_receive), {true: 'on', false: 'off'}) }}"
+{# Data model defines value as FLOWCONTROL_SEND: true/false, while base collection defines it as FLOWCONTROL_SEND: on/off #}
+    flowcontrol_send: "{{ translate(interface['flow_control_send'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.flow_control_send), {true: 'on', false: 'off'}) }}"
+{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_qos) %}
+{# Data model defines value as ENABLE QOS STATS, while base collection defines it as DISABLE QOS STATS #}
+    disable_qos_stats: {{ translate(interface['enable_qos_stats'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_qos_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if interface['queuing_policy'] is defined %}
+{# Data model defines value as ENABLE QUEUING STATS, while base collection defines it as DISABLE QUEUING STATS #}
+    disable_queuing_stats: {{ translate(interface['enable_queuing_stats'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if interface['acl_filter'] is defined %}
+    acl_filter: {{ interface['acl_filter'] }}
 {% endif %}
 {% endif %}
     cmds: |2-
