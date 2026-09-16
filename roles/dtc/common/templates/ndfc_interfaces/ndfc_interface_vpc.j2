@@ -42,6 +42,8 @@
     enable_qos: {{ switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) | lower }}
 {% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) %}
     qos_policy: {{ switches[peer1].qos_policy | default("") }}
+{% endif %}
+{% if switches[peer1].queuing_policy is defined %}
     queuing_policy: {{ switches[peer1].queuing_policy | default("") }}
 {% endif %}
     copy_description: {{ switches[peer1].copy_description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.copy_description) | lower }}
@@ -109,6 +111,8 @@
     enable_qos: {{ switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_qos) | lower }}
 {% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_qos) %}
     qos_policy: {{ switches[peer1].qos_policy | default("") }}
+{% endif %}
+{% if switches[peer1].queuing_policy is defined %}
     queuing_policy: {{ switches[peer1].queuing_policy | default("") }}
 {% endif %}
     copy_description: {{ switches[peer1].copy_description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.copy_description) | lower }}
