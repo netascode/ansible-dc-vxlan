@@ -4,7 +4,7 @@
 !
 {% for policy_name in policy_types["ipv6_access_lists"] : %}
     {% for ipv6_access_list in item["ipv6_access_lists"] %}
-        {% if policy_name.name == ipv6_access_list.name %}
+        {% if policy_name.name == ipv6_access_list.name and (ipv6_access_list["native"] is not defined or ipv6_access_list["native"] is false) %}
 ipv6 access-list {{ ipv6_access_list.name }}
             {% if ipv6_access_list["statistics_per_entry"] is defined and ipv6_access_list["statistics_per_entry"] is true %}
   statistics per-entry
