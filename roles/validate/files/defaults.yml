@@ -300,6 +300,14 @@ factory_defaults:
             enable_priority_flow_control: false
             enable_dampening: false
             dampening_restart: false
+            enable_eigrp_routing: false
+            enable_eigrp_ipv6_routing: false
+            eigrp_no_ipv4_passive: false
+            eigrp_ipv4_passive: false
+            eigrp_no_ipv6_passive: false
+            enable_eigrp_shutdown: false
+            enable_eigrp_bfd: false
+            disable_eigrp_bfd: false
           topology_switch_dot1q_po_interface:
             description: "NetAsCode Dot1q PO Interface"
             copy_description: false

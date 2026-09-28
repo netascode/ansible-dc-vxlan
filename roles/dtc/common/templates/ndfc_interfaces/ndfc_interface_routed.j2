@@ -85,6 +85,21 @@
     dampening_restart: {{ interface['dampening_restart'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.dampening_restart) | lower }}
     dampening_restart_penalty: {{ interface['dampening_restart_penalty'] | default(omit) }}
 {% endif %}
+{% if interface['eigrp_process_tag'] is defined %}
+    eigrp_process_tag: {{ interface['eigrp_process_tag'] }}
+    enable_eigrp_routing: {{ interface['enable_eigrp_routing'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_routing) | lower }}
+    enable_eigrp_ipv6_routing: {{ interface['enable_eigrp_ipv6_routing'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_ipv6_routing) | lower }}
+    eigrp_no_ipv4_passive: {{ interface['eigrp_no_ipv4_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.eigrp_no_ipv4_passive) | lower }}
+    eigrp_ipv4_passive: {{ interface['eigrp_ipv4_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.eigrp_ipv4_passive) | lower }}
+    eigrp_no_ipv6_passive: {{ interface['eigrp_no_ipv6_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.eigrp_no_ipv6_passive) | lower }}
+    eigrp_ipv4_distribute_list_prefix_list: {{ interface['eigrp_ipv4_distribute_list_prefix_list'] | default(omit) }}
+    eigrp_ipv4_distribute_list_direction: {{ interface['eigrp_ipv4_distribute_list_direction'] | default(omit) }}
+    eigrp_ipv6_distribute_list_prefix_list: {{ interface['eigrp_ipv6_distribute_list_prefix_list'] | default(omit) }}
+    eigrp_ipv6_distribute_list_direction: {{ interface['eigrp_ipv6_distribute_list_direction'] | default(omit) }}
+    enable_eigrp_shutdown: {{ interface['enable_eigrp_shutdown'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_shutdown) | lower }}
+    enable_eigrp_bfd: {{ interface['enable_eigrp_bfd'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_bfd) | lower }}
+    disable_eigrp_bfd: {{ interface['disable_eigrp_bfd'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.disable_eigrp_bfd) | lower }}
+{% endif %}
 {% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
