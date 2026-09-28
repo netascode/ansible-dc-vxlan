@@ -165,7 +165,7 @@ class ActionModule(ActionBase):
                 os.remove(output_path)
 
             with open(output_path, 'w', encoding='utf-8') as f:
-                yaml.dump(output_data, f, default_flow_style=False, sort_keys=False, Dumper=_SafeDumper)
+                yaml.dump(output_data, f, default_flow_style=False, sort_keys=False)
         except Exception as e:
             display.warning(f"Failed to write comparison results to {output_path}: {str(e)}")
 
