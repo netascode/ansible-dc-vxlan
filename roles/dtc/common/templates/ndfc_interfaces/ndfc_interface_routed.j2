@@ -100,6 +100,30 @@
     enable_eigrp_bfd: {{ interface['enable_eigrp_bfd'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_bfd) | lower }}
     disable_eigrp_bfd: {{ interface['disable_eigrp_bfd'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.disable_eigrp_bfd) | lower }}
 {% endif %}
+{# OSPF (Group 9) — gated on enable_ospf==true #}
+    enable_ospf: {{ interface['enable_ospf'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf) | lower }}
+{% if interface['enable_ospf'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf) %}
+    ospf_tag: {{ interface['ospf_tag'] | default(omit) }}
+    ospf_area_id: {{ interface['ospf_area_id'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_area_id) }}
+    enable_ospf_auth: {{ interface['enable_ospf_auth'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf_auth) | lower }}
+{% if interface['enable_ospf_auth'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf_auth) %}
+    ospf_auth_key_id: {{ interface['ospf_auth_key_id'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_auth_key_id) }}
+    ospf_auth_key: {{ interface['ospf_auth_key'] | default(omit) }}
+{% endif %}
+    ospf_authentication_key_type: "{{ interface['ospf_authentication_key_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_authentication_key_type) }}"
+    ospf_authentication_key: {{ interface['ospf_authentication_key'] | default(omit) }}
+    ospf_passive_mode: {{ interface['ospf_passive_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_passive_mode) }}
+    ospf_cost: {{ interface['ospf_cost'] | default(omit) }}
+    ospf_mtu_ignore: {{ interface['ospf_mtu_ignore'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_mtu_ignore) | lower }}
+    ospf_hello_interval: {{ interface['ospf_hello_interval'] | default(omit) }}
+    ospf_dead_interval: {{ interface['ospf_dead_interval'] | default(omit) }}
+    ospf_shutdown: {{ interface['ospf_shutdown'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_shutdown) | lower }}
+    ospf_transmit_delay: {{ interface['ospf_transmit_delay'] | default(omit) }}
+    ospf_priority: {{ interface['ospf_priority'] | default(omit) }}
+    ospf_network_type: {{ interface['ospf_network_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_network_type) }}
+    ospf_bfd_mode: {{ interface['ospf_bfd_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_bfd_mode) }}
+{% endif %}
+    disable_bfd_echo: {{ interface['disable_bfd_echo'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.disable_bfd_echo) | lower }}
 {% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
