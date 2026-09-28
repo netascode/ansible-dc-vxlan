@@ -4,52 +4,43 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% for switch in data_model_extended.vxlan.topology.switches %}
-{% if switch.interfaces is defined %}
-{% for interface in switch['interfaces'] %}
-{% set interface_name = interface['name'] | lower %}
-{% if interface_name.startswith('po') %}
-{% if interface['mode'] == 'trunk' %}
+{% for interface in interface_list %}
 {% if interface['vpc_id'] is not defined %}
 - name: {{ interface['name'] }}
   type: pc
   switch:
-{% if switch.management.management_ipv4_address is defined %}
-    - {{ switch.management.management_ipv4_address}}
-{% elif (switch.management.management_ipv4_address is not defined) and (switch.management.management_ipv6_address is defined)  %}
-    - {{ switch.management.management_ipv6_address}}
+{% if interface['_mgmt_ipv4'] is defined %}
+    - {{ interface['_mgmt_ipv4']}}
+{% elif (interface['_mgmt_ipv4'] is not defined) and (interface['_mgmt_ipv6'] is defined)  %}
+    - {{ interface['_mgmt_ipv6']}}
 {% endif %}
   deploy: false
   profile:
-    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled) | lower }}
+    admin_state: {{ interface['enabled'] | default(interface_defaults.enabled) | lower }}
     mode: 'trunk'
-    description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.description) }}"
-    mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.mtu) }}
-    speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.speed) }}
-    port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_portfast) }}
-    pc_mode: "{{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.pc_mode) }}"
+    description: "{{ interface['description'] | default(interface_defaults.description) }}"
+    mtu: {{ interface['mtu'] | default(interface_defaults.mtu) }}
+    speed: {{ interface['speed'] | default(interface_defaults.speed) }}
+    port_type_fast: {{ interface['spanning_tree_portfast'] | default(interface_defaults.spanning_tree_portfast) }}
+    pc_mode: "{{ interface['pc_mode'] | default(interface_defaults.pc_mode) }}"
     members: {{ interface['members'] | default(omit) }}
-    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_bpdu_guard) | lower }}
-    allowed_vlans: "{{ convert_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
-    duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.duplex) }}
-    disable_lacp_suspend_individual: {{ interface['disable_lacp_suspend_individual'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.disable_lacp_suspend_individual) | lower }}
-    lacp_port_priority: {{ interface['lacp_port_priority'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_port_priority) }}
-    lacp_rate: {{ interface['lacp_rate'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.lacp_rate) }}
+    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(interface_defaults.enable_bpdu_guard) | lower }}
+    allowed_vlans: "{{ convert_ranges(interface['trunk_allowed_vlans'], interface_defaults.trunk_allowed_vlans) | trim }}"
+    duplex: {{ interface['duplex'] | default(interface_defaults.duplex) }}
+    disable_lacp_suspend_individual: {{ interface['disable_lacp_suspend_individual'] | default(interface_defaults.disable_lacp_suspend_individual) | lower }}
+    lacp_port_priority: {{ interface['lacp_port_priority'] | default(interface_defaults.lacp_port_priority) }}
+    lacp_rate: {{ interface['lacp_rate'] | default(interface_defaults.lacp_rate) }}
 {% if interface['orphan_port'] | default(false) %}
-    orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.orphan_port) | lower }}
+    orphan_port: {{ interface['orphan_port'] | default(interface_defaults.orphan_port) | lower }}
 {% endif %}
-    native_vlan: "{{ interface['native_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.native_vlan) }}"
-    enable_qos: {{ interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) | lower }}
-{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) %}
+    native_vlan: "{{ interface['native_vlan'] | default(interface_defaults.native_vlan) }}"
+    enable_qos: {{ interface['enable_qos'] | default(interface_defaults.enable_qos) | lower }}
+{% if interface['enable_qos'] | default(interface_defaults.enable_qos) %}
     qos_policy: {{ interface['qos_policy'] | default("") }}
     queuing_policy: {{ interface['queuing_policy'] | default("") }}
 {% endif %}
-    enable_monitor: {{ interface['monitor'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.monitor) | lower }}
+    enable_monitor: {{ interface['monitor'] | default(interface_defaults.monitor) | lower }}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
-{% endif %}
-{% endif %}
-{% endif %}
-{% endfor %}
 {% endif %}
 {% endfor %}
