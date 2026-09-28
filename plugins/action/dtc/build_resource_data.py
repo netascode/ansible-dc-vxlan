@@ -742,6 +742,7 @@ class ResourceDataBuilder:
             'interface_po_routed',
             'interface_loopback',
             'interface_dot1q',
+            'interface_dot1q_po',
             'interface_vpc',
         ]
 
@@ -757,6 +758,7 @@ class ResourceDataBuilder:
             'interface_po_routed',
             'interface_loopback',
             'interface_dot1q',
+            'interface_dot1q_po',
             'interface_vpc',
         ]
 

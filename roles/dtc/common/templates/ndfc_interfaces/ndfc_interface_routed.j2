@@ -1,3 +1,4 @@
+{% from 'macros/translate_setting.j2' import translate %}
 ---
 # This NDFC routed interface data structure is auto-generated
 # DO NOT EDIT MANUALLY
@@ -37,10 +38,92 @@
     enable_qos: {{ interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_qos) | lower }}
 {% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_qos) %}
     qos_policy: {{ interface['qos_policy'] | default("") }}
+{% endif %}
+{% if interface['queuing_policy'] is defined %}
     queuing_policy: {{ interface['queuing_policy'] | default("") }}
 {% endif %}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
     fec: "{{ interface['fec'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.fec) }}"
+{% endif %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0', '>') %}
+{# Data model defines ENABLE LLDP TRANSMIT/RECEIVE, while base collection defines DISABLE LLDP TRANSMIT/RECEIVE #}
+    disable_lldp_transmit: {{ translate(interface['enable_lldp_transmit'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_lldp_transmit), {true: 'false', false: 'true'}) }}
+    disable_lldp_receive: {{ translate(interface['enable_lldp_receive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_lldp_receive), {true: 'false', false: 'true'}) }}
+{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_qos) %}
+{# Data model defines value as ENABLE QOS STATS, while base collection defines it as DISABLE QOS STATS #}
+    disable_qos_stats: {{ translate(interface['enable_qos_stats'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_qos_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if interface['queuing_policy'] is defined %}
+{# Data model defines value as ENABLE QUEUING STATS, while base collection defines it as DISABLE QUEUING STATS #}
+    disable_queuing_stats: {{ translate(interface['enable_queuing_stats'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+    ipv6_link_local: {{ interface['ipv6_link_local_address'] | default(omit) }}
+    ipv6_nd_suppress_ra: {{ interface['ipv6_nd_suppress_ra'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ipv6_nd_suppress_ra) | lower }}
+    disable_ipv4_redirects: {{ interface['disable_ipv4_redirects'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.disable_ipv4_redirects) | lower }}
+    disable_ipv6_redirects: {{ interface['disable_ipv6_redirects'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.disable_ipv6_redirects) | lower }}
+    arp_timeout: {{ interface['arp_timeout'] | default(omit) }}
+    ipv4_acl_in: {{ interface['ipv4_acl_in'] | default(omit) }}
+    enable_macsec_interface_policy: {{ interface['enable_macsec_interface_policy'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_macsec_interface_policy) | lower }}
+{% if interface['enable_macsec_interface_policy'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_macsec_interface_policy) %}
+    macsec_key_chain_name: {{ interface['macsec_key_chain_name'] | default(omit) }}
+    macsec_policy_name: {{ interface['macsec_policy_name'] | default(omit) }}
+    macsec_fallback_key_chain_name: {{ interface['macsec_fallback_key_chain_name'] | default(omit) }}
+{% endif %}
+    enable_pim_sparse: {{ interface['enable_pim_sparse'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_pim_sparse) | lower }}
+    enable_pim_bfd_instance: {{ interface['enable_pim_bfd_instance'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_pim_bfd_instance) | lower }}
+    enable_netflow: {{ interface['enable_netflow'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_netflow) | lower }}
+{% if interface['enable_netflow'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_netflow) %}
+    netflow_monitor: {{ interface['netflow_monitor'] | default(omit) }}
+{% endif %}
+    enable_pfc: {{ interface['enable_priority_flow_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_priority_flow_control) | lower }}
+    enable_dampening: {{ interface['enable_dampening'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_dampening) | lower }}
+{% if interface['enable_dampening'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_dampening) %}
+    dampening_half_life: {{ interface['dampening_half_life'] | default(omit) }}
+    dampening_reuse: {{ interface['dampening_reuse'] | default(omit) }}
+    dampening_suppress: {{ interface['dampening_suppress'] | default(omit) }}
+    dampening_max_suppress: {{ interface['dampening_max_suppress'] | default(omit) }}
+    dampening_restart: {{ interface['dampening_restart'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.dampening_restart) | lower }}
+    dampening_restart_penalty: {{ interface['dampening_restart_penalty'] | default(omit) }}
+{% endif %}
+{% if interface['eigrp_process_tag'] is defined %}
+    eigrp_process_tag: {{ interface['eigrp_process_tag'] }}
+    enable_eigrp_routing: {{ interface['enable_eigrp_routing'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_routing) | lower }}
+    enable_eigrp_ipv6_routing: {{ interface['enable_eigrp_ipv6_routing'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_ipv6_routing) | lower }}
+    eigrp_no_ipv4_passive: {{ interface['eigrp_no_ipv4_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.eigrp_no_ipv4_passive) | lower }}
+    eigrp_ipv4_passive: {{ interface['eigrp_ipv4_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.eigrp_ipv4_passive) | lower }}
+    eigrp_no_ipv6_passive: {{ interface['eigrp_no_ipv6_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.eigrp_no_ipv6_passive) | lower }}
+    eigrp_ipv4_distribute_list_prefix_list: {{ interface['eigrp_ipv4_distribute_list_prefix_list'] | default(omit) }}
+    eigrp_ipv4_distribute_list_direction: {{ interface['eigrp_ipv4_distribute_list_direction'] | default(omit) }}
+    eigrp_ipv6_distribute_list_prefix_list: {{ interface['eigrp_ipv6_distribute_list_prefix_list'] | default(omit) }}
+    eigrp_ipv6_distribute_list_direction: {{ interface['eigrp_ipv6_distribute_list_direction'] | default(omit) }}
+    enable_eigrp_shutdown: {{ interface['enable_eigrp_shutdown'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_shutdown) | lower }}
+    enable_eigrp_bfd: {{ interface['enable_eigrp_bfd'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_bfd) | lower }}
+    disable_eigrp_bfd: {{ interface['disable_eigrp_bfd'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.disable_eigrp_bfd) | lower }}
+{% endif %}
+{# OSPF (Group 9) — gated on enable_ospf==true #}
+    enable_ospf: {{ interface['enable_ospf'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf) | lower }}
+{% if interface['enable_ospf'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf) %}
+    ospf_tag: {{ interface['ospf_tag'] | default(omit) }}
+    ospf_area_id: {{ interface['ospf_area_id'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_area_id) }}
+    enable_ospf_auth: {{ interface['enable_ospf_auth'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf_auth) | lower }}
+{% if interface['enable_ospf_auth'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf_auth) %}
+    ospf_auth_key_id: {{ interface['ospf_auth_key_id'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_auth_key_id) }}
+    ospf_auth_key: {{ interface['ospf_auth_key'] | default(omit) }}
+{% endif %}
+    ospf_authentication_key_type: "{{ interface['ospf_authentication_key_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_authentication_key_type) }}"
+    ospf_authentication_key: {{ interface['ospf_authentication_key'] | default(omit) }}
+    ospf_passive_mode: {{ interface['ospf_passive_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_passive_mode) }}
+    ospf_cost: {{ interface['ospf_cost'] | default(omit) }}
+    ospf_mtu_ignore: {{ interface['ospf_mtu_ignore'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_mtu_ignore) | lower }}
+    ospf_hello_interval: {{ interface['ospf_hello_interval'] | default(omit) }}
+    ospf_dead_interval: {{ interface['ospf_dead_interval'] | default(omit) }}
+    ospf_shutdown: {{ interface['ospf_shutdown'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_shutdown) | lower }}
+    ospf_transmit_delay: {{ interface['ospf_transmit_delay'] | default(omit) }}
+    ospf_priority: {{ interface['ospf_priority'] | default(omit) }}
+    ospf_network_type: {{ interface['ospf_network_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_network_type) }}
+    ospf_bfd_mode: {{ interface['ospf_bfd_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_bfd_mode) }}
+{% endif %}
+    disable_bfd_echo: {{ interface['disable_bfd_echo'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.disable_bfd_echo) | lower }}
 {% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}

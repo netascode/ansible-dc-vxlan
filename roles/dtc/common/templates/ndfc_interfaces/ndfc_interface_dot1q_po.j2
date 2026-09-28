@@ -1,0 +1,97 @@
+{% from 'macros/translate_setting.j2' import translate %}
+---
+# This NDFC dot1q interface port-channel data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0', '>') %}
+{% for switch in data_model_extended.vxlan.topology.switches %}
+{% if switch.interfaces is defined %}
+{% for interface in switch['interfaces'] %}
+{% set interface_name = interface['name'] | lower %}
+{% if interface_name.startswith('po') %}
+{% if interface['mode'] == 'dot1q' %}
+{% if interface['vpc_id'] is not defined %}
+- name: {{ interface['name'] }}
+  type: pc
+  switch:
+{% if switch.management.management_ipv4_address is defined %}
+    - {{ switch.management.management_ipv4_address}}
+{% elif (switch.management.management_ipv4_address is not defined) and (switch.management.management_ipv6_address is defined)  %}
+    - {{ switch.management.management_ipv6_address}}
+{% endif %}
+  deploy: false
+  profile:
+    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enabled) | lower }}
+    enable_cdp: {{ interface['enable_cdp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_cdp) | lower }}
+    mode: 'dot1q'
+    description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.description) }}"
+    copy_description: {{ interface['copy_description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.copy_description) | lower }}
+    mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.mtu) }}
+    speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.speed) }}
+    port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.spanning_tree_portfast) }}
+    pc_mode: "{{ interface['pc_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.pc_mode) }}"
+    members: {{ interface['members'] | default(omit) }}
+    access_vlan: {{ interface['access_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.access_vlan) }}
+    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_bpdu_guard) | lower }}
+    duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.duplex) }}
+    disable_lacp_suspend_individual: {{ interface['disable_lacp_suspend_individual'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.disable_lacp_suspend_individual) | lower }}
+    lacp_port_priority: {{ interface['lacp_port_priority'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.lacp_port_priority) }}
+    lacp_rate: {{ interface['lacp_rate'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.lacp_rate) }}
+{% if interface['orphan_port'] | default(false) %}
+    orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.orphan_port) | lower }}
+{% endif %}
+    enable_qos: {{ interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_qos) | lower }}
+{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_qos) %}
+    qos_policy: {{ interface['qos_policy'] | default("") }}
+{% endif %}
+{% if interface['queuing_policy'] is defined %}
+    queuing_policy: {{ interface['queuing_policy'] | default("") }}
+{% endif %}
+    enable_monitor: {{ interface['monitor'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.monitor) | lower }}
+    enable_storm_control: {{ interface['enable_storm_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_storm_control) | lower }}
+{% if interface['enable_storm_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_storm_control) %}
+    storm_control_action: {{ interface['storm_control_action'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.storm_control_action) | lower }}
+{% if interface['storm_control_broadcast_level_percent'] is defined %}
+    storm_control_broadcast_level_percent: "{{ '%0.2f' % interface['storm_control_broadcast_level_percent'] }}"
+{% endif %}
+{% if interface['storm_control_multicast_level_percent'] is defined %}
+    storm_control_multicast_level_percent: "{{ '%0.2f' % interface['storm_control_multicast_level_percent'] }}"
+{% endif %}
+{% if interface['storm_control_unicast_level_percent'] is defined %}
+    storm_control_unicast_level_percent: "{{ '%0.2f' % interface['storm_control_unicast_level_percent'] }}"
+{% endif %}
+{% if interface['storm_control_broadcast_level_pps'] is defined %}
+    storm_control_broadcast_level_pps: {{ interface['storm_control_broadcast_level_pps'] }}
+{% endif %}
+{% if interface['storm_control_multicast_level_pps'] is defined %}
+    storm_control_multicast_level_pps: {{ interface['storm_control_multicast_level_pps'] }}
+{% endif %}
+{% if interface['storm_control_unicast_level_pps'] is defined %}
+    storm_control_unicast_level_pps: {{ interface['storm_control_unicast_level_pps'] }}
+{% endif %}
+{% endif %}
+{# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
+    spanning_tree_port_type: "{{ translate(interface['spanning_tree_port_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"
+{# Data model defines ENABLE LLDP TRANSMIT/RECEIVE, while base collection defines DISABLE LLDP TRANSMIT/RECEIVE #}
+    disable_lldp_transmit: {{ translate(interface['enable_lldp_transmit'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_lldp_transmit), {true: 'false', false: 'true'}) }}
+    disable_lldp_receive: {{ translate(interface['enable_lldp_receive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_lldp_receive), {true: 'false', false: 'true'}) }}
+{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_qos) %}
+{# Data model defines value as ENABLE QOS STATS, while base collection defines it as DISABLE QOS STATS #}
+    disable_qos_stats: {{ translate(interface['enable_qos_stats'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_qos_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if interface['queuing_policy'] is defined %}
+{# Data model defines value as ENABLE QUEUING STATS, while base collection defines it as DISABLE QUEUING STATS #}
+    disable_queuing_stats: {{ translate(interface['enable_queuing_stats'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if interface['acl_filter'] is defined %}
+    acl_filter: {{ interface['acl_filter'] }}
+{% endif %}
+    cmds: |2-
+      {{ interface['freeform_config'] | default('') | indent(6, false) }}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
