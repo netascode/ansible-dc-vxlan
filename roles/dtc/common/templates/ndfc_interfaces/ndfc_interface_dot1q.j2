@@ -15,6 +15,7 @@
   deploy: false
   profile:
     admin_state: {{ interface['enabled'] | default(interface_defaults.enabled) | lower }}
+    enable_cdp: {{ interface['enable_cdp'] | default(interface_defaults.enable_cdp) | lower }}
     mode: dot1q
     description: "{{ interface['description'] | default(interface_defaults.description) }}"
     mtu: {{ interface['mtu'] | default(interface_defaults.mtu) }}

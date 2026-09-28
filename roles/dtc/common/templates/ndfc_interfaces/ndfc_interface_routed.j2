@@ -31,6 +31,14 @@
     int_vrf: {{ interface['vrf'] | default(omit) }}
     mtu: {{ interface['mtu'] | default(interface_defaults.mtu) }}
     speed: {{ interface['speed'] | default(interface_defaults.speed) }}
+    enable_qos: {{ interface['enable_qos'] | default(interface_defaults.enable_qos) | lower }}
+{% if interface['enable_qos'] | default(interface_defaults.enable_qos) %}
+    qos_policy: {{ interface['qos_policy'] | default("") }}
+    queuing_policy: {{ interface['queuing_policy'] | default("") }}
+{% endif %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
+    fec: "{{ interface['fec'] | default(interface_defaults.fec) }}"
+{% endif %} 
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endfor %}
