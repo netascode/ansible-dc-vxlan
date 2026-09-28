@@ -22,6 +22,7 @@
 from __future__ import absolute_import, division, print_function
 
 import yaml
+import json
 try:
     from yaml import CSafeLoader as _SafeLoader, CSafeDumper as _SafeDumper
 except ImportError:
@@ -137,7 +138,7 @@ class ActionModule(ActionBase):
         output_data = {
             'comparison_summary': {
                 'timestamp': datetime.datetime.now().isoformat(),
-                'source_file': self.new_file_path,
+                'source_file': json.loads(json.dumps((self.new_file_path))),
                 'total_updated': (
                     self._count_policies(compare_results.get('updated', []))
                     if is_policy
