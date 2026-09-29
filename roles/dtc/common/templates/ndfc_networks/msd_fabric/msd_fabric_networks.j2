@@ -5,8 +5,10 @@
 {% set networks = [] %}
 {% endif %}
 {% set net_overrides = {} %}
+{% set net_attach_names = {} %}
 {% for _n in runtime_msd_data_model.overlay_attach_groups.networks | default([], true) %}
 {% set _ = net_overrides.update({_n['name']: _n.get('switch_attach_overrides') or []}) %}
+{% set _ = net_attach_names.update({_n['name']: [_n['network_attach_group']] if _n.get('network_attach_group') else (_n.get('network_attach_groups') or [])}) %}
 {% endfor %}
 {% for net in networks %}
 - net_name: {{ net['name'] }}
@@ -71,19 +73,16 @@
 {# Attach Group Section #}
 {# ------------------------------------------------------ #}
 {# Don't need to attach vrfs if there are no msd_switches #}
-{% if net['network_attach_group'] is defined or net['network_attach_groups'] is defined %}
+{# Group names come from the runtime model, where undefined groups have already been pruned #}
+{% set network_attach_group_names = net_attach_names.get(net['name'], []) %}
+{% if network_attach_group_names %}
   attach:
+{% set network_attach_groups_dict = {} %}
 {% if runtime_msd_data_model.overlay_attach_groups.network_attach_groups_dict is defined and runtime_msd_data_model.overlay_attach_groups.network_attach_groups_dict %}
 {% set network_attach_groups_dict = runtime_msd_data_model.overlay_attach_groups.network_attach_groups_dict %}
 {% endif %}
-{# The validate role enforces that 'network_attach_group' and 'network_attach_groups' are mutually exclusive #}
-{% if net['network_attach_group'] is defined %}
-{% set network_attach_group_names = [net['network_attach_group']] %}
-{% else %}
-{% set network_attach_group_names = net['network_attach_groups'] %}
-{% endif %}
 {% for network_attach_group_name in network_attach_group_names %}
-{% for attach in network_attach_groups_dict[network_attach_group_name] %}
+{% for attach in network_attach_groups_dict.get(network_attach_group_name, []) %}
     - ip_address: {{ attach['mgmt_ip_address'] }}
 {% for switch_override in net_overrides.get(net['name'], []) %}
 {% if switch_override['mgmt_ip_address'] == attach['mgmt_ip_address'] %}

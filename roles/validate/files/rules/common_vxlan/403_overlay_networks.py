@@ -117,6 +117,12 @@ class Rule:
         if not group_names:
             return results
 
+        for grp_name in sorted({g for g in group_names if group_names.count(g) > 1}):
+            results.append(
+                f"{dm_path}.{network['name']} lists network_attach_group '{grp_name}' more than once "
+                "in network_attach_groups. Each group can only be listed once per network."
+            )
+
         hostname_groups = {}
         for grp_name in group_names:
             for hostname in group_switches.get(grp_name, set()):

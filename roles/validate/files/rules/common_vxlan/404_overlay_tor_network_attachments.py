@@ -69,11 +69,12 @@ class Rule:
         # Build mapping of attach group name to networks using it
         group_to_networks = {}
         for network in networks:
-            group_name = network.get('network_attach_group')
-            if group_name:
-                if group_name not in group_to_networks:
-                    group_to_networks[group_name] = []
-                group_to_networks[group_name].append(network.get('name', 'unknown'))
+            if network.get('network_attach_group'):
+                group_names = [network.get('network_attach_group')]
+            else:
+                group_names = network.get('network_attach_groups') or []
+            for group_name in dict.fromkeys(group_names):
+                group_to_networks.setdefault(group_name, []).append(network.get('name', 'unknown'))
 
         # Check each network_attach_group for TOR references
         for group in network_attach_groups:
