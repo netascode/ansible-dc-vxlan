@@ -73,7 +73,7 @@ class Rule:
         vpc_channels = []
         if switch.get('interfaces'):
             for interface in switch['interfaces']:
-                interface_name = interface.get('name', '')
+                interface_name = interface.get('name', '').lower()
                 is_pc = (interface_name.startswith('port-channel') or
                          interface_name.startswith('po'))
                 if is_pc and interface.get('mode') == 'vpc_peer_link':
