@@ -25,6 +25,7 @@ import os
 import yaml
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.registry_loader import RegistryLoader
+from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
 
 
 class PreparePlugin:
@@ -50,6 +51,14 @@ class PreparePlugin:
 
     def prepare(self):
         data_model = self.kwargs['results']['model_extended']
+
+        host_name = self.kwargs['host_name']
+        hostvars = self.kwargs['hostvars']
+        ndfc_version = (hostvars.get(host_name) or {}).get('ndfc_version')
+        nd_smu_versions = (hostvars.get(host_name) or {}).get('nd_smu_versions')
+
+        if (version_compare(ndfc_version, '12.6.0', '<')) or ((version_compare(ndfc_version, '12.6.0', '==')) and ('4.3.1.0175006011' not in nd_smu_versions)):
+            return self.kwargs['results']
 
         policy = (data_model.get('vxlan') or {}).get('policy')
         if not policy or not policy.get('policies'):
