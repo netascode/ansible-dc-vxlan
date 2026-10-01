@@ -80,7 +80,7 @@
     rules: "{{ enhanced_rules_path }}"
   vars:
     data_path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
-  when: 
+  when:
     - enhanced_rules_path is defined
     - enhanced_rules_path
   delegate_to: localhost
