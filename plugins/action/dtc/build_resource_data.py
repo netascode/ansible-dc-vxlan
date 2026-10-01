@@ -55,6 +55,10 @@ import re
 import shutil
 
 import yaml
+try:
+    from yaml import CSafeLoader as _SafeLoader, CSafeDumper as _SafeDumper
+except ImportError:
+    from yaml import SafeLoader as _SafeLoader, SafeDumper as _SafeDumper
 
 from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
@@ -67,6 +71,18 @@ from ansible_collections.cisco.nac_dc_vxlan.plugins.action.common.prepare_plugin
 )
 
 display = Display()
+
+
+INTERFACE_TEMPLATE_GROUPS = {
+    'ndfc_interfaces/ndfc_interface_trunk.j2': ('trunk', 'e', 'topology_switch_trunk_interface'),
+    'ndfc_interfaces/ndfc_interface_access.j2': ('access', 'e', 'topology_switch_access_interface'),
+    'ndfc_interfaces/ndfc_interface_trunk_po.j2': ('trunk', 'po', 'topology_switch_trunk_po_interface'),
+    'ndfc_interfaces/ndfc_interface_access_po.j2': ('access', 'po', 'topology_switch_access_po_interface'),
+    'ndfc_interfaces/ndfc_interface_dot1q.j2': ('dot1q', 'e', 'topology_switch_dot1q_interface'),
+    'ndfc_interfaces/ndfc_interface_routed.j2': ('routed', None, 'topology_switch_routed_interface'),
+    'ndfc_interfaces/ndfc_interface_po_routed.j2': ('routed_po', None, 'topology_switch_routed_po_interface'),
+    'ndfc_interfaces/ndfc_sub_interface_routed.j2': ('routed_sub', None, 'topology_switch_routed_sub_interface'),
+}
 
 
 class ResourceDataBuilder:
@@ -110,6 +126,12 @@ class ResourceDataBuilder:
         # Collected results
         self.resource_data = {}
         self.change_flags = {}
+        # Cache for resolved topology switches / interface defaults so interface
+        # templates iterate small pre-filtered lists instead of re-resolving the
+        # whole data model once per template (Ansible templar re-resolves any
+        # top-level var on every access; the switches structure is large).
+        self._resolved_switches = None
+        self._interface_defaults_cache = {}
 
     @staticmethod
     def _to_bool(value):
@@ -359,6 +381,39 @@ class ResourceDataBuilder:
     # Template Rendering
     # ══════════════════════════════════════════════════════════════════════════
 
+    def _resolved_topology_switches(self):
+        if self._resolved_switches is None:
+            data_model = self.task_vars.get('data_model_extended') or {}
+            raw_switches = (((data_model.get('vxlan') or {}).get('topology') or {}).get('switches')) or []
+            self._resolved_switches = self.action_module._templar.template(raw_switches)
+        return self._resolved_switches
+
+    def _interface_group(self, mode, name_prefix=None):
+        group = []
+        for switch in self._resolved_topology_switches():
+            management = switch.get('management') or {}
+            for interface in (switch.get('interfaces') or []):
+                name = str(interface.get('name', '')).lower()
+                if name_prefix is not None and not name.startswith(name_prefix):
+                    continue
+                if interface.get('mode') != mode:
+                    continue
+                entry = dict(interface)
+                if 'management_ipv4_address' in management:
+                    entry['_mgmt_ipv4'] = management['management_ipv4_address']
+                if 'management_ipv6_address' in management:
+                    entry['_mgmt_ipv6'] = management['management_ipv6_address']
+                group.append(entry)
+        return group
+
+    def _interface_defaults(self, key):
+        if key not in self._interface_defaults_cache:
+            defaults = self.task_vars.get('defaults') or {}
+            interfaces = ((((defaults.get('vxlan') or {}).get('topology') or {}).get('switches') or {}).get('interfaces')) or {}
+            node = interfaces.get(key)
+            self._interface_defaults_cache[key] = self.action_module._templar.template(node) if node is not None else {}
+        return self._interface_defaults_cache[key]
+
     def _render_template(self, template_name, output_path):
         """
         Render a Jinja2 template using Ansible's Templar.
@@ -393,8 +448,16 @@ class ResourceDataBuilder:
         templar.environment.loader = new_loader
         old_vars = templar.available_variables
 
+        render_vars = self.task_vars
+        for suffix, (mode, name_prefix, defaults_key) in INTERFACE_TEMPLATE_GROUPS.items():
+            if template_name.endswith(suffix):
+                render_vars = dict(self.task_vars)
+                render_vars['interface_list'] = self._interface_group(mode, name_prefix)
+                render_vars['interface_defaults'] = self._interface_defaults(defaults_key)
+                break
+
         try:
-            templar.available_variables = self.task_vars
+            templar.available_variables = render_vars
 
             rendered = templar.template(
                 template_content,
@@ -414,7 +477,7 @@ class ResourceDataBuilder:
         if not os.path.exists(path):
             return []
         with open(path) as f:
-            data = yaml.safe_load(f)
+            data = yaml.load(f, Loader=_SafeLoader)
         return data if data else []
 
     # ══════════════════════════════════════════════════════════════════════════
@@ -508,7 +571,7 @@ class ResourceDataBuilder:
             shutil.copy2(sentinel_file, old_sentinel)
             os.remove(sentinel_file)
             with open(sentinel_file, 'w') as f:
-                f.write(yaml.dump({}, default_flow_style=False, sort_keys=True))
+                f.write(yaml.dump({}, default_flow_style=False, sort_keys=True, Dumper=_SafeDumper))
             if self._run_diff_model_changes(old_sentinel, sentinel_file):
                 if self.check_roles.get('save_previous', False):
                     self.change_flags['changes_detected_msite_overlay'] = True
@@ -532,6 +595,7 @@ class ResourceDataBuilder:
             overlay,
             default_flow_style=False,
             sort_keys=True,
+            Dumper=_SafeDumper,
         )
         with open(sentinel_file, 'w') as f:
             f.write(overlay_content)
@@ -567,7 +631,7 @@ class ResourceDataBuilder:
             return False
         try:
             with open(sentinel_path) as f:
-                prev_data = yaml.safe_load(f)
+                prev_data = yaml.load(f, Loader=_SafeLoader)
             return bool(prev_data.get(key)) if isinstance(prev_data, dict) else False
         except (yaml.YAMLError, IOError):
             return False
@@ -802,7 +866,7 @@ class ResourceDataBuilder:
 
         # Write current
         with open(output_file, 'w') as f:
-            yaml.dump(create_list, f, default_flow_style=False)
+            yaml.dump(create_list, f, default_flow_style=False, Dumper=_SafeDumper)
 
         # Run structural diff only when downstream targeted processing needs it.
         diff_result = None
