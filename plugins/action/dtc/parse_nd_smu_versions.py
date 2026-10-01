@@ -46,7 +46,10 @@ class ActionModule(ActionBase):
         result["smu_versions"] = []
 
         if return_code != 200:
-            return result
+            raise AnsibleActionFail(
+                f"Expected HTTP 200 from /api/v1/infra/systemSoftware/firmwares, "
+                f"got RETURN_CODE={return_code}. Response: {resp_dict}. Error: {msg_dict}"
+            )
 
         firmware = self._extract_firmware(resp_dict.get("DATA"))
         upgrade_history = firmware.get("upgradeHistory") or []
