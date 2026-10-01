@@ -281,6 +281,9 @@ factory_defaults:
       vpc_peers:
         domain_id: 1
         keepalive_hold_time: 3
+        system_priority: 32667
+        peer1_role_priority: 32667
+        peer2_role_priority: 32667
       fabric_links:
         mtu: 9216
         admin_state: true
