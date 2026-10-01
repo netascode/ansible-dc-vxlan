@@ -28,6 +28,10 @@ from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 import os
 import yaml
+try:
+    from yaml import CSafeLoader as _SafeLoader
+except ImportError:
+    from yaml import SafeLoader as _SafeLoader
 
 display = Display()
 
@@ -60,7 +64,7 @@ class ActionModule(ActionBase):
             return results
 
         with open(run_map_file_path, 'r') as file:
-            previous_run_map = yaml.safe_load(file)
+            previous_run_map = yaml.load(file, Loader=_SafeLoader)
 
         # Check run map flags and if any of then is false set diff_run to false
         # to force all sections to run.

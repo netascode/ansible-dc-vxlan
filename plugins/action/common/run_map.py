@@ -30,6 +30,10 @@ from datetime import datetime as dt
 import re
 import os
 import yaml
+try:
+    from yaml import CSafeLoader as _SafeLoader, CSafeDumper as _SafeDumper
+except ImportError:
+    from yaml import SafeLoader as _SafeLoader, SafeDumper as _SafeDumper
 
 display = Display()
 
@@ -74,7 +78,7 @@ class ActionModule(ActionBase):
 
         if stage != 'starting_execution':
             with open(run_map_file_path, 'r') as file:
-                data = yaml.safe_load(file)
+                data = yaml.load(file, Loader=_SafeLoader)
             updated_run_map = data
             if stage == 'role_validate_completed':
                 updated_run_map['role_validate_completed'] = True
@@ -92,7 +96,7 @@ class ActionModule(ActionBase):
 
         with open(run_map_file_path, 'w') as outfile:
             outfile.write("### This File Is Auto Generated, Do Not Edit ###\n")
-            yaml.dump(updated_run_map, outfile, default_flow_style=False)
+            yaml.dump(updated_run_map, outfile, default_flow_style=False, Dumper=_SafeDumper)
             # Add run map to results dictonary
             results['updated'] = updated_run_map
 
