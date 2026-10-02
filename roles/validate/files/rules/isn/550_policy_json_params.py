@@ -147,11 +147,11 @@ class Rule:
                         for value in allowed_values
                     }
 
-                if normalized_value not in normalized_allowed:
-                    results.append(
-                        f"Policy '{name}' {loc}.{field_name}='{field_value}' "
-                        f"is not one of {allowed_values}"
-                    )
+                    if normalized_value not in normalized_allowed:
+                        results.append(
+                            f"Policy '{name}' {loc}.{field_name}='{field_value}' "
+                            f"is not one of {allowed_values}"
+                        )
 
     @staticmethod
     def _normalize_enum_value(value):
