@@ -5,6 +5,13 @@
 # DO NOT EDIT MANUALLY
 #
 
+{# Var to set if ND has the 4.3.1.0175006011 patch #}
+{%- set ndfc_supports_interface_properties =
+  ndfc_version is defined
+  and ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '>'))
+    or ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '==')))
+    and ('4.3.1.0175006011' in (nd_smu_versions | default([]))))
+%}
 {% if data_model_extended.vxlan.topology.vpc_peers is defined %}
 {% for vpc_pair, vpc_data in data_model_extended.vxlan.topology.interfaces.vpc_interfaces.items() %}
 {% for vpc_id, switches in vpc_data.items() %}
@@ -71,7 +78,7 @@
 {% endif %}
 {% endif %}
 {% endif %}
-{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0', '>') %}
+{% if ndfc_supports_interface_properties %}
 {# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
     spanning_tree_port_type: "{{ translate(switches[peer1].spanning_tree_port_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"
 {# Data model defines value as GUARD MODE: none, while base collection defines it as GUARD MODE: no #}
@@ -141,7 +148,7 @@
 {% endif %}
 {% endif %}
 {% endif %}
-{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0', '>') %}
+{% if ndfc_supports_interface_properties %}
 {# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
     spanning_tree_port_type: "{{ translate(switches[peer1].spanning_tree_port_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"
 {# Data model defines ENABLE LLDP TRANSMIT/RECEIVE, while base collection defines DISABLE LLDP TRANSMIT/RECEIVE #}
