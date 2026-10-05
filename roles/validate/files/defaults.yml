@@ -388,6 +388,24 @@ factory_defaults:
           topology_switch_loopback_interface:
             description: "NetAsCode Loopback Interface"
             enabled: true
+            enable_pim_sparse: false
+            enable_eigrp_routing: false
+            eigrp_no_ipv4_passive: false
+            eigrp_ipv4_passive: false
+            eigrp_no_ipv6_passive: false
+            enable_eigrp_shutdown: false
+            enable_eigrp_bfd: false
+            disable_eigrp_bfd: false
+            enable_ospf: false
+            ospf_area_id: 0.0.0.0
+            enable_ospf_auth: false
+            ospf_auth_key_id: 1
+            ospf_authentication_key_type: 3
+            ospf_advertise_subnet: false
+            ospf_bfd: false
+            ospf_mtu_ignore: false
+            ospf_network_type: no_change
+            ospf_shutdown: false
         poap:
           bootstrap: false
           discovery_creds: false
