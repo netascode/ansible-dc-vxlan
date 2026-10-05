@@ -294,6 +294,7 @@ factory_defaults:
             disable_ipv4_redirects: false
             disable_ipv6_redirects: false
             enable_macsec_interface_policy: false
+            pim_dr_priority: 1
             enable_pim_sparse: false
             enable_pim_bfd_instance: false
             enable_netflow: false

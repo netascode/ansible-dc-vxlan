@@ -77,6 +77,7 @@
     macsec_fallback_key_chain_name: {{ interface['macsec_fallback_key_chain_name'] | default(omit) }}
 {% endif %}
     enable_pim_sparse: {{ interface['enable_pim_sparse'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_pim_sparse) | lower }}
+    pim_dr_priority: {{ interface['pim_dr_priority'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.pim_dr_priority) }}
     enable_pim_bfd_instance: {{ interface['enable_pim_bfd_instance'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_pim_bfd_instance) | lower }}
     enable_netflow: {{ interface['enable_netflow'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_netflow) | lower }}
 {% if interface['enable_netflow'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_netflow) %}
