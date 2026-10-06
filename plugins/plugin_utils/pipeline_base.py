@@ -293,6 +293,10 @@ class PipelineRunnerBase(ABC):
             save = step.get('save')
             deploy = step.get('deploy')
             skip_validation = step.get('skip_validation')
+            module_controls = {}
+            if self.OPERATION == 'create' and module == 'dcnm_network':
+                # Temporary inventory override until SMU discovery is available.
+                module_controls['patch_version'] = self.task_vars.get('patch_version')
 
             display.v(
                 f"{op_label} [{self.fabric_name}] Executing {module} for "
@@ -309,6 +313,7 @@ class PipelineRunnerBase(ABC):
                 deploy=deploy,
                 fabric_param=fabric_param,
                 skip_validation=skip_validation,
+                **module_controls,
             )
 
             elapsed = time.monotonic() - step_start

@@ -85,6 +85,7 @@ The following control variables are available in this collection.
 | Variable | Description | Default Value |
 | -------- | ------- | ------- |
 | `force_run_all` | Force all roles in the collection to run | `false` |
+| `patch_version` | Temporary development/test version override for network create/update calls | `null` (omitted) |
 | `edge_connections_delete_mode` | Remove edge_connections state as part of the remove role | `false` |
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
@@ -102,6 +103,76 @@ The following control variables are available in this collection.
 These variables are described in more detail in different sections of this document.
 
 The default settings can be overridden in `group_vars`.
+
+### Temporary Network Patch Version
+
+Until [PR #883](https://github.com/netascode/ansible-dc-vxlan/pull/883) provides SMU
+discovery, set `patch_version` in inventory `group_vars` or `host_vars` to pass a
+version explicitly to `cisco.dcnm.dcnm_network` during the create role:
+
+```yaml
+patch_version: "4.3.1.0175006011"
+force_run_all: true
+```
+
+Use a `cisco.dcnm` revision containing
+[PR #730](https://github.com/CiscoDevNet/ansible-dcnm/pull/730). Its IPv4 ACL support
+accepts the patched release shown above or a numeric ND release of `4.4.1` or
+later, such as `patch_version: "4.4.1"`. The override is unset by default and is
+passed only as a top-level network module argument during create/update calls.
+
+Use `force_run_all: true` when enabling or changing only this override, because
+the control value does not change the rendered network data used for diff runs.
+With a supported version, NaC's `state: replaced` network calls clear an existing
+inbound IPv4 ACL when `ipv4_acl_in` is omitted from that network's configuration.
+This override supplies the module version control; the NaC `ipv4_acl_in` schema
+and template mapping use the network fields described below.
+
+### Inbound IPv4 ACLs on Network SVIs
+
+Set `ipv4_acl_in` to a 1–64 character ACL name on a routed network using
+`Default_Network_Universal`. For VXLAN EVPN and eBGP VXLAN fabrics, place it under
+`vxlan.overlay.networks`:
+
+```yaml
+vxlan:
+  overlay:
+    networks:
+      - name: Network1
+        vrf_name: VrfRed
+        net_id: 30100
+        vlan_id: 100
+        gw_ip_address: 192.168.10.1/24
+        ipv4_acl_in: "TENANT-1-IN"
+```
+
+For MSD and MCFG fabrics, use `vxlan.multisite.overlay.networks`. Configure the
+ACL once on the parent network; ND propagates it to its child fabrics. Child
+fabric and switch attachment overrides do not support this field.
+
+The factory defaults leave `ipv4_acl_in` unset. An optional custom default can
+be supplied under `defaults.vxlan.overlay.networks.ipv4_acl_in` or
+`defaults.vxlan.multisite.overlay.networks.ipv4_acl_in`; a network's explicit
+value takes precedence. Empty strings and null are invalid ACL values. To clear
+an ACL with NaC's `state: replaced`, remove the field and any inherited ACL
+default while keeping a supported `patch_version` enabled.
+
+Use the updated companion model schema through `schema_path`. Until a
+`cisco.dcnm` release containing PR #730 is published, the existing `>=3.13.0`
+dependency alone does not provide this feature. For development, install the
+merged base revision explicitly after installing NaC and its dependencies,
+using the same collection installation path (add `-p <path>` for a custom path):
+
+```bash
+ansible-galaxy collection install 'git+https://github.com/CiscoDevNet/ansible-dcnm.git,f4965fe226bae7e25ae7f2c4b94d8b14db3337e4' --force
+```
+
+The pinned revision identifies itself as `3.13.0-dev`; a later normal dependency
+installation can replace it with release `3.13.0`. Check
+`ansible-doc cisco.dcnm.dcnm_network` in the testing environment and confirm that
+both `patch_version` and `ipv4_acl_in` are present.
+
+Use the first released version containing PR #730 when it becomes available.
 
 ## Quick Start Guide
 

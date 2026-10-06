@@ -14,6 +14,9 @@
   vlan_id: {{ net['vlan_id'] | default(omit) }}
   vlan_name: {{ net['vlan_name'] | default(omit) }}
   gw_ip_subnet: {{ net['gw_ip_address'] | default(omit) }}
+{% if net.ipv4_acl_in is defined or defaults.vxlan.overlay.networks.ipv4_acl_in is defined %}
+  ipv4_acl_in: {{ net['ipv4_acl_in'] | default(defaults.vxlan.overlay.networks.ipv4_acl_in) | to_json }}
+{% endif %}
 {% if net.secondary_ip_addresses is defined %}
 {% if net.secondary_ip_addresses | length == 1 %}
   secondary_ip_gw1: {{ net['secondary_ip_addresses'][0]['ip_address'] }}

@@ -33,6 +33,9 @@
 force_run_all: false
 stage_remove: false
 
+# Temporary network module version override until PR #883 provides SMU discovery.
+patch_version: null
+
 # Parameters to enable/disable remove role tasks
 edge_connections_delete_mode: false
 interface_delete_mode: false
