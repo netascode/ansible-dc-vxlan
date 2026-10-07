@@ -743,6 +743,7 @@ class ResourceDataBuilder:
             'interface_loopback',
             'interface_dot1q',
             'interface_dot1q_po',
+            'interface_vlan',
             'interface_vpc',
         ]
 
@@ -759,6 +760,7 @@ class ResourceDataBuilder:
             'interface_loopback',
             'interface_dot1q',
             'interface_dot1q_po',
+            'interface_vlan',
             'interface_vpc',
         ]
 

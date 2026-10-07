@@ -1,0 +1,141 @@
+{% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
+---
+# This NDFC SVI (interface vlan) data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+
+{# Var to set if ND has the 4.3.1.0175006011 patch #}
+{%- set ndfc_supports_interface =
+  ndfc_version is defined
+  and ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '>'))
+    or ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '==')))
+    and ('4.3.1.0175006011' in (nd_smu_versions | default([]))))
+%}
+{% if ndfc_supports_interface %}
+{% for switch in data_model_extended.vxlan.topology.switches %}
+{% if switch.interfaces is defined %}
+{% for interface in switch['interfaces'] %}
+{% if interface['mode'] == 'vlan' %}
+{% set vlan_id = interface['name'] | lower | replace('vlan', '') %}
+- name: {{ interface['name'] }}
+  type: svi
+  switch:
+{% if switch.management.management_ipv4_address is defined %}
+    - {{ switch.management.management_ipv4_address}}
+{% elif (switch.management.management_ipv4_address is not defined) and (switch.management.management_ipv6_address is defined)  %}
+    - {{ switch.management.management_ipv6_address}}
+{% endif %}
+  deploy: false
+  profile:
+    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enabled) | lower }}
+    mode: vlan
+    vlan: {{ vlan_id }}
+{% if interface['ipv4_address'] is defined %}
+{% set ipv4_address__mask = interface['ipv4_address'].split('/') %}
+    ipv4_addr: {{ ipv4_address__mask[0] | default(omit) }}
+    ipv4_mask_len: {{ ipv4_address__mask[1] | default(omit) }}
+{% endif %}
+{% if interface['ipv6_address'] is defined %}
+{% set ipv6_address__mask = interface['ipv6_address'].split('/') %}
+    ipv6_addr: {{ ipv6_address__mask[0] | default(omit) }}
+    ipv6_mask_len: {{ ipv6_address__mask[1] | default(omit) }}
+{% endif %}
+    description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.description) }}"
+    route_tag: {{ interface['ipv4_route_tag'] | default(omit) }}
+    int_vrf: {{ interface['vrf'] | default(omit) }}
+    mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.mtu) }}
+    ipv6_link_local: {{ interface['ipv6_link_local_address'] | default(omit) }}
+    ipv6_nd_suppress_ra: {{ interface['ipv6_nd_suppress_ra'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.ipv6_nd_suppress_ra) | lower }}
+    disable_ipv4_redirects: {{ interface['disable_ipv4_redirects'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.disable_ipv4_redirects) | lower }}
+    disable_ipv6_redirects: {{ interface['disable_ipv6_redirects'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.disable_ipv6_redirects) | lower }}
+    arp_timeout: {{ interface['arp_timeout'] | default(omit) }}
+    ipv4_acl_in: {{ interface['ipv4_acl_in'] | default(omit) }}
+    enable_pim_sparse: {{ interface['enable_pim_sparse'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_pim_sparse) | lower }}
+    pim_dr_priority: {{ interface['pim_dr_priority'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.pim_dr_priority) }}
+{% if interface['eigrp_process_tag'] is defined %}
+    eigrp_process_tag: {{ interface['eigrp_process_tag'] }}
+    enable_eigrp_routing: {{ interface['enable_eigrp_routing'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_eigrp_routing) | lower }}
+    enable_eigrp_ipv6_routing: {{ interface['enable_eigrp_ipv6_routing'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_eigrp_ipv6_routing) | lower }}
+    eigrp_no_ipv4_passive: {{ interface['eigrp_no_ipv4_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.eigrp_no_ipv4_passive) | lower }}
+    eigrp_ipv4_passive: {{ interface['eigrp_ipv4_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.eigrp_ipv4_passive) | lower }}
+    eigrp_no_ipv6_passive: {{ interface['eigrp_no_ipv6_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.eigrp_no_ipv6_passive) | lower }}
+    eigrp_ipv4_distribute_list_prefix_list: {{ interface['eigrp_ipv4_distribute_list_prefix_list'] | default(omit) }}
+    eigrp_ipv4_distribute_list_direction: {{ interface['eigrp_ipv4_distribute_list_direction'] | default(omit) }}
+    eigrp_ipv6_distribute_list_prefix_list: {{ interface['eigrp_ipv6_distribute_list_prefix_list'] | default(omit) }}
+    eigrp_ipv6_distribute_list_direction: {{ interface['eigrp_ipv6_distribute_list_direction'] | default(omit) }}
+    enable_eigrp_shutdown: {{ interface['enable_eigrp_shutdown'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_eigrp_shutdown) | lower }}
+    enable_eigrp_bfd: {{ interface['enable_eigrp_bfd'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_eigrp_bfd) | lower }}
+    disable_eigrp_bfd: {{ interface['disable_eigrp_bfd'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.disable_eigrp_bfd) | lower }}
+{% endif %}
+    enable_bfd_interval: {{ interface['enable_bfd_interval'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_bfd_interval) | lower }}
+{% if interface['enable_bfd_interval'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_bfd_interval) %}
+    bfd_tx_interval: {{ interface['bfd_tx_interval'] | default(omit) }}
+    bfd_min_rx_interval: {{ interface['bfd_min_rx_interval'] | default(omit) }}
+    bfd_multiplier: {{ interface['bfd_multiplier'] | default(omit) }}
+{% endif %}
+    disable_bfd_echo: {{ interface['disable_bfd_echo'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.disable_bfd_echo) | lower }}
+    enable_ospf: {{ interface['enable_ospf'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_ospf) | lower }}
+{% if interface['enable_ospf'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_ospf) %}
+    ospf_tag: {{ interface['ospf_tag'] | default(omit) }}
+    ospf_area_id: {{ interface['ospf_area_id'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.ospf_area_id) }}
+    enable_ospf_auth: {{ interface['enable_ospf_auth'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_ospf_auth) | lower }}
+{% if interface['enable_ospf_auth'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_ospf_auth) %}
+    ospf_auth_key_id: {{ interface['ospf_auth_key_id'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.ospf_auth_key_id) }}
+    ospf_auth_key: {{ interface['ospf_auth_key'] | default(omit) }}
+{% endif %}
+    ospf_authentication_key_type: "{{ interface['ospf_authentication_key_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.ospf_authentication_key_type) }}"
+    ospf_authentication_key: {{ interface['ospf_authentication_key'] | default(omit) }}
+    ospf_passive_mode: {{ interface['ospf_passive_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.ospf_passive_mode) }}
+    ospf_bfd_mode: {{ interface['ospf_bfd_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.ospf_bfd_mode) }}
+    ospf_cost: {{ interface['ospf_cost'] | default(omit) }}
+    ospf_mtu_ignore: {{ interface['ospf_mtu_ignore'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.ospf_mtu_ignore) | lower }}
+    ospf_hello_interval: {{ interface['ospf_hello_interval'] | default(omit) }}
+    ospf_dead_interval: {{ interface['ospf_dead_interval'] | default(omit) }}
+    ospf_shutdown: {{ interface['ospf_shutdown'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.ospf_shutdown) | lower }}
+    ospf_transmit_delay: {{ interface['ospf_transmit_delay'] | default(omit) }}
+    ospf_priority: {{ interface['ospf_priority'] | default(omit) }}
+    ospf_network_type: {{ interface['ospf_network_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.ospf_network_type) }}
+    ospf_retransmit_interval: {{ interface['ospf_retransmit_interval'] | default(omit) }}
+{% endif %}
+    enable_hsrp: {{ interface['enable_hsrp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_hsrp) | lower }}
+{% if interface['enable_hsrp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_hsrp) %}
+    hsrp_vip: {{ interface['hsrp_vip'] | default(omit) }}
+    hsrp_group: {{ interface['hsrp_group'] | default(omit) }}
+    hsrp_version: {{ interface['hsrp_version'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.hsrp_version) }}
+    hsrp_priority: {{ interface['hsrp_priority'] | default(omit) }}
+    preempt: {{ interface['preempt'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.preempt) | lower }}
+    hsrp_vipv6: {{ interface['hsrp_vipv6'] | default(omit) }}
+    hsrp_groupv6: {{ interface['hsrp_groupv6'] | default(omit) }}
+    hsrp_preempt_delay_minimum: {{ interface['hsrp_preempt_delay_minimum'] | default(omit) }}
+    hsrp_priority_forwarding_threshold_lower: {{ interface['hsrp_priority_forwarding_threshold_lower'] | default(omit) }}
+    hsrp_priority_forwarding_threshold_upper: {{ interface['hsrp_priority_forwarding_threshold_upper'] | default(omit) }}
+{% if interface['hsrp_secondary_vips'] is defined %}
+    hsrp_secondary_vips:
+{% for vip in interface['hsrp_secondary_vips'] %}
+      - hsrp_secondary_vip: {{ vip['hsrp_secondary_vip'] }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if interface['secondary_gws'] is defined %}
+    secondary_gws:
+{% for gw in interface['secondary_gws'] %}
+      - gateway_ip_address: {{ gw['gateway_ip_address'] }}
+{% endfor %}
+{% endif %}
+{% if interface['dhcp_relay_servers'] is defined %}
+{% for server in interface['dhcp_relay_servers'] %}
+    dhcp_server_addr{{ loop.index }}: {{ server['ip_address'] }}
+    vrf_dhcp{{ loop.index }}: {{ server['vrf'] }}
+{% endfor %}
+{% endif %}
+    dhcp_relay_src_intf: {{ interface['dhcp_relay_src_intf'] | default(omit) }}
+{% if interface['private_vlan_mapping'] is defined %}
+    private_vlan_mapping: "{{ convert_ranges(interface['private_vlan_mapping'], '') | trim }}"
+{% endif %}
+    cmds: |2-
+      {{ interface['freeform_config'] | default('') | indent(6, false) }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
