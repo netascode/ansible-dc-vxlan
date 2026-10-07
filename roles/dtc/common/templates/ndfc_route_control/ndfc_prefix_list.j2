@@ -8,7 +8,7 @@
         {# Get IPv4 Pfx under Route_control #}
         {% for ipv4_prefix_list in item["ipv4_prefix_lists"]%}
             {# If policy name in Group equal to policy in Route_control #}
-            {% if policy_name["name"] == ipv4_prefix_list["name"] %}
+            {% if policy_name["name"] == ipv4_prefix_list["name"] and (ipv4_prefix_list["native"] is not defined or ipv4_prefix_list["native"] is false) %}
                 {% if "description" in ipv4_prefix_list %}
 ip prefix-list {{ ipv4_prefix_list["name"] }} description {{ ipv4_prefix_list["description"] }}
                 {% endif %}
@@ -45,7 +45,7 @@ ip prefix-list {{ ipv4_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ e
     {# Get IPv6 Pfx under Route_control #}
         {% for ipv6_prefix_list in item["ipv6_prefix_lists"]%}
             {# If policy name in Group equal to policy in Route_control #}
-            {% if policy_name["name"] == ipv6_prefix_list["name"] %}
+            {% if policy_name["name"] == ipv6_prefix_list["name"] and (ipv6_prefix_list["native"] is not defined or ipv6_prefix_list["native"] is false) %}
                 {% if "description" in ipv6_prefix_list %}
 ipv6 prefix-list {{ ipv6_prefix_list["name"] }} description {{ ipv6_prefix_list["description"] }}
                 {% endif %}
