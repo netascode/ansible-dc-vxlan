@@ -19,6 +19,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import json
 import os
 import re
 from ansible.utils.display import Display
@@ -79,6 +80,38 @@ def resolve_env_vars_in_string(value, path):
     return new_value, resolved_count
 
 
+def resolve_env_vars_in_value(value, path):
+    """
+    Resolve env_var_ tokens in a single string value, JSON-aware.
+
+    If the value is a JSON-encoded string carrying env_var_ tokens (e.g. a
+    prep_006-encoded policy nvPair like '{"REMARK_COMMENT":"env_var_X"}'),
+    decode it, resolve tokens in the decoded scalar leaves, and re-serialize
+    with the same compact separators prep_006 uses. This guarantees the
+    substituted value is JSON-escaped, so quotes/backslashes/newlines in the
+    env var cannot corrupt or re-interpret the JSON.
+
+    Callers only invoke this for strings that contain env_var_, so a
+    placeholder-free JSON string is never decoded/re-encoded and keeps its
+    exact original bytes. A value that contains env_var_ but is not valid
+    JSON falls back to the original raw-substitution behavior.
+
+    Returns (new_value, resolved_count). The count reflects token
+    substitutions only; JSON decode/encode never contributes to it.
+    """
+    stripped = value.strip()
+    if stripped[:1] in ('{', '['):
+        try:
+            decoded = json.loads(value)
+        except (ValueError, TypeError):
+            decoded = None
+        if decoded is not None:
+            count = resolve_env_vars_recursive(decoded, path)
+            return json.dumps(decoded, separators=(",", ":")), count
+
+    return resolve_env_vars_in_string(value, path)
+
+
 def resolve_env_vars_recursive(data, path=''):
     """
     Resolve all env_var_ tokens in a data structure by replacing them
@@ -93,7 +126,7 @@ def resolve_env_vars_recursive(data, path=''):
         for key, value in data.items():
             current_path = f"{path}.{key}" if path else key
             if isinstance(value, str) and ENV_VAR_PREFIX in value:
-                data[key], count = resolve_env_vars_in_string(value, current_path)
+                data[key], count = resolve_env_vars_in_value(value, current_path)
                 resolved_count += count
             elif isinstance(value, (dict, list)):
                 resolved_count += resolve_env_vars_recursive(value, current_path)
@@ -101,7 +134,7 @@ def resolve_env_vars_recursive(data, path=''):
         for index, item in enumerate(data):
             current_path = f"{path}[{index}]"
             if isinstance(item, str) and ENV_VAR_PREFIX in item:
-                data[index], count = resolve_env_vars_in_string(item, current_path)
+                data[index], count = resolve_env_vars_in_value(item, current_path)
                 resolved_count += count
             elif isinstance(item, (dict, list)):
                 resolved_count += resolve_env_vars_recursive(item, current_path)
