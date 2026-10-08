@@ -85,7 +85,6 @@ The following control variables are available in this collection.
 | Variable | Description | Default Value |
 | -------- | ------- | ------- |
 | `force_run_all` | Force all roles in the collection to run | `false` |
-| `patch_version` | Temporary development/test version override for network create/update calls | `null` (omitted) |
 | `edge_connections_delete_mode` | Remove edge_connections state as part of the remove role | `false` |
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
@@ -104,29 +103,29 @@ These variables are described in more detail in different sections of this docum
 
 The default settings can be overridden in `group_vars`.
 
-### Temporary Network Patch Version
+### Network Version Discovery
 
-Until [PR #883](https://github.com/netascode/ansible-dc-vxlan/pull/883) provides SMU
-discovery, set `patch_version` in inventory `group_vars` or `host_vars` to pass a
-version explicitly to `cisco.dcnm.dcnm_network` during the create role:
+The connectivity check discovers the ND release and active SMUs.
+For network create/update calls, the collection selects a compatible active SMU
+when one is present in `nd_smu_versions`;
+otherwise it uses the numeric ND release obtained during discovery. The full
+`nd_version` fact remains available for other controller operations.
 
-```yaml
-patch_version: "4.3.1.0175006011"
-force_run_all: true
-```
+The selected version is passed automatically as a top-level `patch_version`
+argument to `cisco.dcnm.dcnm_network` during network create/update calls. Remove
+the former `patch_version` inventory setting; version selection now uses the
+discovered controller facts.
 
-Use a `cisco.dcnm` revision containing
-[PR #730](https://github.com/CiscoDevNet/ansible-dcnm/pull/730). Its IPv4 ACL support
-accepts the patched release shown above or a numeric ND release of `4.4.1` or
-later, such as `patch_version: "4.4.1"`. The override is unset by default and is
-passed only as a top-level network module argument during create/update calls.
+Use a `cisco.dcnm` revision that supports the `patch_version` module argument
+and the `ipv4_acl_in` network property. The property is available in ND `4.4.1`
+or later.
+Because version discovery supplies the top-level module argument automatically,
+all network create/update calls require that base revision, including calls
+whose network intent omits `ipv4_acl_in`.
 
-Use `force_run_all: true` when enabling or changing only this override, because
-the control value does not change the rendered network data used for diff runs.
-With a supported version, NaC's `state: replaced` network calls clear an existing
-inbound IPv4 ACL when `ipv4_acl_in` is omitted from that network's configuration.
-This override supplies the module version control; the NaC `ipv4_acl_in` schema
-and template mapping use the network fields described below.
+Controller software and active-SMU changes do not change the rendered network
+data used for diff runs. Set `force_run_all: true` when reconciling unchanged
+network intent after such a change.
 
 ### Inbound IPv4 ACLs on Network SVIs
 
@@ -153,12 +152,15 @@ fabric and switch attachment overrides do not support this field.
 The factory defaults leave `ipv4_acl_in` unset. An optional custom default can
 be supplied under `defaults.vxlan.overlay.networks.ipv4_acl_in` or
 `defaults.vxlan.multisite.overlay.networks.ipv4_acl_in`; a network's explicit
-value takes precedence. Empty strings and null are invalid ACL values. To clear
-an ACL with NaC's `state: replaced`, remove the field and any inherited ACL
-default while keeping a supported `patch_version` enabled.
+value takes precedence. Empty strings and null are invalid ACL values. On a
+supported controller, every processed `state: replaced` network call clears an
+existing inbound IPv4 ACL when neither an explicit ACL nor an inherited custom
+default is supplied. This also applies when updating other network attributes.
+Keep the ACL in network intent or its custom default to preserve it; remove
+both values to clear it.
 
 Use the updated companion model schema through `schema_path`. Until a
-`cisco.dcnm` release containing PR #730 is published, the existing `>=3.13.0`
+`cisco.dcnm` release supporting both options is published, the existing `>=3.13.0`
 dependency alone does not provide this feature. For development, install the
 merged base revision explicitly after installing NaC and its dependencies,
 using the same collection installation path (add `-p <path>` for a custom path):
@@ -172,7 +174,7 @@ installation can replace it with release `3.13.0`. Check
 `ansible-doc cisco.dcnm.dcnm_network` in the testing environment and confirm that
 both `patch_version` and `ipv4_acl_in` are present.
 
-Use the first released version containing PR #730 when it becomes available.
+Use the first released version supporting both options when it becomes available.
 
 ## Quick Start Guide
 

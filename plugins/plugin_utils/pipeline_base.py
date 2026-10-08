@@ -55,6 +55,9 @@ from ansible.utils.display import Display
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.registry_loader import (
     RegistryLoader,
 )
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.network_version import (
+    resolve_network_patch_version,
+)
 
 display = Display()
 
@@ -295,8 +298,15 @@ class PipelineRunnerBase(ABC):
             skip_validation = step.get('skip_validation')
             module_controls = {}
             if self.OPERATION == 'create' and module == 'dcnm_network':
-                # Temporary inventory override until SMU discovery is available.
-                module_controls['patch_version'] = self.task_vars.get('patch_version')
+                module_controls['patch_version'] = resolve_network_patch_version(
+                    nd_smu_versions=self.task_vars.get('nd_smu_versions'),
+                    nd_version=self.task_vars.get('nd_version'),
+                    nd_version_response=self.task_vars.get('nd_version_response'),
+                )
+                display.v(
+                    f"{op_label} [{self.fabric_name}] Discovered network version: "
+                    f"{module_controls['patch_version'] or 'unavailable'}"
+                )
 
             display.v(
                 f"{op_label} [{self.fabric_name}] Executing {module} for "

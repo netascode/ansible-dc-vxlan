@@ -20,6 +20,7 @@ from ansible.playbook.task import Task
 from ansible.template import Templar
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.build_resource_data import ResourceDataBuilder
+from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.build_resource_data import ActionModule as BuildAction
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.diff_compare import ActionModule as DiffAction
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.manage_resources import ResourceManager
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.dtc.remove_resources import ResourceRemover
@@ -51,6 +52,8 @@ class CaptureAction:
     def get_action(self, module_name, **kwargs):
         if module_name == "cisco.nac_dc_vxlan.dtc.diff_compare":
             return DiffAction(**kwargs)
+        if module_name == "cisco.nac_dc_vxlan.dtc.build_resource_data":
+            return BuildAction(**kwargs)
         if module_name not in ("cisco.dcnm.dcnm_network", "cisco.dcnm.dcnm_vrf"):
             raise AssertionError("Unexpected action invocation: %s" % module_name)
         action = self
@@ -100,7 +103,7 @@ def build_networks(tmp_path):
     (role_path / "templates").symlink_to(COLLECTION_ROOT / "roles/dtc/common/templates", target_is_directory=True)
     factory_defaults = yaml.safe_load((COLLECTION_ROOT / "roles/validate/files/defaults.yml").read_text())["factory_defaults"]
 
-    def build(fabric_type, acl=MISSING, default_acl=MISSING, patch_version=SMU_VERSION,
+    def build(fabric_type, acl=MISSING, default_acl=MISSING, discovery=None,
               force=False, children=False, phase="networks"):
         net = {"name": "network1", "net_id": 30001, "vrf_name": "tenant1", "vlan_id": 101}
         if acl is not MISSING:
@@ -120,14 +123,18 @@ def build_networks(tmp_path):
             "defaults": defaults,
             "omit": "__omit_place_holder__unit_test",
             "nd_version": "4.4.1",
+            "nd_smu_versions": [],
             "ndfc_version": "12.6.0.267",
             "runtime_msd_data_model": runtime_data,
             "runtime_mcfg_data_model": runtime_data,
             "common_role_path": str(role_path),
             "check_roles": {"save_previous": True},
         }
-        if patch_version is not MISSING:
-            task_vars["patch_version"] = patch_version
+        for name, value in (discovery or {}).items():
+            if value is MISSING:
+                task_vars.pop(name, None)
+            else:
+                task_vars[name] = value
         params = {
             "fabric_type": fabric_type,
             "fabric_name": "acl-test",
@@ -154,7 +161,7 @@ def build_networks(tmp_path):
     return build
 
 
-def run_create(result, action, task_vars, force=False):
+def run_create(result, action, task_vars, force=False, deferred=False):
     model = task_vars["data_model_extended"]
     fabric = model["vxlan"]["fabric"]
     params = {
@@ -164,9 +171,16 @@ def run_create(result, action, task_vars, force=False):
     }
     task_vars["ansible_run_tags"] = ["cr_manage_networks"]
     runner = ResourceManager(params, NdfcModuleExecutor(action, task_vars), task_vars)
-    # Parent discovery/preparation requires a controller; the rendered overlay
-    # and its local diff are already supplied by the real builder above.
-    with patch.object(runner, "_dispatch_internal_method", return_value={"status": "ok", "changed": False}):
+    # Controller preparation is replaced; selected tests retain the real
+    # deferred parent render so forced runs exercise its full dispatch path.
+    original_dispatch = runner._dispatch_internal_method
+
+    def dispatch(resource_name, module, step):
+        if deferred and module == "_msite_build_overlay":
+            return original_dispatch(resource_name, module, step)
+        return {"status": "ok", "changed": False}
+
+    with patch.object(runner, "_dispatch_internal_method", side_effect=dispatch):
         outcome = runner.run_pipeline()
     assert not outcome["failed"], outcome
     assert action._task.args is action.original_args
@@ -183,7 +197,7 @@ def test_acl_string_survives_real_render_and_module_dispatch(build_networks, fab
     module, args = calls[0]
     assert module == "cisco.dcnm.dcnm_network"
     assert args["state"] == "replaced"
-    assert args["patch_version"] == SMU_VERSION
+    assert args["patch_version"] == "4.4.1"
     assert args["config"][0]["ipv4_acl_in"] == acl
     assert isinstance(args["config"][0]["ipv4_acl_in"], str)
     assert "patch_version" not in args["config"][0]
@@ -285,23 +299,59 @@ def test_parent_default_with_empty_networks_does_not_mutate_model(build_networks
     assert overlay == original_overlay
 
 
-def test_control_only_change_requires_full_run(build_networks):
-    build_networks("VXLAN_EVPN", acl="TENANT-IN")
-    _, repeat, action, task_vars = build_networks("VXLAN_EVPN", acl="TENANT-IN", patch_version="4.4.1")
-    assert not repeat["change_flags"]["changes_detected_any"]
-    assert run_create(repeat, action, task_vars) == []
-    _, full, action, task_vars = build_networks(
-        "VXLAN_EVPN", acl="TENANT-IN", patch_version="4.4.1", force=True, phase="full",
+@pytest.mark.parametrize("fabric_type", FABRICS)
+def test_detected_version_only_changes_require_full_run(build_networks, fabric_type):
+    _, initial, action, task_vars = build_networks(
+        fabric_type, acl="TENANT-IN", discovery={"nd_version": "4.3.1", "nd_smu_versions": [SMU_VERSION]},
+        force=True, phase="full",
     )
-    assert full["change_flags"]["changes_detected_networks"]
-    assert run_create(full, action, task_vars, force=True)[0][1]["patch_version"] == "4.4.1"
+    assert run_create(initial, action, task_vars, force=True, deferred=True)[0][1]["patch_version"] == SMU_VERSION
+    transitions = [
+        ({"nd_version": "4.4.1", "nd_smu_versions": []}, "4.4.1"),
+        ({"nd_version": "4.5.1", "nd_smu_versions": []}, "4.5.1"),
+    ]
+    for discovery, expected in transitions:
+        phase = "common" if fabric_type in ("MSD", "MCFG") else "networks"
+        _, repeat, action, task_vars = build_networks(fabric_type, acl="TENANT-IN", discovery=discovery, phase=phase)
+        assert not repeat["change_flags"]["changes_detected_any"]
+        assert run_create(repeat, action, task_vars, deferred=True) == []
+        _, full, action, task_vars = build_networks(
+            fabric_type, acl="TENANT-IN", discovery=discovery, force=True, phase="full",
+        )
+        assert full["change_flags"]["changes_detected_networks"]
+        calls = run_create(full, action, task_vars, force=True, deferred=True)
+        assert len(calls) == 1
+        assert calls[0][1]["patch_version"] == expected
+        assert calls[0][1]["config"][0]["ipv4_acl_in"] == "TENANT-IN"
 
 
 @pytest.mark.parametrize("fabric_type", FABRICS)
-@pytest.mark.parametrize("version", [MISSING, None, "", " \t\n ", "__omit_place_holder__unit_test"])
-def test_unset_override_is_omitted_from_real_network_call(build_networks, fabric_type, version):
-    _, result, action, task_vars = build_networks(fabric_type, patch_version=version)
-    assert "patch_version" not in run_create(result, action, task_vars)[0][1]
+@pytest.mark.parametrize("discovery,expected", [
+    ({"nd_version": "4.3.1", "nd_smu_versions": ["4.3.1.99", SMU_VERSION, "4.3.1.10"]}, SMU_VERSION),
+    ({"nd_version": "4.3.1", "nd_smu_versions": [SMU_VERSION]}, SMU_VERSION),
+    ({"nd_version": "4.4.1a"}, "4.4.1"),
+    ({"nd_version": "4.5.2.10", "nd_smu_versions": ["4.3.1.99"]}, "4.5.2"),
+    ({"nd_version": "4.3.1", "nd_smu_versions": ["4.3.1.0175006012"]}, "4.3.1"),
+    ({"nd_version": "4.4.1", "nd_version_response": {"json": {"major": 4, "minor": 5, "maintenance": 2}}}, "4.5.2"),
+    ({"nd_version": MISSING, "nd_smu_versions": MISSING, "ndfc_version": "99.9.9"}, None),
+    ({"nd_version": "malformed", "nd_smu_versions": [], "ndfc_version": "12.6.0.267"}, None),
+])
+def test_detected_version_reaches_each_network_pipeline(build_networks, fabric_type, discovery, expected):
+    _, result, action, task_vars = build_networks(fabric_type, discovery=discovery)
+    args = run_create(result, action, task_vars)[0][1]
+    if expected is None:
+        assert "patch_version" not in args
+    else:
+        assert args["patch_version"] == expected
+    assert "patch_version" not in args["config"][0]
+
+
+@pytest.mark.parametrize("fabric_type", FABRICS)
+def test_inventory_override_cannot_enable_unsupported_detected_release(build_networks, fabric_type):
+    _, result, action, task_vars = build_networks(
+        fabric_type, discovery={"nd_version": "4.3.1", "patch_version": SMU_VERSION},
+    )
+    assert run_create(result, action, task_vars)[0][1]["patch_version"] == "4.3.1"
 
 
 @pytest.mark.parametrize("module,state", [
@@ -310,7 +360,7 @@ def test_unset_override_is_omitted_from_real_network_call(build_networks, fabric
     ("cisco.dcnm.dcnm_vrf", "replaced"),
     ("cisco.dcnm.dcnm_policy", "merged"),
 ])
-def test_override_does_not_reach_other_modules_or_states(module, state):
+def test_network_version_does_not_reach_other_modules_or_states(module, state):
     action = CaptureAction()
     NdfcModuleExecutor(action, {}).execute(
         module, state, [{"net_name": "network1"}], "acl-test", patch_version=SMU_VERSION,
@@ -319,8 +369,8 @@ def test_override_does_not_reach_other_modules_or_states(module, state):
 
 
 @pytest.mark.parametrize("fabric_type", FABRICS)
-def test_real_remove_pipeline_omits_override(build_networks, fabric_type):
-    _, result, action, task_vars = build_networks(fabric_type)
+def test_real_remove_pipeline_omits_detected_version(build_networks, fabric_type):
+    _, result, action, task_vars = build_networks(fabric_type, discovery={"nd_smu_versions": [SMU_VERSION]})
     data = result["resource_data"]["networks"]["data"]
     result["resource_data"]["networks"]["diff"]["removed"] = data
     task_vars.update({
