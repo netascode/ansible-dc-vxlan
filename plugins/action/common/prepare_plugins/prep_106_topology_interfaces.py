@@ -29,7 +29,7 @@ class PreparePlugin:
         self.kwargs = kwargs
         self.keys = []
         # interface modes which are a direct match
-        self.mode_direct = ['routed', 'routed_po', 'routed_sub', 'loopback', 'fabric_loopback', 'mpls_loopback', 'vlan']
+        self.mode_direct = ['routed', 'routed_po', 'routed_sub', 'loopback', 'fabric_loopback', 'mpls_loopback', 'vlan', 'pvlan']
         # interface modes which need additional validation
         self.mode_indirect = ['access', 'dot1q', 'trunk', 'access_po', 'trunk_po', 'access_vpc', 'trunk_vpc', 'all']
 

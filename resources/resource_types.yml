@@ -342,6 +342,17 @@ resource_types:
       - ISN
       - External
 
+  interface_pvlan:
+    template: ndfc_interfaces/ndfc_interface_pvlan.j2
+    output_file: ndfc_interface_pvlan.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
   interface_all:
     template: null
     output_file: ndfc_interface_all.yml

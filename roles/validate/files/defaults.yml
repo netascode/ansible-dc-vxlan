@@ -419,6 +419,22 @@ factory_defaults:
             enable_hsrp: false
             hsrp_version: 1
             preempt: false
+          topology_switch_pvlan_interface:
+            description: "NetAsCode PVLAN Host Interface"
+            enabled: true
+            mtu: jumbo
+            speed: auto
+            enable_cdp: true
+            enable_lldp_transmit: true
+            enable_lldp_receive: true
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            enable_priority_flow_control: false
+            enable_qos: false
+            trunk_allowed_vlans: none
+            native_vlan: ""
           topology_switch_loopback_interface:
             description: "NetAsCode Loopback Interface"
             enabled: true
