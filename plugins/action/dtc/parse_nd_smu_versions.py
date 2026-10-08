@@ -88,20 +88,59 @@ class ActionModule(ActionBase):
         """
         Walk upgrade_history for the first entry that represents SMU activity on
         the currently-running version (fromVersion == toVersion == current), then
-        return the SMU versions that are currently active — i.e. activated and
-        not subsequently removed within that same entry.
+        return the SMU versions that are currently active.
+
+        A version's active state is decided by its *latest* event, not by set
+        membership. The firmware-history contract permits repeated events for the
+        same version (e.g. remove on day 1, re-activate on day 2); their order is
+        given by the per-event ``timestamp``. For each version we keep only the
+        most recent event and include the version when that event's action is
+        ``activate``. ``remove`` and ``superseded`` are treated as inactive.
+
+        Events without a parseable timestamp fall back to their position in the
+        ``smus`` list (later entries win), so ordering is preserved even if the
+        controller omits timestamps.
         """
         for upgrade in upgrade_history:
             if (upgrade.get("fromVersion") == current_full_version
                     and upgrade.get("toVersion") == current_full_version):
                 smus = upgrade.get("smus") or []
-                activated = {
-                    smu["version"] for smu in smus
-                    if smu and smu.get("action") == "activate" and smu.get("version")
+
+                # For each version, remember the latest event seen so far. The
+                # sort key is (timestamp, list_index): timestamp decides order
+                # when present; list_index breaks ties and covers missing
+                # timestamps (later list position is later).
+                latest = {}
+                for index, smu in enumerate(smus):
+                    if not smu:
+                        continue
+                    version = smu.get("version")
+                    action = smu.get("action")
+                    if not version or not action:
+                        continue
+                    sort_key = (ActionModule._timestamp_key(smu.get("timestamp")), index)
+                    existing = latest.get(version)
+                    if existing is None or sort_key >= existing[0]:
+                        latest[version] = (sort_key, action)
+
+                active = {
+                    version
+                    for version, (_sort_key, action) in latest.items()
+                    if action == "activate"
                 }
-                removed = {
-                    smu["version"] for smu in smus
-                    if smu and smu.get("action") == "remove" and smu.get("version")
-                }
-                return sorted(activated - removed)
+                return sorted(active)
         return []
+
+    @staticmethod
+    def _timestamp_key(timestamp):
+        """
+        Convert an SMU event timestamp into a sortable value.
+
+        Returns a value that orders chronologically and always compares less
+        than any real timestamp when the field is missing or unparseable, so
+        events without a timestamp defer to list order (handled by the index
+        tie-breaker in the caller).
+        """
+        if not timestamp:
+            return ""
+        return str(timestamp)
