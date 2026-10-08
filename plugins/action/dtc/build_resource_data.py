@@ -120,6 +120,32 @@ class ResourceDataBuilder:
             return value.lower() in ('1', 'true', 'yes', 'on')
         return bool(value)
 
+    @staticmethod
+    def _normalize_for_yaml(obj):
+        """
+        Recursively convert Ansible-wrapped values (e.g. AnsibleUnsafeText)
+        to plain Python types so the result can be safely round-tripped
+        with yaml.safe_dump()/yaml.safe_load().
+
+        str.__str__() is used instead of plain str() because Ansible's
+        "unsafe" string wrapper overrides __str__ (and similar dunder
+        methods) to keep re-wrapping its own output as unsafe -- calling
+        the base str implementation directly is the reliable way to get a
+        genuinely plain str back.
+        """
+        if isinstance(obj, dict):
+            return {
+                ResourceDataBuilder._normalize_for_yaml(k): ResourceDataBuilder._normalize_for_yaml(v)
+                for k, v in obj.items()
+            }
+        if isinstance(obj, (list, tuple)):
+            return [ResourceDataBuilder._normalize_for_yaml(v) for v in obj]
+        if isinstance(obj, bool) or obj is None or isinstance(obj, (int, float)):
+            return obj
+        if isinstance(obj, str):
+            return str.__str__(obj)
+        raise TypeError(f"Unsupported sentinel value type: {type(obj).__name__}")
+
     def _should_run_structural_diff(self, diff_compare):
         """Structural diff data is only consumed during targeted diff runs."""
         return bool(diff_compare) and self.run_map_diff_run and not self.force_run_all
@@ -474,6 +500,17 @@ class ResourceDataBuilder:
         data model (including vrf_attach_groups and network_attach_groups)
         to a sentinel file and compares against the previous version.
 
+        The previous sentinel is loaded exactly once, via
+        _load_overlay_sentinel(), before ANY local state is touched --
+        the deferred-build cache file included. If that load fails
+        (sentinel written by a version of this collection before this
+        fix, or genuinely corrupted), it raises RuntimeError and this
+        method makes no further changes: the existing sentinel and cache
+        file are both left exactly as they were, no change flag is set,
+        and no create/remove step downstream can act on a value we
+        failed to read correctly. See _load_overlay_sentinel() for the
+        required recovery step.
+
         When a change is detected, sets BOTH the aggregate flag
         (changes_detected_msite_overlay) AND per-resource flags
         (changes_detected_vrfs, changes_detected_networks) so that
@@ -482,12 +519,6 @@ class ResourceDataBuilder:
         Also cleans up the deferred build cache file from any prior
         pipeline run in this playbook execution.
         """
-        # Clean up deferred build cache from prior pipeline runs so that
-        # each playbook run starts with a fresh cache.
-        cache_file = os.path.join(self.output_path, '_msite_overlay_cache.json')
-        if os.path.exists(cache_file):
-            os.remove(cache_file)
-
         overlay = (
             self.data_model
             .get('vxlan', {})
@@ -498,43 +529,46 @@ class ResourceDataBuilder:
         sentinel_file = os.path.join(self.output_path, '_msite_overlay_sentinel.yml')
         old_sentinel = sentinel_file + '.old'
 
-        # Handle empty/missing overlay: still need to detect removal of
-        # previously existing overlay data (user removed all VRFs/networks).
-        if not overlay:
-            if not os.path.exists(sentinel_file):
-                # No previous sentinel and no current overlay — nothing to detect
-                return
-            # Previous sentinel exists but overlay is now empty — detect removal
-            shutil.copy2(sentinel_file, old_sentinel)
-            os.remove(sentinel_file)
-            with open(sentinel_file, 'w') as f:
-                f.write(yaml.dump({}, default_flow_style=False, sort_keys=True))
-            if self._run_diff_model_changes(old_sentinel, sentinel_file):
-                if self.check_roles.get('save_previous', False):
-                    self.change_flags['changes_detected_msite_overlay'] = True
-                    self.change_flags['changes_detected_vrfs'] = True
-                    self.change_flags['changes_detected_networks'] = True
-                    display.v(
-                        f"COMMON [{self.fabric_name}] Multisite overlay "
-                        f"removed — all overlay data cleared"
-                    )
+        # Read-before-write: load whatever sentinel already exists on disk
+        # before this method makes any change to local state. A bad
+        # sentinel fails here, before the cache cleanup below or anything
+        # else runs, so a failed build never leaves things half-touched.
+        previous_overlay = self._load_overlay_sentinel(sentinel_file)
+        previous_had_vrfs = bool(previous_overlay.get('vrfs'))
+        previous_had_networks = bool(previous_overlay.get('networks'))
+
+        # Only now, after the sentinel is confirmed readable, clean up the
+        # deferred build cache from prior pipeline runs so that each
+        # playbook run starts with a fresh cache.
+        cache_file = os.path.join(self.output_path, '_msite_overlay_cache.json')
+        if os.path.exists(cache_file):
+            os.remove(cache_file)
+
+        # Nothing before, nothing now -- no sentinel to write, no change
+        # to detect.
+        if not overlay and not previous_overlay:
             return
 
-        # Backup previous sentinel file
-        if os.path.exists(sentinel_file):
-            shutil.copy2(sentinel_file, old_sentinel)
-            os.remove(sentinel_file)
+        # Current overlay is empty but a previous sentinel had content:
+        # the user removed all VRFs/networks from the data model. Record
+        # an empty sentinel and flag both resources for removal.
+        if not overlay:
+            self._write_overlay_sentinel(sentinel_file, old_sentinel, {})
+            if self.check_roles.get('save_previous', False):
+                self.change_flags['changes_detected_msite_overlay'] = True
+                self.change_flags['changes_detected_vrfs'] = True
+                self.change_flags['changes_detected_networks'] = True
+                display.v(
+                    f"COMMON [{self.fabric_name}] Multisite overlay "
+                    f"removed — all overlay data cleared"
+                )
+            return
 
         # Capture the ENTIRE overlay dict (vrfs, networks, vrf_attach_groups,
-        # network_attach_groups, etc.) for change detection. Previously only
-        # vrfs and networks were captured, missing attach group modifications.
-        overlay_content = yaml.dump(
-            overlay,
-            default_flow_style=False,
-            sort_keys=True,
-        )
-        with open(sentinel_file, 'w') as f:
-            f.write(overlay_content)
+        # network_attach_groups, etc.) for change detection -- not just
+        # vrfs and networks -- so attach-group-only edits are also caught.
+        normalized_overlay = self._normalize_for_yaml(overlay)
+        self._write_overlay_sentinel(sentinel_file, old_sentinel, normalized_overlay)
 
         overlay_vrfs = overlay.get('vrfs', [])
         overlay_networks = overlay.get('networks', [])
@@ -543,12 +577,12 @@ class ResourceDataBuilder:
         if self._run_diff_model_changes(old_sentinel, sentinel_file):
             if self.check_roles.get('save_previous', False):
                 self.change_flags['changes_detected_msite_overlay'] = True
-                # Set per-resource flags so pipeline steps pass their
-                # change_flag_guard checks. Both CREATE and REMOVE pipelines
-                # gate VRF/network steps on these flags.
-                if overlay_vrfs or self._sentinel_had_key(old_sentinel, 'vrfs'):
+                # A resource flag is set if it is non-empty now, or was
+                # non-empty before -- either way there is work to do:
+                # new items to create, or old ones to remove.
+                if overlay_vrfs or previous_had_vrfs:
                     self.change_flags['changes_detected_vrfs'] = True
-                if overlay_networks or self._sentinel_had_key(old_sentinel, 'networks'):
+                if overlay_networks or previous_had_networks:
                     self.change_flags['changes_detected_networks'] = True
                 display.v(
                     f"COMMON [{self.fabric_name}] Multisite overlay data "
@@ -556,21 +590,78 @@ class ResourceDataBuilder:
                     f"networks={len(overlay_networks)})"
                 )
 
-    def _sentinel_had_key(self, sentinel_path, key):
+    def _load_overlay_sentinel(self, sentinel_path):
         """
-        Check if a previous sentinel file contained a non-empty value for key.
+        Load the previous multisite overlay sentinel, or {} if none
+        exists yet.
 
-        Used by _detect_msite_overlay_changes to determine which per-resource
-        change flags to set when the overlay data model has changed.
+        Always reads with yaml.safe_load() -- there is no fallback loader
+        for the "!!python/object/apply:..." tag format written by
+        versions of this collection before this fix. A sentinel in that
+        format, valid YAML with the wrong structure (e.g. a list instead
+        of a mapping), or any other unparseable content, all raise
+        RuntimeError naming the same force_run_all: true recovery step --
+        they are all, functionally, an incompatible sentinel. A separate
+        exception is raised for filesystem-level failures (permissions,
+        I/O errors), since telling a user to re-run with
+        force_run_all: true would be misleading advice for a problem
+        that isn't about the file's content at all.
+
+        Call this before making any change to the sentinel file (backup,
+        delete, or overwrite). Because this is the very first thing
+        _detect_msite_overlay_changes() does with the sentinel, a bad
+        read here always leaves the existing file untouched.
         """
         if not os.path.exists(sentinel_path):
-            return False
+            return {}
+
         try:
-            with open(sentinel_path) as f:
-                prev_data = yaml.safe_load(f)
-            return bool(prev_data.get(key)) if isinstance(prev_data, dict) else False
-        except (yaml.YAMLError, IOError):
-            return False
+            with open(sentinel_path) as file:
+                data = yaml.safe_load(file)
+        except yaml.YAMLError as exc:
+            raise RuntimeError(
+                "The existing multisite overlay sentinel is incompatible "
+                "or corrupted. After upgrading the collection, run once "
+                "with force_run_all: true using the complete, unchanged "
+                "data model before removing VRFs or networks. "
+                f"Sentinel: {sentinel_path}. Error: {exc}"
+            )
+        except OSError as exc:
+            raise RuntimeError(
+                "Unable to read the multisite overlay sentinel. Check "
+                "the file permissions and local storage. "
+                f"Sentinel: {sentinel_path}. Error: {exc}"
+            )
+
+        if data is None:
+            return {}
+
+        if not isinstance(data, dict):
+            raise RuntimeError(
+                "The existing multisite overlay sentinel does not have "
+                "the expected structure (a YAML mapping) and is treated "
+                "as incompatible. After upgrading the collection, run "
+                "once with force_run_all: true using the complete, "
+                "unchanged data model before removing VRFs or networks. "
+                f"Sentinel: {sentinel_path}. Parsed type: {type(data).__name__}"
+            )
+
+        return data
+
+    def _write_overlay_sentinel(self, sentinel_file, old_sentinel, content):
+        """
+        Back up the current sentinel file (if any) to old_sentinel, then
+        write content as the new sentinel with yaml.safe_dump().
+
+        Called only after _load_overlay_sentinel() has already
+        successfully read whatever was there before, so this never
+        overwrites a sentinel we failed to understand.
+        """
+        if os.path.exists(sentinel_file):
+            shutil.copy2(sentinel_file, old_sentinel)
+            os.remove(sentinel_file)
+        with open(sentinel_file, 'w') as f:
+            f.write(yaml.safe_dump(content, default_flow_style=False, sort_keys=True))
 
     def _run_diff_compare(self, old_path, new_path):
         """

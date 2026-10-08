@@ -201,7 +201,7 @@ class ResourceRemover(PipelineRunnerBase):
             )
             if (
                 full_run_strategy == 'controller_diff'
-                and self.fabric_type == 'MCFG'
+                and self.fabric_type in ('MCFG', 'MSD')
                 and resource_name in overlay
                 and overlay.get(resource_name) == []
             ):
