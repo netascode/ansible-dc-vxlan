@@ -1,6 +1,7 @@
 class Rule:
     id = "324"
-    description = "Verify HSRP configuration: sub-fields require enable_hsrp; enable_hsrp requires hsrp_vip, hsrp_group and a primary ipv4_address; preempt-delay requires preempt; forwarding thresholds require hsrp_priority; hsrp_secondary_vips require HSRP and must be in the SVI primary subnet"
+    description = "Verify HSRP configuration: sub-fields require enable_hsrp; enable_hsrp requires hsrp_vip, hsrp_group and a primary ipv4_address; \
+    preempt-delay requires preempt; forwarding thresholds require hsrp_priority; hsrp_secondary_vips require HSRP and must be in the SVI primary subnet"
     severity = "HIGH"
 
     @classmethod
