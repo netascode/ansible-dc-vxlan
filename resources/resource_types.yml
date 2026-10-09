@@ -39,9 +39,7 @@
 #                           (e.g. vpc_peering uses a different template for External)
 # ══════════════════════════════════════════════════════════════════════════════
 ---
-
 resource_types:
-
   # ────────────────────────────────────────────────────────────────────────────
   # Fabric & Inventory
   # ────────────────────────────────────────────────────────────────────────────
@@ -162,10 +160,10 @@ resource_types:
 
   vrf_loopback_attach:
     template: ndfc_vrfs/dc_vxlan_fabric/dc_vxlan_fabric_attach_vrfs_loopbacks.j2
-    output_file: attach_vrfs_loopbacks.yml
+    output_file: ndfc_attach_vrfs_loopbacks.yml
     var_name: vrf_attach_config
-    change_flag: null
-    diff_compare: false
+    change_flag: changes_detected_vrfs
+    diff_compare: true
     template_overrides:
       MSD: ndfc_vrfs/msd_fabric/msd_fabric_attach_vrfs_loopbacks.j2
       MCFG: ndfc_vrfs/mcfg_fabric/mcfg_fabric_attach_vrfs_loopbacks.j2
