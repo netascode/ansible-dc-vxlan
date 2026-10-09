@@ -309,9 +309,42 @@ resource_types:
       - ISN
       - External
 
+  interface_dot1q_po:
+    template: ndfc_interfaces/ndfc_interface_dot1q_po.j2
+    output_file: ndfc_interface_dot1q_po.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
   interface_vpc:
     template: ndfc_interfaces/ndfc_interface_vpc.j2
     output_file: ndfc_interface_vpc.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_vlan:
+    template: ndfc_interfaces/ndfc_interface_vlan.j2
+    output_file: ndfc_interface_vlan.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+      - ISN
+      - External
+
+  interface_pvlan:
+    template: ndfc_interfaces/ndfc_interface_pvlan.j2
+    output_file: ndfc_interface_pvlan.yml
     change_flag: changes_detected_interfaces
     diff_compare: false
     fabric_types:

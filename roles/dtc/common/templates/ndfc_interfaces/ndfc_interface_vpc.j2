@@ -1,9 +1,17 @@
+{% from 'macros/translate_setting.j2' import translate %}
 {% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
 ---
 # This NDFC vPC interface config data structure is auto-generated
 # DO NOT EDIT MANUALLY
 #
 
+{# Var to set if ND has the 4.3.1.0175006011 patch #}
+{%- set ndfc_supports_interface_properties =
+  ndfc_version is defined
+  and ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '>'))
+    or ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '==')))
+    and ('4.3.1.0175006011' in (nd_smu_versions | default([]))))
+%}
 {% if data_model_extended.vxlan.topology.vpc_peers is defined %}
 {% for vpc_pair, vpc_data in data_model_extended.vxlan.topology.interfaces.vpc_interfaces.items() %}
 {% for vpc_id, switches in vpc_data.items() %}
@@ -41,6 +49,8 @@
     enable_qos: {{ switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) | lower }}
 {% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) %}
     qos_policy: {{ switches[peer1].qos_policy | default("") }}
+{% endif %}
+{% if switches[peer1].queuing_policy is defined %}
     queuing_policy: {{ switches[peer1].queuing_policy | default("") }}
 {% endif %}
     copy_description: {{ switches[peer1].copy_description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.copy_description) | lower }}
@@ -68,6 +78,26 @@
 {% endif %}
 {% endif %}
 {% endif %}
+{% if ndfc_supports_interface_properties %}
+{# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
+    spanning_tree_port_type: "{{ translate(switches[peer1].spanning_tree_port_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"
+{# Data model defines value as GUARD MODE: none, while base collection defines it as GUARD MODE: no #}
+    guard_mode: "{{ translate(switches[peer1].guard_mode | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.guard_mode), {'none': 'no'}) }}"
+{# Data model defines ENABLE LLDP TRANSMIT/RECEIVE, while base collection defines DISABLE LLDP TRANSMIT/RECEIVE #}
+    disable_lldp_transmit: {{ translate(switches[peer1].enable_lldp_transmit | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_lldp_transmit), {true: 'false', false: 'true'}) }}
+    disable_lldp_receive: {{ translate(switches[peer1].enable_lldp_receive | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_lldp_receive), {true: 'false', false: 'true'}) }}
+{% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) %}
+{# Data model defines value as ENABLE QOS STATS, while base collection defines it as DISABLE QOS STATS #}
+    disable_qos_stats: {{ translate(switches[peer1].enable_qos_stats | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if switches[peer1].queuing_policy is defined %}
+{# Data model defines value as ENABLE QUEUING STATS, while base collection defines it as DISABLE QUEUING STATS #}
+    disable_queuing_stats: {{ translate(switches[peer1].enable_queuing_stats | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if switches[peer1].acl_filter is defined %}
+    acl_filter: {{ switches[peer1].acl_filter }}
+{% endif %}
+{% endif %}
     peer1_allowed_vlans: "{{ convert_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
     peer2_allowed_vlans: "{{ convert_ranges(switches[peer2].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
     peer1_description: "{{ switches[peer1].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.description) }}"
@@ -89,6 +119,8 @@
     enable_qos: {{ switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_qos) | lower }}
 {% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_qos) %}
     qos_policy: {{ switches[peer1].qos_policy | default("") }}
+{% endif %}
+{% if switches[peer1].queuing_policy is defined %}
     queuing_policy: {{ switches[peer1].queuing_policy | default("") }}
 {% endif %}
     copy_description: {{ switches[peer1].copy_description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.copy_description) | lower }}
@@ -116,10 +148,92 @@
 {% endif %}
 {% endif %}
 {% endif %}
+{% if ndfc_supports_interface_properties %}
+{# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
+    spanning_tree_port_type: "{{ translate(switches[peer1].spanning_tree_port_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"
+{# Data model defines ENABLE LLDP TRANSMIT/RECEIVE, while base collection defines DISABLE LLDP TRANSMIT/RECEIVE #}
+    disable_lldp_transmit: {{ translate(switches[peer1].enable_lldp_transmit | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_lldp_transmit), {true: 'false', false: 'true'}) }}
+    disable_lldp_receive: {{ translate(switches[peer1].enable_lldp_receive | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_lldp_receive), {true: 'false', false: 'true'}) }}
+{% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_qos) %}
+{# Data model defines value as ENABLE QOS STATS, while base collection defines it as DISABLE QOS STATS #}
+    disable_qos_stats: {{ translate(switches[peer1].enable_qos_stats | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_qos_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if switches[peer1].queuing_policy is defined %}
+{# Data model defines value as ENABLE QUEUING STATS, while base collection defines it as DISABLE QUEUING STATS #}
+    disable_queuing_stats: {{ translate(switches[peer1].enable_queuing_stats | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if switches[peer1].acl_filter is defined %}
+    acl_filter: {{ switches[peer1].acl_filter }}
+{% endif %}
+{% endif %}
     peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
     peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan)  }}
     peer1_description: "{{ switches[peer1].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.description) }}"
     peer2_description: "{{ switches[peer2].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.description) }}"
+{% elif switches[peer1].mode == 'dot1q' and ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0', '>') %}
+    admin_state: {{ switches[peer1].enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enabled) | lower }}
+    enable_cdp: {{ switches[peer1].enable_cdp | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_cdp) | lower }}
+    port_type_fast: {{ switches[peer1].spanning_tree_portfast | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.spanning_tree_portfast) | lower }}
+    mtu: {{ switches[peer1].mtu | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.mtu) }}
+    speed: {{ switches[peer1].speed | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.speed) }}
+    pc_mode: "{{ switches[peer1].pc_mode | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.pc_mode) }}"
+    bpdu_guard: {{ switches[peer1].enable_bpdu_guard | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_bpdu_guard) | lower }}
+    disable_lacp_suspend_individual: {{ switches[peer1].disable_lacp_suspend_individual | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.disable_lacp_suspend_individual) | lower }}
+    enable_lacp_vpc_convergence: {{ switches[peer1].enable_lacp_vpc_convergence | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_lacp_vpc_convergence) | lower }}
+    lacp_port_priority: {{ switches[peer1].lacp_port_priority | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.lacp_port_priority) }}
+    lacp_rate: {{ switches[peer1].lacp_rate | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.lacp_rate) }}
+    enable_qos: {{ switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_qos) | lower }}
+{% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_qos) %}
+    qos_policy: {{ switches[peer1].qos_policy | default("") }}
+{% endif %}
+{% if switches[peer1].queuing_policy is defined %}
+    queuing_policy: {{ switches[peer1].queuing_policy | default("") }}
+{% endif %}
+    copy_description: {{ switches[peer1].copy_description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.copy_description) | lower }}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
+    enable_storm_control: {{ switches[peer1].enable_storm_control | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_storm_control) | lower }}
+{% if switches[peer1].enable_storm_control | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_storm_control) %}
+    storm_control_action: {{ switches[peer1].storm_control_action | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.storm_control_action) | lower }}
+{% if switches[peer1].storm_control_broadcast_level_percent is defined %}
+    storm_control_broadcast_level_percent: "{{ '%0.2f' % switches[peer1].storm_control_broadcast_level_percent }}"
+{% endif %}
+{% if switches[peer1].storm_control_multicast_level_percent is defined %}
+    storm_control_multicast_level_percent: "{{ '%0.2f' % switches[peer1].storm_control_multicast_level_percent }}"
+{% endif %}
+{% if switches[peer1].storm_control_unicast_level_percent is defined %}
+    storm_control_unicast_level_percent: "{{ '%0.2f' % switches[peer1].storm_control_unicast_level_percent }}"
+{% endif %}
+{% if switches[peer1].storm_control_broadcast_level_pps is defined %}
+    storm_control_broadcast_level_pps: {{ switches[peer1].storm_control_broadcast_level_pps }}
+{% endif %}
+{% if switches[peer1].storm_control_multicast_level_pps is defined %}
+    storm_control_multicast_level_pps: {{ switches[peer1].storm_control_multicast_level_pps }}
+{% endif %}
+{% if switches[peer1].storm_control_unicast_level_pps is defined %}
+    storm_control_unicast_level_pps: {{ switches[peer1].storm_control_unicast_level_pps }}
+{% endif %}
+{% endif %}
+{% endif %}
+{# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
+    spanning_tree_port_type: "{{ translate(switches[peer1].spanning_tree_port_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"
+{# Data model defines ENABLE LLDP TRANSMIT/RECEIVE, while base collection defines DISABLE LLDP TRANSMIT/RECEIVE #}
+    disable_lldp_transmit: {{ translate(switches[peer1].enable_lldp_transmit | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_lldp_transmit), {true: 'false', false: 'true'}) }}
+    disable_lldp_receive: {{ translate(switches[peer1].enable_lldp_receive | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_lldp_receive), {true: 'false', false: 'true'}) }}
+{% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_qos) %}
+{# Data model defines value as ENABLE QOS STATS, while base collection defines it as DISABLE QOS STATS #}
+    disable_qos_stats: {{ translate(switches[peer1].enable_qos_stats | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_qos_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if switches[peer1].queuing_policy is defined %}
+{# Data model defines value as ENABLE QUEUING STATS, while base collection defines it as DISABLE QUEUING STATS #}
+    disable_queuing_stats: {{ translate(switches[peer1].enable_queuing_stats | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
+{% endif %}
+{% if switches[peer1].acl_filter is defined %}
+    acl_filter: {{ switches[peer1].acl_filter }}
+{% endif %}
+    peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.access_vlan) }}
+    peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.access_vlan)  }}
+    peer1_description: "{{ switches[peer1].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.description) }}"
+    peer2_description: "{{ switches[peer2].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.description) }}"
 {% endif %}
 {% endfor %}
 {% endfor %}
