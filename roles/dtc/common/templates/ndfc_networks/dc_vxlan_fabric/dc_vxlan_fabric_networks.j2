@@ -1,4 +1,11 @@
 {# Auto-generated NDFC DC VXLAN EVPN Networks config data structure for fabric {{ vxlan.fabric.name }} #}
+{# Emit IPv4 ACLs on supported NDFC releases or the compatible SMU. #}
+{% set ndfc_supports_ipv4_acl_in =
+  ndfc_version is defined
+  and ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '>'))
+    or ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '=='))
+      and ('4.3.1.0175006011' in (nd_smu_versions | default([])))))
+%}
 {% set networks = [] %}
 {% if data_model_extended.vxlan.overlay.networks is defined and data_model_extended.vxlan.overlay.networks %}
 {% set networks = data_model_extended.vxlan.overlay.networks %}
@@ -14,6 +21,9 @@
   vlan_id: {{ net['vlan_id'] | default(omit) }}
   vlan_name: {{ net['vlan_name'] | default(omit) }}
   gw_ip_subnet: {{ net['gw_ip_address'] | default(omit) }}
+{% if ndfc_supports_ipv4_acl_in and (net.ipv4_acl_in is defined or defaults.vxlan.overlay.networks.ipv4_acl_in is defined) %}
+  ipv4_acl_in: {{ net['ipv4_acl_in'] | default(defaults.vxlan.overlay.networks.ipv4_acl_in) | to_json }}
+{% endif %}
 {% if net.secondary_ip_addresses is defined %}
 {% if net.secondary_ip_addresses | length == 1 %}
   secondary_ip_gw1: {{ net['secondary_ip_addresses'][0]['ip_address'] }}

@@ -8,6 +8,14 @@ class Rule:
     @classmethod
     def match(cls, data_model):
         results = []
+        network_defaults = cls.safeget(data_model, ['defaults', 'vxlan', 'multisite', 'overlay', 'networks'])
+        if isinstance(network_defaults, dict) and 'ipv4_acl_in' in network_defaults:
+            acl_name = network_defaults['ipv4_acl_in']
+            if not isinstance(acl_name, str) or not 1 <= len(acl_name) <= 64:
+                results.append(
+                    "defaults.vxlan.multisite.overlay.networks.ipv4_acl_in must be a string containing 1 to 64 characters."
+                )
+
         child_fabric_attributes = [
             'dhcp_loopback_id',
             'dhcp_servers',

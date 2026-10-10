@@ -67,7 +67,7 @@ class NdfcModuleExecutor:
         self.task_vars = task_vars
         self.tmp = tmp
 
-    def execute(self, module_name, state, config, fabric_name, save=None, deploy=None, fabric_param='fabric', skip_validation=None):
+    def execute(self, module_name, state, config, fabric_name, save=None, deploy=None, fabric_param='fabric', skip_validation=None, patch_version=None):
         """
         Execute an NDFC Ansible module.
 
@@ -87,6 +87,7 @@ class NdfcModuleExecutor:
             fabric_name: Fabric name for fabric parameter.
             deploy: Whether to deploy (None = omit parameter).
             fabric_param: Fabric parameter name ('fabric', 'src_fabric', or None).
+            patch_version: Optional network version control for create/update states.
 
         Returns:
             Module result dict.
@@ -108,6 +109,12 @@ class NdfcModuleExecutor:
             module_args['deploy'] = deploy
         if skip_validation is not None:
             module_args['skip_validation'] = skip_validation
+
+        if module_name == 'cisco.dcnm.dcnm_network' and state in ('merged', 'replaced', 'overridden'):
+            if isinstance(patch_version, str):
+                patch_version = patch_version.strip()
+            if patch_version not in (None, ''):
+                module_args.update(self._remove_omit_placeholders({'patch_version': patch_version}))
 
         if module_name == 'cisco.dcnm.dcnm_policy':
             module_args['use_desc_as_key'] = True
