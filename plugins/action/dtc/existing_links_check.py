@@ -177,8 +177,12 @@ class ActionModule(ActionBase):
                                 link['profile']['peer2_freeform'] = p1_free
 
                         if 'templateName' not in existing_link:
-                            display.vvv("existing_links_check: → NOT REQUIRED (templateName missing)")
-                            not_required_links.append(link)
+                            # Discovered-only adjacency (no policy attached on NDFC).
+                            # Link is in the data model and direction is already
+                            # normalized above, so push the intent. Next run returns a
+                            # real templateName and the diff branches below stay idempotent.
+                            display.vvv("existing_links_check: → REQUIRED (templateName missing, configuring data-model link on discovered adjacency)")
+                            required_links.append(link)
                         elif existing_link['templateName'] == 'int_pre_provision_intra_fabric_link':
                             display.vvv("existing_links_check: → REQUIRED (pre-provision)")
                             required_links.append(link)
