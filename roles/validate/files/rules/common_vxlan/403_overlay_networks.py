@@ -10,6 +10,14 @@ class Rule:
         fabric_trm_status = False
         networks = []
 
+        network_defaults = cls.safeget(data_model, ['defaults', 'vxlan', 'overlay', 'networks'])
+        if isinstance(network_defaults, dict) and 'ipv4_acl_in' in network_defaults:
+            acl_name = network_defaults['ipv4_acl_in']
+            if not isinstance(acl_name, str) or not 1 <= len(acl_name) <= 64:
+                results.append(
+                    "defaults.vxlan.overlay.networks.ipv4_acl_in must be a string containing 1 to 64 characters."
+                )
+
         # Map fabric types to the keys used in the data model based on controller fabric types
         fabric_type_map = {
             "VXLAN_EVPN": "ibgp",

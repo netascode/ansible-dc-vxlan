@@ -19,6 +19,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+from datetime import datetime, timezone
+
 from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleActionFail
 
@@ -97,35 +99,34 @@ class ActionModule(ActionBase):
         most recent event and include the version when that event's action is
         ``activate``. ``remove`` and ``superseded`` are treated as inactive.
 
-        Events without a parseable timestamp fall back to their position in the
-        ``smus`` list (later entries win), so ordering is preserved even if the
-        controller omits timestamps.
+        When either compared event lacks a parseable timestamp, its position in
+        the ``smus`` list decides the result (the later entry wins). Equal
+        timestamps also use list order.
         """
         for upgrade in upgrade_history:
             if (upgrade.get("fromVersion") == current_full_version
                     and upgrade.get("toVersion") == current_full_version):
                 smus = upgrade.get("smus") or []
 
-                # For each version, remember the latest event seen so far. The
-                # sort key is (timestamp, list_index): timestamp decides order
-                # when present; list_index breaks ties and covers missing
-                # timestamps (later list position is later).
+                # Compare timestamps only when both events have valid times.
+                # Iteration order resolves ties and missing timestamps.
                 latest = {}
-                for index, smu in enumerate(smus):
+                for smu in smus:
                     if not smu:
                         continue
                     version = smu.get("version")
                     action = smu.get("action")
                     if not version or not action:
                         continue
-                    sort_key = (ActionModule._timestamp_key(smu.get("timestamp")), index)
+                    event_time = ActionModule._timestamp_key(smu.get("timestamp"))
                     existing = latest.get(version)
-                    if existing is None or sort_key >= existing[0]:
-                        latest[version] = (sort_key, action)
+                    if (existing is None or event_time is None or existing[0] is None
+                            or event_time >= existing[0]):
+                        latest[version] = (event_time, action)
 
                 active = {
                     version
-                    for version, (_sort_key, action) in latest.items()
+                    for version, (_event_time, action) in latest.items()
                     if action == "activate"
                 }
                 return sorted(active)
@@ -134,13 +135,24 @@ class ActionModule(ActionBase):
     @staticmethod
     def _timestamp_key(timestamp):
         """
-        Convert an SMU event timestamp into a sortable value.
+        Return a UTC datetime for an ISO timestamp or numeric Unix seconds.
 
-        Returns a value that orders chronologically and always compares less
-        than any real timestamp when the field is missing or unparseable, so
-        events without a timestamp defer to list order (handled by the index
-        tie-breaker in the caller).
+        Naive ISO timestamps are interpreted as UTC. Missing or unparseable
+        values return None so the caller can fall back to event list order.
         """
-        if not timestamp:
-            return ""
-        return str(timestamp)
+        if isinstance(timestamp, bool):
+            return None
+        try:
+            if isinstance(timestamp, (int, float)):
+                return datetime.fromtimestamp(timestamp, timezone.utc)
+            if not isinstance(timestamp, str):
+                return None
+            # Python 3.9's fromisoformat does not accept the UTC "Z" suffix.
+            if timestamp.endswith("Z"):
+                timestamp = timestamp[:-1] + "+00:00"
+            parsed = datetime.fromisoformat(timestamp)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed.astimezone(timezone.utc)
+        except (ValueError, OverflowError, OSError):
+            return None

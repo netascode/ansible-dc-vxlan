@@ -67,9 +67,7 @@
 #   fabric → switches → vPC → interfaces → overlay → links → policies
 # ══════════════════════════════════════════════════════════════════════════════
 ---
-
 create_resources:
-
   role_tag: role_create
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -139,7 +137,7 @@ create_resources:
       module: dcnm_links
       state: replaced
       fabric_param: src_fabric
-      deploy: null
+      deploy: false
       skip_diff: true
       data_model_guard: vxlan.topology.vpc_peers
       change_flag_guard: changes_detected_vpc_peering
@@ -327,7 +325,7 @@ create_resources:
       module: dcnm_links
       state: replaced
       fabric_param: src_fabric
-      deploy: null
+      deploy: false
       skip_diff: true
       data_model_guard: vxlan.topology.vpc_peers
       change_flag_guard: changes_detected_vpc_peering
@@ -546,7 +544,7 @@ create_resources:
       module: dcnm_links
       state: replaced
       fabric_param: src_fabric
-      deploy: null
+      deploy: false
       skip_diff: true
       change_flag_guard: changes_detected_vpc_peering
       tag: cr_manage_vpc_peers

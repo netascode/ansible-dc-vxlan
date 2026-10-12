@@ -472,7 +472,8 @@ class ResourceDataBuilder:
         execution time by _msite_build_overlay, not during common-phase.
         This method serializes the ENTIRE multisite overlay section of the
         data model (including vrf_attach_groups and network_attach_groups)
-        to a sentinel file and compares against the previous version.
+        and any inherited network IPv4 ACL default to a sentinel file and
+        compares against the previous version.
 
         When a change is detected, sets BOTH the aggregate flag
         (changes_detected_msite_overlay) AND per-resource flags
@@ -528,16 +529,30 @@ class ResourceDataBuilder:
         # Capture the ENTIRE overlay dict (vrfs, networks, vrf_attach_groups,
         # network_attach_groups, etc.) for change detection. Previously only
         # vrfs and networks were captured, missing attach group modifications.
+        sentinel_overlay = dict(overlay)
+        network_defaults = (
+            self.task_vars.get('defaults', {})
+            .get('vxlan', {})
+            .get('multisite', {})
+            .get('overlay', {})
+            .get('networks', {})
+        )
+        if 'ipv4_acl_in' in network_defaults and any(
+            'ipv4_acl_in' not in network for network in (overlay.get('networks') or [])
+        ):
+            # Parent networks are rendered later; include their inherited ACL
+            # so default-only changes trigger that deferred render and diff.
+            sentinel_overlay['_ipv4_acl_in_default'] = network_defaults['ipv4_acl_in']
         overlay_content = yaml.dump(
-            overlay,
+            sentinel_overlay,
             default_flow_style=False,
             sort_keys=True,
         )
         with open(sentinel_file, 'w') as f:
             f.write(overlay_content)
 
-        overlay_vrfs = overlay.get('vrfs', [])
-        overlay_networks = overlay.get('networks', [])
+        overlay_vrfs = overlay.get('vrfs') or []
+        overlay_networks = overlay.get('networks') or []
 
         # Compare using existing MD5 diff logic
         if self._run_diff_model_changes(old_sentinel, sentinel_file):

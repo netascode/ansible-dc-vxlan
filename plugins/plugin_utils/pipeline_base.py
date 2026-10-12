@@ -55,6 +55,9 @@ from ansible.utils.display import Display
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.registry_loader import (
     RegistryLoader,
 )
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.network_version import (
+    resolve_network_patch_version,
+)
 
 display = Display()
 
@@ -293,6 +296,17 @@ class PipelineRunnerBase(ABC):
             save = step.get('save')
             deploy = step.get('deploy')
             skip_validation = step.get('skip_validation')
+            module_controls = {}
+            if self.OPERATION == 'create' and module == 'dcnm_network':
+                module_controls['patch_version'] = resolve_network_patch_version(
+                    nd_smu_versions=self.task_vars.get('nd_smu_versions'),
+                    nd_version=self.task_vars.get('nd_version'),
+                    nd_version_response=self.task_vars.get('nd_version_response'),
+                )
+                display.v(
+                    f"{op_label} [{self.fabric_name}] Discovered network version: "
+                    f"{module_controls['patch_version'] or 'unavailable'}"
+                )
 
             display.v(
                 f"{op_label} [{self.fabric_name}] Executing {module} for "
@@ -309,6 +323,7 @@ class PipelineRunnerBase(ABC):
                 deploy=deploy,
                 fabric_param=fabric_param,
                 skip_validation=skip_validation,
+                **module_controls,
             )
 
             elapsed = time.monotonic() - step_start
