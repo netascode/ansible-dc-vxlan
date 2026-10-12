@@ -168,17 +168,30 @@ class ActionModule(ActionBase):
                                 link['profile']['peer1_description'] = p2_desc
                             if p1_desc is not None:
                                 link['profile']['peer2_description'] = p1_desc
-                            # Safely swap freeform without creating keys when absent
-                            p1_free = link['profile'].pop('peer1_freeform', None)
-                            p2_free = link['profile'].pop('peer2_freeform', None)
-                            if p2_free is not None:
-                                link['profile']['peer1_freeform'] = p2_free
-                            if p1_free is not None:
-                                link['profile']['peer2_freeform'] = p1_free
+                            # Freeform commands render as peer1_cmds/peer2_cmds
+                            # (ndfc_fabric_links.j2), not peer1_freeform.
+                            p1_cmds = link['profile'].pop('peer1_cmds', None)
+                            p2_cmds = link['profile'].pop('peer2_cmds', None)
+                            if p2_cmds is not None:
+                                link['profile']['peer1_cmds'] = p2_cmds
+                            if p1_cmds is not None:
+                                link['profile']['peer2_cmds'] = p1_cmds
+                            # Explicit model IPv4 addresses follow their endpoints.
+                            # Numbered links overwrite these from the controller below.
+                            p1_ip = link['profile'].pop('peer1_ipv4_addr', None)
+                            p2_ip = link['profile'].pop('peer2_ipv4_addr', None)
+                            if p2_ip is not None:
+                                link['profile']['peer1_ipv4_addr'] = p2_ip
+                            if p1_ip is not None:
+                                link['profile']['peer2_ipv4_addr'] = p1_ip
 
                         if 'templateName' not in existing_link:
-                            display.vvv("existing_links_check: → NOT REQUIRED (templateName missing)")
-                            not_required_links.append(link)
+                            # Discovered-only adjacency (no policy attached on NDFC).
+                            # Link is in the data model and direction is already
+                            # normalized above, so push the intent. Next run returns a
+                            # real templateName and the diff branches below stay idempotent.
+                            display.vvv("existing_links_check: → REQUIRED (templateName missing, configuring data-model link on discovered adjacency)")
+                            required_links.append(link)
                         elif existing_link['templateName'] == 'int_pre_provision_intra_fabric_link':
                             display.vvv("existing_links_check: → REQUIRED (pre-provision)")
                             required_links.append(link)
