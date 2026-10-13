@@ -41,6 +41,7 @@ __metaclass__ = type
 
 import copy
 import json
+import re
 
 from ansible.utils.display import Display
 
@@ -68,6 +69,12 @@ class ResourceManager(PipelineRunnerBase):
 
     REGISTRY_KEY = 'create_resources'
     OPERATION = 'create'
+
+    EDGE_EBGP_TEMPLATE = 'ebgp_underlay_dci_template'
+    EDGE_EBGP_DESC_PREFIX = 'nace_ebgp_underlay_dci_template_'
+    EDGE_PEER_TEMPLATE = 'bgp_peer_template_dci_underlay_jython'
+    EDGE_PEER_DESC_PREFIX = 'nace_bgp_peer_template_dci_underlay_jython_'
+    POLICY_ID_PATTERN = re.compile(r'^POLICY-\d+$')
 
     def __init__(self, params, executor, task_vars):
         super().__init__(params, executor, task_vars)
@@ -631,10 +638,9 @@ class ResourceManager(PipelineRunnerBase):
                 'module_data': filtered_config,
             }
 
-    EDGE_EBGP_TEMPLATE = 'ebgp_underlay_dci_template'
-    EDGE_EBGP_DESC_PREFIX = 'nace_ebgp_underlay_dci_template_'
-    EDGE_PEER_TEMPLATE = 'bgp_peer_template_dci_underlay_jython'
-    EDGE_PEER_DESC_PREFIX = 'nace_bgp_peer_template_dci_underlay_jython_'
+    @staticmethod
+    def _normalize_edge_intf(name):
+        return re.sub(r'^(?:e|eth|ethernet)(?=\d)', 'ethernet', str(name or '').strip().lower())
 
     def _edge_connections_rename_reconcile(self, resource_name, step):
         """
@@ -686,12 +692,13 @@ class ResourceManager(PipelineRunnerBase):
                     if not new_desc.startswith(self.EDGE_EBGP_DESC_PREFIX):
                         continue
 
-                    intf = str((pol.get('policy_vars') or {}).get('INTF_NAME', '')).strip().lower()
+                    intf = self._normalize_edge_intf((pol.get('policy_vars') or {}).get('INTF_NAME'))
                     candidates = [
                         c for c in ctrl_pols
                         if c.get('templateName') == self.EDGE_EBGP_TEMPLATE
                         and c.get('description', '').startswith(self.EDGE_EBGP_DESC_PREFIX)
-                        and str((c.get('nvPairs') or {}).get('INTF_NAME', '')).strip().lower() == intf
+                        and self.POLICY_ID_PATTERN.match(str(c.get('policyId', '')))
+                        and self._normalize_edge_intf((c.get('nvPairs') or {}).get('INTF_NAME')) == intf
                     ]
                     if not candidates:
                         continue
@@ -720,6 +727,7 @@ class ResourceManager(PipelineRunnerBase):
                     if (
                         old_peer
                         and old_peer.get('templateName') == self.EDGE_PEER_TEMPLATE
+                        and self.POLICY_ID_PATTERN.match(str(old_peer.get('policyId', '')))
                         and peer_pol
                         and peer_pol.get('name') == self.EDGE_PEER_TEMPLATE
                         and new_peer_desc not in ctrl_by_desc
