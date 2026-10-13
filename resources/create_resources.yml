@@ -187,6 +187,12 @@ create_resources:
       tag: cr_manage_interfaces
 
     - resource_name: edge_connections
+      module: _edge_connections_rename_reconcile
+      state: null
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
+
+    - resource_name: edge_connections
       module: dcnm_policy
       state: merged
       deploy: false
@@ -463,6 +469,12 @@ create_resources:
       tag: cr_manage_switches
 
     - resource_name: edge_connections
+      module: _edge_connections_rename_reconcile
+      state: null
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
+
+    - resource_name: edge_connections
       module: dcnm_policy
       state: merged
       deploy: false
@@ -566,6 +578,12 @@ create_resources:
         - vpc_fabric_peering_links
         - vpc_peering
       tag: cr_manage_vpc_peers
+
+    - resource_name: edge_connections
+      module: _edge_connections_rename_reconcile
+      state: null
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
 
     - resource_name: edge_connections
       module: dcnm_policy
