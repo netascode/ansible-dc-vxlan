@@ -4,47 +4,42 @@
 # DO NOT EDIT MANUALLY
 #
 
-{% for switch in data_model_extended.vxlan.topology.switches %}
-{% if switch.interfaces is defined %}
-{% for interface in switch['interfaces'] %}
-{% set interface_name = interface['name']|lower %}
-{% if interface_name.startswith('e') %}
-{% if interface['mode'] == 'trunk' %}
+{% for interface in interface_list %}
 - name: {{ interface['name'] }}
   type: eth
   switch:
-{% if switch.management.management_ipv4_address is defined %}
-    - {{ switch.management.management_ipv4_address}}
-{% elif (switch.management.management_ipv4_address is not defined) and (switch.management.management_ipv6_address is defined)  %}
-    - {{ switch.management.management_ipv6_address}}
+{% if interface['_mgmt_ipv4'] is defined %}
+    - {{ interface['_mgmt_ipv4']}}
+{% elif (interface['_mgmt_ipv4'] is not defined) and (interface['_mgmt_ipv6'] is defined)  %}
+    - {{ interface['_mgmt_ipv6']}}
 {% endif %}
   deploy: false
   profile:
-    admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enabled) | lower }}
-    enable_cdp: {{ interface['enable_cdp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_cdp) | lower }}
+    admin_state: {{ interface['enabled'] | default(interface_defaults.enabled) | lower }}
+    enable_cdp: {{ interface['enable_cdp'] | default(interface_defaults.enable_cdp) | lower }}
     mode: 'trunk'
-    description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.description) }}"
-    mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.mtu) }}
-    speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.speed) }}
-    port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.spanning_tree_portfast) | lower }}
-    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_bpdu_guard) | lower }}
-    allowed_vlans: "{{ convert_ranges(interface['trunk_allowed_vlans'], defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.trunk_allowed_vlans) | trim }}"
-    duplex: {{ interface['duplex'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.duplex) }}
+    description: "{{ interface['description'] | default(interface_defaults.description) }}"
+    mtu: {{ interface['mtu'] | default(interface_defaults.mtu) }}
+    speed: {{ interface['speed'] | default(interface_defaults.speed) }}
+    port_type_fast: {{ interface['spanning_tree_portfast'] | default(interface_defaults.spanning_tree_portfast) | lower }}
+    bpdu_guard: {{ interface['enable_bpdu_guard'] | default(interface_defaults.enable_bpdu_guard) | lower }}
+    allowed_vlans: "{{ convert_ranges(interface['trunk_allowed_vlans'], interface_defaults.trunk_allowed_vlans) | trim }}"
+    duplex: {{ interface['duplex'] | default(interface_defaults.duplex) }}
 {% if interface['orphan_port'] | default(false) %}
-    orphan_port: {{ interface['orphan_port'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.orphan_port) | lower }}
+    orphan_port: {{ interface['orphan_port'] | default(interface_defaults.orphan_port) | lower }}
 {% endif %}
-    native_vlan: "{{ interface['native_vlan'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.native_vlan) }}"
-    enable_qos: {{ interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_qos) | lower }}
-{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_qos) %}
+    native_vlan: "{{ interface['native_vlan'] | default(interface_defaults.native_vlan) }}"
+    enable_qos: {{ interface['enable_qos'] | default(interface_defaults.enable_qos) | lower }}
+{% if interface['enable_qos'] | default(interface_defaults.enable_qos) %}
     qos_policy: {{ interface['qos_policy'] | default("") }}
     queuing_policy: {{ interface['queuing_policy'] | default("") }}
 {% endif %}
-    enable_monitor: {{ interface['monitor'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.monitor) | lower }}
+    enable_monitor: {{ interface['monitor'] | default(interface_defaults.monitor) | lower }}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
-    fec: "{{ interface['fec'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.fec) }}"
-    enable_storm_control: {{ interface['enable_storm_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_storm_control) | lower }}
-{% if interface['enable_storm_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_storm_control) %}
-    storm_control_action: {{ interface['storm_control_action'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.storm_control_action) | lower }}
+    fec: "{{ interface['fec'] | default(interface_defaults.fec) }}"
+    enable_storm_control: {{ interface['enable_storm_control'] | default(interface_defaults.enable_storm_control) | lower }}
+{% if interface['enable_storm_control'] | default(interface_defaults.enable_storm_control) %}
+    storm_control_action: {{ interface['storm_control_action'] | default(interface_defaults.storm_control_action) | lower }}
 {% if interface['storm_control_broadcast_level_percent'] is defined %}
     storm_control_broadcast_level_percent: "{{ '%0.2f' % interface['storm_control_broadcast_level_percent'] }}"
 {% endif %}
@@ -67,8 +62,4 @@
 {% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
-{% endif %}
-{% endif %}
-{% endfor %}
-{% endif %}
 {% endfor %}

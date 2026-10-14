@@ -22,6 +22,11 @@
 from __future__ import absolute_import, division, print_function
 
 import yaml
+import json
+try:
+    from yaml import CSafeLoader as _SafeLoader, CSafeDumper as _SafeDumper
+except ImportError:
+    from yaml import SafeLoader as _SafeLoader, SafeDumper as _SafeDumper
 import os
 import datetime
 from ansible.utils.display import Display
@@ -133,7 +138,7 @@ class ActionModule(ActionBase):
         output_data = {
             'comparison_summary': {
                 'timestamp': datetime.datetime.now().isoformat(),
-                'source_file': self.new_file_path,
+                'source_file': json.loads(json.dumps((self.new_file_path))),
                 'total_updated': (
                     self._count_policies(compare_results.get('updated', []))
                     if is_policy
@@ -170,7 +175,7 @@ class ActionModule(ActionBase):
         Load YAML data from a file.
         """
         with open(filename, 'r', encoding='utf-8') as f:
-            return yaml.safe_load(f) or []
+            return yaml.load(f, Loader=_SafeLoader) or []
 
     def normalize_omit_placeholders(self, old_items, new_items):
         """
