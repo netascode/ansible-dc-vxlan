@@ -73,8 +73,8 @@
 {% endif %}
 {% if ndfc_supports_interface_properties %}
 {# Data model defines ENABLE LLDP TRANSMIT/RECEIVE, while base collection defines DISABLE LLDP TRANSMIT/RECEIVE #}
-{#     disable_lldp_transmit: {{ translate(interface['enable_lldp_transmit'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enable_lldp_transmit), {true: 'false', false: 'true'}) }} #}
-{#     disable_lldp_receive: {{ translate(interface['enable_lldp_receive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enable_lldp_receive), {true: 'false', false: 'true'}) }} #}
+    disable_lldp_transmit: {{ translate(interface['enable_lldp_transmit'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enable_lldp_transmit), {true: 'false', false: 'true'}) }}
+    disable_lldp_receive: {{ translate(interface['enable_lldp_receive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enable_lldp_receive), {true: 'false', false: 'true'}) }}
 {% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}

@@ -1,6 +1,6 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN Advanced config data structure for fabric {{ vxlan.fabric.name }} #}
   GRFIELD_DEBUG_FLAG: {{ vxlan.global.ebgp.greenfield_cleanup | default(defaults.vxlan.global.ebgp.greenfield_cleanup) }}
-  ENABLE_PVLAN: false
+  ENABLE_PVLAN: {{ vxlan.global.ebgp.enable_pvlan | default(defaults.vxlan.global.ebgp.enable_pvlan) }}
   AAA_REMOTE_IP_ENABLED: False
   FABRIC_MTU: {{ vxlan.underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
   L2_HOST_INTF_MTU: {{ vxlan.underlay.general.layer2_host_interface_mtu | default(defaults.vxlan.underlay.general.layer2_host_interface_mtu) }}

@@ -760,6 +760,7 @@ class ResourceDataBuilder:
             'interface_dot1q_po',
             'interface_vlan',
             'interface_pvlan',
+            'interface_pvlan_po',
             'interface_vpc',
         ]
 
@@ -778,6 +779,7 @@ class ResourceDataBuilder:
             'interface_dot1q_po',
             'interface_vlan',
             'interface_pvlan',
+            'interface_pvlan_po',
             'interface_vpc',
         ]
 

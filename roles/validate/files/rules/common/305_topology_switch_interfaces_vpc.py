@@ -31,6 +31,19 @@ class Rule:
             "enable_qos",
             "qos_policy",
             "queuing_policy",
+            # PVLAN shared parameters — must be identical on both vPC peers.
+            # Per-peer fields (members, native_vlan, trunk_allowed_vlans,
+            # description, freeform_config) are intentionally excluded: they may
+            # legitimately differ between the two legs of the vPC.
+            "pvlan_mode",
+            "pvlan_association",
+            "pvlan_mapping",
+            "acl_filter",
+            "enable_priority_flow_control",
+            "lacp_rate",
+            "lacp_port_priority",
+            "disable_lacp_suspend_individual",
+            "enable_lacp_vpc_convergence",
         ]
         vpc_peers_list = cls.get_vpc_peers(data_model)
         # Check if fabric topology switches are defined

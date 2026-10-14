@@ -553,6 +553,8 @@ class ResourceRemover(PipelineRunnerBase):
         'int_loopback': 'lo',
         'int_vlan': 'svi',
         'int_pvlan_host': 'eth',
+        'int_port_channel_pvlan_host': 'pc',
+        'int_vpc_pvlan_host': 'vpc',
         'int_fabric_loopback_11_1': 'lo',
         'int_pre_provision_intra_fabric_link': 'eth',
         'int_intra_fabric_num_link': 'eth',

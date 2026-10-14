@@ -33,6 +33,7 @@ factory_defaults:
         nxapi_http_port: 80
         enable_nxapi_https: true
         nxapi_https_port: 443
+        enable_pvlan: false
         overlay_mode: cli
         greenfield_cleanup: Disable
         layer2_vni_range:
@@ -80,6 +81,7 @@ factory_defaults:
         nxapi_http_port: 80
         enable_nxapi_https: true
         nxapi_https_port: 443
+        enable_pvlan: false
         overlay_mode: cli
         greenfield_cleanup: Disable
         layer2_vni_range:
@@ -420,7 +422,7 @@ factory_defaults:
             hsrp_version: 1
             preempt: false
           topology_switch_pvlan_interface:
-            description: "NetAsCode PVLAN Host Interface"
+            description: "NetAsCode PVLAN Interface"
             enabled: true
             mtu: jumbo
             speed: auto
@@ -433,6 +435,30 @@ factory_defaults:
             orphan_port: false
             enable_priority_flow_control: false
             enable_qos: false
+            trunk_allowed_vlans: none
+            native_vlan: ""
+          topology_switch_pvlan_po_interface:
+            description: "NetAsCode PVLAN Port-Channel Interface"
+            enabled: true
+            copy_description: false
+            mtu: jumbo
+            speed: auto
+            enable_cdp: true
+            enable_lldp_transmit: true
+            enable_lldp_receive: true
+            spanning_tree_portfast: true
+            enable_bpdu_guard: true
+            duplex: auto
+            orphan_port: false
+            pc_mode: active
+            enable_priority_flow_control: false
+            disable_lacp_suspend_individual: false
+            enable_lacp_vpc_convergence: false
+            lacp_port_priority: 32768
+            lacp_rate: normal
+            enable_qos: false
+            enable_qos_stats: true
+            enable_queuing_stats: true
             trunk_allowed_vlans: none
             native_vlan: ""
           topology_switch_loopback_interface:
@@ -672,6 +698,7 @@ factory_defaults:
         to: 59000
       enable_ipv6_underlay: false
       anycast_gateway_mac: 20:20:00:00:00:aa
+      enable_pvlan: false
       vtep_loopback_id: 100
       bgw_ip_tag: 54321
       ipv4_vtep_loopback_range: 10.10.0.0/24
