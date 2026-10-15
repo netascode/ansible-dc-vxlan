@@ -33,7 +33,7 @@
     pvlan_mode: "{{ pvlan_mode }}"
     admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enabled) | lower }}
     enable_cdp: {{ interface['enable_cdp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enable_cdp) | lower }}
-    description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.description) }}"
+    description: {{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.description) | to_json }}
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.speed) }}
     port_type_fast: {{ interface['spanning_tree_portfast'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.spanning_tree_portfast) | lower }}
@@ -45,10 +45,10 @@
     enable_pfc: {{ interface['enable_priority_flow_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enable_priority_flow_control) | lower }}
     enable_qos: {{ interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enable_qos) | lower }}
 {% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enable_qos) %}
-    qos_policy: {{ interface['qos_policy'] | default("") }}
+    qos_policy: {{ interface['qos_policy'] | default("") | to_json }}
 {% endif %}
 {% if interface['queuing_policy'] is defined %}
-    queuing_policy: {{ interface['queuing_policy'] | default("") }}
+    queuing_policy: {{ interface['queuing_policy'] | default("") | to_json }}
 {% endif %}
 {# Trunk submodes carry native_vlan and allowed_vlans #}
 {% if pvlan_mode in ['trunk promiscuous', 'trunk secondary'] %}

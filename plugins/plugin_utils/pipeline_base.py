@@ -297,7 +297,7 @@ class PipelineRunnerBase(ABC):
             deploy = step.get('deploy')
             skip_validation = step.get('skip_validation')
             module_controls = {}
-            if self.OPERATION == 'create' and module in ('dcnm_network', 'dcnm_interface'):
+            if module in ('dcnm_network', 'dcnm_interface'):
                 module_controls['patch_version'] = resolve_network_patch_version(
                     nd_smu_versions=self.task_vars.get('nd_smu_versions'),
                     nd_version=self.task_vars.get('nd_version'),

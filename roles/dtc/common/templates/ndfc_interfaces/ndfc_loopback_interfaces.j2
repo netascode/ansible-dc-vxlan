@@ -53,10 +53,10 @@
     ipv4_addr: {{ interface.ipv4_address | default(omit) }}
     ipv6_addr: {{ interface.ipv6_address | default(omit) }}
     route_tag: {{ interface.ipv4_route_tag | default(omit) }}
-{% if ndfc_supports_interface_properties %}
+{% if interface.mode == 'loopback' and ndfc_supports_interface_properties %}
     enable_pim_sparse: {{ interface.enable_pim_sparse | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.enable_pim_sparse) | lower }}
 {% if interface.eigrp_process_tag is defined %}
-    eigrp_process_tag: {{ interface.eigrp_process_tag }}
+    eigrp_process_tag: {{ interface.eigrp_process_tag | to_json }}
     enable_eigrp_routing: {{ interface.enable_eigrp_routing | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.enable_eigrp_routing) | lower }}
     eigrp_no_ipv4_passive: {{ interface.eigrp_no_ipv4_passive | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.eigrp_no_ipv4_passive) | lower }}
     eigrp_ipv4_passive: {{ interface.eigrp_ipv4_passive | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.eigrp_ipv4_passive) | lower }}
@@ -67,15 +67,21 @@
 {% endif %}
     enable_ospf: {{ interface.enable_ospf | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.enable_ospf) | lower }}
 {% if interface.enable_ospf | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.enable_ospf) %}
-    ospf_tag: {{ interface.ospf_tag | default(omit) }}
-    ospf_area_id: {{ interface.ospf_area_id | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.ospf_area_id) }}
+{% if interface.ospf_tag is defined %}
+    ospf_tag: {{ interface.ospf_tag | to_json }}
+{% endif %}
+    ospf_area_id: {{ interface.ospf_area_id | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.ospf_area_id) | to_json }}
     enable_ospf_auth: {{ interface.enable_ospf_auth | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.enable_ospf_auth) | lower }}
 {% if interface.enable_ospf_auth | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.enable_ospf_auth) %}
     ospf_auth_key_id: {{ interface.ospf_auth_key_id | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.ospf_auth_key_id) }}
-    ospf_auth_key: {{ interface.ospf_auth_key | default(omit) }}
+{% if interface.ospf_auth_key is defined %}
+    ospf_auth_key: {{ interface.ospf_auth_key | to_json }}
+{% endif %}
 {% endif %}
     ospf_authentication_key_type: "{{ interface.ospf_authentication_key_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.ospf_authentication_key_type) }}"
-    ospf_authentication_key: {{ interface.ospf_authentication_key | default(omit) }}
+{% if interface.ospf_authentication_key is defined %}
+    ospf_authentication_key: {{ interface.ospf_authentication_key | to_json }}
+{% endif %}
     ospf_advertise_subnet: {{ interface.ospf_advertise_subnet | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.ospf_advertise_subnet) | lower }}
     ospf_bfd: {{ interface.ospf_bfd | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.ospf_bfd) | lower }}
     ospf_cost: {{ interface.ospf_cost | default(omit) }}

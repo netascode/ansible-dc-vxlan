@@ -33,7 +33,7 @@
     pvlan_mode: "{{ pvlan_mode }}"
     admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.enabled) | lower }}
     enable_cdp: {{ interface['enable_cdp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.enable_cdp) | lower }}
-    description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.description) }}"
+    description: {{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.description) | to_json }}
     copy_description: {{ interface['copy_description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.copy_description) | lower }}
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.speed) }}
@@ -49,7 +49,7 @@
     lacp_port_priority: {{ interface['lacp_port_priority'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.lacp_port_priority) }}
     lacp_rate: {{ interface['lacp_rate'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.lacp_rate) }}
 {% if interface['queuing_policy'] is defined %}
-    queuing_policy: {{ interface['queuing_policy'] | default("") }}
+    queuing_policy: {{ interface['queuing_policy'] | default("") | to_json }}
 {% endif %}
 {# Trunk submodes carry native_vlan and allowed_vlans #}
 {% if pvlan_mode in ['trunk promiscuous', 'trunk secondary'] %}
@@ -86,10 +86,8 @@
 {% endif %}
 {% endif %}
 {% if interface['freeform_config'] is defined %}
-    cmds:
-{% for _line in interface['freeform_config'].split('\n') %}
-      - "{{ _line }}"
-{% endfor %}
+    cmds: |2-
+      {{ interface['freeform_config'] | default('') | indent(6, false) }}
 {% endif %}
 {% endif %}
 {% endif %}

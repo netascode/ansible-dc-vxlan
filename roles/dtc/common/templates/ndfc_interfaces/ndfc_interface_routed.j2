@@ -69,19 +69,29 @@
     disable_ipv4_redirects: {{ interface['disable_ipv4_redirects'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.disable_ipv4_redirects) | lower }}
     disable_ipv6_redirects: {{ interface['disable_ipv6_redirects'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.disable_ipv6_redirects) | lower }}
     arp_timeout: {{ interface['arp_timeout'] | default(omit) }}
-    ipv4_acl_in: {{ interface['ipv4_acl_in'] | default(omit) }}
+{% if interface['ipv4_acl_in'] is defined %}
+    ipv4_acl_in: {{ interface['ipv4_acl_in'] | to_json }}
+{% endif %}
     enable_macsec_interface_policy: {{ interface['enable_macsec_interface_policy'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_macsec_interface_policy) | lower }}
 {% if interface['enable_macsec_interface_policy'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_macsec_interface_policy) %}
-    macsec_key_chain_name: {{ interface['macsec_key_chain_name'] | default(omit) }}
-    macsec_policy_name: {{ interface['macsec_policy_name'] | default(omit) }}
-    macsec_fallback_key_chain_name: {{ interface['macsec_fallback_key_chain_name'] | default(omit) }}
+{% if interface['macsec_key_chain_name'] is defined %}
+    macsec_key_chain_name: {{ interface['macsec_key_chain_name'] | to_json }}
+{% endif %}
+{% if interface['macsec_policy_name'] is defined %}
+    macsec_policy_name: {{ interface['macsec_policy_name'] | to_json }}
+{% endif %}
+{% if interface['macsec_fallback_key_chain_name'] is defined %}
+    macsec_fallback_key_chain_name: {{ interface['macsec_fallback_key_chain_name'] | to_json }}
+{% endif %}
 {% endif %}
     enable_pim_sparse: {{ interface['enable_pim_sparse'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_pim_sparse) | lower }}
     pim_dr_priority: {{ interface['pim_dr_priority'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.pim_dr_priority) }}
     enable_pim_bfd_instance: {{ interface['enable_pim_bfd_instance'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_pim_bfd_instance) | lower }}
     enable_netflow: {{ interface['enable_netflow'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_netflow) | lower }}
 {% if interface['enable_netflow'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_netflow) %}
-    netflow_monitor: {{ interface['netflow_monitor'] | default(omit) }}
+{% if interface['netflow_monitor'] is defined %}
+    netflow_monitor: {{ interface['netflow_monitor'] | to_json }}
+{% endif %}
 {% endif %}
     enable_pfc: {{ interface['enable_priority_flow_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_priority_flow_control) | lower }}
     enable_dampening: {{ interface['enable_dampening'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_dampening) | lower }}
@@ -94,15 +104,19 @@
     dampening_restart_penalty: {{ interface['dampening_restart_penalty'] | default(omit) }}
 {% endif %}
 {% if interface['eigrp_process_tag'] is defined %}
-    eigrp_process_tag: {{ interface['eigrp_process_tag'] }}
+    eigrp_process_tag: {{ interface['eigrp_process_tag'] | to_json }}
     enable_eigrp_routing: {{ interface['enable_eigrp_routing'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_routing) | lower }}
     enable_eigrp_ipv6_routing: {{ interface['enable_eigrp_ipv6_routing'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_ipv6_routing) | lower }}
     eigrp_no_ipv4_passive: {{ interface['eigrp_no_ipv4_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.eigrp_no_ipv4_passive) | lower }}
     eigrp_ipv4_passive: {{ interface['eigrp_ipv4_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.eigrp_ipv4_passive) | lower }}
     eigrp_no_ipv6_passive: {{ interface['eigrp_no_ipv6_passive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.eigrp_no_ipv6_passive) | lower }}
-    eigrp_ipv4_distribute_list_prefix_list: {{ interface['eigrp_ipv4_distribute_list_prefix_list'] | default(omit) }}
+{% if interface['eigrp_ipv4_distribute_list_prefix_list'] is defined %}
+    eigrp_ipv4_distribute_list_prefix_list: {{ interface['eigrp_ipv4_distribute_list_prefix_list'] | to_json }}
+{% endif %}
     eigrp_ipv4_distribute_list_direction: {{ interface['eigrp_ipv4_distribute_list_direction'] | default(omit) }}
-    eigrp_ipv6_distribute_list_prefix_list: {{ interface['eigrp_ipv6_distribute_list_prefix_list'] | default(omit) }}
+{% if interface['eigrp_ipv6_distribute_list_prefix_list'] is defined %}
+    eigrp_ipv6_distribute_list_prefix_list: {{ interface['eigrp_ipv6_distribute_list_prefix_list'] | to_json }}
+{% endif %}
     eigrp_ipv6_distribute_list_direction: {{ interface['eigrp_ipv6_distribute_list_direction'] | default(omit) }}
     enable_eigrp_shutdown: {{ interface['enable_eigrp_shutdown'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_shutdown) | lower }}
     enable_eigrp_bfd: {{ interface['enable_eigrp_bfd'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_eigrp_bfd) | lower }}
@@ -110,15 +124,21 @@
 {% endif %}
     enable_ospf: {{ interface['enable_ospf'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf) | lower }}
 {% if interface['enable_ospf'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf) %}
-    ospf_tag: {{ interface['ospf_tag'] | default(omit) }}
-    ospf_area_id: {{ interface['ospf_area_id'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_area_id) }}
+{% if interface['ospf_tag'] is defined %}
+    ospf_tag: {{ interface['ospf_tag'] | to_json }}
+{% endif %}
+    ospf_area_id: {{ interface['ospf_area_id'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_area_id) | to_json }}
     enable_ospf_auth: {{ interface['enable_ospf_auth'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf_auth) | lower }}
 {% if interface['enable_ospf_auth'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_ospf_auth) %}
     ospf_auth_key_id: {{ interface['ospf_auth_key_id'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_auth_key_id) }}
-    ospf_auth_key: {{ interface['ospf_auth_key'] | default(omit) }}
+{% if interface['ospf_auth_key'] is defined %}
+    ospf_auth_key: {{ interface['ospf_auth_key'] | to_json }}
+{% endif %}
 {% endif %}
     ospf_authentication_key_type: "{{ interface['ospf_authentication_key_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_authentication_key_type) }}"
-    ospf_authentication_key: {{ interface['ospf_authentication_key'] | default(omit) }}
+{% if interface['ospf_authentication_key'] is defined %}
+    ospf_authentication_key: {{ interface['ospf_authentication_key'] | to_json }}
+{% endif %}
     ospf_passive_mode: {{ interface['ospf_passive_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_passive_mode) }}
     ospf_cost: {{ interface['ospf_cost'] | default(omit) }}
     ospf_mtu_ignore: {{ interface['ospf_mtu_ignore'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_mtu_ignore) | lower }}

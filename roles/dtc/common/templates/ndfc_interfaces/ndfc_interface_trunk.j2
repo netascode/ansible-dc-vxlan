@@ -96,7 +96,7 @@
     disable_queuing_stats: {{ translate(interface['enable_queuing_stats'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
 {% endif %}
 {% if interface['acl_filter'] is defined %}
-    acl_filter: "{{ interface['acl_filter'] | default('') }}"
+    acl_filter: {{ interface['acl_filter'] | default('') | to_json }}
 {% endif %}
 {% endif %}
     cmds: |2-

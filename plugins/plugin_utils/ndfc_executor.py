@@ -110,7 +110,7 @@ class NdfcModuleExecutor:
         if skip_validation is not None:
             module_args['skip_validation'] = skip_validation
 
-        if module_name in ('cisco.dcnm.dcnm_network', 'cisco.dcnm.dcnm_interface') and state in ('merged', 'replaced', 'overridden'):
+        if module_name in ('cisco.dcnm.dcnm_network', 'cisco.dcnm.dcnm_interface') and state in ('merged', 'replaced', 'overridden', 'deleted'):
             if isinstance(patch_version, str):
                 patch_version = patch_version.strip()
             if patch_version not in (None, ''):

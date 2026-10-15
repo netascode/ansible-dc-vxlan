@@ -95,7 +95,7 @@
     disable_queuing_stats: {{ translate(switches[peer1].enable_queuing_stats | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
 {% endif %}
 {% if switches[peer1].acl_filter is defined %}
-    acl_filter: {{ switches[peer1].acl_filter }}
+    acl_filter: {{ switches[peer1].acl_filter | to_json }}
 {% endif %}
 {% endif %}
     peer1_allowed_vlans: "{{ convert_ranges(switches[peer1].trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans) | trim }}"
@@ -163,7 +163,7 @@
     disable_queuing_stats: {{ translate(switches[peer1].enable_queuing_stats | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
 {% endif %}
 {% if switches[peer1].acl_filter is defined %}
-    acl_filter: {{ switches[peer1].acl_filter }}
+    acl_filter: {{ switches[peer1].acl_filter | to_json }}
 {% endif %}
 {% endif %}
     peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan) }}
@@ -184,10 +184,10 @@
     lacp_rate: {{ switches[peer1].lacp_rate | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.lacp_rate) }}
     enable_qos: {{ switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_qos) | lower }}
 {% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_qos) %}
-    qos_policy: {{ switches[peer1].qos_policy | default("") }}
+    qos_policy: {{ switches[peer1].qos_policy | default("") | to_json }}
 {% endif %}
 {% if switches[peer1].queuing_policy is defined %}
-    queuing_policy: {{ switches[peer1].queuing_policy | default("") }}
+    queuing_policy: {{ switches[peer1].queuing_policy | default("") | to_json }}
 {% endif %}
     copy_description: {{ switches[peer1].copy_description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.copy_description) | lower }}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
@@ -228,12 +228,12 @@
     disable_queuing_stats: {{ translate(switches[peer1].enable_queuing_stats | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_queuing_stats), {true: 'false', false: 'true'}) }}
 {% endif %}
 {% if switches[peer1].acl_filter is defined %}
-    acl_filter: {{ switches[peer1].acl_filter }}
+    acl_filter: {{ switches[peer1].acl_filter | to_json }}
 {% endif %}
     peer1_access_vlan: {{ switches[peer1].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.access_vlan) }}
     peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.access_vlan)  }}
-    peer1_description: "{{ switches[peer1].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.description) }}"
-    peer2_description: "{{ switches[peer2].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.description) }}"
+    peer1_description: {{ switches[peer1].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.description) | to_json }}
+    peer2_description: {{ switches[peer2].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.description) | to_json }}
 {% elif switches[peer1].mode == 'pvlan' %}
 {% set pvlan_mode = switches[peer1].pvlan_mode %}
     pvlan_mode: "{{ pvlan_mode }}"
@@ -252,14 +252,14 @@
     lacp_rate: {{ switches[peer1].lacp_rate | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.lacp_rate) }}
     enable_qos: {{ switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.enable_qos) | lower }}
 {% if switches[peer1].enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.enable_qos) %}
-    qos_policy: {{ switches[peer1].qos_policy | default("") }}
+    qos_policy: {{ switches[peer1].qos_policy | default("") | to_json }}
 {% endif %}
 {% if switches[peer1].queuing_policy is defined %}
-    queuing_policy: {{ switches[peer1].queuing_policy | default("") }}
+    queuing_policy: {{ switches[peer1].queuing_policy | default("") | to_json }}
 {% endif %}
     copy_description: {{ switches[peer1].copy_description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.copy_description) | lower }}
-    peer1_description: "{{ switches[peer1].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.description) }}"
-    peer2_description: "{{ switches[peer2].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.description) }}"
+    peer1_description: {{ switches[peer1].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.description) | to_json }}
+    peer2_description: {{ switches[peer2].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.description) | to_json }}
 {# Trunk submodes carry per-peer native_vlan and allowed_vlans #}
 {% if pvlan_mode in ['trunk promiscuous', 'trunk secondary'] %}
     peer1_native_vlan: "{{ switches[peer1].native_vlan | default('') }}"
@@ -288,7 +288,7 @@
     disable_lldp_transmit: {{ translate(switches[peer1].enable_lldp_transmit | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.enable_lldp_transmit), {true: 'false', false: 'true'}) }}
     disable_lldp_receive: {{ translate(switches[peer1].enable_lldp_receive | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_po_interface.enable_lldp_receive), {true: 'false', false: 'true'}) }}
 {% if switches[peer1].acl_filter is defined %}
-    acl_filter: "{{ switches[peer1].acl_filter }}"
+    acl_filter: {{ switches[peer1].acl_filter | to_json }}
 {% endif %}
 {% if switches[peer1].spanning_tree_port_type is defined %}
 {# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
