@@ -4,13 +4,21 @@ class Rule:
         "Verify PVLAN host interface configuration: pvlan_mode is required; "
         "pvlan_association applies only to 'host'/'trunk secondary'; "
         "pvlan_mapping applies only to 'promiscuous'/'trunk promiscuous'; "
-        "native_vlan/trunk_allowed_vlans apply only to trunk submodes"
+        "native_vlan/trunk_allowed_vlans apply only to trunk submodes; "
+        "vPC-only fields are rejected on a standalone PVLAN port-channel"
     )
     severity = "HIGH"
 
     ASSOCIATION_MODES = ('host', 'trunk secondary')
     MAPPING_MODES = ('promiscuous', 'trunk promiscuous')
     TRUNK_MODES = ('trunk promiscuous', 'trunk secondary')
+
+    # Fields the base module binds only on vPC PVLAN Po (int_vpc_pvlan_host),
+    # not on standalone PVLAN Po (int_port_channel_pvlan_host).
+    VPC_ONLY_PO_FIELDS = (
+        'enable_priority_flow_control', 'enable_lacp_vpc_convergence',
+        'enable_qos', 'qos_policy', 'enable_qos_stats', 'acl_filter',
+    )
 
     @classmethod
     def match(cls, data_model):
@@ -64,6 +72,17 @@ class Rule:
                         prefix + f"trunk_allowed_vlans is only valid for trunk pvlan_mode "
                         f"('trunk promiscuous' or 'trunk secondary'), not '{pvlan_mode}'."
                     )
+
+                # vPC-only fields rejected on a standalone PVLAN port-channel
+                name = (interface.get('name') or '').lower()
+                is_po = name.startswith('po') or name.startswith('port-channel')
+                if is_po and interface.get('vpc_id') is None:
+                    for field in cls.VPC_ONLY_PO_FIELDS:
+                        if interface.get(field) is not None:
+                            results.append(
+                                prefix + f"{field} is not supported on a standalone "
+                                f"PVLAN port-channel (only on a vPC); remove it."
+                            )
 
         return results
 

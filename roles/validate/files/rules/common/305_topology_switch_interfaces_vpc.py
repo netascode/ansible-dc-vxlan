@@ -31,10 +31,6 @@ class Rule:
             "enable_qos",
             "qos_policy",
             "queuing_policy",
-            # PVLAN shared parameters — must be identical on both vPC peers.
-            # Per-peer fields (members, native_vlan, trunk_allowed_vlans,
-            # description, freeform_config) are intentionally excluded: they may
-            # legitimately differ between the two legs of the vPC.
             "pvlan_mode",
             "pvlan_association",
             "pvlan_mapping",

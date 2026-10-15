@@ -11,6 +11,7 @@ class Rule:
         fabric_type_map = {
             "VXLAN_EVPN": "ibgp",
             "eBGP_VXLAN": "ebgp",
+            "External": "external"
         }
 
         fabric_type_check = cls.data_model_key_check(
