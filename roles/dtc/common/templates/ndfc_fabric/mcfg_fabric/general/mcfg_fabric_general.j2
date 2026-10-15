@@ -3,7 +3,7 @@
   VXLAN_UNDERLAY_IS_V6: {{ vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) }}
 {% endif %}
 {% if not (vxlan.multisite.enable_ipv6_underlay | default(defaults.vxlan.multisite.enable_ipv6_underlay) | ansible.builtin.bool) %}
-  ENABLE_PVLAN: false
+  ENABLE_PVLAN: {{ vxlan.multisite.enable_pvlan | default(defaults.vxlan.multisite.enable_pvlan) }}
 {% endif %}
   ANYCAST_GW_MAC: {{ vxlan.multisite.anycast_gateway_mac | default(defaults.vxlan.multisite.anycast_gateway_mac) }}
   MS_LOOPBACK_ID: {{ vxlan.multisite.vtep_loopback_id | default(defaults.vxlan.multisite.vtep_loopback_id) }}
