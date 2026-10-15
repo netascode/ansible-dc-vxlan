@@ -125,14 +125,14 @@
     hsrp_preempt_delay_minimum: {{ interface['hsrp_preempt_delay_minimum'] | default(omit) }}
     hsrp_priority_forwarding_threshold_lower: {{ interface['hsrp_priority_forwarding_threshold_lower'] | default(omit) }}
     hsrp_priority_forwarding_threshold_upper: {{ interface['hsrp_priority_forwarding_threshold_upper'] | default(omit) }}
-{% if interface['hsrp_secondary_vips'] is not none %}
+{% if interface['hsrp_secondary_vips'] is defined and interface['hsrp_secondary_vips'] is not none %}
     hsrp_secondary_vips: {{ interface['hsrp_secondary_vips'] | to_json }}
 {% endif %}
 {% endif %}
-{% if interface['secondary_gws'] is not none %}
+{% if interface['secondary_gws'] is defined and interface['secondary_gws'] is not none %}
     secondary_gws: {{ interface['secondary_gws'] | to_json }}
 {% endif %}
-{% if interface['dhcp_relay_servers'] is  not none %}
+{% if interface['dhcp_relay_servers'] is defined and interface['dhcp_relay_servers'] is not none %}
 {% for server in interface['dhcp_relay_servers'] %}
     dhcp_server_addr{{ loop.index }}: {{ server['ip_address'] }}
     vrf_dhcp{{ loop.index }}: {{ server['vrf'] | to_json }}
