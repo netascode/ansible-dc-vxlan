@@ -34,8 +34,6 @@
   profile:
 {% if interface.mode == 'loopback' %}
     mode: lo
-{% elif interface.mode == 'mpls_loopback' %}
-    mode: mpls
 {% elif interface.mode == 'fabric_loopback' %}
     mode: fabric
 {% endif %}
@@ -46,11 +44,13 @@
     ipv6_addr: {{ interface.ipv6_address | default(omit) }}
     route_tag: {{ interface.ipv4_route_tag | default(omit) }}
 {# ------------------------------------------------------ #}
-{# Todo: Need special handling for secondary ipv4 address and route_tag #}
-{#       Module only supports one secondary and tag and no ipv6 support #}
-{#       Also need to add freeform commands to the model? #}
+{# NDFC only supports SECONDARY_IP on int_fabric_loopback_11_1 (mode 'fabric'). #}
+{# cisco.dcnm.dcnm_interface silently drops secondary_ipv4_addr for modes 'lo' and 'mpls'. #}
+{# IPv6 secondary is not exposed by any NDFC loopback template. #}
 {# ------------------------------------------------------ #}
+{% if interface.mode == 'fabric_loopback' %}
     secondary_ipv4_addr: {{ interface.secondary_ipv4_addresses[0].ip_address | default(omit) }}
+{% endif %}
     cmds: |2-
       {{ interface.freeform_config | default('') | indent(6) }}
 {% endif %}
