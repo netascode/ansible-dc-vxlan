@@ -207,7 +207,15 @@ class Rule:
                 continue
 
             net_name = net.get('name')
-            net_attach_group = net.get('network_attach_group')
+            if net.get('network_attach_group'):
+                net_group_names = [net.get('network_attach_group')]
+            else:
+                net_group_names = net.get('network_attach_groups') or []
+
+            known_group_names = [g for g in net_group_names if g in attach_group_identifiers]
+            group_ids = set()
+            for grp_name in known_group_names:
+                group_ids.update(attach_group_identifiers[grp_name])
 
             for override in overrides:
                 override_id = override.get('hostname')
@@ -227,15 +235,11 @@ class Rule:
                     )
                     continue
 
-                if net_attach_group and net_attach_group in attach_group_identifiers:
-                    group_ids = attach_group_identifiers[net_attach_group]
-                    resolved_name = resolved.get('name')
-
-                    if resolved_name not in group_ids:
-                        results.append(
-                            f"Network '{net_name}' switch_attach_overrides identifier "
-                            f"'{override_id}' could not be resolved to a switch attached "
-                            f"through network_attach_group '{net_attach_group}'."
-                        )
+                if known_group_names and resolved.get('name') not in group_ids:
+                    results.append(
+                        f"Network '{net_name}' switch_attach_overrides identifier "
+                        f"'{override_id}' could not be resolved to a switch attached "
+                        f"through network_attach_group(s) '{', '.join(known_group_names)}'."
+                    )
 
         return results
