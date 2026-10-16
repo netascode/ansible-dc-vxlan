@@ -8,7 +8,7 @@
     {# Get Community lists under Route_control #}
         {% for standard_community_list in item["standard_community_lists"]%}
             {# If policy name in Group equal to policy in Route_control #}
-            {% if policy_name["name"] == standard_community_list["name"] %}
+            {% if policy_name["name"] == standard_community_list["name"] and (standard_community_list["native"] is not defined or standard_community_list["native"] is false) %}
                 {% if "entries" in standard_community_list %}
                     {% for entry in standard_community_list["entries"] | sort(attribute='seq_number') %}
 ip community-list standard {{ standard_community_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["communities"] | join(" ") }}
@@ -25,7 +25,7 @@ ip community-list standard {{ standard_community_list["name"] }} seq {{ entry["s
         {# Get Ext Community lists under Route_control #}
         {% for extended_community_list in item["extended_community_lists"]%}
             {# If policy name in Group equal to policy in Route_control #}
-            {% if policy_name["name"] == extended_community_list["name"] %}
+            {% if policy_name["name"] == extended_community_list["name"] and (extended_community_list["native"] is not defined or extended_community_list["native"] is false) %}
                 {% if "entries" in extended_community_list %}
                     {% for entry in extended_community_list["entries"] %}
                         {% set options = [] %}
