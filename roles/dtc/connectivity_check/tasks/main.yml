@@ -51,18 +51,6 @@
     nd_patch: "{{ nd_version_response.json.patch }}"
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
-- name: Get Cisco Nexus Dashboard Fabric Controller Version
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: /appcenter/cisco/ndfc/api/about/version
-  register: ndfc_version
-  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-
-- name: Set Cisco Nexus Dashboard Fabric Controller Version Var
-  ansible.builtin.set_fact:
-    ndfc_version: "{{ ndfc_version.response.DATA.version }}"
-  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-
 - name: Initialize Cisco Nexus Dashboard SMU versions
   ansible.builtin.set_fact:
     nd_smu_versions: []
@@ -70,7 +58,7 @@
 
 - name: Get Cisco Nexus Dashboard SMU versions
   when:
-    - ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '==')
+    - nd_version | cisco.nac_dc_vxlan.version_compare('4.3.1', '==')
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
   block:
     - name: Get Cisco Nexus Dashboard SMU versions
@@ -87,6 +75,13 @@
     - name: Set Cisco Nexus Dashboard SMU versions
       ansible.builtin.set_fact:
         nd_smu_versions: "{{ nd_smus_parsed.smu_versions }}"
+
+    - name: Bump Nexus Dashboard Version when SMU patch present
+      ansible.builtin.set_fact:
+        nd_version: "4.4.1"
+      when:
+        - lookup('ansible.builtin.env', 'nd_smu_version') | default('', true) | length > 0
+        - lookup('ansible.builtin.env', 'nd_smu_version') in nd_smu_versions
 
 # # ── Phase 2: Centralized Controller State Discovery (Recommendation #3) ──────
 # # Queries fabric switches, multisite associations, and fabric existence once.

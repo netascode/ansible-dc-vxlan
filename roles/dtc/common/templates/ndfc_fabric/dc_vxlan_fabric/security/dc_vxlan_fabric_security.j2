@@ -2,7 +2,7 @@
 {% if not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) %}
 {% set enable_sgt = false %}
   ENABLE_SGT: {{ enable_sgt | lower }}
-{% if enable_sgt and (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.5.0', '>=')) %}
+{% if enable_sgt and (nd_version | cisco.nac_dc_vxlan.version_compare('4.2.1', '>=')) %}
   securityGroupTagMacSegmentation: false
   securityGroupTagMacSegmentation_PREV: false
 {% endif %}
