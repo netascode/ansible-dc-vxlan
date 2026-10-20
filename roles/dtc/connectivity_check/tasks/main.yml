@@ -63,6 +63,31 @@
     ndfc_version: "{{ ndfc_version.response.DATA.version }}"
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
+- name: Initialize Cisco Nexus Dashboard SMU versions
+  ansible.builtin.set_fact:
+    nd_smu_versions: []
+  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
+
+- name: Get Cisco Nexus Dashboard SMU versions
+  when:
+    - ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '==')
+  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
+  block:
+    - name: Get Cisco Nexus Dashboard SMU versions
+      cisco.dcnm.dcnm_rest:
+        method: GET
+        path: /api/v1/infra/systemSoftware/firmwares
+      register: nd_smus_version_response
+
+    - name: Parse Cisco Nexus Dashboard SMU versions
+      cisco.nac_dc_vxlan.dtc.parse_nd_smu_versions:
+        response: "{{ nd_smus_version_response }}"
+      register: nd_smus_parsed
+
+    - name: Set Cisco Nexus Dashboard SMU versions
+      ansible.builtin.set_fact:
+        nd_smu_versions: "{{ nd_smus_parsed.smu_versions }}"
+
 # # ── Phase 2: Centralized Controller State Discovery (Recommendation #3) ──────
 # # Queries fabric switches, multisite associations, and fabric existence once.
 # # Sets facts consumed by common, create, and remove roles downstream.

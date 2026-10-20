@@ -67,9 +67,7 @@
 #   fabric → switches → vPC → interfaces → overlay → links → policies
 # ══════════════════════════════════════════════════════════════════════════════
 ---
-
 create_resources:
-
   role_tag: role_create
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -139,7 +137,7 @@ create_resources:
       module: dcnm_links
       state: replaced
       fabric_param: src_fabric
-      deploy: null
+      deploy: false
       skip_diff: true
       data_model_guard: vxlan.topology.vpc_peers
       change_flag_guard: changes_detected_vpc_peering
@@ -187,6 +185,12 @@ create_resources:
       deploy: null
       change_flag_guard: changes_detected_interfaces
       tag: cr_manage_interfaces
+
+    - resource_name: edge_connections
+      module: _edge_connections_rename_reconcile
+      state: null
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
 
     - resource_name: edge_connections
       module: dcnm_policy
@@ -327,7 +331,7 @@ create_resources:
       module: dcnm_links
       state: replaced
       fabric_param: src_fabric
-      deploy: null
+      deploy: false
       skip_diff: true
       data_model_guard: vxlan.topology.vpc_peers
       change_flag_guard: changes_detected_vpc_peering
@@ -465,6 +469,12 @@ create_resources:
       tag: cr_manage_switches
 
     - resource_name: edge_connections
+      module: _edge_connections_rename_reconcile
+      state: null
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
+
+    - resource_name: edge_connections
       module: dcnm_policy
       state: merged
       deploy: false
@@ -546,7 +556,7 @@ create_resources:
       module: dcnm_links
       state: replaced
       fabric_param: src_fabric
-      deploy: null
+      deploy: false
       skip_diff: true
       change_flag_guard: changes_detected_vpc_peering
       tag: cr_manage_vpc_peers
@@ -568,6 +578,12 @@ create_resources:
         - vpc_fabric_peering_links
         - vpc_peering
       tag: cr_manage_vpc_peers
+
+    - resource_name: edge_connections
+      module: _edge_connections_rename_reconcile
+      state: null
+      change_flag_guard: changes_detected_edge_connections
+      tag: cr_manage_edge_connections
 
     - resource_name: edge_connections
       module: dcnm_policy

@@ -6,6 +6,13 @@
   data_model_extended.vxlan.policy.policies | default([]) | length > 0
   and data_model_extended.vxlan.policy.switches | default([]) | length > 0
 %}
+{# Var to set if ND has the 4.3.1.0175006011 patch #}
+{%- set ndfc_supports_json_scalar =
+  ndfc_version is defined
+  and ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '>'))
+    or ((ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '==')))
+    and ('4.3.1.0175006011' in (nd_smu_versions | default([]))))
+%}
 - switch:
 {% for switch in data_model_extended.vxlan.policy.switches %}
     - ip: {{ switch.mgmt_ip_address }}
@@ -40,6 +47,9 @@
             {{ key }}: "{{ value }}"
 {% elif key in ["asn", "BGP_AS", "BGP_ASN", "NEIGHBOR_ASN"] %}
             {{ key }}: "{{ value | string | indent(12) | trim }}"
+{% elif ndfc_supports_json_scalar and value is string and value | trim and value | trim | first in ['{', '['] %}
+{#- JSON-encoded string value (e.g. ip_acl ACES): emit as a quoted/escaped scalar so from_yaml round-trips it back to the original JSON string instead of parsing it as a YAML mapping/list. #}
+            {{ key }}: {{ value | to_json }}
 {% elif value is iterable and '\n' in value %}
             {{ key }}: |-
               {{ value | indent(14) }}
