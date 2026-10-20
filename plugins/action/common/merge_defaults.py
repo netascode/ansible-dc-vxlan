@@ -24,10 +24,17 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible.utils.display import Display
-from ansible.plugins.action import ActionBase
+import os
 
-display = Display()
+import yaml
+
+try:
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    from yaml import SafeLoader
+
+from ansible.plugins.action import ActionBase
+from ansible.errors import AnsibleActionFail
 
 
 def merge_dicts(d1, d2):
@@ -42,21 +49,34 @@ def merge_dicts(d1, d2):
 class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
-        # self._supports_async = True
         results = super(ActionModule, self).run(tmp, task_vars)
+        task_vars = task_vars or {}
         results['failed'] = False
         results['msg'] = None
-        results['defaults'] = None
 
-        # Get Data from Ansible Task
-        fac_def = self._task.args['factory_defaults']
-        data_model = self._task.args['data_model']
+        defaults_file = self._task.args['defaults_file']
 
-        cus_def = {}
-        if data_model is not None:
-            if data_model.get('defaults') is not None:
-                cus_def = data_model['defaults']
+        factory_defaults = {}
+        if os.path.exists(defaults_file):
+            with open(defaults_file, 'r') as file_handle:
+                loaded = yaml.load(file_handle, Loader=SafeLoader) or {}
+            factory_defaults = loaded.get('factory_defaults') or {}
 
-        results['defaults'] = merge_dicts(fac_def, cus_def)
+        # Read the validated model straight from task_vars instead of passing
+        # data_model['data'] as a templated arg: templating the multi-MB model
+        # through Jinja for every run costs several seconds.
+        data_model = task_vars.get('data_model')
+        if not isinstance(data_model, dict):
+            raise AnsibleActionFail("merge_defaults requires the 'data_model' fact to be registered")
+        model = data_model.get('data') or {}
+
+        custom_defaults = {}
+        if model.get('defaults') is not None:
+            custom_defaults = model['defaults']
+
+        # Publish 'defaults' straight as a host fact. Safe here only because the
+        # factory defaults are small (~18KB); returning the multi-MB service
+        # model this way instead would make every later task much slower.
+        results['ansible_facts'] = {'defaults': merge_dicts(factory_defaults, custom_defaults)}
 
         return results

@@ -110,6 +110,7 @@ class ActionModule(ActionBase):
 
         schema = self._task.args.get('schema')
         rules = self._task.args.get('rules')
+        enhanced_rules = self._task.args.get('enhanced_rules')
         mdata = self._task.args.get('mdata')
 
         # Generate a warning if the Schema and Rules are not provided
@@ -117,6 +118,8 @@ class ActionModule(ActionBase):
             display.warning("The schema ({0}) does not appear to exist! ".format(schema))
         if 'rules' in locals() and (rules == "" or not os.path.exists(rules)):
             display.warning("The rules directory ({0}) does not appear to exist! ".format(rules))
+        if 'enhanced_rules' in locals() and (enhanced_rules == "" or not os.path.exists(enhanced_rules)):
+            display.warning("The enhanced rules directory ({0}) does not appear to exist! ".format(enhanced_rules))
         # The rules directory is considered empty if it is an empty dir or only contains the .gitkeep file
         if os.path.exists(rules) and (not os.listdir(rules) or (len(os.listdir(rules)) == 1 and '.gitkeep' in os.listdir(rules))):
             display.warning("The rules directory ({0}) exists but is empty! ".format(rules))
@@ -200,9 +203,11 @@ class ActionModule(ActionBase):
                     else:
                         results['failed'] = True
                         results['msg'] = "vxlan.fabric.type is not defined in the data model."
-        else:
+
+        if enhanced_rules:
             # Else block to pickup custom enhanced rules provided by the user
-            rules_list.append(f'{rules}')
+            display.warning("Using enhanced rules from directory: {0}".format(enhanced_rules))
+            rules_list.append(f'{enhanced_rules}')
 
         # Ensure the merged data model is loaded before validation so the schema
         # (syntax) check runs once against it rather than reloading every file.
