@@ -25,7 +25,7 @@
 import re
 
 
-IPV4_ACL_IN_SMU_VERSION = "4.3.1.0175006011"
+IPV4_ACL_IN_SMU_VERSION = "4.3.1.0175006017"
 
 
 def _numeric_component(value):
