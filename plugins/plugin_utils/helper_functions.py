@@ -25,6 +25,74 @@
 # For example in prepare_serice_model.py we can do the following:
 #  from ..helper_functions import do_something
 
+from ansible.errors import AnsibleError
+
+# Public boolean control flags (defaults in roles/common_global/defaults/main.yml).
+# Every delete_mode_guard in resources/*.yml must be listed in DELETE_MODE_FLAGS.
+DELETE_MODE_FLAGS = (
+    'edge_connections_delete_mode',
+    'interface_delete_mode',
+    'inventory_delete_mode',
+    'link_fabric_delete_mode',
+    'link_vpc_delete_mode',
+    'multisite_child_fabric_delete_mode',
+    'multisite_network_delete_mode',
+    'multisite_vrf_delete_mode',
+    'network_delete_mode',
+    'policy_delete_mode',
+    'tor_pairing_delete_mode',
+    'vpc_delete_mode',
+    'vrf_delete_mode',
+)
+CONTROL_FLAGS = ('force_run_all', 'stage_remove') + DELETE_MODE_FLAGS
+
+MISSING = object()
+# Same accepted values as Ansible's Jinja '| bool' filter so plugins and role conditions agree.
+# Surrounding whitespace is deliberately not stripped because '| bool' does not strip it either.
+_TRUE_STRINGS = frozenset(('true', 'yes', 'on', '1'))
+_FALSE_STRINGS = frozenset(('false', 'no', 'off', '0'))
+
+
+def to_bool(value, name, default=MISSING):
+    """
+    Strictly convert a NaC control flag to a bool.
+
+    Extra vars given as '-e key=value' arrive as strings, so plain truthiness would treat
+    'false' as True. Accepts real bools, the integers 0/1 and (case-insensitive)
+    true/false, yes/no, on/off, 1/0. 'default' is only used when the value is MISSING
+    (key absent); explicit None, empty and any other value raise AnsibleError naming the flag.
+    """
+    if value is MISSING:
+        if default is MISSING:
+            raise AnsibleError(f"Missing required boolean flag '{name}'")
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int) and value in (0, 1):
+        return bool(value)
+    if isinstance(value, str):
+        lowered = value.lower()
+        if lowered in _TRUE_STRINGS:
+            return True
+        if lowered in _FALSE_STRINGS:
+            return False
+    raise AnsibleError(
+        f"Invalid value {repr(value)[:64]} for '{name}': expected a boolean "
+        "(true/false, yes/no, on/off or 1/0)"
+    )
+
+
+def task_var_to_bool(templar, task_vars, name, default=MISSING):
+    """
+    Render (if templated) and strictly convert a flag read from task_vars.
+
+    Action plugins see raw task_vars, so a var defined as "{{ other }}" arrives unrendered.
+    """
+    value = task_vars.get(name, MISSING)
+    if templar is not None and isinstance(value, str) and templar.is_template(value):
+        value = templar.template(value)
+    return to_bool(value, name, default)
+
 
 class NdfcBulkPolicyApiUnavailable(Exception):
     """

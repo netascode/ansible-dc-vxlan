@@ -28,6 +28,12 @@
       - "+     Calling Role - [cisco.nac_dc_vxlan.validate]             +"
       - "----------------------------------------------------------------"
 
+# Strictly validate boolean control flags (force_run_all, stage_remove, *_delete_mode)
+# before any controller change; '-e key=value' extra vars arrive as strings.
+- name: Validate Boolean Control Flags
+  cisco.nac_dc_vxlan.common.validate_control_flags:
+  delegate_to: localhost
+
 - name: Display Role Path
   ansible.builtin.debug:
     msg: "Role Path - {{ role_path }}"

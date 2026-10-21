@@ -65,6 +65,10 @@ from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.registry_loader
 from ansible_collections.cisco.nac_dc_vxlan.plugins.action.common.prepare_plugins.prep_005_resolve_env_vars import (
     resolve_env_vars_recursive,
 )
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import (
+    MISSING,
+    to_bool,
+)
 
 display = Display()
 
@@ -83,8 +87,8 @@ class ResourceDataBuilder:
         self.fabric_name = params['fabric_name']
         self.data_model = params['data_model']
         self.role_path = params['role_path']
-        self.run_map_diff_run = self._to_bool(params.get('run_map_diff_run', True))
-        self.force_run_all = self._to_bool(params.get('force_run_all', False))
+        self.run_map_diff_run = to_bool(params.get('run_map_diff_run', MISSING), 'run_map_diff_run', True)
+        self.force_run_all = to_bool(params.get('force_run_all', MISSING), 'force_run_all', False)
         self.check_roles = params.get('check_roles', {})
         self.resource_filter = params.get('resource_filter', None)
 
@@ -110,15 +114,6 @@ class ResourceDataBuilder:
         # Collected results
         self.resource_data = {}
         self.change_flags = {}
-
-    @staticmethod
-    def _to_bool(value):
-        """Convert Ansible bool-like values into real booleans."""
-        if isinstance(value, bool):
-            return value
-        if isinstance(value, str):
-            return value.lower() in ('1', 'true', 'yes', 'on')
-        return bool(value)
 
     def _should_run_structural_diff(self, diff_compare):
         """Structural diff data is only consumed during targeted diff runs."""
@@ -903,8 +898,10 @@ class ResourceDataBuilder:
         the MSD parent. This method fails the pipeline if the user attempts
         to manage overlay resources from a child fabric.
         """
-        # Check if already determined
+        # Check if already determined (None means unknown: query the controller)
         is_child = self.task_vars.get('is_active_child_fabric')
+        if is_child is not None:
+            is_child = to_bool(is_child, 'is_active_child_fabric')
 
         if is_child is None:
             # Query controller for MSD fabric associations

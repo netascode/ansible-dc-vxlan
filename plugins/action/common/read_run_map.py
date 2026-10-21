@@ -26,6 +26,7 @@ __metaclass__ = type
 
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import task_var_to_bool
 import os
 import yaml
 
@@ -39,6 +40,9 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         results['diff_run'] = True
         results['validate_only_run'] = False
+
+        # Strictly convert before any early return; '-e force_run_all=true' arrives as the string 'true'
+        force_run_all = task_var_to_bool(self._templar, task_vars, 'force_run_all', False)
 
         fabric_name = self._task.args.get('fabric_name')
         data_model = self._task.args.get('data_model')
@@ -76,7 +80,7 @@ class ActionModule(ActionBase):
         if play_tags and 'all' not in play_tags:
             results['diff_run'] = False
         # If force_run_all is True then set the diff_run flag to false
-        if task_vars.get('force_run_all') is True:
+        if force_run_all:
             results['diff_run'] = False
 
         # If only the role_validate tag is present then set validate_only_run to true

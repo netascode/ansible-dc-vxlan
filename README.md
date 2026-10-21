@@ -85,11 +85,12 @@ The following control variables are available in this collection.
 | Variable | Description | Default Value |
 | -------- | ------- | ------- |
 | `force_run_all` | Force all roles in the collection to run | `false` |
+| `stage_remove` | Leave changes made by the remove role staged on the controller instead of deploying them | `false` |
 | `edge_connections_delete_mode` | Remove edge_connections state as part of the remove role | `false` |
 | `interface_delete_mode` | Remove interface state as part of the remove role | `false` |
 | `inventory_delete_mode` | Remove inventory state as part of the remove role | `false` |
 | `link_fabric_delete_mode` | Remove fabric link state as part of the remove role | `false` |
-| `link_vpc_delete_mode` | Remove vpc link state as part of the remove role | `false` |
+| `link_vpc_delete_mode` | Remove vpc link state as part of the remove role (currently not used by any remove step) | `false` |
 | `multisite_child_fabric_delete_mode` | Remove child fabric from MSD fabric as part of the remove role | `false` |
 | `multisite_network_delete_mode` | Remove network state as part of the remove role for multisite (MSD) fabrics | `false` |
 | `multisite_vrf_delete_mode` | Remove vrf state as part of the remove role for multisite (MSD) fabrics | `false` |
@@ -102,6 +103,12 @@ The following control variables are available in this collection.
 These variables are described in more detail in different sections of this document.
 
 The default settings can be overridden in `group_vars`.
+
+These control variables are booleans. Accepted values are `true`/`false`, `yes`/`no`, `on`/`off` and
+`1`/`0` (case-insensitive, without surrounding spaces), including when passed as extra vars on the
+command line, for example `-e interface_delete_mode=false` or `-e force_run_all=true`. Any other value,
+including an empty or null value, fails the run during the validate role before any changes are made
+on the controller.
 
 ## Quick Start Guide
 
