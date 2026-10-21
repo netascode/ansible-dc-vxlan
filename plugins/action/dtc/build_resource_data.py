@@ -734,6 +734,32 @@ class ResourceDataBuilder:
     # Internal Methods (called from pipeline via '_' prefix in resource_name)
     # ══════════════════════════════════════════════════════════════════════════
 
+    def _interface_switch_scope_entries(self, interface_list):
+        """
+        Build dcnm_interface overridden scope entries ({name: '', switch: [ip]})
+        for data-model switches that are not referenced by any entry in
+        interface_list. The management address follows the same precedence as
+        the interface templates (IPv4, else IPv6).
+        """
+        referenced = set()
+        for item in interface_list:
+            for sw in (item.get('switch') or []):
+                referenced.add(str(sw))
+
+        switches = (
+            (self.data_model or {}).get('vxlan', {}).get('topology', {}).get('switches')
+            or []
+        )
+        entries = []
+        for switch in switches:
+            mgmt = switch.get('management') or {}
+            address = mgmt.get('management_ipv4_address') or mgmt.get('management_ipv6_address')
+            if not address or str(address) in referenced:
+                continue
+            referenced.add(str(address))
+            entries.append({'name': '', 'switch': [address]})
+        return entries
+
     def _interface_all(self, rt):
         """
         Aggregate all individual interface type data into combined lists.
@@ -742,7 +768,8 @@ class ResourceDataBuilder:
           - interface_all_create: All interfaces EXCEPT breakout_preprov
             (used by create pipeline with state: merged)
           - interface_all_remove_overridden: ALL interfaces including breakout_preprov
-            (used by remove pipeline with state: overridden)
+            (used by remove pipeline with state: overridden), plus switch-only
+            scope entries for data-model switches without any interfaces
 
         Also runs diff_compare on the aggregated list for targeted operations.
         """
@@ -805,6 +832,15 @@ class ResourceDataBuilder:
                     if (d.get('profile') or {}).get('mode') != 'vpc_peer_link'
                 ]
             remove_list.extend(data)
+
+        # dcnm_interface (state: overridden) only reconciles switches that are
+        # referenced in its config. Add a switch-only scope entry for every
+        # data-model switch not already referenced, so switches with no
+        # interfaces left in the data model (e.g. after removing their
+        # interface_breakouts) are still reconciled. An empty remove_list
+        # already means "all switches in the fabric", so leave it as-is.
+        if remove_list:
+            remove_list.extend(self._interface_switch_scope_entries(remove_list))
 
         # Write aggregated file for diff comparison
         output_file = os.path.join(self.output_path, 'ndfc_interface_all.yml')
