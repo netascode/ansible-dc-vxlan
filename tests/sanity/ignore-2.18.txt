@@ -47,3 +47,4 @@ plugins/action/dtc/manage_resources.py action-plugin-docs # action plugin has no
 plugins/action/dtc/connectivity_check.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/remove_resources.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/underlay_ip_manual_allocation_filter.py action-plugin-docs # action plugin has no matching module to provide documentation
+plugins/action/common/manage_model_files.py action-plugin-docs # action plugin has no matching module to provide documentation
