@@ -38,6 +38,11 @@ class NdfcDuplicatePolicyError(Exception):
     """
 
 
+FABRIC_LINK_TEMPLATE_PRE_PROVISION = 'int_pre_provision_intra_fabric_link'
+FABRIC_LINK_TEMPLATE_NUM = 'int_intra_fabric_num_link'
+FABRIC_LINK_TEMPLATE_UNNUM = 'int_intra_fabric_unnum_link'
+
+
 def _ndfc_policy_id_list(policies):
     """
     Return a comma-separated policyId/id list for error messages.
@@ -131,6 +136,51 @@ def resolve_child_fabric_switch(identifier, child_fabric_switches):
         if re.search(fwd, sw_hostname) or re.search(rev, identifier):
             return sw
     return None
+
+
+def switch_mgmt_ip_map(switches):
+    """Return {lowercase switch name: management IP}, preferring IPv4 over IPv6."""
+    ip_map = {}
+    for switch in switches or []:
+        name = switch.get('name')
+        mgmt = switch.get('management') or {}
+        mgmt_ip = mgmt.get('management_ipv4_address') or mgmt.get('management_ipv6_address')
+        if name and mgmt_ip:
+            ip_map[str(name).lower()] = mgmt_ip
+    return ip_map
+
+
+def resolve_link_endpoints(existing_link, ip_map):
+    """
+    Return ((sw1_device, sw1_if), (sw2_device, sw2_if)) for an NDFC link, or None if incomplete.
+
+    Device names found in ip_map are translated to their management IP.
+    """
+    endpoints = []
+    for side in ('sw1-info', 'sw2-info'):
+        info = existing_link.get(side) or {}
+        device = info.get('sw-sys-name')
+        interface = info.get('if-name')
+        if not device or not interface:
+            return None
+        endpoints.append((ip_map.get(str(device).lower(), device), interface))
+    return tuple(endpoints)
+
+
+def fabric_link_endpoints(link):
+    """Return ((src_device, src_if), (dst_device, dst_if)) for a data model fabric link."""
+    return (
+        (link.get('src_device'), link.get('src_interface')),
+        (link.get('dst_device'), link.get('dst_interface')),
+    )
+
+
+def link_endpoint_key(endpoint_a, endpoint_b):
+    """Return a direction-independent, case-insensitive key for a link's two endpoints."""
+    return frozenset(
+        (str(device).lower(), str(interface).lower())
+        for device, interface in (endpoint_a, endpoint_b)
+    )
 
 
 def ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number):

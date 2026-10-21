@@ -24,10 +24,27 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.errors import AnsibleActionFail
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import (
+    FABRIC_LINK_TEMPLATE_NUM,
+    FABRIC_LINK_TEMPLATE_PRE_PROVISION,
+    fabric_link_endpoints,
+    link_endpoint_key,
+    resolve_link_endpoints,
+    switch_mgmt_ip_map,
+)
 
 display = Display()
+
+ARGUMENT_SPEC = dict(
+    existing_links=dict(type='list', elements='dict', required=True),
+    fabric_links=dict(type='list', elements='dict', required=True),
+    switch_data_model=dict(type='list', elements='dict', required=True),
+)
+
+REMOVABLE_TEMPLATES = (FABRIC_LINK_TEMPLATE_PRE_PROVISION, FABRIC_LINK_TEMPLATE_NUM)
 
 
 class ActionModule(ActionBase):
@@ -38,57 +55,57 @@ class ActionModule(ActionBase):
     """
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
-        existing_links = self._task.args['existing_links']
-        fabric_links = self._task.args['fabric_links']
-        switch_list = self._task.args['switch_data_model']
-        required_links = []
+        results['changed'] = False
+
+        try:
+            # Also rejects a null fabric_links, which would otherwise mark every link for removal.
+            _validation, args = self.validate_argument_spec(argument_spec=ARGUMENT_SPEC)
+        except AnsibleActionFail as error:
+            results.update(failed=True, msg=f"links_filter_and_remove: {error.message}")
+            return results
+
+        ip_map = switch_mgmt_ip_map(args['switch_data_model'])
+        known_devices = {str(ip).lower() for ip in ip_map.values()}
+        managed_link_keys = {
+            link_endpoint_key(*fabric_link_endpoints(link)) for link in args['fabric_links']
+        }
         links_to_be_removed = []
-        filtered_existing_links = []
-        for existing_link in existing_links:
-            # Cannot assume the existing_link has the 'templateName' key so use get for safety
-            if existing_link.get('templateName') == "int_pre_provision_intra_fabric_link" or existing_link.get('templateName') == "int_intra_fabric_num_link":
-                filtered_existing_links.append(existing_link)
-                if (
-                    'sw1-info' in existing_link and
-                    'sw2-info' in existing_link and
-                    'sw-sys-name' in existing_link['sw1-info'] and
-                    'sw-sys-name' in existing_link['sw2-info']
-                ):
-                    for switch in switch_list:
-                        if existing_link['sw1-info']['sw-sys-name'].lower() == switch['name'].lower():
-                            existing_link['sw1-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
-                        if existing_link['sw2-info']['sw-sys-name'].lower() == switch['name'].lower():
-                            existing_link['sw2-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
-                    for link in fabric_links:
-                        if ((existing_link['sw1-info']['sw-sys-name'].lower() == link['src_device'].lower() and
-                             existing_link['sw1-info']['if-name'].lower() == link['src_interface'].lower() and
-                             existing_link['sw2-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
-                             existing_link['sw2-info']['if-name'].lower() == link['dst_interface'].lower()) or
-                            (existing_link['sw1-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
-                             existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower() and
-                             existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower() and
-                             existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower())):
-                            required_links.append(existing_link)
-        for link in filtered_existing_links:
-            link_found = False
-            for required_link in required_links:
-                if link == required_link:
-                    link_found = True
-                    break
-            if not link_found:
-                # The theory here is that links without a fabricName are links that are
-                # automatically created by the system and should not be removed.
-                #
-                # TODO: This is a guess and should be confirmed.
-                if link.get('fabricName') is None:
-                    continue
-                links_to_be_removed.append({
-                    'dst_fabric': link['fabricName'],
-                    'src_device': link['sw1-info']['sw-sys-name'],
-                    'src_interface': link['sw1-info']['if-name'],
-                    'dst_device': link['sw2-info']['sw-sys-name'],
-                    'dst_interface': link['sw2-info']['if-name']
-                })
+
+        for existing_link in args['existing_links']:
+            if existing_link.get('templateName') not in REMOVABLE_TEMPLATES:
+                continue
+
+            endpoints = resolve_link_endpoints(existing_link, ip_map)
+            if endpoints is None:
+                display.vvv("links_filter_and_remove: skipping controller link with incomplete sw1-info/sw2-info")
+                continue
+            if link_endpoint_key(*endpoints) in managed_link_keys:
+                continue
+
+            # The theory here is that links without a fabricName are links that are
+            # automatically created by the system and should not be removed.
+            #
+            # TODO: This is a guess and should be confirmed.
+            if existing_link.get('fabricName') is None:
+                continue
+
+            (src_device, src_interface), (dst_device, dst_interface) = endpoints
+            unknown_devices = [device for device in (src_device, dst_device) if str(device).lower() not in known_devices]
+            if unknown_devices:
+                display.warning(
+                    f"links_filter_and_remove: not removing link {src_device}:{src_interface} -> "
+                    f"{dst_device}:{dst_interface}; device(s) {', '.join(map(str, unknown_devices))} "
+                    f"not found in the switch data model"
+                )
+                continue
+
+            links_to_be_removed.append({
+                'dst_fabric': existing_link['fabricName'],
+                'src_device': src_device,
+                'src_interface': src_interface,
+                'dst_device': dst_device,
+                'dst_interface': dst_interface,
+            })
 
         results['links_to_be_removed'] = links_to_be_removed
         return results

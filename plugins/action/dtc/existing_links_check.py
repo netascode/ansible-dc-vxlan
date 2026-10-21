@@ -24,10 +24,26 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.errors import AnsibleActionFail
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import (
+    FABRIC_LINK_TEMPLATE_NUM,
+    FABRIC_LINK_TEMPLATE_PRE_PROVISION,
+    FABRIC_LINK_TEMPLATE_UNNUM,
+    fabric_link_endpoints,
+    link_endpoint_key,
+    resolve_link_endpoints,
+    switch_mgmt_ip_map,
+)
 
 display = Display()
+
+ARGUMENT_SPEC = dict(
+    existing_links=dict(type='list', elements='dict', required=True),
+    fabric_links=dict(type='list', elements='dict', required=True),
+    switch_data_model=dict(type='list', elements='dict', required=True),
+)
 
 
 class ActionModule(ActionBase):
@@ -57,6 +73,9 @@ class ActionModule(ActionBase):
         'peer2_cmds': 'PEER2_CONF',
     }
 
+    # peer1_<suffix>/peer2_<suffix> profile keys that follow their endpoint when a link is reversed
+    SWAP_SUFFIXES = ('description', 'cmds', 'ipv4_addr')
+
     def _link_profile_changed(self, link, existing_link):
         """
         Compare enriched link profile against controller nvPairs.
@@ -65,8 +84,8 @@ class ActionModule(ActionBase):
         or if the controller has non-empty values for fields absent
         from the desired profile (field removal detection).
         """
-        nv = existing_link.get('nvPairs', {})
-        profile = link.get('profile', {})
+        nv = existing_link.get('nvPairs') or {}
+        profile = link.get('profile') or {}
         src = link.get('src_device', '')
         src_if = link.get('src_interface', '')
         dst = link.get('dst_device', '')
@@ -103,134 +122,128 @@ class ActionModule(ActionBase):
         )
         return False
 
+    @staticmethod
+    def _index_existing_links(existing_links, ip_map):
+        """Map direction-independent endpoint keys to (existing_link, endpoints); first entry wins."""
+        index = {}
+        for existing_link in existing_links:
+            endpoints = resolve_link_endpoints(existing_link, ip_map)
+            if endpoints is None:
+                display.vvv("existing_links_check: ignoring controller link with incomplete sw1-info/sw2-info")
+                continue
+            key = link_endpoint_key(*endpoints)
+            if key in index:
+                display.vvv(f"existing_links_check: ignoring duplicate controller link {endpoints}")
+                continue
+            index[key] = (existing_link, endpoints)
+        return index
+
+    def _align_direction(self, link, sw1_endpoint):
+        """Swap src/dst and peer-specific profile fields when the controller lists the link reversed."""
+        src = (str(link.get('src_device')).lower(), str(link.get('src_interface')).lower())
+        if src == tuple(str(value).lower() for value in sw1_endpoint):
+            return
+        link['src_device'], link['dst_device'] = link.get('dst_device'), link.get('src_device')
+        link['src_interface'], link['dst_interface'] = link.get('dst_interface'), link.get('src_interface')
+        # Model IPv4 addresses follow their endpoint; numbered links overwrite them from the controller.
+        profile = link['profile']
+        for suffix in self.SWAP_SUFFIXES:
+            peer1 = profile.pop(f'peer1_{suffix}', None)
+            peer2 = profile.pop(f'peer2_{suffix}', None)
+            if peer2 is not None:
+                profile[f'peer1_{suffix}'] = peer2
+            if peer1 is not None:
+                profile[f'peer2_{suffix}'] = peer1
+
+    def _is_required(self, link, existing_link):
+        """Enrich link from the matching controller link and return True if it must be pushed."""
+        template = existing_link.get('templateName')
+
+        if template is None:
+            # Discovered-only adjacency with no policy; the next run returns a real templateName.
+            display.vvv("existing_links_check: → REQUIRED (templateName missing, configuring data-model link on discovered adjacency)")
+            return True
+
+        if template == FABRIC_LINK_TEMPLATE_PRE_PROVISION:
+            display.vvv("existing_links_check: → REQUIRED (pre-provision)")
+            return True
+
+        if template == FABRIC_LINK_TEMPLATE_NUM:
+            # ND converts pre-provision links to num_link once IPs are assigned; IPs stay ND-managed.
+            nv = existing_link.get('nvPairs') or {}
+            profile = link['profile']
+            link['template'] = FABRIC_LINK_TEMPLATE_NUM
+            if 'PEER1_IP' in nv:
+                profile['peer1_ipv4_addr'] = nv['PEER1_IP']
+            if 'PEER2_IP' in nv:
+                profile['peer2_ipv4_addr'] = nv['PEER2_IP']
+            profile['enable_macsec'] = nv.get('ENABLE_MACSEC') or 'false'
+            label = 'num_link, enriched'
+        elif template == FABRIC_LINK_TEMPLATE_UNNUM:
+            link['template'] = FABRIC_LINK_TEMPLATE_UNNUM
+            label = 'unnum_link'
+        else:
+            display.warning(
+                f"existing_links_check: skipping link "
+                f"{link.get('src_device')}:{link.get('src_interface')} -> "
+                f"{link.get('dst_device')}:{link.get('dst_interface')}; "
+                f"controller templateName '{template}' is not managed by this collection"
+            )
+            return False
+
+        if self._link_profile_changed(link, existing_link):
+            display.vvv(f"existing_links_check: → REQUIRED ({label}, profile changed)")
+            return True
+        display.vvv(f"existing_links_check: → NOT REQUIRED ({label}, profile matches)")
+        return False
+
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
-        existing_links = self._task.args['existing_links']
-        fabric_links = self._task.args['fabric_links']
-        switch_list = self._task.args['switch_data_model']
+        results['changed'] = False
+
+        try:
+            _validation, args = self.validate_argument_spec(argument_spec=ARGUMENT_SPEC)
+        except AnsibleActionFail as error:
+            results.update(failed=True, msg=f"existing_links_check: {error.message}")
+            return results
+
+        ip_map = switch_mgmt_ip_map(args['switch_data_model'])
+        existing_index = self._index_existing_links(args['existing_links'], ip_map)
         required_links = []
         not_required_links = []
-        display.vvv(f"existing_links_check: {len(fabric_links)} configured links, {len(existing_links)} existing links from NDFC")
-        for link in fabric_links:
+        display.vvv(
+            f"existing_links_check: {len(args['fabric_links'])} configured links, "
+            f"{len(args['existing_links'])} existing links from NDFC"
+        )
+
+        for fabric_link in args['fabric_links']:
+            link = dict(fabric_link, profile=dict(fabric_link.get('profile') or {}))
             display.vvv(
                 f"existing_links_check: evaluating configured link "
                 f"src={link.get('src_device')}:{link.get('src_interface')} → "
                 f"dst={link.get('dst_device')}:{link.get('dst_interface')} "
                 f"template={link.get('template')}"
             )
-            for existing_link in existing_links:
-                if (
-                    'sw1-info' in existing_link and
-                    'sw2-info' in existing_link and
-                    'sw-sys-name' in existing_link['sw1-info'] and
-                    'sw-sys-name' in existing_link['sw2-info']
-                ):
-                    for switch in switch_list:
-                        if existing_link['sw1-info']['sw-sys-name'].lower() == switch['name'].lower():
-                            existing_link['sw1-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
-                        if existing_link['sw2-info']['sw-sys-name'].lower() == switch['name'].lower():
-                            existing_link['sw2-info']['sw-sys-name'] = switch['management']['management_ipv4_address']
 
-                    # Check if the existing link matches the fabric link in either direction
-                    if ((existing_link['sw1-info']['sw-sys-name'].lower() == link['src_device'].lower() and
-                         existing_link['sw1-info']['if-name'].lower() == link['src_interface'].lower() and
-                         existing_link['sw2-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
-                         existing_link['sw2-info']['if-name'].lower() == link['dst_interface'].lower()) or
-                        (existing_link['sw1-info']['sw-sys-name'].lower() == link['dst_device'].lower() and
-                         existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower() and
-                         existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower() and
-                         existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower())):
-
-                        existing_template = existing_link.get('templateName', '<missing>')
-                        display.vvv(
-                            f"existing_links_check: MATCH found — "
-                            f"existing sw1={existing_link['sw1-info']['sw-sys-name']}:{existing_link['sw1-info']['if-name']} "
-                            f"sw2={existing_link['sw2-info']['sw-sys-name']}:{existing_link['sw2-info']['if-name']} "
-                            f"templateName={existing_template}"
-                        )
-
-                        # If the link is in reverse order, swap the src and dst to match
-                        # swap also in profile peer1 and peer2
-                        # Don't swap IP addresses, bc they are assigned based on existing link
-                        # and should not change
-                        if (
-                            existing_link['sw1-info']['sw-sys-name'].lower() == link['dst_device'].lower()
-                            and existing_link['sw1-info']['if-name'].lower() == link['dst_interface'].lower()
-                            and existing_link['sw2-info']['sw-sys-name'].lower() == link['src_device'].lower()
-                            and existing_link['sw2-info']['if-name'].lower() == link['src_interface'].lower()
-                        ):
-                            link['src_device'], link['dst_device'] = link['dst_device'], link['src_device']
-                            link['src_interface'], link['dst_interface'] = link['dst_interface'], link['src_interface']
-                            # Safely swap descriptions without creating keys when absent
-                            p1_desc = link['profile'].pop('peer1_description', None)
-                            p2_desc = link['profile'].pop('peer2_description', None)
-                            if p2_desc is not None:
-                                link['profile']['peer1_description'] = p2_desc
-                            if p1_desc is not None:
-                                link['profile']['peer2_description'] = p1_desc
-                            # Freeform commands render as peer1_cmds/peer2_cmds
-                            # (ndfc_fabric_links.j2), not peer1_freeform.
-                            p1_cmds = link['profile'].pop('peer1_cmds', None)
-                            p2_cmds = link['profile'].pop('peer2_cmds', None)
-                            if p2_cmds is not None:
-                                link['profile']['peer1_cmds'] = p2_cmds
-                            if p1_cmds is not None:
-                                link['profile']['peer2_cmds'] = p1_cmds
-                            # Explicit model IPv4 addresses follow their endpoints.
-                            # Numbered links overwrite these from the controller below.
-                            p1_ip = link['profile'].pop('peer1_ipv4_addr', None)
-                            p2_ip = link['profile'].pop('peer2_ipv4_addr', None)
-                            if p2_ip is not None:
-                                link['profile']['peer1_ipv4_addr'] = p2_ip
-                            if p1_ip is not None:
-                                link['profile']['peer2_ipv4_addr'] = p1_ip
-
-                        if 'templateName' not in existing_link:
-                            # Discovered-only adjacency (no policy attached on NDFC).
-                            # Link is in the data model and direction is already
-                            # normalized above, so push the intent. Next run returns a
-                            # real templateName and the diff branches below stay idempotent.
-                            display.vvv("existing_links_check: → REQUIRED (templateName missing, configuring data-model link on discovered adjacency)")
-                            required_links.append(link)
-                        elif existing_link['templateName'] == 'int_pre_provision_intra_fabric_link':
-                            display.vvv("existing_links_check: → REQUIRED (pre-provision)")
-                            required_links.append(link)
-                        elif existing_link['templateName'] == 'int_intra_fabric_num_link':
-                            # Populate additional fields from existing link
-                            # into the required link. IPs are assigned by ND and not managed in NaC Fabric link
-                            # at this time.
-                            # When template is defined as int_pre_provision_intra_fabric_link, template is converted
-                            # by ND to int_intra_fabric_num_link, when fabric-link is P2P and IPs are assigned.
-                            link['template'] = 'int_intra_fabric_num_link'
-                            link['profile']['peer1_ipv4_addr'] = existing_link['nvPairs']['PEER1_IP']
-                            link['profile']['peer2_ipv4_addr'] = existing_link['nvPairs']['PEER2_IP']
-                            if existing_link.get('nvPairs').get('ENABLE_MACSEC'):
-                                link['profile']['enable_macsec'] = existing_link['nvPairs']['ENABLE_MACSEC']
-                            else:
-                                link['profile']['enable_macsec'] = 'false'
-                            if self._link_profile_changed(link, existing_link):
-                                display.vvv("existing_links_check: → REQUIRED (num_link, enriched, profile changed)")
-                                required_links.append(link)
-                            else:
-                                display.vvv("existing_links_check: → NOT REQUIRED (num_link, enriched, profile matches)")
-                                not_required_links.append(link)
-                        elif existing_link['templateName'] == 'int_intra_fabric_unnum_link':
-                            link["template"] = "int_intra_fabric_unnum_link"
-                            if self._link_profile_changed(link, existing_link):
-                                display.vvv("existing_links_check: → REQUIRED (unnum_link, profile changed)")
-                                required_links.append(link)
-                            else:
-                                display.vvv("existing_links_check: → NOT REQUIRED (unnum_link, profile matches)")
-                                not_required_links.append(link)
-                        else:
-                            display.vvv(
-                                f"existing_links_check: → NOT REQUIRED "
-                                f"(unrecognized templateName={existing_link['templateName']})"
-                            )
-                            not_required_links.append(link)
-            if link not in required_links and link not in not_required_links:
+            match = existing_index.get(link_endpoint_key(*fabric_link_endpoints(link)))
+            if match is None:
                 display.vvv("existing_links_check: → REQUIRED (no existing match, new link)")
                 required_links.append(link)
+                continue
+
+            existing_link, (sw1_endpoint, sw2_endpoint) = match
+            display.vvv(
+                f"existing_links_check: MATCH found — "
+                f"existing sw1={sw1_endpoint[0]}:{sw1_endpoint[1]} "
+                f"sw2={sw2_endpoint[0]}:{sw2_endpoint[1]} "
+                f"templateName={existing_link.get('templateName', '<missing>')}"
+            )
+            self._align_direction(link, sw1_endpoint)
+
+            if self._is_required(link, existing_link):
+                required_links.append(link)
+            else:
+                not_required_links.append(link)
 
         display.vvv(
             f"existing_links_check: RESULT — "
