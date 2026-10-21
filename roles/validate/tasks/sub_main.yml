@@ -119,7 +119,6 @@
 
 - name: Manage Service Model Data Files
   cisco.nac_dc_vxlan.common.manage_model_files:
-    model_dir: "{{ role_path }}/files"
     fabric_name: "{{ data_model_extended.vxlan.fabric.name }}"
     checksum_compare_enabled: "{{ validate_checksum_compare_enabled | default(false) | bool }}"
     diff_enabled: "{{ validate_model_diff_enabled | default(false) | bool }}"

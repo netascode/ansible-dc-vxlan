@@ -30,6 +30,7 @@ from datetime import datetime as dt
 import re
 import os
 import yaml
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import resolve_files_root
 try:
     from yaml import CSafeLoader as _SafeLoader, CSafeDumper as _SafeDumper
 except ImportError:
@@ -52,11 +53,7 @@ class ActionModule(ActionBase):
         if fabric_name is None:
             fabric_name = data_model['vxlan']['fabric']['name']
 
-        if 'dtc' in task_vars['role_path']:
-            common_role_path = os.path.dirname(task_vars['role_path'])
-            common_role_path = os.path.dirname(common_role_path) + '/validate/files'
-        else:
-            common_role_path = os.path.dirname(task_vars['role_path']) + '/validate/files'
+        common_role_path = resolve_files_root(task_vars, 'validate', self._templar)
 
         if not os.path.exists(common_role_path):
             # Return failure if the common role path does not exist

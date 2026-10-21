@@ -53,6 +53,7 @@ import hashlib
 import os
 import re
 import shutil
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import resolve_files_root
 
 import yaml
 try:
@@ -118,9 +119,8 @@ class ResourceDataBuilder:
         self.file_subdir = self.fabric_type_config.get('file_subdir', '')
         self.namespace = self.fabric_type_config.get('namespace', '')
 
-        # Output path: {role_path}/files/{file_subdir}/{fabric_name}/
         self.output_path = os.path.join(
-            self.role_path, 'files', self.file_subdir, self.fabric_name
+            resolve_files_root(task_vars, 'common', action_module._templar), self.file_subdir, self.fabric_name
         )
 
         # Collected results

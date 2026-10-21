@@ -69,7 +69,7 @@
   block:
     - name: Set path_name Var
       ansible.builtin.set_fact:
-        path_name: "{{ role_path }}/../common/files/msd/{{ data_model_extended.vxlan.fabric.name }}/"
+        path_name: "{{ nac_dc_vxlan_common_files_dir }}/msd/{{ data_model_extended.vxlan.fabric.name }}/"
       tags:
         - "{{ nac_tags.remove_networks }}"
         - "{{ nac_tags.remove_vrfs }}"

@@ -36,6 +36,8 @@ from ansible.parsing.ajson import AnsibleJSONEncoder
 from ansible.errors import AnsibleActionFail
 from ansible.utils.display import Display
 
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import resolve_files_root
+
 display = Display()
 
 MAX_DIFF_LINES = 2000
@@ -104,7 +106,7 @@ class ActionModule(ActionBase):
         results = super(ActionModule, self).run(tmp, task_vars)
         task_vars = task_vars or {}
 
-        model_dir = self._task.args['model_dir']
+        model_dir = resolve_files_root(task_vars, 'validate', self._templar)
         fabric_name = self._task.args['fabric_name']
         checksum_compare = bool(self._task.args.get('checksum_compare_enabled', False))
         diff_enabled = bool(self._task.args.get('diff_enabled', False))
