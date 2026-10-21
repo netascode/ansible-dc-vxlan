@@ -741,23 +741,14 @@ class ResourceDataBuilder:
         interface_list. The management address follows the same precedence as
         the interface templates (IPv4, else IPv6).
         """
-        referenced = set()
-        for item in interface_list:
-            for sw in (item.get('switch') or []):
-                referenced.add(str(sw))
-
-        switches = (
-            (self.data_model or {}).get('vxlan', {}).get('topology', {}).get('switches')
-            or []
-        )
+        referenced = {str(sw) for item in interface_list for sw in item.get('switch') or []}
         entries = []
-        for switch in switches:
+        for switch in self.data_model.get('vxlan', {}).get('topology', {}).get('switches') or []:
             mgmt = switch.get('management') or {}
             address = mgmt.get('management_ipv4_address') or mgmt.get('management_ipv6_address')
-            if not address or str(address) in referenced:
-                continue
-            referenced.add(str(address))
-            entries.append({'name': '', 'switch': [address]})
+            if address and str(address) not in referenced:
+                referenced.add(str(address))
+                entries.append({'name': '', 'switch': [address]})
         return entries
 
     def _interface_all(self, rt):
@@ -833,12 +824,9 @@ class ResourceDataBuilder:
                 ]
             remove_list.extend(data)
 
-        # dcnm_interface (state: overridden) only reconciles switches that are
-        # referenced in its config. Add a switch-only scope entry for every
-        # data-model switch not already referenced, so switches with no
-        # interfaces left in the data model (e.g. after removing their
-        # interface_breakouts) are still reconciled. An empty remove_list
-        # already means "all switches in the fabric", so leave it as-is.
+        # dcnm_interface (state: overridden) only reconciles switches referenced in
+        # its config, so add scope entries for data-model switches without interfaces.
+        # An empty remove_list already means "all switches in the fabric".
         if remove_list:
             remove_list.extend(self._interface_switch_scope_entries(remove_list))
 
