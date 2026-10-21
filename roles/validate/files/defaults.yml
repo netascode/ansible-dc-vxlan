@@ -374,8 +374,8 @@ factory_defaults:
             enable_ospf_auth: false
             ospf_auth_key_id: 1
             ospf_authentication_key_type: 3
-            ospf_bfd: false
-            ospf_passive_interface: false
+            ospf_bfd_mode: no_change
+            ospf_passive_mode: no_change
             ospf_mtu_ignore: false
             ospf_network_type: no_change
             ospf_shutdown: false
@@ -478,7 +478,7 @@ factory_defaults:
             ospf_auth_key_id: 1
             ospf_authentication_key_type: 3
             ospf_advertise_subnet: false
-            ospf_bfd: false
+            ospf_bfd_mode: no_change
             ospf_mtu_ignore: false
             ospf_network_type: no_change
             ospf_shutdown: false
@@ -698,7 +698,6 @@ factory_defaults:
         to: 59000
       enable_ipv6_underlay: false
       anycast_gateway_mac: 20:20:00:00:00:aa
-      enable_pvlan: false
       vtep_loopback_id: 100
       bgw_ip_tag: 54321
       ipv4_vtep_loopback_range: 10.10.0.0/24

@@ -85,8 +85,8 @@
 {% if interface['ospf_authentication_key'] is defined %}
     ospf_authentication_key: {{ interface['ospf_authentication_key'] | to_json }}
 {% endif %}
-    ospf_bfd: {{ interface['ospf_bfd'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.ospf_bfd) | lower }}
-    ospf_passive_interface: {{ interface['ospf_passive_interface'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.ospf_passive_interface) | lower }}
+    ospf_bfd_mode: {{ interface['ospf_bfd_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.ospf_bfd_mode) }}
+    ospf_passive_mode: {{ interface['ospf_passive_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.ospf_passive_mode) }}
     ospf_cost: {{ interface['ospf_cost'] | default(omit) }}
     ospf_dead_interval: {{ interface['ospf_dead_interval'] | default(omit) }}
     ospf_hello_interval: {{ interface['ospf_hello_interval'] | default(omit) }}

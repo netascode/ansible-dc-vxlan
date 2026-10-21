@@ -76,7 +76,7 @@
     ospf_authentication_key: {{ interface.ospf_authentication_key | to_json }}
 {% endif %}
     ospf_advertise_subnet: {{ interface.ospf_advertise_subnet | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.ospf_advertise_subnet) | lower }}
-    ospf_bfd: {{ interface.ospf_bfd | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.ospf_bfd) | lower }}
+    ospf_bfd_mode: {{ interface['ospf_bfd_mode'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.ospf_bfd_mode) }}
     ospf_cost: {{ interface.ospf_cost | default(omit) }}
     ospf_dead_interval: {{ interface.ospf_dead_interval | default(omit) }}
     ospf_hello_interval: {{ interface.ospf_hello_interval | default(omit) }}
