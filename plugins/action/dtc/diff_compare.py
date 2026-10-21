@@ -166,7 +166,7 @@ class ActionModule(ActionBase):
                 os.remove(output_path)
 
             with open(output_path, 'w', encoding='utf-8') as f:
-                yaml.dump(output_data, f, default_flow_style=False, sort_keys=False)
+                yaml.dump(output_data, f, default_flow_style=False, sort_keys=False, Dumper=_SafeDumper)
         except Exception as e:
             display.warning(f"Failed to write comparison results to {output_path}: {str(e)}")
 
@@ -183,6 +183,20 @@ class ActionModule(ActionBase):
         Goes through each list item and removes any dictionary key-value pairs where the value contains '__omit_place_holder__'.
         Returns the cleaned (normalized) old_items and new_items.
         """
+        _TOKEN = '__omit_place_holder__'
+
+        def _contains_token(obj):
+            if isinstance(obj, str):
+                return _TOKEN in obj
+            if isinstance(obj, dict):
+                return any(_contains_token(v) for v in obj.values())
+            if isinstance(obj, list):
+                return any(_contains_token(x) for x in obj)
+            return False
+
+        if not _contains_token(old_items) and not _contains_token(new_items):
+            return old_items, new_items
+
         def remove_omit_placeholders(items):
             """Recursively remove any entries containing '__omit_place_holder__' from data structures."""
             if isinstance(items, list):
