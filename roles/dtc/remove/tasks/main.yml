@@ -80,7 +80,7 @@
       Deploying changes during role remove since fabric type is
       "{{ data_model_extended.vxlan.fabric.type }}".
   when: >
-    (stage_remove is false|bool) and (change_flags.changes_detected_any) and
+    (not (stage_remove | default(false) | bool)) and (change_flags.changes_detected_any) and
     (data_model_extended.vxlan.fabric.type in ['VXLAN_EVPN', 'eBGP_VXLAN', 'ISN', 'External'])
   tags: "{{ nac_tags.remove }}"
 
@@ -88,7 +88,7 @@
   ansible.builtin.import_role:
     name: cisco.nac_dc_vxlan.dtc.deploy
   when: >
-    (stage_remove is false|bool) and (change_flags.changes_detected_any) and
+    (not (stage_remove | default(false) | bool)) and (change_flags.changes_detected_any) and
     (data_model_extended.vxlan.fabric.type in ['VXLAN_EVPN', 'eBGP_VXLAN', 'ISN', 'External'])
   tags: "{{ nac_tags.remove }}"
 
