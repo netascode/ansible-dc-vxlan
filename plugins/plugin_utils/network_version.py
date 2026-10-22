@@ -46,4 +46,3 @@ def resolve_network_patch_version(nd_patch_enabled=False, **_ignored):
     the configured SMU alone determines eligibility.
     """
     return PATCH_VERSION if nd_patch_enabled else None
-
