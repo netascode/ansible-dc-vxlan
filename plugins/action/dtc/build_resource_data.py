@@ -74,6 +74,18 @@ from ansible_collections.cisco.nac_dc_vxlan.plugins.action.common.prepare_plugin
 display = Display()
 
 
+def _plain_yaml_value(value):
+    if isinstance(value, str):
+        return ''.join([value])
+    if isinstance(value, dict):
+        return {_plain_yaml_value(key): _plain_yaml_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_plain_yaml_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_plain_yaml_value(item) for item in value)
+    return value
+
+
 INTERFACE_TEMPLATE_GROUPS = {
     'ndfc_interfaces/ndfc_interface_trunk.j2': ('trunk', 'e', 'topology_switch_trunk_interface'),
     'ndfc_interfaces/ndfc_interface_access.j2': ('access', 'e', 'topology_switch_access_interface'),
@@ -607,7 +619,7 @@ class ResourceDataBuilder:
             # so default-only changes trigger that deferred render and diff.
             sentinel_overlay['_ipv4_acl_in_default'] = network_defaults['ipv4_acl_in']
         overlay_content = yaml.dump(
-            sentinel_overlay,
+            _plain_yaml_value(sentinel_overlay),
             default_flow_style=False,
             sort_keys=True,
             Dumper=_SafeDumper,
