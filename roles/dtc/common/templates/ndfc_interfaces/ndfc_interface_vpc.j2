@@ -7,7 +7,7 @@
 
 {# Interface properties supported when ND > 4.3.1 (connectivity_check bumps a patched 4.3.1 to 4.4.1) #}
 {%- set ndfc_supports_interface_properties =
-  nd_version | cisco.nac_dc_vxlan.version_compare('4.3.1', '>')
+  nd_patch_enabled
 %}
 {% if data_model_extended.vxlan.topology.vpc_peers is defined %}
 {% for vpc_pair, vpc_data in data_model_extended.vxlan.topology.interfaces.vpc_interfaces.items() %}
@@ -167,7 +167,7 @@
     peer2_access_vlan: {{ switches[peer2].access_vlan | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.access_vlan)  }}
     peer1_description: "{{ switches[peer1].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.description) }}"
     peer2_description: "{{ switches[peer2].description | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.description) }}"
-{% elif switches[peer1].mode == 'dot1q' and nd_version | cisco.nac_dc_vxlan.version_compare('4.3.1', '>') %}
+{% elif switches[peer1].mode == 'dot1q' and nd_patch_enabled %}
     admin_state: {{ switches[peer1].enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enabled) | lower }}
     enable_cdp: {{ switches[peer1].enable_cdp | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_cdp) | lower }}
     port_type_fast: {{ switches[peer1].spanning_tree_portfast | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.spanning_tree_portfast) | lower }}

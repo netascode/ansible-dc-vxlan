@@ -35,7 +35,7 @@
     int_vrf: {{ interface['vrf'] | default(omit) }}
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.speed) }}
-{% if nd_version | cisco.nac_dc_vxlan.version_compare('4.3.1', '>') %}
+{% if nd_patch_enabled %}
     ipv6_link_local: {{ interface['ipv6_link_local_address'] | default(omit) }}
     ipv6_nd_suppress_ra: {{ interface['ipv6_nd_suppress_ra'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.ipv6_nd_suppress_ra) | lower }}
     disable_ipv4_redirects: {{ interface['disable_ipv4_redirects'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.disable_ipv4_redirects) | lower }}

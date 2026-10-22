@@ -115,6 +115,13 @@ class NdfcModuleExecutor:
                 patch_version = patch_version.strip()
             if patch_version not in (None, ''):
                 module_args.update(self._remove_omit_placeholders({'patch_version': patch_version}))
+            elif module_name == 'cisco.dcnm.dcnm_network':
+                # Capability off: NaC must omit patch_version AND strip ipv4_acl_in
+                # from every outgoing record — including previous records forwarded
+                # for selective deletion (diff.removed), which may still carry it.
+                # config here is already a fresh copy (_remove_omit_placeholders),
+                # so sanitizing it does not mutate the saved model or diff records.
+                module_args['config'] = self._strip_network_ipv4_acl_in(module_args['config'])
 
         if module_name == 'cisco.dcnm.dcnm_policy':
             module_args['use_desc_as_key'] = True
@@ -167,6 +174,26 @@ class NdfcModuleExecutor:
             Plugin result dict.
         """
         return self._execute_via_action_plugin(module_name, module_args)
+
+    @staticmethod
+    def _strip_network_ipv4_acl_in(config):
+        """Return a copy of a dcnm_network config with ``ipv4_acl_in`` removed.
+
+        Used when the IPv4-ACL SMU capability is not enabled: every outgoing
+        network record must omit ``ipv4_acl_in`` (and the call omits
+        ``patch_version``), including previous records forwarded for selective
+        deletion that may still carry the key. Builds new structures so the
+        saved model and shared diff records are never mutated.
+        """
+        if isinstance(config, list):
+            return [NdfcModuleExecutor._strip_network_ipv4_acl_in(item) for item in config]
+        if isinstance(config, dict):
+            return {
+                key: value
+                for key, value in config.items()
+                if key != 'ipv4_acl_in'
+            }
+        return config
 
     @staticmethod
     def _remove_omit_placeholders(data):

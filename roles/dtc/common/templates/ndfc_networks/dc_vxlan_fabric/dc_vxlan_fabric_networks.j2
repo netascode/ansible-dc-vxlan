@@ -14,7 +14,7 @@
   vlan_id: {{ net['vlan_id'] | default(omit) }}
   vlan_name: {{ net['vlan_name'] | default(omit) }}
   gw_ip_subnet: {{ net['gw_ip_address'] | default(omit) }}
-{% if (nd_version | cisco.nac_dc_vxlan.version_compare('4.3.1', '>')) and (net.ipv4_acl_in is defined or defaults.vxlan.overlay.networks.ipv4_acl_in is defined) %}
+{% if nd_patch_enabled and (net.ipv4_acl_in is defined or defaults.vxlan.overlay.networks.ipv4_acl_in is defined) %}
   ipv4_acl_in: {{ net['ipv4_acl_in'] | default(defaults.vxlan.overlay.networks.ipv4_acl_in) | to_json }}
 {% endif %}
 {% if net.secondary_ip_addresses is defined %}

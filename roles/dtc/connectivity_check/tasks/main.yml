@@ -54,6 +54,7 @@
 - name: Initialize Cisco Nexus Dashboard SMU versions
   ansible.builtin.set_fact:
     nd_smu_versions: []
+    nd_patch_enabled: false
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
 - name: Get Cisco Nexus Dashboard SMU versions
@@ -76,9 +77,10 @@
       ansible.builtin.set_fact:
         nd_smu_versions: "{{ nd_smus_parsed.smu_versions }}"
 
-    - name: Bump Nexus Dashboard Version when SMU patch present
+    - name: Set Nexus Dashboard SMU Supported Properties
       ansible.builtin.set_fact:
-        nd_version: "4.4.1"
+        nd_patch_enabled: "{{ (lookup('ansible.builtin.env', 'nd_smu_version') | default('', true) | length > 0)
+                                           and (lookup('ansible.builtin.env', 'nd_smu_version') in nd_smu_versions) }}"
       when:
         - lookup('ansible.builtin.env', 'nd_smu_version') | default('', true) | length > 0
         - lookup('ansible.builtin.env', 'nd_smu_version') in nd_smu_versions

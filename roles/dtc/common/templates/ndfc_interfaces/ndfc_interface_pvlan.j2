@@ -64,7 +64,7 @@
         secondary_vlans: "{{ convert_ranges(mapping['secondary_vlans'], '') | trim }}"
 {% endfor %}
 {% endif %}
-{% if nd_version | cisco.nac_dc_vxlan.version_compare('4.3.1', '>') %}
+{% if nd_patch_enabled %}
 {# Data model defines ENABLE LLDP TRANSMIT/RECEIVE, while base collection defines DISABLE LLDP TRANSMIT/RECEIVE #}
     disable_lldp_transmit: {{ translate(interface['enable_lldp_transmit'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enable_lldp_transmit), {true: 'false', false: 'true'}) }}
     disable_lldp_receive: {{ translate(interface['enable_lldp_receive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_pvlan_interface.enable_lldp_receive), {true: 'false', false: 'true'}) }}

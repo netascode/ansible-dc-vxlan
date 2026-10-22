@@ -68,7 +68,7 @@
 {% endif %}
 {% endif %}
 {% endif %}
-{% if nd_version | cisco.nac_dc_vxlan.version_compare('4.3.1', '>') %}
+{% if nd_patch_enabled %}
 {# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
     spanning_tree_port_type: "{{ translate(interface['spanning_tree_port_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.spanning_tree_port_type), {'none': 'no'}) }}"
 {# Data model defines value as GUARD_MODE: none, while base collection defines it as GUARD_MODE: no #}

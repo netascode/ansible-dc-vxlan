@@ -46,7 +46,7 @@
     ipv4_addr: {{ interface.ipv4_address | default(omit) }}
     ipv6_addr: {{ interface.ipv6_address | default(omit) }}
     route_tag: {{ interface.ipv4_route_tag | default(omit) }}
-{% if interface.mode == 'loopback' and (nd_version | cisco.nac_dc_vxlan.version_compare('4.3.1', '>')) %}
+{% if interface.mode == 'loopback' and nd_patch_enabled %}
     enable_pim_sparse: {{ interface.enable_pim_sparse | default(defaults.vxlan.topology.switches.interfaces.topology_switch_loopback_interface.enable_pim_sparse) | lower }}
 {% if interface.eigrp_process_tag is defined %}
     eigrp_process_tag: {{ interface.eigrp_process_tag | to_json }}
