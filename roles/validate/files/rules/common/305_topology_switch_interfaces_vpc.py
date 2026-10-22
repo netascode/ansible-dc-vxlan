@@ -31,6 +31,15 @@ class Rule:
             "enable_qos",
             "qos_policy",
             "queuing_policy",
+            "pvlan_mode",
+            "pvlan_association",
+            "pvlan_mapping",
+            "acl_filter",
+            "enable_priority_flow_control",
+            "lacp_rate",
+            "lacp_port_priority",
+            "disable_lacp_suspend_individual",
+            "enable_lacp_vpc_convergence",
         ]
         vpc_peers_list = cls.get_vpc_peers(data_model)
         # Check if fabric topology switches are defined
