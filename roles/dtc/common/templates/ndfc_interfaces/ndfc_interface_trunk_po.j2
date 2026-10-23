@@ -42,7 +42,6 @@
 {% endif %}
     enable_monitor: {{ interface['monitor'] | default(interface_defaults.monitor) | lower }}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
-    fec: "{{ interface['fec'] | default(interface_defaults.fec) }}"
     enable_storm_control: {{ interface['enable_storm_control'] | default(interface_defaults.enable_storm_control) | lower }}
 {% if interface['enable_storm_control'] | default(interface_defaults.enable_storm_control) %}
     storm_control_action: {{ interface['storm_control_action'] | default(interface_defaults.storm_control_action) | lower }}
