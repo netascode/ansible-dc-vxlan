@@ -36,14 +36,78 @@ else:
     NAC_YAML_IMPORT_ERROR = None
 
 
+import re
+from pathlib import Path
+
+
+def _raise_walk_error(error):
+    raise error
+
+
+def _expand_model_files(paths):
+    files = []
+
+    for input_path in paths:
+        path = Path(input_path)
+
+        if path.is_file():
+            files.append(path)
+            continue
+
+        if not path.is_dir():
+            raise AnsibleError(f"Model input path does not exist: {path}")
+
+        for directory, _subdirectories, filenames in os.walk(
+            path,
+            onerror=_raise_walk_error,
+        ):
+            for filename in filenames:
+                file_path = Path(directory, filename)
+                if file_path.suffix in (".yaml", ".yml"):
+                    files.append(file_path)
+
+    return files
+
+
 def _load_model_files(paths):
-    # nac-yaml >= 2.0.0 accepts typ='safe' (C-accelerated safe loader; ~5x faster
-    # model load on large fabrics when ruamel.yaml.clib is present). nac-yaml < 2.0.0
-    # has no typ kwarg, so fall back to the default loader to stay backward-compatible.
+    model_files = _expand_model_files(paths)
     try:
-        return load_yaml_files(paths, typ='safe')
+        return load_yaml_files(model_files, typ="safe")
     except TypeError:
-        return load_yaml_files(paths)
+        return load_yaml_files(model_files)
+
+
+def _describe_model_load_error(paths, original_error):
+    for model_file in _expand_model_files(paths):
+        try:
+            try:
+                load_yaml_files([model_file], typ="safe")
+            except TypeError:
+                load_yaml_files([model_file])
+        except Exception as file_error:
+            problem = getattr(file_error, "problem", None) or str(file_error).splitlines()[0]
+            if "duplicate key" in problem.lower():
+                match = re.search(r"duplicate key ['\"]([^'\"]+)['\"]", problem, re.IGNORECASE)
+                key = match.group(1) if match else "unknown"
+                context_mark = getattr(file_error, "context_mark", None)
+                problem_mark = getattr(file_error, "problem_mark", None)
+                first_line = getattr(context_mark, "line", -1) + 1
+                duplicate_line = getattr(problem_mark, "line", -1) + 1
+                return [
+                    "Duplicate YAML key '{0}' in '{1}' (line {2}; first occurrence line {3}).".format(
+                        key, model_file, duplicate_line, first_line
+                    ),
+                    "Model file not loaded: '{0}'.".format(model_file),
+                ]
+            return [
+                "YAML loading failed for '{0}': {1}".format(model_file, problem),
+                "Model file not loaded: '{0}'.".format(model_file),
+            ]
+
+    return [
+        "Model files could not be loaded.",
+        "Loader detail: {0}".format(str(original_error).splitlines()[0]),
+    ]
 
 
 try:
@@ -142,7 +206,15 @@ class ActionModule(ActionBase):
         if rules and task_vars['role_path'] in rules:
             # Load in-memory data model using iac-validate
             # Perform the load in this if block to avoid loading the data model multiple times when custom enhanced rules are provided
-            results['data'] = _load_model_files([mdata])
+            try:
+                results["data"] = _load_model_files([mdata])
+            except Exception as exc:
+                results["failed"] = True
+                diagnostics = _describe_model_load_error([mdata], exc)
+                for line in diagnostics:
+                    display.error(line)
+                results["msg"] = diagnostics
+                return results
             data_model_loaded = results['data']
 
             # Introduce common directory to the rules list by default once vrf and network rules are updated
