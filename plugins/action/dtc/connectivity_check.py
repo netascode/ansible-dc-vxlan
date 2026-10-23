@@ -28,6 +28,7 @@ import json
 import socket
 import time
 
+from ansible.module_utils.common.text.converters import to_text
 from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.urls import open_url
@@ -80,13 +81,18 @@ class ActionModule(ActionBase):
             return self._templar.template(value, fail_on_undefined=False)
         return value
 
-    def _connection_params(self, task_vars):
-        host = self._template(task_vars.get("ansible_host"))
-        port = self._template(task_vars.get("ansible_httpapi_port")) or 443
-        domain = self._template(task_vars.get("ansible_httpapi_login_domain")) or "local"
-        user = self._template(task_vars.get("ansible_user"))
-        password = self._template(task_vars.get("ansible_password"))
+    def _as_text(self, value):
+        value = self._template(value)
+        if value is None:
+            return None
+        return to_text(value, errors="surrogate_or_strict")
 
+    def _connection_params(self, task_vars):
+        host = self._as_text(task_vars.get("ansible_host"))
+        port = self._template(task_vars.get("ansible_httpapi_port")) or 443
+        domain = self._as_text(task_vars.get("ansible_httpapi_login_domain")) or "local"
+        user = self._as_text(task_vars.get("ansible_user"))
+        password = self._as_text(task_vars.get("ansible_password"))
         if not host or not user or password in (None, ""):
             raise AnsibleActionFail(
                 "connectivity_check requires ansible_host, ansible_user and ansible_password"
