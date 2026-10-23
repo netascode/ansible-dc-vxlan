@@ -35,18 +35,128 @@ except ImportError as imp_yaml_exc:
 else:
     NAC_YAML_IMPORT_ERROR = None
 
+
+import re
+from pathlib import Path
+
+
+def _raise_walk_error(error):
+    raise error
+
+
+def _expand_model_files(paths):
+    files = []
+
+    for input_path in paths:
+        path = Path(input_path)
+
+        if path.is_file():
+            files.append(path)
+            continue
+
+        if not path.is_dir():
+            raise AnsibleError(f"Model input path does not exist: {path}")
+
+        for directory, _subdirectories, filenames in os.walk(
+            path,
+            onerror=_raise_walk_error,
+        ):
+            for filename in filenames:
+                file_path = Path(directory, filename)
+                if file_path.suffix in (".yaml", ".yml"):
+                    files.append(file_path)
+
+    return files
+
+
+def _load_model_files(paths):
+    model_files = _expand_model_files(paths)
+    try:
+        return load_yaml_files(model_files, typ="safe")
+    except TypeError:
+        return load_yaml_files(model_files)
+
+
+def _describe_model_load_error(paths, original_error):
+    for model_file in _expand_model_files(paths):
+        try:
+            try:
+                load_yaml_files([model_file], typ="safe")
+            except TypeError:
+                load_yaml_files([model_file])
+        except Exception as file_error:
+            problem = getattr(file_error, "problem", None) or str(file_error).splitlines()[0]
+            if "duplicate key" in problem.lower():
+                match = re.search(r"duplicate key ['\"]([^'\"]+)['\"]", problem, re.IGNORECASE)
+                key = match.group(1) if match else "unknown"
+                context_mark = getattr(file_error, "context_mark", None)
+                problem_mark = getattr(file_error, "problem_mark", None)
+                first_line = getattr(context_mark, "line", -1) + 1
+                duplicate_line = getattr(problem_mark, "line", -1) + 1
+                return [
+                    "Duplicate YAML key '{0}' in '{1}' (line {2}; first occurrence line {3}).".format(
+                        key, model_file, duplicate_line, first_line
+                    ),
+                    "Model file not loaded: '{0}'.".format(model_file),
+                ]
+            return [
+                "YAML loading failed for '{0}': {1}".format(model_file, problem),
+                "Model file not loaded: '{0}'.".format(model_file),
+            ]
+
+    return [
+        "Model files could not be loaded.",
+        "Loader detail: {0}".format(str(original_error).splitlines()[0]),
+    ]
+
+
 try:
     import nac_validate.validator
-    from nac_validate.cli.defaults import DEFAULT_SCHEMA
+    import yamale
+    from yamale import YamaleError
+    try:
+        # nac-validate >= 2.0.0
+        from nac_validate.constants import DEFAULT_SCHEMA
+    except ImportError:
+        # nac-validate < 2.0.0
+        from nac_validate.cli.defaults import DEFAULT_SCHEMA
 except ImportError as imp_val_exc:
     NAC_VALIDATE_IMPORT_ERROR = imp_val_exc
 else:
     NAC_VALIDATE_IMPORT_ERROR = None
 
+try:
+    # nac-validate >= 2.0.0 raises ValidationError subclasses (each carrying .errors)
+    # from validate_syntax()/validate_semantics() instead of populating validator.errors
+    from nac_validate.exceptions import ValidationError as _NacValidationError
+except ImportError:
+    class _NacValidationError(Exception):
+        pass
+
 import os
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import data_model_key_check
 
 display = Display()
+
+_ValidatorBase = nac_validate.validator.Validator if NAC_VALIDATE_IMPORT_ERROR is None else object
+
+
+class OptimizedValidator(_ValidatorBase):
+
+    def validate_syntax(self, input_paths, strict=True):
+        # When the merged data model is already loaded (self.data), validate the
+        # schema once against it instead of reloading and schema-checking every
+        # input file. The stock per-file path re-parses all YAML and dominates
+        # validate runtime on large fabrics (~8s -> sub-second here).
+        if self.data is not None and self.schema is not None:
+            try:
+                yamale.validate(self.schema, [(self.data, str(input_paths[0]))], strict=strict)
+            except YamaleError as syntax_exc:
+                for result in syntax_exc.results:
+                    for error in result.errors:
+                        self.errors.append(f"Syntax error '{result.data}': {error}")
+            return bool(self.errors)
+        return super().validate_syntax(input_paths, strict)
 
 
 class ActionModule(ActionBase):
@@ -64,6 +174,7 @@ class ActionModule(ActionBase):
 
         schema = self._task.args.get('schema')
         rules = self._task.args.get('rules')
+        enhanced_rules = self._task.args.get('enhanced_rules')
         mdata = self._task.args.get('mdata')
 
         # Generate a warning if the Schema and Rules are not provided
@@ -71,6 +182,8 @@ class ActionModule(ActionBase):
             display.warning("The schema ({0}) does not appear to exist! ".format(schema))
         if 'rules' in locals() and (rules == "" or not os.path.exists(rules)):
             display.warning("The rules directory ({0}) does not appear to exist! ".format(rules))
+        if 'enhanced_rules' in locals() and (enhanced_rules == "" or not os.path.exists(enhanced_rules)):
+            display.warning("The enhanced rules directory ({0}) does not appear to exist! ".format(enhanced_rules))
         # The rules directory is considered empty if it is an empty dir or only contains the .gitkeep file
         if os.path.exists(rules) and (not os.listdir(rules) or (len(os.listdir(rules)) == 1 and '.gitkeep' in os.listdir(rules))):
             display.warning("The rules directory ({0}) exists but is empty! ".format(rules))
@@ -93,7 +206,15 @@ class ActionModule(ActionBase):
         if rules and task_vars['role_path'] in rules:
             # Load in-memory data model using iac-validate
             # Perform the load in this if block to avoid loading the data model multiple times when custom enhanced rules are provided
-            results['data'] = load_yaml_files([mdata])
+            try:
+                results["data"] = _load_model_files([mdata])
+            except Exception as exc:
+                results["failed"] = True
+                diagnostics = _describe_model_load_error([mdata], exc)
+                for line in diagnostics:
+                    display.error(line)
+                results["msg"] = diagnostics
+                return results
             data_model_loaded = results['data']
 
             # Introduce common directory to the rules list by default once vrf and network rules are updated
@@ -154,25 +275,46 @@ class ActionModule(ActionBase):
                     else:
                         results['failed'] = True
                         results['msg'] = "vxlan.fabric.type is not defined in the data model."
-        else:
-            # Else block to pickup custom enhanced rules provided by the user
-            rules_list.append(f'{rules}')
 
-        syntax_validated = False
+        if enhanced_rules:
+            # Else block to pickup custom enhanced rules provided by the user
+            display.warning("Using enhanced rules from directory: {0}".format(enhanced_rules))
+            rules_list.append(f'{enhanced_rules}')
+
+        # Ensure the merged data model is loaded before validation so the schema
+        # (syntax) check runs once against it rather than reloading every file.
+        if rules_list and data_model_loaded is None:
+            data_model_loaded = _load_model_files([mdata])
+            results['data'] = data_model_loaded
+
+        if rules_list and schema:
+            syntax_validator = OptimizedValidator(schema, rules_list[0])
+            if syntax_validator.schema is not None:
+                syntax_validator.data = data_model_loaded
+                try:
+                    syntax_validator.validate_syntax([mdata])
+                    syntax_errors = list(syntax_validator.errors)
+                except _NacValidationError as validation_exc:
+                    syntax_errors = list(getattr(validation_exc, 'errors', None) or [str(validation_exc)])
+
+                if syntax_errors:
+                    results['failed'] = True
+                    results['msg'] = "".join(error + "\n" for error in syntax_errors)
+                    return results
+
         for rules_item in rules_list:
-            validator = nac_validate.validator.Validator(schema, rules_item)
-            if schema and not syntax_validated and validator.schema is not None:
-                validator.validate_syntax([mdata])
-                syntax_validated = True
-            if rules_item:
-                if data_model_loaded is None:
-                    data_model_loaded = load_yaml_files([mdata])
-                    results['data'] = data_model_loaded
-                validator.data = data_model_loaded
+            if not rules_item:
+                continue
+            validator = OptimizedValidator(schema, rules_item)
+            validator.data = data_model_loaded
+            try:
                 validator.validate_semantics([mdata])
+                iteration_errors = list(validator.errors)
+            except _NacValidationError as validation_exc:
+                iteration_errors = list(getattr(validation_exc, 'errors', None) or [str(validation_exc)])
 
             msg = ""
-            for error in validator.errors:
+            for error in iteration_errors:
                 msg += error + "\n"
 
             if msg:

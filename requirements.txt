@@ -1,6 +1,9 @@
 requests
-nac-yaml==1.0.0
-nac-validate==1.0.0
+nac-yaml==2.0.0
+nac-validate==2.0.0
+# C accelerator for the safe YAML loader: cuts model load ~13s -> ~3.5s on large fabrics.
+# Not pulled in automatically by nac-yaml; without it the safe loader falls back to pure Python.
+ruamel.yaml.clib
 macaddress
 netaddr
 packaging

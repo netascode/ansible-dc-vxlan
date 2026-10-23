@@ -28,6 +28,7 @@ from ansible.plugins.action import ActionBase
 import json
 import inspect
 import os
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import resolve_files_root
 
 
 class ChangeDetectionManager:
@@ -40,7 +41,8 @@ class ChangeDetectionManager:
         self.fabric_type = params['fabric_type']
         self.fabric_name = params['fabric_name']
         self.role_path = params['role_path']
-        self.file_path = f"{self.role_path}/files/{self.fabric_name}_changes_detected_flags.json"
+        files_root = params.get('files_root') or f"{self.role_path}/files"
+        self.file_path = f"{files_root}/{self.fabric_name}_changes_detected_flags.json"
 
     def initialize_flags(self):
         self.changes_detected_flags = {}
@@ -299,6 +301,7 @@ class ActionModule(ActionBase):
             return results
 
         # Supported Operations (intialize, update)
+        params['files_root'] = resolve_files_root(task_vars, 'common', self._templar)
         change_detection_manager = ChangeDetectionManager(params)
 
         if params['operation'] == "initialize":

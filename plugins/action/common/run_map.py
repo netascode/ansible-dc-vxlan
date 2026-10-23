@@ -30,6 +30,11 @@ from datetime import datetime as dt
 import re
 import os
 import yaml
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import resolve_files_root
+try:
+    from yaml import CSafeLoader as _SafeLoader, CSafeDumper as _SafeDumper
+except ImportError:
+    from yaml import SafeLoader as _SafeLoader, SafeDumper as _SafeDumper
 
 display = Display()
 
@@ -48,11 +53,7 @@ class ActionModule(ActionBase):
         if fabric_name is None:
             fabric_name = data_model['vxlan']['fabric']['name']
 
-        if 'dtc' in task_vars['role_path']:
-            common_role_path = os.path.dirname(task_vars['role_path'])
-            common_role_path = os.path.dirname(common_role_path) + '/validate/files'
-        else:
-            common_role_path = os.path.dirname(task_vars['role_path']) + '/validate/files'
+        common_role_path = resolve_files_root(task_vars, 'validate', self._templar)
 
         if not os.path.exists(common_role_path):
             # Return failure if the common role path does not exist
@@ -74,7 +75,7 @@ class ActionModule(ActionBase):
 
         if stage != 'starting_execution':
             with open(run_map_file_path, 'r') as file:
-                data = yaml.safe_load(file)
+                data = yaml.load(file, Loader=_SafeLoader)
             updated_run_map = data
             if stage == 'role_validate_completed':
                 updated_run_map['role_validate_completed'] = True
@@ -92,7 +93,7 @@ class ActionModule(ActionBase):
 
         with open(run_map_file_path, 'w') as outfile:
             outfile.write("### This File Is Auto Generated, Do Not Edit ###\n")
-            yaml.dump(updated_run_map, outfile, default_flow_style=False)
+            yaml.dump(updated_run_map, outfile, default_flow_style=False, Dumper=_SafeDumper)
             # Add run map to results dictonary
             results['updated'] = updated_run_map
 
