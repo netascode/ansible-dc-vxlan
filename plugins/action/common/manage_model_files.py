@@ -114,8 +114,7 @@ def _missing_diff(value, path, prefix):
         if not value:
             yield '{0} {1} = {{}}'.format(prefix, path)
         for key in sorted(value, key=str):
-            for line in _missing_diff(value[key], _path_key(path, key), prefix):
-                yield line
+            yield from _missing_diff(value[key], _path_key(path, key), prefix)
         return
     if isinstance(value, list):
         if not value:
@@ -125,36 +124,31 @@ def _missing_diff(value, path, prefix):
         if named is not None:
             for name in sorted(named):
                 item_path = '{0}[name={1}]'.format(path, json.dumps(name))
-                for line in _missing_diff(named[name], item_path, prefix):
-                    yield line
+                yield from _missing_diff(named[name], item_path, prefix)
         else:
             for index, item in enumerate(value):
-                for line in _missing_diff(item, '{0}[{1}]'.format(path, index), prefix):
-                    yield line
+                yield from _missing_diff(item, '{0}[{1}]'.format(path, index), prefix)
         return
     yield '{0} {1} = {2}'.format(prefix, path, _value_text(value))
 
 
 def _model_diff(before, after, path='$'):
     if before is _MISSING:
-        for line in _missing_diff(after, path, '+'):
-            yield line
+        yield from _missing_diff(after, path, '+')
         return
     if after is _MISSING:
-        for line in _missing_diff(before, path, '-'):
-            yield line
+        yield from _missing_diff(before, path, '-')
         return
     if before == after:
         return
 
     if isinstance(before, dict) and isinstance(after, dict):
         for key in sorted(set(before) | set(after), key=str):
-            for line in _model_diff(
+            yield from _model_diff(
                 before.get(key, _MISSING),
                 after.get(key, _MISSING),
                 _path_key(path, key),
-            ):
-                yield line
+            )
         return
 
     if isinstance(before, list) and isinstance(after, list):
@@ -185,27 +179,23 @@ def _model_diff(before, after, path='$'):
                 )
             for name in sorted(set(before_named) | set(after_named)):
                 item_path = '{0}[name={1}]'.format(path, json.dumps(name))
-                for line in _model_diff(
+                yield from _model_diff(
                     before_named.get(name, _MISSING),
                     after_named.get(name, _MISSING),
                     item_path,
-                ):
-                    yield line
+                )
         else:
             for index in range(max(len(before), len(after))):
-                for line in _model_diff(
+                yield from _model_diff(
                     before[index] if index < len(before) else _MISSING,
                     after[index] if index < len(after) else _MISSING,
                     '{0}[{1}]'.format(path, index),
-                ):
-                    yield line
+                )
         return
 
     if isinstance(before, (dict, list)) or isinstance(after, (dict, list)):
-        for line in _missing_diff(before, path, '-'):
-            yield line
-        for line in _missing_diff(after, path, '+'):
-            yield line
+        yield from _missing_diff(before, path, '-')
+        yield from _missing_diff(after, path, '+')
         return
 
     yield '- {0} = {1}'.format(path, _value_text(before))
