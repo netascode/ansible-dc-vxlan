@@ -61,7 +61,7 @@ def resolve_files_root(task_vars, scope, templar=None):
     else:
         role_path = task_vars.get('role_path') or task_vars.get('common_role_path') or ''
         if '/roles/' in role_path:
-            collection_root = role_path.split('/roles/')[0]
+            collection_root = role_path.rsplit('/roles/', 1)[0]
         else:
             collection_root = os.path.dirname(os.path.dirname(role_path))
         rel = 'roles/validate/files' if scope == 'validate' else 'roles/dtc/common/files'
