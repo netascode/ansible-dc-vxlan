@@ -24,12 +24,11 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import difflib
 import json
 import os
 import stat
 import tempfile
-
-from collections import Counter
 
 from ansible.plugins.action import ActionBase
 from ansible.parsing.ajson import AnsibleJSONEncoder
@@ -88,16 +87,155 @@ def atomic_write(path, data, mode):
         raise
 
 
-def render_diff(old_bytes, new_bytes):
-    before = old_bytes.decode('utf-8').splitlines()
-    after = new_bytes.decode('utf-8').splitlines()
-    removed = list((Counter(before) - Counter(after)).elements())
-    added = list((Counter(after) - Counter(before)).elements())
-    lines = ['- ' + text for text in removed[:MAX_DIFF_LINES]]
-    lines += ['+ ' + text for text in added[:MAX_DIFF_LINES]]
-    if len(removed) > MAX_DIFF_LINES or len(added) > MAX_DIFF_LINES:
-        lines.append('... diff truncated at {0} lines per side ...'.format(MAX_DIFF_LINES))
-    return lines
+_MISSING = object()
+
+
+def _path_key(path, key):
+    if isinstance(key, str) and key.isidentifier():
+        return "{0}.{1}".format(path, key)
+    return "{0}[{1}]".format(path, json.dumps(key, cls=AnsibleJSONEncoder))
+
+
+def _named_items(value):
+    if not value or not all(isinstance(item, dict) and item.get('name') is not None for item in value):
+        return None
+    names = [str(item['name']) for item in value]
+    if len(names) != len(set(names)):
+        return None
+    return dict(zip(names, value))
+
+
+def _value_text(value):
+    return json.dumps(value, sort_keys=True, cls=AnsibleJSONEncoder)
+
+
+def _missing_diff(value, path, prefix):
+    if isinstance(value, dict):
+        if not value:
+            yield '{0} {1} = {{}}'.format(prefix, path)
+        for key in sorted(value, key=str):
+            for line in _missing_diff(value[key], _path_key(path, key), prefix):
+                yield line
+        return
+    if isinstance(value, list):
+        if not value:
+            yield '{0} {1} = []'.format(prefix, path)
+            return
+        named = _named_items(value)
+        if named is not None:
+            for name in sorted(named):
+                item_path = '{0}[name={1}]'.format(path, json.dumps(name))
+                for line in _missing_diff(named[name], item_path, prefix):
+                    yield line
+        else:
+            for index, item in enumerate(value):
+                for line in _missing_diff(item, '{0}[{1}]'.format(path, index), prefix):
+                    yield line
+        return
+    yield '{0} {1} = {2}'.format(prefix, path, _value_text(value))
+
+
+def _model_diff(before, after, path='$'):
+    if before is _MISSING:
+        for line in _missing_diff(after, path, '+'):
+            yield line
+        return
+    if after is _MISSING:
+        for line in _missing_diff(before, path, '-'):
+            yield line
+        return
+    if before == after:
+        return
+
+    if isinstance(before, dict) and isinstance(after, dict):
+        for key in sorted(set(before) | set(after), key=str):
+            for line in _model_diff(
+                before.get(key, _MISSING),
+                after.get(key, _MISSING),
+                _path_key(path, key),
+            ):
+                yield line
+        return
+
+    if isinstance(before, list) and isinstance(after, list):
+        before_named = _named_items(before)
+        after_named = _named_items(after)
+        named_comparison = (
+            (before_named is not None and (after_named is not None or not after))
+            or (after_named is not None and (before_named is not None or not before))
+        )
+        if named_comparison:
+            before_named = before_named or {}
+            after_named = after_named or {}
+            before_order = [str(item['name']) for item in before]
+            after_order = [str(item['name']) for item in after]
+            if set(before_named) == set(after_named) and before_order != after_order:
+                mismatch = next((
+                    index
+                    for index in range(min(len(before_order), len(after_order)))
+                    if before_order[index] != after_order[index]
+                ), min(len(before_order), len(after_order)))
+                before_name = before_order[mismatch] if mismatch < len(before_order) else None
+                after_name = after_order[mismatch] if mismatch < len(after_order) else None
+                yield '- {0}.order[{1}] = {2}'.format(
+                    path, mismatch, _value_text(before_name)
+                )
+                yield '+ {0}.order[{1}] = {2}'.format(
+                    path, mismatch, _value_text(after_name)
+                )
+            for name in sorted(set(before_named) | set(after_named)):
+                item_path = '{0}[name={1}]'.format(path, json.dumps(name))
+                for line in _model_diff(
+                    before_named.get(name, _MISSING),
+                    after_named.get(name, _MISSING),
+                    item_path,
+                ):
+                    yield line
+        else:
+            for index in range(max(len(before), len(after))):
+                for line in _model_diff(
+                    before[index] if index < len(before) else _MISSING,
+                    after[index] if index < len(after) else _MISSING,
+                    '{0}[{1}]'.format(path, index),
+                ):
+                    yield line
+        return
+
+    if isinstance(before, (dict, list)) or isinstance(after, (dict, list)):
+        for line in _missing_diff(before, path, '-'):
+            yield line
+        for line in _missing_diff(after, path, '+'):
+            yield line
+        return
+
+    yield '- {0} = {1}'.format(path, _value_text(before))
+    yield '+ {0} = {1}'.format(path, _value_text(after))
+
+
+def _bounded_lines(lines):
+    output = []
+    for line in lines:
+        if len(output) == MAX_DIFF_LINES:
+            output.append('... diff truncated at {0} lines ...'.format(MAX_DIFF_LINES))
+            break
+        output.append(line)
+    return output
+
+
+def render_diff(*, old_bytes, new_bytes):
+    before_text = old_bytes.decode('utf-8')
+    after_text = new_bytes.decode('utf-8')
+    try:
+        return _bounded_lines(_model_diff(json.loads(before_text), json.loads(after_text)))
+    except ValueError:
+        return _bounded_lines(difflib.unified_diff(
+            before_text.splitlines(),
+            after_text.splitlines(),
+            fromfile='previous',
+            tofile='current',
+            n=2,
+            lineterm='',
+        ))
 
 
 class ActionModule(ActionBase):
@@ -140,7 +278,7 @@ class ActionModule(ActionBase):
             for key, path in paths.items():
                 if old_bytes[key] is None or old_bytes[key] == new_bytes[key]:
                     continue
-                diff_lines = render_diff(old_bytes[key], new_bytes[key])
+                diff_lines = render_diff(old_bytes=old_bytes[key], new_bytes=new_bytes[key])
                 if diff_lines:
                     display.display("Service model changes for {0}:".format(os.path.basename(path)))
                     display.display("\n".join(diff_lines))
