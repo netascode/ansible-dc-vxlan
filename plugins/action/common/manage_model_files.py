@@ -65,7 +65,7 @@ def read_file_bytes(path):
         return None
 
 
-def existing_mode(path, default=0o644):
+def existing_mode(path, default=0o600):
     try:
         return stat.S_IMODE(os.stat(path).st_mode)
     except OSError:
