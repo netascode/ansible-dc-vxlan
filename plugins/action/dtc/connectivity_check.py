@@ -68,12 +68,12 @@ class ActionModule(ActionBase):
         selected_smu = os.environ.get("nd_smu_version", "")
         nd_patch_enabled = self._is_patch_enabled(selected_smu, nd_smu_versions)
 
-        results["ansible_facts"] = {
+        results.update({
             "nd_version": nd_version,
             "ndfc_version": ndfc_version,
             "nd_smu_versions": nd_smu_versions,
             "nd_patch_enabled": nd_patch_enabled,
-        }
+        })
         return results
 
     def _template(self, value):

@@ -27,6 +27,15 @@
 # ndfc_version, nd_smu_versions, nd_patch_enabled.
 - name: Verify Connectivity and Discover Nexus Dashboard and NDFC Versions
   cisco.nac_dc_vxlan.dtc.connectivity_check:
+  register: connectivity_check_result
+  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
+
+- name: Publish Nexus Dashboard and NDFC facts
+  ansible.builtin.set_fact:
+    nd_version: "{{ connectivity_check_result.nd_version }}"
+    ndfc_version: "{{ connectivity_check_result.ndfc_version }}"
+    nd_smu_versions: "{{ connectivity_check_result.nd_smu_versions }}"
+    nd_patch_enabled: "{{ connectivity_check_result.nd_patch_enabled }}"
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
 # # ── Phase 2: Centralized Controller State Discovery (Recommendation #3) ──────
