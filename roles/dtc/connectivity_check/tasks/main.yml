@@ -24,7 +24,7 @@
 # Verify Nexus Dashboard reachability + authorization and discover the ND and
 # NDFC (and SMU) versions in a single action plugin. Replaces the previous
 # wait_for / uri / dcnm_rest / set_fact task chain. Sets facts: nd_version,
-# ndfc_version, nd_smu_versions.
+# ndfc_version, nd_smu_versions, nd_patch_enabled.
 - name: Verify Connectivity and Discover Nexus Dashboard and NDFC Versions
   cisco.nac_dc_vxlan.dtc.connectivity_check:
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml

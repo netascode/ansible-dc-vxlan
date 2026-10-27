@@ -25,6 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import json
+import os
 import socket
 import time
 
@@ -49,9 +50,7 @@ class ActionModule(ActionBase):
     TRANSFERS_FILES = False
     _supports_check_mode = True
 
-    # SMU history endpoint is only queried on this exact NDFC build (matches the
-    # original role gate: ndfc_version | version_compare('12.6.0.267', '==')).
-    SMU_ND_VERSION = "12.6.0.267"
+    SMU_ND_VERSION = "4.3.1"
 
     def run(self, tmp=None, task_vars=None):
         results = super(ActionModule, self).run(tmp, task_vars)
@@ -65,12 +64,15 @@ class ActionModule(ActionBase):
 
         executor = NdfcModuleExecutor(self, task_vars, tmp)
         ndfc_version = self._get_ndfc_version(executor)
-        nd_smu_versions = self._get_smu_versions(executor, ndfc_version)
+        nd_smu_versions = self._get_smu_versions(executor, nd_version)
+        selected_smu = os.environ.get("nd_smu_version", "")
+        nd_patch_enabled = self._is_patch_enabled(selected_smu, nd_smu_versions)
 
         results["ansible_facts"] = {
             "nd_version": nd_version,
             "ndfc_version": ndfc_version,
             "nd_smu_versions": nd_smu_versions,
+            "nd_patch_enabled": nd_patch_enabled,
         }
         return results
 
@@ -203,8 +205,12 @@ class ActionModule(ActionBase):
                 "{0}".format(result)
             )
 
-    def _get_smu_versions(self, executor, ndfc_version):
-        if not version_compare(ndfc_version, self.SMU_ND_VERSION, "=="):
+    @staticmethod
+    def _is_patch_enabled(selected_smu, active_smu_versions):
+        return bool(selected_smu) and selected_smu in active_smu_versions
+
+    def _get_smu_versions(self, executor, nd_version):
+        if not version_compare(nd_version, self.SMU_ND_VERSION, "=="):
             return []
         response = executor.execute_rest(
             "GET", "/api/v1/infra/systemSoftware/firmwares"
