@@ -74,9 +74,6 @@ class ActionModule(ActionBase):
         if model.get('defaults') is not None:
             custom_defaults = model['defaults']
 
-        # Publish 'defaults' straight as a host fact. Safe here only because the
-        # factory defaults are small (~18KB); returning the multi-MB service
-        # model this way instead would make every later task much slower.
-        results['ansible_facts'] = {'defaults': merge_dicts(factory_defaults, custom_defaults)}
+        results['defaults'] = merge_dicts(factory_defaults, custom_defaults)
 
         return results

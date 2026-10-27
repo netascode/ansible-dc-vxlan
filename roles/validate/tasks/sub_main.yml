@@ -52,6 +52,12 @@
 - name: Merge factory and custom defaults
   cisco.nac_dc_vxlan.common.merge_defaults:
     defaults_file: "{{ role_path }}/files/defaults.yml"
+  register: merged_defaults_result
+  delegate_to: localhost
+
+- name: Publish merged defaults
+  ansible.builtin.set_fact:
+    defaults: "{{ merged_defaults_result.defaults }}"
   delegate_to: localhost
 
 - name: Prepare Service Model
@@ -60,13 +66,9 @@
   register: smd
   delegate_to: localhost
 
-- name: Store Golden Service Model Data
+- name: Store Prepared Service Model Data
   ansible.builtin.set_fact:
     data_model: "{{ smd['model_golden'] }}"
-  delegate_to: localhost
-
-- name: Store Extended Service Model Data
-  ansible.builtin.set_fact:
     data_model_extended: "{{ smd['model_extended'] }}"
   delegate_to: localhost
 
