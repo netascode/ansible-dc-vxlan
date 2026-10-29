@@ -49,9 +49,10 @@ The desired_config contains four allocation types:
      entity_name: "<serial>~Vlan3600"    pool: "10.4.1.0/31"
      The pool_name IS the allocated subnet from type 3 above.
 
-Matching strategy (two-tier):
+Matching strategy (three-tier):
   Tier 1: Exact entity_name + pool_name match
   Tier 2: Canonical link match for bidirectional links (sorted endpoints)
+  Tier 3: Canonical paired-serial match for VPC-pair loopback entities (sorted serials)
 
 Pools are auto-detected from desired_config pool_name values, or can be
 explicitly overridden via the query_pools argument.
@@ -164,6 +165,30 @@ def _canonicalize_link_entity(entity):
     return ordered[0] + "~" + ordered[1]
 
 
+def _canonicalize_paired_entity(entity):
+    """
+    Canonicalize paired-serial entity format: "<serialA>~<serialB>~<name>"
+    (e.g. a VPC-pair loopback1). NDFC may store the two serials in either
+    order, so sort them to make the match order-independent. Non 3-part
+    entities are returned unchanged.
+    """
+    e = _norm_entity(entity)
+    if not e:
+        return ""
+
+    parts = e.split("~")
+    if len(parts) != 3:
+        return e
+
+    ordered = sorted([parts[0], parts[1]])
+    return ordered[0] + "~" + ordered[1] + "~" + parts[2]
+
+
+def _is_paired_entity(normalized_entity):
+    parts = normalized_entity.split("~")
+    return len(parts) == 3 and parts[2].startswith("loopback")
+
+
 def _extract_resource_items(data):
     """
     Recursively unwrap NDFC response envelopes to extract resource items.
@@ -263,6 +288,7 @@ class ActionModule(ActionBase):
         # and index building into one pass to avoid intermediate lists.
         existing_map = {}
         existing_link_map = {}
+        existing_paired_map = {}
         total_fetched = 0
         total_filtered = 0
 
@@ -321,6 +347,24 @@ class ActionModule(ActionBase):
                     link_key = (_canonicalize_link_entity(entity_name), normalized_pool)
                     existing_link_map[link_key] = existing_map[key]
 
+                if _is_paired_entity(normalized_entity):
+                    paired_key = (
+                        _canonicalize_paired_entity(entity_name),
+                        normalized_pool,
+                    )
+                    prev = existing_paired_map.get(paired_key)
+                    if (
+                        prev is not None
+                        and prev.get("resource") != existing_map[key].get("resource")
+                    ):
+                        display.warning(
+                            f"underlay_ip_filter [{fabric}]: duplicate paired entity "
+                            f"{paired_key[0]} pool={normalized_pool} with differing "
+                            f"resources ({prev.get('resource')} vs "
+                            f"{existing_map[key].get('resource')}); using latest"
+                        )
+                    existing_paired_map[paired_key] = existing_map[key]
+
         display.vv(
             f"underlay_ip_filter [{fabric}]: fetched {total_fetched} "
             f"items from controller, {total_filtered} after pool/scope filter"
@@ -328,7 +372,7 @@ class ActionModule(ActionBase):
         display.vvv(f"underlay_ip_filter [{fabric}]: query pools={list(pools)}")
 
         # === DESIRED VS EXISTING COMPARISON ===
-        # Two-tier matching: (1) exact entity+pool, (2) canonical link for bidirectional links.
+        # Three-tier matching: (1) exact entity+pool, (2) canonical link, (3) canonical paired-serial.
         # Only items missing or mismatched are added to filtered_config for update.
         filtered_config = []
         missing_or_mismatch = []
@@ -384,6 +428,14 @@ class ActionModule(ActionBase):
                 )
                 if existing is not None:
                     matched_by = "canonical_link"
+
+            # Tier 3: Canonical paired-serial match (e.g. VPC-pair loopback1)
+            if existing is None and _is_paired_entity(normalized_entity):
+                existing = existing_paired_map.get(
+                    (_canonicalize_paired_entity(entity_name), normalized_pool)
+                )
+                if existing is not None:
+                    matched_by = "canonical_paired"
 
             if existing is None:
                 filtered_config.append(item)

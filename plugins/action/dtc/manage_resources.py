@@ -41,6 +41,7 @@ __metaclass__ = type
 
 import copy
 import json
+import re
 
 from ansible.utils.display import Display
 
@@ -68,6 +69,12 @@ class ResourceManager(PipelineRunnerBase):
 
     REGISTRY_KEY = 'create_resources'
     OPERATION = 'create'
+
+    EDGE_EBGP_TEMPLATE = 'ebgp_underlay_dci_template'
+    EDGE_EBGP_DESC_PREFIX = 'nace_ebgp_underlay_dci_template_'
+    EDGE_PEER_TEMPLATE = 'bgp_peer_template_dci_underlay_jython'
+    EDGE_PEER_DESC_PREFIX = 'nace_bgp_peer_template_dci_underlay_jython_'
+    POLICY_ID_PATTERN = re.compile(r'^POLICY-\d+$')
 
     def __init__(self, params, executor, task_vars):
         super().__init__(params, executor, task_vars)
@@ -630,6 +637,112 @@ class ResourceManager(PipelineRunnerBase):
             self.resource_data[resource_name] = {
                 'module_data': filtered_config,
             }
+
+    @staticmethod
+    def _normalize_edge_intf(name):
+        return re.sub(r'^(?:e|eth|ethernet)(?=\d)', 'ethernet', str(name or '').strip().lower())
+
+    def _edge_connections_rename_reconcile(self, resource_name, step):
+        """
+        Update edge connection policies in place when a hostname changes.
+
+        Descriptions embed hostnames and act as the dcnm_policy key, so a rename
+        would otherwise try to create a duplicate ebgp_underlay_dci_template.
+        Existing policies are matched by switch + INTF_NAME (peer template via
+        the old description suffix) and their 'name' is set to the controller
+        policyId so dcnm_policy updates them by ID and renames the description.
+        """
+        data, _state = self._resolve_step_data(resource_name, step)
+        if not data:
+            return {'changed': False, 'msg': 'No edge connections data to reconcile'}
+
+        target_ips = {
+            sw.get('ip', '')
+            for block in data
+            for sw in block.get('switch', [])
+            if sw.get('ip')
+        }
+        ip_serial_map = self._get_ip_to_serial_map()
+        target_serials = [ip_serial_map[ip] for ip in target_ips if ip in ip_serial_map]
+        if not target_serials:
+            return {'changed': False, 'msg': 'No switch serial numbers resolved'}
+
+        ctrl_by_ip = {}
+        for cpol in self._fetch_policies_by_serials(target_serials):
+            if cpol.get('source', '') != '' or cpol.get('deleted', False):
+                continue
+            ctrl_by_ip.setdefault(cpol.get('ipAddress', ''), []).append(cpol)
+
+        reconciled = copy.deepcopy(data)
+        renames = 0
+
+        for block in reconciled:
+            for sw in block.get('switch', []):
+                ip = sw.get('ip', '')
+                ctrl_pols = ctrl_by_ip.get(ip, [])
+                if not ctrl_pols:
+                    continue
+                ctrl_by_desc = {c.get('description', ''): c for c in ctrl_pols}
+                desired_by_desc = {p.get('description', ''): p for p in sw.get('policies', [])}
+
+                for pol in sw.get('policies', []):
+                    new_desc = pol.get('description', '')
+                    if pol.get('name') != self.EDGE_EBGP_TEMPLATE or new_desc in ctrl_by_desc:
+                        continue
+                    if not new_desc.startswith(self.EDGE_EBGP_DESC_PREFIX):
+                        continue
+
+                    intf = self._normalize_edge_intf((pol.get('policy_vars') or {}).get('INTF_NAME'))
+                    candidates = [
+                        c for c in ctrl_pols
+                        if c.get('templateName') == self.EDGE_EBGP_TEMPLATE
+                        and c.get('description', '').startswith(self.EDGE_EBGP_DESC_PREFIX)
+                        and self.POLICY_ID_PATTERN.match(str(c.get('policyId', '')))
+                        and self._normalize_edge_intf((c.get('nvPairs') or {}).get('INTF_NAME')) == intf
+                    ]
+                    if not candidates:
+                        continue
+                    if len(candidates) > 1:
+                        display.warning(
+                            f"CREATE [{self.fabric_name}] edge connection on {ip} {intf}: "
+                            f"{len(candidates)} existing {self.EDGE_EBGP_TEMPLATE} policies found, "
+                            f"skipping rename of '{new_desc}'"
+                        )
+                        continue
+
+                    old = candidates[0]
+                    old_desc = old.get('description', '')
+                    pol['name'] = old['policyId']
+                    renames += 1
+                    display.v(
+                        f"CREATE [{self.fabric_name}] edge connection rename on {ip}: "
+                        f"{old['policyId']} '{old_desc}' -> '{new_desc}'"
+                    )
+
+                    old_suffix = old_desc[len(self.EDGE_EBGP_DESC_PREFIX):]
+                    new_suffix = new_desc[len(self.EDGE_EBGP_DESC_PREFIX):]
+                    old_peer = ctrl_by_desc.get(self.EDGE_PEER_DESC_PREFIX + old_suffix)
+                    new_peer_desc = self.EDGE_PEER_DESC_PREFIX + new_suffix
+                    peer_pol = desired_by_desc.get(new_peer_desc)
+                    if (
+                        old_peer
+                        and old_peer.get('templateName') == self.EDGE_PEER_TEMPLATE
+                        and self.POLICY_ID_PATTERN.match(str(old_peer.get('policyId', '')))
+                        and peer_pol
+                        and peer_pol.get('name') == self.EDGE_PEER_TEMPLATE
+                        and new_peer_desc not in ctrl_by_desc
+                    ):
+                        peer_pol['name'] = old_peer['policyId']
+                        renames += 1
+                        display.v(
+                            f"CREATE [{self.fabric_name}] edge connection rename on {ip}: "
+                            f"{old_peer['policyId']} '{old_peer.get('description', '')}' -> '{new_peer_desc}'"
+                        )
+
+        if renames:
+            self._update_policy_resource_data(resource_name, reconciled)
+
+        return {'changed': False, 'renamed': renames}
 
 
 class ActionModule(DtcPipelineActionBase):
