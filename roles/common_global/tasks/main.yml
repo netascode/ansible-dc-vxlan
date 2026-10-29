@@ -26,3 +26,19 @@
     play_tags: "{{ ansible_run_tags }}"
   tags: "{{ ansible_run_tags }}"
   delegate_to: localhost
+
+- name: Resolve nac_dc_vxlan Generated File Directories
+  ansible.builtin.set_fact:
+    nac_dc_vxlan_common_files_dir: >-
+      {{
+        (nac_dc_vxlan_files_path ~ '/common')
+        if (nac_dc_vxlan_files_path | default('', true) | trim | length > 0)
+        else ((role_path | dirname | dirname) ~ '/roles/dtc/common/files')
+      }}
+    nac_dc_vxlan_validate_files_dir: >-
+      {{
+        (nac_dc_vxlan_files_path ~ '/validate')
+        if (nac_dc_vxlan_files_path | default('', true) | trim | length > 0)
+        else ((role_path | dirname | dirname) ~ '/roles/validate/files')
+      }}
+  tags: always

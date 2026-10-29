@@ -44,14 +44,14 @@ class ActionModule(ActionBase):
         results['msg'] = None
         results['model_extended'] = None
 
-        # Get Data from Ansible Task
-        ihn = self._task.args['inventory_hostname']
-        hvs = self._task.args['hostvars']
+        # Read large inputs from task_vars instead of templated args to avoid
+        # eagerly templating hostvars and the multi-MB model on every run.
+        ihn = task_vars.get('inventory_hostname')
+        hvs = task_vars.get('hostvars')
         tp = self._task.args['templates_path']
-        default_values = self._task.args['default_values']
-
-        # sm_data contains the golden untouched model data
-        sm_data = self._task.args['data_model']
+        default_values = task_vars.get('defaults')
+        _dm = task_vars.get('data_model') or {}
+        sm_data = _dm.get('data') if isinstance(_dm, dict) else _dm
         # results['model_extended'] contains the data that can be extended by the plugins
         results['model_extended'] = copy.deepcopy(sm_data)
 

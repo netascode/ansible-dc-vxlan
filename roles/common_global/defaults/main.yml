@@ -33,6 +33,14 @@
 force_run_all: false
 stage_remove: false
 
+# External base path for generated/rendered files (service model JSON, run
+# maps, rendered resource data, change-detection flags, comparison files).
+# When empty (default), these are written inside the collection under each
+# role's files/ directory. When set, generated artifacts are stored under
+# {nac_dc_vxlan_files_path}/validate and {nac_dc_vxlan_files_path}/common,
+# keeping collection-generated state out of the installed collection.
+nac_dc_vxlan_files_path: ""
+
 # Parameters to enable/disable remove role tasks
 edge_connections_delete_mode: false
 interface_delete_mode: false

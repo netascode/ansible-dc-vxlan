@@ -21,72 +21,22 @@
 
 ---
 
-- name: Verify Connection to Nexus Dashboard
-  ansible.builtin.import_tasks: verify_ndfc_connectivity.yml
+# Verify Nexus Dashboard reachability + authorization and discover the ND and
+# NDFC (and SMU) versions in a single action plugin. Replaces the previous
+# wait_for / uri / dcnm_rest / set_fact task chain. Sets facts: nd_version,
+# ndfc_version, nd_smu_versions, nd_patch_enabled.
+- name: Verify Connectivity and Discover Nexus Dashboard and NDFC Versions
+  cisco.nac_dc_vxlan.dtc.connectivity_check:
+  register: connectivity_check_result
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
 
-- name: Verify Authorization to Nexus Dashboard
-  ansible.builtin.import_tasks: verify_ndfc_authorization.yml
-  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-
-- name: Get Cisco Nexus Dashboard Version
-  ansible.builtin.uri:
-    url: "https://{{ ansible_host }}:{{ ansible_httpapi_port | default(443) }}/version.json"
-    method: GET
-    status_code:
-      - 200
-    validate_certs: false
-    timeout: 30
-  register: nd_version_response
-  delegate_to: localhost
-  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-
-- name: Set Cisco Nexus Dashboard Version Var
+- name: Publish Nexus Dashboard and NDFC facts
   ansible.builtin.set_fact:
-    nd_version: "{{ nd_major }}.{{ nd_minor }}.{{ nd_maintenance }}{{ nd_patch }}"
-  vars:
-    nd_major: "{{ nd_version_response.json.major }}"
-    nd_minor: "{{ nd_version_response.json.minor }}"
-    nd_maintenance: "{{ nd_version_response.json.maintenance }}"
-    nd_patch: "{{ nd_version_response.json.patch }}"
+    nd_version: "{{ connectivity_check_result.nd_version }}"
+    ndfc_version: "{{ connectivity_check_result.ndfc_version }}"
+    nd_smu_versions: "{{ connectivity_check_result.nd_smu_versions }}"
+    nd_patch_enabled: "{{ connectivity_check_result.nd_patch_enabled }}"
   tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-
-- name: Get Cisco Nexus Dashboard Fabric Controller Version
-  cisco.dcnm.dcnm_rest:
-    method: GET
-    path: /appcenter/cisco/ndfc/api/about/version
-  register: ndfc_version
-  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-
-- name: Set Cisco Nexus Dashboard Fabric Controller Version Var
-  ansible.builtin.set_fact:
-    ndfc_version: "{{ ndfc_version.response.DATA.version }}"
-  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-
-- name: Initialize Cisco Nexus Dashboard SMU versions
-  ansible.builtin.set_fact:
-    nd_smu_versions: []
-  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-
-- name: Get Cisco Nexus Dashboard SMU versions
-  when:
-    - ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0.267', '==')
-  tags: "{{ nac_tags.connectivity_check }}" # Tags defined in roles/common_global/vars/main.yml
-  block:
-    - name: Get Cisco Nexus Dashboard SMU versions
-      cisco.dcnm.dcnm_rest:
-        method: GET
-        path: /api/v1/infra/systemSoftware/firmwares
-      register: nd_smus_version_response
-
-    - name: Parse Cisco Nexus Dashboard SMU versions
-      cisco.nac_dc_vxlan.dtc.parse_nd_smu_versions:
-        response: "{{ nd_smus_version_response }}"
-      register: nd_smus_parsed
-
-    - name: Set Cisco Nexus Dashboard SMU versions
-      ansible.builtin.set_fact:
-        nd_smu_versions: "{{ nd_smus_parsed.smu_versions }}"
 
 # # ── Phase 2: Centralized Controller State Discovery (Recommendation #3) ──────
 # # Queries fabric switches, multisite associations, and fabric existence once.

@@ -55,6 +55,9 @@ from ansible.utils.display import Display
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.registry_loader import (
     RegistryLoader,
 )
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import (
+    resolve_files_root,
+)
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.network_version import (
     resolve_network_patch_version,
 )
@@ -634,7 +637,7 @@ class PipelineRunnerBase(ABC):
         collection_path = RegistryLoader.get_collection_path()
         fabric_types = RegistryLoader.load(collection_path, 'fabric_types').get('fabric_types', {})
         file_subdir = fabric_types.get(self.fabric_type, {}).get('file_subdir', '')
-        output_path = os.path.join(role_path, 'files', file_subdir, self.fabric_name)
+        output_path = os.path.join(resolve_files_root(self.task_vars, 'common', self.executor.action_module._templar), file_subdir, self.fabric_name)
         cache_file = os.path.join(output_path, '_msite_overlay_cache.json')
 
         # Check for cached results from a prior pipeline in this playbook run.

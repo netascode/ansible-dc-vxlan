@@ -26,6 +26,51 @@
 #  from ..helper_functions import do_something
 
 
+import os
+
+
+def resolve_files_root(task_vars, scope, templar=None):
+    """
+    Return the directory used to read/write generated files for ``scope``.
+
+    scope:
+        'validate' -> service model JSON + run_map files (roles/validate/files)
+        'common'   -> rendered resource data, change-detection flags and
+                      comparison files (roles/dtc/common/files)
+
+    When ``nac_dc_vxlan_files_path`` is set, generated artifacts are redirected
+    under ``{nac_dc_vxlan_files_path}/{scope}``; otherwise the in-collection
+    default is used, preserving historical behavior. The returned directory is
+    created if it does not already exist.
+    """
+    task_vars = task_vars or {}
+    if scope not in ('validate', 'common'):
+        raise ValueError("scope must be 'validate' or 'common', got: {0}".format(scope))
+
+    raw = task_vars.get('nac_dc_vxlan_files_path')
+    # group_vars/host_vars values reach action plugins as raw, untemplated
+    # strings (e.g. "{{ lookup('ansible.builtin.env', 'X') }}"); render with
+    # the plugin templar so the literal Jinja text is never used as a path.
+    if templar is not None and isinstance(raw, str) and '{{' in raw:
+        raw = templar.template(raw, fail_on_undefined=False)
+    base = ('' if raw is None else str(raw)).strip()
+    if base in ('None', 'AnsibleUndefined'):
+        base = ''
+    if base:
+        root = os.path.join(base, scope)
+    else:
+        role_path = task_vars.get('role_path') or task_vars.get('common_role_path') or ''
+        if '/roles/' in role_path:
+            collection_root = role_path.rsplit('/roles/', 1)[0]
+        else:
+            collection_root = os.path.dirname(os.path.dirname(role_path))
+        rel = 'roles/validate/files' if scope == 'validate' else 'roles/dtc/common/files'
+        root = os.path.join(collection_root, rel)
+
+    os.makedirs(root, exist_ok=True)
+    return root
+
+
 class NdfcBulkPolicyApiUnavailable(Exception):
     """
     Raised when the NDFC bulk policy lookup API is not available.

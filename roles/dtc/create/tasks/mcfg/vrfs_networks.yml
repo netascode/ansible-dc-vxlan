@@ -44,7 +44,7 @@
 
 - name: Set path_name Var
   ansible.builtin.set_fact:
-    path_name: "{{ role_path }}/../common/files/mcfg/{{ data_model_extended.vxlan.fabric.name }}/"
+    path_name: "{{ nac_dc_vxlan_common_files_dir }}/mcfg/{{ data_model_extended.vxlan.fabric.name }}/"
   delegate_to: localhost
 
 - name: Run dtc.common.tasks.mcfg.ndfc_vrfs.yml

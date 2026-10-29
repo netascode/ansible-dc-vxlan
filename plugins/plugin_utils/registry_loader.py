@@ -48,6 +48,10 @@ __metaclass__ = type
 
 import os
 import yaml
+try:
+    from yaml import CSafeLoader as _SafeLoader
+except ImportError:
+    from yaml import SafeLoader as _SafeLoader
 from functools import lru_cache
 
 from ansible.utils.display import Display
@@ -139,7 +143,7 @@ class RegistryLoader:
                 f"Registry file not found: {registry_path}"
             )
         with open(registry_path, 'r') as f:
-            data = yaml.safe_load(f)
+            data = yaml.load(f, Loader=_SafeLoader)
         if data is None:
             return {}
         return data
