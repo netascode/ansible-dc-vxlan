@@ -32,18 +32,7 @@ vxlan:
             enabled: true
             ipv4_address: 10.55.55.1
             ipv4_route_tag: 12345
-            # Secondary not supported on NDFC?
-            # --------------------------------
-            # secondary_ipv4_addresses:
-            #   - ip_address: 192.10.55.1/32
-            #     route_tag: 56789
             ipv6_address: 2055:55:55:55::1
-            # ipv6_route_tag: 12345
-            # Secondary not supported on NDFC?
-            # --------------------------------
-            # secondary_ipv6_addresses:
-            #   - ip_address: 2056:55:55:55::1
-            #     route_tag: 8888
 
       - name: << spine2_hostname >>
         serial_number: << spine2_serial >>
@@ -78,9 +67,6 @@ vxlan:
             enabled: true
             ipv4_address: 10.55.55.22
             ipv4_route_tag: 12345
-            secondary_ipv4_addresses:
-              - ip_address: 192.10.55.22/32
-                route_tag: 56789
           - name: Loopback56
             mode: loopback
             ipv4_address: 10.55.55.56
