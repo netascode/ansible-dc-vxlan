@@ -58,6 +58,10 @@ from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.registry_loader
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.network_version import (
     resolve_network_patch_version,
 )
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import (
+    MISSING,
+    to_bool,
+)
 
 display = Display()
 
@@ -92,8 +96,8 @@ class PipelineRunnerBase(ABC):
         self.data_model = params['data_model']
         self.resource_data = params['resource_data']
         self.change_flags = params['change_flags']
-        self.run_map_diff_run = params.get('run_map_diff_run', True)
-        self.force_run_all = params.get('force_run_all', False)
+        self.run_map_diff_run = to_bool(params.get('run_map_diff_run', MISSING), 'run_map_diff_run', True)
+        self.force_run_all = to_bool(params.get('force_run_all', MISSING), 'force_run_all', False)
         self.executor = executor
         self.task_vars = task_vars
 

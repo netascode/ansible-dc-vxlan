@@ -54,6 +54,7 @@ __metaclass__ = type
 from ansible.utils.display import Display
 from ansible.plugins.action import ActionBase
 from ansible_collections.cisco.nac_dc_vxlan.plugins.filter.version_compare import version_compare
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import MISSING, to_bool
 from time import monotonic, sleep
 import re
 
@@ -549,6 +550,11 @@ class ActionModule(ActionBase):
         # Operations supported include 'all', 'config_save', 'fabric_deploy', 'switch_deploy', 'check_sync'
         params['operation'] = self._task.args.get("operation")
 
+        # Strictly convert control flags before any controller interaction ('-e force_run_all=false'
+        # arrives as the string 'false'; invalid values fail here, before any deploy).
+        params['force_run_all'] = to_bool(self._task.args.get("force_run_all", MISSING), 'force_run_all', False)
+        params['run_map_diff_run'] = to_bool(self._task.args.get("run_map_diff_run", MISSING), 'run_map_diff_run', True)
+
         # Manage Deployment For Multisite (MSD or MCFG) Parent or Standalone Fabric
         # Acquire msite_data before parent deploy so manage_fabrics can
         # include BGW switches via config-preview. This is needed on all
@@ -670,9 +676,9 @@ class ActionModule(ActionBase):
         vrf_response_data = params['task_vars'].get(response_vars.get('vrf_result', ''), [])
         network_response_data = params['task_vars'].get(response_vars.get('network_result', ''), [])
 
-        # Resolve force_run_all and run_map_diff_run
-        force_run_all = self._task.args.get("force_run_all", False)
-        run_map_diff_run = self._task.args.get("run_map_diff_run", True)
+        # force_run_all and run_map_diff_run were strictly converted at the start of run()
+        force_run_all = params['force_run_all']
+        run_map_diff_run = params['run_map_diff_run']
 
         # MCFG requires ND version for API path routing
         nd_major_minor_patch = None

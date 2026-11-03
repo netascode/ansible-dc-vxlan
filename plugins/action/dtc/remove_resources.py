@@ -42,6 +42,7 @@ __metaclass__ = type
 
 import json
 
+from ansible.errors import AnsibleError
 from ansible.utils.display import Display
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.pipeline_base import (
@@ -49,6 +50,11 @@ from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.pipeline_base i
 )
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.dtc_action_base import (
     DtcPipelineActionBase,
+)
+from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import (
+    DELETE_MODE_FLAGS,
+    task_var_to_bool,
+    to_bool,
 )
 
 display = Display()
@@ -71,22 +77,21 @@ class ResourceRemover(PipelineRunnerBase):
         self.stage_remove = params.get('stage_remove', False)
 
         # Recommendation #2: delete_mode_guard support
-        # Read delete mode flags from task_vars (user-configurable via group_vars/host_vars)
+        # Read delete mode flags from task_vars (user-configurable via group_vars/host_vars/-e).
+        # Values are rendered and strictly converted: '-e x_delete_mode=false' arrives as the
+        # string 'false', which plain truthiness would treat as True and enable deletion.
+        templar = getattr(executor.action_module, '_templar', None)
         self.delete_modes = {
-            'interface_delete_mode': task_vars.get('interface_delete_mode', False),
-            'vrf_delete_mode': task_vars.get('vrf_delete_mode', False),
-            'network_delete_mode': task_vars.get('network_delete_mode', False),
-            'vpc_delete_mode': task_vars.get('vpc_delete_mode', False),
-            'inventory_delete_mode': task_vars.get('inventory_delete_mode', False),
-            'edge_connections_delete_mode': task_vars.get('edge_connections_delete_mode', False),
-            'policy_delete_mode': task_vars.get('policy_delete_mode', False),
-            'tor_pairing_delete_mode': task_vars.get('tor_pairing_delete_mode', False),
-            'link_fabric_delete_mode': task_vars.get('link_fabric_delete_mode', False),
-            'link_vpc_delete_mode': task_vars.get('link_vpc_delete_mode', False),
-            'multisite_vrf_delete_mode': task_vars.get('multisite_vrf_delete_mode', False),
-            'multisite_network_delete_mode': task_vars.get('multisite_network_delete_mode', False),
-            'multisite_child_fabric_delete_mode': task_vars.get('multisite_child_fabric_delete_mode', False),
+            flag: task_var_to_bool(templar, task_vars, flag, False) for flag in DELETE_MODE_FLAGS
         }
+
+        unknown_guards = sorted({
+            step['delete_mode_guard']
+            for steps in self.pipelines.values() if isinstance(steps, list)
+            for step in steps if step.get('delete_mode_guard')
+        } - set(DELETE_MODE_FLAGS))
+        if unknown_guards:
+            raise AnsibleError(f"Unknown delete_mode_guard name(s) in {self.REGISTRY_KEY}: {unknown_guards}")
 
     # ══════════════════════════════════════════════════════════════════════════
     # Pipeline Hooks (remove-specific overrides)
@@ -282,9 +287,9 @@ class ResourceRemover(PipelineRunnerBase):
 
         # If centralized controller discovery has already set this fact,
         # use it directly from task_vars
-        if 'is_active_child_fabric' in self.task_vars:
-            self._cached_child_fabric_result = bool(
-                self.task_vars['is_active_child_fabric']
+        if self.task_vars.get('is_active_child_fabric') is not None:
+            self._cached_child_fabric_result = to_bool(
+                self.task_vars['is_active_child_fabric'], 'is_active_child_fabric'
             )
             return self._cached_child_fabric_result
 
