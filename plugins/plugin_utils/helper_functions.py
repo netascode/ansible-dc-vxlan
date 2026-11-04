@@ -138,32 +138,39 @@ def resolve_child_fabric_switch(identifier, child_fabric_switches):
     return None
 
 
-def switch_mgmt_ip_map(switches):
-    """Return {lowercase switch name: management IP}, preferring IPv4 over IPv6."""
+def switch_mgmt_ip_map(switches, key='name'):
+    """Return {lowercase switch <key> (e.g. 'name', 'serial_number'): management IP}, preferring IPv4 over IPv6."""
     ip_map = {}
     for switch in switches or []:
-        name = switch.get('name')
+        identifier = switch.get(key)
         mgmt = switch.get('management') or {}
         mgmt_ip = mgmt.get('management_ipv4_address') or mgmt.get('management_ipv6_address')
-        if name and mgmt_ip:
-            ip_map[str(name).lower()] = mgmt_ip
+        if identifier and mgmt_ip:
+            ip_map[str(identifier).lower()] = mgmt_ip
     return ip_map
 
 
-def resolve_link_endpoints(existing_link, ip_map):
+def resolve_link_endpoints(existing_link, serial_ip_map, name_ip_map):
     """
     Return ((sw1_device, sw1_if), (sw2_device, sw2_if)) for an NDFC link, or None if incomplete.
 
-    Device names found in ip_map are translated to their management IP.
+    Each side is translated to its management IP by sw-serial-number (stable across hostname
+    changes), falling back to sw-sys-name only when the controller omits the serial.
+    Unresolved identifiers are returned as-is, so they never match a data model IP.
     """
     endpoints = []
     for side in ('sw1-info', 'sw2-info'):
         info = existing_link.get(side) or {}
-        device = info.get('sw-sys-name')
+        serial = info.get('sw-serial-number')
+        name = info.get('sw-sys-name')
         interface = info.get('if-name')
-        if not device or not interface:
+        if not interface or not (serial or name):
             return None
-        endpoints.append((ip_map.get(str(device).lower(), device), interface))
+        if serial:
+            device = serial_ip_map.get(str(serial).lower(), serial)
+        else:
+            device = name_ip_map.get(str(name).lower(), name)
+        endpoints.append((device, interface))
     return tuple(endpoints)
 
 

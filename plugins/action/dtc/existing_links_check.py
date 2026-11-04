@@ -123,11 +123,11 @@ class ActionModule(ActionBase):
         return False
 
     @staticmethod
-    def _index_existing_links(existing_links, ip_map):
+    def _index_existing_links(existing_links, serial_ip_map, name_ip_map):
         """Map direction-independent endpoint keys to (existing_link, endpoints); first entry wins."""
         index = {}
         for existing_link in existing_links:
-            endpoints = resolve_link_endpoints(existing_link, ip_map)
+            endpoints = resolve_link_endpoints(existing_link, serial_ip_map, name_ip_map)
             if endpoints is None:
                 display.vvv("existing_links_check: ignoring controller link with incomplete sw1-info/sw2-info")
                 continue
@@ -207,8 +207,12 @@ class ActionModule(ActionBase):
             results.update(failed=True, msg=f"existing_links_check: {error.message}")
             return results
 
-        ip_map = switch_mgmt_ip_map(args['switch_data_model'])
-        existing_index = self._index_existing_links(args['existing_links'], ip_map)
+        switches = args['switch_data_model']
+        existing_index = self._index_existing_links(
+            args['existing_links'],
+            switch_mgmt_ip_map(switches, key='serial_number'),
+            switch_mgmt_ip_map(switches),
+        )
         required_links = []
         not_required_links = []
         display.vvv(

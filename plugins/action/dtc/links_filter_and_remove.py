@@ -64,8 +64,9 @@ class ActionModule(ActionBase):
             results.update(failed=True, msg=f"links_filter_and_remove: {error.message}")
             return results
 
-        ip_map = switch_mgmt_ip_map(args['switch_data_model'])
-        known_devices = {str(ip).lower() for ip in ip_map.values()}
+        serial_ip_map = switch_mgmt_ip_map(args['switch_data_model'], key='serial_number')
+        name_ip_map = switch_mgmt_ip_map(args['switch_data_model'])
+        known_devices = {str(ip).lower() for ip in (*serial_ip_map.values(), *name_ip_map.values())}
         managed_link_keys = {
             link_endpoint_key(*fabric_link_endpoints(link)) for link in args['fabric_links']
         }
@@ -75,7 +76,7 @@ class ActionModule(ActionBase):
             if existing_link.get('templateName') not in REMOVABLE_TEMPLATES:
                 continue
 
-            endpoints = resolve_link_endpoints(existing_link, ip_map)
+            endpoints = resolve_link_endpoints(existing_link, serial_ip_map, name_ip_map)
             if endpoints is None:
                 display.vvv("links_filter_and_remove: skipping controller link with incomplete sw1-info/sw2-info")
                 continue
