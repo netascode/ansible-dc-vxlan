@@ -38,6 +38,11 @@ class NdfcDuplicatePolicyError(Exception):
     """
 
 
+FABRIC_LINK_TEMPLATE_PRE_PROVISION = 'int_pre_provision_intra_fabric_link'
+FABRIC_LINK_TEMPLATE_NUM = 'int_intra_fabric_num_link'
+FABRIC_LINK_TEMPLATE_UNNUM = 'int_intra_fabric_unnum_link'
+
+
 def _ndfc_policy_id_list(policies):
     """
     Return a comma-separated policyId/id list for error messages.
@@ -131,6 +136,58 @@ def resolve_child_fabric_switch(identifier, child_fabric_switches):
         if re.search(fwd, sw_hostname) or re.search(rev, identifier):
             return sw
     return None
+
+
+def switch_mgmt_ip_map(switches, key='name'):
+    """Return {lowercase switch <key> (e.g. 'name', 'serial_number'): management IP}, preferring IPv4 over IPv6."""
+    ip_map = {}
+    for switch in switches or []:
+        identifier = switch.get(key)
+        mgmt = switch.get('management') or {}
+        mgmt_ip = mgmt.get('management_ipv4_address') or mgmt.get('management_ipv6_address')
+        if identifier and mgmt_ip:
+            ip_map[str(identifier).lower()] = mgmt_ip
+    return ip_map
+
+
+def resolve_link_endpoints(existing_link, serial_ip_map, name_ip_map):
+    """
+    Return ((sw1_device, sw1_if), (sw2_device, sw2_if)) for an NDFC link, or None if incomplete.
+
+    Each side is translated to its management IP by sw-serial-number (stable across hostname
+    changes), falling back to sw-sys-name only when the controller omits the serial.
+    Unresolved identifiers are returned as-is, so they never match a data model IP.
+    """
+    endpoints = []
+    for side in ('sw1-info', 'sw2-info'):
+        info = existing_link.get(side) or {}
+        serial = info.get('sw-serial-number')
+        name = info.get('sw-sys-name')
+        interface = info.get('if-name')
+        if not interface or not (serial or name):
+            return None
+        if serial:
+            device = serial_ip_map.get(str(serial).lower(), serial)
+        else:
+            device = name_ip_map.get(str(name).lower(), name)
+        endpoints.append((device, interface))
+    return tuple(endpoints)
+
+
+def fabric_link_endpoints(link):
+    """Return ((src_device, src_if), (dst_device, dst_if)) for a data model fabric link."""
+    return (
+        (link.get('src_device'), link.get('src_interface')),
+        (link.get('dst_device'), link.get('dst_interface')),
+    )
+
+
+def link_endpoint_key(endpoint_a, endpoint_b):
+    """Return a direction-independent, case-insensitive key for a link's two endpoints."""
+    return frozenset(
+        (str(device).lower(), str(interface).lower())
+        for device, interface in (endpoint_a, endpoint_b)
+    )
 
 
 def ndfc_get_switch_policy(self, task_vars, tmp, switch_serial_number):
