@@ -64,10 +64,13 @@ ipv6 prefix-list {{ ipv6_prefix_list["name"] }} description {{ ipv6_prefix_list[
                         {%if entry["mask"] is defined %}
                             {% set _ = options.append("mask " ~ entry["mask"] ) %}
                         {% endif %}
+                        {# Format for NXOS IPv6 and add 0 when starting by : - -i.e ::0/0 -> 0::0/0 #}
+                        {% set prefix = entry["prefix"] | ipaddr('network/prefix') %}
+                        {% set cli_prefix = ('0' ~ prefix) if prefix is string and prefix.startswith(':') else prefix %}
                         {% if options | length > 0 %}
-ipv6 prefix-list {{ ipv6_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] | ipaddr('network/prefix') }} {{ options | join(" ") }}
+ipv6 prefix-list {{ ipv6_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ cli_prefix }} {{ options | join(" ") }}
                         {% else %}
-ipv6 prefix-list {{ ipv6_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ entry["prefix"] | ipaddr('network/prefix') }}
+ipv6 prefix-list {{ ipv6_prefix_list["name"] }} seq {{ entry["seq_number"] }} {{ entry["operation"] }} {{ cli_prefix }}
                         {% endif %}
                     {% endfor %}
                 {% endif %}
