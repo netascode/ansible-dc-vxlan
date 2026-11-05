@@ -47,6 +47,9 @@ class Rule:
         """
         function used by iac-validate
         """
+        cls.results = []
+        if not data_model.get('vxlan'):
+            return cls.results
         route_control = {}
         topology_switches = []
         switch_policy = []
@@ -67,6 +70,9 @@ class Rule:
                 else:
                     # route control is empty
                     return cls.results
+            else:
+                # No overlay extensions means there is no route control to validate.
+                return cls.results
 
         # Get fabric switches
         if data_model.get("vxlan"):
