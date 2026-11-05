@@ -1,4 +1,4 @@
-"""Rule 503 to check IP format"""
+"""Rule 503 to check IP format and prefix-list entry uniqueness."""
 import ipaddress
 import re
 
@@ -18,6 +18,7 @@ class Rule:
         """
         Matches and validates IP prefixes in the data_model based on provided keys and their entries.
         """
+        cls.results = []
         cls.validate_prefix_lists(data_model, "ipv4_prefix_lists", "IPv4")
         cls.validate_prefix_lists(data_model, "ipv6_prefix_lists", "IPv6")
         cls.validate_acls(data_model, "ipv4_access_lists", "IPv4")
@@ -116,31 +117,60 @@ class Rule:
             "vxlan", "overlay_extensions", "route_control", prefix_list_key])
         if prefix_lists:
             for prefix in prefix_lists:
+                seen_sequences = set()
+                seen_rules = {}
+                location = 'vxlan.overlay_extensions.route_control.{0}.{1}'.format(
+                    prefix_list_key, prefix.get('name', '<unnamed>'))
                 if "entries" in prefix:
                     for entry in prefix["entries"]:
+                        seq = entry.get('seq_number')
+                        if seq is not None:
+                            if seq in seen_sequences:
+                                cls.results.append('{0}: duplicate seq_number {1}'.format(location, seq))
+                            seen_sequences.add(seq)
                         if "prefix" in entry:
-                            is_valid, message = cls.is_ip_cidr(entry["prefix"])
-                            if not is_valid:
+                            network, message = cls._parse_ip_cidr(entry["prefix"])
+                            if network is None:
                                 cls.results.append(f"In {address_family} Prefix-List: {prefix['name']} {message}")
+                                continue
+                            if network.version != (4 if address_family == 'IPv4' else 6):
+                                # Address-family validation is separate from duplicate detection.
+                                continue
+                            modifiers = tuple(str(entry.get(key)) if entry.get(key) is not None else None
+                                              for key in ('eq', 'ge', 'le', 'mask'))
+                            rule = (str(network), entry.get('operation'), modifiers)
+                            if rule in seen_rules:
+                                cls.results.append(
+                                    '{0}: duplicate normalized prefix-list entry {1} '
+                                    'at sequences {2} and {3} (same operation and modifiers)'.format(
+                                        location, network, seen_rules[rule], seq))
+                            else:
+                                seen_rules[rule] = seq
 
     @classmethod
     def is_ip_cidr(cls, ip_cidr):
         """
         Validates if the input string is a valid CIDR notation (IPv4/IPv6).
         """
+        network, message = cls._parse_ip_cidr(ip_cidr)
+        return network is not None, message
+
+    @classmethod
+    def _parse_ip_cidr(cls, ip_cidr):
+        """Return the validated network and existing diagnostic message."""
         # Regular expression for validating CIDR notation
         cidr_regex = r"^(?:\d{1,3}\.){3}\d{1,3}/\d{1,2}$|^[\da-fA-F:]+/\d{1,3}$"
 
         # Check if the input matches the CIDR regex pattern
         if not re.match(cidr_regex, ip_cidr):
-            return False, f"Invalid format. '{ip_cidr}' must include a CIDR prefix (e.g., /24 for IPv4 or /64 for IPv6)"
+            return None, f"Invalid format. '{ip_cidr}' must include a CIDR prefix (e.g., /24 for IPv4 or /64 for IPv6)"
 
         try:
             # Check if it can be parsed as a valid IPv4 or IPv6 network
-            ipaddress.ip_network(ip_cidr, strict=True)
-            return True, f"'{ip_cidr}' is a valid IP address with CIDR prefix."
+            network = ipaddress.ip_network(ip_cidr, strict=True)
+            return network, f"'{ip_cidr}' is a valid IP address with CIDR prefix."
         except ValueError as e:
-            return False, f"Invalid IP or CIDR: {e}"
+            return None, f"Invalid IP or CIDR: {e}"
 
     @classmethod
     def data_model_key_check(cls, tested_object, keys):
