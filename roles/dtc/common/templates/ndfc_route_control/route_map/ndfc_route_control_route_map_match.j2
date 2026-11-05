@@ -68,13 +68,13 @@
                             {% endif %}
                             {% if match["ipv6"] is defined %}
                                 {% if match["ipv6"]["address_prefix_list"] is defined %}
-  match ip address prefix-list {{ match["ipv6"]["address_prefix_list"] | join(" ") }}
+  match ipv6 address prefix-list {{ match["ipv6"]["address_prefix_list"] | join(" ") }}
                                 {% endif %}
                                 {% if match["ipv6"]["next_hop_prefix_list"] is defined %}
-  match ip next-hop prefix-list {{ match["ipv6"]["next_hop_prefix_list"] | join(" ") }}
+  match ipv6 next-hop prefix-list {{ match["ipv6"]["next_hop_prefix_list"] | join(" ") }}
                                 {% endif %}
                                 {% if match["ipv6"]["route_src_prefix_list"] is defined %}
-  match ip route-source prefix-list {{ match["ipv6"]["route_src_prefix_list"] | join(" ") }}
+  match ipv6 route-source prefix-list {{ match["ipv6"]["route_src_prefix_list"] | join(" ") }}
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
