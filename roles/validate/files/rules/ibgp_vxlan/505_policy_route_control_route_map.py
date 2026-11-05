@@ -22,7 +22,10 @@ Validation Rules scenarios:
 13. Name for each of these policies should be unique when they are consumed in a group
 14. Check if in the set_metric route map only metric bandwith is used or alternatively all the five metrics are used: bandwidth, delay, reliability, load, mtu
 15. Check if in set ip/ipv6 next-hop verify-availability route map next-hops is configured
+16. IPv4/IPv6 prefix-list entries must have unique sequences and normalized rules within each list
 """
+
+import ipaddress
 
 
 class Rule:
@@ -47,6 +50,9 @@ class Rule:
         """
         function used by iac-validate
         """
+        cls.results = []
+        if not data_model.get('vxlan'):
+            return cls.results
         route_control = {}
         topology_switches = []
         switch_policy = []
@@ -58,6 +64,7 @@ class Rule:
             if data_model["vxlan"].get("overlay_extensions", None):
                 if data_model["vxlan"].get("overlay_extensions").get("route_control", None):
                     route_control = data_model["vxlan"]["overlay_extensions"]["route_control"]
+                    cls.check_prefix_list_duplicates(route_control)
                     # Get groups policies
                     if data_model["vxlan"].get("overlay_extensions").get("route_control").get("groups", None):
                         group_policies = data_model["vxlan"]["overlay_extensions"]["route_control"]["groups"]
@@ -67,6 +74,9 @@ class Rule:
                 else:
                     # route control is empty
                     return cls.results
+            else:
+                # No overlay extensions means there is no route control to validate.
+                return cls.results
 
         # Get fabric switches
         if data_model.get("vxlan"):
@@ -99,6 +109,43 @@ class Rule:
             cls.check_route_maps(route_maps)
 
         return cls.results
+
+    @classmethod
+    def check_prefix_list_duplicates(cls, route_control):
+        """Detect equivalent rules, excluding sequence from rule identity.
+
+        Same prefixes with different actions or length/mask criteria remain legal.
+        Invalid prefixes are left to the existing syntax validators.
+        """
+        for family, version in (('ipv4_prefix_lists', 4), ('ipv6_prefix_lists', 6)):
+            for prefix_list in route_control.get(family) or []:
+                seen_sequences = {}
+                seen_rules = {}
+                for entry in prefix_list.get('entries') or []:
+                    seq = entry.get('seq_number')
+                    location = 'vxlan.overlay_extensions.route_control.{0}.{1}'.format(
+                        family, prefix_list.get('name', '<unnamed>'))
+                    if seq is not None:
+                        if seq in seen_sequences:
+                            cls.results.append('{0}: duplicate seq_number {1}'.format(location, seq))
+                        seen_sequences[seq] = True
+                    try:
+                        network = ipaddress.ip_network(entry.get('prefix'), strict=False)
+                    except (ValueError, TypeError):
+                        continue
+                    if network.version != version:
+                        continue
+                    # Preserve explicit modifiers; they change rule semantics.
+                    modifiers = tuple(str(entry.get(key)) if entry.get(key) is not None else None
+                                      for key in ('eq', 'ge', 'le', 'mask'))
+                    rule = (str(network), entry.get('operation'), modifiers)
+                    if rule in seen_rules:
+                        cls.results.append(
+                            '{0}: duplicate normalized prefix-list entry {1} '
+                            'at sequences {2} and {3} (same operation and modifiers)'.format(
+                                location, network, seen_rules[rule], seq))
+                    else:
+                        seen_rules[rule] = seq
 
     @classmethod
     def check_switch_level(
