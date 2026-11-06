@@ -1,6 +1,6 @@
 class Rule:
     id = "321"
-    description = "Verify edge connections have valid source devices and interfaces"
+    description = "Verify edge connections have valid source devices, interfaces, and bgp password configuration"
     severity = "HIGH"
 
     @classmethod
@@ -40,6 +40,26 @@ class Rule:
             if source_interface and '.' in source_interface:
                 results.append(
                     f"vxlan.topology.edge_connections.{source_device} source_interface must not contain a '.' (sub-interfaces are not allowed)."
+                )
+
+            # Verify bgp_password is provided when bgp_password_enable is true
+            bgp_section = edge_connection.get("bgp_section", {})
+            defaults = data_model.get("defaults", {})
+            default_bgp_pw_enable = (
+                defaults.get("vxlan", {})
+                .get("topology", {})
+                .get("edge_connections", {})
+                .get("bgp_section", {})
+                .get("bgp_password_enable", False)
+            )
+            bgp_password_enable = bgp_section.get("bgp_password_enable", default_bgp_pw_enable)
+            bgp_password = bgp_section.get("bgp_password", "")
+
+            if bgp_password_enable and (not bgp_password or str(bgp_password).strip() == ""):
+                results.append(
+                    f"vxlan.topology.edge_connections.{source_device} "
+                    f"bgp_password_enable is true but bgp_password is not provided. "
+                    f"A non-empty bgp_password is required when bgp_password_enable is true."
                 )
 
         return results
