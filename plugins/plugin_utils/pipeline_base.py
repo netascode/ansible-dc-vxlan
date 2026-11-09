@@ -29,6 +29,8 @@ data resolution strategy and any additional guard logic.
 Shared infrastructure includes:
   - Pipeline lookup and tag filtering
   - Change flag guard checking
+  - Data model guards: data_model_guard (truthiness) and
+    data_model_value_guard (value comparison with defaults fallback)
   - Internal method dispatch (module names starting with '_')
   - NDFC module execution delegation to NdfcModuleExecutor
   - Shared internal methods:
@@ -50,6 +52,7 @@ import os
 import time
 from abc import ABC, abstractmethod
 
+from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.utils.display import Display
 
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.registry_loader import (
@@ -190,6 +193,27 @@ class PipelineRunnerBase(ABC):
                     display.display(
                         f"{op_label} [{self.fabric_name}] "
                         f"{resource_name} → skipped (data_model_guard) [{elapsed:.1f}s]",
+                        color='cyan',
+                    )
+                    continue
+
+            # ── Guard: data_model_value_guard ─────────────────────────────
+            # Compare data model values (falling back to defaults) so that a
+            # step can be selected by a setting's value, not just its presence.
+            value_guard = step.get('data_model_value_guard')
+            if value_guard:
+                mismatch = self._evaluate_data_model_value_guard(value_guard)
+                if mismatch is not None:
+                    step_results.append({
+                        'resource_name': resource_name,
+                        'module': module,
+                        'status': 'skipped',
+                        'reason': f"data_model_value_guard {mismatch}",
+                    })
+                    elapsed = time.monotonic() - step_start
+                    display.display(
+                        f"{op_label} [{self.fabric_name}] "
+                        f"{resource_name} → skipped (data_model_value_guard) [{elapsed:.1f}s]",
                         color='cyan',
                     )
                     continue
@@ -497,6 +521,97 @@ class PipelineRunnerBase(ABC):
             if obj is None:
                 return None
         return obj
+
+    @staticmethod
+    def _lookup_dotpath(obj, dotpath):
+        """Traverse a nested dict by dotpath; return None if any key is missing."""
+        for key in dotpath.split('.'):
+            if not isinstance(obj, dict):
+                return None
+            obj = obj.get(key)
+            if obj is None:
+                return None
+        return obj
+
+    def _resolve_data_model_value(self, condition):
+        """
+        Resolve the effective value of a data model setting for a guard condition.
+
+        Resolution order (first non-None wins):
+          1. The data model (data_model_extended) at condition['path'].
+          2. The merged factory/custom defaults fact (task_vars['defaults'])
+             at condition['default_path'] (defaults to condition['path']).
+             data_model_extended does not contain merged defaults, so this
+             step is what makes an omitted key behave like its default.
+          3. The literal condition['default'], if present. Used as a last
+             resort so complementary guards stay complementary even when the
+             defaults fact is unavailable (e.g. tag-limited runs).
+
+        Returns:
+            The resolved value, or None if it cannot be resolved.
+        """
+        path = condition.get('path')
+        value = self._lookup_dotpath(self.data_model, path)
+        if value is None:
+            defaults = self.task_vars.get('defaults') if self.task_vars else None
+            if isinstance(defaults, dict):
+                value = self._lookup_dotpath(defaults, condition.get('default_path') or path)
+        if value is None and 'default' in condition:
+            value = condition['default']
+        return value
+
+    @staticmethod
+    def _guard_values_equal(actual, expected):
+        """
+        Compare a resolved value against the expected guard value.
+
+        When the expected value is a boolean, the actual value is normalized
+        with Ansible's boolean() so 'false', 'False', 'no' and False all match.
+        A value that cannot be resolved (None) never matches.
+        """
+        if actual is None:
+            return False
+        if isinstance(expected, bool):
+            try:
+                return boolean(actual, strict=True) is expected
+            except TypeError:
+                return False
+        return actual == expected
+
+    def _evaluate_data_model_value_guard(self, value_guard):
+        """
+        Evaluate the data_model_value_guard pipeline field.
+
+        The field is a condition dict or a list of condition dicts; all
+        conditions must match (logical AND). Each condition supports:
+          path:          Dot path into the data model (required).
+          equals:        Expected value (required).
+          default_path:  Dot path into the defaults fact (optional,
+                         defaults to path).
+          default:       Literal fallback value (optional).
+
+        Example:
+            data_model_value_guard:
+              - path: vxlan.global.ebgp.bgp_asn_auto_allocation
+                equals: false
+                default: true
+
+        Returns:
+            None when every condition matches (step should run), otherwise
+            a short description of the first mismatching condition.
+        """
+        conditions = value_guard if isinstance(value_guard, list) else [value_guard]
+        for condition in conditions:
+            if not isinstance(condition, dict) or 'path' not in condition or 'equals' not in condition:
+                return f"invalid condition {condition!r} (requires 'path' and 'equals')"
+            actual = self._resolve_data_model_value(condition)
+            expected = condition['equals']
+            if not self._guard_values_equal(actual, expected):
+                return (
+                    f"'{condition['path']}' resolved to {actual!r}, "
+                    f"expected {expected!r}"
+                )
+        return None
 
     # ══════════════════════════════════════════════════════════════════════════
     # Shared Internal Methods (called from pipeline via '_' prefix)

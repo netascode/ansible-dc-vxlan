@@ -91,6 +91,7 @@ KNOWN_PIPELINE_FIELDS = {
     'runtime_change_refs',
     'change_flag_guard',
     'data_model_guard',
+    'data_model_value_guard',
     'delete_mode_guard',
     'skip_if_child_fabric',
     'fabric_param',
@@ -496,5 +497,19 @@ class RegistryLoader:
                             f"({step.get('resource_name', '?')}): "
                             f"unknown fields (possible typos): {sorted(unknown)}"
                         )
+
+                    # data_model_value_guard: each condition needs path + equals
+                    value_guard = step.get('data_model_value_guard')
+                    if value_guard is not None:
+                        conditions = value_guard if isinstance(value_guard, list) else [value_guard]
+                        for condition in conditions:
+                            if (not isinstance(condition, dict)
+                                    or not {'path', 'equals'} <= set(condition.keys())):
+                                errors.append(
+                                    f"{pipeline_name} pipeline [{fabric_type}] step {idx} "
+                                    f"({step.get('resource_name', '?')}): "
+                                    f"data_model_value_guard condition {condition!r} "
+                                    f"requires 'path' and 'equals'"
+                                )
 
         return errors
