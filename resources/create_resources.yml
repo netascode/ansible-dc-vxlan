@@ -44,6 +44,19 @@
 #                         skipped if the path resolves to falsy/missing.
 #                         Accepts a string or list. List uses AND semantics
 #                         — all paths must be truthy for the step to run.
+#   data_model_value_guard: (optional) Condition dict or list of condition
+#                         dicts (AND semantics). Step is skipped unless every
+#                         condition matches. Each condition has:
+#                           path:         dot-path into the data model
+#                           equals:       expected value (booleans are
+#                                         normalized, e.g. 'false' == false)
+#                           default_path: (optional) dot-path into the merged
+#                                         defaults; defaults to path
+#                           default:      (optional) literal fallback used
+#                                         when neither the data model nor
+#                                         the defaults provide a value
+#                         Use complementary conditions on two copies of a
+#                         step to select its position by a setting's value.
 #   change_flag_guard:    (optional) Change flag name from build_resource_data.
 #                         Step is skipped if this flag is False. Use null
 #                         for steps that should always run. Steps that use
@@ -65,6 +78,12 @@
 #
 # Pipeline ordering respects creation dependencies:
 #   fabric → switches → vPC → interfaces → overlay → links → policies
+#
+# Exception (eBGP_VXLAN): when vxlan.global.ebgp.bgp_asn_auto_allocation is
+# false, each leaf/border switch gets its BGP ASN only from a user-defined
+# leaf_bgp_asn policy, and NDFC rejects VRF/network attachments until that
+# policy exists ("No BGP ASN Policy Created"). In that case the policy steps
+# run before the overlay (selected via data_model_value_guard).
 # ══════════════════════════════════════════════════════════════════════════════
 ---
 create_resources:
@@ -380,6 +399,39 @@ create_resources:
       change_flag_guard: changes_detected_interfaces
       tag: cr_manage_interfaces
 
+    # Policies BEFORE overlay — only when BGP ASN auto allocation is disabled.
+    # Per-switch ASNs then come from user leaf_bgp_asn policies, which NDFC
+    # requires before any VRF/network attachment. Mutually exclusive with the
+    # post-overlay policy steps below (same guard, opposite value).
+    - resource_name: policy
+      module: _policy_remote_diff
+      state: null
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.policy
+      data_model_value_guard:
+        - path: vxlan.global.ebgp.bgp_asn_auto_allocation
+          equals: false
+          default: true
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
+
+    - resource_name: policy
+      module: dcnm_policy
+      state: merged
+      deploy: false
+      data_model_guard:
+        - vxlan.topology.switches
+        - vxlan.policy.policies
+        - vxlan.policy.groups
+        - vxlan.policy.switches
+      data_model_value_guard:
+        - path: vxlan.global.ebgp.bgp_asn_auto_allocation
+          equals: false
+          default: true
+      change_flag_guard: changes_detected_policy
+      tag: cr_manage_policy
+
     - resource_name: vrfs
       module: dcnm_vrf
       state: replaced
@@ -409,12 +461,18 @@ create_resources:
       change_flag_guard: changes_detected_networks
       tag: cr_manage_networks
 
+    # Policies AFTER overlay — default order (BGP ASN auto allocation enabled,
+    # or not set: the factory default is true).
     - resource_name: policy
       module: _policy_remote_diff
       state: null
       data_model_guard:
         - vxlan.topology.switches
         - vxlan.policy
+      data_model_value_guard:
+        - path: vxlan.global.ebgp.bgp_asn_auto_allocation
+          equals: true
+          default: true
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
@@ -427,6 +485,10 @@ create_resources:
         - vxlan.policy.policies
         - vxlan.policy.groups
         - vxlan.policy.switches
+      data_model_value_guard:
+        - path: vxlan.global.ebgp.bgp_asn_auto_allocation
+          equals: true
+          default: true
       change_flag_guard: changes_detected_policy
       tag: cr_manage_policy
 
