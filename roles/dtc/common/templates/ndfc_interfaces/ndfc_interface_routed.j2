@@ -87,6 +87,8 @@
 {% endif %}
 {% endif %}
     enable_pfc: {{ interface['enable_priority_flow_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_priority_flow_control) | lower }}
+    enable_cdp: {{ interface['enable_cdp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_cdp) | lower }}
+    enable_evpn_multisite_dci_tracking: {{ interface['enable_evpn_multisite_dci_tracking'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_evpn_multisite_dci_tracking) | lower }}
     enable_dampening: {{ interface['enable_dampening'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_dampening) | lower }}
 {% if interface['enable_dampening'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_dampening) %}
     dampening_half_life: {{ interface['dampening_half_life'] | default(omit) }}
@@ -137,6 +139,9 @@
     ospf_mtu_ignore: {{ interface['ospf_mtu_ignore'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_mtu_ignore) | lower }}
     ospf_hello_interval: {{ interface['ospf_hello_interval'] | default(omit) }}
     ospf_dead_interval: {{ interface['ospf_dead_interval'] | default(omit) }}
+{% if nd_patch_enabled %}
+    ospf_retransmit_interval: {{ interface['ospf_retransmit_interval'] | default(omit) }}
+{% endif %}
     ospf_shutdown: {{ interface['ospf_shutdown'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.ospf_shutdown) | lower }}
     ospf_transmit_delay: {{ interface['ospf_transmit_delay'] | default(omit) }}
     ospf_priority: {{ interface['ospf_priority'] | default(omit) }}

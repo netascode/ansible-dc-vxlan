@@ -301,6 +301,8 @@ factory_defaults:
             enable_pim_bfd_instance: false
             enable_netflow: false
             enable_priority_flow_control: false
+            enable_cdp: true
+            enable_evpn_multisite_dci_tracking: false
             enable_dampening: false
             dampening_restart: false
             enable_eigrp_routing: false
@@ -387,6 +389,29 @@ factory_defaults:
             enabled: true
             pc_mode: active
             enable_qos: false
+            enable_pim_sparse: false
+            pim_dr_priority: 1
+            enable_pim_bfd_instance: false
+            enable_eigrp_routing: false
+            enable_eigrp_ipv6_routing: false
+            eigrp_no_ipv4_passive: false
+            eigrp_ipv4_passive: false
+            eigrp_no_ipv6_passive: false
+            eigrp_ipv4_distribute_list_direction: out
+            eigrp_ipv6_distribute_list_direction: out
+            enable_eigrp_shutdown: false
+            enable_eigrp_bfd: false
+            disable_eigrp_bfd: false
+            enable_ospf: false
+            ospf_area_id: 0.0.0.0
+            enable_ospf_auth: false
+            ospf_auth_key_id: 1
+            ospf_authentication_key_type: 3
+            ospf_passive_mode: no_change
+            ospf_mtu_ignore: false
+            ospf_network_type: no_change
+            ospf_bfd_mode: no_change
+            ospf_shutdown: false
           topology_switch_svi_interface:
             description: "NetAsCode SVI Interface"
             enabled: true
@@ -466,9 +491,12 @@ factory_defaults:
             enabled: true
             enable_pim_sparse: false
             enable_eigrp_routing: false
+            enable_eigrp_ipv6_routing: false
             eigrp_no_ipv4_passive: false
             eigrp_ipv4_passive: false
             eigrp_no_ipv6_passive: false
+            eigrp_ipv4_distribute_list_direction: out
+            eigrp_ipv6_distribute_list_direction: out
             enable_eigrp_shutdown: false
             enable_eigrp_bfd: false
             disable_eigrp_bfd: false
