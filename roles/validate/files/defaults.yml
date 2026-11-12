@@ -187,6 +187,7 @@ factory_defaults:
             storm_control_action: default
             flow_control_receive: true
             flow_control_send: true
+            logging_event_port_link_status: false
           topology_switch_trunk_interface:
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
@@ -265,6 +266,7 @@ factory_defaults:
             spanning_tree_port_type: none
             enable_qos_stats: true
             enable_queuing_stats: true
+            link_transmit_reset_skip: false
             guard_mode: none
           topology_switch_dot1q_interface:
             description: "NetAsCode Dot1q Interface"
@@ -360,6 +362,7 @@ factory_defaults:
             disable_ipv6_redirects: false
             enable_pim_sparse: false
             pim_dr_priority: 1
+            enable_pim_bfd_instance: false
             enable_eigrp_routing: false
             enable_eigrp_ipv6_routing: false
             eigrp_no_ipv4_passive: false

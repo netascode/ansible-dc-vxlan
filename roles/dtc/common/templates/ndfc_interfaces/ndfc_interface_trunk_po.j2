@@ -93,6 +93,7 @@
 {% if interface['acl_filter'] is defined %}
     acl_filter: {{ interface['acl_filter'] | default('') | to_json }}
 {% endif %}
+    link_transmit_reset_skip: {{ interface['link_transmit_reset_skip'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.link_transmit_reset_skip) | lower }}
 {% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}

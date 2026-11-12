@@ -87,6 +87,7 @@
 {% if interface['acl_filter'] is defined %}
     acl_filter: {{ interface['acl_filter'] | default('') | to_json }}
 {% endif %}
+    logging_event_port_link_status: {{ interface['logging_event_port_link_status'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.logging_event_port_link_status) | lower }}
 {% endif %}
     cmds: |2-
       {{ interface['freeform_config'] | default('') | indent(6, false) }}
