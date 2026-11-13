@@ -25,6 +25,10 @@ class Rule:
         # explicitly to false on the interface for this rule to pass.
         for switch in switches:
             for interface in switch.get('interfaces', []) or []:
+                # vpc_peer_link members have no spanning_tree_portfast knob, so the
+                # portfast/port-type conflict this rule guards cannot occur there.
+                if interface.get('mode') == 'vpc_peer_link':
+                    continue
                 port_type = interface.get('spanning_tree_port_type')
                 if port_type is None or port_type == 'none':
                     continue
