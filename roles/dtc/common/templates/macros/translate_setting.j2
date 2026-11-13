@@ -1,0 +1,14 @@
+{#
+Purpose: Translate a value through a mapping dict, returning the mapped value if
+present, or the original value otherwise. Used to bridge Data-Model vs
+base-collection value spellings (e.g. 'none' -> 'no', true -> 'false', etc).
+
+Usage: {{ translate(value, {'src1': 'dst1', 'src2': 'dst2'}) }}
+
+Note: Callers pre-resolve missing fields via `default(defaults.<profile>.<field>)`
+and hand the resolved value in. The macro is pure — it never reaches into
+`defaults` on its own, because only the caller knows which profile applies.
+#}
+{% macro translate(value, mapping) -%}
+{%- if value in mapping -%}{{ mapping[value] }}{%- else -%}{{ value }}{%- endif -%}
+{%- endmacro %}

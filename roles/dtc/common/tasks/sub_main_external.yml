@@ -102,6 +102,13 @@
   ansible.builtin.import_tasks: common/ndfc_interface_dot1q.yml
 
 # ------------------------------------------------------------------------
+# Build External Fabric Dot1q Port-Channel Interfaces List From Template
+# ------------------------------------------------------------------------
+
+- name: Build External Fabric Dot1q PO Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_dot1q_po.yml
+
+# ------------------------------------------------------------------------
 # Build External Fabric Loopback Interfaces List From Template
 # ------------------------------------------------------------------------
 
@@ -191,6 +198,7 @@
       interface_trunk_po: "{{ interface_trunk_po }}"
       interface_trunk: "{{ interface_trunk }}"
       interface_dot1q: "{{ interface_dot1q }}"
+      interface_dot1q_po: "{{ interface_dot1q_po }}"
       interface_vpc: "{{ interface_vpc }}"
       inv_config: "{{ inv_config }}"
       poap_data: "{{ poap_data }}"

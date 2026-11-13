@@ -1,6 +1,6 @@
 {# Auto-generated NDFC eBGP VXLAN EVPN Advanced config data structure for fabric {{ vxlan.fabric.name }} #}
   GRFIELD_DEBUG_FLAG: {{ vxlan.global.ebgp.greenfield_cleanup | default(defaults.vxlan.global.ebgp.greenfield_cleanup) }}
-  ENABLE_PVLAN: false
+  ENABLE_PVLAN: {{ vxlan.global.ebgp.enable_pvlan | default(defaults.vxlan.global.ebgp.enable_pvlan) }}
   AAA_REMOTE_IP_ENABLED: False
   FABRIC_MTU: {{ vxlan.underlay.general.intra_fabric_interface_mtu | default(defaults.vxlan.underlay.general.intra_fabric_interface_mtu) }}
   L2_HOST_INTF_MTU: {{ vxlan.underlay.general.layer2_host_interface_mtu | default(defaults.vxlan.underlay.general.layer2_host_interface_mtu) }}
@@ -16,7 +16,7 @@
 {% endif %}
 {% endif %}
   SNMP_SERVER_HOST_TRAP: {{ vxlan.global.ebgp.snmp_server_host_trap | default(defaults.vxlan.global.ebgp.snmp_server_host_trap) }}
-{% if ( (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) and
+{% if ( (nd_version | cisco.nac_dc_vxlan.version_compare('3.2.1', '>=')) and
         (not (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool)) ) %}
   FEATURE_PTP: {{ vxlan.global.ebgp.ptp.enable | default(defaults.vxlan.global.ebgp.ptp.enable) }}
 {% if vxlan.global.ebgp.ptp.enable is defined and vxlan.global.ebgp.ptp.enable | ansible.builtin.bool %}

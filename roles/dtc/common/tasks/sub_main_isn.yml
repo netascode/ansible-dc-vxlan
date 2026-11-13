@@ -137,6 +137,13 @@
   ansible.builtin.import_tasks: common/ndfc_interface_dot1q.yml
 
 # ------------------------------------------------------------------------
+# Build ISN Fabric Dot1q Port-Channel Interfaces List From Template
+# ------------------------------------------------------------------------
+
+- name: Build ISN Fabric Dot1q Port-Channel Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_dot1q_po.yml
+
+# ------------------------------------------------------------------------
 # Build ISN Fabric vPC Interface List From Template
 # ------------------------------------------------------------------------
 
@@ -184,6 +191,7 @@
       interface_trunk: "{{ interface_trunk }}"
       interface_vpc: "{{ interface_vpc }}"
       interface_dot1q: "{{ interface_dot1q }}"
+      interface_dot1q_po: "{{ interface_dot1q_po }}"
       inv_config: "{{ inv_config }}"
       poap_data: "{{ poap_data }}"
       policy_config: "{{ policy_config }}"

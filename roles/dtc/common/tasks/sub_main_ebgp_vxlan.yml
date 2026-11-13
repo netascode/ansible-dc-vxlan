@@ -41,10 +41,10 @@
     - not run_map_read_result.diff_run or ((force_run_all is defined) and (force_run_all is true|bool))
 
 # --------------------------------------------------------------------
-# Build Create eBGP VXLAN Fabric parameter List From Template
+# Build eBGP VXLAN Fabric List From Template
 # --------------------------------------------------------------------
 
-- name: Build eBGP VXLAN Fabric Create Parameters
+- name: Build eBGP VXLAN Fabric List From Template
   ansible.builtin.import_tasks: common/ndfc_fabric.yml
 
 # --------------------------------------------------------------------
@@ -59,45 +59,45 @@
   ansible.builtin.import_tasks: common/ndfc_inventory_no_bootstrap.yml
 
 # --------------------------------------------------------------------
-# Build vPC Domain ID Resource From Template
+# Build eBGP VXLAN Fabric vPC Domain ID Resource From Template
 # --------------------------------------------------------------------
 
-- name: Build vPC Domain ID Resource From Template
+- name: Build eBGP VXLAN Fabric vPC Domain ID Resource From Template
   ansible.builtin.import_tasks: common/ndfc_vpc_domain_id_resource.yml
 
 # --------------------------------------------------------------------
-# Build vPC Intra Fabric Links for vPC Peering From Template
+# Build eBGP VXLAN Fabric Intra Links for vPC Peering From Template
 # --------------------------------------------------------------------
 
-- name: Build vPC Intra Fabric Links From Template
+- name: Build eBGP VXLAN Fabric Intra Links for vPC Peering From Template
   ansible.builtin.import_tasks: common/ndfc_vpc_fabric_peering_links.yml
 
 # --------------------------------------------------------------------
-# Build vPC Peering parameter List From Template
+# Build eBGP VXLAN Fabric vPC Peering Template
 # --------------------------------------------------------------------
 
-- name: Build vPC Peering Parameters
+- name: Build eBGP VXLAN Fabric vPC Peering Template
   ansible.builtin.import_tasks: common/ndfc_vpc_peering_pairs.yml
 
 # --------------------------------------------------------------------
-# Build eBGP VXLAN ToR Pairing Payloads From Template
+# Build eBGP VXLAN Fabric ToR Pairing Payloads From Template
 # --------------------------------------------------------------------
 
 - name: Build eBGP VXLAN Fabric ToR Pairing Payloads From Template
   ansible.builtin.import_tasks: common/ndfc_tor_pairing.yml
 
 # --------------------------------------------------------------------
-# Build NDFC Fabric VRFs Attach List From Template
+# Build eBGP VXLAN Fabric VRFs and Attach List From Template
 # --------------------------------------------------------------------
 
-- name: Build NDFC Fabric VRFs Attach List From Template
+- name: Build eBGP VXLAN Fabric VRFs and Attach List From Template
   ansible.builtin.import_tasks: vxlan/ndfc_vrfs.yml
 
 # --------------------------------------------------------------------
-# Build eBGP VXLAN Fabric Networks Attach List From Template
+# Build eBGP VXLAN Fabric Networks and Attach List From Template
 # --------------------------------------------------------------------
 
-- name: Build eBGP VXLAN Fabric Networks Attach List From Template
+- name: Build eBGP VXLAN Fabric Networks and Attach List From Template
   ansible.builtin.import_tasks: vxlan/ndfc_networks.yml
 
 # --------------------------------------------------------------------
@@ -108,10 +108,10 @@
   ansible.builtin.import_tasks: common/ndfc_interface_breakout.yml
 
 # ------------------------------------------------------------------------
-# Build iBGP VXLAN Fabric PreProv Breakout Interfaces List From Template
+# Build eBGP VXLAN Fabric PreProv Breakout Interfaces List From Template
 # ------------------------------------------------------------------------
 
-- name: Build iBGP VXLAN Fabric Breakout PreProv Interfaces List From Template
+- name: Build eBGP VXLAN Fabric Breakout PreProv Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_breakout_preprov.yml
 
 # --------------------------------------------------------------------
@@ -157,38 +157,45 @@
   ansible.builtin.import_tasks: common/ndfc_interface_po_routed.yml
 
 # --------------------------------------------------------------------
-# Build Trunk Interfaces List From Template
+# Build eBGP VXLAN Fabric Trunk Interfaces List From Template
 # --------------------------------------------------------------------
 
-- name: Build Trunk Interfaces List From Template
+- name: Build eBGP VXLAN Fabric Trunk Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_trunk.yml
 
 # --------------------------------------------------------------------
-# Build Access Interfaces List From Template
+# Build eBGP VXLAN Fabric Access Interfaces List From Template
 # --------------------------------------------------------------------
 
-- name: Build Access Interfaces List From Template
+- name: Build eBGP VXLAN Fabric Access Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_access.yml
 
 # --------------------------------------------------------------------
-# Build Dot1q Interfaces List From Template
+# Build eBGP VXLAN Fabric Dot1q Interfaces List From Template
 # --------------------------------------------------------------------
 
-- name: Build Dot1q Interfaces List From Template
+- name: Build eBGP VXLAN Fabric Dot1q Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_dot1q.yml
 
+# ------------------------------------------------------------------------
+# Build eBGP VXLAN Fabric Dot1q Port-Channel Interfaces List From Template
+# ------------------------------------------------------------------------
+
+- name: Build eBGP VXLAN Fabric Dot1q Port-Channel Interfaces List From Template
+  ansible.builtin.import_tasks: common/ndfc_interface_dot1q_po.yml
+
 # --------------------------------------------------------------------
-# Build eBGP VXLAN Fabric Interface vPC List From Template
+# Build eBGP VXLAN Fabric vPC Interfaces List From Template
 # --------------------------------------------------------------------
 
-- name: Build eBGP VXLAN Fabric interface vPC List From Template
+- name: Build eBGP VXLAN Fabric vPC Interfaces List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_vpc.yml
 
 # --------------------------------------------------------------------
-# Build eBGP VXLAN Fabric interface all List From Template
+# Build eBGP VXLAN Fabric Interface All List From Template
 # --------------------------------------------------------------------
 
-- name: Build eBGP VXLAN Fabric interface All List From Template
+- name: Build eBGP VXLAN Fabric Interface All List From Template
   ansible.builtin.import_tasks: common/ndfc_interface_all.yml
 
 # --------------------------------------------------------------------
@@ -236,6 +243,7 @@
       interface_trunk: "{{ interface_trunk }}"
       interface_vpc: "{{ interface_vpc }}"
       interface_dot1q: "{{ interface_dot1q }}"
+      interface_dot1q_po: "{{ interface_dot1q_po }}"
       inv_config: "{{ inv_config }}"
       link_vpc_peering: "{{ link_vpc_peering }}"
       net_config: "{{ net_config }}"

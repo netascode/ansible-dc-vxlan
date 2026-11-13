@@ -29,9 +29,9 @@ class PreparePlugin:
         self.kwargs = kwargs
         self.keys = []
         # interface modes which are a direct match
-        self.mode_direct = ['routed', 'routed_po', 'routed_sub', 'loopback', 'fabric_loopback', 'mpls_loopback']
+        self.mode_direct = ['routed', 'routed_po', 'routed_sub', 'loopback', 'fabric_loopback', 'mpls_loopback', 'vlan']
         # interface modes which need additional validation
-        self.mode_indirect = ['access', 'dot1q', 'trunk', 'access_po', 'trunk_po', 'access_vpc', 'trunk_vpc', 'all']
+        self.mode_indirect = ['access', 'dot1q', 'trunk', 'access_po', 'trunk_po', 'access_vpc', 'trunk_vpc', 'pvlan', 'pvlan_po', 'pvlan_vpc', 'all']
 
     def prepare(self):
         data_model = self.kwargs['results']['model_extended']
@@ -112,6 +112,19 @@ class PreparePlugin:
                     # else it is a regular trunk interface
                     else:
                         data_model['vxlan']['topology']['interfaces']['modes']['trunk']['count'] += 1
+                        data_model['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
+                if interface.get('mode') == 'pvlan':
+                    # if interface name starts with 'po' and has vpc_id, then it is a vpc pvlan interface
+                    if interface.get('name').lower().startswith('po') and interface.get('vpc_id'):
+                        data_model['vxlan']['topology']['interfaces']['modes']['pvlan_vpc']['count'] += 1
+                        data_model['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
+                    # if interface name starts with 'po', then it is a port-channel pvlan interface
+                    elif interface.get('name').lower().startswith('po'):
+                        data_model['vxlan']['topology']['interfaces']['modes']['pvlan_po']['count'] += 1
+                        data_model['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
+                    # else it is a regular (physical) pvlan host interface
+                    else:
+                        data_model['vxlan']['topology']['interfaces']['modes']['pvlan']['count'] += 1
                         data_model['vxlan']['topology']['interfaces']['modes']['all']['count'] += 1
 
             if switch.get('interface_breakouts'):

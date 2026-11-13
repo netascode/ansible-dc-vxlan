@@ -1,4 +1,5 @@
 {% from 'macros/convert_ranges.j2' import convert_ranges as convert_ranges %}
+{% from 'macros/translate_setting.j2' import translate %}
 
 ---
 # This NDFC vPC Peering config data structure for vPC pairs in External Fabrics is auto-generated
@@ -42,6 +43,14 @@
     PEER2_MEMBER_INTERFACES: "{{ peer2_vpc_interface.members | default([]) | join(',') }}"
     ALLOWED_VLANS: "{{ convert_ranges(peer1_vpc_interface.trunk_allowed_vlans, defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.trunk_allowed_vlans)  | trim }}"
     ADMIN_STATE: {{ peer1_vpc_interface.enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled)}}
+{% if nd_patch_enabled %}
+    ENABLE_QOS: {{ peer1_vpc_interface.enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) | lower }}
+{% if peer1_vpc_interface.enable_qos | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos) %}
+    QOS_POLICY: {{ peer1_vpc_interface.qos_policy | default("") }}
+{% endif %}
+    qosStatsSuppressed: {{ translate(peer1_vpc_interface.enable_qos_stats | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_qos_stats), {true: 'false', false: 'true'}) }}
+    spanningTreePortType: "{{ translate(peer1_vpc_interface.spanning_tree_port_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}
