@@ -20,7 +20,7 @@
 {% endif %}
 {% endif %}
 {% endif %}
-{% if vxlan.global.ibgp.mpls_handoff.enable | default(defaults.vxlan.global.ibgp.mpls_handoff.enable) %}
+{% if vxlan.global.ibgp.mpls_handoff.enable | default(defaults.vxlan.global.ibgp.mpls_handoff.enable) | ansible.builtin.bool %}
   MPLS_LOOPBACK_IP_RANGE: {{ vxlan.global.ibgp.mpls_handoff.loopback_ip_range | default(defaults.vxlan.global.ibgp.mpls_handoff.loopback_ip_range) }}
 {% endif %}
 {% if vxlan.global.ibgp.layer2_vni_range.from is defined %}
@@ -79,3 +79,31 @@
 {% set l3_vlan_range = defaults.vxlan.global.ibgp.layer3_vlan_range.from ~ '-' ~ defaults.vxlan.global.ibgp.layer3_vlan_range.to %}
 {% endif %}
   VRF_VLAN_RANGE: {{ l3_vlan_range }}
+  PER_VRF_LOOPBACK_AUTO_PROVISION: {{ vxlan.global.ibgp.vrf_vtep_loopback.ipv4.auto_provision | default(defaults.vxlan.global.ibgp.vrf_vtep_loopback.ipv4.auto_provision) }}
+{% if vxlan.global.ibgp.vrf_vtep_loopback.ipv4.auto_provision | default(defaults.vxlan.global.ibgp.vrf_vtep_loopback.ipv4.auto_provision) | ansible.builtin.bool %}
+  PER_VRF_LOOPBACK_IP_RANGE: "{{ vxlan.global.ibgp.vrf_vtep_loopback.ipv4.pool | default(defaults.vxlan.global.ibgp.vrf_vtep_loopback.ipv4.pool) }}"
+{% else %}
+  PER_VRF_LOOPBACK_IP_RANGE: ""
+{% endif %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.3', '>=') %}
+  PER_VRF_LOOPBACK_AUTO_PROVISION_V6: {{ vxlan.global.ibgp.vrf_vtep_loopback.ipv6.auto_provision | default(defaults.vxlan.global.ibgp.vrf_vtep_loopback.ipv6.auto_provision) }}
+{% if vxlan.global.ibgp.vrf_vtep_loopback.ipv6.auto_provision | default(defaults.vxlan.global.ibgp.vrf_vtep_loopback.ipv6.auto_provision) | ansible.builtin.bool %}
+  PER_VRF_LOOPBACK_IP_RANGE_V6: "{{ vxlan.global.ibgp.vrf_vtep_loopback.ipv6.pool | default(defaults.vxlan.global.ibgp.vrf_vtep_loopback.ipv6.pool) }}"
+{% else %}
+  PER_VRF_LOOPBACK_IP_RANGE_V6: ""
+{% endif %}
+{% endif %}
+{% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.5.0', '>=') %}
+  perVrfUniqueLoopbackAutoProvision: {{ vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv4.auto_provision | default(defaults.vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv4.auto_provision) }}
+{% if vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv4.auto_provision | default(defaults.vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv4.auto_provision) | ansible.builtin.bool %}
+  perVrfUniqueLoopbackIpRange: "{{ vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv4.pool | default(defaults.vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv4.pool) }}"
+{% else %}
+  perVrfUniqueLoopbackIpRange: ""
+{% endif %}
+  perVrfUniqueLoopbackAutoProvisionV6: {{ vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv6.auto_provision | default(defaults.vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv6.auto_provision) }}
+{% if vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv6.auto_provision | default(defaults.vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv6.auto_provision) | ansible.builtin.bool %}
+  perVrfUniqueLoopbackIpv6Range: "{{ vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv6.pool | default(defaults.vxlan.global.ibgp.vrf_vtep_unique_loopback.ipv6.pool) }}"
+{% else %}
+  perVrfUniqueLoopbackIpv6Range: ""
+{% endif %}
+{% endif %}
