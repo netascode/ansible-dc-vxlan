@@ -24,30 +24,30 @@
   PTP_LB_ID: {{ vxlan.global.ebgp.ptp.lb_id | default(defaults.vxlan.global.ebgp.ptp.lb_id) }}
 {% endif %}
 {% endif %}
-  PER_VRF_LOOPBACK_AUTO_PROVISION: {{ vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv4_auto_provision | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv4_auto_provision) }}
-{% if vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv4_auto_provision | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv4_auto_provision) | ansible.builtin.bool %}
-  PER_VRF_LOOPBACK_IP_RANGE: "{{ vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv4_pool | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv4_pool) }}"
+  PER_VRF_LOOPBACK_AUTO_PROVISION: {{ vxlan.global.ebgp.vrf_vtep_loopback.ipv4.auto_provision | default(defaults.vxlan.global.ebgp.vrf_vtep_loopback.ipv4.auto_provision) }}
+{% if vxlan.global.ebgp.vrf_vtep_loopback.ipv4.auto_provision | default(defaults.vxlan.global.ebgp.vrf_vtep_loopback.ipv4.auto_provision) | ansible.builtin.bool %}
+  PER_VRF_LOOPBACK_IP_RANGE: "{{ vxlan.global.ebgp.vrf_vtep_loopback.ipv4.pool | default(defaults.vxlan.global.ebgp.vrf_vtep_loopback.ipv4.pool) }}"
 {% else %}
   PER_VRF_LOOPBACK_IP_RANGE: ""
 {% endif %}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.3', '>=') %}
-  PER_VRF_LOOPBACK_AUTO_PROVISION_V6: {{ vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv6_auto_provision | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv6_auto_provision) }}
-{% if vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv6_auto_provision | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv6_auto_provision) | ansible.builtin.bool %}
-  PER_VRF_LOOPBACK_IP_RANGE_V6: "{{ vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv6_pool | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_loopback_ipv6_pool) }}"
+  PER_VRF_LOOPBACK_AUTO_PROVISION_V6: {{ vxlan.global.ebgp.vrf_vtep_loopback.ipv6.auto_provision | default(defaults.vxlan.global.ebgp.vrf_vtep_loopback.ipv6.auto_provision) }}
+{% if vxlan.global.ebgp.vrf_vtep_loopback.ipv6.auto_provision | default(defaults.vxlan.global.ebgp.vrf_vtep_loopback.ipv6.auto_provision) | ansible.builtin.bool %}
+  PER_VRF_LOOPBACK_IP_RANGE_V6: "{{ vxlan.global.ebgp.vrf_vtep_loopback.ipv6.pool | default(defaults.vxlan.global.ebgp.vrf_vtep_loopback.ipv6.pool) }}"
 {% else %}
   PER_VRF_LOOPBACK_IP_RANGE_V6: ""
 {% endif %}
 {% endif %}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.6.0', '>=') %}
-  perVrfUniqueLoopbackAutoProvision: {{ vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv4_auto_provision | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv4_auto_provision) }}
-{% if vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv4_auto_provision | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv4_auto_provision) | ansible.builtin.bool %}
-  perVrfUniqueLoopbackIpRange: "{{ vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv4_pool | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv4_pool) }}"
+  perVrfUniqueLoopbackAutoProvision: {{ vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv4.auto_provision | default(defaults.vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv4.auto_provision) }}
+{% if vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv4.auto_provision | default(defaults.vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv4.auto_provision) | ansible.builtin.bool %}
+  perVrfUniqueLoopbackIpRange: "{{ vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv4.pool | default(defaults.vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv4.pool) }}"
 {% else %}
   perVrfUniqueLoopbackIpRange: ""
 {% endif %}
-  perVrfUniqueLoopbackAutoProvisionV6: {{ vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv6_auto_provision | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv6_auto_provision) }}
-{% if vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv6_auto_provision | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv6_auto_provision) | ansible.builtin.bool %}
-  perVrfUniqueLoopbackIpv6Range: "{{ vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv6_pool | default(defaults.vxlan.global.ebgp.per_vrf_per_vtep_unique_loopback_ipv6_pool) }}"
+  perVrfUniqueLoopbackAutoProvisionV6: {{ vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv6.auto_provision | default(defaults.vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv6.auto_provision) }}
+{% if vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv6.auto_provision | default(defaults.vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv6.auto_provision) | ansible.builtin.bool %}
+  perVrfUniqueLoopbackIpv6Range: "{{ vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv6.pool | default(defaults.vxlan.global.ebgp.vrf_vtep_unique_loopback.ipv6.pool) }}"
 {% else %}
   perVrfUniqueLoopbackIpv6Range: ""
 {% endif %}

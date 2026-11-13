@@ -48,14 +48,20 @@ factory_defaults:
           from: 2000
           to: 2299
         enable_l3_vni_no_vlan: false
-        per_vrf_per_vtep_loopback_ipv4_auto_provision: false
-        per_vrf_per_vtep_loopback_ipv4_pool: 10.5.0.0/22
-        per_vrf_per_vtep_loopback_ipv6_auto_provision: false
-        per_vrf_per_vtep_loopback_ipv6_pool: fd00::a05:0/112
-        per_vrf_per_vtep_unique_loopback_ipv4_auto_provision: false
-        per_vrf_per_vtep_unique_loopback_ipv4_pool: 10.6.0.0/22
-        per_vrf_per_vtep_unique_loopback_ipv6_auto_provision: false
-        per_vrf_per_vtep_unique_loopback_ipv6_pool: fd00::a06:0/112
+        vrf_vtep_loopback:
+          ipv4:
+            auto_provision: false
+            pool: 10.5.0.0/22
+          ipv6:
+            auto_provision: false
+            pool: fd00::a05:0/112
+        vrf_vtep_unique_loopback:
+          ipv4:
+            auto_provision: false
+            pool: 10.6.0.0/22
+          ipv6:
+            auto_provision: false
+            pool: fd00::a06:0/112
         vpc:
           peer_link_vlan: 3600
           peer_keep_alive: management
@@ -103,14 +109,20 @@ factory_defaults:
           from: 2000
           to: 2299
         enable_l3_vni_no_vlan: false
-        per_vrf_per_vtep_loopback_ipv4_auto_provision: false
-        per_vrf_per_vtep_loopback_ipv4_pool: 10.5.0.0/22
-        per_vrf_per_vtep_loopback_ipv6_auto_provision: false
-        per_vrf_per_vtep_loopback_ipv6_pool: fd00::a05:0/112
-        per_vrf_per_vtep_unique_loopback_ipv4_auto_provision: false
-        per_vrf_per_vtep_unique_loopback_ipv4_pool: 10.6.0.0/22
-        per_vrf_per_vtep_unique_loopback_ipv6_auto_provision: false
-        per_vrf_per_vtep_unique_loopback_ipv6_pool: fd00::a06:0/112
+        vrf_vtep_loopback:
+          ipv4:
+            auto_provision: false
+            pool: 10.5.0.0/22
+          ipv6:
+            auto_provision: false
+            pool: fd00::a05:0/112
+        vrf_vtep_unique_loopback:
+          ipv4:
+            auto_provision: false
+            pool: 10.6.0.0/22
+          ipv6:
+            auto_provision: false
+            pool: fd00::a06:0/112
         vpc:
           peer_link_vlan: 3600
           peer_keep_alive: management

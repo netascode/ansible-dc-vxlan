@@ -23,12 +23,12 @@ class Rule:
         # Pre-merge: only an explicit True counts as enabled. An omitted flag is
         # None here and resolves to the factory default (false) after merge_defaults.
         non_unique_enabled = (
-            cls.safeget(data_model, base + ['per_vrf_per_vtep_loopback_ipv4_auto_provision']) is True or
-            cls.safeget(data_model, base + ['per_vrf_per_vtep_loopback_ipv6_auto_provision']) is True
+            cls.safeget(data_model, base + ['vrf_vtep_loopback', 'ipv4', 'auto_provision']) is True or
+            cls.safeget(data_model, base + ['vrf_vtep_loopback', 'ipv6', 'auto_provision']) is True
         )
         unique_enabled = (
-            cls.safeget(data_model, base + ['per_vrf_per_vtep_unique_loopback_ipv4_auto_provision']) is True or
-            cls.safeget(data_model, base + ['per_vrf_per_vtep_unique_loopback_ipv6_auto_provision']) is True
+            cls.safeget(data_model, base + ['vrf_vtep_unique_loopback', 'ipv4', 'auto_provision']) is True or
+            cls.safeget(data_model, base + ['vrf_vtep_unique_loopback', 'ipv6', 'auto_provision']) is True
         )
 
         # Unique and non-unique per-VRF loopback are mutually exclusive: enabling
@@ -38,11 +38,11 @@ class Rule:
             results.append(
                 f"{prefix}: per-VRF per-VTEP unique and non-unique loopback auto-provision "
                 f"are mutually exclusive. When any unique auto-provision "
-                f"({prefix}.per_vrf_per_vtep_unique_loopback_ipv4_auto_provision / "
-                f"{prefix}.per_vrf_per_vtep_unique_loopback_ipv6_auto_provision) is true, "
+                f"({prefix}.vrf_vtep_unique_loopback.ipv4.auto_provision / "
+                f"{prefix}.vrf_vtep_unique_loopback.ipv6.auto_provision) is true, "
                 f"the non-unique auto-provision flags "
-                f"({prefix}.per_vrf_per_vtep_loopback_ipv4_auto_provision / "
-                f"{prefix}.per_vrf_per_vtep_loopback_ipv6_auto_provision) must not be true."
+                f"({prefix}.vrf_vtep_loopback.ipv4.auto_provision / "
+                f"{prefix}.vrf_vtep_loopback.ipv6.auto_provision) must not be true."
             )
 
         return results
