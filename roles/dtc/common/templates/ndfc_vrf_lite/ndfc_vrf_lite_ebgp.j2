@@ -113,7 +113,7 @@
     ebgp-multihop {{ peer.ebgp_multihop }}
   {% endif %}
   {% if peer.password is defined %}
-    password 3 {{ peer.password }}
+    password {{ peer.password_encryption_type | default(defaults.vxlan.overlay_extensions.vrf_lites.switches.bgp_peers.password_encryption_type) | default(3) }} {{ peer.password }}
   {% endif %}
 {% if (peer.address | ipv4()) or peer.address_family_ipv4_unicast is defined %}
     address-family ipv4 unicast
