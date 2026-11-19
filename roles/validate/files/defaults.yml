@@ -459,6 +459,7 @@ factory_defaults:
               lsa_transmit_delay: 1
           bgp_peers:
             next_hop_self: false
+            password_encryption_type: 3
             bfd:
               enabled: false
             disable_connected_check: false
