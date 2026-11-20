@@ -46,7 +46,7 @@ EXAMPLES = r"""
 version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>') }}"
 # => True
 
-# {% if ndfc_version.response.DATA.version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=') %}
+# {% if nd_version | cisco.nac_dc_vxlan.version_compare('4.3.1', '>=') %}
 
 # - ansible.builtin.set_fact:
 #     version_compare_result: "{{ '1.0.2' | cisco.nac_dc_vxlan.version_compare('1.0.1', '>=') }}"
@@ -62,6 +62,7 @@ RETURN = r"""
 """
 
 import operator
+import re
 from jinja2.runtime import Undefined
 from jinja2.exceptions import UndefinedError
 
@@ -78,6 +79,17 @@ from ansible.module_utils.common.text.converters import to_native
 
 
 SUPPORTED_COMPARISON_OPERATORS = ['==', '!=', '>', '>=', '<', '<=']
+
+
+def _normalize_version(version):
+    """Drop a trailing ND patch letter (e.g. '3.1.1n' -> '3.1.1') so packaging.Version can parse it.
+
+    ND platform versions carry a single-letter patch suffix (nd_patch) that is not PEP 440 valid.
+    Only the X.Y.Z[.build] numeric core is significant for comparison.
+    """
+    if isinstance(version, string_types):
+        return re.sub(r'^(\d+(?:\.\d+)*)[a-zA-Z]$', r'\1', version.strip())
+    return version
 
 
 def version_compare(version1, version2, op):
@@ -107,8 +119,8 @@ def version_compare(version1, version2, op):
         raise AnsibleFilterError(f"Unsupported operator {op} type. Supported operators are: {SUPPORTED_COMPARISON_OPERATORS}")
 
     try:
-        v1 = Version(version1)
-        v2 = Version(version2)
+        v1 = Version(_normalize_version(version1))
+        v2 = Version(_normalize_version(version2))
     except UndefinedError:
         raise
     except Exception as e:
