@@ -331,6 +331,15 @@ resource_types:
       - ISN
       - External
 
+  interface_vpc_peer_link:
+    template: ndfc_interfaces/ndfc_interface_vpc_peer_link.j2
+    output_file: ndfc_interface_vpc_peer_link.yml
+    change_flag: changes_detected_interfaces
+    diff_compare: false
+    fabric_types:
+      - VXLAN_EVPN
+      - eBGP_VXLAN
+
   interface_vlan:
     template: ndfc_interfaces/ndfc_interface_vlan.j2
     output_file: ndfc_interface_vlan.yml

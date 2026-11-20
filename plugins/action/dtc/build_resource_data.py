@@ -762,6 +762,7 @@ class ResourceDataBuilder:
             'interface_pvlan',
             'interface_pvlan_po',
             'interface_vpc',
+            'interface_vpc_peer_link',
         ]
 
         interface_types_remove = [
