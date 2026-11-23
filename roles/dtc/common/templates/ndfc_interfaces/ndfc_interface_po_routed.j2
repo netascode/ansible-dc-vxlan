@@ -40,6 +40,7 @@
     queuing_policy: {{ interface['queuing_policy'] | default("") }}
 {% endif %}
 {% if nd_patch_enabled %}
+    enable_pfc: {{ interface['enable_priority_flow_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.enable_priority_flow_control) | lower }}
     enable_pim_sparse: {{ interface['enable_pim_sparse'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.enable_pim_sparse) | lower }}
     pim_dr_priority: {{ interface['pim_dr_priority'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.pim_dr_priority) }}
     enable_pim_bfd_instance: {{ interface['enable_pim_bfd_instance'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_po_interface.enable_pim_bfd_instance) | lower }}

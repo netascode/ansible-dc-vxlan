@@ -165,6 +165,7 @@ factory_defaults:
           enable_during_bootstrap: false
         interfaces:
           topology_switch_access_interface:
+            enable_priority_flow_control: false
             description: "NetAsCode Access Interface"
             mtu: jumbo
             speed: auto
@@ -189,6 +190,7 @@ factory_defaults:
             flow_control_send: true
             logging_event_port_link_status: false
           topology_switch_trunk_interface:
+            enable_priority_flow_control: false
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
             speed: auto
@@ -214,6 +216,7 @@ factory_defaults:
             flow_control_send: true
             guard_mode: none
           topology_switch_access_po_interface:
+            enable_priority_flow_control: false
             description: "NetAsCode Access PO Interface"
             copy_description: false
             mtu: jumbo
@@ -240,6 +243,7 @@ factory_defaults:
             enable_qos_stats: true
             enable_queuing_stats: true
           topology_switch_trunk_po_interface:
+            enable_priority_flow_control: false
             description: "NetAsCode Trunk PO Interface"
             copy_description: false
             mtu: jumbo
@@ -269,6 +273,7 @@ factory_defaults:
             link_transmit_reset_skip: false
             guard_mode: none
           topology_switch_dot1q_interface:
+            enable_priority_flow_control: false
             description: "NetAsCode Dot1q Interface"
             mtu: jumbo
             speed: auto
@@ -327,6 +332,7 @@ factory_defaults:
             ospf_network_type: no_change
             ospf_bfd_mode: no_change
           topology_switch_dot1q_po_interface:
+            enable_priority_flow_control: false
             description: "NetAsCode Dot1q PO Interface"
             copy_description: false
             mtu: jumbo
@@ -385,6 +391,7 @@ factory_defaults:
             ospf_network_type: no_change
             ospf_shutdown: false
           topology_switch_routed_po_interface:
+            enable_priority_flow_control: false
             description: "NetAsCode Routed PO Interface"
             copy_description: false
             mtu: 9216
