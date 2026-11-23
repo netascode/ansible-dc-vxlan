@@ -25,6 +25,17 @@
     admin_state: {{ interface['enabled'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enabled) | lower }}
     enable_cdp: {{ interface['enable_cdp'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_cdp) | lower }}
     enable_pfc: {{ interface['enable_priority_flow_control'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_priority_flow_control) | lower }}
+{% if nd_patch_enabled %}
+{% if interface['bandwidth'] is defined %}
+    bandwidth: {{ interface['bandwidth'] }}
+{% endif %}
+{% if interface['inherit_bandwidth'] is defined %}
+    inherit_bandwidth: {{ interface['inherit_bandwidth'] }}
+{% endif %}
+    negotiate_auto: {{ interface['negotiate_auto'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.negotiate_auto) | lower }}
+    spanning_tree_link_type: "{{ translate(interface['spanning_tree_link_type'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_link_type), {'point_to_point': 'point-to-point'}) }}"
+    bpdu_filter: "{{ translate(interface['bpdu_filter'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.bpdu_filter), {'none': 'no'}) }}"
+{% endif %}
     mode: 'trunk'
     description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.description) }}"
     copy_description: {{ interface['copy_description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.copy_description) | lower }}

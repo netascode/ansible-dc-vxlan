@@ -166,6 +166,11 @@ factory_defaults:
         interfaces:
           topology_switch_access_interface:
             enable_priority_flow_control: false
+            negotiate_auto: true
+            spanning_tree_link_type: auto
+            bpdu_filter: none
+            debounce_timer: 100
+            enable_errdisable_acl: true
             description: "NetAsCode Access Interface"
             mtu: jumbo
             speed: auto
@@ -191,6 +196,11 @@ factory_defaults:
             logging_event_port_link_status: false
           topology_switch_trunk_interface:
             enable_priority_flow_control: false
+            negotiate_auto: true
+            spanning_tree_link_type: auto
+            bpdu_filter: none
+            debounce_timer: 100
+            enable_errdisable_acl: true
             description: "NetAsCode Trunk Interface"
             mtu: jumbo
             speed: auto
@@ -217,6 +227,9 @@ factory_defaults:
             guard_mode: none
           topology_switch_access_po_interface:
             enable_priority_flow_control: false
+            negotiate_auto: true
+            spanning_tree_link_type: auto
+            bpdu_filter: none
             description: "NetAsCode Access PO Interface"
             copy_description: false
             mtu: jumbo
@@ -244,6 +257,9 @@ factory_defaults:
             enable_queuing_stats: true
           topology_switch_trunk_po_interface:
             enable_priority_flow_control: false
+            negotiate_auto: true
+            spanning_tree_link_type: auto
+            bpdu_filter: none
             description: "NetAsCode Trunk PO Interface"
             copy_description: false
             mtu: jumbo
@@ -277,6 +293,11 @@ factory_defaults:
             enable_lldp_receive: true
             enable_qos: false
             enable_priority_flow_control: false
+            negotiate_auto: true
+            spanning_tree_link_type: auto
+            bpdu_filter: enable
+            debounce_timer: 100
+            enable_errdisable_acl: true
             description: "NetAsCode Dot1q Interface"
             mtu: jumbo
             speed: auto
@@ -336,6 +357,9 @@ factory_defaults:
             ospf_bfd_mode: no_change
           topology_switch_dot1q_po_interface:
             enable_priority_flow_control: false
+            negotiate_auto: true
+            spanning_tree_link_type: auto
+            bpdu_filter: enable
             description: "NetAsCode Dot1q PO Interface"
             copy_description: false
             mtu: jumbo

@@ -77,6 +77,17 @@
 {% endif %}
 {% if ndfc_supports_interface_properties %}
     enable_pfc: {{ switches[peer1].enable_priority_flow_control | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_priority_flow_control) | lower }}
+{% if nd_patch_enabled %}
+{% if switches[peer1].bandwidth is defined %}
+    bandwidth: {{ switches[peer1].bandwidth }}
+{% endif %}
+{% if switches[peer1].inherit_bandwidth is defined %}
+    inherit_bandwidth: {{ switches[peer1].inherit_bandwidth }}
+{% endif %}
+    negotiate_auto: {{ switches[peer1].negotiate_auto | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.negotiate_auto) | lower }}
+    spanning_tree_link_type: "{{ translate(switches[peer1].spanning_tree_link_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_link_type), {'point_to_point': 'point-to-point'}) }}"
+    bpdu_filter: "{{ translate(switches[peer1].bpdu_filter | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.bpdu_filter), {'none': 'no'}) }}"
+{% endif %}
 {# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
     spanning_tree_port_type: "{{ translate(switches[peer1].spanning_tree_port_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"
 {# Data model defines value as GUARD MODE: none, while base collection defines it as GUARD MODE: no #}
@@ -148,6 +159,17 @@
 {% endif %}
 {% if ndfc_supports_interface_properties %}
     enable_pfc: {{ switches[peer1].enable_priority_flow_control | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.enable_priority_flow_control) | lower }}
+{% if nd_patch_enabled %}
+{% if switches[peer1].bandwidth is defined %}
+    bandwidth: {{ switches[peer1].bandwidth }}
+{% endif %}
+{% if switches[peer1].inherit_bandwidth is defined %}
+    inherit_bandwidth: {{ switches[peer1].inherit_bandwidth }}
+{% endif %}
+    negotiate_auto: {{ switches[peer1].negotiate_auto | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.negotiate_auto) | lower }}
+    spanning_tree_link_type: "{{ translate(switches[peer1].spanning_tree_link_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.spanning_tree_link_type), {'point_to_point': 'point-to-point'}) }}"
+    bpdu_filter: "{{ translate(switches[peer1].bpdu_filter | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.bpdu_filter), {'none': 'no'}) }}"
+{% endif %}
 {# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
     spanning_tree_port_type: "{{ translate(switches[peer1].spanning_tree_port_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"
 {# Data model defines ENABLE LLDP TRANSMIT/RECEIVE, while base collection defines DISABLE LLDP TRANSMIT/RECEIVE #}
@@ -173,6 +195,17 @@
     admin_state: {{ switches[peer1].enabled | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enabled) | lower }}
     enable_cdp: {{ switches[peer1].enable_cdp | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_cdp) | lower }}
     enable_pfc: {{ switches[peer1].enable_priority_flow_control | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.enable_priority_flow_control) | lower }}
+{% if nd_patch_enabled %}
+{% if switches[peer1].bandwidth is defined %}
+    bandwidth: {{ switches[peer1].bandwidth }}
+{% endif %}
+{% if switches[peer1].inherit_bandwidth is defined %}
+    inherit_bandwidth: {{ switches[peer1].inherit_bandwidth }}
+{% endif %}
+    negotiate_auto: {{ switches[peer1].negotiate_auto | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.negotiate_auto) | lower }}
+    spanning_tree_link_type: "{{ translate(switches[peer1].spanning_tree_link_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.spanning_tree_link_type), {'point_to_point': 'point-to-point'}) }}"
+    bpdu_filter: "{{ translate(switches[peer1].bpdu_filter | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.bpdu_filter), {'none': 'no'}) }}"
+{% endif %}
     port_type_fast: {{ switches[peer1].spanning_tree_portfast | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.spanning_tree_portfast) | lower }}
     mtu: {{ switches[peer1].mtu | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.mtu) }}
     speed: {{ switches[peer1].speed | default(defaults.vxlan.topology.switches.interfaces.topology_switch_dot1q_po_interface.speed) }}
