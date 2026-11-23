@@ -199,6 +199,7 @@ factory_defaults:
             negotiate_auto: true
             spanning_tree_link_type: auto
             bpdu_filter: none
+            enable_vlan_mapping: false
             debounce_timer: 100
             enable_errdisable_acl: true
             description: "NetAsCode Trunk Interface"
@@ -260,6 +261,7 @@ factory_defaults:
             negotiate_auto: true
             spanning_tree_link_type: auto
             bpdu_filter: none
+            enable_vlan_mapping: false
             description: "NetAsCode Trunk PO Interface"
             copy_description: false
             mtu: jumbo

@@ -87,6 +87,10 @@
     negotiate_auto: {{ switches[peer1].negotiate_auto | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.negotiate_auto) | lower }}
     spanning_tree_link_type: "{{ translate(switches[peer1].spanning_tree_link_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_link_type), {'point_to_point': 'point-to-point'}) }}"
     bpdu_filter: "{{ translate(switches[peer1].bpdu_filter | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.bpdu_filter), {'none': 'no'}) }}"
+    enable_vlan_mapping: {{ switches[peer1]['enable_vlan_mapping'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_vlan_mapping) | lower }}
+{% if (switches[peer1]['enable_vlan_mapping'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.enable_vlan_mapping)) and switches[peer1]['vlan_mapping'] is defined %}
+    vlan_mapping_entries: {{ switches[peer1]['vlan_mapping'] | to_json }}
+{% endif %}
 {% endif %}
 {# Data model defines SPANNING-TREE PORT TYPE: none, while base collection defines SPANNING-TREE PORT TYPE: no #}
     spanning_tree_port_type: "{{ translate(switches[peer1].spanning_tree_port_type | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface.spanning_tree_port_type), {'none': 'no'}) }}"

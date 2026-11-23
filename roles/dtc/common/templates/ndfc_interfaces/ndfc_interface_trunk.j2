@@ -39,6 +39,10 @@
     debounce_linkup_timer: {{ interface['debounce_linkup_timer'] }}
 {% endif %}
     enable_errdisable_acl: {{ interface['enable_errdisable_acl'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_errdisable_acl) | lower }}
+    enable_vlan_mapping: {{ interface['enable_vlan_mapping'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_vlan_mapping) | lower }}
+{% if (interface['enable_vlan_mapping'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.enable_vlan_mapping)) and interface['vlan_mapping'] is defined %}
+    vlan_mapping_entries: {{ interface['vlan_mapping'] | to_json }}
+{% endif %}
 {% endif %}
     mode: 'trunk'
     description: "{{ interface['description'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_interface.description) }}"

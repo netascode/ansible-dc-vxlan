@@ -45,6 +45,8 @@ class Rule:
             "negotiate_auto",
             "spanning_tree_link_type",
             "bpdu_filter",
+            "enable_vlan_mapping",
+            "vlan_mapping",
             "enable_lldp_transmit",
             "enable_lldp_receive",
             "enable_cdp",
