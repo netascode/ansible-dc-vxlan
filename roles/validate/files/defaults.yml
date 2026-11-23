@@ -273,6 +273,9 @@ factory_defaults:
             link_transmit_reset_skip: false
             guard_mode: none
           topology_switch_dot1q_interface:
+            enable_lldp_transmit: true
+            enable_lldp_receive: true
+            enable_qos: false
             enable_priority_flow_control: false
             description: "NetAsCode Dot1q Interface"
             mtu: jumbo
@@ -391,6 +394,18 @@ factory_defaults:
             ospf_network_type: no_change
             ospf_shutdown: false
           topology_switch_routed_po_interface:
+            enable_dampening: false
+            dampening_restart: false
+            disable_bfd_echo: false
+            disable_ipv4_redirects: false
+            disable_ipv6_redirects: false
+            ipv6_nd_suppress_ra: false
+            enable_macsec_interface_policy: false
+            enable_lldp_transmit: true
+            enable_lldp_receive: true
+            enable_qos_stats: true
+            enable_queuing_stats: true
+            enable_cdp: true
             enable_priority_flow_control: false
             description: "NetAsCode Routed PO Interface"
             copy_description: false
