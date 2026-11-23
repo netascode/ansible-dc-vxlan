@@ -8,6 +8,21 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 .. contents:: ``Release Versions``
 
+`0.9.1`_
+=====================
+
+**Release Date:** ``2026-10-29``
+
+Fixed
+-----
+
+* https://github.com/netascode/ansible-dc-vxlan/issues/867
+* https://github.com/netascode/ansible-dc-vxlan/issues/871
+* https://github.com/netascode/ansible-dc-vxlan/pull/845
+* https://github.com/netascode/ansible-dc-vxlan/pull/897
+* https://github.com/netascode/ansible-dc-vxlan/pull/905
+* https://github.com/netascode/ansible-dc-vxlan/pull/907
+
 `0.9.0`_
 =====================
 
@@ -643,6 +658,7 @@ The following roles have been added to the collection:
 
 This version of the collection includes support for an IPv4 Underlay only.  Support for IPv6 Underlay will be available in the next release.
 
+.. _0.9.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.9.0...0.9.1
 .. _0.9.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.8.1...0.9.0
 .. _0.8.1: https://github.com/netascode/ansible-dc-vxlan/compare/0.8.0...0.8.1
 .. _0.8.0: https://github.com/netascode/ansible-dc-vxlan/compare/0.7.2...0.8.0
