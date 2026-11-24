@@ -46,10 +46,17 @@
     fec: "{{ interface['fec'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.fec) }}"
 {% endif %}
 {% if nd_patch_enabled %}
+{% if interface['dhcp_relay_servers'] is defined %}
+    dhcp_servers:
+{% for server in interface['dhcp_relay_servers'] %}
+      - srvr_ip: {{ server['ip_address'] }}
+        srvr_vrf: {{ server['vrf'] | to_json }}
+{% endfor %}
+{% endif %}
 {# Data model defines ENABLE LLDP TRANSMIT/RECEIVE, while base collection defines DISABLE LLDP TRANSMIT/RECEIVE #}
     disable_lldp_transmit: {{ translate(interface['enable_lldp_transmit'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_lldp_transmit), {true: 'false', false: 'true'}) }}
     disable_lldp_receive: {{ translate(interface['enable_lldp_receive'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_lldp_receive), {true: 'false', false: 'true'}) }}
-{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_access_interface.enable_qos) %}
+{% if interface['enable_qos'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_qos) %}
 {# Data model defines value as ENABLE QOS STATS, while base collection defines it as DISABLE QOS STATS #}
     disable_qos_stats: {{ translate(interface['enable_qos_stats'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_qos_stats), {true: 'false', false: 'true'}) }}
 {% endif %}
