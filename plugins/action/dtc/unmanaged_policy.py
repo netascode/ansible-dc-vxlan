@@ -24,8 +24,25 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+import ipaddress
+
 from ansible.plugins.action import ActionBase
 from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_functions import ndfc_get_switch_policy_using_desc
+
+
+def mgmt_ip_matches(value, candidates):
+    """True when value equals one of candidates; IP literals compare by value (IPv6 notations), others as text."""
+    if not value:
+        return False
+    for candidate in candidates:
+        if value == candidate:
+            return True
+        try:
+            if ipaddress.ip_address(str(value).strip()) == ipaddress.ip_address(str(candidate).strip()):
+                return True
+        except ValueError:
+            continue
+    return False
 
 
 class ActionModule(ActionBase):
@@ -86,17 +103,16 @@ class ActionModule(ActionBase):
             # Check if the name matching either the IPv4 or IPv6 mgmt address is found in the policy switches data model
             # If found, grab the specific entry from the policy switches data model and store
             # This stores the current switches policy group list
-            if any(
-                (switch["mgmt_ip_address"] == dm_management_ipv4_address for switch in dm_policy_switches) or
-                (switch["mgmt_ip_address"] == dm_management_ipv6_address for switch in dm_policy_switches)
-            ):
-                dm_policy_switch = next(
-                    (
-                        dm_policy_switch for dm_policy_switch in dm_policy_switches
-                        if dm_policy_switch["mgmt_ip_address"] == dm_management_ipv4_address or
-                        dm_policy_switch["mgmt_ip_address"] == dm_management_ipv6_address
-                    )
-                )
+            # any(<gen_v4> or <gen_v6>) only evaluated the IPv4 generator; compare both addresses by value
+            dm_mgmt_addresses = [address for address in (dm_management_ipv4_address, dm_management_ipv6_address) if address]
+            dm_policy_switch = next(
+                (
+                    candidate for candidate in dm_policy_switches
+                    if mgmt_ip_matches(candidate.get("mgmt_ip_address"), dm_mgmt_addresses)
+                ),
+                {}
+            )
+            if dm_policy_switch:
 
                 # Loop over each policy group associated to the current switch in the data model
                 for dm_sw_policy_group in dm_policy_switch["groups"]:
