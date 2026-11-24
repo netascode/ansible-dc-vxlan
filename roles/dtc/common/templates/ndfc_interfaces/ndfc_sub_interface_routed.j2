@@ -36,6 +36,10 @@
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.mtu) }}
     speed: {{ interface['speed'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.speed) }}
 {% if nd_patch_enabled %}
+    enable_netflow: {{ interface['enable_netflow'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.enable_netflow) | lower }}
+{% if interface['enable_netflow'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_sub_interface.enable_netflow) and interface['netflow_monitor'] is defined %}
+    netflow_monitor: {{ interface['netflow_monitor'] | to_json }}
+{% endif %}
 {% if interface['dhcp_relay_servers'] is defined %}
     dhcp_servers:
 {% for server in interface['dhcp_relay_servers'] %}

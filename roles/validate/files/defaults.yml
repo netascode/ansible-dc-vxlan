@@ -194,6 +194,7 @@ factory_defaults:
             flow_control_receive: true
             flow_control_send: true
             logging_event_port_link_status: false
+            enable_netflow: false
           topology_switch_trunk_interface:
             enable_priority_flow_control: false
             negotiate_auto: true
@@ -226,6 +227,7 @@ factory_defaults:
             flow_control_receive: true
             flow_control_send: true
             guard_mode: none
+            enable_netflow: false
           topology_switch_access_po_interface:
             enable_priority_flow_control: false
             negotiate_auto: true
@@ -256,6 +258,7 @@ factory_defaults:
             spanning_tree_port_type: none
             enable_qos_stats: true
             enable_queuing_stats: true
+            enable_netflow: false
           topology_switch_trunk_po_interface:
             enable_priority_flow_control: false
             negotiate_auto: true
@@ -290,6 +293,7 @@ factory_defaults:
             enable_queuing_stats: true
             link_transmit_reset_skip: false
             guard_mode: none
+            enable_netflow: false
           topology_switch_dot1q_interface:
             enable_lldp_transmit: true
             enable_lldp_receive: true
@@ -314,6 +318,7 @@ factory_defaults:
             enable_storm_control: false
             storm_control_action: default
             spanning_tree_port_type: none
+            enable_netflow: false
           topology_switch_routed_interface:
             description: "NetAsCode Routed Interface"
             mtu: 9216
@@ -388,6 +393,7 @@ factory_defaults:
             spanning_tree_port_type: none
             enable_qos_stats: true
             enable_queuing_stats: true
+            enable_netflow: false
           topology_switch_routed_sub_interface:
             description: "NetAsCode Routed Sub Interface"
             mtu: 9216
@@ -420,6 +426,7 @@ factory_defaults:
             ospf_mtu_ignore: false
             ospf_network_type: no_change
             ospf_shutdown: false
+            enable_netflow: false
           topology_switch_routed_po_interface:
             enable_dampening: false
             dampening_restart: false
@@ -464,6 +471,7 @@ factory_defaults:
             ospf_network_type: no_change
             ospf_bfd_mode: no_change
             ospf_shutdown: false
+            enable_netflow: false
           topology_switch_svi_interface:
             description: "NetAsCode SVI Interface"
             enabled: true
@@ -498,6 +506,7 @@ factory_defaults:
             enable_hsrp: false
             hsrp_version: 1
             preempt: false
+            enable_netflow: false
           topology_switch_pvlan_interface:
             description: "NetAsCode PVLAN Interface"
             enabled: true

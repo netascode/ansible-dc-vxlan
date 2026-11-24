@@ -47,6 +47,8 @@ class Rule:
             "bpdu_filter",
             "enable_vlan_mapping",
             "vlan_mapping",
+            "enable_netflow",
+            "netflow_monitor",
             "enable_lldp_transmit",
             "enable_lldp_receive",
             "enable_cdp",

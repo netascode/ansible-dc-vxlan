@@ -39,6 +39,10 @@
     int_vrf: {{ interface['vrf'] | to_json }}
 {% endif %}
     mtu: {{ interface['mtu'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.mtu) }}
+    enable_netflow: {{ interface['enable_netflow'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_netflow) | lower }}
+{% if interface['enable_netflow'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.enable_netflow) and interface['netflow_monitor'] is defined %}
+    netflow_monitor: {{ interface['netflow_monitor'] | to_json }}
+{% endif %}
     ipv6_link_local: {{ interface['ipv6_link_local_address'] | default(omit) }}
     ipv6_nd_suppress_ra: {{ interface['ipv6_nd_suppress_ra'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.ipv6_nd_suppress_ra) | lower }}
     disable_ipv4_redirects: {{ interface['disable_ipv4_redirects'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_svi_interface.disable_ipv4_redirects) | lower }}
