@@ -41,6 +41,7 @@ class NdfcDuplicatePolicyError(Exception):
 FABRIC_LINK_TEMPLATE_PRE_PROVISION = 'int_pre_provision_intra_fabric_link'
 FABRIC_LINK_TEMPLATE_NUM = 'int_intra_fabric_num_link'
 FABRIC_LINK_TEMPLATE_UNNUM = 'int_intra_fabric_unnum_link'
+FABRIC_LINK_TEMPLATE_IPV6_LINK_LOCAL = 'int_intra_fabric_ipv6_link_local'
 
 
 def _ndfc_policy_id_list(policies):

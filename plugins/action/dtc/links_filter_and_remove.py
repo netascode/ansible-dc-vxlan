@@ -31,6 +31,7 @@ from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_function
     FABRIC_LINK_TEMPLATE_NUM,
     FABRIC_LINK_TEMPLATE_PRE_PROVISION,
     FABRIC_LINK_TEMPLATE_UNNUM,
+    FABRIC_LINK_TEMPLATE_IPV6_LINK_LOCAL,
     fabric_link_endpoints,
     link_endpoint_key,
     resolve_link_endpoints,
@@ -45,7 +46,9 @@ ARGUMENT_SPEC = dict(
     switch_data_model=dict(type='list', elements='dict', required=True),
 )
 
-REMOVABLE_TEMPLATES = (FABRIC_LINK_TEMPLATE_PRE_PROVISION, FABRIC_LINK_TEMPLATE_NUM, FABRIC_LINK_TEMPLATE_UNNUM)
+REMOVABLE_TEMPLATES = (
+    FABRIC_LINK_TEMPLATE_PRE_PROVISION, FABRIC_LINK_TEMPLATE_NUM, FABRIC_LINK_TEMPLATE_UNNUM, FABRIC_LINK_TEMPLATE_IPV6_LINK_LOCAL,
+)
 
 
 class ActionModule(ActionBase):

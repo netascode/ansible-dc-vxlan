@@ -31,6 +31,7 @@ from ansible_collections.cisco.nac_dc_vxlan.plugins.plugin_utils.helper_function
     FABRIC_LINK_TEMPLATE_NUM,
     FABRIC_LINK_TEMPLATE_PRE_PROVISION,
     FABRIC_LINK_TEMPLATE_UNNUM,
+    FABRIC_LINK_TEMPLATE_IPV6_LINK_LOCAL,
     fabric_link_endpoints,
     link_endpoint_key,
     resolve_link_endpoints,
@@ -182,6 +183,9 @@ class ActionModule(ActionBase):
         elif template == FABRIC_LINK_TEMPLATE_UNNUM:
             link['template'] = FABRIC_LINK_TEMPLATE_UNNUM
             label = 'unnum_link'
+        elif template == FABRIC_LINK_TEMPLATE_IPV6_LINK_LOCAL:
+            link['template'] = FABRIC_LINK_TEMPLATE_IPV6_LINK_LOCAL
+            label = 'ipv6_link_local'
         else:
             display.warning(
                 f"existing_links_check: skipping link "
