@@ -40,6 +40,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import copy
+import ipaddress
 import json
 import re
 
@@ -361,6 +362,20 @@ class ResourceManager(PipelineRunnerBase):
 
         return self._policy_controller_diff(resource_name, data)
 
+    @staticmethod
+    def _canon_ip(value):
+        """Canonical text of an IPv4/IPv6 literal (any other value is returned unchanged).
+
+        The controller and the data model may spell the same IPv6 address differently
+        (expanded vs compressed); policy/switch matching must not depend on it.
+        """
+        if not isinstance(value, str):
+            return value
+        try:
+            return str(ipaddress.ip_address(value.strip()))
+        except ValueError:
+            return value
+
     def _get_ip_to_serial_map(self):
         """
         Build a mapping of switch IP address to serial number.
@@ -369,7 +384,7 @@ class ResourceManager(PipelineRunnerBase):
         queries the controller inventory API.
 
         Returns:
-            Dict mapping ipAddress -> serialNumber.
+            Dict mapping canonical ipAddress -> serialNumber (see _canon_ip).
         """
         switches = self.task_vars.get("fabric_switches", [])
         if switches and isinstance(switches, list):
@@ -378,7 +393,7 @@ class ResourceManager(PipelineRunnerBase):
                 ip = sw.get("ipAddress", "")
                 serial = sw.get("serialNumber", "")
                 if ip and serial:
-                    ip_map[ip] = serial
+                    ip_map[self._canon_ip(ip)] = serial
             if ip_map:
                 display.vvv(
                     f"CREATE [{self.fabric_name}] ip_to_serial from "
@@ -401,7 +416,7 @@ class ResourceManager(PipelineRunnerBase):
                     ip = sw.get("ipAddress", "")
                     serial = sw.get("serialNumber", "")
                     if ip and serial:
-                        ip_map[ip] = serial
+                        ip_map[self._canon_ip(ip)] = serial
         except (KeyError, TypeError, AttributeError):
             pass
 
@@ -518,7 +533,7 @@ class ResourceManager(PipelineRunnerBase):
 
         # Resolve IPs to serial numbers for per-switch query
         ip_serial_map = self._get_ip_to_serial_map()
-        target_serials = [ip_serial_map[ip] for ip in target_ips if ip in ip_serial_map]
+        target_serials = [ip_serial_map[self._canon_ip(ip)] for ip in target_ips if self._canon_ip(ip) in ip_serial_map]
 
         if not target_serials:
             display.warning(
@@ -540,7 +555,7 @@ class ResourceManager(PipelineRunnerBase):
         for cpol in controller_policies:
             desc = cpol.get('description', '')
             if (desc.startswith('nac_') or desc.startswith('nace_')) and cpol.get('source', '') == '':
-                ip = cpol.get('ipAddress', '')
+                ip = self._canon_ip(cpol.get('ipAddress', ''))
                 ctrl_lookup[(ip, desc)] = cpol
 
         # Filter desired config to new or changed policies only
@@ -556,7 +571,7 @@ class ResourceManager(PipelineRunnerBase):
                 for pol in sw.get('policies', []):
                     total_policies += 1
                     desc = pol.get('description', '')
-                    ctrl_pol = ctrl_lookup.get((ip, desc))
+                    ctrl_pol = ctrl_lookup.get((self._canon_ip(ip), desc))
 
                     if ctrl_pol is None or self._policy_differs_from_controller(pol, ctrl_pol):
                         diff_pols.append(pol)
@@ -663,7 +678,7 @@ class ResourceManager(PipelineRunnerBase):
             if sw.get('ip')
         }
         ip_serial_map = self._get_ip_to_serial_map()
-        target_serials = [ip_serial_map[ip] for ip in target_ips if ip in ip_serial_map]
+        target_serials = [ip_serial_map[self._canon_ip(ip)] for ip in target_ips if self._canon_ip(ip) in ip_serial_map]
         if not target_serials:
             return {'changed': False, 'msg': 'No switch serial numbers resolved'}
 
@@ -671,7 +686,7 @@ class ResourceManager(PipelineRunnerBase):
         for cpol in self._fetch_policies_by_serials(target_serials):
             if cpol.get('source', '') != '' or cpol.get('deleted', False):
                 continue
-            ctrl_by_ip.setdefault(cpol.get('ipAddress', ''), []).append(cpol)
+            ctrl_by_ip.setdefault(self._canon_ip(cpol.get('ipAddress', '')), []).append(cpol)
 
         reconciled = copy.deepcopy(data)
         renames = 0
@@ -679,7 +694,7 @@ class ResourceManager(PipelineRunnerBase):
         for block in reconciled:
             for sw in block.get('switch', []):
                 ip = sw.get('ip', '')
-                ctrl_pols = ctrl_by_ip.get(ip, [])
+                ctrl_pols = ctrl_by_ip.get(self._canon_ip(ip), [])
                 if not ctrl_pols:
                     continue
                 ctrl_by_desc = {c.get('description', ''): c for c in ctrl_pols}
