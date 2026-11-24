@@ -158,6 +158,11 @@ class ActionModule(ActionBase):
             # Else block to pickup custom enhanced rules provided by the user
             rules_list.append(f'{rules}')
 
+        # Make the ND version known to the rules (unset when nac-validate runs alone)
+        nd_version = (task_vars or {}).get('nd_version')
+        if nd_version:
+            os.environ['NAC_DC_ND_VERSION'] = str(nd_version)
+
         syntax_validated = False
         for rules_item in rules_list:
             validator = nac_validate.validator.Validator(schema, rules_item)

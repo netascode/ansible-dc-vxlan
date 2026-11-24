@@ -1,7 +1,26 @@
+import os
+import re
+
+
 class Rule:
     id = "207"
     description = "Verify fabric replication and spine roles"
     severity = "HIGH"
+
+    # ND releases before this one reject VXLANv6 with ingress replication on border gateways
+    min_nd_version = (4, 3, 1)
+
+    @classmethod
+    def nd_version_is_older(cls, nd_version):
+        """
+        Return True only when the ND version is known and older than min_nd_version.
+        The version is provided by the Ansible collection (nd_version); with
+        nac-validate alone it is unknown and the check is skipped.
+        """
+        parts = [int(p) for p in re.findall(r"\d+", nd_version or "")]
+        if not parts:
+            return False
+        return tuple(parts + [0, 0, 0][len(parts):]) < cls.min_nd_version
 
     @classmethod
     def check_role(cls, data_model):
@@ -52,6 +71,8 @@ class Rule:
         Returns the list of validation errors (empty if none).
         """
         results = []
+        if not cls.nd_version_is_older(os.environ.get("NAC_DC_ND_VERSION")):
+            return results
         fabric_replication = False
         border_gateway_role = cls.check_role(data_model)
         ipv6_underlay = cls.check_ipv6_underlay(data_model)
