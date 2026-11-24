@@ -357,6 +357,7 @@ factory_defaults:
             ospf_shutdown: false
             ospf_network_type: no_change
             ospf_bfd_mode: no_change
+            enable_bfd_interval: false
           topology_switch_dot1q_po_interface:
             enable_priority_flow_control: false
             negotiate_auto: true

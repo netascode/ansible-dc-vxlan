@@ -46,6 +46,12 @@
     fec: "{{ interface['fec'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.fec) }}"
 {% endif %}
 {% if nd_patch_enabled %}
+    enable_bfd_interval: {{ interface['enable_bfd_interval'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_bfd_interval) | lower }}
+{% if interface['enable_bfd_interval'] | default(defaults.vxlan.topology.switches.interfaces.topology_switch_routed_interface.enable_bfd_interval) %}
+    bfd_tx_interval: {{ interface['bfd_tx_interval'] | default(omit) }}
+    bfd_min_rx_interval: {{ interface['bfd_min_rx_interval'] | default(omit) }}
+    bfd_multiplier: {{ interface['bfd_multiplier'] | default(omit) }}
+{% endif %}
 {% if interface['dhcp_relay_servers'] is defined %}
     dhcp_servers:
 {% for server in interface['dhcp_relay_servers'] %}
