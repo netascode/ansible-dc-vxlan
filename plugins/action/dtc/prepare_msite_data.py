@@ -363,25 +363,38 @@ class ActionModule(ActionBase):
                 # does not include one of these switches.
                 data_model['vxlan']['multisite']['overlay']['network_attach_switches_list'].append(switch['hostname'])
 
-        # Remove network_attach_group from net if the group_name is not defined
+        # Remove network_attach_group or network_attach_groups from net if the group_name(s) are not defined
+        # 'network_attach_group' and 'network_attach_groups' are mutually exclusive (enforced by the validate role),
+        # so this must be an if/elif at the top level rather than nested under the 'network_attach_group' check.
         for net in data_model['vxlan']['multisite']['overlay']['networks']:
             if 'network_attach_group' in net:
                 if net.get('network_attach_group') not in net_grp_name_list:
                     del net['network_attach_group']
+            elif 'network_attach_groups' in net:
+                # Build a new list instead of mutating net['network_attach_groups'] while iterating over it
+                net['network_attach_groups'] = [
+                    grp for grp in net['network_attach_groups'] if grp in net_grp_name_list
+                ]
+                if not net['network_attach_groups']:
+                    del net['network_attach_groups']
 
         for net in data_model['vxlan']['multisite']['overlay']['networks']:
             overrides = net.get('switch_attach_overrides')
             if not overrides:
                 continue
             net_name = net.get('name')
-            net_attach_group = net.get('network_attach_group')
+            if net.get('network_attach_group'):
+                net_attach_group_names = [net.get('network_attach_group')]
+            else:
+                net_attach_group_names = net.get('network_attach_groups') or []
+
             group_hostnames = set()
-            if net_attach_group:
-                group_hostnames = {
+            for grp_name in net_attach_group_names:
+                group_hostnames.update(
                     s.get('hostname')
-                    for s in data_model['vxlan']['multisite']['overlay']['network_attach_groups_dict'].get(net_attach_group, [])
+                    for s in data_model['vxlan']['multisite']['overlay']['network_attach_groups_dict'].get(grp_name, [])
                     if s.get('hostname')
-                }
+                )
 
             for override in overrides:
                 hostname = override.get('hostname')
@@ -405,12 +418,12 @@ class ActionModule(ActionBase):
                     )
                     return results
 
-                if net_attach_group and hostname not in group_hostnames:
+                if net_attach_group_names and hostname not in group_hostnames:
                     results['failed'] = True
                     results['msg'] = (
                         f"Network '{net_name}' switch_attach_overrides identifier "
                         f"'{hostname}' could not be resolved to a switch attached "
-                        f"through network_attach_group '{net_attach_group}'."
+                        f"through network_attach_group(s) '{', '.join(net_attach_group_names)}'."
                     )
                     return results
 
