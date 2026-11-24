@@ -14,6 +14,15 @@
   BOOTSTRAP_MULTISUBNET: |2
     {{ vxlan.global.ebgp.bootstrap.dhcp_v4.multi_subnet_scope | indent(4, false) }}
 {% endif %}
+{% elif vxlan.global.ebgp.bootstrap.dhcp_version is defined and vxlan.global.ebgp.bootstrap.dhcp_version == "DHCPv6" %}
+  DHCP_START: {{ vxlan.global.ebgp.bootstrap.dhcp_v6.scope_start_address }}
+  DHCP_END: {{ vxlan.global.ebgp.bootstrap.dhcp_v6.scope_end_address }}
+  MGMT_GW: {{ vxlan.global.ebgp.bootstrap.dhcp_v6.switch_mgmt_default_gw }}
+  MGMT_V6PREFIX: {{ vxlan.global.ebgp.bootstrap.dhcp_v6.mgmt_prefix }}
+{% if vxlan.global.ebgp.bootstrap.dhcp_v6.multi_subnet_scope is defined %}
+  BOOTSTRAP_MULTISUBNET: |2
+    {{ vxlan.global.ebgp.bootstrap.dhcp_v6.multi_subnet_scope | indent(4, false) }}
+{% endif %}
 {% endif %}
 {% endif %}
   BOOTSTRAP_CONF: |
