@@ -53,7 +53,11 @@
 {% endif %}
       config_data:
         modulesModel: {{ switch['poap']['preprovision']['modulesModel'] }}
+{% if switch['management']['management_ipv4_address'] is defined %}
         gateway: {{ switch['management']['default_gateway_v4'] | ansible.utils.ipaddr('address') }}/{{ switch['management']['subnet_mask_ipv4'] }}
+{% else %}
+        gateway: {{ switch['management']['default_gateway_v6'] | ansible.utils.ipaddr('address') }}/{{ switch['management']['subnet_mask_ipv6'] }}
+{% endif %}
 {% if switch.interface_breakouts is defined %}
 {% set breakout_commands = [] %}
 {% for breakout in switch.interface_breakouts %}

@@ -15,10 +15,12 @@ class Rule:
         for switch in switches:
             dm_check = cls.data_model_key_check(switch, ['poap', 'preprovision'])
             if 'preprovision' in dm_check['keys_data']:
-                dm_check = cls.data_model_key_check(switch, ['management', 'subnet_mask_ipv4'])
-                if 'subnet_mask_ipv4' in dm_check['keys_not_found'] or 'subnet_mask_ipv4' in dm_check['keys_no_data']:
+                # mask of the management address family (IPv4 first, IPv6 fallback)
+                management = switch.get('management') or {}
+                mask_key = 'subnet_mask_ipv4' if management.get('management_ipv4_address') else 'subnet_mask_ipv6'
+                if not management.get(mask_key):
                     results.append(
-                        f"vxlan.topology.switches.{switch['name']}.subnet_mask_ipv4 must be defined when preprovision is used."
+                        f"vxlan.topology.switches.{switch['name']}.{mask_key} must be defined when preprovision is used."
                     )
         return results
 

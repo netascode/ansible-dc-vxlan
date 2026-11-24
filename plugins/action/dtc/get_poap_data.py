@@ -25,6 +25,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
+import ipaddress
 import json
 import re
 import inspect
@@ -85,7 +86,9 @@ class POAPDevice:
         """
         for switch in self.switches:
             if 'poap' in switch and switch['poap'].get('bootstrap'):
-                ip = switch['management']['management_ipv4_address']
+                management = switch['management']
+                # IPv4 first, IPv6 fallback (same preference as the preparation plugins)
+                ip = management.get('management_ipv4_address') or management.get('management_ipv6_address')
                 role = switch['role']
                 hostname = switch['name']
                 if self._get_discovered(ip, role, hostname):
@@ -126,6 +129,16 @@ class POAPDevice:
             if len(data.get('response')) > 0:
                 self.discovered_switch_data = data['response']
 
+    @staticmethod
+    def _same_ip(left, right):
+        """Compare IP literals by value (IPv6 may be expanded or compressed); other values as text."""
+        if left == right:
+            return True
+        try:
+            return ipaddress.ip_address(str(left).strip()) == ipaddress.ip_address(str(right).strip())
+        except ValueError:
+            return False
+
     def _get_discovered(self, ip, role, hostname):
         """
         ### Summary
@@ -134,7 +147,7 @@ class POAPDevice:
         """
         discovered = False
         for switch in self.discovered_switch_data:
-            if switch['ipAddress'] == ip and \
+            if self._same_ip(switch['ipAddress'], ip) and \
                switch['switchRole'] == role and \
                switch['logicalName'] == hostname:
 
