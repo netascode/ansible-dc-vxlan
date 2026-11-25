@@ -52,7 +52,6 @@ RETURN = r"""
 
 import textwrap
 
-from ansible.module_utils.six import string_types
 from ansible.errors import AnsibleFilterError, AnsibleFilterTypeError
 from ansible.module_utils.common.text.converters import to_native
 from jinja2.runtime import Undefined
@@ -76,7 +75,7 @@ def dedent(text):
     if text is None:
         return ""
 
-    if not isinstance(text, string_types):
+    if not isinstance(text, str):
         raise AnsibleFilterTypeError(f"dedent requires a string, got: {type(text)}")
 
     if not text:

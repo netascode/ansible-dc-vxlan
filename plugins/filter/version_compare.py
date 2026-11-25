@@ -72,7 +72,6 @@ except ImportError as imp_exc:
 else:
     PACKAGING_LIBRARY_IMPORT_ERROR = None
 
-from ansible.module_utils.six import string_types
 from ansible.errors import AnsibleError, AnsibleFilterError, AnsibleFilterTypeError
 from ansible.module_utils.common.text.converters import to_native
 
@@ -97,13 +96,13 @@ def version_compare(version1, version2, op):
     if PACKAGING_LIBRARY_IMPORT_ERROR:
         raise AnsibleError('packaging must be installed to use this filter plugin') from PACKAGING_LIBRARY_IMPORT_ERROR
 
-    if not isinstance(version1, (string_types, Undefined)):
+    if not isinstance(version1, (str, Undefined)):
         raise AnsibleFilterTypeError(f"Can only check string versions, however version1 is: {type(version1)}")
 
-    if not isinstance(version2, (string_types, Undefined)):
+    if not isinstance(version2, (str, Undefined)):
         raise AnsibleFilterTypeError(f"Can only check string versions, however version2 is: {type(version2)}")
 
-    if not isinstance(op, (string_types, Undefined)) and op not in SUPPORTED_COMPARISON_OPERATORS:
+    if not isinstance(op, (str, Undefined)) and op not in SUPPORTED_COMPARISON_OPERATORS:
         raise AnsibleFilterError(f"Unsupported operator {op} type. Supported operators are: {SUPPORTED_COMPARISON_OPERATORS}")
 
     try:

@@ -27,6 +27,38 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Ansible 2.22: supports Python 3.13 - 3.15
+          - ansible_version: "stable-2.22"
+            python_version: "3.15"
+          - ansible_version: "stable-2.22"
+            python_version: "3.14"
+          - ansible_version: "stable-2.22"
+            python_version: "3.13"
+
+          # Ansible 2.21: supports Python 3.12 - 3.14
+          - ansible_version: "stable-2.21"
+            python_version: "3.14"
+          - ansible_version: "stable-2.21"
+            python_version: "3.13"
+          - ansible_version: "stable-2.21"
+            python_version: "3.12"
+
+          # Ansible 2.20: supports Python 3.12 - 3.14
+          - ansible_version: "stable-2.20"
+            python_version: "3.14"
+          - ansible_version: "stable-2.20"
+            python_version: "3.13"
+          - ansible_version: "stable-2.20"
+            python_version: "3.12"
+
+          # Ansible 2.19: supports Python 3.11 - 3.13
+          - ansible_version: "stable-2.19"
+            python_version: "3.13"
+          - ansible_version: "stable-2.19"
+            python_version: "3.12"
+          - ansible_version: "stable-2.19"
+            python_version: "3.11"
+
           # Ansible 2.18: supports Python 3.11 - 3.13
           - ansible_version: "stable-2.18"
             python_version: "3.13"
@@ -61,6 +93,9 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Set up Python ${{ matrix.python_version }}
+        uses: actions/checkout@v5
+
+      - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python_version }}
@@ -86,6 +121,38 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Ansible 2.22: supports Python 3.13 - 3.15
+          - ansible_version: "stable-2.22"
+            python_version: "3.15"
+          - ansible_version: "stable-2.22"
+            python_version: "3.14"
+          - ansible_version: "stable-2.22"
+            python_version: "3.13"
+
+          # Ansible 2.21: supports Python 3.12 - 3.14
+          - ansible_version: "stable-2.21"
+            python_version: "3.14"
+          - ansible_version: "stable-2.21"
+            python_version: "3.13"
+          - ansible_version: "stable-2.21"
+            python_version: "3.12"
+
+          # Ansible 2.20: supports Python 3.12 - 3.14
+          - ansible_version: "stable-2.20"
+            python_version: "3.14"
+          - ansible_version: "stable-2.20"
+            python_version: "3.13"
+          - ansible_version: "stable-2.20"
+            python_version: "3.12"
+
+          # Ansible 2.19: supports Python 3.11 - 3.13
+          - ansible_version: "stable-2.19"
+            python_version: "3.13"
+          - ansible_version: "stable-2.19"
+            python_version: "3.12"
+          - ansible_version: "stable-2.19"
+            python_version: "3.11"
+
           # Ansible 2.18: supports Python 3.11 - 3.13
           - ansible_version: "stable-2.18"
             python_version: "3.13"
