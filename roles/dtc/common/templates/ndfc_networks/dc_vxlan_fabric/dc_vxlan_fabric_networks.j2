@@ -19,6 +19,8 @@
   vrf_name: {{ net['vrf_name'] | default(omit) }}
   net_id: {{ net['net_id'] | default(omit) }}
   vlan_id: {{ net['vlan_id'] | default(omit) }}
+  pvlan_type: {{ net['pvlan_type'] | default(omit) }}
+  pvlan_primary: {{ net['pvlan_primary'] | default(omit) }}
   vlan_name: {{ net['vlan_name'] | default(omit) }}
   gw_ip_subnet: {{ net['gw_ip_address'] | default(omit) }}
 {% if ndfc_supports_ipv4_acl_in and (net.ipv4_acl_in is defined or defaults.vxlan.overlay.networks.ipv4_acl_in is defined) %}
