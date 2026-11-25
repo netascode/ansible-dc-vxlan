@@ -31,6 +31,8 @@ class Rule:
             "enable_qos",
             "qos_policy",
             "queuing_policy",
+            "enable_qos_stats",
+            "enable_queuing_stats",
             "pvlan_mode",
             "pvlan_association",
             "pvlan_mapping",
