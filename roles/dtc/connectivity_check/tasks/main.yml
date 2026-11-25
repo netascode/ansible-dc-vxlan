@@ -79,11 +79,18 @@
 
     - name: Set Nexus Dashboard SMU Supported Properties
       ansible.builtin.set_fact:
-        nd_patch_enabled: "{{ (lookup('ansible.builtin.env', 'nd_smu_version') | default('', true) | length > 0)
-                                           and (lookup('ansible.builtin.env', 'nd_smu_version') in nd_smu_versions) }}"
-      when:
-        - lookup('ansible.builtin.env', 'nd_smu_version') | default('', true) | length > 0
-        - lookup('ansible.builtin.env', 'nd_smu_version') in nd_smu_versions
+        nd_patch_enabled: >-
+          {{
+            (nd_version | cisco.nac_dc_vxlan.version_compare('4.3.1', '=='))
+            and nac_selected_smu.startswith('4.3.1.')
+            and nac_selected_smu in nd_smu_versions
+          }}
+      vars:
+        nac_selected_smu: >-
+          {{
+            lookup('ansible.builtin.env', 'nd_smu_version')
+            | default('', true)
+          }}
 
 # # ── Phase 2: Centralized Controller State Discovery (Recommendation #3) ──────
 # # Queries fabric switches, multisite associations, and fabric existence once.
