@@ -47,3 +47,4 @@ plugins/action/dtc/manage_resources.py action-plugin-docs # action plugin has no
 plugins/action/dtc/parse_nd_smu_versions.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/remove_resources.py action-plugin-docs # action plugin has no matching module to provide documentation
 plugins/action/dtc/underlay_ip_manual_allocation_filter.py action-plugin-docs # action plugin has no matching module to provide documentation
+resources/policy_json_params_schema.yml yamllint!skip # Yamale schema

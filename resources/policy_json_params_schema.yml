@@ -1,0 +1,3356 @@
+# Copyright (c) 2026 Cisco Systems, Inc. and its affiliates
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# SPDX-License-Identifier: MIT
+
+# Policy JSON Params - generated Yamale validation schema
+# ND 4.3.1.175, snapshot captured 2026-11-24.
+# Generated with policy_json_params.yml by gen_policy_json_params_registry.py.
+# Root keys are template_name values; includes use canonical registry field names.
+# Native Yamale validators enforce types, enums, ranges, lengths and patterns.
+# Scalars use native types; no environment-placeholder regex unions are emitted.
+# Rule 550's scalar adapters exempt unresolved env_var_ placeholders at runtime.
+# any(list(...), str(...)) is retained only for raw top-level string compatibility.
+# desc is an error hint; nd_type lets rule 550 distinguish bare IPs/prefixes
+# and normalize comma-separated IP lists. These metadata keywords are not
+# additional native Yamale constraints; use rule 550 for the full NaC contract.
+# Rule 550 drops known empty fields and normalizes numeric text/enum values
+# in a validation-only copy. Raw top-level strings retain pass-through support.
+# Conditional requirements and switch/interface existence stay with ND.
+# Not covered by NaC VXLAN, so not listed: templates whose supported platforms
+# are only ios-xe and/or ios-xr, that list n7k or vdc among their platforms,
+# whose name starts with ios_xe, ios_xr_, ipfm_, nexus_cloud, nfm_, sonic_ or
+# temp_, whose name ends with _internal, whose name contains _ipfm_, named
+# import_type or interface_top, or that have no user-settable parameters unless
+# they list all or n9k.
+aaa_tacacs_enhanced: include('policy_aaa_tacacs_enhanced', required=False)
+AI_Fabric_QOS_Classification_Custom: include('policy_AI_Fabric_QOS_Classification_Custom', required=False)
+community_list: include('policy_community_list', required=False)
+dc_border_gateway_inband_setup: include('policy_dc_border_gateway_inband_setup', required=False)
+dc_border_inband_setup: include('policy_dc_border_inband_setup', required=False)
+Dynamic_Load_Balancing_CS: include('policy_Dynamic_Load_Balancing_CS', required=False)
+Dynamic_Load_Balancing_S1: include('policy_Dynamic_Load_Balancing_S1', required=False)
+errdisable_recovery: include('policy_errdisable_recovery', required=False)
+ERSPAN: include('policy_ERSPAN', required=False)
+Ext_VRF_Lite_SVI: include('policy_Ext_VRF_Lite_SVI', required=False)
+extended_community_list: include('policy_extended_community_list', required=False)
+feature_enable_enhanced: include('policy_feature_enable_enhanced', required=False)
+hardware_access_list_enhanced: include('policy_hardware_access_list_enhanced', required=False)
+igp_redistribute_static: include('policy_igp_redistribute_static', required=False)
+ip_acl: include('policy_ip_acl', required=False)
+ip_as_path_access_list: include('policy_ip_as_path_access_list', required=False)
+ip_pim_enhanced: include('policy_ip_pim_enhanced', required=False)
+ipv4_prefix_list: include('policy_ipv4_prefix_list', required=False)
+ipv6_acl: include('policy_ipv6_acl', required=False)
+ipv6_prefix_list: include('policy_ipv6_prefix_list', required=False)
+keychain_enhanced: include('policy_keychain_enhanced', required=False)
+lan_ptp_telemetry: include('policy_lan_ptp_telemetry', required=False)
+lan_ptp_telemetry_config: include('policy_lan_ptp_telemetry_config', required=False)
+line_vty: include('policy_line_vty', required=False)
+logging_enhanced: include('policy_logging_enhanced', required=False)
+ngoam_enhanced: include('policy_ngoam_enhanced', required=False)
+ntp_enhanced: include('policy_ntp_enhanced', required=False)
+qos_class_map_enhanced: include('policy_qos_class_map_enhanced', required=False)
+qos_policy_map_enhanced: include('policy_qos_policy_map_enhanced', required=False)
+queuing_policy_map_enhanced: include('policy_queuing_policy_map_enhanced', required=False)
+route_map_enhanced: include('policy_route_map_enhanced', required=False)
+router_bgp_enhanced: include('policy_router_bgp_enhanced', required=False)
+router_ospf_enhanced: include('policy_router_ospf_enhanced', required=False)
+seed_switch: include('policy_seed_switch', required=False)
+service_acl: include('policy_service_acl', required=False)
+service_epbr: include('policy_service_epbr', required=False)
+sgm: include('policy_sgm', required=False)
+sgm_switch: include('policy_sgm_switch', required=False)
+snmp_server_enhanced: include('policy_snmp_server_enhanced', required=False)
+SPAN: include('policy_SPAN', required=False)
+static_route_v4_v6: include('policy_static_route_v4_v6', required=False)
+switch_user_passphrase: include('policy_switch_user_passphrase', required=False)
+TelemetrySensor_EF: include('policy_TelemetrySensor_EF', required=False)
+vlan_acl: include('policy_vlan_acl', required=False)
+vlan_igmp_snooping: include('policy_vlan_igmp_snooping', required=False)
+vrf_context_enhanced: include('policy_vrf_context_enhanced', required=False)
+vrf_rt: include('policy_vrf_rt', required=False)
+---
+policy_aaa_tacacs_enhanced:
+  TACACS_SERVERS: |-
+    any(
+      list(include('policy_aaa_tacacs_enhanced_TACACS_SERVERS'), min=1),
+      str(min=1),
+      required=False,
+      desc='TACACS+ server host addresses and type-7 encrypted shared keys'
+    )
+policy_aaa_tacacs_enhanced_TACACS_SERVERS:
+  aaa_server: ip(nd_type='ipaddresswithoutprefix', desc='IPv4/IPv6 address of a TACACS+ server')
+  aaa_secret: str(min=1, max=63, desc='Type 7 encrypted secret used by this TACACS+ server, max size 63')
+policy_AI_Fabric_QOS_Classification_Custom:
+  QOSDATA: |-
+    any(
+      list(include('policy_AI_Fabric_QOS_Classification_Custom_QOSDATA'), min=1),
+      str(min=1),
+      desc='QoS classification and marking'
+    )
+policy_AI_Fabric_QOS_Classification_Custom_QOSDATA:
+  class_map_label1: str(max=31, min=1, desc='A unique identifier for the class-map')
+  match_type: str(min=1, desc='QoS classification type')
+  match_values: |-
+    str(
+      max=128,
+      min=1,
+      desc="For cos, valid values are 0-7, multiple values with ',' or space separated, or range with '-'.  Fo"
+      "r DSCP, valid values are 0-63, multiple values with ',' or space separated, or range with '-'.  DS"
+      'CP also supports predefined strings representing different values: af11: 10, af12: 12, af13: 14, a'
+      'f21: 18, af22: 20, af23: 22, af31: 26, af32: 28, af33: 30, af41: 34, af42: 36, af43: 38, cs1: 8, c'
+      's2: 16, cs3: 24, cs4: 32, cs5: 40, cs6: 48, cs7: 56, default: 0, ef: 46.  These strings if used wi'
+      'll be mapped to their numeric values.'
+    )
+  qos_group_label1_int: int(min=1, max=7, desc='Valid value is 1-7')
+policy_community_list:
+  standardCommunityListEntries: |-
+    any(
+      list(include('policy_community_list_standardCommunityListEntries'), min=1),
+      str(min=1),
+      required=False,
+      desc='One or multiple standard community-list entries'
+    )
+  expandedCommunityListEntries: |-
+    any(
+      list(include('policy_community_list_expandedCommunityListEntries'), min=1),
+      str(min=1),
+      required=False,
+      desc='One or multiple expanded community-list entries'
+    )
+policy_community_list_standardCommunityListEntries:
+  sequence_number: int(min=1, max=4294967294, required=False, desc='Valid value is between [1-4294967294]')
+  action: enum('permit', 'deny', required=False, desc='Permit or deny operation')
+  blackhole: bool(required=False, desc='Blackhole (well-known community)')
+  graceful_shutdown: bool(required=False, desc='Graceful shutdown (well-known community)')
+  internet: bool(required=False, desc='Internet (well-known community)')
+  local_asn: bool(required=False, desc='Do not send outside local as (well-known community)')
+  no_advertise: bool(required=False, desc='Do not advertise to any peer (well-known community)')
+  no_export: bool(required=False, desc='Do not export to next as (well-known community)')
+  community_numbers: str(required=False, desc='Comma separated community number in ASN:nn format')
+policy_community_list_expandedCommunityListEntries:
+  sequence_number: int(min=1, max=4294967294, required=False, desc='Valid value is between [1-4294967294]')
+  action: enum('permit', 'deny', required=False, desc='Permit or deny operation')
+  community_number_regex: |-
+    str(
+      max=63,
+      matches='^(?!.*[a-zA-Z~!#%@`]).*$',
+      required=False,
+      desc='Regular-expression (must use aa:nn format)'
+    )
+policy_dc_border_gateway_inband_setup:
+  moreNdDataSubnet: |-
+    any(
+      list(include('policy_dc_border_gateway_inband_setup_moreNdDataSubnet'), min=1),
+      str(min=1),
+      required=False,
+      desc='Additional ND data subnets'
+    )
+  dciIntfEntries: |-
+    any(
+      list(include('policy_dc_border_gateway_inband_setup_dciIntfEntries'), min=1),
+      str(min=1),
+      required=False,
+      desc='DCI interface list'
+    )
+policy_dc_border_gateway_inband_setup_moreNdDataSubnet:
+  additional_nd_data_subnet: ip(version=4, nd_type='ipv4addresswithsubnet', required=False, desc='Additional ND data subnet')
+policy_dc_border_gateway_inband_setup_dciIntfEntries:
+  dci_intf_name: str(required=False, desc='DCI interface that connects to campus fabric border gateway spines')
+  intf_ip_address: |-
+    ip(
+      version=4,
+      nd_type='ipv4address',
+      required=False,
+      desc='IP address of the DCI interface that connects to campus fabric border gateway spines'
+    )
+  intf_ip_mask_len: int(required=False, desc='DCI interface IP mask')
+policy_dc_border_inband_setup:
+  moreNdDataSubnet: |-
+    any(
+      list(include('policy_dc_border_inband_setup_moreNdDataSubnet'), min=1),
+      str(min=1),
+      required=False,
+      desc='Additional ND data subnets'
+    )
+  edgeRouterEntries: |-
+    any(
+      list(include('policy_dc_border_inband_setup_edgeRouterEntries'), min=1),
+      str(min=1),
+      required=False,
+      desc='Edge router list'
+    )
+policy_dc_border_inband_setup_moreNdDataSubnet:
+  additional_nd_data_subnet: ip(version=4, nd_type='ipv4addresswithsubnet', required=False, desc='Additional ND data subnet')
+policy_dc_border_inband_setup_edgeRouterEntries:
+  edge_router_name: |-
+    str(
+      matches='^\\s*\\S+\\s*$',
+      required=False,
+      desc='Host name should not contain spaces in the middle'
+    )
+  edge_router_bgp_as: |-
+    str(
+      min=1,
+      max=11,
+      matches='^(((\\+)?[1-9]{1}[0-9]{0,8}|(\\+)?[1-3]{1}[0-9]{1,9}|(\\+)?[4]{1}([0-1]{1}[0-9]{8}|[2]{1}([0-8]{1}'
+      '[0-9]{7}|[9]{1}([0-3]{1}[0-9]{6}|[4]{1}([0-8]{1}[0-9]{5}|[9]{1}([0-5]{1}[0-9]{4}|[6]{1}([0-6]{1}[0'
+      '-9]{3}|[7]{1}([0-1]{1}[0-9]{2}|[2]{1}([0-8]{1}[0-9]{1}|[9]{1}[0-5]{1})))))))))|([1-5]\\d{4}|[1-9]'
+      '\\d{0,3}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])(\\.([1-5]\\d{4}|[1-9]\\d{0,3}|6[0-4]\\d'
+      '{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5]|0))?)$',
+      required=False,
+      desc='1-4294967295 | 1-65535[.0-65535]'
+    )
+  edge_router_ip: |-
+    ip(
+      version=4,
+      nd_type='ipv4address',
+      required=False,
+      desc='IP address of the edge router interface that connects to this border'
+    )
+  local_intf_name: str(required=False, desc='Interface of local switch that connects to this edge router')
+policy_Dynamic_Load_Balancing_CS:
+  STATIC_PIN_LIST: |-
+    any(
+      list(include('policy_Dynamic_Load_Balancing_CS_STATIC_PIN_LIST'), min=1),
+      str(min=1),
+      required=False,
+      desc="Note that destination port must be in 'applied DLB interface list'"
+    )
+policy_Dynamic_Load_Balancing_CS_STATIC_PIN_LIST:
+  src_port: str(min=1, desc='Must be physical port')
+  dst_port: str(min=1, desc='Must be part of DLB interface list')
+policy_Dynamic_Load_Balancing_S1:
+  STATIC_PIN_LIST: |-
+    any(
+      list(include('policy_Dynamic_Load_Balancing_S1_STATIC_PIN_LIST'), min=1),
+      str(min=1),
+      required=False,
+      desc="Note that destination port must be in 'applied DLB interface list'. Static pinning is supported fr"
+      'om NX-OS 10.6(2) onwards.'
+    )
+policy_Dynamic_Load_Balancing_S1_STATIC_PIN_LIST:
+  src_port: str(min=1, desc='Must be physical port')
+  dst_port: str(min=1, desc='Must be part of DLB interface list')
+policy_errdisable_recovery:
+  RECOVERY_CAUSES: |-
+    any(
+      list(include('policy_errdisable_recovery_RECOVERY_CAUSES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Applications for which errdisable recovery should be enabled. Selecting all generates every specif'
+      'ic recovery cause.'
+    )
+policy_errdisable_recovery_RECOVERY_CAUSES:
+  cause: |-
+    enum(
+      'all',
+      'bpduguard',
+      'dcbx-no-ack',
+      'failed-port-state',
+      'link-flap',
+      'loopback',
+      'pause-rate-limit',
+      'psecure-violation',
+      'security-violation',
+      'storm-control',
+      'udld',
+      'vlan-membership',
+      'vpc-peerlink',
+      desc='Errdisable recovery cause'
+    )
+policy_ERSPAN:
+  sources: any(list(include('policy_ERSPAN_sources'), min=1), str(min=1), required=False, desc='Sources')
+  destinations: |-
+    any(
+      list(include('policy_ERSPAN_destinations'), min=1),
+      str(min=1),
+      required=False,
+      desc='Destination interfaces must be in switchport monitor mode'
+    )
+  vlanFilters: |-
+    any(
+      list(include('policy_ERSPAN_vlanFilters'), min=1),
+      str(min=1),
+      required=False,
+      desc='VLAN filter(s)'
+    )
+policy_ERSPAN_sources:
+  source_type: enum('vlan', 'interface', 'sup-eth0', desc='Interface, sup-eth0 or VLAN')
+  source_value: |-
+    str(
+      min=1,
+      max=128,
+      desc='One or more ethernet port(s) eg: ethernet1/1, e1/5-7, port-channel(s) eg: port-channel1, port-chan'
+      'nel7-9, or VLAN(s) eg: 1,5'
+    )
+  direction_interface: |-
+    enum(
+      'tx',
+      'rx',
+      'both',
+      required=False,
+      desc='Traffic direction to copy as ingress, egress, or both.  Limited to rx only for sup-eth0 and VLAN'
+    )
+policy_ERSPAN_destinations:
+  dest_value: |-
+    str(
+      min=1,
+      max=128,
+      desc='One or more ethernet port(s) eg: ethernet1/1, e1/5-7, or port channel(s) eg: port-channel1, port-c'
+      'hannel7-9.  Destination interfaces must be in switchport monitor mode'
+    )
+policy_ERSPAN_vlanFilters:
+  filter_value: str(min=1, max=128, desc='A VLAN, or comma separated list, or range of VLANs')
+policy_Ext_VRF_Lite_SVI:
+  BGP_NEIGHBOR_LIST: |-
+    any(
+      list(include('policy_Ext_VRF_Lite_SVI_BGP_NEIGHBOR_LIST'), min=1),
+      str(min=1),
+      required=False,
+      desc='Add peerings to multiple neighbors over the same SVI'
+    )
+policy_Ext_VRF_Lite_SVI_BGP_NEIGHBOR_LIST:
+  neighbor_ip: ip(version=4, nd_type='ipv4address', required=False, desc='BGP peer IPv4 address')
+  neighbor_ipv6: ip(version=6, nd_type='ipv6address', required=False, desc='BGP peer IPv6 address')
+  neighbor_asn: str(required=False, desc='BGP ASN of IPv4/IPv6 neighbor')
+  bgp_password: str(min=1, max=164, required=False, desc='Hex string')
+  bgp_password_key_type: |-
+    enum(
+      '3',
+      '6',
+      '7',
+      required=False,
+      desc='BGP key encryption type: 3 - 3DES, 6 - cisco type 6, 7 - cisco type 7'
+    )
+policy_extended_community_list:
+  standardEntries: |-
+    any(
+      list(include('policy_extended_community_list_standardEntries'), min=1),
+      str(min=1),
+      required=False,
+      desc='One or multiple standard extcommunity-list entries'
+    )
+  expandedEntries: |-
+    any(
+      list(include('policy_extended_community_list_expandedEntries'), min=1),
+      str(min=1),
+      required=False,
+      desc='One or multiple expanded community-list entry'
+    )
+policy_extended_community_list_standardEntries:
+  sequence_number: int(min=1, max=4294967294, required=False, desc='Valid value is between [1-4294967294]')
+  action: enum('permit', 'deny', required=False, desc='Permit or deny operation')
+  router_mac_collection: |-
+    list(
+      str(
+        min=1,
+        desc='In eeee.Eeee.Eeee, ee-ee-ee-ee-ee-ee or ee:ee:ee:ee:ee:ee format. One or multiple router macs, com'
+        'ma separated'
+      ),
+      required=False,
+      desc='In eeee.Eeee.Eeee, ee-ee-ee-ee-ee-ee or ee:ee:ee:ee:ee:ee format. One or multiple router macs, com'
+      'ma separated'
+    )
+  route_target_collection: |-
+    list(
+      str(
+        min=1,
+        desc='In ASN2:NN, ASN4:nn or IPv4:nn format. One or multiple route target, comma separated'
+      ),
+      required=False,
+      desc='In ASN2:NN, ASN4:nn or IPv4:nn format. One or multiple route target, comma separated'
+    )
+  site_of_origin_collection: |-
+    list(
+      str(
+        min=1,
+        desc='In ASN2:NN, ASN4:nn or IPv4:nn format. One or multiple site of origin, comma separated'
+      ),
+      required=False,
+      desc='In ASN2:NN, ASN4:nn or IPv4:nn format. One or multiple site of origin, comma separated'
+    )
+  transitive_generic_extended_collection: |-
+    list(
+      str(min=1, desc='In ASN4:nn format. One or multiple, comma separated'),
+      required=False,
+      desc='In ASN4:nn format. One or multiple, comma separated'
+    )
+  non_transitive_generic_extended_collection: |-
+    list(
+      str(min=1, desc='In ASN4:nn format. One or multiple, comma separated'),
+      required=False,
+      desc='In ASN4:nn format. One or multiple, comma separated'
+    )
+policy_extended_community_list_expandedEntries:
+  sequence_number: int(min=1, max=4294967294, required=False, desc='Valid value is between [1-4294967294]')
+  action: enum('permit', 'deny', required=False, desc='Permit or deny operation')
+  community_number_regex: |-
+    str(
+      max=63,
+      matches='^(?!.*[a-zA-Z~!#%@`]).*$',
+      required=False,
+      desc='Regular-expression (must use aa:nn format)'
+    )
+policy_feature_enable_enhanced:
+  FEATURES: |-
+    any(
+      list(include('policy_feature_enable_enhanced_FEATURES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure one or more NX-OS features in a single policy instance.'
+    )
+policy_feature_enable_enhanced_FEATURES:
+  feature_name: |-
+    enum(
+      'analytics',
+      'app-hosting',
+      'audit',
+      'bash-shell',
+      'bfd',
+      'bgp',
+      'container-tracker',
+      'cryptopqc',
+      'dhcp',
+      'dockerbox',
+      'dot1x',
+      'eigrp',
+      'epbr',
+      'evb',
+      'evmed',
+      'fabric',
+      'fabric-forwarding',
+      'flexlink',
+      'grpc',
+      'grpctunnel',
+      'hsrp',
+      'icam',
+      'imp',
+      'interface-vlan',
+      'intersight',
+      'isis',
+      'itd',
+      'lacp',
+      'ldap',
+      'lldp',
+      'macsec',
+      'mpls',
+      'msdp',
+      'nat',
+      'nbm',
+      'netconf',
+      'netflow',
+      'ngmvpn',
+      'ngoam',
+      'ntp',
+      'nv',
+      'nxapi',
+      'nxsdk',
+      'nxsecure',
+      'openconfig',
+      'ospf',
+      'ospfv3',
+      'password',
+      'pbr',
+      'pim',
+      'pim6',
+      'pnp',
+      'port-security',
+      'private-vlan',
+      'ptp',
+      'restconf',
+      'rip',
+      'scheduler',
+      'scp-server',
+      'security-group',
+      'service-acceleration',
+      'sflow',
+      'sftp-server',
+      'signature-verification',
+      'sla',
+      'ssh',
+      'tacacs+',
+      'telemetry',
+      'telnet',
+      'tunnel',
+      'tunnel-encryption',
+      'udld',
+      'vmtracker',
+      'vn-segment-vlan-based',
+      'vpc',
+      'vrrp',
+      'vrrpv3',
+      'vtp',
+      desc='Name of feature to enable.'
+    )
+policy_hardware_access_list_enhanced:
+  TCAM_REGION_ENTRIES: |-
+    any(
+      list(include('policy_hardware_access_list_enhanced_TCAM_REGION_ENTRIES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure hardware access-list TCAM regions. Add only non-default entries from show run all.'
+    )
+  TCAM_LABEL_ENTRIES: |-
+    any(
+      list(include('policy_hardware_access_list_enhanced_TCAM_LABEL_ENTRIES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure hardware access-list tcam label options.'
+    )
+policy_hardware_access_list_enhanced_TCAM_REGION_ENTRIES:
+  tcam_region_name: |-
+    enum(
+      'arp-ether',
+      'bfd-multihop',
+      'copp',
+      'copp-system',
+      'e-hw-telemetry',
+      'e-ifacl-all',
+      'e-ipv6-qos',
+      'e-ipv6-racl',
+      'e-mac-qos',
+      'e-qos',
+      'e-qos-lite',
+      'e-racl',
+      'egr-cntacl',
+      'egr-copp',
+      'egr-ifacl',
+      'egr-l2-qos',
+      'egr-l3-vlan-qos',
+      'egr-racl',
+      'egr-sup',
+      'fcoe-egress',
+      'fcoe-ingress',
+      'fex-ifacl',
+      'fex-ipv6-ifacl',
+      'fex-ipv6-qos',
+      'fex-mac-ifacl',
+      'fex-mac-qos',
+      'fex-qos',
+      'fex-qos-lite',
+      'flow',
+      'hw-telemetry',
+      'ifacl',
+      'ifacl-all',
+      'ifacl-udf',
+      'ing-cntacl',
+      'ing-dacl',
+      'ing-fstat',
+      'ing-flow-redirect',
+      'ing-ifacl',
+      'ing-ifacl-ipv4-lite',
+      'ing-ifacl-ipv6-lite',
+      'ing-l2-l3-qos',
+      'ing-l2-qos',
+      'ing-l2-span-filter',
+      'ing-l3-span-filter',
+      'ing-l3-vlan-qos',
+      'ing-nbm',
+      'ing-netflow',
+      'ing-pacl-sb',
+      'ing-racl',
+      'ing-racl-lite',
+      'ing-rbacl',
+      'ing-redirect',
+      'ing-short',
+      'ing-storm-control',
+      'ing-sup',
+      'ing-vacl-nh',
+      'ipsg',
+      'ipv6-ifacl',
+      'ipv6-l3qos',
+      'ipv6-qos',
+      'ipv6-racl',
+      'ipv6-span-l2-udf',
+      'ipv6-span-udf',
+      'ipv6-vacl',
+      'ipv6-vqos',
+      'l3qos',
+      'l3qos-intra-lite',
+      'l3qos-lite',
+      'mac-ifacl',
+      'mac-l3qos',
+      'mac-qos',
+      'mac-vacl',
+      'mac-vqos',
+      'mcast-nat',
+      'mcast-performance',
+      'mcast_bidir',
+      'mpls',
+      'n3k-qos-ipv4',
+      'n3k-qos-ipv6',
+      'n9k-arp-acl',
+      'nat',
+      'openflow',
+      'openflow-ipv6',
+      'openflow-lite',
+      'qos',
+      'qos-intra-lite',
+      'qos-lite',
+      'racl',
+      'racl-all',
+      'racl-lite',
+      'racl-udf',
+      'redirect',
+      'redirect-tunnel',
+      'redirect_v4',
+      'redirect_v6',
+      'rp-ipv6-qos',
+      'rp-mac-qos',
+      'rp-qos',
+      'rp-qos-lite',
+      'sflow',
+      'span',
+      'span-sflow',
+      'svi',
+      'vacl',
+      'vacl-lite',
+      'vpc-convergence',
+      'vqos',
+      'vqos-intra-lite',
+      'vqos-lite',
+      'vxlan',
+      'vxlan-p2p',
+      desc='TCAM region name.'
+    )
+  tcam_region_mode: |-
+    enum(
+      'size',
+      'qualify-udf',
+      desc='Choose size for normal TCAM region entries or qualify-udf for hardware access-list tcam region ifa'
+      'cl, ing-ifacl, racl or vacl qualify udf names. Select the region supported by your platform.'
+    )
+  tcam_region_size: |-
+    int(
+      min=0,
+      max=2147483647,
+      required=False,
+      desc='TCAM region size: zero or a multiple of 256. Additional allocation and capacity limits depend on t'
+      'he platform and region.'
+    )
+  tcam_region_double_wide: bool(required=False, desc='Generate the optional double-wide keyword.')
+  tcam_region_udf_names: |-
+    str(
+      min=1,
+      max=255,
+      matches='^[A-Za-z0-9_.:-]{1,16}( [A-Za-z0-9_.:-]{1,16})*$',
+      required=False,
+      desc='Space-separated UDF names. Each UDF name must be 1-16 characters.'
+    )
+policy_hardware_access_list_enhanced_TCAM_LABEL_ENTRIES:
+  tcam_label_region: enum('egr-l2-qos', 'ing-ifacl', 'ing-qos', 'ing-racl', desc='TCAM label region.')
+  tcam_label_value: |-
+    enum(
+      '6',
+      '9',
+      'optimize',
+      desc='Valid combinations are egr-l2-qos 6, ing-ifacl 6, ing-racl 9, or ing-qos optimize.'
+    )
+policy_igp_redistribute_static:
+  ENTRY_LIST: |-
+    any(
+      list(include('policy_igp_redistribute_static_ENTRY_LIST'), min=1),
+      str(min=1),
+      required=False,
+      desc='One or multiple prefix-list entries'
+    )
+policy_igp_redistribute_static_ENTRY_LIST:
+  seq_num: int(min=1, max=4294967294, required=False, desc='Valid value is between [1-4294967294]')
+  action: enum('permit', 'deny', required=False, desc='Permit or deny operation')
+  ip_mask: ip(version=4, nd_type='ipv4addresswithsubnet', required=False, desc='IP prefix network/length')
+  next_hop_ip: |-
+    str(
+      required=False,
+      desc='List of IPv4 next-hop addresses separated by commas (ex: 10.20.101.1,10.20.102.1) for the IPv4 pre'
+      'fix'
+    )
+policy_ip_acl:
+  ACES: any(list(include('policy_ip_acl_ACES'), min=1), str(min=1), desc='Access list items')
+policy_ip_acl_ACES:
+  action: enum('permit', 'deny', 'remark', desc='Permit or deny operation')
+  sequence_number: int(min=1, max=4294967295, desc='Min:1, max:4294967295')
+  protocol: |-
+    enum(
+      'icmp',
+      'ip',
+      'tcp',
+      'udp',
+      'eigrp',
+      'ospf',
+      'pim',
+      'igmp',
+      'custom',
+      desc='The protocol, example TCP.'
+    )
+  custom_protocol: int(min=0, max=255, required=False, desc='Protocol value 0-255')
+  src_ip: |-
+    str(
+      matches='^(any|(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))*)(?:'
+      '\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))?(?:\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))?(\\/('
+      '0|[1-9]\\d?|1\\d\\d|2[0-9]|3[0-2]))?$',
+      required=False,
+      desc='IPv4 address, prefix or any'
+    )
+  src_port_action: |-
+    enum(
+      'equal-to',
+      'greater-than',
+      'less-than',
+      'not-equal-to',
+      'port-range',
+      'none',
+      required=False,
+      desc='Operations possible: equal-to, greater-than, less-than, not-equal-to, range'
+    )
+  src_port: str(matches='^(any|[A-Za-z0-9-]+)$', required=False, desc='Source port number, example 443 or HTTPS.')
+  src_port_range_start: str(matches='^([A-Za-z0-9-]+)$', required=False, desc='Start value for source port match range')
+  src_port_range_end: str(matches='^([A-Za-z0-9-]+)$', required=False, desc='End value for source port match range')
+  dest_ip: |-
+    str(
+      matches='^(any|(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))*)(?:'
+      '\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))?(?:\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))?(\\/('
+      '0|[1-9]\\d?|1\\d\\d|2[0-9]|3[0-2]))?$',
+      required=False,
+      desc='IPv4 address, prefix or any'
+    )
+  dest_port_action: |-
+    enum(
+      'equal-to',
+      'greater-than',
+      'less-than',
+      'not-equal-to',
+      'port-range',
+      'none',
+      required=False,
+      desc='Operations possible: equal-to, greater-than, less-than, not-equal-to, range'
+    )
+  dest_port: |-
+    str(
+      matches='^(any|[A-Za-z0-9-]+)$',
+      required=False,
+      desc='Destination port number, example 443 or HTTPS.'
+    )
+  dest_port_range_start: str(matches='^([A-Za-z0-9-]+)$', required=False, desc='Start value for destination port match range')
+  dest_port_range_end: str(matches='^([A-Za-z0-9-]+)$', required=False, desc='End value for destination port match range')
+  remark_comment: |-
+    str(
+      min=1,
+      max=99,
+      matches='^[^\\\\\\x22\\x00-\\x1F\\x7F]*$',
+      required=False,
+      desc='Comment upto 99 characters'
+    )
+  icmp_advanced_option: |-
+    enum(
+      'administratively-prohibited',
+      'echo',
+      'echo-reply',
+      'general-parameter-problem',
+      'host-isolated',
+      'host-precedence-unreachable',
+      'host-redirect',
+      'host-tos-redirect',
+      'host-tos-unreachable',
+      'host-unknown',
+      'host-unreachable',
+      'net-unreachable',
+      'network-unknown',
+      'option-missing',
+      'packet-too-big',
+      'parameter-problem',
+      'port-unreachable',
+      'router-advertisement',
+      'router-solicitation',
+      'time-exceeded',
+      'ttl-exceeded',
+      'unreachable',
+      required=False,
+      desc='Icmp IPv4 ACL advanced match options'
+    )
+  tcp_advanced_option: |-
+    enum(
+      'ack',
+      'fin',
+      'established',
+      'psh',
+      'rst',
+      'syn',
+      required=False,
+      desc='TCP IPv4 ACL advanced match options'
+    )
+  dscp: |-
+    enum(
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+      '12',
+      '13',
+      '14',
+      '15',
+      '16',
+      '17',
+      '18',
+      '19',
+      '20',
+      '21',
+      '22',
+      '23',
+      '24',
+      '25',
+      '26',
+      '27',
+      '28',
+      '29',
+      '30',
+      '31',
+      '32',
+      '33',
+      '34',
+      '35',
+      '36',
+      '37',
+      '38',
+      '39',
+      '40',
+      '41',
+      '42',
+      '43',
+      '44',
+      '45',
+      '46',
+      '47',
+      '48',
+      '49',
+      '50',
+      '51',
+      '52',
+      '53',
+      '54',
+      '55',
+      '56',
+      '57',
+      '58',
+      '59',
+      '60',
+      '61',
+      '62',
+      '63',
+      'af11',
+      'af12',
+      'af13',
+      'af21',
+      'af22',
+      'af23',
+      'af31',
+      'af32',
+      'af33',
+      'af41',
+      'af42',
+      'af43',
+      'cs1',
+      'cs2',
+      'cs3',
+      'cs4',
+      'cs5',
+      'cs6',
+      'cs7',
+      'default',
+      'ef',
+      required=False,
+      desc='Optional DSCP match value'
+    )
+  log: bool(required=False, desc='Log matches for this ACE')
+policy_ip_as_path_access_list:
+  AS_PATH_ENTRIES: |-
+    any(
+      list(include('policy_ip_as_path_access_list_AS_PATH_ENTRIES'), min=1),
+      str(min=1),
+      desc='One or more AS-path access-list entries'
+    )
+policy_ip_as_path_access_list_AS_PATH_ENTRIES:
+  sequence_number: int(min=1, max=4294967294, desc='Valid range is 1-4294967294')
+  action: enum('permit', 'deny', desc='Permit or deny operation')
+  as_path_regex: |-
+    str(
+      max=65,
+      min=1,
+      desc='Regular expression to match BGP AS paths. Max size is 63 characters. Optional surrounding quotes a'
+      're accepted.'
+    )
+policy_ip_pim_enhanced:
+  RP_ENTRIES: |-
+    any(
+      list(include('policy_ip_pim_enhanced_RP_ENTRIES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure one or more ip pim rp-address commands.'
+    )
+policy_ip_pim_enhanced_RP_ENTRIES:
+  rp_address: ip(version=4, nd_type='ipv4address', desc='IPv4 RP address.')
+  rp_policy_type: |-
+    enum(
+      'none',
+      'group-list',
+      'prefix-list',
+      'route-map',
+      required=False,
+      desc='Select optional group-list, prefix-list, or route-map policy for this RP.'
+    )
+  group_list_prefix: |-
+    ip(
+      version=4,
+      nd_type='ipv4addresswithsubnet',
+      required=False,
+      desc='Group range prefix for this static RP, for example 239.0.2.0/24.'
+    )
+  prefix_list_name: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Prefix-list policy name for static RP. Max size 63.'
+    )
+  route_map_name: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Route-map policy name for static RP. Max size 63.'
+    )
+  bidir: bool(required=False, desc='Append bidir to this static RP command.')
+  override: bool(required=False, desc='Append override to this static RP command.')
+policy_ipv4_prefix_list:
+  ENTRY_LIST: |-
+    any(
+      list(include('policy_ipv4_prefix_list_ENTRY_LIST'), min=1),
+      str(min=1),
+      required=False,
+      desc='One or multiple prefix-list entry'
+    )
+policy_ipv4_prefix_list_ENTRY_LIST:
+  ip_mask: ip(version=4, nd_type='ipv4addresswithsubnet', required=False, desc='IP prefix network/length')
+  seq_num: int(min=1, max=4294967294, required=False, desc='Valid value is between [1-4294967294]')
+  action: enum('permit', 'deny', required=False, desc='Permit or deny operation')
+  exact_prefix_len: int(min=1, max=32, required=False, desc='Exact prefix length to be matched')
+  min_prefix_len: int(min=1, max=32, required=False, desc='Minimum prefix length to be matched')
+  max_prefix_len: int(min=1, max=32, required=False, desc='Maximum prefix length to be matched')
+  explicit_mask: |-
+    str(
+      matches='^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0'
+      ')$',
+      required=False,
+      desc='Format A.B.C.D. The mask specifies the bits of a prefix address in a prefix list that are compared'
+      ' to'
+    )
+policy_ipv6_acl:
+  ACES: any(list(include('policy_ipv6_acl_ACES'), min=1), str(min=1), desc='Access list items')
+policy_ipv6_acl_ACES:
+  action: enum('permit', 'deny', 'remark', desc='Permit or deny operation')
+  sequence_number: int(min=1, max=4294967295, desc='Min:1, max:4294967295')
+  protocol: enum('icmp', 'ipv6', 'tcp', 'udp', 'eigrp', 'pim', 'custom', desc='The protocol, example TCP.')
+  custom_protocol: int(min=0, max=255, required=False, desc='Protocol value 0-255')
+  src_ip: str(matches='^(any|[A-Fa-f0-9:/]+)$', required=False, desc='IPv6 address/prefix or any')
+  src_port_action: |-
+    enum(
+      'equal-to',
+      'greater-than',
+      'less-than',
+      'not-equal-to',
+      'port-range',
+      'none',
+      required=False,
+      desc='Operations possible: equal-to, greater-than, less-than, not-equal-to, range'
+    )
+  src_port: str(matches='^(any|[A-Za-z0-9-]+)$', required=False, desc='Source port number, example 443 or HTTPS.')
+  dest_ip: str(matches='^(any|[A-Fa-f0-9:/]+)$', required=False, desc='IPv6 address/prefix or any')
+  dest_port_action: |-
+    enum(
+      'equal-to',
+      'greater-than',
+      'less-than',
+      'not-equal-to',
+      'port-range',
+      'none',
+      required=False,
+      desc='Operations possible: equal-to, greater-than, less-than, not-equal-to, range'
+    )
+  dest_port: |-
+    str(
+      matches='^(any|[A-Za-z0-9-]+)$',
+      required=False,
+      desc='Destination port number, example 443 or HTTPS.'
+    )
+  remark_comment: |-
+    str(
+      min=1,
+      max=99,
+      matches='^[^\\\\\\x22\\x00-\\x1F\\x7F]*$',
+      required=False,
+      desc='Comment upto 99 characters'
+    )
+  icmp_advanced_option: |-
+    enum(
+      'beyond-scope',
+      'destination-unreachable',
+      'echo-request',
+      'echo-reply',
+      'hop-limit',
+      'mld-query',
+      'mld-report',
+      'mld-reduction',
+      'mldv2',
+      'nd-ns',
+      'nd-na',
+      'no-admin',
+      'no-route',
+      'packet-too-big',
+      'parameter-problem',
+      'port-unreachable',
+      'reassembly-timeout',
+      'router-advertisement',
+      'router-solicitation',
+      'unreachable',
+      required=False,
+      desc='Icmp IPv6 ACL advanced match options'
+    )
+  tcp_advanced_option: |-
+    enum(
+      'ack',
+      'fin',
+      'established',
+      'psh',
+      'rst',
+      'syn',
+      required=False,
+      desc='TCP IPv6 ACL advanced match options'
+    )
+  src_port_range_start: str(matches='^([A-Za-z0-9-]+)$', required=False, desc='Start value for source port match range')
+  src_port_range_end: str(matches='^([A-Za-z0-9-]+)$', required=False, desc='End value for source port match range')
+  dest_port_range_start: str(matches='^([A-Za-z0-9-]+)$', required=False, desc='Start value for destination port match range')
+  dest_port_range_end: str(matches='^([A-Za-z0-9-]+)$', required=False, desc='End value for destination port match range')
+policy_ipv6_prefix_list:
+  ENTRY_LIST: |-
+    any(
+      list(include('policy_ipv6_prefix_list_ENTRY_LIST'), min=1),
+      str(min=1),
+      required=False,
+      desc='One or multiple prefix-list entry'
+    )
+policy_ipv6_prefix_list_ENTRY_LIST:
+  ip_mask: ip(version=6, nd_type='ipv6addresswithsubnet', required=False, desc='IPv6 prefix network/length')
+  seq_num: int(min=1, max=4294967294, required=False, desc='Valid value is between [1-4294967294]')
+  action: enum('permit', 'deny', required=False, desc='Permit or deny operation')
+  exact_prefix_len: int(min=1, max=128, required=False, desc='Exact prefix length to be matched')
+  min_prefix_len: int(min=1, max=128, required=False, desc='Minimum prefix length to be matched')
+  max_prefix_len: int(min=1, max=128, required=False, desc='Maximum prefix length to be matched')
+  explicit_mask: |-
+    ip(
+      version=6,
+      nd_type='ipv6address',
+      required=False,
+      desc='Format a:b::c:d. The mask specifies the bits of a prefix address in a prefix list that are compare'
+      'd to'
+    )
+policy_keychain_enhanced:
+  keys: |-
+    any(
+      list(include('policy_keychain_enhanced_keys'), min=1),
+      str(min=1),
+      required=False,
+      desc='Keychain key entries'
+    )
+policy_keychain_enhanced_keys:
+  key_id: int(min=0, max=65535, desc='Key identifier (0-65535)')
+  key_type: enum('6', '7', desc='6 - Type-6 encrypted, 7 - Type-7 encrypted')
+  key_string: str(max=255, min=1, desc='Key string (max size 255)')
+  crypto_algorithm: |-
+    enum(
+      '3des',
+      'aes',
+      'hmac-sha-1',
+      'hmac-sha-256',
+      'hmac-sha-384',
+      'hmac-sha-512',
+      'md5',
+      required=False,
+      desc='Cryptographic algorithm for key authentication'
+    )
+  accept_lifetime_start: |-
+    str(
+      matches='^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$',
+      required=False,
+      desc='Start time in HH:MM:SS format (e.g., 00:00:00)'
+    )
+  accept_lifetime_start_date: |-
+    str(
+      matches='^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(0[1-9]|[12][0-9]|3[01])\\s+(199[3-9]|20[0-2'
+      '][0-9]|203[0-5])$',
+      required=False,
+      desc='Start date in format: Mmm dd yyyy where Mmm is Jan, Feb, Mar, etc. (e.g., May 13 2024)'
+    )
+  accept_lifetime_end_mode: enum('duration', 'infinite', 'endTime', required=False, desc='Specifies how the key lifetime ends')
+  accept_lifetime_duration: int(min=1, max=2147483646, required=False, desc='Duration in seconds (1-2147483646)')
+  accept_lifetime_end: |-
+    str(
+      matches='^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$',
+      required=False,
+      desc='End time in HH:MM:SS format'
+    )
+  accept_lifetime_end_date: |-
+    str(
+      matches='^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(0[1-9]|[12][0-9]|3[01])\\s+(199[3-9]|20[0-2'
+      '][0-9]|203[0-5])$',
+      required=False,
+      desc='End date in format: Mmm dd yyyy where Mmm is Jan, Feb, Mar, etc. (e.g., Dec 31 2025)'
+    )
+  accept_lifetime_local: bool(required=False, desc='Use local timezone for accept-lifetime')
+  send_lifetime_start: |-
+    str(
+      matches='^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$',
+      required=False,
+      desc='Start time in HH:MM:SS format (e.g., 00:00:00)'
+    )
+  send_lifetime_start_date: |-
+    str(
+      matches='^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(0[1-9]|[12][0-9]|3[01])\\s+(199[3-9]|20[0-2'
+      '][0-9]|203[0-5])$',
+      required=False,
+      desc='Start date in format: Mmm dd yyyy where Mmm is Jan, Feb, Mar, etc. (e.g., May 13 2024)'
+    )
+  send_lifetime_end_mode: enum('duration', 'infinite', 'endTime', required=False, desc='Specifies how the key lifetime ends')
+  send_lifetime_duration: int(min=1, max=2147483646, required=False, desc='Duration in seconds (1-2147483646)')
+  send_lifetime_end: |-
+    str(
+      matches='^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$',
+      required=False,
+      desc='End time in HH:MM:SS format'
+    )
+  send_lifetime_end_date: |-
+    str(
+      matches='^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(0[1-9]|[12][0-9]|3[01])\\s+(199[3-9]|20[0-2'
+      '][0-9]|203[0-5])$',
+      required=False,
+      desc='End date in format: Mmm dd yyyy where Mmm is Jan, Feb, Mar, etc. (e.g., Dec 31 2025)'
+    )
+  send_lifetime_local: bool(required=False, desc='Use local timezone for send-lifetime')
+policy_lan_ptp_telemetry:
+  TELEM_RCVR_IP_LIST: |-
+    any(
+      list(
+        ip(
+          nd_type='ipaddress',
+          desc='List of telemetry receiver IP in telemetry VRF, e.g. 10.2.0.1, 10.2.0.2'
+        )
+      ),
+      str(min=1),
+      desc='List of telemetry receiver IP in telemetry VRF, e.g. 10.2.0.1, 10.2.0.2'
+    )
+policy_lan_ptp_telemetry_config:
+  TELEM_RCVR_IP_LIST: |-
+    any(
+      list(
+        ip(
+          nd_type='ipaddress',
+          desc='List of telemetry receiver IP in telemetry VRF, e.g. 10.2.0.1, 10.2.0.2'
+        )
+      ),
+      str(min=1),
+      desc='List of telemetry receiver IP in telemetry VRF, e.g. 10.2.0.1, 10.2.0.2'
+    )
+policy_line_vty:
+  VTY_ACCESS_CLASSES: |-
+    any(
+      list(include('policy_line_vty_VTY_ACCESS_CLASSES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Optional access control entries for line vty.'
+    )
+policy_line_vty_VTY_ACCESS_CLASSES:
+  ip_version: enum('ip', 'ipv6', desc='Select ip for IPv4 access-class or ipv6 for IPv6 access-class.')
+  acl_name: str(min=1, max=64, matches='^[^\\s]+$', desc='IPv4 or IPv6 ACL name. Max size 64.')
+  direction: enum('in', 'out', desc='Apply to inbound or outbound packets')
+policy_logging_enhanced:
+  LOGGING_LEVELS: |-
+    any(
+      list(include('policy_logging_enhanced_LOGGING_LEVELS'), min=1),
+      str(min=1),
+      required=False,
+      desc="Optional logging level entries. Facility is the name after 'logging level'."
+    )
+  LOGGING_SERVERS: |-
+    any(
+      list(include('policy_logging_enhanced_LOGGING_SERVERS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Remote syslog server entries. Default severity 5, port 514, use-vrf default, and facility local7 a'
+      're not emitted as explicit suboptions.'
+    )
+policy_logging_enhanced_LOGGING_LEVELS:
+  facility: |-
+    enum(
+      'aaa',
+      'acllog',
+      'aclmgr',
+      'adbm',
+      'adjmgr',
+      'all',
+      'arp',
+      'ascii-cfg',
+      'auth',
+      'authpri',
+      'authpriv',
+      'bfd',
+      'bgp',
+      'bloggerd',
+      'bootvar',
+      'callhome',
+      'capability',
+      'cdp',
+      'cert_enroll',
+      'cfs',
+      'clis',
+      'clk_mgr',
+      'confcheck',
+      'copp',
+      'core-dmon',
+      'cron',
+      'daemon',
+      'dhclient',
+      'dhcp_snoop',
+      'diag_port_lb',
+      'diagclient',
+      'diagmgr',
+      'ecp',
+      'eltm',
+      'eth_dstats',
+      'eth_port_channel',
+      'ethdstats',
+      'ethpm',
+      'evmc',
+      'evms',
+      'feature-mgr',
+      'fs-daemon',
+      'ftp',
+      'gpixm',
+      'icam',
+      'icmpv6',
+      'ifmgr',
+      'igmp',
+      'im',
+      'interface-vlan',
+      'ip',
+      'ipconf',
+      'ipfib',
+      'ipqos',
+      'ipv6',
+      'kernel',
+      'l2fm',
+      'l2pt',
+      'l2rib',
+      'l3vm',
+      'lacp',
+      'ldap',
+      'licmgr',
+      'lim',
+      'linkctrl',
+      'lldp',
+      'local0',
+      'local1',
+      'local2',
+      'local3',
+      'local4',
+      'local5',
+      'local6',
+      'local7',
+      'lpr',
+      'm2rib',
+      'm6rib',
+      'mail',
+      'mcastfwd',
+      'mfdm',
+      'mfwd',
+      'mmode',
+      'module',
+      'monitor',
+      'mrib',
+      'mvdxn',
+      'mvsh',
+      'netstack',
+      'news',
+      'nfm',
+      'ntp',
+      'ospf',
+      'ospfv3',
+      'otm',
+      'pfmclnt',
+      'pfstat',
+      'pixm',
+      'pktmgr',
+      'platform',
+      'plcmgr',
+      'pltfm_config',
+      'pltm',
+      'plugin',
+      'port-channel',
+      'port-profile',
+      'radius',
+      'res_mgr',
+      'routing',
+      'rpm',
+      'sal',
+      'security',
+      'securityd',
+      'session-mgr',
+      'sksd',
+      'smm',
+      'snmpd',
+      'snmpmib_proc',
+      'spanning-tree',
+      'spm',
+      'stripcl',
+      'syslog',
+      'sysmgr',
+      'tacacs',
+      'telemetry',
+      'template_manager',
+      'track',
+      'u6rib',
+      'udld',
+      'ufdm',
+      'urib',
+      'user',
+      'uucp',
+      'vdc_mgr',
+      'virtual-service',
+      'vlan_mgr',
+      'vmm',
+      'vpc',
+      'vshd',
+      'xbar',
+      'xml',
+      'xmlma',
+      desc='Facility name, such as aaa, acllog, feature-mgr, or spanning-tree'
+    )
+  level: |-
+    enum(
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      desc='0-emerg, 1-alert, 2-crit, 3-err, 4-warn, 5-notif, 6-inform, 7-debug'
+    )
+policy_logging_enhanced_LOGGING_SERVERS:
+  server: str(min=1, max=255, matches='^[^\\s]+$', desc='Syslog server hostname, IPv4 address, or IPv6 address')
+  severity: |-
+    enum(
+      'none',
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      required=False,
+      desc='Optional syslog severity. Default is 5 and is not emitted.'
+    )
+  port: |-
+    int(
+      min=1,
+      max=65535,
+      required=False,
+      desc='Optional syslog server port. Default is 514 and is not emitted.'
+    )
+  use_vrf: |-
+    str(
+      min=1,
+      max=64,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Optional VRF used to reach the server. Default is default and is not emitted.'
+    )
+  facility: |-
+    enum(
+      'none',
+      'auth',
+      'authpriv',
+      'cron',
+      'daemon',
+      'ftp',
+      'kernel',
+      'local0',
+      'local1',
+      'local2',
+      'local3',
+      'local4',
+      'local5',
+      'local6',
+      'local7',
+      'lpr',
+      'mail',
+      'news',
+      'syslog',
+      'user',
+      'uucp',
+      required=False,
+      desc='Optional syslog facility. Default is local7 and is not emitted.'
+    )
+policy_ngoam_enhanced:
+  NGOAM_PROFILES: |-
+    any(
+      list(include('policy_ngoam_enhanced_NGOAM_PROFILES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure one or more ngoam profiles.'
+    )
+  NGOAM_PROFILE_FLOWS: |-
+    any(
+      list(include('policy_ngoam_enhanced_NGOAM_PROFILE_FLOWS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure flow forward fields for one or more NGOAM profiles.'
+    )
+policy_ngoam_enhanced_NGOAM_PROFILES:
+  profile_id: int(min=1, max=1023, desc='NGOAM profile ID. Valid range is 1-1023.')
+  description: str(min=1, max=255, required=False, desc='Profile description.')
+  hop_count: int(min=1, max=255, required=False, desc='NGOAM service hop count. Valid range is 1-255.')
+  oam_channel: enum('none', '2', required=False, desc='OAM channel. Supported value is 2.')
+  egress_interface: |-
+    str(
+      required=False,
+      desc='NGOAM egress interface. Valid interface types are Ethernet and port-channel.'
+    )
+  sport_range: |-
+    str(
+      min=1,
+      max=255,
+      matches='^[0-9,-]+$',
+      required=False,
+      desc='NGOAM UDP source port range. Valid values are 1-65535, comma-separated values, or ranges with max '
+      'span 1024, for example 2000-3000,400,500.'
+    )
+  payload_pad: |-
+    str(
+      min=3,
+      max=6,
+      matches='^0x[0-9A-Fa-f]+$',
+      required=False,
+      desc='NGOAM payload pad value. Valid range is 0x0-0xffff.'
+    )
+policy_ngoam_enhanced_NGOAM_PROFILE_FLOWS:
+  profile_id: int(min=1, max=1023, desc='NGOAM profile ID. Valid range is 1-1023.')
+  flow_dot1q: int(min=1, max=3967, required=False, desc='Flow profile VLAN ID. Valid range is 1-3967.')
+  flow_ipv4_source: ip(version=4, nd_type='ipv4address', required=False, desc='Flow source IPv4 address.')
+  flow_ipv4_destination: ip(version=4, nd_type='ipv4address', required=False, desc='Flow destination IPv4 address.')
+  flow_ipv6_source: ip(version=6, nd_type='ipv6address', required=False, desc='Flow source IPv6 address.')
+  flow_ipv6_destination: ip(version=6, nd_type='ipv6address', required=False, desc='Flow destination IPv6 address.')
+  flow_mac_source: mac(required=False, desc='Flow source MAC address.')
+  flow_mac_destination: mac(required=False, desc='Flow destination MAC address.')
+  flow_port_source: int(min=1, max=65535, required=False, desc='Flow source port. Valid range is 1-65535.')
+  flow_port_destination: int(min=1, max=65535, required=False, desc='Flow destination port. Valid range is 1-65535.')
+  flow_protocol: int(min=0, max=255, required=False, desc='Flow protocol number. Valid range is 0-255.')
+  flow_source_interface: str(required=False, desc='Optional flow source interface for modular chassis.')
+policy_ntp_enhanced:
+  NTP_AUTHENTICATION_KEYS: |-
+    any(
+      list(include('policy_ntp_enhanced_NTP_AUTHENTICATION_KEYS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure one or more ntp authentication-key commands.'
+    )
+  NTP_TRUSTED_KEYS: |-
+    any(
+      list(include('policy_ntp_enhanced_NTP_TRUSTED_KEYS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure one or more ntp trusted-key commands.'
+    )
+  NTP_SERVERS: |-
+    any(
+      list(include('policy_ntp_enhanced_NTP_SERVERS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure one or more ntp server commands.'
+    )
+  NTP_PEERS: |-
+    any(
+      list(include('policy_ntp_enhanced_NTP_PEERS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure one or more ntp peer commands.'
+    )
+policy_ntp_enhanced_NTP_AUTHENTICATION_KEYS:
+  key_id: int(min=1, max=65535, desc='NTP authentication key number.')
+  algorithm: enum('aes128cmac', 'md5', desc='NTP authentication algorithm.')
+  key: str(min=1, desc='NTP authentication key value.')
+  key_type: enum('6', '7', desc='Encryption type 6 or 7.')
+policy_ntp_enhanced_NTP_TRUSTED_KEYS:
+  key_id: int(min=1, max=65535, desc='NTP trusted key number.')
+policy_ntp_enhanced_NTP_SERVERS:
+  address: str(min=1, max=255, matches='^[^\\s]+$', desc='IPv4, IPv6, or hostname of the NTP server.')
+  vrf: str(min=1, max=32, matches='^[^\\s]+$', required=False, desc='Optional VRF for the NTP server.')
+  key_id: int(min=1, max=65535, required=False, desc='Optional key ID for communicating with this server.')
+  maxpoll: int(min=4, max=17, required=False, desc='Optional maximum poll interval. Valid range is 4-17.')
+  minpoll: int(min=4, max=17, required=False, desc='Optional minimum poll interval. Valid range is 4-17.')
+  prefer: enum('false', 'true', required=False, desc='Configure this server as preferred.')
+policy_ntp_enhanced_NTP_PEERS:
+  address: str(min=1, max=255, matches='^[^\\s]+$', desc='IPv4, IPv6, or hostname of the NTP peer.')
+  vrf: str(min=1, max=32, matches='^[^\\s]+$', required=False, desc='Optional VRF for the NTP peer.')
+  key_id: int(min=1, max=65535, required=False, desc='Optional key ID for communicating with this peer.')
+  maxpoll: int(min=4, max=17, required=False, desc='Optional maximum poll interval. Valid range is 4-17.')
+  minpoll: int(min=4, max=17, required=False, desc='Optional minimum poll interval. Valid range is 4-17.')
+  prefer: enum('false', 'true', required=False, desc='Configure this peer as preferred.')
+policy_qos_class_map_enhanced:
+  QOS_CLASS_MAPS: |-
+    any(
+      list(include('policy_qos_class_map_enhanced_QOS_CLASS_MAPS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Define one or more class-map type qos entries.'
+    )
+  QOS_CLASS_MAP_MATCHES: |-
+    any(
+      list(include('policy_qos_class_map_enhanced_QOS_CLASS_MAP_MATCHES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Match statements for the class-maps above. Use class-map name to attach each match to a class-map.'
+    )
+policy_qos_class_map_enhanced_QOS_CLASS_MAPS:
+  class_map_name: str(min=1, max=40, matches='^[^\\s]+$', desc='QoS class-map name. Max size 40.')
+  match_mode: |-
+    enum(
+      'match-any',
+      'match-all',
+      'none',
+      required=False,
+      desc='Logical operator for match statements. Use none to generate class-map type qos <name> without matc'
+      'h-any/match-all.'
+    )
+  description: |-
+    str(
+      min=1,
+      max=200,
+      matches='^[^\\\\\\x22\\x00-\\x1F\\x7F]*$',
+      required=False,
+      desc='Optional class-map description. Max size 200.'
+    )
+policy_qos_class_map_enhanced_QOS_CLASS_MAP_MATCHES:
+  class_map_name: str(min=1, max=40, matches='^[^\\s]+$', desc='Name of a class-map defined in QoS class-maps.')
+  negate_match: bool(required=False, desc='Generate match not ...')
+  match_type: |-
+    enum(
+      'access-group',
+      'cos',
+      'dscp',
+      'ip-roce',
+      'ip-rtp',
+      'mpls',
+      'precedence',
+      'protocol',
+      desc='QoS class-map match type'
+    )
+  access_group_name: |-
+    str(
+      min=1,
+      max=64,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Access-list name for match access-group name. Max size 64.'
+    )
+  dscp_values: |-
+    str(
+      min=1,
+      max=160,
+      matches='^[A-Za-z0-9,\\-\\s]+$',
+      required=False,
+      desc='DSCP values as numbers 0-63, names like ef/cs3/af31/default, comma-separated values, ranges, or tu'
+      'nnel <values>.'
+    )
+  cos_values: |-
+    str(
+      min=1,
+      max=80,
+      matches='^[0-9,\\-\\s]+$',
+      required=False,
+      desc='CoS values 0-7, comma-separated values, or ranges.'
+    )
+  precedence_values: |-
+    str(
+      min=1,
+      max=160,
+      matches='^[A-Za-z0-9,\\-\\s]+$',
+      required=False,
+      desc='Precedence values 0-7, names like priority/network/critical, comma-separated values, or ranges.'
+    )
+  ip_port_values: |-
+    str(
+      min=1,
+      max=160,
+      matches='^[0-9,\\-\\s]+$',
+      required=False,
+      desc='UDP ports 2000-65535, comma-separated values, or ranges.'
+    )
+  protocol: |-
+    enum(
+      'arp',
+      'bridging',
+      'cdp',
+      'dhcp',
+      'fcoe',
+      'isis',
+      required=False,
+      desc='Protocol for match protocol'
+    )
+  mpls_match_suffix: |-
+    str(
+      min=1,
+      max=120,
+      matches='^[^\\\\\\x22\\x00-\\x1F\\x7F]*$',
+      required=False,
+      desc='Optional suffix after match mpls for platform-specific MPLS match options.'
+    )
+policy_qos_policy_map_enhanced:
+  QOS_POLICY_MAPS: |-
+    any(
+      list(include('policy_qos_policy_map_enhanced_QOS_POLICY_MAPS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Define one or more policy-map type qos entries.'
+    )
+  QOS_POLICY_MAP_CLASSES: |-
+    any(
+      list(include('policy_qos_policy_map_enhanced_QOS_POLICY_MAP_CLASSES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Classes under the QoS policy-maps above. Use policy-map name to attach each class to a policy-map.'
+    )
+  QOS_POLICY_MAP_CLASS_ACTIONS: |-
+    any(
+      list(include('policy_qos_policy_map_enhanced_QOS_POLICY_MAP_CLASS_ACTIONS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Set actions under QoS policy-map classes. Use policy-map name and class name to attach each action'
+      '.'
+    )
+policy_qos_policy_map_enhanced_QOS_POLICY_MAPS:
+  policy_map_name: str(min=1, max=40, matches='^[^\\s]+$', desc='QoS policy-map name. Max size 40.')
+  description: str(min=1, max=200, required=False, desc='Optional policy-map description. Max size 200.')
+policy_qos_policy_map_enhanced_QOS_POLICY_MAP_CLASSES:
+  policy_map_name: str(min=1, max=40, matches='^[^\\s]+$', desc='Name of a policy-map defined in QoS policy-maps.')
+  class_name: str(min=1, max=40, matches='^[^\\s]+$', desc='Class-map name or class-default. Max size 40.')
+  insert_before_class: |-
+    str(
+      min=1,
+      max=40,
+      matches='^[^\\s]+$',
+      required=False,
+      desc="Optional class name for 'class <name> insert-before <class>'. Max size 40."
+    )
+policy_qos_policy_map_enhanced_QOS_POLICY_MAP_CLASS_ACTIONS:
+  policy_map_name: str(min=1, max=40, matches='^[^\\s]+$', desc='Name of a policy-map defined in QoS policy-maps.')
+  class_name: str(min=1, max=40, matches='^[^\\s]+$', desc='Name of a class defined in QoS policy-map classes.')
+  action_type: |-
+    enum(
+      'set-qos-group',
+      'set-dscp',
+      'set-cos',
+      'set-dlb-disable',
+      'set-precedence',
+      desc='QoS policy-map class set action'
+    )
+  qos_group_value: int(min=0, max=7, required=False, desc='QoS-group value 0-7.')
+  dscp_value: |-
+    str(
+      min=1,
+      max=40,
+      matches='^[A-Za-z0-9\\-\\s]+$',
+      required=False,
+      desc='Single DSCP value as number 0-63, name like ef/cs3/af31/default, or tunnel <value>.'
+    )
+  cos_value: int(min=0, max=7, required=False, desc='802.1Q CoS value 0-7.')
+  precedence_value: |-
+    str(
+      min=1,
+      max=40,
+      matches='^[A-Za-z0-9\\-\\s]+$',
+      required=False,
+      desc='Single precedence value 0-7, name like priority/network/critical, or tunnel <value>.'
+    )
+policy_queuing_policy_map_enhanced:
+  QUEUING_POLICY_MAPS: |-
+    any(
+      list(include('policy_queuing_policy_map_enhanced_QUEUING_POLICY_MAPS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Define one or more policy-map type queuing entries.'
+    )
+  QUEUING_POLICY_MAP_CLASSES: |-
+    any(
+      list(include('policy_queuing_policy_map_enhanced_QUEUING_POLICY_MAP_CLASSES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Classes under the queuing policy-maps above. Use policy-map name to attach each class to a policy-'
+      'map.'
+    )
+  QUEUING_POLICY_MAP_CLASS_ACTIONS: |-
+    any(
+      list(include('policy_queuing_policy_map_enhanced_QUEUING_POLICY_MAP_CLASS_ACTIONS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Actions under queuing policy-map classes. Use policy-map name and class name to attach each action'
+      '.'
+    )
+policy_queuing_policy_map_enhanced_QUEUING_POLICY_MAPS:
+  policy_map_name: str(min=1, max=40, matches='^[^\\s]+$', desc='Queuing policy-map name. Max size 40.')
+  description: str(min=1, max=200, required=False, desc='Optional policy-map description. Max size 200.')
+policy_queuing_policy_map_enhanced_QUEUING_POLICY_MAP_CLASSES:
+  policy_map_name: str(min=1, max=40, matches='^[^\\s]+$', desc='Name of a policy-map defined in Queuing policy-maps.')
+  class_name: |-
+    enum(
+      'c-in-q-default',
+      'c-in-q1',
+      'c-in-q2',
+      'c-in-q3',
+      'c-in-q4',
+      'c-in-q5',
+      'c-in-q6',
+      'c-in-q7',
+      'c-out-8q-q-default',
+      'c-out-8q-q1',
+      'c-out-8q-q2',
+      'c-out-8q-q3',
+      'c-out-8q-q4',
+      'c-out-8q-q5',
+      'c-out-8q-q6',
+      'c-out-8q-q7',
+      'c-out-q-default',
+      'c-out-q1',
+      'c-out-q2',
+      'c-out-q3',
+      desc='Queuing class name.'
+    )
+  insert_before_class: |-
+    str(
+      min=1,
+      max=40,
+      matches='^[^\\s]+$',
+      required=False,
+      desc="Optional class name for 'class type queuing <class> insert-before <class>'. Max size 40."
+    )
+policy_queuing_policy_map_enhanced_QUEUING_POLICY_MAP_CLASS_ACTIONS:
+  policy_map_name: str(min=1, max=40, matches='^[^\\s]+$', desc='Name of a policy-map defined in Queuing policy-maps.')
+  class_name: |-
+    enum(
+      'c-in-q-default',
+      'c-in-q1',
+      'c-in-q2',
+      'c-in-q3',
+      'c-in-q4',
+      'c-in-q5',
+      'c-in-q6',
+      'c-in-q7',
+      'c-out-8q-q-default',
+      'c-out-8q-q1',
+      'c-out-8q-q2',
+      'c-out-8q-q3',
+      'c-out-8q-q4',
+      'c-out-8q-q5',
+      'c-out-8q-q6',
+      'c-out-8q-q7',
+      'c-out-q-default',
+      'c-out-q1',
+      'c-out-q2',
+      'c-out-q3',
+      desc='Name of a class defined in Queuing policy-map classes.'
+    )
+  action_type: |-
+    enum(
+      'afd',
+      'bandwidth',
+      'burst-detect',
+      'pause',
+      'priority',
+      'queue-limit',
+      'random-detect',
+      'shape',
+      desc='Queuing policy-map class action'
+    )
+  bandwidth_type: enum('remaining-percent', 'percent', required=False, desc='Bandwidth command type.')
+  bandwidth_percent: int(min=0, max=100, required=False, desc='Percentage value 0-100.')
+  priority_mode: enum('no-level', 'level', required=False, desc='Generate priority or priority level <value>.')
+  priority_level: int(min=1, max=7, required=False, desc='Priority level 1-7, where lower number is higher priority.')
+  queue_limit_mode: enum('fixed', 'dynamic', required=False, desc='Queue-limit mode.')
+  queue_limit_value: |-
+    int(
+      min=0,
+      max=9437184,
+      required=False,
+      desc='Fixed queue size 0-9437184 or dynamic alpha factor 0-10.'
+    )
+  queue_limit_unit: enum('bytes', 'kbytes', 'mbytes', required=False, desc='Fixed queue-limit unit.')
+  random_detect_mode: enum('basic', 'ecn', 'detailed', 'threshold', required=False, desc='Random-detect/WRED command form.')
+  random_detect_threshold_profile: enum('burst-optimized', 'mesh-optimized', required=False, desc='Optimized WRED threshold profile.')
+  random_detect_threshold_ecn: bool(required=False, desc='Append ecn to random-detect threshold.')
+  wred_min_threshold: int(min=1, max=52428800, required=False, desc='Minimum threshold value 1-52428800.')
+  wred_min_unit: enum('bytes', 'kbytes', 'mbytes', required=False, desc='Minimum threshold unit.')
+  wred_max_threshold: int(min=1, max=52428800, required=False, desc='Maximum threshold value 1-52428800.')
+  wred_max_unit: enum('bytes', 'kbytes', 'mbytes', required=False, desc='Maximum threshold unit.')
+  wred_drop_probability: int(min=0, max=100, required=False, desc='Drop probability 0-100.')
+  wred_weight: int(min=0, max=15, required=False, desc='Queue length weight 0-15.')
+  wred_ecn: bool(required=False, desc='Append ecn to detailed random-detect.')
+  afd_queue_desired: |-
+    int(
+      min=1,
+      max=52428800,
+      required=False,
+      desc='AFD queue desired value. Converted bytes must be 64-12582912.'
+    )
+  afd_queue_unit: enum('bytes', 'kbytes', 'mbytes', required=False, desc='AFD queue desired unit.')
+  afd_ecn: bool(required=False, desc='Append ecn to AFD.')
+  burst_detect_mode: enum('percent', 'bytes', required=False, desc='Rise threshold mode.')
+  burst_detect_rise_threshold: int(min=1, max=13319072, required=False, desc='Percent 1-100 or bytes 208-13319072.')
+  burst_detect_fall_threshold: |-
+    int(
+      min=208,
+      max=13319072,
+      required=False,
+      desc='Fall threshold in bytes. Valid range is 208-13319072 and it must be less than the rise threshold.'
+    )
+  pause_buffer_size: |-
+    int(
+      min=27456,
+      max=12582912,
+      required=False,
+      desc='Ingress buffer size in bytes. Valid range 27456-12582912.'
+    )
+  pause_threshold: |-
+    int(
+      min=12480,
+      max=12582912,
+      required=False,
+      desc='Pause threshold in bytes. Valid range 12480-12582912.'
+    )
+  resume_threshold: |-
+    int(
+      min=12480,
+      max=12582912,
+      required=False,
+      desc='Resume threshold in bytes. Valid range 12480-12582912.'
+    )
+  shape_min_rate: |-
+    int(
+      min=0,
+      max=400000000000,
+      required=False,
+      desc='Target bit rate for shape min. Valid values: 0 or 100000000-400000000000 (in bps equivalent).'
+    )
+  shape_min_unit: enum('bps', 'kbps', 'mbps', 'gbps', 'pps', required=False, desc='Unit for shape minimum rate.')
+  shape_max_rate: |-
+    int(
+      min=1,
+      max=400000000000,
+      required=False,
+      desc='Target bit rate for shape max. Valid range 100000000-400000000000 (in bps equivalent). Must be >= '
+      'min rate.'
+    )
+  shape_max_unit: |-
+    enum(
+      'bps',
+      'kbps',
+      'mbps',
+      'gbps',
+      'pps',
+      required=False,
+      desc='Unit for shape maximum rate. If not specified, uses same unit as minimum.'
+    )
+policy_route_map_enhanced:
+  entries: |-
+    any(
+      list(include('policy_route_map_enhanced_entries'), min=1),
+      str(min=1),
+      required=False,
+      desc='Route-map list items'
+    )
+policy_route_map_enhanced_entries_rule_entries:
+  rule_type: |-
+    enum(
+      'RouteMapMatchIpv4Acl',
+      'RouteMapMatchIpv6Acl',
+      'RouteMapMatchIpv4PrefixList',
+      'RouteMapMatchIpv6PrefixList',
+      'RouteMapMatchIpv4MulticastGroup',
+      'RouteMapMatchIpv6MulticastGroup',
+      'RouteMapMatchIpv4Nh',
+      'RouteMapMatchIpv6Nh',
+      'RouteMapMatchCommunity',
+      'RouteMapMatchExtendedCommunity',
+      'RouteMapMatchAsPath',
+      'RouteMapMatchTag',
+      'RouteMapSetCommunity',
+      'RouteMapSetExtendedCommunity',
+      'RouteMapSetLocalPreference',
+      'RouteMapSetIpv4NextHop',
+      'RouteMapSetIpv6NextHop',
+      'RouteMapSetAsPath',
+      'RouteMapSetEvpnGatewayIp',
+      'RouteMapSetTag',
+      'RouteMapSetMetricType',
+      'RouteMapSetLevel',
+      'RouteMapSetWeight',
+      'RouteMapSetOrigin',
+      'RouteMapSetForwardingAddress',
+      'RouteMapSetDistance',
+      'RouteMapSetPathSelection',
+      required=False,
+      desc='Rule type'
+    )
+  ipv4_multicast_group: |-
+    ip(
+      version=4,
+      nd_type='ipv4addresswithsubnet',
+      required=False,
+      desc='Multicast network prefix within 224.0.0.0/4 with no host bits set'
+    )
+  ipv6_multicast_group: |-
+    ip(
+      version=6,
+      nd_type='ipv6addresswithprefix',
+      required=False,
+      desc='Multicast network prefix within ff00::/8 with no host bits set'
+    )
+  access_control_list_name: str(max=63, required=False, desc='Max size 63, no space allowed in the name')
+  prefix_list_names: list(str(min=1, desc='Comma separated'), required=False, desc='Comma separated')
+  community_list_names: list(str(min=1, desc='Comma separated'), required=False, desc='Comma separated')
+  extended_community_list_names: list(str(min=1, desc='Comma separated'), required=False, desc='Comma separated')
+  exact_match: |-
+    bool(
+      required=False,
+      desc='Indicates whether an exact match is required for the community lists or extended community lists'
+    )
+  as_path_access_list_name: |-
+    str(
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='AS path access-list name. Max size 63, no space allowed in the name'
+    )
+  additional_as_path_access_list_name: |-
+    str(
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Optional AS path access-list name after all-as-acl. Max size 63, no space allowed in the name'
+    )
+  tags: |-
+    str(
+      required=False,
+      desc='List of tags to match, each as an integer value in the <0-4294967295> range'
+    )
+  set_tag_value: int(min=0, max=4294967295, required=False, desc='Tag value in the <0-4294967295> range')
+  set_metric_type: |-
+    enum(
+      'external',
+      'internal',
+      'type-1',
+      'type-2',
+      required=False,
+      desc='Metric type for the destination routing protocol'
+    )
+  set_level: |-
+    enum(
+      'level-1',
+      'level-1-2',
+      'level-2',
+      required=False,
+      desc='IS-IS level into which the route is imported'
+    )
+  set_weight_value: int(min=0, max=65535, required=False, desc='BGP weight in the <0-65535> range')
+  set_origin: enum('egp', 'igp', 'incomplete', required=False, desc='BGP origin code')
+  set_distance_external: int(min=1, max=255, required=False, desc='External administrative distance in the <1-255> range')
+  set_distance_internal: |-
+    int(
+      min=1,
+      max=255,
+      required=False,
+      desc='Optional internal administrative distance in the <1-255> range'
+    )
+  set_distance_local: |-
+    int(
+      min=1,
+      max=255,
+      required=False,
+      desc='Optional local administrative distance in the <1-255> range and requires an internal administrativ'
+      'e distance'
+    )
+  set_path_selection_mode: enum('all', 'backup', 'best2', 'multipaths', required=False, desc='BGP path set to advertise')
+  additive: bool(required=False, desc='Indicates whether to add community lists without replacing existing ones')
+  graceful_restart_shutdown_community: bool(required=False, desc='Indicates whether to set the graceful restart shutdown community list')
+  no_advertise_community: |-
+    bool(
+      required=False,
+      desc='Indicates whether to set the no-advertise <do not advertise to any peer> community list'
+    )
+  no_export_community: |-
+    bool(
+      required=False,
+      desc='Indicates whether to set the no-export <do not export to next as> community list'
+    )
+  local_as_community: |-
+    bool(
+      required=False,
+      desc='Indicates whether to set the local-as <do not send outside local as> community list'
+    )
+  internet_community: bool(required=False, desc='Indicates whether to set the internet community list')
+  community_numbers: list(str(min=1, desc='Comma separated'), required=False, desc='Comma separated')
+  extended_community_list_name: str(max=63, required=False, desc='Extended community list name for set')
+  value: int(min=0, max=4294967295, required=False, desc='Min:0, max:4294967295')
+  next_hop_ip_collection: |-
+    list(
+      ip(nd_type='ipaddresswithoutprefix', desc='Comma separated'),
+      min=1,
+      required=False,
+      nd_type='ipaddresslist',
+      desc='Comma separated'
+    )
+  drop_on_fail: bool(required=False, desc='Indicates whether to drop the packet if the next hop is unavailable')
+  load_share: bool(required=False, desc='Indicates whether to enable load sharing across multiple next hops')
+  enforce_order: bool(required=False, desc='Maintains next-hop order as per CLI configs')
+  verify_availability: bool(required=False, desc='Indicates whether to ensure the next-hop is reachable before using it')
+  track_id: int(min=1, max=512, required=False, desc='Object ID that the tracking subsystem is tracking')
+  use_peer_address: bool(required=False, desc='Indicates whether to use the peer address as the next hop')
+  redistribute_unchanged: |-
+    bool(
+      required=False,
+      desc='Indicates whether to redistribute the routes without changing the next hop'
+    )
+  unchanged: bool(required=False, desc='Use unchanged address (for BGP session only)')
+  prepend_as_ns: str(required=False, desc='As number to prepend for set')
+  evpn_gateway_ip_option: |-
+    enum(
+      'use-nexthop',
+      'ip-address',
+      required=False,
+      desc='Use nexthop address as gateway IP or specify an explicit IPv4 gateway IP'
+    )
+  evpn_gateway_ip_address: ip(version=4, nd_type='ipv4address', required=False, desc='Gateway IP address for type 5 EVPN routes')
+policy_route_map_enhanced_entries:
+  action: enum('permit', 'deny', desc='Permit or deny operation')
+  sequence_number: int(min=0, max=65535, desc='Min:0, max:65535')
+  route_map_description: str(max=90, required=False, desc='Route-map description string. Max size 90')
+  rule_entries: |-
+    list(
+      include('policy_route_map_enhanced_entries_rule_entries'),
+      min=1,
+      required=False,
+      desc='Route-map entry'
+    )
+policy_router_bgp_enhanced:
+  BGP_ADDRESS_FAMILIES: |-
+    any(
+      list(include('policy_router_bgp_enhanced_BGP_ADDRESS_FAMILIES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure address-family options under the selected BGP context'
+    )
+  BGP_NETWORKS: |-
+    any(
+      list(include('policy_router_bgp_enhanced_BGP_NETWORKS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure network statements under the selected IPv4/IPv6 unicast BGP address-family'
+    )
+  BGP_AGGREGATE_ADDRESSES: |-
+    any(
+      list(include('policy_router_bgp_enhanced_BGP_AGGREGATE_ADDRESSES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure aggregate-address under the selected IPv4/IPv6 unicast BGP address-family'
+    )
+  BGP_REDISTRIBUTIONS: |-
+    any(
+      list(include('policy_router_bgp_enhanced_BGP_REDISTRIBUTIONS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure redistribution under the selected IPv4/IPv6 unicast BGP address-family'
+    )
+  BGP_PEER_TEMPLATES: |-
+    any(
+      list(include('policy_router_bgp_enhanced_BGP_PEER_TEMPLATES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure global BGP peer or peer-session templates used by neighbors in the default/global BGP in'
+      'stance'
+    )
+  BGP_PEER_TEMPLATE_ADDRESS_FAMILIES: |-
+    any(
+      list(include('policy_router_bgp_enhanced_BGP_PEER_TEMPLATE_ADDRESS_FAMILIES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure address-family options under default/global peer templates'
+    )
+  BGP_BMP_SERVERS: |-
+    any(
+      list(include('policy_router_bgp_enhanced_BGP_BMP_SERVERS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure up to two BGP Monitoring Protocol servers under the default/global BGP context'
+    )
+  BGP_NEIGHBORS: |-
+    any(
+      list(include('policy_router_bgp_enhanced_BGP_NEIGHBORS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure BGP neighbors and optional neighbor address-family settings under the selected BGP conte'
+      'xt'
+    )
+policy_router_bgp_enhanced_BGP_ADDRESS_FAMILIES:
+  address_family: |-
+    enum(
+      'ipv4_unicast',
+      'ipv6_unicast',
+      'ipv4_multicast',
+      'ipv6_multicast',
+      'l2vpn_evpn',
+      'ipv4_mvpn',
+      'ipv6_mvpn',
+      'vpnv4_unicast',
+      'vpnv6_unicast',
+      desc='BGP address-family'
+    )
+  maximum_paths: int(min=1, max=64, required=False, desc='Configure maximum-paths. Valid range is 1-64.')
+  maximum_paths_ibgp: int(min=1, max=64, required=False, desc='Configure maximum-paths ibgp. Valid range is 1-64.')
+  maximum_paths_local: |-
+    int(
+      min=1,
+      max=64,
+      required=False,
+      desc='Configure maximum-paths local under the default/global L2VPN EVPN address-family. Valid range is 1'
+      '-64.'
+    )
+  nexthop_trigger_delay_critical: int(min=0, max=2147483647, required=False, desc='Configure nexthop trigger-delay critical delay.')
+  nexthop_trigger_delay_non_critical: int(min=0, max=2147483647, required=False, desc='Configure nexthop trigger-delay non-critical delay.')
+  bestpath_defer_time: |-
+    int(
+      min=100,
+      max=3000,
+      required=False,
+      desc='Configure timers bestpath-defer under IPv4/IPv6 multicast. Valid range is 100-3000 milliseconds.'
+    )
+  bestpath_defer_maximum: |-
+    int(
+      min=300,
+      max=300000,
+      required=False,
+      desc='Required when bestpath defer timer is configured. Valid range is 300-300000 milliseconds.'
+    )
+  advertise_l2vpn_evpn: |-
+    bool(
+      required=False,
+      desc='Configure advertise l2vpn evpn under a non-default VRF IPv4/IPv6 unicast address-family'
+    )
+  export_gateway_ip: |-
+    bool(
+      required=False,
+      desc='Configure export-gateway-ip under a non-default VRF IPv4/IPv6 unicast or multicast address-family'
+    )
+  advertise_pip: |-
+    bool(
+      required=False,
+      desc='Configure advertise-pip under the default/global L2VPN EVPN address-family'
+    )
+  retain_route_target_all: |-
+    bool(
+      required=False,
+      desc='Configure retain route-target all under a default/global-only address-family'
+    )
+  additional_paths_send: bool(required=False, desc='Configure additional-paths send')
+  additional_paths_receive: bool(required=False, desc='Configure additional-paths receive')
+  additional_paths_install: bool(required=False, desc='Configure additional-paths install backup')
+  additional_paths_selection_route_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Configure additional-paths selection route-map'
+    )
+policy_router_bgp_enhanced_BGP_NETWORKS:
+  address_family: |-
+    enum(
+      'ipv4_unicast',
+      'ipv6_unicast',
+      'ipv4_multicast',
+      'ipv6_multicast',
+      desc='Network address-family'
+    )
+  prefix: |-
+    str(
+      min=1,
+      max=128,
+      matches='^[^\\s]+$',
+      desc='Network prefix, for example 10.1.1.0/24 or 2001:db8::/64'
+    )
+policy_router_bgp_enhanced_BGP_AGGREGATE_ADDRESSES:
+  address_family: |-
+    enum(
+      'ipv4_unicast',
+      'ipv6_unicast',
+      'ipv4_multicast',
+      'ipv6_multicast',
+      desc='Aggregate address-family'
+    )
+  prefix: |-
+    str(
+      min=1,
+      max=128,
+      matches='^[^\\s]+$',
+      desc='Aggregate IPv4 or IPv6 prefix, for example 10.0.176.0/23 or 2001:db8::/64'
+    )
+  summary_only: bool(required=False, desc='Do not advertise more specific routes.')
+  as_set: bool(required=False, desc='Generate AS-SET information.')
+  advertise_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Route-map used to select attribute information from specific routes. Max size 63.'
+    )
+  attribute_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Route-map used to set aggregate attributes. Max size 63.'
+    )
+  suppress_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Route-map used to conditionally filter more specific routes. Max size 63. Not valid with summary-o'
+      'nly.'
+    )
+policy_router_bgp_enhanced_BGP_REDISTRIBUTIONS:
+  address_family: |-
+    enum(
+      'ipv4_unicast',
+      'ipv6_unicast',
+      'ipv4_multicast',
+      'ipv6_multicast',
+      desc='Redistribution address-family'
+    )
+  redistribute_source: |-
+    enum(
+      'am',
+      'amt',
+      'direct',
+      'eigrp',
+      'hmm',
+      'isis',
+      'lisp',
+      'ospf',
+      'ospfv3',
+      'rip',
+      'static',
+      desc='Route source to redistribute'
+    )
+  source_process_tag: |-
+    str(
+      min=1,
+      max=20,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Optional source process tag or ASN for sources such as EIGRP, OSPF, BGP, IS-IS, or RIP.'
+    )
+  route_map: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Optional route-map for redistribution')
+policy_router_bgp_enhanced_BGP_PEER_TEMPLATES:
+  template_type: enum('peer', 'peer-session', desc='BGP template type')
+  template_name: str(min=1, max=64, matches='^[^\\s]+$', desc='BGP peer template name')
+  bfd_mode: |-
+    enum(
+      'none',
+      'singlehop',
+      'multihop',
+      required=False,
+      desc='Configure bfd or bfd multihop under the peer template'
+    )
+  peer_type: |-
+    enum(
+      'none',
+      'fabric-border-leaf',
+      'fabric-external',
+      required=False,
+      desc='Optional fabric peer type'
+    )
+  enable_log_neighbor_changes: bool(required=False, desc='Configure log-neighbor-changes under the peer template')
+  remote_as: str(min=1, max=11, required=False, desc='Optional remote-as configured under the peer template')
+  local_as: str(min=1, max=11, required=False, desc='Optional local-as configured under the peer template')
+  local_as_no_prepend: bool(required=False, desc='Append no-prepend to local-as')
+  local_as_replace_as: bool(required=False, desc='Append replace-as to local-as')
+  local_as_dual_as: bool(required=False, desc='Append dual-as to local-as')
+  description: str(min=1, max=80, required=False, desc='Peer template description')
+  update_source: str(min=1, max=64, matches='^[^\\s]+$', required=False, desc='Optional update-source interface')
+  password_key_type: enum('none', '3', '6', '7', required=False, desc='Optional encrypted BGP password type')
+  password: str(min=1, max=256, required=False, desc='Encrypted BGP password')
+  ebgp_multihop_ttl: int(min=1, max=255, required=False, desc='Optional ebgp-multihop TTL')
+  keepalive_interval: |-
+    int(
+      min=1,
+      max=3600,
+      required=False,
+      desc='BGP keepalive interval in seconds. Default 60 is not generated with holdtime 180.'
+    )
+  hold_interval: |-
+    int(
+      min=3,
+      max=3600,
+      required=False,
+      desc='BGP hold interval in seconds. Default 180 is not generated with keepalive 60.'
+    )
+policy_router_bgp_enhanced_BGP_PEER_TEMPLATE_ADDRESS_FAMILIES:
+  template_type: enum('peer', desc='Address-family blocks are supported only under a BGP peer template')
+  template_name: str(min=1, max=64, matches='^[^\\s]+$', desc='BGP peer template name')
+  address_family: |-
+    enum(
+      'ipv4_unicast',
+      'ipv6_unicast',
+      'ipv4_multicast',
+      'ipv6_multicast',
+      'l2vpn_evpn',
+      'ipv4_mvpn',
+      'ipv6_mvpn',
+      'vpnv4_unicast',
+      'vpnv6_unicast',
+      desc='Peer template address-family'
+    )
+  send_community_mode: |-
+    enum(
+      'none',
+      'standard',
+      'extended',
+      'both',
+      'standard_and_extended',
+      required=False,
+      desc='Configure send-community under the peer template address-family'
+    )
+  route_map_in: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Inbound route-map')
+  route_map_out: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Outbound route-map')
+  rewrite_evpn_rt_asn: bool(required=False, desc='Configure rewrite-evpn-rt-asn under L2VPN EVPN')
+  rewrite_rt_asn: bool(required=False, desc='Configure rewrite-rt-asn under IPv4/IPv6 MVPN')
+  soft_reconfiguration_inbound: enum('none', 'enabled', 'always', required=False, desc='Configure soft-reconfiguration inbound')
+  next_hop_self: bool(required=False, desc='Configure next-hop-self')
+policy_router_bgp_enhanced_BGP_BMP_SERVERS:
+  server_id: int(min=1, max=2, desc='BMP server number. NX-OS supports server IDs 1 and 2.')
+  address: ip(nd_type='ipaddresswithoutprefix', desc='IPv4 or IPv6 address of the BMP server')
+  port: int(min=1, max=65535, desc='TCP port used for the BMP session')
+  description: str(min=1, max=256, required=False, desc='Optional BMP server description')
+  initial_refresh_mode: |-
+    enum(
+      'none',
+      'delay',
+      'skip',
+      required=False,
+      desc='Configure whether the initial BMP route refresh is delayed or skipped'
+    )
+  initial_refresh_delay: int(min=30, max=720, required=False, desc='Delay before the initial route refresh in seconds')
+  initial_delay: int(min=30, max=720, required=False, desc='Delay before connecting to the BMP server in seconds')
+  stats_reporting_period: int(min=30, max=720, required=False, desc='BMP statistics reporting interval in seconds')
+  admin_state: |-
+    enum(
+      'none',
+      'no_shutdown',
+      'shutdown',
+      required=False,
+      desc='Optionally configure shutdown or no shutdown under the BMP server'
+    )
+  vrf: |-
+    str(
+      min=1,
+      max=64,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Optional reachability VRF for the BMP server'
+    )
+  update_source: |-
+    str(
+      min=1,
+      max=64,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Optional source interface for BMP sessions and messages'
+    )
+policy_router_bgp_enhanced_BGP_NEIGHBORS:
+  neighbor: |-
+    str(
+      min=1,
+      max=255,
+      matches='^[^\\s]+$',
+      desc='BGP neighbor IP address, hostname, prefix, or peer interface'
+    )
+  inherit_template_type: |-
+    enum(
+      'none',
+      'peer',
+      'peer-session',
+      required=False,
+      desc='Optionally inherit a BGP peer or peer-session template'
+    )
+  inherit_template_name: str(min=1, max=64, matches='^[^\\s]+$', required=False, desc='Template name to inherit')
+  remote_as: |-
+    str(
+      min=1,
+      max=11,
+      required=False,
+      desc='Neighbor remote-as. Optional when inherited from a peer template.'
+    )
+  enable_bmp_server_1: bool(required=False, desc='Configure bmp-activate-server 1 under this neighbor')
+  enable_bmp_server_2: bool(required=False, desc='Configure bmp-activate-server 2 under this neighbor')
+  description: str(min=1, max=80, required=False, desc='Neighbor description')
+  admin_state: |-
+    enum(
+      'none',
+      'no_shutdown',
+      'shutdown',
+      required=False,
+      desc='Optionally configure shutdown or no shutdown under the neighbor'
+    )
+  enable_bfd: bool(required=False, desc='Configure bfd under the neighbor')
+  peer_type: |-
+    enum(
+      'none',
+      'fabric-border-leaf',
+      'fabric-external',
+      required=False,
+      desc='Optional fabric peer type'
+    )
+  password_key_type: enum('none', '3', '6', '7', required=False, desc='Optional encrypted BGP password type')
+  password: str(min=1, max=256, required=False, desc='Encrypted BGP password')
+  update_source: str(min=1, max=64, matches='^[^\\s]+$', required=False, desc='Optional update-source interface')
+  keepalive_interval: |-
+    int(
+      min=1,
+      max=3600,
+      required=False,
+      desc='BGP keepalive interval in seconds. Default 60 is not generated with holdtime 180.'
+    )
+  hold_interval: |-
+    int(
+      min=3,
+      max=3600,
+      required=False,
+      desc='BGP hold interval in seconds. Default 180 is not generated with keepalive 60.'
+    )
+  local_as: str(min=1, max=11, required=False, desc='Optional local-as')
+  local_as_no_prepend: bool(required=False, desc='Append no-prepend to local-as')
+  local_as_replace_as: bool(required=False, desc='Append replace-as to local-as')
+  local_as_dual_as: bool(required=False, desc='Append dual-as to local-as')
+  ebgp_multihop_ttl: int(min=1, max=255, required=False, desc='Optional ebgp-multihop TTL')
+  enable_log_neighbor_changes: bool(required=False, desc='Configure log-neighbor-changes under the neighbor')
+  enable_ipv4_unicast_af: bool(required=False, desc='Configure address-family ipv4 unicast for this neighbor')
+  ipv4_unicast_send_community_mode: |-
+    enum(
+      'none',
+      'standard',
+      'extended',
+      'both',
+      'standard_and_extended',
+      required=False,
+      desc='Configure send-community under IPv4 unicast'
+    )
+  ipv4_unicast_route_map_in: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Inbound route-map for IPv4 unicast')
+  ipv4_unicast_route_map_out: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Outbound route-map for IPv4 unicast')
+  ipv4_unicast_soft_reconfiguration_inbound: |-
+    enum(
+      'none',
+      'enabled',
+      'always',
+      required=False,
+      desc='Configure soft-reconfiguration inbound for IPv4 unicast'
+    )
+  ipv4_unicast_allowas_in: int(min=1, max=10, required=False, desc='Configure allowas-in for IPv4 unicast. Valid range is 1-10.')
+  ipv4_unicast_as_override: bool(required=False, desc='Configure as-override under IPv4 unicast')
+  ipv4_unicast_disable_peer_as_check: bool(required=False, desc='Configure disable-peer-as-check under IPv4 unicast')
+  ipv4_unicast_default_originate: bool(required=False, desc='Configure default-originate under IPv4 unicast')
+  ipv4_unicast_next_hop_self: bool(required=False, desc='Configure next-hop-self under IPv4 unicast')
+  ipv4_unicast_route_reflector_client: bool(required=False, desc='Configure route-reflector-client under IPv4 unicast')
+  enable_ipv6_unicast_af: bool(required=False, desc='Configure address-family ipv6 unicast for this neighbor')
+  ipv6_unicast_send_community_mode: |-
+    enum(
+      'none',
+      'standard',
+      'extended',
+      'both',
+      'standard_and_extended',
+      required=False,
+      desc='Configure send-community under IPv6 unicast'
+    )
+  ipv6_unicast_route_map_in: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Inbound route-map for IPv6 unicast')
+  ipv6_unicast_route_map_out: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Outbound route-map for IPv6 unicast')
+  ipv6_unicast_soft_reconfiguration_inbound: |-
+    enum(
+      'none',
+      'enabled',
+      'always',
+      required=False,
+      desc='Configure soft-reconfiguration inbound for IPv6 unicast'
+    )
+  ipv6_unicast_allowas_in: int(min=1, max=10, required=False, desc='Configure allowas-in for IPv6 unicast. Valid range is 1-10.')
+  ipv6_unicast_as_override: bool(required=False, desc='Configure as-override under IPv6 unicast')
+  ipv6_unicast_disable_peer_as_check: bool(required=False, desc='Configure disable-peer-as-check under IPv6 unicast')
+  ipv6_unicast_default_originate: bool(required=False, desc='Configure default-originate under IPv6 unicast')
+  ipv6_unicast_next_hop_self: bool(required=False, desc='Configure next-hop-self under IPv6 unicast')
+  ipv6_unicast_route_reflector_client: bool(required=False, desc='Configure route-reflector-client under IPv6 unicast')
+  enable_ipv4_multicast_af: bool(required=False, desc='Configure address-family ipv4 multicast for this neighbor')
+  ipv4_multicast_send_community_mode: |-
+    enum(
+      'none',
+      'standard',
+      'extended',
+      'both',
+      'standard_and_extended',
+      required=False,
+      desc='Configure send-community under IPv4 multicast'
+    )
+  ipv4_multicast_route_map_in: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Inbound route-map for IPv4 multicast')
+  ipv4_multicast_route_map_out: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Outbound route-map for IPv4 multicast')
+  ipv4_multicast_soft_reconfiguration_inbound: |-
+    enum(
+      'none',
+      'enabled',
+      'always',
+      required=False,
+      desc='Configure soft-reconfiguration inbound for IPv4 multicast'
+    )
+  ipv4_multicast_allowas_in: |-
+    int(
+      min=1,
+      max=10,
+      required=False,
+      desc='Configure allowas-in for IPv4 multicast. Valid range is 1-10.'
+    )
+  ipv4_multicast_as_override: bool(required=False, desc='Configure as-override under IPv4 multicast')
+  ipv4_multicast_disable_peer_as_check: bool(required=False, desc='Configure disable-peer-as-check under IPv4 multicast')
+  ipv4_multicast_default_originate: bool(required=False, desc='Configure default-originate under IPv4 multicast')
+  ipv4_multicast_next_hop_self: bool(required=False, desc='Configure next-hop-self under IPv4 multicast')
+  ipv4_multicast_route_reflector_client: bool(required=False, desc='Configure route-reflector-client under IPv4 multicast')
+  enable_ipv6_multicast_af: bool(required=False, desc='Configure address-family ipv6 multicast for this neighbor')
+  ipv6_multicast_send_community_mode: |-
+    enum(
+      'none',
+      'standard',
+      'extended',
+      'both',
+      'standard_and_extended',
+      required=False,
+      desc='Configure send-community under IPv6 multicast'
+    )
+  ipv6_multicast_route_map_in: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Inbound route-map for IPv6 multicast')
+  ipv6_multicast_route_map_out: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Outbound route-map for IPv6 multicast')
+  ipv6_multicast_soft_reconfiguration_inbound: |-
+    enum(
+      'none',
+      'enabled',
+      'always',
+      required=False,
+      desc='Configure soft-reconfiguration inbound for IPv6 multicast'
+    )
+  ipv6_multicast_allowas_in: |-
+    int(
+      min=1,
+      max=10,
+      required=False,
+      desc='Configure allowas-in for IPv6 multicast. Valid range is 1-10.'
+    )
+  ipv6_multicast_as_override: bool(required=False, desc='Configure as-override under IPv6 multicast')
+  ipv6_multicast_disable_peer_as_check: bool(required=False, desc='Configure disable-peer-as-check under IPv6 multicast')
+  ipv6_multicast_default_originate: bool(required=False, desc='Configure default-originate under IPv6 multicast')
+  ipv6_multicast_next_hop_self: bool(required=False, desc='Configure next-hop-self under IPv6 multicast')
+  ipv6_multicast_route_reflector_client: bool(required=False, desc='Configure route-reflector-client under IPv6 multicast')
+  enable_l2vpn_evpn_af: |-
+    bool(
+      required=False,
+      desc='Configure address-family l2vpn evpn for this neighbor in the default/global BGP context'
+    )
+  l2vpn_evpn_send_community_mode: |-
+    enum(
+      'none',
+      'standard',
+      'extended',
+      'both',
+      'standard_and_extended',
+      required=False,
+      desc='Configure send-community under L2VPN EVPN'
+    )
+  l2vpn_evpn_route_map_in: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Inbound route-map for L2VPN EVPN')
+  l2vpn_evpn_route_map_out: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Outbound route-map for L2VPN EVPN')
+  l2vpn_evpn_allowas_in: int(min=1, max=10, required=False, desc='Configure allowas-in for L2VPN EVPN. Valid range is 1-10.')
+  l2_vpn_evpn_as_override: bool(required=False, desc='Configure as-override under L2VPN EVPN')
+  l2vpn_evpn_disable_peer_as_check: bool(required=False, desc='Configure disable-peer-as-check under L2VPN EVPN')
+  l2vpn_evpn_route_reflector_client: bool(required=False, desc='Configure route-reflector-client under L2VPN EVPN')
+  l2_vpn_evpn_import_vpn_unicast: bool(required=False, desc='Configure import vpn unicast under L2VPN EVPN')
+  l2vpn_evpn_import_vpn_unicast_reoriginate: bool(required=False, desc='Append reoriginate to import vpn unicast under L2VPN EVPN')
+  l2_vpn_evpn_import_vpn_unicast_route_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Route-map for import vpn unicast under L2VPN EVPN'
+    )
+  l2_vpn_evpn_encapsulation_mpls: bool(required=False, desc='Configure encapsulation mpls under L2VPN EVPN')
+  l2_vpn_evpn_rewrite_evpn_rt_asn: bool(required=False, desc='Configure rewrite-evpn-rt-asn under L2VPN EVPN')
+  enable_ipv4_mvpn_af: |-
+    bool(
+      required=False,
+      desc='Configure address-family ipv4 mvpn for this neighbor in the default/global BGP context'
+    )
+  ipv4_mvpn_send_community_mode: |-
+    enum(
+      'none',
+      'standard',
+      'extended',
+      'both',
+      'standard_and_extended',
+      required=False,
+      desc='Configure send-community under IPv4 MVPN'
+    )
+  ipv4_mvpn_route_map_in: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Inbound route-map for IPv4 MVPN')
+  ipv4_mvpn_route_map_out: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Outbound route-map for IPv4 MVPN')
+  ipv4_mvpn_allowas_in: int(min=1, max=10, required=False, desc='Configure allowas-in for IPv4 MVPN. Valid range is 1-10.')
+  ipv4_mvpn_disable_peer_as_check: bool(required=False, desc='Configure disable-peer-as-check under IPv4 MVPN')
+  ipv4_mvpn_route_reflector_client: bool(required=False, desc='Configure route-reflector-client under IPv4 MVPN')
+  ipv4_mvpn_rewrite_rt_asn: bool(required=False, desc='Configure rewrite-rt-asn under IPv4 MVPN')
+  enable_ipv6_mvpn_af: |-
+    bool(
+      required=False,
+      desc='Configure address-family ipv6 mvpn for this neighbor in the default/global BGP context'
+    )
+  ipv6_mvpn_send_community_mode: |-
+    enum(
+      'none',
+      'standard',
+      'extended',
+      'both',
+      'standard_and_extended',
+      required=False,
+      desc='Configure send-community under IPv6 MVPN'
+    )
+  ipv6_mvpn_route_map_in: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Inbound route-map for IPv6 MVPN')
+  ipv6_mvpn_route_map_out: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Outbound route-map for IPv6 MVPN')
+  ipv6_mvpn_allowas_in: int(min=1, max=10, required=False, desc='Configure allowas-in for IPv6 MVPN. Valid range is 1-10.')
+  ipv6_mvpn_disable_peer_as_check: bool(required=False, desc='Configure disable-peer-as-check under IPv6 MVPN')
+  ipv6_mvpn_route_reflector_client: bool(required=False, desc='Configure route-reflector-client under IPv6 MVPN')
+  ipv6_mvpn_rewrite_rt_asn: bool(required=False, desc='Configure rewrite-rt-asn under IPv6 MVPN')
+  enable_vpnv4_unicast_af: |-
+    bool(
+      required=False,
+      desc='Configure address-family vpnv4 unicast for this neighbor in the default/global BGP context'
+    )
+  vpnv4_unicast_send_community_mode: |-
+    enum(
+      'none',
+      'standard',
+      'extended',
+      'both',
+      'standard_and_extended',
+      required=False,
+      desc='Configure send-community under VPNv4 unicast'
+    )
+  vpnv4_unicast_route_map_in: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Inbound route-map for VPNv4 unicast')
+  vpnv4_unicast_route_map_out: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Outbound route-map for VPNv4 unicast')
+  vpnv4_unicast_import_l2_vpn_evpn: bool(required=False, desc='Configure import l2vpn evpn under VPNv4 unicast')
+  vpnv4_unicast_import_l2_vpn_evpn_route_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Route-map for import l2vpn evpn under VPNv4 unicast'
+    )
+  vpnv4_unicast_import_l2_vpn_evpn_reoriginate: bool(required=False, desc='Configure import l2vpn evpn reoriginate under VPNv4 unicast')
+  vpnv4_unicast_allowas_in: |-
+    int(
+      min=1,
+      max=10,
+      required=False,
+      desc='Configure allowas-in for VPNv4 unicast. Valid range is 1-10.'
+    )
+  vpnv4_unicast_next_hop_self: bool(required=False, desc='Configure next-hop-self under VPNv4 unicast')
+  vpnv4_unicast_route_reflector_client: bool(required=False, desc='Configure route-reflector-client under VPNv4 unicast')
+  enable_vpnv6_unicast_af: |-
+    bool(
+      required=False,
+      desc='Configure address-family vpnv6 unicast for this neighbor in the default/global BGP context'
+    )
+  vpnv6_unicast_send_community_mode: |-
+    enum(
+      'none',
+      'standard',
+      'extended',
+      'both',
+      'standard_and_extended',
+      required=False,
+      desc='Configure send-community under VPNv6 unicast'
+    )
+  vpnv6_unicast_route_map_in: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Inbound route-map for VPNv6 unicast')
+  vpnv6_unicast_route_map_out: str(min=1, max=63, matches='^[^\\s]+$', required=False, desc='Outbound route-map for VPNv6 unicast')
+  vpnv6_unicast_import_l2_vpn_evpn: bool(required=False, desc='Configure import l2vpn evpn under VPNv6 unicast')
+  vpnv6_unicast_import_l2_vpn_evpn_route_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Route-map for import l2vpn evpn under VPNv6 unicast'
+    )
+  vpnv6_unicast_import_l2_vpn_evpn_reoriginate: bool(required=False, desc='Configure import l2vpn evpn reoriginate under VPNv6 unicast')
+  vpnv6_unicast_allowas_in: |-
+    int(
+      min=1,
+      max=10,
+      required=False,
+      desc='Configure allowas-in for VPNv6 unicast. Valid range is 1-10.'
+    )
+  vpnv6_unicast_next_hop_self: bool(required=False, desc='Configure next-hop-self under VPNv6 unicast')
+  vpnv6_unicast_route_reflector_client: bool(required=False, desc='Configure route-reflector-client under VPNv6 unicast')
+policy_router_ospf_enhanced:
+  OSPF_AREAS: |-
+    any(
+      list(include('policy_router_ospf_enhanced_OSPF_AREAS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Optional OSPF area authentication, default-cost, NSSA, and stub options'
+    )
+policy_router_ospf_enhanced_OSPF_AREAS:
+  area_id: str(min=1, max=15, desc='OSPF area ID in dotted decimal or decimal format')
+  authentication_message_digest: bool(required=False, desc='Configure area authentication message-digest')
+  default_cost: int(min=0, max=16777215, required=False, desc='Configure area default-cost')
+  nssa: bool(required=False, desc='Configure area nssa')
+  nssa_suboption: |-
+    enum(
+      'none',
+      'default-information-originate',
+      'no-redistribution',
+      'no-summary',
+      'translate',
+      'translate_type7_always',
+      'translate_type7_never',
+      'translate_type7_supress_fa',
+      'translate_type7_always_supress_fa',
+      required=False,
+      desc='Optional NSSA suboption'
+    )
+  stub: bool(required=False, desc='Configure area stub. Mutually exclusive with NSSA')
+  stub_no_summary: bool(required=False, desc='Configure area stub no-summary')
+policy_seed_switch:
+  BOOTSTRAP_LIST: |-
+    any(
+      list(include('policy_seed_switch_BOOTSTRAP_LIST'), min=1),
+      str(min=1),
+      desc='Interfaces and IP addresses used for inband POAP'
+    )
+policy_seed_switch_BOOTSTRAP_LIST:
+  intf: str(required=False, desc='Interface')
+  ipv4: ip(version=4, nd_type='ipv4address', required=False, desc='IPv4 address')
+policy_service_acl:
+  ACES: any(list(include('policy_service_acl_ACES'), min=1), str(min=1), desc='Access list items')
+policy_service_acl_ACES:
+  sequence_number: int(min=1, max=4294967295, desc='Min:1, max:4294967295')
+  protocol: enum('icmp', 'ip', 'tcp', 'udp', desc='The protocol, example TCP.')
+  src_ip: |-
+    str(
+      matches='^(any|(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))*)(?:'
+      '\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))?(?:\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))?(\\/('
+      '0|[1-9]\\d?|1\\d\\d|2[0-9]|3[0-2]))?$',
+      required=False,
+      desc="IPv4 address, prefix or 'any'"
+    )
+  dest_ip: |-
+    str(
+      matches='^(any|(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))*)(?:'
+      '\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))?(?:\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))?(\\/('
+      '0|[1-9]\\d?|1\\d\\d|2[0-9]|3[0-2]))?$',
+      required=False,
+      desc="IPv4 address, prefix or 'any'"
+    )
+  src_ipv6: str(matches='^(any|[A-Fa-f0-9:/]+)$', required=False, desc="IPv6 address, prefix or 'any'")
+  dest_ipv6: str(matches='^(any|[A-Fa-f0-9:/]+)$', required=False, desc="IPv6 address, prefix or 'any'")
+  src_port: |-
+    str(
+      matches='^(any|[A-Za-z0-9-]+)$',
+      required=False,
+      desc="Source port number, example any or 443. Value is ignored for 'IP' and 'icmp' protocol"
+    )
+  dest_port: |-
+    str(
+      matches='^(any|[A-Za-z0-9-]+)$',
+      required=False,
+      desc="Destination port number, example any or 443. Value is ignored for 'IP' and 'icmp' protocol"
+    )
+policy_service_epbr:
+  CHAINING: |-
+    any(
+      list(include('policy_service_epbr_CHAINING'), min=1),
+      str(min=1),
+      required=False,
+      desc='Service chaining for the matched ACL'
+    )
+policy_service_epbr_CHAINING:
+  sequence_number: int(desc='Sequence number')
+  epbr_service_endpoint_name: str(min=1, desc='ePBR service endpoint name')
+  fail_action: enum('none', 'drop', 'forward', 'bypass', desc='Fail action')
+policy_sgm:
+  groups: |-
+    any(
+      list(include('policy_sgm_groups'), min=1),
+      str(min=1),
+      required=False,
+      desc='Security groups selectors'
+    )
+  contracts: |-
+    any(
+      list(include('policy_sgm_contracts'), min=1),
+      str(min=1),
+      required=False,
+      desc='Security contracts'
+    )
+  classMaps: |-
+    any(
+      list(include('policy_sgm_classMaps'), min=1),
+      str(min=1),
+      required=False,
+      desc='One or more protocol matches'
+    )
+  policies: any(list(include('policy_sgm_policies'), min=1), str(min=1), required=False, desc='Actions')
+policy_sgm_groups_interfaces:
+  interface_name: str(required=False, desc='Interface name')
+policy_sgm_groups:
+  group_id: int(min=1, max=65535, desc='(Min=1,max=65535)')
+  group_name: str(min=1, desc='Name')
+  match_type: enum('connected-endpoints', 'external-subnets', required=False, desc='Type name')
+  ip_type: enum('ipv4', 'ipv6', required=False, desc='Type name')
+  ip_addr: str(required=False, desc='IP')
+  vlan: str(required=False, desc='VLAN')
+  interfaces: list(include('policy_sgm_groups_interfaces'), min=1, required=False, desc='Interfaces')
+policy_sgm_contracts:
+  sgt: int(min=-1, max=65535, desc='(Min=-1,max=65535)')
+  dgt: int(min=-1, max=65535, desc='(Min=-1,max=65535)')
+  policy_name: str(min=1, desc='Policy')
+  direction: enum('bidir', 'unidir', desc='Direction')
+policy_sgm_classMaps:
+  filter_name: str(min=1, desc='Class name')
+  desc: str(required=False, desc='Class description')
+  match: str(min=1, desc='Match IP TCP<br/>match IP TCP dport 40')
+policy_sgm_policies_actions:
+  action: enum('permit', 'deny', 'log', required=False, desc='Action')
+policy_sgm_policies:
+  policy_name: str(min=1, desc='Policy name')
+  desc: str(required=False, desc='Policy description')
+  filter_name: str(min=1, desc='Class name')
+  actions: list(include('policy_sgm_policies_actions'), min=1, required=False)
+policy_sgm_switch:
+  groups: |-
+    any(
+      list(include('policy_sgm_switch_groups'), min=1),
+      str(min=1),
+      required=False,
+      desc='Security groups selectors'
+    )
+  associations: |-
+    any(
+      list(include('policy_sgm_switch_associations'), min=1),
+      str(min=1),
+      required=False,
+      desc='Contract associations'
+    )
+  classMaps: |-
+    any(
+      list(include('policy_sgm_switch_classMaps'), min=1),
+      str(min=1),
+      required=False,
+      desc='One or more protocol matches'
+    )
+  policies: any(list(include('policy_sgm_switch_policies'), min=1), str(min=1), required=False, desc='Actions')
+policy_sgm_switch_groups_interfaces:
+  interface_name: str(required=False, desc='Interface name')
+policy_sgm_switch_groups:
+  group_id: int(min=1, max=65535, desc='(Min=1,max=65535)')
+  group_name: str(min=1, desc='Name')
+  match_type: enum('connected-endpoints', 'external-subnets', required=False, desc='Match type')
+  ip_type: enum('ipv4', 'ipv6', required=False, desc='IP version')
+  vrf_name: str(required=False, desc='VRF')
+  ip_addr: str(required=False, desc='IP')
+  vlan: int(required=False, desc='VLAN')
+  interfaces: list(include('policy_sgm_switch_groups_interfaces'), min=1, required=False, desc='Interfaces')
+policy_sgm_switch_associations_contracts:
+  sgt: int(min=-1, max=65535, desc='(Min=-1,max=65535)')
+  dgt: int(min=-1, max=65535, desc='(Min=-1,max=65535)')
+  policy_name: str(min=1, desc='Policy')
+  direction: enum('bidir', 'unidir', desc='Direction')
+policy_sgm_switch_associations:
+  vrf_name: str(min=1, desc='VRF')
+  contracts: list(include('policy_sgm_switch_associations_contracts'), min=1, required=False)
+policy_sgm_switch_classMaps:
+  filter_name: str(min=1, desc='Class name')
+  desc: str(required=False, desc='Class description')
+  match: str(min=1, desc='Match IP TCP<br/>match IP TCP dport 40')
+policy_sgm_switch_policies_actions:
+  action: enum('permit', 'deny', 'log', required=False, desc='Action')
+policy_sgm_switch_policies:
+  policy_name: str(min=1, desc='Policy name')
+  desc: str(required=False, desc='Policy description')
+  filter_name: str(min=1, desc='Class name')
+  actions: list(include('policy_sgm_switch_policies_actions'), min=1, required=False)
+policy_snmp_server_enhanced:
+  SNMP_SOURCE_INTERFACES: |-
+    any(
+      list(include('policy_snmp_server_enhanced_SNMP_SOURCE_INTERFACES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure source interfaces for SNMP traps or informs'
+    )
+  SNMP_HOSTS: |-
+    any(
+      list(include('policy_snmp_server_enhanced_SNMP_HOSTS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure SNMP notification hosts, source interface, and optional VRF'
+    )
+  SNMP_USERS: |-
+    any(
+      list(include('policy_snmp_server_enhanced_SNMP_USERS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure SNMPv3 users and optional enforcePriv, IPv4 ACL, IPv6 ACL, or combined IPv4/IPv6 ACL bin'
+      'dings'
+    )
+  SNMP_ENABLED_TRAPS: |-
+    any(
+      list(include('policy_snmp_server_enhanced_SNMP_ENABLED_TRAPS'), min=1),
+      str(min=1),
+      required=False,
+      desc="Trap suffixes after 'snmp-server enable traps', such as bgp or callhome event-notify"
+    )
+  SNMP_CONTEXTS: |-
+    any(
+      list(include('policy_snmp_server_enhanced_SNMP_CONTEXTS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure SNMP contexts mapped to VRFs'
+    )
+policy_snmp_server_enhanced_SNMP_SOURCE_INTERFACES:
+  notification_type: enum('traps', 'informs', desc='SNMP notification type')
+  source_interface: str(min=1, desc='Source interface for this SNMP notification type')
+policy_snmp_server_enhanced_SNMP_HOSTS:
+  host_ip: ip(nd_type='ipaddresswithoutprefix', desc='IPv4/IPv6 address of SNMP notification host')
+  source_interface: str(required=False, desc='Optional source interface for this host')
+  vrf: |-
+    str(
+      min=1,
+      max=64,
+      required=False,
+      desc='Optional VRF used for this host. Leave blank to omit use-vrf'
+    )
+  notification_type: |-
+    enum(
+      'none',
+      'traps',
+      'informs',
+      required=False,
+      desc='Select traps, informs, or none to only configure host source-interface/use-vrf'
+    )
+  snmp_version: enum('1', '2c', '3', required=False, desc='SNMP notification version')
+  snmpv3_security_level: enum('noauth', 'auth', 'priv', required=False, desc='SNMPv3 security level')
+  community_or_username: |-
+    str(
+      min=1,
+      max=64,
+      matches='^[^\\x22\\x00-\\x20\\x7F]*$',
+      required=False,
+      desc='Community string for v1/v2c or SNMPv3 user name'
+    )
+  udp_port: int(min=0, max=65535, required=False, desc='Optional UDP port for this host')
+policy_snmp_server_enhanced_SNMP_USERS:
+  username: str(min=1, max=64, desc='SNMPv3 user name')
+  user_role: |-
+    enum(
+      'none',
+      'network-admin',
+      'network-operator',
+      'vdc-admin',
+      'vdc-operator',
+      required=False,
+      desc='User role/group. Use none when only configuring enforcePriv or use-ipv4acl for an existing user'
+    )
+  auth_algo: |-
+    enum(
+      'none',
+      'md5',
+      'sha',
+      'sha-224',
+      'sha-256',
+      'sha-384',
+      'sha-512',
+      required=False,
+      desc='SNMPv3 authentication algorithm'
+    )
+  auth_password: str(min=1, max=134, required=False, desc='SNMPv3 authentication password or key')
+  priv_protocol: enum('none', 'des', 'aes-128', 'aes-256', required=False, desc='SNMPv3 privacy protocol')
+  priv_password: str(min=1, max=134, required=False, desc='SNMPv3 privacy password or key')
+  key_type: enum('none', 'localizedkey', 'localizedV2key', required=False, desc='Optional SNMPv3 key type')
+  enforce_priv: bool(required=False, desc='Configure snmp-server user <user> enforcePriv')
+  ipv4_acl: str(min=1, max=64, required=False, desc='Configure snmp-server user <user> use-ipv4acl')
+  ipv6_acl: str(min=1, max=64, required=False, desc='Configure snmp-server user <user> use-ipv6acl')
+policy_snmp_server_enhanced_SNMP_ENABLED_TRAPS:
+  trap_suffix: str(min=1, max=160, desc="CLI suffix after 'snmp-server enable traps'")
+policy_snmp_server_enhanced_SNMP_CONTEXTS:
+  context_name: str(min=1, max=64, desc='SNMP context name')
+  vrf_name: str(min=1, max=64, desc='VRF mapped to this SNMP context')
+policy_SPAN:
+  sources: any(list(include('policy_SPAN_sources'), min=1), str(min=1), desc='Source(s)')
+  vlanFilters: |-
+    any(
+      list(include('policy_SPAN_vlanFilters'), min=1),
+      str(min=1),
+      required=False,
+      desc='VLAN filter(s)'
+    )
+policy_SPAN_sources:
+  source_type: enum('vlan', 'interface', 'sup-eth0', desc='Interface, sup-eth0 or VLAN')
+  source_value: |-
+    str(
+      min=1,
+      max=128,
+      desc='One or more ethernet port(s) eg: ethernet1/1, e1/5-7, port-channel(s) eg: port-channel1, port-chan'
+      'nel7-9, or VLAN(s) eg: 1,5'
+    )
+  direction_interface: |-
+    enum(
+      'tx',
+      'rx',
+      'both',
+      required=False,
+      desc='Traffic direction to copy as ingress, egress, or both. Limited to rx only for sup-eth0 and some VL'
+      'AN source platforms'
+    )
+policy_SPAN_vlanFilters:
+  filter_value: str(min=1, max=128, desc='A VLAN, or comma separated list, or range of VLANs')
+policy_static_route_v4_v6:
+  staticRoutes: |-
+    any(
+      list(include('policy_static_route_v4_v6_staticRoutes'), min=1),
+      str(min=1),
+      required=False,
+      desc='Static route information'
+    )
+policy_static_route_v4_v6_staticRoutes:
+  ip_version: enum('IPv4', 'IPv6', desc='IPv4 or IPv6 static route')
+  ipv4_prefix: ip(version=4, nd_type='ipv4addresswithsubnet', required=False, desc='Example 192.0.2.1/24')
+  ipv6_prefix: ip(version=6, nd_type='ipv6addresswithsubnet', required=False, desc='Example 2001::192:0:2:0/112')
+  next_hop: |-
+    ip(
+      nd_type='ipaddress',
+      required=False,
+      desc='IPv4 or IPv6 next hop address. Optional when next hop interface is specified'
+    )
+  next_hop_interface: str(required=False, desc='Interface used as next hop. Can be used with or without next hop address')
+  route_preference: int(min=1, max=255, required=False, desc='Default route preference is 1')
+  next_hop_name: str(min=1, max=50, required=False, desc='Name tagged with this static route')
+  tag: int(min=0, max=4294967295, required=False, desc='Tag associated with static route')
+  track_id: int(min=1, max=512, required=False, desc='Object ID of object to be tracked')
+  next_hop_vrf: str(min=1, max=32, required=False, desc='VRF of next hop if different from this VRF')
+policy_switch_user_passphrase:
+  SWITCH_USER_PASSPHRASES: |-
+    any(
+      list(include('policy_switch_user_passphrase_SWITCH_USER_PASSPHRASES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure passphrase settings for one or more local users.'
+    )
+policy_switch_user_passphrase_SWITCH_USER_PASSPHRASES:
+  username: |-
+    str(
+      min=1,
+      max=128,
+      matches='^[a-zA-Z0-9_.+-]*$',
+      desc='Local user name, max size 128. Allowed characters: letters, digits, underscore, hyphen, dot, and p'
+      'lus'
+    )
+  configure_passphrase_lifetime: |-
+    bool(
+      required=False,
+      desc='Include lifetime in this user command. Disable to preserve an omitted source option.'
+    )
+  passphrase_lifetime: int(min=0, max=99999, required=False, desc='Lifetime of passphrase in days')
+  configure_passphrase_warntime: |-
+    bool(
+      required=False,
+      desc='Include warntime in this user command. Disable to preserve an omitted source option.'
+    )
+  passphrase_warntime: int(min=0, max=99999, required=False, desc='Warning time of passphrase in days')
+  configure_passphrase_gracetime: |-
+    bool(
+      required=False,
+      desc='Include gracetime in this user command. Disable to preserve an omitted source option.'
+    )
+  passphrase_gracetime: int(min=0, max=99999, required=False, desc='Grace period of passphrase in days')
+policy_TelemetrySensor_EF:
+  PATHCMDS: |-
+    any(
+      list(
+        str(
+          min=1,
+          desc='List of path object commands. It can either be a DME path or CLI commands, in case of NXAPI'
+        )
+      ),
+      str(min=1),
+      required=False,
+      desc='List of path object commands. It can either be a DME path or CLI commands, in case of NXAPI'
+    )
+policy_vlan_acl:
+  matches: |-
+    any(
+      list(include('policy_vlan_acl_matches'), min=1),
+      str(min=1),
+      required=False,
+      desc='Match on previously defined IP, IPv6, or MAC access-lists'
+    )
+policy_vlan_acl_matches:
+  match_type: enum('ip', 'ipv6', 'mac', desc='IP, IPv6, or MAC')
+  match_value: str(min=1, max=64, desc='Name of access-list.  Must be a previously defined list.')
+policy_vlan_igmp_snooping:
+  MROUTER_INTERFACES: |-
+    any(
+      list(include('policy_vlan_igmp_snooping_MROUTER_INTERFACES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure static multicast router interfaces'
+    )
+  REPORT_FLOOD_INTERFACES: |-
+    any(
+      list(include('policy_vlan_igmp_snooping_REPORT_FLOOD_INTERFACES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Ethernet or port-channel interfaces for report flooding'
+    )
+  STATIC_GROUPS: |-
+    any(
+      list(include('policy_vlan_igmp_snooping_STATIC_GROUPS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure static group membership'
+    )
+policy_vlan_igmp_snooping_MROUTER_INTERFACES:
+  mrouter_interface: str(min=1, desc='Ethernet or port-channel interface')
+policy_vlan_igmp_snooping_REPORT_FLOOD_INTERFACES:
+  report_flood_interface: str(min=1, desc='Ethernet or port-channel interface')
+policy_vlan_igmp_snooping_STATIC_GROUPS:
+  group_ip: ip(version=4, nd_type='ipv4address', desc='Group IPv4 address')
+  group_interface: str(min=1, desc='Ethernet or port-channel interface for static group')
+  source_ip: |-
+    ip(
+      version=4,
+      nd_type='ipv4address',
+      required=False,
+      desc='Optional source IPv4 address for (S,G) channel'
+    )
+  vsi_interface: bool(required=False, desc='Enable if interface is a VSI')
+policy_vrf_context_enhanced:
+  NAME_SERVERS: |-
+    any(
+      list(include('policy_vrf_context_enhanced_NAME_SERVERS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure one or more VRF name-server lines.'
+    )
+  PIM_RP_ENTRIES: |-
+    any(
+      list(include('policy_vrf_context_enhanced_PIM_RP_ENTRIES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Configure one or more VRF-scoped ip pim rp-address commands.'
+    )
+  ADDRESS_FAMILIES: |-
+    any(
+      list(include('policy_vrf_context_enhanced_ADDRESS_FAMILIES'), min=1),
+      str(min=1),
+      required=False,
+      desc='Address-family contexts to configure under this VRF.'
+    )
+  ROUTE_TARGETS: |-
+    any(
+      list(include('policy_vrf_context_enhanced_ROUTE_TARGETS'), min=1),
+      str(min=1),
+      required=False,
+      desc='Route-target import/export entries under the selected address family.'
+    )
+policy_vrf_context_enhanced_NAME_SERVERS:
+  name_server_addresses: |-
+    list(
+      ip(
+        nd_type='ipaddress',
+        desc='One or more IPv4/IPv6 name-server addresses. Entries with the same use-vrf are generated as a sing'
+        'le CLI line.'
+      ),
+      desc='One or more IPv4/IPv6 name-server addresses. Entries with the same use-vrf are generated as a sing'
+      'le CLI line.'
+    )
+  use_vrf: |-
+    str(
+      min=1,
+      max=32,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Optional use-vrf name for this name-server line.'
+    )
+policy_vrf_context_enhanced_PIM_RP_ENTRIES:
+  rp_address: ip(version=4, nd_type='ipv4address', desc='IPv4 RP address.')
+  rp_policy_type: |-
+    enum(
+      'none',
+      'group-list',
+      'prefix-list',
+      'route-map',
+      required=False,
+      desc='Select optional group-list, prefix-list, or route-map policy for this RP.'
+    )
+  group_list_prefix: |-
+    ip(
+      version=4,
+      nd_type='ipv4addresswithsubnet',
+      required=False,
+      desc='Group range prefix for this static RP.'
+    )
+  prefix_list_name: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Prefix-list policy name for static RP. Max size 63.'
+    )
+  route_map_name: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Route-map policy name for static RP. Max size 63.'
+    )
+  bidir: bool(required=False, desc='Append bidir to this static RP command.')
+  override: bool(required=False, desc='Append override to this static RP command.')
+policy_vrf_context_enhanced_ADDRESS_FAMILIES:
+  address_family: enum('ipv4_unicast', 'ipv6_unicast', desc='VRF address family.')
+  import_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Route-map name for route-map based VRF import.'
+    )
+  export_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc='Route-map name for route-map based VRF export.'
+    )
+  import_vrf_advertise_vpn: bool(required=False, desc="Generate 'import vrf advertise-vpn'.")
+  import_vrf_default_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc="Route-map name for 'import vrf default map'."
+    )
+  import_vrf_default_max_prefix: |-
+    int(
+      min=1,
+      max=2147483647,
+      required=False,
+      desc="Optional maximum prefix limit for 'import vrf default <limit> map'."
+    )
+  import_vrf_default_map_advertise_vpn: bool(required=False, desc="Append advertise-vpn to 'import vrf default map'.")
+  export_vrf_allow_vpn: bool(required=False, desc="Generate 'export vrf allow-vpn'.")
+  export_vrf_default_map: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      required=False,
+      desc="Route-map name for 'export vrf default map'."
+    )
+  export_vrf_default_max_prefix: |-
+    int(
+      min=1,
+      max=2147483647,
+      required=False,
+      desc="Optional maximum prefix limit for 'export vrf default <limit> map'."
+    )
+  export_vrf_default_map_allow_vpn: bool(required=False, desc="Append allow-vpn to 'export vrf default map'.")
+policy_vrf_context_enhanced_ROUTE_TARGETS:
+  address_family: enum('ipv4_unicast', 'ipv6_unicast', desc='Address family for this route-target.')
+  direction: enum('import', 'export', 'both', desc='Route-target direction.')
+  route_target: |-
+    str(
+      min=1,
+      max=63,
+      matches='^[^\\s]+$',
+      desc='Route-target value, for example auto, 65000:100, or 192.0.2.1:100.'
+    )
+  evpn: bool(required=False, desc='Append evpn to this route-target command.')
+policy_vrf_rt:
+  RT_IMPORT: |-
+    any(
+      list(str(min=1, desc='Route target import')),
+      str(min=1),
+      required=False,
+      desc='Route target import'
+    )
+  RT_EXPORT: |-
+    any(
+      list(str(min=1, desc='Route target export')),
+      str(min=1),
+      required=False,
+      desc='Route target export'
+    )

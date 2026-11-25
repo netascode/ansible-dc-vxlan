@@ -28,6 +28,25 @@ The `validate` role ensures that the data model is correct and that the data mod
 
 As part of the VXLAN as Code service from Cisco, you will also be able to utilize the semantic validation feature to make sure that the data model matches the intended expected values. This is a powerful feature that allows you to ensure that the data model is correct before it is deployed to the network. Additonally the validate role allows creation of rules that can be used to prevent operators from making specific configurations that are not allowed in the network. These can be as simple as enforcing proper naming conventions to more complex rules for interconnectivity issues that should be avoided. These rules are coded in Python and can be constructed as part of the Services as Code offer.
 
+#### Structured policy parameters
+
+Rule 550 validates structured policy `template_vars` with
+[the generated Yamale schema](resources/policy_json_params_schema.yml) before preparation.
+The separate [encoding registry](resources/policy_json_params.yml) maps canonical field names
+to ND nvPairs; its field names and encoded output are unchanged by the validation engine.
+The schema covers 47 policy/device templates from the ND 4.3.1 snapshot and checks required
+values, unknown fields, types, choices, ranges, text lengths/patterns and IP/MAC formats.
+
+Write integer and boolean fields as native YAML values, not quoted strings. Whole numbers in
+text fields and numeric/boolean choices are validated as their wire text without changing
+the model. Known null, blank-string and empty-list fields count as omitted; required fields
+therefore fail validation. YAML `filename` input follows the same validation path.
+
+Raw top-level encoded strings retain pass-through support, and scalar `env_var_` placeholders
+are not value-validated before runtime substitution. Conditional/cross-field requirements
+and switch/interface existence remain with ND. Install [the Python requirements](requirements.txt),
+including Yamale, alongside the collection.
+
 ### Create Role
 
 Role: [cisco.nac_dc_vxlan.dtc.create](https://github.com/netascode/ansible-dc-vxlan/blob/develop/roles/dtc/create/README.md)
