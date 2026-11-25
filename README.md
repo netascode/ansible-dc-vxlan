@@ -347,6 +347,10 @@ This collection has been tested against following Ansible Core versions:
 * `2.16.x`
 * `2.17.x`
 * `2.18.x`
+* `2.19.x`
+* `2.20.x`
+* `2.21.x`
+* `2.22.x`
 
 Plugins, roles and modules within a collection may be tested with only specific Ansible versions.
 A collection may contain metadata that identifies these versions.

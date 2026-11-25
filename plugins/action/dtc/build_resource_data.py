@@ -383,26 +383,38 @@ class ResourceDataBuilder:
             template_content = f.read()
 
         templar = self.action_module._templar
-        original_loader = templar.environment.loader
+        # ansible-core >= 2.19 deprecates Templar.environment and requires
+        # templates to be explicitly trusted and no longer accepts convert_data.
+        engine = getattr(templar, '_engine', None)
+        environment = engine.environment if engine is not None else templar.environment
+        original_loader = environment.loader
+        try:
+            from ansible.template import trust_as_template
+            template_content = trust_as_template(template_content)
+            render_kwargs = {}
+        except ImportError:
+            render_kwargs = {'convert_data': False}
 
         # Add role templates dir to Jinja2 loader for {% include %} and {% import %}
         new_loader = ChoiceLoader([
             FileSystemLoader(template_dir),
             original_loader,
         ])
-        templar.environment.loader = new_loader
+        environment.loader = new_loader
         old_vars = templar.available_variables
+        render_vars = self.task_vars.copy()
+        render_vars['omit'] = '__omit_place_holder__'
 
         try:
-            templar.available_variables = self.task_vars
+            templar.available_variables = render_vars
 
             rendered = templar.template(
                 template_content,
                 preserve_trailing_newlines=True,
-                convert_data=False,
+                **render_kwargs,
             )
         finally:
-            templar.environment.loader = original_loader
+            environment.loader = original_loader
             templar.available_variables = old_vars
 
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
