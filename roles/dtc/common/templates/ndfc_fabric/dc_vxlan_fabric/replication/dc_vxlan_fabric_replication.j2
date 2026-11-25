@@ -1,10 +1,10 @@
 {# Auto-generated NDFC DC VXLAN EVPN Replication config data structure for fabric {{ vxlan.fabric.name }} #}
 {# In previous releases of NDFC, NDFC supported an IPv6 underlay with ingress replication (IR). #}
-{# Beginning with the NDFC 12.2.2 release, NDFC added support for multicast replication. #}
-{# Therefore, if enable_ipv6_underlay is true and the NDFC version is 12.2.1, then the replication mode defautls to ingress replication (IR) #}
-{# whereas if enable_ipv6_underlay is true and the NDFC version is 12.2.2 or later, then the replication mode is user defined as multicast or ingress replication. #}
+{# Beginning with the NDFC 12.2.2 release (ND 3.2.1), NDFC added support for multicast replication. #}
+{# Therefore, if enable_ipv6_underlay is true and ND is older than 3.2.1 (NDFC 12.2.1), the replication settings are skipped and NDFC defaults to ingress replication (IR), #}
+{# whereas on ND 3.2.1 (NDFC 12.2.2) or later the replication mode is user defined as multicast or ingress replication. #}
 {% if ( (vxlan.underlay.general.enable_ipv6_underlay | default(defaults.vxlan.underlay.general.enable_ipv6_underlay) | ansible.builtin.bool) and
-        (nd_version | cisco.nac_dc_vxlan.version_compare('3.2.1', '<=')) ) %}
+        (nd_version | cisco.nac_dc_vxlan.version_compare('3.2.1', '<')) ) %}
 {% else %}
   REPLICATION_MODE: {{ vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title }}
 {% if (vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | title) == 'Multicast' %}
