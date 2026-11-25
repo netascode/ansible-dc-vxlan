@@ -41,7 +41,9 @@ class PreparePlugin:
     `filename` convention; a .yml/.yaml file for a registered template is loaded
     into template_vars before encoding. Field specs are recursive, so nested
     structureArrays (e.g. route_map_enhanced entries -> rule_entries) and scalar
-    lists are supported.
+    lists are supported. A param declared with `type: csv` (an NDFC string[] or
+    ipAddress[] template parameter) is a plain list of values, joined into the
+    comma-separated string NDFC expects.
     """
 
     def __init__(self, **kwargs):
@@ -71,6 +73,12 @@ class PreparePlugin:
                 value = template_vars.get(key)
                 # Only encode structured input; a raw JSON string is passed through.
                 if not isinstance(value, list):
+                    continue
+
+                # NDFC string[]/ipAddress[] template parameter: a list of scalars
+                # rather than a structureArray (e.g. vrf_rt RT_IMPORT -> "a,b").
+                if param.get('type') in ('csv', 'list'):
+                    template_vars[key] = self._encode_field(dict(param, ndfc=key), value)[1]
                     continue
 
                 wrapper_key = param.get('wrapper_key', key)
@@ -108,7 +116,10 @@ class PreparePlugin:
             entry = entry or {}
             row = {}
             for snake_name, field_spec in fields.items():
-                ndfc_name, cell = cls._encode_field(field_spec, entry.get(snake_name))
+                value = entry.get(snake_name)
+                if value == [] or (isinstance(value, str) and not value.strip()):
+                    value = None
+                ndfc_name, cell = cls._encode_field(field_spec, value)
                 row[ndfc_name] = cell
             encoded.append(row)
         return encoded
@@ -152,7 +163,7 @@ class PreparePlugin:
                 vals = [value]
             return ndfc_name, cls._maybe_stringify(field_spec, [cls._scalar(v) for v in vals])
 
-        # Plain scalar (an accompanying enum is validation-only).
+        # Remaining fields are scalar nvPairs; validation is handled by Yamale.
         return ndfc_name, cls._scalar(value)
 
     @staticmethod
