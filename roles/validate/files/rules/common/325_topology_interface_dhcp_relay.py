@@ -1,6 +1,7 @@
 class Rule:
     id = "325"
-    description = "Verify DHCP relay configuration: each dhcp_relay_servers entry requires both address and vrf; at most 4 servers on an SVI and 16 on routed, routed_po and routed_sub"
+    description = """Verify DHCP relay configuration: each dhcp_relay_servers entry requires both address and vrf;
+        at most 4 servers on an SVI and 16 on routed, routed_po and routed_sub"""
     severity = "HIGH"
 
     # SVI has four fixed relay slots; the routed parents take a list of up to 16
