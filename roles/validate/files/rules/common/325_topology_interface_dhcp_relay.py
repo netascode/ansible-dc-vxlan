@@ -1,9 +1,10 @@
 class Rule:
     id = "325"
-    description = "Verify DHCP relay configuration: each dhcp_relay_servers entry requires both address and vrf; at most 4 servers are supported"
+    description = "Verify DHCP relay configuration: each dhcp_relay_servers entry requires both address and vrf; at most 4 servers on an SVI and 16 on routed, routed_po and routed_sub"
     severity = "HIGH"
 
-    MAX_SERVERS = 4
+    # SVI has four fixed relay slots; the routed parents take a list of up to 16
+    MAX_SERVERS = {'vlan': 4, 'routed': 16, 'routed_po': 16, 'routed_sub': 16}
 
     @classmethod
     def match(cls, data_model):
@@ -19,13 +20,14 @@ class Rule:
                 if not servers:
                     continue
 
-                # Check 1: at most 4 DHCP relay servers
-                if len(servers) > cls.MAX_SERVERS:
+                # Check 1: per-mode server limit
+                max_servers = cls.MAX_SERVERS.get(interface.get('mode'), 4)
+                if len(servers) > max_servers:
                     results.append(
                         f"For switch {switch.get('name')} "
                         f"interface {interface.get('name')} "
                         f"dhcp_relay_servers has {len(servers)} entries; "
-                        f"at most {cls.MAX_SERVERS} are supported."
+                        f"at most {max_servers} are supported for mode {interface.get('mode')}."
                     )
 
                 # Check 2: each entry requires both address and vrf
