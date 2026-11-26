@@ -2,6 +2,12 @@ class Rule:
     id = "407"
     description = "Verify private VLAN network attributes"
     severity = "HIGH"
+    # Fields the Pvlan_Secondary_Network template does not declare.
+    SECONDARY_FORBIDDEN = (
+        'vrf_name', 'gw_ip_address', 'gw_ipv6_address', 'secondary_ip_addresses', 'dhcp_servers',
+        'dhcp_loopback_id', 'ipv4_acl_in', 'mtu_l3intf', 'int_desc', 'route_tag', 'vlan_netflow_monitor',
+    )
+    SECONDARY_FORBIDDEN_TRUE = ('arp_suppress', 'l3gw_on_border', 'netflow_enable', 'trm_enable', 'xconnect')
 
     @classmethod
     def match(cls, data_model):
@@ -40,9 +46,12 @@ class Rule:
                     isolated_per_primary.setdefault(primary, []).append(name)
                 if not net.get('is_l2_only'):
                     results.append(prefix + f"is_l2_only must be true when pvlan_type is '{pvlan_type}'.")
-                for key in ('vrf_name', 'gw_ip_address', 'gw_ipv6_address'):
+                for key in cls.SECONDARY_FORBIDDEN:
                     if net.get(key) is not None:
                         results.append(prefix + f"{key} is not supported when pvlan_type is '{pvlan_type}'.")
+                for key in cls.SECONDARY_FORBIDDEN_TRUE:
+                    if net.get(key) is True:
+                        results.append(prefix + f"{key} cannot be true when pvlan_type is '{pvlan_type}'.")
             elif primary is not None:
                 results.append(prefix + "pvlan_primary is only valid when pvlan_type is 'isolated' or 'community'.")
 
