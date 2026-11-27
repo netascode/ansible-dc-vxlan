@@ -191,8 +191,8 @@ factory_defaults:
             fec: auto
             enable_storm_control: false
             storm_control_action: default
-            flow_control_receive: true
-            flow_control_send: true
+            flow_control_receive: false
+            flow_control_send: false
             logging_event_port_link_status: false
             enable_netflow: false
           topology_switch_trunk_interface:
@@ -224,8 +224,8 @@ factory_defaults:
             fec: auto
             enable_storm_control: false
             storm_control_action: default
-            flow_control_receive: true
-            flow_control_send: true
+            flow_control_receive: false
+            flow_control_send: false
             guard_mode: none
             enable_netflow: false
           topology_switch_access_po_interface:
