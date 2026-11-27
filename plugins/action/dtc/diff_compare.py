@@ -397,8 +397,10 @@ class ActionModule(ActionBase):
         #  - Loopback Interfaces        (Type: lo)
         #  - Dot1Q Sub-Interfaces       (Type: eth)
         #  - vPC Interfaces             (Type: vpc)
+        #  - SVI Interfaces             (Type: svi)
 
         # Remove in the reverse order to avoid dependency issues
+        svi_interfaces = [item for item in removed_items if item.get('type') == 'svi']
         vpc_interfaces = [item for item in removed_items if item.get('type') == 'vpc']
         loopback_interfaces = [item for item in removed_items if item.get('type') == 'lo']
         port_channels = [item for item in removed_items if item.get('type') == 'pc']
@@ -407,5 +409,5 @@ class ActionModule(ActionBase):
         breakout_interfaces = [item for item in removed_items if item.get('type') == 'breakout']
 
         # Return ordered list: port-channels first, then ethernet interfaces, then others
-        all_interfaces = vpc_interfaces + loopback_interfaces + port_channels + routed_sub_interfaces + ethernet_interfaces + breakout_interfaces
+        all_interfaces = svi_interfaces + vpc_interfaces + loopback_interfaces + port_channels + routed_sub_interfaces + ethernet_interfaces + breakout_interfaces
         return all_interfaces
