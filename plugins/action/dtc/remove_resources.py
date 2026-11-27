@@ -187,7 +187,11 @@ class ResourceRemover(PipelineRunnerBase):
         if self.run_map_diff_run and not self.force_run_all:
             diff = resource_entry.get('diff')
             if diff and isinstance(diff, dict):
-                removed = diff.get('removed', [])
+                # The vPC pairing owns the peer-link; dcnm_interface refuses to delete mode peer_link
+                removed = [
+                    item for item in diff.get('removed', [])
+                    if (item.get('profile') or {}).get('mode') != 'peer_link'
+                ]
                 if removed:
                     return (removed, default_state)
 
