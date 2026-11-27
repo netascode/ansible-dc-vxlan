@@ -11,6 +11,7 @@
 {% set networks = data_model_extended.vxlan.overlay.networks %}
 {% endif %}
 {% for net in networks %}
+{% set _pvlan_secondary = net['pvlan_type'] | default('') in ['isolated', 'community'] %}
 - net_name: {{ net['name'] }}
 {# ------------------------------------------------------ #}
 {# Properties Section                                     #}
@@ -19,7 +20,10 @@
   vrf_name: {{ net['vrf_name'] | default(omit) }}
   net_id: {{ net['net_id'] | default(omit) }}
   vlan_id: {{ net['vlan_id'] | default(omit) }}
+  pvlan_type: {{ net['pvlan_type'] | default(omit) }}
+  pvlan_primary: {{ net['pvlan_primary'] | default(omit) }}
   vlan_name: {{ net['vlan_name'] | default(omit) }}
+{% if not _pvlan_secondary %}
   gw_ip_subnet: {{ net['gw_ip_address'] | default(omit) }}
 {% if ndfc_supports_ipv4_acl_in and (net.ipv4_acl_in is defined or defaults.vxlan.overlay.networks.ipv4_acl_in is defined) %}
   ipv4_acl_in: {{ net['ipv4_acl_in'] | default(defaults.vxlan.overlay.networks.ipv4_acl_in) | to_json }}
@@ -54,19 +58,24 @@
   int_desc: {{ net['int_desc'] | default(defaults.vxlan.overlay.networks.net_description) }}
   l3gw_on_border: {{ net['l3gw_on_border'] | default(defaults.vxlan.overlay.networks.l3gw_on_border) }}
   mtu_l3intf: {{ net['mtu_l3intf'] | default(defaults.vxlan.overlay.networks.mtu_l3intf) }}
+{% endif %}
 {% if (data_model_extended.vxlan.underlay.general.replication_mode | default(defaults.vxlan.underlay.general.replication_mode) | lower) == 'multicast' %}
   multicast_group_address: {{ net['multicast_group_address'] | default(defaults.vxlan.overlay.networks.multicast_group_address) }}
 {% endif %}
+{% if not _pvlan_secondary %}
   netflow_enable: {{ net['netflow_enable'] | default(defaults.vxlan.overlay.networks.netflow_enable) }}
 {% if net['netflow_enable'] is defined and net['netflow_enable'] | ansible.builtin.bool %}
   vlan_nf_monitor: {{ net['vlan_netflow_monitor'] | default(omit) }}
 {% endif %}
+{% endif %}
   route_target_both: {{ net['route_target_both'] | default(defaults.vxlan.overlay.networks.route_target_both) }}
+{% if not _pvlan_secondary %}
   routing_tag: {{ net['route_tag'] | default(defaults.vxlan.overlay.networks.route_tag) }}
   trm_enable: {{ net['trm_enable'] | default(defaults.vxlan.overlay.networks.trm_enable) }}
 {#  trmv6_enable: {{ net['trmv6_enable'] | default(defaults.vxlan.overlay.networks.trmv6_enable) }} #}
 {% if ndfc_version | cisco.nac_dc_vxlan.version_compare('12.4.1', '>=') %}
   xconnect: {{ net['xconnect'] | default(defaults.vxlan.overlay.networks.xconnect) }}
+{% endif %}
 {% endif %}
 {# ------------------------------------------------------ #}
 {# Attach Group Section #}
