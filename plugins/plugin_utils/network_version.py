@@ -22,52 +22,27 @@
 
 """Resolve the network module's version control from controller discovery."""
 
-import re
+
+IPV4_ACL_IN_SMU_VERSION = "4.3.1.0175006017"
+
+# Capability signal passed to dcnm_network/dcnm_interface when the SMU patch is
+# active. The patch enables a family of features (network ipv4_acl_in, interface
+# extended properties, ...), not just one. NaC verifies the SMU; the module
+# trusts this fixed value (it is a local control arg, not sent to ND).
+PATCH_VERSION = "4.4.1"
 
 
-IPV4_ACL_IN_SMU_VERSION = "4.3.1.0175006011"
+def resolve_network_patch_version(nd_patch_enabled=False, **_ignored):
+    """Return the patch_version capability signal when the SMU patch is active, else None.
 
+    The env-var lookup and exact active-SMU match are performed once in the
+    connectivity_check role, which exposes the boolean ``nd_patch_enabled``
+    fact. This resolver maps that single decision to the fixed ``"4.4.1"``
+    capability signal the base modules accept, or ``None`` to omit the argument
+    entirely. ``None`` is an internal omit indicator only; it must never be
+    forwarded as ``patch_version: null``.
 
-def _numeric_component(value):
-    """Return a canonical nonnegative version component, or None."""
-    if isinstance(value, bool):
-        return None
-    if isinstance(value, int):
-        return str(value) if value >= 0 else None
-    if isinstance(value, str) and re.fullmatch(r"[0-9]+", value.strip()):
-        return str(int(value.strip()))
-    return None
-
-
-def resolve_network_patch_version(nd_smu_versions=None, nd_version=None, nd_version_response=None):
-    """Select a compatible active SMU, otherwise the discovered numeric ND release.
-
-    SMU discovery returns a list of active versions, with no capability or
-    release ordering. Only the SMU supported by the base network module takes
-    precedence; unrelated SMUs must not hide a supported ND release.
-
-    Prefer /version.json's major/minor/maintenance fields. Keep the full
-    nd_version fact unchanged for consumers that use its patch letter, while
-    providing numeric components to dcnm_network. When only the full fact is
-    available, accept its numeric release and optional patch letter/build.
-
-    Older numeric releases are also returned so the base module can report its
-    version requirement when an ACL is requested. Unknown versions return None;
-    neither NDFC's application version nor an inventory override is used.
+    The former numeric-release fallback and fixed-SMU-literal path are removed:
+    the configured SMU alone determines eligibility.
     """
-    if isinstance(nd_smu_versions, (list, tuple)) and IPV4_ACL_IN_SMU_VERSION in nd_smu_versions:
-        return IPV4_ACL_IN_SMU_VERSION
-
-    if isinstance(nd_version_response, dict):
-        version_json = nd_version_response.get("json")
-        if isinstance(version_json, dict):
-            components = [_numeric_component(version_json.get(key)) for key in ("major", "minor", "maintenance")]
-            if all(component is not None for component in components):
-                return ".".join(components)
-
-    if not isinstance(nd_version, str):
-        return None
-    match = re.fullmatch(r"([0-9]+)\.([0-9]+)\.([0-9]+)(?:[a-zA-Z]|(?:\.[0-9]+)+)?", nd_version.strip())
-    if match is None:
-        return None
-    return ".".join(str(int(component)) for component in match.groups())
+    return PATCH_VERSION if nd_patch_enabled else None

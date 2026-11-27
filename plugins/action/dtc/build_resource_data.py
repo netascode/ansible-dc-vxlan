@@ -757,7 +757,12 @@ class ResourceDataBuilder:
             'interface_po_routed',
             'interface_loopback',
             'interface_dot1q',
+            'interface_dot1q_po',
+            'interface_vlan',
+            'interface_pvlan',
+            'interface_pvlan_po',
             'interface_vpc',
+            'interface_vpc_peer_link',
         ]
 
         interface_types_remove = [
@@ -772,6 +777,10 @@ class ResourceDataBuilder:
             'interface_po_routed',
             'interface_loopback',
             'interface_dot1q',
+            'interface_dot1q_po',
+            'interface_vlan',
+            'interface_pvlan',
+            'interface_pvlan_po',
             'interface_vpc',
         ]
 

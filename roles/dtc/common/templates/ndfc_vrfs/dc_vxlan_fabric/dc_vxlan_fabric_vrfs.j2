@@ -36,8 +36,8 @@
 {% if vrf['netflow_enable'] is defined and vrf['netflow_enable'] | ansible.builtin.bool %}
   nf_monitor: {{ vrf['netflow_monitor'] }}
 {% endif %}
-{# Prior to NDFC 12.2.2, NDFC supported Tenant Routed Multicast (TRM) IPv4. #}
-{# With NDFC 12.2.2, NDFC added support for TRMv6 with a new tab TRM on the Create VRF page for enabling forwarding of multicast traffic for IPv4 or IPv6. #}
+{# Prior to NDFC 12.2.2 (ND 3.2.1), NDFC supported Tenant Routed Multicast (TRM) IPv4. #}
+{# With NDFC 12.2.2 (ND 3.2.1), NDFC added support for TRMv6 with a new tab TRM on the Create VRF page for enabling forwarding of multicast traffic for IPv4 or IPv6. #}
 {# Existing IPv4 TRM fields are moved from the Advanced tab to the TRM tab. #}
   no_rp: {{ vrf['no_rp'] | default(defaults.vxlan.overlay.vrfs.no_rp) }}
   trm_enable: {{ vrf['trm_enable'] | default(defaults.vxlan.overlay.vrfs.trm_enable) }}
@@ -56,7 +56,7 @@
   underlay_mcast_ip: {{ vrf['underlay_mcast_ip'] | default(omit) }}
 {% endif %}
   redist_direct_rmap: {{ vrf['redist_direct_routemap'] | default(defaults.vxlan.overlay.vrfs.redist_direct_routemap) }}
-{% if (ndfc_version | cisco.nac_dc_vxlan.version_compare('12.2.2', '>=')) %}
+{% if (nd_version | cisco.nac_dc_vxlan.version_compare('3.2.1', '>=')) %}
   v6_redist_direct_rmap: {{ vrf['ipv6_redist_direct_routemap'] | default(defaults.vxlan.overlay.vrfs.ipv6_redist_direct_routemap) }}
 {% endif %}
 {# ------------------------------------------------------ #}

@@ -1,0 +1,31 @@
+{% from 'macros/translate_setting.j2' import translate %}
+---
+# This NDFC vPC peer-link port-channel config data structure is auto-generated
+# DO NOT EDIT MANUALLY
+#
+{% set _d = defaults.vxlan.topology.switches.interfaces.topology_switch_trunk_po_interface %}
+{% set pl_keys = ['enable_qos', 'qos_policy', 'enable_qos_stats', 'spanning_tree_port_type'] %}
+{% if nd_patch_enabled and data_model_extended.vxlan.topology.vpc_peers is defined and data_model_extended.vxlan.topology.vpc_peers is not none %}
+{% for vpc_peers_pair in data_model_extended.vxlan.topology.vpc_peers %}
+{% set peer1_switch = data_model_extended.vxlan.topology.switches | selectattr('name', 'equalto', vpc_peers_pair.peer1) | first | default({}) %}
+{% set pl = (peer1_switch.interfaces | default([])) | selectattr('mode', 'equalto', 'vpc_peer_link') | first | default({}) %}
+
+{% if pl.name is defined and (pl_keys | select('in', pl) | list | length > 0) %}
+{% set enable_qos = pl.enable_qos | default(_d.enable_qos) %}
+- name: {{ pl.name }}
+  type: pc
+  switch:
+    - {{ vpc_peers_pair.peer1_mgmt_ip_address }}
+    - {{ vpc_peers_pair.peer2_mgmt_ip_address }}
+  deploy: false
+  profile:
+    mode: peer_link
+    enable_qos: {{ enable_qos | lower }}
+{% if enable_qos %}
+    qos_policy: {{ pl.qos_policy | default('') | to_json }}
+{% endif %}
+    disable_qos_stats: {{ translate(pl.enable_qos_stats | default(_d.enable_qos_stats), {true: 'false', false: 'true'}) }}
+    spanning_tree_port_type: "{{ translate(pl.spanning_tree_port_type | default(_d.spanning_tree_port_type), {'none': 'no'}) }}"
+{% endif %}
+{% endfor %}
+{% endif %}
