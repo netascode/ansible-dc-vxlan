@@ -409,5 +409,8 @@ class ActionModule(ActionBase):
         breakout_interfaces = [item for item in removed_items if item.get('type') == 'breakout']
 
         # Return ordered list: port-channels first, then ethernet interfaces, then others
-        all_interfaces = svi_interfaces + vpc_interfaces + loopback_interfaces + port_channels + routed_sub_interfaces + ethernet_interfaces + breakout_interfaces
+        all_interfaces = (
+            svi_interfaces + vpc_interfaces + loopback_interfaces + port_channels
+            + routed_sub_interfaces + ethernet_interfaces + breakout_interfaces
+        )
         return all_interfaces
